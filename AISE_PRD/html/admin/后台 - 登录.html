@@ -1,0 +1,187 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>登录 - AICA 后台管理系统</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+
+    <script>
+        tailwind.config = {
+            theme: {
+                extend: {
+                    fontFamily: {
+                        sans: ['Inter', 'sans-serif'],
+                    },
+                    colors: {
+                        brand: {
+                            500: '#3b82f6',
+                            600: '#2563eb',
+                            700: '#1d4ed8',
+                        },
+                    },
+                    animation: {
+                        'fade-in-up': 'fadeInUp 0.5s ease-out forwards',
+                    },
+                    keyframes: {
+                        fadeInUp: {
+                            '0%': { opacity: '0', transform: 'translateY(20px)' },
+                            '100%': { opacity: '1', transform: 'translateY(0)' },
+                        }
+                    }
+                }
+            }
+        }
+    </script>
+    <style>
+        body { font-family: 'Inter', sans-serif; }
+        /* 背景纹理 */
+        .bg-pattern {
+            background-image: radial-gradient(rgba(255,255,255,0.1) 1px, transparent 1px);
+            background-size: 24px 24px;
+        }
+    </style>
+</head>
+<body class="h-screen w-full flex overflow-hidden bg-white">
+
+    <div class="hidden lg:flex w-1/2 bg-slate-900 relative flex-col justify-between p-16 text-white overflow-hidden">
+        <div class="absolute inset-0 bg-[url('https://images.unsplash.com/photo-1639322537228-f710d846310a?q=80&w=2832&auto=format&fit=crop')] bg-cover bg-center opacity-40"></div>
+        <div class="absolute inset-0 bg-gradient-to-br from-slate-900 via-slate-900/90 to-brand-900/50"></div>
+        <div class="absolute inset-0 bg-pattern opacity-20"></div>
+
+        <div class="relative z-10 flex items-center gap-3">
+            <div class="w-10 h-10 bg-gradient-to-br from-brand-500 to-indigo-500 rounded-lg flex items-center justify-center text-white font-bold text-xl shadow-lg border border-white/10">A</div>
+            <span class="font-bold text-xl tracking-tight text-white">AICA Admin</span>
+        </div>
+
+        <div class="relative z-10 max-w-md">
+            <h2 class="text-4xl font-bold mb-6 leading-tight">赋能 AI 人才<br>构建未来标准</h2>
+            <p class="text-slate-400 text-sm leading-relaxed">
+                AICA 人工智能应用创新人才培养工程后台管理系统。<br>
+                提供全流程的测评管理、题库维护与数据分析服务。
+            </p>
+        </div>
+
+        <div class="relative z-10 text-xs text-slate-500">
+            © 2025 AICA Talent Engineering. All rights reserved.
+        </div>
+    </div>
+
+    <div class="w-full lg:w-1/2 flex flex-col justify-center items-center p-8 relative bg-white">
+        
+        <div class="w-full max-w-md animate-fade-in-up">
+            <div class="text-center mb-10">
+                <h1 class="text-2xl font-bold text-slate-900">欢迎回来</h1>
+                <p class="text-slate-500 text-sm mt-2">请登录您的管理员账号</p>
+            </div>
+
+            <form onsubmit="event.preventDefault(); handleLogin();" class="space-y-6">
+                
+                <div>
+                    <label class="block text-xs font-bold text-slate-500 uppercase mb-2">管理员账号</label>
+                    <div class="relative">
+                        <div class="absolute inset-y-0 left-0 pl-4 flex items-center pointer-events-none">
+                            <i class="fa-regular fa-user text-slate-400"></i>
+                        </div>
+                        <input type="text" id="username" class="w-full pl-11 pr-4 py-3 rounded-xl border border-slate-200 text-slate-800 text-sm focus:border-brand-500 focus:ring-1 focus:ring-brand-500 outline-none transition" placeholder="请输入用户名/工号" required>
+                    </div>
+                </div>
+
+                <div>
+                    <label class="block text-xs font-bold text-slate-500 uppercase mb-2">密码</label>
+                    <div class="relative">
+                        <div class="absolute inset-y-0 left-0 pl-4 flex items-center pointer-events-none">
+                            <i class="fa-solid fa-lock text-slate-400"></i>
+                        </div>
+                        <input type="password" id="password" class="w-full pl-11 pr-12 py-3 rounded-xl border border-slate-200 text-slate-800 text-sm focus:border-brand-500 focus:ring-1 focus:ring-brand-500 outline-none transition" placeholder="请输入密码" required>
+                        
+                        <button type="button" onclick="togglePassword()" class="absolute inset-y-0 right-0 pr-4 flex items-center text-slate-400 hover:text-slate-600 cursor-pointer transition outline-none">
+                            <i class="fa-regular fa-eye" id="eye-icon"></i>
+                        </button>
+                    </div>
+                </div>
+
+                <button type="submit" id="login-btn" class="w-full bg-gradient-to-r from-brand-600 to-brand-700 hover:from-brand-700 hover:to-brand-800 text-white font-bold py-3.5 rounded-xl shadow-lg shadow-brand-500/30 transition-all transform active:scale-[0.98] flex items-center justify-center gap-2">
+                    <span>安全登录</span>
+                    <i class="fa-solid fa-arrow-right text-xs"></i>
+                </button>
+
+            </form>
+
+            <div class="mt-8 text-center">
+                <p class="text-xs text-slate-400">
+                    忘记密码或账号异常？请联系 <a href="#" class="text-brand-600 hover:underline">技术支持</a>
+                </p>
+            </div>
+        </div>
+
+        <div class="lg:hidden absolute bottom-6 text-[10px] text-slate-400">
+            AICA Admin System v2.0
+        </div>
+    </div>
+
+    <div id="toast" class="fixed top-6 left-1/2 transform -translate-x-1/2 bg-red-50 text-red-600 px-6 py-3 rounded-full shadow-lg border border-red-100 text-sm font-medium transition-all duration-300 -translate-y-20 opacity-0 flex items-center gap-2 z-50">
+        <i class="fa-solid fa-circle-exclamation"></i> <span id="toast-msg">账号或密码错误</span>
+    </div>
+
+    <script>
+        function togglePassword() {
+            const input = document.getElementById('password');
+            const icon = document.getElementById('eye-icon');
+            if (input.type === 'password') {
+                input.type = 'text';
+                icon.classList.remove('fa-eye');
+                icon.classList.add('fa-eye-slash');
+            } else {
+                input.type = 'password';
+                icon.classList.remove('fa-eye-slash');
+                icon.classList.add('fa-eye');
+            }
+        }
+
+        function handleLogin() {
+            const btn = document.getElementById('login-btn');
+            const originalContent = btn.innerHTML;
+            const user = document.getElementById('username').value;
+
+            // 模拟 Loading
+            btn.disabled = true;
+            btn.innerHTML = '<i class="fa-solid fa-circle-notch fa-spin"></i> 登录中...';
+            btn.classList.add('opacity-80', 'cursor-wait');
+
+            setTimeout(() => {
+                // 简单模拟：如果用户名为空则报错（虽然 required 属性已拦截，但在 JS 里保留逻辑）
+                if (!user) {
+                    showToast('请输入用户名');
+                    resetBtn();
+                    return;
+                }
+
+                // 模拟成功跳转
+                // window.location.href = 'admin-dashboard.html'; // 实际跳转
+                
+                // 这里演示跳转到刚才设计的"题库管理"作为首页
+                window.location.href = 'admin-question-list.html'; 
+            }, 1000);
+
+            function resetBtn() {
+                btn.disabled = false;
+                btn.innerHTML = originalContent;
+                btn.classList.remove('opacity-80', 'cursor-wait');
+            }
+        }
+
+        function showToast(msg) {
+            const toast = document.getElementById('toast');
+            if(msg) document.getElementById('toast-msg').innerText = msg;
+            
+            toast.classList.remove('-translate-y-20', 'opacity-0');
+            setTimeout(() => {
+                toast.classList.add('-translate-y-20', 'opacity-0');
+            }, 2500);
+        }
+    </script>
+</body>
+</html>

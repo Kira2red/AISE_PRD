@@ -1,0 +1,389 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>考生管理 - AICA 后台</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+
+    <script>
+        tailwind.config = {
+            theme: {
+                extend: {
+                    fontFamily: {
+                        sans: ['Inter', 'sans-serif'],
+                        mono: ['JetBrains Mono', 'monospace'],
+                    },
+                    colors: {
+                        brand: { 50: '#eff6ff', 100: '#dbeafe', 500: '#3b82f6', 600: '#2563eb', 700: '#1d4ed8' },
+                    },
+                    boxShadow: {
+                        'card': '0 1px 3px 0 rgba(0, 0, 0, 0.1), 0 1px 2px 0 rgba(0, 0, 0, 0.06)',
+                    }
+                }
+            }
+        }
+    </script>
+    <style>
+        body { background-color: #F8FAFC; }
+        .hide-scroll::-webkit-scrollbar { display: none; }
+        .nav-item.active::before {
+            content: ''; position: absolute; left: 0; top: 50%; transform: translateY(-50%);
+            width: 4px; height: 24px; background-color: #3b82f6; border-radius: 0 4px 4px 0;
+        }
+        tr.hover-row:hover td { background-color: #f8fafc; }
+        
+        /* Animations */
+        .modal-enter { animation: modalScaleIn 0.2s cubic-bezier(0.16, 1, 0.3, 1) forwards; }
+        @keyframes modalScaleIn { from { transform: scale(0.95); opacity: 0; } to { transform: scale(1); opacity: 1; } }
+        
+        .toast-enter { animation: toastSlideUp 0.3s cubic-bezier(0.16, 1, 0.3, 1) forwards; }
+        @keyframes toastSlideUp { from { transform: translate(-50%, 100%); opacity: 0; } to { transform: translate(-50%, 0); opacity: 1; } }
+    </style>
+</head>
+<body class="flex h-screen overflow-hidden text-slate-800 font-sans">
+
+    <aside class="w-64 bg-white border-r border-slate-200 flex flex-col flex-shrink-0 z-20">
+        <div class="h-16 flex items-center px-6 border-b border-slate-100">
+            <div class="w-8 h-8 bg-gradient-to-br from-brand-600 to-indigo-600 rounded-lg flex items-center justify-center text-white font-bold text-lg mr-3 shadow-sm">A</div>
+            <span class="font-bold text-lg text-slate-800 tracking-tight">AICA Admin</span>
+        </div>
+        <nav class="flex-1 overflow-y-auto py-4 space-y-1">
+            <a href="#" class="nav-item flex items-center gap-3 px-6 py-3 text-slate-500 hover:bg-slate-50 hover:text-brand-600 transition relative">
+                <i class="fa-solid fa-layer-group w-5 text-center"></i><span class="font-medium text-sm">题库管理</span>
+            </a>
+            <a href="#" class="nav-item flex items-center gap-3 px-6 py-3 text-slate-500 hover:bg-slate-50 hover:text-brand-600 transition relative">
+                <i class="fa-solid fa-file-lines w-5 text-center"></i><span class="font-medium text-sm">试卷管理</span>
+            </a>
+            <a href="#" class="nav-item flex items-center gap-3 px-6 py-3 text-slate-500 hover:bg-slate-50 hover:text-brand-600 transition relative">
+                <i class="fa-solid fa-graduation-cap w-5 text-center"></i><span class="font-medium text-sm">测评管理</span>
+            </a>
+            <div class="px-6 py-2 mt-4 text-xs font-bold text-slate-400 uppercase tracking-wider">考务与用户</div>
+            <a href="#" class="nav-item active flex items-center gap-3 px-6 py-3 text-brand-600 bg-brand-50 transition relative">
+                <i class="fa-solid fa-users w-5 text-center"></i><span class="font-medium text-sm">考生管理</span>
+            </a>
+            </nav>
+    </aside>
+
+    <main class="flex-1 flex flex-col min-w-0 bg-slate-50/50 relative">
+
+        <div id="view-list" class="flex flex-col h-full">
+            <header class="h-16 bg-white border-b border-slate-200 flex items-center justify-between px-8 flex-shrink-0 z-10">
+                <h1 class="text-xl font-bold text-slate-800">考生用户管理</h1>
+                <button class="bg-white border border-slate-200 hover:bg-slate-50 text-slate-700 text-sm font-medium px-4 py-2 rounded-lg shadow-sm transition flex items-center gap-2">
+                    <i class="fa-solid fa-download"></i> 导出名单
+                </button>
+            </header>
+
+            <div class="px-8 py-6">
+                <div class="bg-white rounded-xl shadow-card border border-slate-100 p-4 flex flex-wrap gap-4 items-center">
+                    <div class="relative w-80">
+                        <i class="fa-solid fa-magnifying-glass absolute left-3 top-1/2 transform -translate-y-1/2 text-slate-400 text-sm"></i>
+                        <input type="text" placeholder="输入姓名 / 手机号 / 身份证号..." class="w-full pl-9 pr-4 py-2 rounded-lg border border-slate-200 text-sm focus:border-brand-500 outline-none transition">
+                    </div>
+                    <select class="px-3 py-2 rounded-lg border border-slate-200 text-sm text-slate-600 bg-white outline-none hover:border-slate-300 cursor-pointer">
+                        <option value="">所在省份</option>
+                        <option value="beijing">北京市</option>
+                    </select>
+                    <select class="px-3 py-2 rounded-lg border border-slate-200 text-sm text-slate-600 bg-white outline-none hover:border-slate-300 cursor-pointer">
+                        <option value="">账号状态</option>
+                        <option value="1">正常</option>
+                    </select>
+                    <button class="ml-auto bg-brand-600 hover:bg-brand-700 text-white text-sm font-medium px-5 py-2 rounded-lg shadow-sm transition">查询</button>
+                </div>
+            </div>
+
+            <div class="flex-1 overflow-y-auto px-8 pb-8 custom-scroll">
+                <div class="bg-white rounded-xl shadow-card border border-slate-200 overflow-hidden">
+                    <table class="w-full text-left border-collapse">
+                        <thead>
+                            <tr class="border-b border-slate-100 bg-slate-50 text-xs uppercase text-slate-500 font-bold">
+                                <th class="p-4 pl-6">基本信息</th>
+                                <th class="p-4">联系方式</th>
+                                <th class="p-4">身份证号</th>
+                                <th class="p-4">所在地区</th>
+                                <th class="p-4">注册时间</th>
+                                <th class="p-4">状态</th>
+                                <th class="p-4 text-right pr-6">操作</th>
+                            </tr>
+                        </thead>
+                        <tbody class="text-sm text-slate-700 divide-y divide-slate-100">
+                            <tr class="hover-row transition">
+                                <td class="p-4 pl-6">
+                                    <div class="flex items-center gap-3">
+                                        <img src="https://api.dicebear.com/7.x/avataaars/svg?seed=ZhangSan" class="w-10 h-10 rounded-full bg-slate-100 border border-slate-200">
+                                        <div>
+                                            <p class="font-bold text-slate-800">张三</p>
+                                            <p class="text-xs text-slate-400 font-mono">ID: 20258899</p>
+                                        </div>
+                                    </div>
+                                </td>
+                                <td class="p-4">
+                                    <p class="font-mono">13800138000</p>
+                                    <p class="text-xs text-slate-400">zhangsan@example.com</p>
+                                </td>
+                                <td class="p-4 font-mono text-slate-600">11010120150101****</td>
+                                <td class="p-4">北京市 海淀区</td>
+                                <td class="p-4 text-slate-500 text-xs">2025-04-10 10:23</td>
+                                <td class="p-4">
+                                    <span class="inline-flex items-center gap-1.5 px-2.5 py-0.5 rounded-full text-xs font-bold bg-green-50 text-green-600 border border-green-100">
+                                        <span class="w-1.5 h-1.5 rounded-full bg-green-500"></span> 正常
+                                    </span>
+                                </td>
+                                <td class="p-4 text-right pr-6">
+                                    <div class="flex items-center justify-end gap-2">
+                                        <button onclick="openResetModal('张三', '20258899')" class="text-slate-400 hover:text-amber-500 px-2 py-1.5 transition" title="重置密码"><i class="fa-solid fa-key"></i></button>
+                                        <button onclick="openUserDetail()" class="text-brand-600 hover:text-brand-700 font-medium text-xs bg-blue-50 hover:bg-blue-100 px-3 py-1.5 rounded border border-blue-100 transition">详情/编辑</button>
+                                    </div>
+                                </td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
+
+        <div id="view-detail" class="hidden flex flex-col h-full bg-slate-100">
+            <header class="h-16 bg-white border-b border-slate-200 flex items-center justify-between px-6 flex-shrink-0 z-30 shadow-sm">
+                <div class="flex items-center gap-4">
+                    <button onclick="closeUserDetail()" class="w-8 h-8 rounded-full hover:bg-slate-100 flex items-center justify-center text-slate-500 transition">
+                        <i class="fa-solid fa-arrow-left"></i>
+                    </button>
+                    <div class="h-6 w-px bg-slate-200"></div>
+                    <div class="flex items-center gap-2">
+                        <span class="font-bold text-slate-800 text-lg">用户详情</span>
+                        <span class="bg-slate-100 text-slate-500 text-xs px-2 py-0.5 rounded font-mono">ID: 20258899</span>
+                    </div>
+                </div>
+                <div class="flex items-center gap-3">
+                    <button onclick="openResetModal('张三', '20258899')" class="text-slate-500 hover:text-brand-600 text-sm font-medium px-4 py-2 flex items-center gap-2 transition">
+                        <i class="fa-solid fa-key"></i> 重置密码
+                    </button>
+                    <button class="bg-brand-600 hover:bg-brand-700 text-white text-sm font-medium px-6 py-2 rounded-lg shadow-sm transition">
+                        保存修改
+                    </button>
+                </div>
+            </header>
+
+            <div class="flex-1 overflow-y-auto p-8 custom-scroll">
+                <div class="max-w-6xl mx-auto grid grid-cols-1 lg:grid-cols-3 gap-6">
+                    
+                    <div class="lg:col-span-2 space-y-6">
+                        
+                        <div class="bg-white rounded-xl shadow-card border border-slate-200 p-6">
+                            <h3 class="font-bold text-slate-900 mb-6 flex items-center gap-2">
+                                <i class="fa-solid fa-id-card text-brand-500"></i> 基础身份信息
+                            </h3>
+                            
+                            <div class="flex flex-col sm:flex-row gap-8 mb-6">
+                                <div class="flex flex-col items-center gap-3 flex-shrink-0">
+                                    <div class="w-28 h-28 rounded-full bg-slate-100 border-4 border-white shadow-md overflow-hidden relative group cursor-pointer">
+                                        <img src="https://api.dicebear.com/7.x/avataaars/svg?seed=ZhangSan" class="w-full h-full object-cover">
+                                        <div class="absolute inset-0 bg-black/30 flex items-center justify-center opacity-0 group-hover:opacity-100 transition">
+                                            <i class="fa-solid fa-camera text-white text-xl"></i>
+                                        </div>
+                                    </div>
+                                    <button class="text-xs text-brand-600 hover:text-brand-700 font-medium">更换照片</button>
+                                </div>
+
+                                <div class="flex-1 grid grid-cols-1 sm:grid-cols-2 gap-5">
+                                    <div>
+                                        <label class="block text-xs font-bold text-slate-500 uppercase mb-1.5">真实姓名</label>
+                                        <input type="text" value="张三" class="w-full px-3 py-2 rounded-lg border border-slate-200 text-sm focus:border-brand-500 focus:ring-1 outline-none transition font-medium text-slate-800">
+                                    </div>
+                                    <div>
+                                        <label class="block text-xs font-bold text-slate-500 uppercase mb-1.5">性别</label>
+                                        <select class="w-full px-3 py-2 rounded-lg border border-slate-200 text-sm bg-white focus:border-brand-500 focus:ring-1 outline-none transition">
+                                            <option value="M" selected>男</option>
+                                            <option value="F">女</option>
+                                        </select>
+                                    </div>
+                                    <div class="sm:col-span-2">
+                                        <label class="block text-xs font-bold text-slate-500 uppercase mb-1.5">身份证号</label>
+                                        <div class="relative">
+                                            <input type="text" value="110101201501011234" class="w-full px-3 py-2 rounded-lg border border-slate-200 text-sm font-mono focus:border-brand-500 focus:ring-1 outline-none transition text-slate-700">
+                                            <i class="fa-solid fa-lock absolute right-3 top-2.5 text-slate-400 text-xs" title="关键信息"></i>
+                                        </div>
+                                    </div>
+                                    <div>
+                                        <label class="block text-xs font-bold text-slate-500 uppercase mb-1.5">手机号码</label>
+                                        <input type="text" value="13800138000" class="w-full px-3 py-2 rounded-lg border border-slate-200 text-sm font-mono focus:border-brand-500 focus:ring-1 outline-none transition">
+                                    </div>
+                                    <div>
+                                        <label class="block text-xs font-bold text-slate-500 uppercase mb-1.5">电子邮箱</label>
+                                        <input type="email" value="zhangsan@example.com" class="w-full px-3 py-2 rounded-lg border border-slate-200 text-sm focus:border-brand-500 focus:ring-1 outline-none transition">
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+
+                        <div class="bg-white rounded-xl shadow-card border border-slate-200 p-6">
+                            <h3 class="font-bold text-slate-900 mb-6 flex items-center gap-2">
+                                <i class="fa-solid fa-house-user text-brand-500"></i> 监护人与地址
+                            </h3>
+                            <div class="grid grid-cols-1 sm:grid-cols-2 gap-6">
+                                <div>
+                                    <label class="block text-xs font-bold text-slate-500 uppercase mb-1.5">监护人姓名</label>
+                                    <input type="text" value="李四" class="w-full px-3 py-2 rounded-lg border border-slate-200 text-sm focus:border-brand-500 focus:ring-1 outline-none transition">
+                                </div>
+                                <div>
+                                    <label class="block text-xs font-bold text-slate-500 uppercase mb-1.5">监护人电话</label>
+                                    <input type="text" value="13800138000" class="w-full px-3 py-2 rounded-lg border border-slate-200 text-sm font-mono focus:border-brand-500 focus:ring-1 outline-none transition">
+                                </div>
+                                <div>
+                                    <label class="block text-xs font-bold text-slate-500 uppercase mb-1.5">所在省市</label>
+                                    <input type="text" value="北京市 海淀区" class="w-full px-3 py-2 rounded-lg border border-slate-200 text-sm focus:border-brand-500 focus:ring-1 outline-none transition" placeholder="省/市/区">
+                                </div>
+                                <div class="sm:col-span-2">
+                                    <label class="block text-xs font-bold text-slate-500 uppercase mb-1.5">详细寄送地址</label>
+                                    <textarea rows="2" class="w-full px-3 py-2 rounded-lg border border-slate-200 text-sm focus:border-brand-500 focus:ring-1 outline-none transition resize-none">中关村软件园一号楼A座</textarea>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="space-y-6">
+                        <div class="bg-white rounded-xl shadow-card border border-slate-200 p-6 h-full flex flex-col">
+                            <div class="flex justify-between items-center mb-6">
+                                <h3 class="font-bold text-slate-900 flex items-center gap-2">
+                                    <i class="fa-solid fa-clock-rotate-left text-brand-500"></i> 报考记录
+                                </h3>
+                                <span class="bg-slate-100 text-slate-500 text-xs px-2 py-1 rounded font-medium">共 2 次</span>
+                            </div>
+
+                            <div class="space-y-6 relative flex-1">
+                                <div class="absolute left-2.5 top-2 bottom-0 w-0.5 bg-slate-100"></div>
+
+                                <div class="relative pl-8 group">
+                                    <div class="absolute left-0 top-1.5 w-5 h-5 rounded-full bg-green-100 border-2 border-green-500 z-10 flex items-center justify-center">
+                                        <i class="fa-solid fa-check text-[10px] text-green-600"></i>
+                                    </div>
+                                    <div class="bg-slate-50 rounded-lg p-3 border border-slate-100 hover:border-brand-200 hover:shadow-sm transition">
+                                        <p class="font-bold text-slate-800 text-sm mb-1">Python 程序设计 (一级)</p>
+                                        <div class="flex justify-between text-xs mb-2">
+                                            <span class="text-slate-500">2025春季测评</span>
+                                            <span class="text-green-600 font-bold">已完成</span>
+                                        </div>
+                                        <div class="flex items-center gap-2 text-[10px] text-slate-400 border-t border-slate-200 pt-2">
+                                            <span><i class="fa-solid fa-award text-yellow-500"></i> 成绩: <strong class="text-slate-700">S级</strong></span>
+                                            <span class="ml-auto">2025-05-20</span>
+                                        </div>
+                                    </div>
+                                </div>
+
+                                <div class="relative pl-8 group">
+                                    <div class="absolute left-0 top-1.5 w-5 h-5 rounded-full bg-blue-100 border-2 border-blue-500 z-10 flex items-center justify-center">
+                                        <div class="w-1.5 h-1.5 rounded-full bg-blue-500"></div>
+                                    </div>
+                                    <div class="bg-slate-50 rounded-lg p-3 border border-slate-100 hover:border-brand-200 hover:shadow-sm transition">
+                                        <p class="font-bold text-slate-800 text-sm mb-1">AIGC 应用能力 (二级)</p>
+                                        <div class="flex justify-between text-xs mb-2">
+                                            <span class="text-slate-500">2025夏季测评</span>
+                                            <span class="text-blue-600 font-bold">报名成功</span>
+                                        </div>
+                                        <div class="flex items-center gap-2 text-[10px] text-slate-400 border-t border-slate-200 pt-2">
+                                            <span>支付: ¥199.00</span>
+                                            <span class="ml-auto">待考试</span>
+                                        </div>
+                                    </div>
+                                </div>
+
+                            </div>
+                        </div>
+                    </div>
+
+                </div>
+            </div>
+        </div>
+
+    </main>
+
+    <div id="modal-reset" class="fixed inset-0 z-50 hidden flex items-center justify-center bg-slate-900/50 backdrop-blur-sm transition-opacity opacity-0">
+        <div class="bg-white rounded-2xl shadow-xl w-96 p-6 transform scale-95 transition-transform" id="modal-reset-content">
+            <div class="flex flex-col items-center text-center">
+                <div class="w-12 h-12 bg-amber-50 rounded-full flex items-center justify-center mb-4">
+                    <i class="fa-solid fa-triangle-exclamation text-amber-500 text-xl"></i>
+                </div>
+                <h3 class="font-bold text-slate-800 text-lg mb-2">确认重置密码？</h3>
+                <p class="text-sm text-slate-500 leading-relaxed mb-6">
+                    您正在重置用户 <span id="reset-user-name" class="font-bold text-slate-800">张三</span> 的密码。<br>
+                    重置后，密码将变为 <span class="text-amber-600 font-mono font-bold bg-amber-50 px-1 rounded">身份证后 6 位</span>。
+                </p>
+                
+                <div class="flex gap-3 w-full">
+                    <button onclick="closeResetModal()" class="flex-1 px-4 py-2.5 text-sm font-medium text-slate-600 bg-slate-50 hover:bg-slate-100 rounded-lg transition">取消</button>
+                    <button onclick="confirmReset()" class="flex-1 px-4 py-2.5 text-sm font-bold text-white bg-slate-900 hover:bg-brand-600 rounded-lg shadow-lg transition" id="btn-confirm-reset">
+                        确认重置
+                    </button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div id="toast" class="fixed bottom-8 left-1/2 transform -translate-x-1/2 z-50 pointer-events-none opacity-0 transition-all duration-300 translate-y-10">
+        <div class="bg-slate-900 text-white px-6 py-3 rounded-full shadow-2xl flex items-center gap-3">
+            <i class="fa-solid fa-circle-check text-green-400 text-lg"></i>
+            <span class="font-medium text-sm">密码重置成功</span>
+        </div>
+    </div>
+
+    <script>
+        // 视图切换
+        function openUserDetail() {
+            document.getElementById('view-list').classList.add('hidden');
+            document.getElementById('view-detail').classList.remove('hidden');
+        }
+        function closeUserDetail() {
+            document.getElementById('view-detail').classList.add('hidden');
+            document.getElementById('view-list').classList.remove('hidden');
+        }
+
+        // 重置密码逻辑
+        const modal = document.getElementById('modal-reset');
+        const modalContent = document.getElementById('modal-reset-content');
+        const toast = document.getElementById('toast');
+        const confirmBtn = document.getElementById('btn-confirm-reset');
+
+        function openResetModal(name, id) {
+            document.getElementById('reset-user-name').innerText = name || '此用户';
+            modal.classList.remove('hidden');
+            setTimeout(() => {
+                modal.classList.remove('opacity-0');
+                modalContent.classList.add('modal-enter');
+            }, 10);
+        }
+
+        function closeResetModal() {
+            modal.classList.add('opacity-0');
+            setTimeout(() => {
+                modal.classList.add('hidden');
+                modalContent.classList.remove('modal-enter');
+            }, 200);
+        }
+
+        function confirmReset() {
+            const originalText = confirmBtn.innerText;
+            confirmBtn.innerHTML = '<i class="fa-solid fa-circle-notch fa-spin"></i> 处理中';
+            confirmBtn.disabled = true;
+
+            setTimeout(() => {
+                closeResetModal();
+                showToast();
+                confirmBtn.innerText = originalText;
+                confirmBtn.disabled = false;
+            }, 800);
+        }
+
+        function showToast() {
+            toast.classList.remove('opacity-0', 'translate-y-10');
+            toast.classList.add('toast-enter');
+            setTimeout(() => {
+                toast.classList.add('opacity-0', 'translate-y-10');
+            }, 2500);
+        }
+    </script>
+</body>
+</html>

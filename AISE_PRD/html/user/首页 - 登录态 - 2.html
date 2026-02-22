@@ -1,0 +1,265 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>首页 - AICA 人工智能应用创新人才培养工程</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+
+    <script>
+        tailwind.config = {
+            theme: {
+                extend: {
+                    fontFamily: {
+                        sans: ['Inter', 'sans-serif'],
+                    },
+                    colors: {
+                        brand: {
+                            50: '#eff6ff',
+                            100: '#dbeafe',
+                            500: '#3b82f6',
+                            600: '#2563eb',
+                            700: '#1d4ed8',
+                        },
+                    },
+                    boxShadow: {
+                        'glow': '0 0 40px -5px rgba(59, 130, 246, 0.5)',
+                        'card-float': '0 10px 30px -5px rgba(0, 0, 0, 0.1)',
+                    },
+                    backgroundImage: {
+                        'premium-gradient': 'linear-gradient(135deg, #2563eb 0%, #7c3aed 100%)',
+                    },
+                    animation: {
+                        'fade-in-up': 'fadeInUp 0.5s ease-out forwards',
+                    },
+                    keyframes: {
+                        fadeInUp: {
+                            '0%': { opacity: '0', transform: 'translateY(10px)' },
+                            '100%': { opacity: '1', transform: 'translateY(0)' },
+                        }
+                    }
+                }
+            }
+        }
+    </script>
+    <style>
+        body { background-color: #F8FAFC; -webkit-font-smoothing: antialiased; }
+        
+        /* 导航栏交互 */
+        .glass-nav { transition: all 0.3s ease; border-bottom: 1px solid transparent; }
+        .glass-nav .nav-text { color: rgba(255,255,255,0.9); }
+        .glass-nav .user-pill { background: rgba(255,255,255,0.1); border: 1px solid rgba(255,255,255,0.2); color: white; }
+        
+        .glass-nav.scrolled { background: rgba(255, 255, 255, 0.9); backdrop-filter: blur(12px); border-bottom: 1px solid rgba(226, 232, 240, 0.8); box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.05); }
+        .glass-nav.scrolled .nav-text { color: #1e293b; }
+        .glass-nav.scrolled .user-pill { background: white; border-color: #e2e8f0; color: #334155; }
+        
+        .glass-nav .nav-underline { background-color: white; }
+        .glass-nav.scrolled .nav-underline { background-color: #2563eb; }
+
+        .dropdown-enter { opacity: 0; transform: translateY(10px) scale(0.95); visibility: hidden; transition: all 0.2s ease; }
+        .group:hover .dropdown-menu { opacity: 1; transform: translateY(0) scale(1); visibility: visible; }
+
+        /* Hero */
+        .hero-bg { background-color: #0f172a; background-image: radial-gradient(at 50% 0%, hsla(253,16%,7%,1) 0, transparent 50%), radial-gradient(at 50% 100%, hsla(225,39%,30%,1) 0, transparent 50%); position: relative; overflow: hidden; }
+        .grid-pattern { background-image: radial-gradient(rgba(255,255,255,0.1) 1px, transparent 1px); background-size: 40px 40px; opacity: 0.15; }
+        .hover-zoom img { transition: transform 0.5s ease; } .hover-zoom:hover img { transform: scale(1.05); }
+        
+        /* 按钮光效 */
+        @keyframes shine { 0% { left: -100%; } 20% { left: 100%; } 100% { left: 100%; } }
+        .btn-shine::after { content: ''; position: absolute; top: 0; left: -100%; width: 50%; height: 100%; background: linear-gradient(to right, rgba(255,255,255,0) 0%, rgba(255,255,255,0.3) 50%, rgba(255,255,255,0) 100%); transform: skewX(-25deg); animation: shine 3s infinite; }
+    </style>
+</head>
+<body class="text-slate-800 flex flex-col min-h-screen">
+
+    <nav class="glass-nav fixed w-full z-50 top-0 transition-all duration-300" id="navbar">
+        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+            <div class="flex justify-between items-center h-20">
+                <a href="index-logged-in.html" class="flex-shrink-0 flex items-center gap-3 cursor-pointer group">
+                    <div class="w-10 h-10 bg-gradient-to-br from-brand-600 to-indigo-600 rounded-lg flex items-center justify-center text-white font-bold text-xl shadow-lg group-hover:scale-105 transition-transform">A</div>
+                    <div class="flex flex-col">
+                        <span class="font-bold text-xl tracking-tight nav-text">AICA</span>
+                        <span class="text-[10px] uppercase tracking-widest nav-text opacity-80">Talent Engineering</span>
+                    </div>
+                </a>
+
+                <div class="hidden md:flex items-center space-x-10">
+                    <a href="index-logged-in.html" class="font-semibold text-sm relative group nav-text">
+                        首页
+                        <span class="absolute -bottom-1 left-0 w-full h-0.5 scale-x-100 transition-transform nav-underline"></span>
+                    </a>
+                    <a href="news-list.html" class="font-medium text-sm transition relative group nav-text">
+                        新闻中心
+                        <span class="absolute -bottom-1 left-0 w-full h-0.5 scale-x-0 group-hover:scale-x-100 transition-transform nav-underline"></span>
+                    </a>
+                </div>
+
+                <div class="hidden md:flex items-center relative group cursor-pointer h-full">
+                    <div class="user-pill flex items-center gap-3 py-2 px-3 rounded-full transition">
+                        <div class="w-8 h-8 rounded-full bg-gradient-to-tr from-blue-500 to-purple-600 text-white flex items-center justify-center text-xs font-bold shadow-inner">张</div>
+                        <div class="flex flex-col items-start"><span class="text-sm font-semibold">张三同学</span></div>
+                        <i class="fa-solid fa-chevron-down text-xs opacity-70 ml-1 transition-transform group-hover:rotate-180"></i>
+                    </div>
+                    <div class="dropdown-menu absolute right-0 top-[70px] w-60 bg-white rounded-xl shadow-menu border border-slate-100 overflow-hidden transition-all duration-200 dropdown-enter origin-top-right z-50">
+                        <div class="px-4 py-3 border-b border-slate-50 bg-slate-50/50">
+                            <p class="text-sm font-bold text-slate-800">张三</p>
+                            <p class="text-xs text-slate-500">ID: 2025001</p>
+                        </div>
+                        <div class="p-1">
+                            <a href="user-profile.html" class="flex items-center gap-3 px-3 py-2.5 text-sm text-slate-600 hover:bg-slate-50 hover:text-brand-600 rounded-lg transition"><i class="fa-regular fa-id-card w-5 text-center text-slate-400"></i> 个人中心</a>
+                            <a href="user-ticket.html" class="flex items-center gap-3 px-3 py-2.5 text-sm text-slate-600 hover:bg-slate-50 hover:text-brand-600 rounded-lg transition"><i class="fa-solid fa-ticket w-5 text-center text-slate-400"></i> 我的准考证</a>
+                            <a href="user-grades.html" class="flex items-center gap-3 px-3 py-2.5 text-sm text-slate-600 hover:bg-slate-50 hover:text-brand-600 rounded-lg transition"><i class="fa-solid fa-award w-5 text-center text-slate-400"></i> 成绩与证书</a>
+                            <div class="h-px bg-slate-100 my-1 mx-2"></div>
+                            <a href="index-unlogged.html" class="flex items-center gap-3 px-3 py-2.5 text-sm text-red-500 hover:bg-red-50 rounded-lg transition"><i class="fa-solid fa-arrow-right-from-bracket w-5 text-center"></i> 退出登录</a>
+                        </div>
+                    </div>
+                </div>
+                <div class="flex md:hidden"><button class="text-white p-2 focus:outline-none"><i class="fa-solid fa-bars text-2xl"></i></button></div>
+            </div>
+        </div>
+    </nav>
+
+    <section class="hero-bg pt-44 pb-40 relative">
+        <div class="absolute inset-0 grid-pattern"></div>
+        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 relative z-10">
+            <div class="text-center max-w-4xl mx-auto">
+                <div class="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-white/10 border border-white/20 text-blue-100 text-xs font-medium mb-8 backdrop-blur-sm">
+                    <span class="w-2 h-2 rounded-full bg-green-400 animate-pulse"></span>
+                    2025年度春季测评报名已开启
+                </div>
+                <h1 class="text-5xl md:text-7xl font-bold text-white tracking-tight leading-tight mb-8 drop-shadow-lg">
+                    定义未来的 <span class="text-transparent bg-clip-text bg-gradient-to-r from-blue-400 to-purple-400">AI 创新人才</span>
+                </h1>
+                <p class="text-lg md:text-xl text-slate-300 leading-relaxed font-light max-w-2xl mx-auto">
+                    AICA 致力于构建国际领先的人工智能测评标准，连接教育与产业，赋能每一位探索者。
+                </p>
+            </div>
+        </div>
+        <div class="absolute bottom-0 left-0 w-full h-48 bg-gradient-to-t from-[#F8FAFC] via-[#F8FAFC]/80 to-transparent z-0"></div>
+    </section>
+
+    <section class="relative z-20 -mt-28 mb-24 text-center">
+        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 flex flex-col items-center">
+            
+            <div class="w-full max-w-2xl mb-8 animate-fade-in-up">
+                <div class="bg-white/90 backdrop-blur-md rounded-2xl shadow-card-float border border-white/50 p-1.5 flex items-center gap-4 text-left hover:scale-[1.01] transition-transform cursor-pointer group" onclick="window.location.href='device-check.html'">
+                    
+                    <div class="bg-brand-50 rounded-xl p-3 text-center min-w-[80px] border border-brand-100 group-hover:bg-brand-100 transition-colors">
+                        <span class="block text-xs text-brand-600 font-bold uppercase tracking-wider">Today</span>
+                        <span class="block text-xl font-bold text-brand-700 leading-none mt-1">14:00</span>
+                    </div>
+                    
+                    <div class="flex-1 min-w-0 py-1">
+                        <div class="flex items-center gap-2 mb-1">
+                            <span class="relative flex h-2 w-2">
+                              <span class="animate-ping absolute inline-flex h-full w-full rounded-full bg-green-400 opacity-75"></span>
+                              <span class="relative inline-flex rounded-full h-2 w-2 bg-green-500"></span>
+                            </span>
+                            <p class="text-xs text-slate-500 font-medium">下一场测评即将开始</p>
+                        </div>
+                        <h3 class="text-lg font-bold text-slate-900 truncate group-hover:text-brand-600 transition-colors">Python 程序设计（一级）</h3>
+                    </div>
+                    
+                    <button class="hidden sm:flex items-center gap-2 px-6 py-3 bg-brand-600 hover:bg-brand-700 text-white text-sm font-bold rounded-xl shadow-md whitespace-nowrap transition-all mr-1">
+                        进入考场 <i class="fa-solid fa-arrow-right"></i>
+                    </button>
+                    <div class="sm:hidden text-slate-400 pr-3"><i class="fa-solid fa-chevron-right"></i></div>
+                </div>
+            </div>
+
+            <div class="inline-block relative group cursor-pointer" onclick="window.location.href='registration.html'">
+                <div class="absolute -inset-1 bg-gradient-to-r from-blue-600 to-purple-600 rounded-full blur opacity-25 group-hover:opacity-75 transition duration-1000 group-hover:duration-200"></div>
+                <div class="btn-shine relative flex items-center gap-4 px-12 py-5 bg-premium-gradient rounded-full leading-none text-white text-xl font-bold shadow-glow hover:scale-105 transition-transform duration-300 overflow-hidden ring-4 ring-white/50 ring-offset-2 ring-offset-[#F8FAFC]">
+                    <span>立即报名</span>
+                    <i class="fa-solid fa-plus text-lg group-hover:rotate-90 transition-transform"></i>
+                </div>
+            </div>
+
+            <p class="mt-6 text-sm text-slate-500 font-medium">
+                欢迎回来，<span class="text-slate-800 font-bold">张三</span>。请继续您的学习之旅。
+            </p>
+        </div>
+    </section>
+
+    <section class="py-12 flex-grow">
+        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+            <div class="flex justify-between items-end mb-8">
+                <div>
+                    <h2 class="text-2xl font-bold text-slate-900">新闻资讯</h2>
+                    <p class="text-slate-500 text-sm mt-1">AICA 最新行业动态与政策解读</p>
+                </div>
+                <a href="news-list.html" class="text-slate-400 hover:text-brand-600 text-sm transition flex items-center gap-1">
+                    查看全部 <i class="fa-solid fa-arrow-right text-xs"></i>
+                </a>
+            </div>
+            <div class="grid grid-cols-1 lg:grid-cols-3 gap-8 h-auto lg:h-[420px]">
+                <div class="lg:col-span-2 h-64 lg:h-full relative group rounded-2xl overflow-hidden shadow-card cursor-pointer hover-zoom" onclick="window.open('news-detail.html?id=1', '_blank')">
+                    <img src="https://images.unsplash.com/photo-1531482615713-2afd69097998?ixlib=rb-4.0.3&auto=format&fit=crop&w=1600&q=80" alt="News" class="w-full h-full object-cover">
+                    <div class="absolute inset-0 bg-gradient-to-t from-slate-900/90 via-slate-900/20 to-transparent"></div>
+                    <div class="absolute bottom-0 left-0 p-8 w-full">
+                        <span class="inline-block bg-brand-600 text-white text-xs px-2 py-1 rounded mb-3 border border-brand-400/30 backdrop-blur-sm">政策法规</span>
+                        <h3 class="text-xl md:text-2xl font-bold text-white mb-2 leading-snug group-hover:text-blue-200 transition">国务院印发《新一代人工智能发展规划》重要通知</h3>
+                        <p class="hidden md:block text-slate-300 text-sm line-clamp-2">为抢抓人工智能发展的重大战略机遇，构筑我国人工智能发展的先发优势...</p>
+                    </div>
+                </div>
+                <div class="flex flex-col justify-between h-full gap-4">
+                    <div class="flex-1 bg-white p-5 rounded-2xl shadow-sm border border-slate-100 hover:shadow-md transition cursor-pointer flex flex-col justify-center group" onclick="window.open('news-detail.html?id=2', '_blank')">
+                        <div class="flex justify-between items-center mb-2">
+                            <span class="bg-blue-50 text-blue-600 text-[10px] px-2 py-0.5 rounded font-bold">赛事</span>
+                            <span class="text-slate-400 text-xs">2025-04-20</span>
+                        </div>
+                        <h4 class="font-semibold text-slate-800 group-hover:text-brand-600 line-clamp-2 transition text-sm md:text-base">关于举办2025年全国青少年人工智能创新挑战赛的通知</h4>
+                    </div>
+                    <div class="flex-1 bg-white p-5 rounded-2xl shadow-sm border border-slate-100 hover:shadow-md transition cursor-pointer flex flex-col justify-center group" onclick="window.open('news-detail.html?id=3', '_blank')">
+                        <div class="flex justify-between items-center mb-2">
+                            <span class="bg-purple-50 text-purple-600 text-[10px] px-2 py-0.5 rounded font-bold">大纲</span>
+                            <span class="text-slate-400 text-xs">2025-04-15</span>
+                        </div>
+                        <h4 class="font-semibold text-slate-800 group-hover:text-brand-600 line-clamp-2 transition text-sm md:text-base">AICA 工程测评大纲（2025版）正式发布与修订说明</h4>
+                    </div>
+                    <div class="flex-1 bg-white p-5 rounded-2xl shadow-sm border border-slate-100 hover:shadow-md transition cursor-pointer flex flex-col justify-center group" onclick="window.open('news-detail.html?id=4', '_blank')">
+                        <div class="flex justify-between items-center mb-2">
+                            <span class="bg-slate-100 text-slate-600 text-[10px] px-2 py-0.5 rounded font-bold">指南</span>
+                            <span class="text-slate-400 text-xs">2025-04-10</span>
+                        </div>
+                        <h4 class="font-semibold text-slate-800 group-hover:text-brand-600 line-clamp-2 transition text-sm md:text-base">人工智能实操测评环境配置指南 v2.0</h4>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <footer class="bg-slate-900 text-slate-400 py-12 border-t border-slate-800 mt-auto">
+        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+            <div class="flex flex-col md:flex-row justify-between items-center">
+                <div class="mb-4 md:mb-0 text-center md:text-left">
+                    <div class="flex items-center justify-center md:justify-start gap-2 text-white font-bold text-lg mb-2">
+                        <div class="w-6 h-6 bg-gradient-to-br from-brand-600 to-indigo-600 rounded flex items-center justify-center text-xs">A</div>
+                        AICA
+                    </div>
+                    <p class="text-xs text-slate-500">京ICP备12345678号-1 | © 2025 All rights reserved.</p>
+                </div>
+                <div class="flex gap-6 text-sm">
+                    <a href="#" class="hover:text-white transition">关于我们</a>
+                    <a href="#" class="hover:text-white transition">隐私政策</a>
+                    <a href="#" class="hover:text-white transition">联系支持</a>
+                </div>
+            </div>
+        </div>
+    </footer>
+
+    <script>
+        window.addEventListener('scroll', function() {
+            const navbar = document.getElementById('navbar');
+            if (window.scrollY > 50) {
+                navbar.classList.add('scrolled');
+            } else {
+                navbar.classList.remove('scrolled');
+            }
+        });
+    </script>
+
+</body>
+</html>

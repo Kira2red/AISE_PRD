@@ -1,0 +1,361 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>题库管理 - AICA 后台管理系统</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+
+    <script>
+        tailwind.config = {
+            theme: {
+                extend: {
+                    fontFamily: {
+                        sans: ['Inter', 'sans-serif'],
+                        mono: ['JetBrains Mono', 'monospace'],
+                    },
+                    colors: {
+                        brand: {
+                            50: '#eff6ff',
+                            100: '#dbeafe',
+                            500: '#3b82f6',
+                            600: '#2563eb',
+                            700: '#1d4ed8',
+                            900: '#1e3a8a',
+                        },
+                    },
+                    boxShadow: {
+                        'card': '0 1px 3px 0 rgba(0, 0, 0, 0.1), 0 1px 2px 0 rgba(0, 0, 0, 0.06)',
+                        'basket': '0 25px 50px -12px rgba(37, 99, 235, 0.35)',
+                    }
+                }
+            }
+        }
+    </script>
+    <style>
+        body { background-color: #F8FAFC; }
+        .hide-scroll::-webkit-scrollbar { display: none; }
+        .hide-scroll { -ms-overflow-style: none; scrollbar-width: none; }
+        
+        .nav-item.active::before {
+            content: '';
+            position: absolute;
+            left: 0;
+            top: 50%;
+            transform: translateY(-50%);
+            width: 4px;
+            height: 24px;
+            background-color: #3b82f6;
+            border-radius: 0 4px 4px 0;
+        }
+
+        .basket-enter { animation: slideUp 0.3s cubic-bezier(0.16, 1, 0.3, 1) forwards; }
+        @keyframes slideUp { from { transform: translateY(20px); opacity: 0; } to { transform: translateY(0); opacity: 1; } }
+
+        /* Toggle Switch 样式 */
+        .toggle-checkbox:checked {
+            right: 0;
+            border-color: #3b82f6;
+        }
+        .toggle-checkbox:checked + .toggle-label {
+            background-color: #3b82f6;
+        }
+        .toggle-checkbox:checked + .toggle-label:before {
+            transform: translateX(100%);
+        }
+    </style>
+</head>
+<body class="flex h-screen overflow-hidden text-slate-800 font-sans">
+
+    <aside class="w-64 bg-white border-r border-slate-200 flex flex-col flex-shrink-0 z-20">
+        <div class="h-16 flex items-center px-6 border-b border-slate-100">
+            <div class="w-8 h-8 bg-gradient-to-br from-brand-600 to-indigo-600 rounded-lg flex items-center justify-center text-white font-bold text-lg mr-3 shadow-sm">A</div>
+            <span class="font-bold text-lg text-slate-800 tracking-tight">AICA Admin</span>
+        </div>
+
+        <nav class="flex-1 overflow-y-auto py-4 space-y-1">
+            <a href="#" class="nav-item flex items-center gap-3 px-6 py-3 text-slate-500 hover:bg-slate-50 hover:text-brand-600 transition relative">
+                <i class="fa-solid fa-chart-pie w-5 text-center"></i>
+                <span class="font-medium text-sm">工作台</span>
+            </a>
+            <div class="px-6 py-2 mt-4 text-xs font-bold text-slate-400 uppercase tracking-wider">教务管理</div>
+            <a href="#" class="nav-item active flex items-center gap-3 px-6 py-3 text-brand-600 bg-brand-50 transition relative">
+                <i class="fa-solid fa-layer-group w-5 text-center"></i>
+                <span class="font-medium text-sm">题库管理</span>
+            </a>
+            </nav>
+        
+        <div class="p-4 border-t border-slate-100">
+            <div class="flex items-center gap-3 p-2 rounded-lg hover:bg-slate-50 cursor-pointer transition">
+                <div class="w-9 h-9 rounded-full bg-slate-200 flex items-center justify-center font-bold text-slate-500">A</div>
+                <div class="flex-1 min-w-0">
+                    <p class="text-sm font-bold text-slate-700 truncate">系统管理员</p>
+                </div>
+            </div>
+        </div>
+    </aside>
+
+    <main class="flex-1 flex flex-col min-w-0 bg-slate-50/50">
+        
+        <header class="h-16 bg-white border-b border-slate-200 flex items-center justify-between px-8 flex-shrink-0 z-10">
+            <h1 class="text-xl font-bold text-slate-800">题库管理</h1>
+            <div class="flex items-center gap-4">
+                <button class="bg-brand-600 hover:bg-brand-700 text-white text-sm font-medium px-5 py-2.5 rounded-lg shadow-sm transition flex items-center gap-2">
+                    <i class="fa-solid fa-pen"></i> 录入题目
+                </button>
+                <button class="bg-white border border-slate-200 hover:bg-slate-50 text-slate-700 text-sm font-medium px-4 py-2.5 rounded-lg shadow-sm transition flex items-center gap-2">
+                    <i class="fa-solid fa-file-import"></i> 批量导入
+                </button>
+            </div>
+        </header>
+
+        <div class="px-8 py-6">
+            <div class="bg-white rounded-xl shadow-card border border-slate-100 p-4 flex flex-wrap gap-4 items-center">
+                <div class="relative w-64">
+                    <i class="fa-solid fa-magnifying-glass absolute left-3 top-1/2 transform -translate-y-1/2 text-slate-400 text-sm"></i>
+                    <input type="text" placeholder="搜索题干关键词..." class="w-full pl-9 pr-4 py-2 rounded-lg border border-slate-200 text-sm focus:border-brand-500 focus:ring-1 focus:ring-brand-500 outline-none transition">
+                </div>
+                
+                <select class="px-3 py-2 rounded-lg border border-slate-200 text-sm text-slate-600 focus:border-brand-500 outline-none bg-white cursor-pointer hover:border-slate-300">
+                    <option value="">全部项目</option>
+                    <option value="python1">Python 程序设计（一级）</option>
+                </select>
+
+                <select class="px-3 py-2 rounded-lg border border-slate-200 text-sm text-slate-600 focus:border-brand-500 outline-none bg-white cursor-pointer hover:border-slate-300">
+                    <option value="">全部题型</option>
+                    <option value="single">单选题</option>
+                </select>
+
+                <div class="w-px h-6 bg-slate-200 mx-2"></div>
+
+                <label class="flex items-center gap-3 cursor-pointer group">
+                    <div class="relative">
+                        <input type="checkbox" id="filter-selected" class="sr-only" onchange="toggleSelectedFilter()">
+                        <div class="w-10 h-6 bg-slate-200 rounded-full shadow-inner transition-colors duration-300 ease-in-out group-hover:bg-slate-300" id="toggle-bg"></div>
+                        <div class="dot absolute left-1 top-1 bg-white w-4 h-4 rounded-full shadow transition-transform duration-300 ease-in-out" id="toggle-dot"></div>
+                    </div>
+                    <span class="text-sm font-medium text-slate-600 group-hover:text-slate-900 select-none">只看已选</span>
+                </label>
+
+                <button class="ml-auto text-sm text-slate-400 hover:text-brand-600 transition">
+                    <i class="fa-solid fa-rotate-right mr-1"></i> 重置筛选
+                </button>
+            </div>
+        </div>
+
+        <div class="flex-1 overflow-y-auto px-8 pb-24 custom-scroll space-y-4" id="question-list">
+            
+            <div class="question-card group bg-white rounded-xl shadow-card border border-brand-200 p-6 transition-all hover:shadow-md relative overflow-hidden" data-id="1" data-selected="true" id="card-1">
+                <div class="absolute left-0 top-0 bottom-0 w-1 bg-brand-500 selection-bar"></div>
+                
+                <div class="flex items-start gap-4">
+                    <div class="pt-1">
+                        <input type="checkbox" checked class="w-5 h-5 rounded border-slate-300 text-brand-600 focus:ring-brand-500 cursor-pointer" onchange="toggleSelect(1)">
+                    </div>
+
+                    <div class="flex-1 min-w-0">
+                        <div class="flex items-center gap-3 mb-3">
+                            <span class="bg-blue-50 text-brand-600 text-xs font-bold px-2 py-0.5 rounded border border-blue-100">单选题</span>
+                            <span class="text-xs text-slate-400">ID: 10086</span>
+                            <span class="text-xs text-slate-400 ml-auto">创建时间: 2025-05-20</span>
+                        </div>
+                        
+                        <div class="text-sm text-slate-800 font-medium mb-4 leading-relaxed">
+                            <p>在 Python 中，以下哪个关键字用于定义函数？</p>
+                        </div>
+
+                        <div class="grid grid-cols-2 gap-2 text-xs text-slate-600 mb-4 bg-slate-50 p-3 rounded-lg border border-slate-100">
+                            <div class="flex items-center gap-2"><span class="font-bold text-slate-400">A.</span> function</div>
+                            <div class="flex items-center gap-2 text-brand-600 font-bold"><span class="font-bold text-slate-400">B.</span> def <i class="fa-solid fa-check ml-1"></i></div>
+                            <div class="flex items-center gap-2"><span class="font-bold text-slate-400">C.</span> define</div>
+                            <div class="flex items-center gap-2"><span class="font-bold text-slate-400">D.</span> func</div>
+                        </div>
+
+                        <div class="flex items-center gap-4 text-xs">
+                            <div class="flex-1"></div>
+                            <button class="text-slate-400 hover:text-brand-600 transition"><i class="fa-regular fa-pen-to-square mr-1"></i> 编辑</button>
+                            <button class="text-slate-400 hover:text-red-500 transition"><i class="fa-regular fa-trash-can mr-1"></i> 删除</button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="question-card group bg-white rounded-xl shadow-card border border-slate-100 p-6 transition-all hover:shadow-md hover:border-slate-300 relative" data-id="2" data-selected="false" id="card-2">
+                <div class="flex items-start gap-4">
+                    <div class="pt-1">
+                        <input type="checkbox" class="w-5 h-5 rounded border-slate-300 text-brand-600 focus:ring-brand-500 cursor-pointer" onchange="toggleSelect(2)">
+                    </div>
+                    <div class="flex-1 min-w-0">
+                        <div class="flex items-center gap-3 mb-3">
+                            <span class="bg-purple-50 text-purple-600 text-xs font-bold px-2 py-0.5 rounded border border-purple-100">多选题</span>
+                            <span class="text-xs text-slate-400">ID: 10087</span>
+                        </div>
+                        <div class="text-sm text-slate-800 font-medium mb-4 leading-relaxed">
+                            <p>下列关于人工智能的说法中，正确的有哪些？</p>
+                        </div>
+                         <div class="bg-slate-50 p-2 rounded border border-slate-100 text-xs text-slate-500 mb-4">
+                            A. ... B. ... (共4个选项)
+                        </div>
+                        <div class="flex items-center gap-4 text-xs">
+                            <div class="flex-1"></div>
+                            <button class="text-slate-400 hover:text-brand-600 transition"><i class="fa-regular fa-pen-to-square mr-1"></i> 编辑</button>
+                            <button class="text-slate-400 hover:text-red-500 transition"><i class="fa-regular fa-trash-can mr-1"></i> 删除</button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="question-card group bg-white rounded-xl shadow-card border border-slate-100 p-6 transition-all hover:shadow-md hover:border-slate-300 relative" data-id="3" data-selected="false" id="card-3">
+                <div class="flex items-start gap-4">
+                    <div class="pt-1">
+                        <input type="checkbox" class="w-5 h-5 rounded border-slate-300 text-brand-600 focus:ring-brand-500 cursor-pointer" onchange="toggleSelect(3)">
+                    </div>
+                    <div class="flex-1 min-w-0">
+                        <div class="flex items-center gap-3 mb-3">
+                            <span class="bg-indigo-50 text-indigo-600 text-xs font-bold px-2 py-0.5 rounded border border-indigo-100">实操题</span>
+                            <span class="text-xs text-slate-400">ID: 10099</span>
+                        </div>
+                        <div class="text-sm text-slate-800 font-medium mb-4 leading-relaxed">
+                            <p>请编写一个 Python 程序，实现斐波那契数列的前 20 项输出。</p>
+                        </div>
+                        <div class="flex items-center gap-4 text-xs">
+                            <div class="flex-1"></div>
+                            <button class="text-slate-400 hover:text-brand-600 transition"><i class="fa-regular fa-pen-to-square mr-1"></i> 编辑</button>
+                            <button class="text-slate-400 hover:text-red-500 transition"><i class="fa-regular fa-trash-can mr-1"></i> 删除</button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+        </div>
+
+    </main>
+
+    <div class="fixed bottom-8 right-8 z-50">
+        <div class="bg-brand-900 rounded-2xl shadow-basket p-0 overflow-hidden w-72 transition-all duration-300" id="basket-panel">
+            <div class="bg-gradient-to-r from-brand-600 to-indigo-600 p-4 text-white flex justify-between items-center cursor-pointer" onclick="toggleBasket()">
+                <div class="flex items-center gap-3">
+                    <div class="w-10 h-10 bg-white/20 rounded-lg flex items-center justify-center text-lg relative">
+                        <i class="fa-solid fa-layer-group"></i>
+                        <span class="absolute -top-1 -right-1 w-4 h-4 bg-red-500 rounded-full text-[10px] flex items-center justify-center border border-brand-600" id="total-count-badge">1</span>
+                    </div>
+                    <div>
+                        <h4 class="font-bold text-sm">试题篮</h4>
+                        <p class="text-[10px] text-brand-100 opacity-80">已选 <span id="total-count">1</span> 道题目</p>
+                    </div>
+                </div>
+                <i class="fa-solid fa-chevron-down transition-transform duration-300" id="basket-arrow"></i>
+            </div>
+
+            <div class="bg-white" id="basket-details">
+                <div class="p-4 space-y-3">
+                    <div class="flex justify-between items-center text-xs border-b border-slate-100 pb-2">
+                        <span class="text-slate-500">单项选择题</span>
+                        <span class="font-bold text-slate-800" id="count-single">1</span>
+                    </div>
+                    <div class="flex justify-between items-center text-xs pb-1">
+                        <span class="text-slate-500">其他题型</span>
+                        <span class="font-bold text-slate-800">0</span>
+                    </div>
+                </div>
+                <div class="p-4 pt-0">
+                    <button class="w-full py-2.5 bg-brand-600 hover:bg-brand-700 text-white text-sm font-bold rounded-lg shadow-md transition flex items-center justify-center gap-2 group">
+                        <i class="fa-solid fa-wand-magic-sparkles group-hover:animate-pulse"></i> 生成试卷
+                    </button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        let isBasketOpen = true;
+        let selectedCount = 1;
+        
+        function toggleBasket() {
+            const details = document.getElementById('basket-details');
+            const arrow = document.getElementById('basket-arrow');
+            if (isBasketOpen) {
+                details.style.display = 'none';
+                arrow.style.transform = 'rotate(180deg)';
+            } else {
+                details.style.display = 'block';
+                arrow.style.transform = 'rotate(0deg)';
+                details.classList.add('basket-enter');
+            }
+            isBasketOpen = !isBasketOpen;
+        }
+
+        // Toggle Switch 动画与筛选逻辑
+        function toggleSelectedFilter() {
+            const checkbox = document.getElementById('filter-selected');
+            const bg = document.getElementById('toggle-bg');
+            const dot = document.getElementById('toggle-dot');
+            const cards = document.querySelectorAll('.question-card');
+
+            if (checkbox.checked) {
+                // 开启状态样式
+                bg.classList.remove('bg-slate-200');
+                bg.classList.add('bg-brand-500');
+                dot.style.transform = 'translateX(100%)';
+                
+                // 执行筛选：隐藏未选中的
+                cards.forEach(card => {
+                    if (card.dataset.selected === 'false') {
+                        card.style.display = 'none';
+                    }
+                });
+            } else {
+                // 关闭状态样式
+                bg.classList.add('bg-slate-200');
+                bg.classList.remove('bg-brand-500');
+                dot.style.transform = 'translateX(0)';
+                
+                // 恢复显示所有
+                cards.forEach(card => {
+                    card.style.display = 'block'; // 注意：如果是grid布局要改成grid，这里是flex/block
+                });
+            }
+        }
+
+        function toggleSelect(id) {
+            const card = document.getElementById(`card-${id}`);
+            const checkbox = card.querySelector('input[type="checkbox"]');
+            const filterCheckbox = document.getElementById('filter-selected');
+            
+            // 更新选中状态 UI
+            if (checkbox.checked) {
+                card.classList.remove('border-slate-100');
+                card.classList.add('border-brand-200');
+                card.dataset.selected = 'true';
+                
+                const bar = document.createElement('div');
+                bar.className = 'absolute left-0 top-0 bottom-0 w-1 bg-brand-500 selection-bar';
+                card.appendChild(bar);
+                
+                selectedCount++;
+            } else {
+                card.classList.add('border-slate-100');
+                card.classList.remove('border-brand-200');
+                card.dataset.selected = 'false';
+                
+                const bar = card.querySelector('.selection-bar');
+                if(bar) bar.remove();
+                
+                selectedCount--;
+                
+                // 边界情况：如果当前开启了“只看已选”，取消勾选后应立即隐藏该卡片
+                if(filterCheckbox.checked) {
+                    card.style.display = 'none';
+                }
+            }
+            
+            // 更新试题篮数字
+            document.getElementById('total-count').innerText = selectedCount;
+            document.getElementById('total-count-badge').innerText = selectedCount;
+        }
+    </script>
+</body>
+</html>

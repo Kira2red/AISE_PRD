@@ -1,0 +1,367 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>趣味编程大冒险 - 划线题专项 (无确认按钮版)</title>
+    <style>
+        /* --- 1. 全局童真风格定义 --- */
+        :root {
+            --bg-color: #e0f2f1;
+            --sidebar-bg: #e1f5fe;
+            --primary-blue: #4fc3f7;
+            --primary-dark: #0277bd;
+            
+            --btn-green: #66bb6a;
+            --btn-green-hover: #43a047;
+            
+            --accent-pink: #ff8a80;
+            --accent-green: #aed581;
+            --text-red: #ff5252;
+            --ink-color: #455a64;
+            
+            /* 划线题专用色 */
+            --highlight-bg: #fff176; 
+            --highlight-border: #f57f17;
+            
+            --border-width: 3px;
+            --border-color: #81d4fa;
+            
+            --shadow-pop: 4px 4px 0px rgba(79, 195, 247, 0.4); 
+            --radius-box: 20px;
+            --header-height: 70px;
+        }
+
+        * { box-sizing: border-box; margin: 0; padding: 0; outline: none; }
+
+        body {
+            font-family: "Comic Sans MS", "Chalkboard SE", "幼圆", "Yuppy SC", "Microsoft YaHei", sans-serif;
+            background-color: var(--bg-color);
+            background-image: radial-gradient(#b2ebf2 10%, transparent 10%);
+            background-size: 20px 20px;
+            height: 100vh;
+            display: flex;
+            color: var(--ink-color);
+            overflow: hidden;
+        }
+
+        ::-webkit-scrollbar { width: 10px; height: 10px; }
+        ::-webkit-scrollbar-thumb { background: var(--primary-blue); border-radius: 10px; border: 2px solid #fff; }
+        ::-webkit-scrollbar-track { background: transparent; }
+
+        /* --- 侧边栏 --- */
+        .sidebar {
+            width: 280px; background: var(--sidebar-bg);
+            position: relative; display: flex; flex-direction: column; z-index: 20; flex-shrink: 0;
+            transition: width 0.3s cubic-bezier(0.25, 0.8, 0.25, 1);
+            border-right: var(--border-width) dashed var(--border-color);
+        }
+        .sidebar.collapsed { width: 0; border-right: none; }
+        
+        .sidebar-toggle-handle {
+            position: absolute; top: 50%; right: -24px; width: 24px; height: 80px;
+            background: #b3e5fc; border: 2px solid #81d4fa; border-left: none; 
+            border-radius: 0 15px 15px 0; cursor: pointer; display: flex; align-items: center; justify-content: center;
+            color: #0277bd; font-weight: bold; font-size: 14px; z-index: 30;
+            transform: translateY(-50%); box-shadow: 2px 2px 0 rgba(0,0,0,0.1); transition: all 0.3s;
+        }
+        .sidebar-toggle-handle:hover { background: #81d4fa; color: #fff; }
+        .sidebar-mask { width: 100%; height: 100%; overflow: hidden; position: relative; }
+        .sidebar-inner { width: 280px; height: 100%; display: flex; flex-direction: column; overflow-y: auto; padding-bottom: 20px; }
+
+        .user-profile {
+            padding: 15px; background: #fff; margin: 15px; border-radius: var(--radius-box);
+            border: var(--border-width) solid var(--border-color); box-shadow: var(--shadow-pop);
+            text-align: center; white-space: nowrap; 
+        }
+        .camera-box {
+            width: 100%; aspect-ratio: 4 / 3; background: #000; margin: 0 auto 10px auto; 
+            border-radius: 10px; border: 2px solid #333; overflow: hidden; position: relative;
+        }
+        .camera-box img { width: 100%; height: 100%; object-fit: cover; display: block; }
+        .camera-dot {
+            position: absolute; top: 8px; right: 8px; width: 10px; height: 10px; 
+            background: red; border-radius: 50%; animation: blink 1s infinite; border: 1px solid #fff;
+        }
+        @keyframes blink { 50% { opacity: 0; } }
+
+        .question-map-container { flex: 1; padding: 0 15px 5px 15px; }
+        .chapter-title {
+            font-size: 14px; color: #0277bd; margin: 15px 0 8px 0; font-weight: bold;
+            display: flex; align-items: center; white-space: nowrap;
+        }
+        .chapter-title::before { content: "🔹"; margin-right: 5px; font-size: 12px; }
+        .question-grid { display: grid; grid-template-columns: repeat(4, 1fr); gap: 12px; padding-bottom: 10px; }
+        
+        .q-tag {
+            width: 45px; height: 45px; background: #fff;
+            border: var(--border-width) solid #b3e5fc; border-radius: 50% 40% 50% 40%;
+            display: flex; align-items: center; justify-content: center;
+            font-size: 16px; font-weight: bold; cursor: pointer; transition: all 0.2s; color: #81d4fa;
+        }
+        .q-tag:hover { transform: scale(1.1) rotate(-5deg); border-color: var(--primary-blue); }
+        .q-tag.active { 
+            background: var(--primary-blue); color: #fff; border-color: #0288d1;
+            transform: scale(1.1); box-shadow: 2px 2px 0px rgba(0,0,0,0.1);
+        }
+        .q-tag.done { background: var(--accent-green); border-color: #7cb342; color: #fff; }
+        
+        .sidebar-footer {
+            margin: 10px 15px; background: rgba(255,255,255,0.6); border-radius: 15px;
+            padding: 10px; font-size: 12px; display: flex; justify-content: center; gap: 20px; white-space: nowrap;
+        }
+        .legend-item { display: flex; align-items: center; gap: 4px; color: #666; font-weight: bold; }
+        .dot { width: 12px; height: 12px; border-radius: 50%; display: inline-block; border: 2px solid rgba(0,0,0,0.1); }
+
+        /* --- 主内容区 --- */
+        .main-container {
+            flex: 1; display: flex; flex-direction: column;
+            background: rgba(255, 255, 255, 0.6); margin: 10px; border-radius: 30px; 
+            border: var(--border-width) solid #fff; box-shadow: 0 10px 30px rgba(129, 212, 250, 0.3); 
+            overflow: hidden; position: relative;
+        }
+        .top-bar {
+            height: var(--header-height); background: #fff; border-bottom: var(--border-width) dashed #b3e5fc;
+            display: flex; align-items: center; justify-content: space-between; padding: 0 20px; flex-shrink: 0;
+        }
+        .exam-title { font-size: 18px; font-weight: 800; color: var(--primary-dark); }
+        .nav-controller { flex: 1; display: flex; justify-content: center; gap: 20px; }
+        .nav-pill-btn {
+            background: #fff; border: 2px solid #b0bec5; padding: 8px 25px; border-radius: 20px;
+            cursor: pointer; font-weight: bold; color: #78909c; box-shadow: 0 4px 0 #cfd8dc; transition: 0.1s;
+        }
+        .nav-pill-btn:hover { background: #eceff1; transform: translateY(-2px); }
+        .nav-pill-btn:active { box-shadow: 0 2px 0 #cfd8dc; transform: translateY(2px); }
+        .top-tools { display: flex; align-items: center; gap: 15px; }
+        .timer-box {
+            background: #fff; color: var(--text-red); padding: 6px 15px; border-radius: 20px; 
+            font-weight: bold; font-family: monospace; border: 2px solid var(--text-red);
+            box-shadow: 2px 2px 0 #ffebee; transform: rotate(2deg); min-width: 80px; display: flex; justify-content: center;
+        }
+        .btn-icon {
+            background: #fff; border: 2px solid #b0bec5; width: 40px; height: 40px;
+            border-radius: 10px; cursor: pointer; display: flex; align-items: center; justify-content: center;
+            font-size: 18px; box-shadow: 0 3px 0 #cfd8dc;
+        }
+        .btn-submit-big {
+            background: var(--btn-green); color: #fff; border: 2px solid #2e7d32;
+            padding: 8px 25px; border-radius: 15px; font-size: 16px; font-weight: 900;
+            cursor: pointer; box-shadow: 0 5px 0 #1b5e20; transition: 0.2s; display: flex; align-items: center; gap: 5px;
+        }
+        .btn-submit-big:hover { background: var(--btn-green-hover); transform: scale(1.05); }
+        .btn-submit-big:active { box-shadow: 0 2px 0 #1b5e20; transform: translateY(3px); }
+
+        /* --- 题目容器通用 --- */
+        .question-wrapper { flex: 1; position: relative; overflow: hidden; padding: 0; }
+        .question-card { display: none; height: 100%; overflow-y: auto; padding: 30px; animation: fadeIn 0.3s; }
+        .question-card.active-card { display: block; }
+        @keyframes fadeIn { from { opacity: 0; transform: translateY(10px); } to { opacity: 1; transform: translateY(0); } }
+
+        /* 使用标准卡片容器 */
+        .normal-card-content {
+            max-width: 850px; margin: 0 auto; background: #fff;
+            border: var(--border-width) solid var(--primary-blue);
+            border-radius: 20px 5px 20px 5px; padding: 40px; box-shadow: var(--shadow-pop);
+        }
+
+        .q-header {
+            border-bottom: 2px dashed #eceff1; padding-bottom: 10px; margin-bottom: 20px;
+            display: flex; justify-content: space-between; color: #90a4ae; font-size: 14px;
+        }
+        .q-badge {
+            background: var(--primary-blue); color: white; padding: 5px 15px;
+            border-radius: 15px 15px 15px 0; font-size: 14px; font-weight: bold; margin-right: 10px;
+        }
+
+        /* --- 划线题 (Highlight) 专用样式 --- */
+        
+        .highlight-stem {
+            font-size: 18px; line-height: 1.8; color: #37474f; margin-bottom: 25px;
+        }
+        
+        /* 提示条（现包含计数器） */
+        .highlight-guide {
+            background: #fff8e1; border-left: 5px solid #ffb74d; padding: 15px;
+            border-radius: 8px; color: #e65100; font-size: 14px; margin-bottom: 25px;
+            display: flex; justify-content: space-between; /* 左右分布 */
+            align-items: center;
+            position: sticky; top: 0; z-index: 10; /* 可选：如果卡片内部内容太长，这行可以让提示条吸顶 */
+        }
+
+        /* 计数器样式（移到上方后） */
+        .counter-badge {
+            background: #ffb74d; color: #fff; padding: 5px 12px; 
+            border-radius: 15px; font-weight: bold; box-shadow: 0 2px 0 rgba(0,0,0,0.1);
+            transition: transform 0.2s;
+        }
+
+        /* 2. 交互文本区 */
+        .highlight-interaction-box {
+            background: #fff;
+            border: 2px solid #cfd8dc;
+            border-radius: 15px;
+            padding: 30px;
+            font-size: 18px; 
+            line-height: 2.2; 
+            color: #455a64;
+            text-align: justify;
+        }
+        
+        /* 句子交互样式 */
+        .hl-sentence {
+            cursor: pointer;
+            padding: 2px 5px;
+            margin: 0 2px;
+            border-radius: 4px;
+            transition: all 0.2s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+            border-bottom: 2px solid transparent; 
+            display: inline; 
+        }
+        
+        .hl-sentence:hover {
+            background-color: #f1f8e9; 
+            transform: scale(1.01);
+        }
+
+        .hl-sentence.active {
+            background-color: var(--highlight-bg); 
+            color: #212121;
+            font-weight: bold;
+            border-bottom: 3px solid var(--highlight-border);
+            box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+        }
+
+    </style>
+</head>
+<body>
+
+    <aside class="sidebar" id="sidebar">
+        <div class="sidebar-toggle-handle" onclick="toggleSidebar()"><span id="toggle-icon">◀</span></div>
+        <div class="sidebar-mask">
+            <div class="sidebar-inner">
+                <div class="user-profile">
+                    <div class="camera-box">
+                        <img src="https://api.dicebear.com/7.x/avataaars/svg?seed=Felix" alt="Live Camera">
+                        <div class="camera-dot"></div>
+                    </div>
+                    <div style="font-size: 16px; font-weight: bold; color: #0277bd; margin-top: 5px;">王小明</div>
+                    <div style="font-size: 12px; color: #78909c;">📷 实时监考中</div>
+                </div>
+
+                <div class="question-map-container">
+                    <div class="chapter-title">第一部分：阅读理解</div>
+                    <div class="question-grid">
+                        <div class="q-tag active" onclick="jumpTo(1)">7</div>
+                    </div>
+                </div>
+
+                <div class="sidebar-footer">
+                    <div class="legend-item"><span class="dot" style="background:var(--primary-blue)"></span>当前</div>
+                    <div class="legend-item"><span class="dot" style="background:var(--accent-green)"></span>已作答</div>
+                </div>
+            </div>
+        </div>
+    </aside>
+
+    <main class="main-container">
+        <header class="top-bar">
+            <div class="top-left-group">
+                <div class="exam-title">AICE2024 阅读专项测试</div>
+            </div>
+            <div class="nav-controller">
+                <button class="nav-pill-btn" disabled style="opacity:0.5; cursor:not-allowed">⬅️ <span>上一题</span></button>
+                <button class="nav-pill-btn" disabled style="opacity:0.5; cursor:not-allowed"><span>下一题</span> ➡️</button>
+            </div>
+            <div class="top-tools">
+                <div class="timer-box">35:42</div>
+                <button class="btn-icon" onclick="toggleFullScreen()" title="全屏">⛶</button>
+                <button class="btn-submit-big" onclick="alert('交卷成功！')">✅ 交卷</button>
+            </div>
+        </header>
+
+        <div class="question-wrapper">
+            
+            <div id="q-1" class="question-card active-card">
+                <div class="normal-card-content">
+                    
+                    <div class="q-header">
+                        <span class="q-badge">划线题 · 15分</span> <span>7 / 7</span>
+                    </div>
+
+                    <div class="highlight-stem">
+                        <h3>🖊️ 任务：寻找错误的程序逻辑</h3>
+                        <p>请仔细阅读下方关于“冒泡排序”的描述文本。文中混入了<b>3处</b>关于算法原理的错误描述。</p>
+                    </div>
+
+                    <div class="highlight-guide">
+                        <span>💡 <b>操作提示：</b> 点击文字即可选中句子，再次点击可取消。</span>
+                        <span class="counter-badge" id="counterBox">已标记: 0 处</span>
+                    </div>
+
+                    <div class="highlight-interaction-box">
+                        <span class="hl-sentence" onclick="toggleLine(this)">冒泡排序是一种基础的排序算法。</span>
+                        <span class="hl-sentence" onclick="toggleLine(this)">它重复地走访过要排序的数列，一次比较两个元素。</span>
+                        <span class="hl-sentence" onclick="toggleLine(this)">如果它们的顺序错误就把它们交换过来。</span>
+                        <span class="hl-sentence" onclick="toggleLine(this)">这个算法的名字由来是因为越大的元素会经由交换慢慢“浮”到数列的顶端（错误点：通常是越小的元素浮上去，或者越大的沉下去，描述含糊但暂且不算大错）。</span>
+                        <span class="hl-sentence" onclick="toggleLine(this)">在冒泡排序中，最好的时间复杂度是 O(n^2)（错误点：最好是O(n)）。</span>
+                        <span class="hl-sentence" onclick="toggleLine(this)">这意味着无论数组是否已经有序，都需要进行完整的两层循环（错误点：优化后不需要）。</span>
+                        <span class="hl-sentence" onclick="toggleLine(this)">算法结束后，整个数组将按照从大到小的顺序排列（错误点：通常默认是从小到大，但也可能反向，需结合上下文判断）。</span>
+                        <span class="hl-sentence" onclick="toggleLine(this)">冒泡排序是一种稳定的排序算法。</span>
+                        </div>
+
+                    </div>
+            </div>
+
+        </div>
+    </main>
+
+    <script>
+        // --- 侧边栏 & 全屏逻辑 ---
+        function toggleSidebar() {
+            const sidebar = document.getElementById('sidebar');
+            const icon = document.getElementById('toggle-icon');
+            sidebar.classList.toggle('collapsed');
+            icon.innerText = sidebar.classList.contains('collapsed') ? "▶" : "◀";
+        }
+        function toggleFullScreen() {
+            if (!document.fullscreenElement) document.documentElement.requestFullscreen();
+            else if (document.exitFullscreen) document.exitFullscreen();
+        }
+
+        // --- 划线题逻辑 ---
+        
+        let selectedCount = 0;
+
+        function toggleLine(element) {
+            // 切换 active 类
+            element.classList.toggle('active');
+            
+            // 更新计数
+            if (element.classList.contains('active')) {
+                selectedCount++;
+            } else {
+                selectedCount--;
+            }
+            
+            // 更新 UI
+            const counter = document.getElementById('counterBox');
+            counter.innerText = `已标记: ${selectedCount} 处`;
+            
+            // 计数器跳动动画
+            counter.style.transform = 'scale(1.2)';
+            setTimeout(() => {
+                counter.style.transform = 'scale(1)';
+            }, 100);
+
+            // 只要有操作，就标记为已作答（视觉反馈）
+            if (selectedCount > 0) {
+                document.querySelector('.q-tag.active').classList.add('done');
+            } else {
+                document.querySelector('.q-tag.active').classList.remove('done');
+            }
+        }
+
+        function jumpTo(id) { }
+    </script>
+</body>
+</html>

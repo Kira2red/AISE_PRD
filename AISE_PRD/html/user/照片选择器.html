@@ -1,0 +1,415 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>个人中心 - AICA</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+
+    <script>
+        tailwind.config = {
+            theme: {
+                extend: {
+                    fontFamily: {
+                        sans: ['Inter', 'sans-serif'],
+                    },
+                    colors: {
+                        brand: {
+                            50: '#eff6ff',
+                            100: '#dbeafe',
+                            500: '#3b82f6',
+                            600: '#2563eb',
+                            700: '#1d4ed8',
+                        },
+                        dark: {
+                            900: '#0f172a',
+                        }
+                    },
+                    boxShadow: {
+                        'card': '0 4px 6px -1px rgba(0, 0, 0, 0.05)',
+                        'menu': '0 10px 15px -3px rgba(0, 0, 0, 0.1), 0 4px 6px -2px rgba(0, 0, 0, 0.05)',
+                    }
+                }
+            }
+        }
+    </script>
+    <style>
+        body { background-color: #F8FAFC; -webkit-font-smoothing: antialiased; }
+        .glass-nav {
+            background: rgba(255, 255, 255, 0.95);
+            backdrop-filter: blur(12px);
+            border-bottom: 1px solid rgba(226, 232, 240, 0.8);
+        }
+        .hide-scroll::-webkit-scrollbar { display: none; }
+        .hide-scroll { -ms-overflow-style: none; scrollbar-width: none; }
+        
+        .switcher-item { transition: all 0.2s ease; }
+        .switcher-item.active { background-color: #eff6ff; border-color: #3b82f6; }
+        .switcher-item:hover:not(.active) { background-color: #f8fafc; border-color: #cbd5e1; }
+
+        .modal-enter { animation: modalIn 0.3s ease-out forwards; }
+        @keyframes modalIn { from { opacity: 0; transform: scale(0.95); } to { opacity: 1; transform: scale(1); } }
+
+        /* 裁剪区域网格背景 */
+        .cropper-bg {
+            background-image: 
+                linear-gradient(45deg, #ccc 25%, transparent 25%), 
+                linear-gradient(-45deg, #ccc 25%, transparent 25%), 
+                linear-gradient(45deg, transparent 75%, #ccc 75%), 
+                linear-gradient(-45deg, transparent 75%, #ccc 75%);
+            background-size: 20px 20px;
+            background-position: 0 0, 0 10px, 10px -10px, -10px 0px;
+            background-color: #eee;
+        }
+    </style>
+</head>
+<body class="min-h-screen flex flex-col text-slate-800">
+
+    <nav class="glass-nav fixed w-full z-50 top-0">
+        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+            <div class="flex justify-between items-center h-16 sm:h-20">
+                <div class="flex items-center gap-3 cursor-pointer" onclick="window.location.href='#'">
+                    <div class="w-9 h-9 bg-gradient-to-br from-brand-600 to-indigo-600 rounded-lg flex items-center justify-center text-white font-bold text-lg shadow-md">A</div>
+                    <div class="flex flex-col">
+                        <span class="font-bold text-lg tracking-tight text-slate-900">AICA</span>
+                        <span class="text-[10px] uppercase tracking-widest text-slate-500 hidden sm:block">Talent Engineering</span>
+                    </div>
+                </div>
+                <div class="hidden md:flex items-center space-x-8">
+                    <a href="#" class="text-slate-500 hover:text-brand-600 font-medium text-sm transition">首页</a>
+                    <a href="#" class="text-slate-500 hover:text-brand-600 font-medium text-sm transition">新闻中心</a>
+                    <a href="#" class="text-brand-600 font-bold text-sm transition relative">
+                        个人中心
+                        <span class="absolute -bottom-7 left-0 w-full h-0.5 bg-brand-600 rounded-t-full"></span>
+                    </a>
+                </div>
+                <div class="flex items-center gap-3">
+                    <div class="flex items-center gap-2 py-1 px-2 rounded-full border border-slate-100 bg-white shadow-sm">
+                        <div class="w-8 h-8 rounded-full bg-gradient-to-tr from-blue-500 to-purple-600 text-white flex items-center justify-center text-xs font-bold" id="header-avatar">张</div>
+                        <span class="text-sm font-medium text-slate-700 pr-2 hidden sm:block" id="header-name">张三</span>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </nav>
+
+    <main class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 pt-24 pb-12 flex-grow w-full">
+        <div class="flex flex-col md:flex-row gap-6 lg:gap-8">
+            
+            <aside class="w-full md:w-64 flex-shrink-0">
+                <div class="bg-white rounded-xl shadow-card border border-slate-100 overflow-hidden md:sticky md:top-24">
+                    <nav class="flex md:flex-col overflow-x-auto hide-scroll p-2 md:p-3 gap-1 md:gap-2">
+                        <a href="#" class="flex-shrink-0 px-4 py-3 rounded-lg bg-brand-50 text-brand-600 font-bold text-sm flex items-center gap-3 shadow-sm border border-brand-100 md:border-transparent">
+                            <i class="fa-regular fa-id-card w-5 text-center"></i> 个人中心
+                        </a>
+                        <a href="#" class="flex-shrink-0 px-4 py-3 rounded-lg text-slate-600 hover:bg-slate-50 hover:text-slate-900 font-medium text-sm flex items-center gap-3 transition">
+                            <i class="fa-solid fa-ticket w-5 text-center text-slate-400"></i> 我的准考证
+                        </a>
+                        <a href="#" class="flex-shrink-0 px-4 py-3 rounded-lg text-slate-600 hover:bg-slate-50 hover:text-slate-900 font-medium text-sm flex items-center gap-3 transition">
+                            <i class="fa-solid fa-award w-5 text-center text-slate-400"></i> 成绩与证书
+                        </a>
+                    </nav>
+                </div>
+            </aside>
+
+            <div class="flex-1 min-w-0">
+                
+                <div class="mb-6 flex justify-between items-end">
+                    <div>
+                        <h1 class="text-2xl font-bold text-slate-900">家庭档案管理</h1>
+                        <p class="text-sm text-slate-500 mt-1">管理您关联的考生档案信息。</p>
+                    </div>
+                </div>
+
+                <div class="bg-white rounded-2xl shadow-card border border-slate-100 overflow-hidden relative">
+                    
+                    <div id="page-student-switcher" class="hidden bg-slate-50/50 border-b border-slate-100 p-2 overflow-x-auto hide-scroll">
+                        <div class="flex items-center gap-3 px-2" id="page-student-list"></div>
+                    </div>
+
+                    <form id="profile-form" class="p-6 sm:p-10 relative" onsubmit="event.preventDefault(); saveProfile();">
+                        
+                        <div class="flex flex-col sm:flex-row gap-8 mb-10 items-start">
+                            
+                            <div class="flex-shrink-0 flex flex-col items-center mx-auto sm:mx-0">
+                                <div class="relative group w-28 h-28 rounded-full bg-slate-100 border-4 border-white shadow-lg overflow-hidden cursor-pointer" onclick="openCropperModal()">
+                                    <div id="avatar-container" class="w-full h-full bg-gradient-to-br from-blue-500 to-blue-600 text-white flex items-center justify-center text-3xl font-bold">
+                                        <span id="form-avatar-text">张</span>
+                                        <img id="main-avatar-img" class="absolute inset-0 w-full h-full object-cover hidden" src="">
+                                    </div>
+                                    <div class="absolute inset-0 bg-black/40 flex items-center justify-center opacity-0 group-hover:opacity-100 transition-opacity duration-300">
+                                        <i class="fa-solid fa-camera text-white text-xl"></i>
+                                    </div>
+                                </div>
+                                <span class="text-xs text-slate-400 mt-3">点击更换照片</span>
+                            </div>
+
+                            <div class="flex-1 grid grid-cols-1 sm:grid-cols-2 gap-6 w-full">
+                                <div>
+                                    <label class="block text-xs font-bold text-slate-500 uppercase mb-2">真实姓名</label>
+                                    <input type="text" id="form-name" value="张三" class="w-full px-4 py-3 rounded-xl border border-slate-200 focus:border-brand-500 outline-none text-sm font-bold text-slate-800" placeholder="请输入真实姓名">
+                                </div>
+                                <div>
+                                    <label class="block text-xs font-bold text-slate-500 uppercase mb-2">性别</label>
+                                    <select class="w-full px-4 py-3 rounded-xl border border-slate-200 focus:border-brand-500 outline-none text-sm font-medium text-slate-800 bg-white transition">
+                                        <option value="男" selected>男</option>
+                                        <option value="女">女</option>
+                                    </select>
+                                </div>
+                                <div class="sm:col-span-2">
+                                    <label class="block text-xs font-bold text-slate-500 uppercase mb-2">证件信息</label>
+                                    <div class="flex shadow-sm rounded-xl">
+                                        <div class="relative w-1/3 sm:w-1/4">
+                                            <select id="form-id-type" class="w-full appearance-none pl-4 pr-8 py-3 bg-slate-50 border border-slate-200 border-r-0 rounded-l-xl focus:border-brand-500 focus:ring-2 focus:ring-brand-100 focus:z-10 outline-none text-sm font-bold text-slate-700 transition">
+                                                <option value="id_cn">居民身份证</option>
+                                                <option value="passport">护照</option>
+                                            </select>
+                                            <i class="fa-solid fa-chevron-down absolute right-3 top-4 text-xs text-slate-400 pointer-events-none z-20"></i>
+                                        </div>
+                                        <input type="text" id="form-id-number" value="110***********1234" class="flex-1 w-2/3 px-4 py-3 border border-slate-200 rounded-r-xl focus:border-brand-500 focus:ring-2 focus:ring-brand-100 focus:z-10 outline-none text-sm font-mono text-slate-800 transition -ml-px">
+                                    </div>
+                                    <p class="text-[10px] text-orange-500 mt-1.5"><i class="fa-solid fa-triangle-exclamation"></i> 注意：修改证件信息将触发重新核验。</p>
+                                </div>
+                            </div>
+                        </div>
+
+                        <div class="flex flex-col-reverse sm:flex-row justify-end gap-4 pt-4 border-t border-slate-50 mt-8">
+                            <button type="button" id="btn-add-student-bottom" class="w-full sm:w-auto px-6 py-3.5 rounded-xl border border-slate-200 text-slate-600 font-bold text-sm hover:bg-slate-50 transition">关联新考生</button>
+                            <button type="submit" id="save-btn" class="w-full sm:w-auto bg-slate-900 text-white px-10 py-3.5 rounded-xl font-bold shadow-lg hover:bg-brand-600 transition flex items-center justify-center gap-2"><i class="fa-regular fa-floppy-disk"></i> 保存修改</button>
+                        </div>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </main>
+
+    <div id="cropper-modal" class="fixed inset-0 z-[100] hidden flex items-center justify-center">
+        <div class="absolute inset-0 bg-slate-900/70 backdrop-blur-sm" onclick="closeCropperModal()"></div>
+        
+        <div class="relative w-full max-w-3xl bg-white rounded-xl shadow-2xl overflow-hidden modal-enter flex flex-col max-h-[90vh]">
+            <div class="px-6 py-4 border-b border-slate-100 flex justify-between items-center bg-slate-50">
+                <h3 class="text-lg font-bold text-slate-900">上传照片</h3>
+                <button onclick="closeCropperModal()" class="text-slate-400 hover:text-slate-600 transition"><i class="fa-solid fa-xmark text-lg"></i></button>
+            </div>
+
+            <div class="flex-1 p-6 flex flex-col sm:flex-row gap-6 overflow-y-auto">
+                
+                <div class="flex-1 flex flex-col gap-3">
+                    <div class="relative w-full h-[350px] bg-slate-200 border border-slate-300 overflow-hidden cropper-bg flex items-center justify-center">
+                        
+                        <img id="cropper-image" src="" class="max-w-full max-h-full object-contain transition-transform duration-200 origin-center" style="display: none;">
+                        
+                        <div id="cropper-placeholder" class="text-slate-400 flex flex-col items-center">
+                            <i class="fa-regular fa-image text-4xl mb-2"></i>
+                            <span class="text-xs">请选择照片</span>
+                        </div>
+
+                        <div class="absolute inset-0 pointer-events-none" id="crop-overlay" style="display: none;">
+                            <div class="absolute inset-0 bg-black/50"></div>
+                            <div class="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[200px] h-[280px] bg-transparent border-2 border-brand-500 shadow-[0_0_0_9999px_rgba(0,0,0,0.5)]">
+                                <div class="absolute -top-8 left-0 bg-black/70 text-white text-[10px] px-2 py-1 rounded">295 × 413</div>
+                            </div>
+                        </div>
+                    </div>
+                    <p class="text-xs text-slate-500">2. 上传照片后在此区域可以通过按钮调整照片大小、位置；</p>
+                </div>
+
+                <div class="w-full sm:w-48 flex flex-col items-center gap-4 flex-shrink-0">
+                    <span class="text-sm font-bold text-slate-600">预览</span>
+                    <div class="w-[120px] h-[168px] bg-slate-100 border border-slate-200 overflow-hidden rounded-sm relative">
+                        <img id="preview-image" src="" class="w-full h-full object-cover" style="display: none;">
+                        <div id="preview-placeholder" class="w-full h-full flex items-center justify-center text-slate-300 bg-slate-50">
+                            <span class="text-xs">预览区</span>
+                        </div>
+                    </div>
+                    <div class="text-xs text-slate-400 text-center leading-relaxed">
+                        3. 右侧是调整后的预览效果<br>4. 本页面确定后，完成照片上传
+                    </div>
+                </div>
+            </div>
+
+            <div class="px-6 py-4 border-t border-slate-100 bg-slate-50 flex flex-col sm:flex-row justify-between items-center gap-4">
+                
+                <div class="flex flex-col gap-1 w-full sm:w-auto">
+                    <button onclick="document.getElementById('file-input').click()" class="bg-brand-600 text-white px-6 py-2.5 rounded-lg text-sm font-bold shadow hover:bg-brand-700 transition flex items-center justify-center gap-2">
+                        <i class="fa-solid fa-upload"></i> 选择照片
+                    </button>
+                    <input type="file" id="file-input" accept="image/jpeg, image/png, image/jpg" onchange="handleFileSelect(this)" class="hidden">
+                    <p class="text-[10px] text-slate-400">支持 jpg/png，100K-5M</p>
+                </div>
+
+                <div class="flex items-center gap-2">
+                    <button onclick="rotateImage(-90)" class="w-9 h-9 rounded border border-slate-300 bg-white text-slate-600 hover:bg-slate-50 hover:text-brand-600 transition flex items-center justify-center" title="左旋转">
+                        <i class="fa-solid fa-rotate-left"></i>
+                    </button>
+                    <button onclick="rotateImage(90)" class="w-9 h-9 rounded border border-slate-300 bg-white text-slate-600 hover:bg-slate-50 hover:text-brand-600 transition flex items-center justify-center" title="右旋转">
+                        <i class="fa-solid fa-rotate-right"></i>
+                    </button>
+                    <div class="w-px h-6 bg-slate-300 mx-1"></div>
+                    <button onclick="zoomImage(0.1)" class="w-9 h-9 rounded border border-slate-300 bg-white text-slate-600 hover:bg-slate-50 hover:text-brand-600 transition flex items-center justify-center" title="放大">
+                        <i class="fa-solid fa-magnifying-glass-plus"></i>
+                    </button>
+                    <button onclick="zoomImage(-0.1)" class="w-9 h-9 rounded border border-slate-300 bg-white text-slate-600 hover:bg-slate-50 hover:text-brand-600 transition flex items-center justify-center" title="缩小">
+                        <i class="fa-solid fa-magnifying-glass-minus"></i>
+                    </button>
+                </div>
+
+                <div class="flex gap-3 w-full sm:w-auto sm:justify-end">
+                    <button onclick="confirmCrop()" class="bg-slate-900 text-white px-6 py-2.5 rounded-lg text-sm font-bold shadow hover:bg-slate-800 transition flex-1 sm:flex-none">
+                        确定
+                    </button>
+                    <button onclick="closeCropperModal()" class="border border-slate-300 text-slate-600 px-6 py-2.5 rounded-lg text-sm font-bold hover:bg-slate-100 transition flex-1 sm:flex-none">
+                        取消
+                    </button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // 模拟数据
+        let isMultipleMode = false;
+        const students = [
+            { id: 1, name: '张三', color: 'from-blue-500 to-blue-600', avatar: '' },
+            { id: 2, name: '李四', color: 'from-purple-500 to-purple-600', avatar: '' }
+        ];
+        let currentStudentId = 1;
+
+        // 图片处理变量
+        let currentScale = 1;
+        let currentRotation = 0;
+        let currentImageSrc = null;
+
+        // 初始化
+        renderPage();
+
+        function renderPage() {
+            // 此处省略多学生切换渲染逻辑，保持页面完整性
+            const student = students.find(s => s.id === currentStudentId);
+            document.getElementById('form-name').value = student.name;
+            document.getElementById('form-avatar-text').innerText = student.name.charAt(0);
+            
+            const imgEl = document.getElementById('main-avatar-img');
+            if (student.avatar) {
+                imgEl.src = student.avatar;
+                imgEl.classList.remove('hidden');
+                document.getElementById('form-avatar-text').classList.add('hidden');
+            } else {
+                imgEl.classList.add('hidden');
+                document.getElementById('form-avatar-text').classList.remove('hidden');
+            }
+        }
+
+        /* --- 模态框逻辑 --- */
+        function openCropperModal() {
+            document.getElementById('cropper-modal').classList.remove('hidden');
+            resetCropper();
+        }
+
+        function closeCropperModal() {
+            document.getElementById('cropper-modal').classList.add('hidden');
+        }
+
+        /* --- 图片上传与校验逻辑 --- */
+        function handleFileSelect(input) {
+            const file = input.files[0];
+            if (!file) return;
+
+            const minSize = 100 * 1024; // 100KB
+            const maxSize = 5 * 1024 * 1024; // 5MB
+
+            if (file.size < minSize || file.size > maxSize) {
+                alert("上传照片大小 小于100K/大于5M，请重新上传");
+                input.value = ''; 
+                return;
+            }
+
+            const reader = new FileReader();
+            reader.onload = function(e) {
+                currentImageSrc = e.target.result;
+                
+                const cropImg = document.getElementById('cropper-image');
+                cropImg.src = currentImageSrc;
+                cropImg.style.display = 'block';
+                document.getElementById('cropper-placeholder').style.display = 'none';
+                document.getElementById('crop-overlay').style.display = 'block';
+
+                const prevImg = document.getElementById('preview-image');
+                prevImg.src = currentImageSrc;
+                prevImg.style.display = 'block';
+                document.getElementById('preview-placeholder').style.display = 'none';
+
+                currentScale = 1;
+                currentRotation = 0;
+                applyTransform();
+            }
+            reader.readAsDataURL(file);
+        }
+
+        /* --- 缩放与旋转模拟 --- */
+        function zoomImage(delta) {
+            if (!currentImageSrc) return;
+            currentScale += delta;
+            if (currentScale < 0.1) currentScale = 0.1;
+            applyTransform();
+        }
+
+        function rotateImage(deg) {
+            if (!currentImageSrc) return;
+            currentRotation += deg;
+            applyTransform();
+        }
+
+        function applyTransform() {
+            const cropImg = document.getElementById('cropper-image');
+            const prevImg = document.getElementById('preview-image');
+            
+            const transformStyle = `scale(${currentScale}) rotate(${currentRotation}deg)`;
+            
+            cropImg.style.transform = transformStyle;
+            // 预览图也简单应用旋转，实际裁剪逻辑通常在后端或Canvas处理
+            prevImg.style.transform = `rotate(${currentRotation}deg)`; 
+        }
+
+        function resetCropper() {
+            currentImageSrc = null;
+            document.getElementById('file-input').value = '';
+            document.getElementById('cropper-image').style.display = 'none';
+            document.getElementById('cropper-placeholder').style.display = 'flex';
+            document.getElementById('crop-overlay').style.display = 'none';
+            
+            document.getElementById('preview-image').style.display = 'none';
+            document.getElementById('preview-placeholder').style.display = 'flex';
+        }
+
+        function confirmCrop() {
+            if (!currentImageSrc) {
+                alert("请先选择照片");
+                return;
+            }
+            
+            const student = students.find(s => s.id === currentStudentId);
+            student.avatar = currentImageSrc; 
+            
+            renderPage(); 
+            closeCropperModal();
+        }
+
+        function saveProfile() {
+            const btn = document.getElementById('save-btn');
+            const originalContent = btn.innerHTML;
+            btn.disabled = true;
+            btn.innerHTML = '<i class="fa-solid fa-circle-notch fa-spin"></i> 保存中...';
+            setTimeout(() => {
+                btn.innerHTML = '<i class="fa-solid fa-check"></i> 保存成功';
+                setTimeout(() => {
+                    btn.disabled = false;
+                    btn.innerHTML = originalContent;
+                }, 1500);
+            }, 1000);
+        }
+    </script>
+</body>
+</html>

@@ -1,0 +1,467 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>趣味编程大冒险 - AIGC绘图题</title>
+    <style>
+        /* --- 1. 全局童真风格定义 (保持标准版一致) --- */
+        :root {
+            --bg-color: #e0f2f1;
+            --sidebar-bg: #e1f5fe;
+            --primary-blue: #4fc3f7;
+            --primary-dark: #0277bd;
+            
+            --btn-green: #66bb6a;
+            --btn-green-hover: #43a047;
+            
+            --accent-pink: #ff8a80;
+            --accent-green: #aed581;
+            --text-red: #ff5252;
+            --ink-color: #455a64;
+            
+            /* AIGC 专用颜色 */
+            --magic-purple: #ab47bc;
+            --magic-purple-hover: #8e24aa;
+            
+            --border-width: 3px;
+            --border-color: #81d4fa;
+            
+            --shadow-pop: 4px 4px 0px rgba(79, 195, 247, 0.4); 
+            --radius-box: 20px;
+            --header-height: 70px;
+        }
+
+        * { box-sizing: border-box; margin: 0; padding: 0; outline: none; }
+
+        body {
+            font-family: "Comic Sans MS", "Chalkboard SE", "幼圆", "Yuppy SC", "Microsoft YaHei", sans-serif;
+            background-color: var(--bg-color);
+            background-image: radial-gradient(#b2ebf2 10%, transparent 10%);
+            background-size: 20px 20px;
+            height: 100vh;
+            display: flex;
+            color: var(--ink-color);
+            overflow: hidden;
+        }
+
+        /* 滚动条美化 */
+        ::-webkit-scrollbar { width: 10px; height: 10px; }
+        ::-webkit-scrollbar-thumb { background: var(--primary-blue); border-radius: 10px; border: 2px solid #fff; }
+        ::-webkit-scrollbar-track { background: transparent; }
+
+        /* --- 侧边栏通用样式 (保持一致) --- */
+        .sidebar {
+            width: 280px; background: var(--sidebar-bg);
+            position: relative; display: flex; flex-direction: column; z-index: 20; flex-shrink: 0;
+            transition: width 0.3s cubic-bezier(0.25, 0.8, 0.25, 1);
+            border-right: var(--border-width) dashed var(--border-color);
+        }
+        .sidebar.collapsed { width: 0; border-right: none; }
+        
+        .sidebar-toggle-handle {
+            position: absolute; top: 50%; right: -24px; width: 24px; height: 80px;
+            background: #b3e5fc; border: 2px solid #81d4fa; border-left: none; 
+            border-radius: 0 15px 15px 0; cursor: pointer; display: flex; align-items: center; justify-content: center;
+            color: #0277bd; font-weight: bold; font-size: 14px; z-index: 30;
+            transform: translateY(-50%); box-shadow: 2px 2px 0 rgba(0,0,0,0.1); transition: all 0.3s;
+        }
+        .sidebar-toggle-handle:hover { background: #81d4fa; color: #fff; }
+        .sidebar-mask { width: 100%; height: 100%; overflow: hidden; position: relative; }
+        .sidebar-inner { width: 280px; height: 100%; display: flex; flex-direction: column; overflow-y: auto; padding-bottom: 20px; }
+
+        .user-profile {
+            padding: 15px; background: #fff; margin: 15px; border-radius: var(--radius-box);
+            border: var(--border-width) solid var(--border-color); box-shadow: var(--shadow-pop);
+            text-align: center; white-space: nowrap; 
+        }
+        .camera-box {
+            width: 100%; aspect-ratio: 4 / 3; background: #000; margin: 0 auto 10px auto; 
+            border-radius: 10px; border: 2px solid #333; overflow: hidden; position: relative;
+        }
+        .camera-box img { width: 100%; height: 100%; object-fit: cover; display: block; }
+        .camera-dot {
+            position: absolute; top: 8px; right: 8px; width: 10px; height: 10px; 
+            background: red; border-radius: 50%; animation: blink 1s infinite; border: 1px solid #fff;
+        }
+        @keyframes blink { 50% { opacity: 0; } }
+
+        .question-map-container { flex: 1; padding: 0 15px 5px 15px; }
+        .chapter-title {
+            font-size: 14px; color: #0277bd; margin: 15px 0 8px 0; font-weight: bold;
+            display: flex; align-items: center; white-space: nowrap;
+        }
+        .chapter-title::before { content: "🔹"; margin-right: 5px; font-size: 12px; }
+        .question-grid { display: grid; grid-template-columns: repeat(4, 1fr); gap: 12px; padding-bottom: 10px; }
+        
+        .q-tag {
+            width: 45px; height: 45px; background: #fff;
+            border: var(--border-width) solid #b3e5fc; border-radius: 50% 40% 50% 40%;
+            display: flex; align-items: center; justify-content: center;
+            font-size: 16px; font-weight: bold; cursor: pointer; transition: all 0.2s; color: #81d4fa;
+        }
+        .q-tag:hover { transform: scale(1.1) rotate(-5deg); border-color: var(--primary-blue); }
+        .q-tag.active { 
+            background: var(--primary-blue); color: #fff; border-color: #0288d1;
+            transform: scale(1.1); box-shadow: 2px 2px 0px rgba(0,0,0,0.1);
+        }
+        .sidebar-footer {
+            margin: 10px 15px; background: rgba(255,255,255,0.6); border-radius: 15px;
+            padding: 10px; font-size: 12px; display: flex; justify-content: center; gap: 20px; white-space: nowrap;
+        }
+        .legend-item { display: flex; align-items: center; gap: 4px; color: #666; font-weight: bold; }
+        .dot { width: 12px; height: 12px; border-radius: 50%; display: inline-block; border: 2px solid rgba(0,0,0,0.1); }
+
+        /* --- 主内容区通用样式 --- */
+        .main-container {
+            flex: 1; display: flex; flex-direction: column;
+            background: rgba(255, 255, 255, 0.6); margin: 10px; border-radius: 30px; 
+            border: var(--border-width) solid #fff; box-shadow: 0 10px 30px rgba(129, 212, 250, 0.3); 
+            overflow: hidden; position: relative;
+        }
+        .top-bar {
+            height: var(--header-height); background: #fff; border-bottom: var(--border-width) dashed #b3e5fc;
+            display: flex; align-items: center; justify-content: space-between; padding: 0 20px; flex-shrink: 0;
+        }
+        .exam-title { font-size: 18px; font-weight: 800; color: var(--primary-dark); }
+        .nav-controller { flex: 1; display: flex; justify-content: center; gap: 20px; }
+        .nav-pill-btn {
+            background: #fff; border: 2px solid #b0bec5; padding: 8px 25px; border-radius: 20px;
+            cursor: pointer; font-weight: bold; color: #78909c; box-shadow: 0 4px 0 #cfd8dc; transition: 0.1s;
+        }
+        .nav-pill-btn:hover { background: #eceff1; transform: translateY(-2px); }
+        .nav-pill-btn:active { box-shadow: 0 2px 0 #cfd8dc; transform: translateY(2px); }
+        .top-tools { display: flex; align-items: center; gap: 15px; }
+        .timer-box {
+            background: #fff; color: var(--text-red); padding: 6px 15px; border-radius: 20px; 
+            font-weight: bold; font-family: monospace; border: 2px solid var(--text-red);
+            box-shadow: 2px 2px 0 #ffebee; transform: rotate(2deg); min-width: 80px; display: flex; justify-content: center;
+        }
+        .btn-icon {
+            background: #fff; border: 2px solid #b0bec5; width: 40px; height: 40px;
+            border-radius: 10px; cursor: pointer; display: flex; align-items: center; justify-content: center;
+            font-size: 18px; box-shadow: 0 3px 0 #cfd8dc;
+        }
+        .btn-submit-big {
+            background: var(--btn-green); color: #fff; border: 2px solid #2e7d32;
+            padding: 8px 25px; border-radius: 15px; font-size: 16px; font-weight: 900;
+            cursor: pointer; box-shadow: 0 5px 0 #1b5e20; transition: 0.2s; display: flex; align-items: center; gap: 5px;
+        }
+        .btn-submit-big:hover { background: var(--btn-green-hover); transform: scale(1.05); }
+        .btn-submit-big:active { box-shadow: 0 2px 0 #1b5e20; transform: translateY(3px); }
+
+        /* --- 题目容器通用 --- */
+        .question-wrapper { flex: 1; position: relative; overflow: hidden; padding: 0; }
+        .question-card { display: none; height: 100%; overflow-y: auto; padding: 30px; animation: fadeIn 0.3s; }
+        .question-card.active-card { display: block; }
+        @keyframes fadeIn { from { opacity: 0; transform: translateY(10px); } to { opacity: 1; transform: translateY(0); } }
+
+        /* --- 左右分栏布局 (用于AIGC题) --- */
+        .question-card.layout-split {
+            flex-direction: row; padding: 20px; gap: 20px; background: transparent; overflow: hidden;
+        }
+        .question-card.layout-split.active-card { display: flex; }
+        
+        /* 左侧：题目要求区 */
+        .split-col-left {
+            flex: 1; background: #fff; border-radius: 20px; padding: 25px;
+            overflow-y: auto; height: 100%; box-shadow: var(--shadow-pop); 
+            border: var(--border-width) solid #b39ddb; background: #fdfbff;
+        }
+        /* 右侧：操作区 */
+        .split-col-right {
+            flex: 1.2; /* 右侧稍微宽一点，给图片更多空间 */
+            background: #fff; border-radius: 20px; padding: 20px;
+            overflow-y: auto; height: 100%; box-shadow: var(--shadow-pop); 
+            border: var(--border-width) solid var(--primary-blue);
+            display: flex; flex-direction: column;
+        }
+
+        /* --- AIGC 题型专属样式 --- */
+        
+        /* 1. 输入区域 */
+        .aigc-input-area { margin-bottom: 20px; }
+        .prompt-textarea {
+            width: 100%; height: 80px; padding: 15px; margin-bottom: 10px;
+            border: 2px solid #ddd; border-radius: 15px; resize: none;
+            font-family: inherit; font-size: 15px; background: #fafafa;
+            transition: 0.2s;
+        }
+        .prompt-textarea:focus { border-color: var(--magic-purple); background: #fff; }
+        
+        .gen-btn {
+            width: 100%; background: var(--magic-purple); color: #fff; border: none;
+            padding: 10px; border-radius: 12px; font-weight: bold; cursor: pointer;
+            box-shadow: 0 4px 0 #7b1fa2; transition: 0.1s; display: flex; justify-content: center; align-items: center; gap: 8px;
+        }
+        .gen-btn:hover { background: var(--magic-purple-hover); transform: translateY(-2px); }
+        .gen-btn:active { box-shadow: 0 2px 0 #7b1fa2; transform: translateY(2px); }
+        .gen-btn:disabled { background: #ccc; box-shadow: none; cursor: not-allowed; transform: none; }
+
+        /* 2. 预览区域 (核心) */
+        .preview-wrapper {
+            flex: 1; border: 2px dashed #b0bec5; border-radius: 15px;
+            background: #f5f5f5; position: relative; overflow: hidden;
+            display: flex; align-items: center; justify-content: center;
+            min-height: 250px; margin-bottom: 15px;
+        }
+        
+        /* 状态A: 空闲提示 */
+        .state-empty { text-align: center; color: #90a4ae; }
+        .state-empty i { font-size: 40px; display: block; margin-bottom: 10px; opacity: 0.5; }
+
+        /* 状态B: 生成中 */
+        .state-loading { display: none; text-align: center; color: var(--magic-purple); }
+        .spinner {
+            width: 40px; height: 40px; border: 4px solid #e1bee7; border-top: 4px solid var(--magic-purple);
+            border-radius: 50%; animation: spin 1s linear infinite; margin: 0 auto 15px auto;
+        }
+        @keyframes spin { 0% { transform: rotate(0deg); } 100% { transform: rotate(360deg); } }
+
+        /* 状态C: 结果展示 */
+        .state-result { display: none; width: 100%; height: 100%; position: relative; }
+        .generated-img { width: 100%; height: 100%; object-fit: contain; background: #000; }
+        
+        /* 状态D: 失败 */
+        .state-error { display: none; text-align: center; color: var(--text-red); }
+
+        /* 3. 历史记录条 */
+        .history-strip {
+            height: 70px; display: flex; gap: 10px; overflow-x: auto; 
+            padding: 5px; margin-bottom: 15px; border-top: 1px dashed #eee; padding-top: 15px;
+        }
+        .history-thumb {
+            width: 60px; height: 60px; border-radius: 8px; border: 2px solid transparent;
+            cursor: pointer; object-fit: cover; opacity: 0.7; transition: 0.2s; flex-shrink: 0;
+            background: #eee;
+        }
+        .history-thumb:hover { opacity: 1; transform: scale(1.05); }
+        .history-thumb.active { border-color: var(--primary-dark); opacity: 1; box-shadow: 0 0 0 2px var(--primary-blue); }
+
+        /* 4. 确认提交按钮 */
+        .confirm-answer-btn {
+            background: #ffb74d; color: #e65100; border: 2px solid #ef6c00;
+            padding: 10px; border-radius: 12px; font-weight: bold; cursor: pointer;
+            box-shadow: 0 4px 0 #ef6c00; width: 100%; text-align: center;
+        }
+        .confirm-answer-btn:hover { background: #ffa726; }
+        .confirm-answer-btn:active { box-shadow: 0 2px 0 #ef6c00; transform: translateY(2px); }
+
+    </style>
+</head>
+<body>
+
+    <aside class="sidebar" id="sidebar">
+        <div class="sidebar-toggle-handle" onclick="toggleSidebar()"><span id="toggle-icon">◀</span></div>
+        <div class="sidebar-mask">
+            <div class="sidebar-inner">
+                <div class="user-profile">
+                    <div class="camera-box">
+                        <img src="https://api.dicebear.com/7.x/avataaars/svg?seed=Felix" alt="Live Camera">
+                        <div class="camera-dot"></div>
+                    </div>
+                    <div style="font-size: 16px; font-weight: bold; color: #0277bd; margin-top: 5px;">王小明</div>
+                    <div style="font-size: 12px; color: #78909c;">📷 实时监考中</div>
+                </div>
+
+                <div class="question-map-container">
+                    <div class="chapter-title">第一部分：AI创作</div>
+                    <div class="question-grid">
+                        <div class="q-tag active" onclick="jumpTo(1)">1</div>
+                    </div>
+                </div>
+
+                <div class="sidebar-footer">
+                    <div class="legend-item"><span class="dot" style="background:var(--primary-blue)"></span>当前</div>
+                    <div class="legend-item"><span class="dot" style="background:var(--accent-green)"></span>已作答</div>
+                </div>
+            </div>
+        </div>
+    </aside>
+
+    <main class="main-container">
+        <header class="top-bar">
+            <div class="top-left-group">
+                <div class="exam-title">AICE2024 人工智能绘图专项</div>
+            </div>
+            <div class="nav-controller">
+                <button class="nav-pill-btn" disabled style="opacity:0.5; cursor:not-allowed">⬅️ <span>上一题</span></button>
+                <button class="nav-pill-btn" disabled style="opacity:0.5; cursor:not-allowed"><span>下一题</span> ➡️</button>
+            </div>
+            <div class="top-tools">
+                <div class="timer-box">29:59</div>
+                <button class="btn-icon" onclick="toggleFullScreen()" title="全屏">⛶</button>
+                <button class="btn-submit-big" onclick="alert('交卷成功！')">✅ 交卷</button>
+            </div>
+        </header>
+
+        <div class="question-wrapper">
+            
+            <div id="q-1" class="question-card layout-split active-card">
+                
+                <div class="split-col-left">
+                    <h4 style="margin-bottom:15px; color:#5e35b1; font-size:18px;">🎨 任务：设计未来城市</h4>
+                    <div style="font-size: 16px; line-height: 1.8; color: #333;">
+                        <p><b>背景描述：</b></p>
+                        <p>请你发挥想象力，利用 AI 绘图工具生成一张“2050年的未来城市”概念图。</p>
+                        <hr style="border:1px dashed #ddd; margin: 15px 0;">
+                        <p><b>具体要求：</b></p>
+                        <ul style="padding-left: 20px; list-style-type: circle;">
+                            <li>画面中必须包含<b>飞行汽车</b>。</li>
+                            <li>建筑风格应具有<b>赛博朋克</b>或<b>高科技</b>感。</li>
+                            <li>色调建议使用蓝色或紫色。</li>
+                        </ul>
+                        <p style="margin-top:20px; background:#e1f5fe; padding:10px; border-radius:10px; color:#0277bd; font-size:14px;">
+                            💡 <b>提示：</b> 尝试在提示词中加入 "flying cars", "neon lights", "futuristic buildings" 等关键词。
+                        </p>
+                    </div>
+                </div>
+
+                <div class="split-col-right">
+                    
+                    <div class="aigc-input-area">
+                        <label style="font-weight:bold; color:#455a64; font-size:14px; margin-bottom:5px; display:block;">✨ 咒语输入区 (Prompt)</label>
+                        <textarea class="prompt-textarea" id="promptInput" placeholder="请输入你的绘画提示词，例如：一座漂浮在空中的城市..."></textarea>
+                        <button class="gen-btn" id="generateBtn" onclick="startGeneration()">
+                            <span>🪄 开始生成 (Generate)</span>
+                        </button>
+                    </div>
+
+                    <div class="preview-wrapper" id="previewBox">
+                        
+                        <div class="state-empty" id="stateEmpty">
+                            <i>🖼️</i>
+                            <p>生成的图片将显示在这里</p>
+                        </div>
+
+                        <div class="state-loading" id="stateLoading">
+                            <div class="spinner"></div>
+                            <p>AI 正在挥动画笔...<br><span style="font-size:12px; color:#999">预计剩余 3 秒</span></p>
+                        </div>
+
+                        <div class="state-result" id="stateResult">
+                            <img src="" class="generated-img" id="resultImg" alt="AI Result">
+                        </div>
+                        
+                        <div class="state-error" id="stateError">
+                            <p>⚠️ 生成失败，请检查网络或重试</p>
+                        </div>
+                    </div>
+
+                    <div style="font-size:12px; color:#78909c; font-weight:bold;">🕒 生成历史 (点击切换)</div>
+                    <div class="history-strip" id="historyStrip">
+                        <span style="font-size:12px; color:#ccc; line-height:60px; padding-left:10px;">暂无历史记录</span>
+                    </div>
+
+                    <div style="margin-top:auto;">
+                        <button class="confirm-answer-btn" onclick="confirmSelection()">
+                            📌 确认提交这张图片
+                        </button>
+                    </div>
+
+                </div>
+            </div>
+
+        </div>
+    </main>
+
+    <script>
+        // --- 侧边栏逻辑 ---
+        function toggleSidebar() {
+            const sidebar = document.getElementById('sidebar');
+            const icon = document.getElementById('toggle-icon');
+            sidebar.classList.toggle('collapsed');
+            icon.innerText = sidebar.classList.contains('collapsed') ? "▶" : "◀";
+        }
+        function toggleFullScreen() {
+            if (!document.fullscreenElement) document.documentElement.requestFullscreen();
+            else if (document.exitFullscreen) document.exitFullscreen();
+        }
+
+        // --- AIGC 交互逻辑 ---
+        
+        // 模拟图库
+        const mockImages = [
+            "https://picsum.photos/id/1/400/400",
+            "https://picsum.photos/id/16/400/400",
+            "https://picsum.photos/id/24/400/400",
+            "https://picsum.photos/id/48/400/400"
+        ];
+        let historyCount = 0;
+
+        function startGeneration() {
+            const prompt = document.getElementById('promptInput').value;
+            if(!prompt.trim()) {
+                alert("请先输入提示词！");
+                return;
+            }
+
+            // 1. 切换到 Loading 状态
+            switchState('loading');
+            document.getElementById('generateBtn').disabled = true;
+
+            // 2. 模拟 2秒后生成成功
+            setTimeout(() => {
+                const randomImg = mockImages[historyCount % mockImages.length];
+                
+                // 显示结果
+                document.getElementById('resultImg').src = randomImg;
+                switchState('result');
+                
+                // 添加到历史
+                addToHistory(randomImg);
+                historyCount++;
+
+                document.getElementById('generateBtn').disabled = false;
+            }, 2000);
+        }
+
+        function switchState(state) {
+            // 隐藏所有状态
+            document.getElementById('stateEmpty').style.display = 'none';
+            document.getElementById('stateLoading').style.display = 'none';
+            document.getElementById('stateResult').style.display = 'none';
+            document.getElementById('stateError').style.display = 'none';
+
+            // 显示目标状态
+            if(state === 'empty') document.getElementById('stateEmpty').style.display = 'block';
+            else if(state === 'loading') document.getElementById('stateLoading').style.display = 'block';
+            else if(state === 'result') document.getElementById('stateResult').style.display = 'block';
+            else if(state === 'error') document.getElementById('stateError').style.display = 'block';
+        }
+
+        function addToHistory(imgSrc) {
+            const strip = document.getElementById('historyStrip');
+            // 如果是第一次，清空提示文案
+            if(historyCount === 0) strip.innerHTML = '';
+
+            const img = document.createElement('img');
+            img.src = imgSrc;
+            img.className = 'history-thumb active';
+            img.onclick = function() {
+                // 点击历史切换大图
+                document.getElementById('resultImg').src = imgSrc;
+                switchState('result');
+                // 更新选中态
+                document.querySelectorAll('.history-thumb').forEach(el => el.classList.remove('active'));
+                this.classList.add('active');
+            };
+
+            // 新生成的默认选中，取消其他的选中
+            document.querySelectorAll('.history-thumb').forEach(el => el.classList.remove('active'));
+            strip.prepend(img); // 最新在最前
+        }
+
+        function confirmSelection() {
+            const resultState = document.getElementById('stateResult').style.display;
+            if(resultState === 'block' || resultState === '') {
+                alert("已锁定当前图片作为本题答案！");
+                // 视觉反馈
+                document.querySelector('.q-tag.active').classList.add('done');
+            } else {
+                alert("请先生成一张图片！");
+            }
+        }
+    </script>
+</body>
+</html>

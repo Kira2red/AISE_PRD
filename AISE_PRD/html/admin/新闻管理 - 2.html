@@ -1,0 +1,406 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>新闻管理 - AICA 后台</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+
+    <script>
+        tailwind.config = {
+            theme: {
+                extend: {
+                    fontFamily: {
+                        sans: ['Inter', 'sans-serif'],
+                        mono: ['JetBrains Mono', 'monospace'],
+                    },
+                    colors: {
+                        brand: { 50: '#eff6ff', 100: '#dbeafe', 500: '#3b82f6', 600: '#2563eb', 700: '#1d4ed8' },
+                    },
+                    boxShadow: {
+                        'card': '0 1px 3px 0 rgba(0, 0, 0, 0.1), 0 1px 2px 0 rgba(0, 0, 0, 0.06)',
+                        'editor': '0 10px 30px -5px rgba(0, 0, 0, 0.05)',
+                    }
+                }
+            }
+        }
+    </script>
+    <style>
+        body { background-color: #F8FAFC; }
+        .hide-scroll::-webkit-scrollbar { display: none; }
+        
+        /* 侧边栏选中态 */
+        .nav-item.active::before {
+            content: ''; position: absolute; left: 0; top: 50%; transform: translateY(-50%);
+            width: 4px; height: 24px; background-color: #3b82f6; border-radius: 0 4px 4px 0;
+        }
+        tr.hover-row:hover td { background-color: #f8fafc; }
+
+        /* 排序动画 */
+        .row-moving { background-color: #eff6ff !important; transition: background-color 0.5s ease; }
+
+        /* 编辑器样式模拟 */
+        .editor-content:empty:before { content: attr(placeholder); color: #94a3b8; }
+        .editor-content p { margin-bottom: 1em; line-height: 1.75; }
+        .editor-content h2 { font-size: 1.25em; font-weight: 700; margin-top: 1.5em; margin-bottom: 0.5em; color: #1e293b; }
+        
+        /* 上传区域虚线动画 */
+        .upload-zone:hover { border-color: #3b82f6; background-color: #eff6ff; }
+        
+        /* Tab 样式 */
+        .tab-item.active { color: #2563eb; background-color: #eff6ff; font-weight: 600; }
+    </style>
+</head>
+<body class="flex h-screen overflow-hidden text-slate-800 font-sans">
+
+    <aside class="w-64 bg-white border-r border-slate-200 flex flex-col flex-shrink-0 z-20">
+        <div class="h-16 flex items-center px-6 border-b border-slate-100">
+            <div class="w-8 h-8 bg-gradient-to-br from-brand-600 to-indigo-600 rounded-lg flex items-center justify-center text-white font-bold text-lg mr-3 shadow-sm">A</div>
+            <span class="font-bold text-lg text-slate-800 tracking-tight">AICA Admin</span>
+        </div>
+        <nav class="flex-1 overflow-y-auto py-4 space-y-1">
+            <a href="#" class="nav-item flex items-center gap-3 px-6 py-3 text-slate-500 hover:bg-slate-50 hover:text-brand-600 transition relative">
+                <i class="fa-solid fa-layer-group w-5 text-center"></i><span class="font-medium text-sm">题库管理</span>
+            </a>
+            <a href="#" class="nav-item flex items-center gap-3 px-6 py-3 text-slate-500 hover:bg-slate-50 hover:text-brand-600 transition relative">
+                <i class="fa-solid fa-file-lines w-5 text-center"></i><span class="font-medium text-sm">试卷管理</span>
+            </a>
+            <a href="#" class="nav-item flex items-center gap-3 px-6 py-3 text-slate-500 hover:bg-slate-50 hover:text-brand-600 transition relative">
+                <i class="fa-solid fa-graduation-cap w-5 text-center"></i><span class="font-medium text-sm">测评管理</span>
+            </a>
+            <div class="px-6 py-2 mt-4 text-xs font-bold text-slate-400 uppercase tracking-wider">考务与用户</div>
+            <a href="#" class="nav-item flex items-center gap-3 px-6 py-3 text-slate-500 hover:bg-slate-50 hover:text-brand-600 transition relative">
+                <i class="fa-solid fa-users w-5 text-center"></i><span class="font-medium text-sm">考生管理</span>
+            </a>
+            <a href="#" class="nav-item flex items-center gap-3 px-6 py-3 text-slate-500 hover:bg-slate-50 hover:text-brand-600 transition relative">
+                <i class="fa-solid fa-clipboard-check w-5 text-center"></i><span class="font-medium text-sm">报名管理</span>
+            </a>
+            <a href="#" class="nav-item active flex items-center gap-3 px-6 py-3 text-brand-600 bg-brand-50 transition relative">
+                <i class="fa-regular fa-newspaper w-5 text-center"></i><span class="font-medium text-sm">新闻管理</span>
+            </a>
+        </nav>
+    </aside>
+
+    <main class="flex-1 flex flex-col min-w-0 bg-slate-50/50 relative">
+
+        <div id="view-list" class="flex flex-col h-full">
+            <header class="h-16 bg-white border-b border-slate-200 flex items-center justify-between px-8 flex-shrink-0 z-10">
+                <h1 class="text-xl font-bold text-slate-800">新闻资讯管理</h1>
+                <button onclick="switchView('editor', 'create')" class="bg-brand-600 hover:bg-brand-700 text-white text-sm font-medium px-5 py-2.5 rounded-lg shadow-sm transition flex items-center gap-2">
+                    <i class="fa-solid fa-pen-to-square"></i> 发布文章
+                </button>
+            </header>
+
+            <div class="px-8 py-6">
+                <div class="bg-white rounded-xl shadow-card border border-slate-100 p-4 flex flex-wrap justify-between items-center gap-4">
+                    <div class="flex bg-slate-100 p-1 rounded-lg">
+                        <button class="tab-item active px-4 py-1.5 rounded-md text-sm transition">全部</button>
+                        <button class="tab-item px-4 py-1.5 rounded-md text-slate-500 hover:text-slate-700 text-sm transition">已发布</button>
+                        <button class="tab-item px-4 py-1.5 rounded-md text-slate-500 hover:text-slate-700 text-sm transition">草稿箱</button>
+                    </div>
+                    
+                    <div class="flex items-center gap-3">
+                        <select class="px-3 py-2 rounded-lg border border-slate-200 text-sm text-slate-600 bg-white outline-none hover:border-slate-300 cursor-pointer min-w-[160px]">
+                            <option value="">全部组织</option>
+                            <option value="aica" selected>AICA 专项组织</option>
+                            <option value="yb">猿编程</option>
+                        </select>
+                        
+                        <div class="relative w-64">
+                            <i class="fa-solid fa-magnifying-glass absolute left-3 top-1/2 transform -translate-y-1/2 text-slate-400 text-sm"></i>
+                            <input type="text" placeholder="搜索文章标题..." class="w-full pl-9 pr-4 py-2 rounded-lg border border-slate-200 text-sm focus:border-brand-500 outline-none transition">
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="flex-1 overflow-y-auto px-8 pb-8 custom-scroll">
+                <div class="bg-white rounded-xl shadow-card border border-slate-200 overflow-hidden">
+                    <table class="w-full text-left border-collapse">
+                        <thead>
+                            <tr class="border-b border-slate-100 bg-slate-50 text-xs uppercase text-slate-500 font-bold">
+                                <th class="p-4 pl-6 w-16">封面</th>
+                                <th class="p-4">标题 / 摘要</th>
+                                <th class="p-4 w-40">所属组织</th>
+                                <th class="p-4 w-24">分类</th>
+                                <th class="p-4 w-24">数据</th>
+                                <th class="p-4 w-24">状态</th>
+                                <th class="p-4 w-32">发布时间</th>
+                                <th class="p-4 text-right pr-6 w-48">操作</th>
+                            </tr>
+                        </thead>
+                        <tbody class="text-sm text-slate-700 divide-y divide-slate-100" id="news-tbody">
+                            
+                            <tr class="hover-row transition group">
+                                <td class="p-4 pl-6">
+                                    <div class="w-10 h-10 rounded bg-slate-100 overflow-hidden border border-slate-200">
+                                        <img src="https://images.unsplash.com/photo-1531482615713-2afd69097998?auto=format&fit=crop&w=100&q=80" class="w-full h-full object-cover">
+                                    </div>
+                                </td>
+                                <td class="p-4">
+                                    <p class="font-bold text-slate-800 mb-1 line-clamp-1 group-hover:text-brand-600 transition cursor-pointer" onclick="switchView('editor', 'edit')">国务院印发《新一代人工智能发展规划》重要通知</p>
+                                    <p class="text-xs text-slate-400 line-clamp-1">为抢抓人工智能发展的重大战略机遇...</p>
+                                </td>
+                                <td class="p-4">
+                                    <span class="inline-flex items-center gap-1.5 px-2 py-1 rounded text-xs font-bold bg-indigo-50 text-indigo-700 border border-indigo-100">
+                                        <i class="fa-solid fa-building-columns"></i> AICA 专项
+                                    </span>
+                                </td>
+                                <td class="p-4"><span class="bg-slate-100 text-slate-500 px-2 py-0.5 rounded text-xs">政策</span></td>
+                                <td class="p-4 font-mono text-slate-500 text-xs">2,341</td>
+                                <td class="p-4"><span class="text-xs text-green-600 font-bold">● 已发布</span></td>
+                                <td class="p-4 text-xs text-slate-500 font-mono">2025-05-20</td>
+                                <td class="p-4 text-right pr-6">
+                                    <div class="flex justify-end gap-1">
+                                        <button onclick="moveRow(this, 'up')" class="text-slate-400 hover:text-brand-600 px-2 py-1 rounded hover:bg-slate-100 transition" title="上移"><i class="fa-solid fa-arrow-up"></i></button>
+                                        <button onclick="moveRow(this, 'down')" class="text-slate-400 hover:text-brand-600 px-2 py-1 rounded hover:bg-slate-100 transition" title="下移"><i class="fa-solid fa-arrow-down"></i></button>
+                                        <div class="w-px h-4 bg-slate-200 mx-1 my-auto"></div>
+                                        <button onclick="switchView('editor', 'edit')" class="text-slate-400 hover:text-brand-600 px-2 py-1 rounded hover:bg-slate-100 transition" title="编辑"><i class="fa-regular fa-pen-to-square"></i></button>
+                                        <button class="text-slate-400 hover:text-red-500 px-2 py-1 rounded hover:bg-slate-100 transition" title="删除"><i class="fa-regular fa-trash-can"></i></button>
+                                    </div>
+                                </td>
+                            </tr>
+
+                            <tr class="hover-row transition group">
+                                <td class="p-4 pl-6">
+                                    <div class="w-10 h-10 rounded bg-slate-100 overflow-hidden border border-slate-200 flex items-center justify-center text-slate-300">
+                                        <i class="fa-regular fa-image"></i>
+                                    </div>
+                                </td>
+                                <td class="p-4">
+                                    <p class="font-bold text-slate-800 mb-1 line-clamp-1 group-hover:text-brand-600 transition cursor-pointer" onclick="switchView('editor', 'edit')">2025年度 AICA 赛事常见问题解答 (FAQ)</p>
+                                    <p class="text-xs text-slate-400 line-clamp-1">汇总了近期考生咨询较多...</p>
+                                </td>
+                                <td class="p-4">
+                                    <span class="inline-flex items-center gap-1.5 px-2 py-1 rounded text-xs font-bold bg-indigo-50 text-indigo-700 border border-indigo-100">
+                                        <i class="fa-solid fa-building-columns"></i> AICA 专项
+                                    </span>
+                                </td>
+                                <td class="p-4"><span class="bg-slate-100 text-slate-500 px-2 py-0.5 rounded text-xs">公告</span></td>
+                                <td class="p-4 font-mono text-slate-500 text-xs">-</td>
+                                <td class="p-4"><span class="text-xs text-slate-400 font-bold">○ 草稿</span></td>
+                                <td class="p-4 text-xs text-slate-500 font-mono">14:30</td>
+                                <td class="p-4 text-right pr-6">
+                                    <div class="flex justify-end gap-1">
+                                        <button onclick="moveRow(this, 'up')" class="text-slate-400 hover:text-brand-600 px-2 py-1 rounded hover:bg-slate-100 transition" title="上移"><i class="fa-solid fa-arrow-up"></i></button>
+                                        <button onclick="moveRow(this, 'down')" class="text-slate-400 hover:text-brand-600 px-2 py-1 rounded hover:bg-slate-100 transition" title="下移"><i class="fa-solid fa-arrow-down"></i></button>
+                                        <div class="w-px h-4 bg-slate-200 mx-1 my-auto"></div>
+                                        <button onclick="switchView('editor', 'edit')" class="text-slate-400 hover:text-brand-600 px-2 py-1 rounded hover:bg-slate-100 transition" title="编辑"><i class="fa-regular fa-pen-to-square"></i></button>
+                                        <button class="text-slate-400 hover:text-red-500 px-2 py-1 rounded hover:bg-slate-100 transition" title="删除"><i class="fa-regular fa-trash-can"></i></button>
+                                    </div>
+                                </td>
+                            </tr>
+
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
+
+        <div id="view-editor" class="hidden flex flex-col h-full bg-slate-50">
+            <header class="h-16 bg-white border-b border-slate-200 flex items-center justify-between px-6 flex-shrink-0 z-30 shadow-sm">
+                <div class="flex items-center gap-4">
+                    <button onclick="switchView('list')" class="w-8 h-8 rounded-full hover:bg-slate-100 flex items-center justify-center text-slate-500 transition">
+                        <i class="fa-solid fa-arrow-left"></i>
+                    </button>
+                    <div class="h-6 w-px bg-slate-200"></div>
+                    <span class="font-bold text-slate-800 text-lg" id="editor-title">发布新闻</span>
+                </div>
+                <div class="flex items-center gap-3">
+                    <span class="text-xs text-slate-400 mr-2 hidden sm:inline flex items-center gap-1">
+                        <i class="fa-solid fa-check"></i> 自动保存于 14:20
+                    </span>
+                    <button class="text-slate-500 hover:text-brand-600 text-sm font-medium px-4 py-2 border border-slate-200 rounded-lg bg-white transition hover:border-brand-300">
+                        预览
+                    </button>
+                    <button class="text-slate-500 hover:text-brand-600 text-sm font-medium px-4 py-2 transition">
+                        存草稿
+                    </button>
+                    <button onclick="publishNews()" class="bg-brand-600 hover:bg-brand-700 text-white text-sm font-medium px-6 py-2 rounded-lg shadow-sm transition flex items-center gap-2" id="btn-publish">
+                        <i class="fa-regular fa-paper-plane"></i> 发布
+                    </button>
+                </div>
+            </header>
+
+            <div class="flex-1 overflow-y-auto p-6 custom-scroll">
+                <div class="max-w-7xl mx-auto grid grid-cols-1 lg:grid-cols-4 gap-6">
+                    
+                    <div class="lg:col-span-3 space-y-4">
+                        <div class="bg-white rounded-xl border border-slate-200 p-6 shadow-sm">
+                            <input type="text" placeholder="请输入文章标题 (30-60字)" class="w-full px-0 py-2 text-3xl font-bold text-slate-800 bg-transparent border-none focus:ring-0 placeholder-slate-300 outline-none mb-4" value="关于举办2025年全国青少年人工智能创新挑战赛的报名通知">
+                            <textarea rows="2" placeholder="摘要..." class="w-full px-4 py-3 rounded-lg border border-slate-200 text-sm focus:border-brand-500 focus:ring-1 outline-none transition resize-none bg-slate-50"></textarea>
+                        </div>
+
+                        <div class="bg-white rounded-xl border border-slate-200 shadow-card flex flex-col min-h-[600px]">
+                            <div class="border-b border-slate-100 p-2 flex items-center gap-1 flex-wrap bg-slate-50/50 rounded-t-xl sticky top-0 z-10">
+                                <button class="w-8 h-8 flex items-center justify-center rounded hover:bg-slate-200 text-slate-600"><i class="fa-solid fa-bold"></i></button>
+                                <button class="w-8 h-8 flex items-center justify-center rounded hover:bg-slate-200 text-slate-600"><i class="fa-solid fa-italic"></i></button>
+                                <div class="w-px h-4 bg-slate-300 mx-1"></div>
+                                <button class="w-8 h-8 flex items-center justify-center rounded hover:bg-slate-200 text-slate-600"><i class="fa-solid fa-list-ul"></i></button>
+                                <button class="w-8 h-8 flex items-center justify-center rounded hover:bg-slate-200 text-slate-600"><i class="fa-solid fa-quote-right"></i></button>
+                                <div class="w-px h-4 bg-slate-300 mx-1"></div>
+                                <button class="w-8 h-8 flex items-center justify-center rounded hover:bg-slate-200 text-slate-600"><i class="fa-regular fa-image"></i></button>
+                                <button class="w-8 h-8 flex items-center justify-center rounded hover:bg-slate-200 text-slate-600"><i class="fa-solid fa-link"></i></button>
+                            </div>
+                            <div class="flex-1 p-8 editor-content text-slate-700 leading-relaxed focus:outline-none text-base" contenteditable="true">
+                                <p>各省、自治区、直辖市及相关教育机构：</p>
+                                <p>为深入贯彻落实国务院《新一代人工智能发展规划》...</p>
+                                <h2>一、大赛主题</h2>
+                                <p>本次大赛以“AI赋能，智创未来”为主题...</p>
+                            </div>
+                        </div>
+
+                        <div class="bg-white rounded-xl border border-slate-200 p-6 shadow-sm">
+                            <div class="flex justify-between items-center mb-4">
+                                <h3 class="font-bold text-slate-800 text-sm"><i class="fa-solid fa-paperclip mr-2"></i>附件管理</h3>
+                                <button class="text-brand-600 hover:text-brand-700 text-xs font-medium flex items-center gap-1 border border-brand-200 px-2 py-1 rounded hover:bg-brand-50 transition"><i class="fa-solid fa-plus"></i> 添加附件</button>
+                            </div>
+                            <div class="space-y-2">
+                                <div class="flex items-center justify-between p-3 border border-slate-100 rounded-lg bg-slate-50">
+                                    <div class="flex items-center gap-3">
+                                        <i class="fa-regular fa-file-pdf text-red-500 text-lg"></i>
+                                        <div>
+                                            <p class="text-sm font-medium text-slate-700">2025年挑战赛规则说明.pdf</p>
+                                            <p class="text-xs text-slate-400">2.4 MB</p>
+                                        </div>
+                                    </div>
+                                    <button class="text-slate-400 hover:text-red-500 p-2"><i class="fa-solid fa-xmark"></i></button>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="space-y-6">
+                        
+                        <div class="bg-white rounded-xl shadow-card border border-slate-200 p-5 relative overflow-hidden">
+                            <div class="absolute top-0 left-0 w-1 h-full bg-indigo-500"></div>
+                            <h3 class="font-bold text-slate-800 text-sm mb-4">归属设置 <span class="text-red-500">*</span></h3>
+                            <div class="space-y-4">
+                                <div>
+                                    <label class="block text-xs font-bold text-slate-500 uppercase mb-1.5">发布组织</label>
+                                    <select class="w-full px-3 py-2.5 rounded-lg border border-indigo-200 bg-indigo-50/50 text-sm focus:border-indigo-500 focus:ring-1 outline-none font-medium text-indigo-900">
+                                        <option value="aica" selected>AICA 专项组织</option>
+                                        <option value="other">其他组织</option>
+                                    </select>
+                                </div>
+                                <div>
+                                    <label class="block text-xs font-bold text-slate-500 uppercase mb-1.5">文章分类</label>
+                                    <select class="w-full px-3 py-2 rounded-lg border border-slate-200 text-sm bg-white focus:border-brand-500 outline-none">
+                                        <option value="policy">政策法规</option>
+                                        <option value="notice" selected>通知公告</option>
+                                        <option value="news">行业动态</option>
+                                    </select>
+                                </div>
+                            </div>
+                        </div>
+
+                        <div class="bg-white rounded-xl shadow-card border border-slate-200 p-5">
+                            <h3 class="font-bold text-slate-800 text-sm mb-3">封面图片</h3>
+                            <div class="upload-zone w-full aspect-video bg-slate-50 border-2 border-dashed border-slate-300 rounded-lg flex flex-col items-center justify-center text-slate-400 cursor-pointer hover:border-brand-500 hover:bg-brand-50 transition relative group overflow-hidden">
+                                <img src="https://images.unsplash.com/photo-1531482615713-2afd69097998?auto=format&fit=crop&w=400&q=80" class="absolute inset-0 w-full h-full object-cover opacity-100 group-hover:opacity-50 transition">
+                                <div class="relative z-10 flex flex-col items-center opacity-0 group-hover:opacity-100 transition">
+                                    <i class="fa-solid fa-cloud-arrow-up text-2xl mb-2"></i>
+                                    <span class="text-xs">点击上传</span>
+                                </div>
+                            </div>
+                        </div>
+
+                        <div class="bg-white rounded-xl shadow-card border border-slate-200 p-5">
+                            <h3 class="font-bold text-slate-800 text-sm mb-4">发布选项</h3>
+                            <div class="space-y-4">
+                                <div>
+                                    <label class="block text-xs font-bold text-slate-500 uppercase mb-1.5">发布时间</label>
+                                    <input type="datetime-local" class="w-full px-3 py-2 rounded-lg border border-slate-200 text-sm bg-white outline-none text-slate-600" value="2025-05-20T10:00">
+                                </div>
+                                <div>
+                                    <label class="block text-xs font-bold text-slate-500 uppercase mb-1.5">作者</label>
+                                    <input type="text" class="w-full px-3 py-2 rounded-lg border border-slate-200 text-sm bg-white focus:border-brand-500 outline-none" value="AICA 组委会">
+                                </div>
+                                <div class="pt-4 border-t border-slate-100 flex items-center justify-between">
+                                    <span class="text-sm text-slate-700">设为置顶</span>
+                                    <label class="relative inline-flex items-center cursor-pointer">
+                                        <input type="checkbox" class="sr-only peer">
+                                        <div class="w-9 h-5 bg-slate-200 peer-focus:outline-none rounded-full peer peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:border-gray-300 after:border after:rounded-full after:h-4 after:w-4 after:transition-all peer-checked:bg-brand-600"></div>
+                                    </label>
+                                </div>
+                            </div>
+                        </div>
+
+                    </div>
+                </div>
+            </div>
+        </div>
+
+    </main>
+
+    <div id="toast" class="fixed bottom-8 left-1/2 transform -translate-x-1/2 z-50 pointer-events-none opacity-0 transition-all duration-300 translate-y-10">
+        <div class="bg-slate-900 text-white px-6 py-3 rounded-full shadow-2xl flex items-center gap-3">
+            <i class="fa-solid fa-circle-check text-green-400 text-lg"></i>
+            <span class="font-medium text-sm" id="toast-msg">发布成功</span>
+        </div>
+    </div>
+
+    <script>
+        function switchView(view, mode) {
+            const list = document.getElementById('view-list');
+            const editor = document.getElementById('view-editor');
+            const title = document.getElementById('editor-title');
+            
+            if (view === 'editor') {
+                list.classList.add('hidden');
+                editor.classList.remove('hidden');
+                title.innerText = mode === 'edit' ? '编辑文章' : '发布新闻';
+            } else {
+                editor.classList.add('hidden');
+                list.classList.remove('hidden');
+            }
+        }
+
+        function publishNews() {
+            const btn = document.getElementById('btn-publish');
+            const originalHTML = btn.innerHTML;
+            btn.disabled = true;
+            btn.innerHTML = '<i class="fa-solid fa-circle-notch fa-spin"></i> 发布中...';
+            setTimeout(() => {
+                showToast('文章已发布至 [AICA 专项组织]');
+                btn.disabled = false;
+                btn.innerHTML = originalHTML;
+                setTimeout(() => switchView('list'), 1500);
+            }, 1000);
+        }
+
+        function showToast(msg) {
+            const toast = document.getElementById('toast');
+            document.getElementById('toast-msg').innerText = msg;
+            toast.classList.remove('opacity-0', 'translate-y-10');
+            setTimeout(() => toast.classList.add('opacity-0', 'translate-y-10'), 2000);
+        }
+
+        // 排序逻辑
+        function moveRow(btn, direction) {
+            const row = btn.closest('tr');
+            const tbody = row.parentNode;
+            if (direction === 'up') {
+                if (row.previousElementSibling) {
+                    row.classList.add('row-moving'); row.previousElementSibling.classList.add('row-moving');
+                    setTimeout(() => {
+                        tbody.insertBefore(row, row.previousElementSibling);
+                        setTimeout(() => { row.classList.remove('row-moving'); row.nextElementSibling.classList.remove('row-moving'); }, 300);
+                    }, 150);
+                }
+            } else if (direction === 'down') {
+                if (row.nextElementSibling) {
+                    row.classList.add('row-moving'); row.nextElementSibling.classList.add('row-moving');
+                    setTimeout(() => {
+                        tbody.insertBefore(row.nextElementSibling, row);
+                        setTimeout(() => { row.classList.remove('row-moving'); row.previousElementSibling.classList.remove('row-moving'); }, 300);
+                    }, 150);
+                }
+            }
+        }
+    </script>
+</body>
+</html>

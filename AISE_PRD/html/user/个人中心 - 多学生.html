@@ -1,0 +1,401 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>个人中心 - AICA</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+
+    <script>
+        tailwind.config = {
+            theme: {
+                extend: {
+                    fontFamily: {
+                        sans: ['Inter', 'sans-serif'],
+                    },
+                    colors: {
+                        brand: {
+                            50: '#eff6ff',
+                            100: '#dbeafe',
+                            500: '#3b82f6',
+                            600: '#2563eb',
+                            700: '#1d4ed8',
+                        },
+                        dark: {
+                            900: '#0f172a',
+                        }
+                    },
+                    boxShadow: {
+                        'card': '0 4px 6px -1px rgba(0, 0, 0, 0.05)',
+                        'active': '0 0 0 2px #3b82f6, 0 4px 6px -1px rgba(0, 0, 0, 0.1)',
+                    }
+                }
+            }
+        }
+    </script>
+    <style>
+        body { background-color: #F8FAFC; -webkit-font-smoothing: antialiased; }
+        .glass-nav { background: rgba(255, 255, 255, 0.95); backdrop-filter: blur(12px); border-bottom: 1px solid rgba(226, 232, 240, 0.8); }
+        .hide-scroll::-webkit-scrollbar { display: none; }
+        .hide-scroll { -ms-overflow-style: none; scrollbar-width: none; }
+        
+        .switcher-item { transition: all 0.2s ease; }
+        .switcher-item.active { background-color: #eff6ff; border-color: #3b82f6; }
+        .switcher-item:hover:not(.active) { background-color: #f8fafc; border-color: #cbd5e1; }
+
+        .modal-enter { animation: modalIn 0.3s ease-out forwards; }
+        @keyframes modalIn { from { opacity: 0; transform: scale(0.95); } to { opacity: 1; transform: scale(1); } }
+    </style>
+</head>
+<body class="min-h-screen flex flex-col text-slate-800">
+
+    <nav class="glass-nav fixed w-full z-50 top-0">
+        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+            <div class="flex justify-between items-center h-16 sm:h-20">
+                <div class="flex items-center gap-3 cursor-pointer" onclick="window.location.href='#'">
+                    <div class="w-9 h-9 bg-gradient-to-br from-brand-600 to-indigo-600 rounded-lg flex items-center justify-center text-white font-bold text-lg shadow-md">A</div>
+                    <span class="font-bold text-lg tracking-tight text-slate-900">AICA</span>
+                </div>
+                <div class="hidden md:flex items-center space-x-8">
+                    <a href="#" class="text-slate-500 hover:text-brand-600 font-medium text-sm transition">首页</a>
+                    <a href="#" class="text-slate-500 hover:text-brand-600 font-medium text-sm transition">新闻中心</a>
+                    <a href="#" class="text-brand-600 font-bold text-sm transition relative">
+                        个人中心
+                        <span class="absolute -bottom-7 left-0 w-full h-0.5 bg-brand-600 rounded-t-full"></span>
+                    </a>
+                </div>
+                <div class="flex items-center gap-3">
+                    <div class="flex items-center gap-2 py-1 px-2 rounded-full border border-slate-100 bg-white shadow-sm">
+                        <div class="w-8 h-8 rounded-full bg-gradient-to-tr from-blue-500 to-purple-600 text-white flex items-center justify-center text-xs font-bold" id="header-avatar">张</div>
+                        <span class="text-sm font-medium text-slate-700 pr-2 hidden sm:block" id="header-name">张三</span>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </nav>
+
+    <main class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 pt-24 pb-12 flex-grow w-full">
+        <div class="flex flex-col md:flex-row gap-6 lg:gap-8">
+            
+            <aside class="w-full md:w-64 flex-shrink-0">
+                <div class="bg-white rounded-xl shadow-card border border-slate-100 overflow-hidden md:sticky md:top-24">
+                    <nav class="flex md:flex-col overflow-x-auto hide-scroll p-2 md:p-3 gap-1 md:gap-2">
+                        <a href="#" class="flex-shrink-0 px-4 py-3 rounded-lg bg-brand-50 text-brand-600 font-bold text-sm flex items-center gap-3 shadow-sm border border-brand-100 md:border-transparent">
+                            <i class="fa-regular fa-id-card w-5 text-center"></i> 个人中心
+                        </a>
+                        <a href="#" class="flex-shrink-0 px-4 py-3 rounded-lg text-slate-600 hover:bg-slate-50 hover:text-slate-900 font-medium text-sm flex items-center gap-3 transition">
+                            <i class="fa-solid fa-ticket w-5 text-center text-slate-400"></i> 我的准考证
+                        </a>
+                        <a href="#" class="flex-shrink-0 px-4 py-3 rounded-lg text-slate-600 hover:bg-slate-50 hover:text-slate-900 font-medium text-sm flex items-center gap-3 transition">
+                            <i class="fa-solid fa-award w-5 text-center text-slate-400"></i> 成绩与证书
+                        </a>
+                    </nav>
+                </div>
+                
+                <button onclick="toggleMode()" class="mt-4 w-full py-2 bg-slate-800 text-white text-xs rounded-lg opacity-50 hover:opacity-100 transition">
+                    <i class="fa-solid fa-arrows-rotate"></i> 模拟：切换单/多考生状态
+                </button>
+            </aside>
+
+            <div class="flex-1 min-w-0">
+                
+                <div class="mb-6 flex justify-between items-end">
+                    <div>
+                        <h1 class="text-2xl font-bold text-slate-900">家庭档案管理</h1>
+                        <p class="text-sm text-slate-500 mt-1">管理您关联的考生档案信息。</p>
+                    </div>
+                </div>
+
+                <div class="bg-white rounded-2xl shadow-card border border-slate-100 overflow-hidden relative">
+                    
+                    <div id="student-switcher-container" class="hidden bg-slate-50/50 border-b border-slate-100 p-2 overflow-x-auto hide-scroll">
+                        <div class="flex items-center gap-3 px-2" id="student-list">
+                            </div>
+                    </div>
+
+                    <form id="profile-form" class="p-6 sm:p-10 relative" onsubmit="event.preventDefault(); saveProfile();">
+                        
+                        <div class="flex flex-col sm:flex-row gap-8 mb-10 items-start">
+                            <div class="flex-shrink-0 flex flex-col items-center mx-auto sm:mx-0">
+                                <div class="relative group w-24 h-24 sm:w-28 sm:h-28 rounded-full bg-slate-100 border-4 border-white shadow-lg overflow-hidden cursor-pointer">
+                                    <div class="w-full h-full bg-gradient-to-br from-blue-500 to-blue-600 text-white flex items-center justify-center text-3xl font-bold" id="form-avatar-text">张</div>
+                                    <div class="absolute inset-0 bg-black/40 flex items-center justify-center opacity-0 group-hover:opacity-100 transition-opacity duration-300">
+                                        <i class="fa-solid fa-camera text-white text-xl"></i>
+                                    </div>
+                                </div>
+                                <span class="text-xs text-slate-400 mt-3">点击更换照片</span>
+                            </div>
+
+                            <div class="flex-1 grid grid-cols-1 sm:grid-cols-2 gap-6 w-full">
+                                <div>
+                                    <label class="block text-xs font-bold text-slate-500 uppercase mb-2">真实姓名</label>
+                                    <input type="text" id="form-name" value="张三" class="w-full px-4 py-3 rounded-xl border border-slate-200 focus:border-brand-500 outline-none text-sm font-bold text-slate-800" placeholder="请输入真实姓名">
+                                </div>
+                                <div>
+                                    <label class="block text-xs font-bold text-slate-500 uppercase mb-2">性别</label>
+                                    <select class="w-full px-4 py-3 rounded-xl border border-slate-200 focus:border-brand-500 outline-none text-sm font-medium text-slate-800 bg-white transition">
+                                        <option value="男" selected>男</option>
+                                        <option value="女">女</option>
+                                    </select>
+                                </div>
+                                
+                                <div class="sm:col-span-2">
+                                    <label class="block text-xs font-bold text-slate-500 uppercase mb-2">证件信息</label>
+                                    <div class="flex shadow-sm rounded-xl">
+                                        <div class="relative w-1/3 sm:w-1/4">
+                                            <select id="form-id-type" class="w-full appearance-none pl-4 pr-8 py-3 bg-slate-50 border border-slate-200 border-r-0 rounded-l-xl focus:border-brand-500 focus:ring-2 focus:ring-brand-100 focus:z-10 outline-none text-sm font-bold text-slate-700 transition" onchange="updateFormPlaceholder()">
+                                                <option value="id_cn">居民身份证</option>
+                                                <option value="hk_perm">香港永久居民证</option>
+                                                <option value="mo_id">澳门居民身份证</option>
+                                                <option value="passport">护照</option>
+                                                <option value="other">其他</option>
+                                            </select>
+                                            <i class="fa-solid fa-chevron-down absolute right-3 top-4 text-xs text-slate-400 pointer-events-none z-20"></i>
+                                        </div>
+                                        <input type="text" id="form-id-number" value="110***********1234" class="flex-1 w-2/3 px-4 py-3 border border-slate-200 rounded-r-xl focus:border-brand-500 focus:ring-2 focus:ring-brand-100 focus:z-10 outline-none text-sm font-mono text-slate-800 transition -ml-px">
+                                    </div>
+                                    <p class="text-[10px] text-orange-500 mt-1.5 flex items-center gap-1">
+                                        <i class="fa-solid fa-triangle-exclamation"></i> 注意：修改证件信息将触发重新核验，通过后方可保存。
+                                    </p>
+                                </div>
+                            </div>
+                        </div>
+
+                        <div class="h-px bg-slate-100 w-full mb-8"></div>
+
+                        <h3 class="text-base font-bold text-slate-900 mb-6 flex items-center gap-2">
+                            <span class="w-1 h-4 bg-brand-500 rounded-full"></span> 联系方式
+                        </h3>
+                        <div class="grid grid-cols-1 sm:grid-cols-2 gap-6 mb-8">
+                            <div class="sm:col-span-2">
+                                <label class="block text-xs font-bold text-slate-500 uppercase mb-2">电子邮箱</label>
+                                <input type="email" value="zhangsan@example.com" class="w-full px-4 py-3 rounded-xl border border-slate-200 focus:border-brand-500 outline-none text-sm font-medium text-slate-800 transition">
+                            </div>
+                            <div>
+                                <label class="block text-xs font-bold text-slate-500 uppercase mb-2">联系电话</label>
+                                <input type="tel" value="13900000000" class="w-full px-4 py-3 rounded-xl border border-slate-200 focus:border-brand-500 outline-none text-sm font-medium text-slate-800 transition" placeholder="请输入考生或家长电话">
+                            </div>
+                            <div>
+                                <label class="block text-xs font-bold text-slate-500 uppercase mb-2">监护人姓名</label>
+                                <input type="text" value="李四" class="w-full px-4 py-3 rounded-xl border border-slate-200 focus:border-brand-500 outline-none text-sm font-medium text-slate-800 transition">
+                            </div>
+                            <div>
+                                <label class="block text-xs font-bold text-slate-500 uppercase mb-2">监护人电话</label>
+                                <input type="tel" value="13800138000" class="w-full px-4 py-3 rounded-xl border border-slate-200 focus:border-brand-500 outline-none text-sm font-medium text-slate-800 transition">
+                            </div>
+                        </div>
+
+                        <div class="h-px bg-slate-100 w-full mb-8"></div>
+
+                        <h3 class="text-base font-bold text-slate-900 mb-6 flex items-center gap-2">
+                            <span class="w-1 h-4 bg-brand-500 rounded-full"></span> 寄送地址
+                        </h3>
+                        <div class="grid grid-cols-1 gap-6 mb-8">
+                            <div>
+                                <label class="block text-xs font-bold text-slate-500 uppercase mb-2">所在省市</label>
+                                <div class="flex gap-3">
+                                    <div class="relative w-1/2">
+                                        <select class="w-full appearance-none px-4 py-3 rounded-xl border border-slate-200 focus:border-brand-500 outline-none text-sm font-medium text-slate-800 bg-white transition">
+                                            <option value="">请选择省份</option>
+                                            <option value="bj" selected>北京市</option>
+                                            <option value="sh">上海市</option>
+                                            <option value="gd">广东省</option>
+                                        </select>
+                                        <i class="fa-solid fa-chevron-down absolute right-4 top-4 text-xs text-slate-400 pointer-events-none"></i>
+                                    </div>
+                                    <div class="relative w-1/2">
+                                        <select class="w-full appearance-none px-4 py-3 rounded-xl border border-slate-200 focus:border-brand-500 outline-none text-sm font-medium text-slate-800 bg-white transition">
+                                            <option value="">请选择城市/区</option>
+                                            <option value="hd" selected>海淀区</option>
+                                            <option value="cy">朝阳区</option>
+                                        </select>
+                                        <i class="fa-solid fa-chevron-down absolute right-4 top-4 text-xs text-slate-400 pointer-events-none"></i>
+                                    </div>
+                                </div>
+                            </div>
+                            <div>
+                                <label class="block text-xs font-bold text-slate-500 uppercase mb-2">详细地址</label>
+                                <textarea rows="2" class="w-full px-4 py-3 rounded-xl border border-slate-200 focus:border-brand-500 outline-none text-sm font-medium text-slate-800 transition resize-none" placeholder="街道、小区、楼牌号等">中关村软件园一号楼</textarea>
+                            </div>
+                        </div>
+
+                        <div class="flex flex-col-reverse sm:flex-row justify-end gap-4 pt-4 border-t border-slate-50 mt-8">
+                            
+                            <button type="button" id="btn-add-student-bottom" onclick="openModal()" class="w-full sm:w-auto px-6 py-3.5 rounded-xl border border-slate-200 text-slate-600 font-bold text-sm hover:bg-slate-50 hover:text-brand-600 transition flex items-center justify-center gap-2">
+                                <i class="fa-solid fa-plus"></i> 关联新考生
+                            </button>
+
+                            <button type="submit" id="save-btn" class="w-full sm:w-auto bg-slate-900 text-white px-10 py-3.5 rounded-xl font-bold shadow-lg hover:bg-brand-600 transition-all duration-300 flex items-center justify-center gap-2">
+                                <i class="fa-regular fa-floppy-disk"></i> 保存修改
+                            </button>
+                        </div>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </main>
+
+    <div id="add-student-modal" class="fixed inset-0 z-[100] hidden flex items-center justify-center">
+        <div class="absolute inset-0 bg-slate-900/60 backdrop-blur-sm transition-opacity" onclick="closeModal()"></div>
+        <div class="relative w-full max-w-lg bg-white rounded-2xl shadow-2xl overflow-hidden modal-enter z-10 mx-4">
+            <div class="p-6 border-b border-slate-100 flex justify-between items-center bg-slate-50/50">
+                <h3 class="text-lg font-bold text-slate-900">添加新考生</h3>
+                <button onclick="closeModal()" class="text-slate-400 hover:text-slate-600 transition"><i class="fa-solid fa-xmark text-lg"></i></button>
+            </div>
+            <form class="p-6 sm:p-8" onsubmit="event.preventDefault(); handleAddStudent();">
+                <div class="bg-blue-50 border border-blue-100 rounded-lg p-3 flex gap-3 mb-6">
+                    <i class="fa-solid fa-circle-info text-blue-500 mt-0.5 text-sm"></i>
+                    <p class="text-xs text-blue-700 leading-relaxed">新增中国大陆考生必须通过公安实名校验。</p>
+                </div>
+                <div class="mb-5">
+                    <label class="block text-xs font-bold text-slate-500 uppercase mb-2">真实姓名</label>
+                    <input type="text" id="input-new-name" class="w-full px-4 py-3 rounded-xl border border-slate-200 focus:border-brand-500 outline-none text-sm" placeholder="请填写考生真实姓名">
+                </div>
+                <div class="mb-8">
+                    <label class="block text-xs font-bold text-slate-500 uppercase mb-2">证件信息</label>
+                    <div class="flex shadow-sm rounded-xl">
+                        <div class="relative w-1/3">
+                            <select id="input-new-type" class="w-full appearance-none pl-4 pr-8 py-3 bg-slate-50 border border-slate-200 border-r-0 rounded-l-xl focus:border-brand-500 focus:ring-2 focus:ring-brand-100 focus:z-10 outline-none text-sm font-bold text-slate-700 transition" onchange="updateModalPlaceholder()">
+                                <option value="id_cn">居民身份证</option>
+                                <option value="hk_perm">香港永久居民证</option>
+                                <option value="mo_id">澳门居民身份证</option>
+                                <option value="passport">护照</option>
+                                <option value="other">其他</option>
+                            </select>
+                            <i class="fa-solid fa-chevron-down absolute right-3 top-4 text-xs text-slate-400 pointer-events-none z-20"></i>
+                        </div>
+                        <input type="text" id="input-new-id" class="flex-1 w-2/3 px-4 py-3 border border-slate-200 rounded-r-xl focus:border-brand-500 focus:ring-2 focus:ring-brand-100 focus:z-10 outline-none text-sm font-medium text-slate-800 transition -ml-px" placeholder="请输入18位身份证号">
+                    </div>
+                </div>
+                <div class="flex gap-3 pt-2">
+                    <button type="button" onclick="closeModal()" class="flex-1 py-3 rounded-xl border border-slate-200 text-slate-600 font-bold text-sm hover:bg-slate-50 transition">取消</button>
+                    <button type="submit" id="btn-submit-add" class="flex-1 py-3 rounded-xl bg-slate-900 text-white font-bold text-sm shadow-lg hover:bg-brand-600 transition">立即添加</button>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <script>
+        // 模拟数据状态
+        let isMultipleMode = false;
+        const students = [
+            { id: 1, name: '张三', idType: 'id_cn', idCard: '110***********1234', color: 'from-blue-500 to-blue-600' },
+            { id: 2, name: '李四', idType: 'passport', idCard: 'E12345678', color: 'from-purple-500 to-purple-600' }
+        ];
+        let currentStudentId = 1;
+
+        renderPage();
+
+        function toggleMode() {
+            isMultipleMode = !isMultipleMode;
+            renderPage();
+            alert(isMultipleMode ? "已切换为：多考生模式" : "已切换为：单考生模式");
+        }
+
+        function updateFormPlaceholder() {
+            const type = document.getElementById('form-id-type').value;
+            const input = document.getElementById('form-id-number');
+            setPlaceholder(type, input);
+        }
+
+        function updateModalPlaceholder() {
+            const type = document.getElementById('input-new-type').value;
+            const input = document.getElementById('input-new-id');
+            setPlaceholder(type, input);
+        }
+
+        function setPlaceholder(type, input) {
+            const placeholders = {
+                'id_cn': '请输入18位身份证号',
+                'hk_perm': '请输入香港永久居民证号码',
+                'mo_id': '请输入澳门居民身份证号码',
+                'passport': '请输入护照号码',
+                'other': '请输入证件号码'
+            };
+            input.placeholder = placeholders[type] || '请输入证件号码';
+        }
+
+        function renderPage() {
+            const switcher = document.getElementById('student-switcher-container');
+            const bottomAddBtn = document.getElementById('btn-add-student-bottom');
+            const list = document.getElementById('student-list');
+
+            if (isMultipleMode) {
+                switcher.classList.remove('hidden');
+                bottomAddBtn.classList.add('hidden');
+                
+                list.innerHTML = students.map(s => `
+                    <div onclick="switchStudent(${s.id})" class="switcher-item cursor-pointer flex items-center gap-2 pl-2 pr-4 py-1.5 rounded-full border ${s.id === currentStudentId ? 'active border-brand-500 bg-brand-50' : 'border-transparent bg-white'}">
+                        <div class="w-6 h-6 rounded-full bg-gradient-to-br ${s.color} text-white flex items-center justify-center text-xs font-bold">
+                            ${s.name.charAt(0)}
+                        </div>
+                        <span class="text-xs font-bold ${s.id === currentStudentId ? 'text-brand-700' : 'text-slate-600'}">${s.name}</span>
+                    </div>
+                `).join('') + `
+                    <button onclick="openModal()" class="w-8 h-8 rounded-full border border-dashed border-slate-300 flex items-center justify-center text-slate-400 hover:text-brand-600 hover:border-brand-500 hover:bg-brand-50 transition ml-1" title="添加新考生">
+                        <i class="fa-solid fa-plus text-xs"></i>
+                    </button>
+                `;
+            } else {
+                switcher.classList.add('hidden');
+                bottomAddBtn.classList.remove('hidden');
+            }
+
+            // 更新表单内容
+            const student = students.find(s => s.id === currentStudentId) || students[0];
+            document.getElementById('form-name').value = student.name;
+            document.getElementById('form-id-type').value = student.idType;
+            document.getElementById('form-id-number').value = student.idCard;
+            
+            // 更新头像和 Header
+            document.getElementById('form-avatar-text').innerText = student.name.charAt(0);
+            document.getElementById('form-avatar-text').parentElement.firstElementChild.className = `w-full h-full bg-gradient-to-br ${student.color} text-white flex items-center justify-center text-3xl font-bold`;
+            document.getElementById('header-name').innerText = student.name;
+            document.getElementById('header-avatar').innerText = student.name.charAt(0);
+            document.getElementById('header-avatar').className = `w-8 h-8 rounded-full bg-gradient-to-tr ${student.color} text-white flex items-center justify-center text-xs font-bold`;
+        }
+
+        function switchStudent(id) {
+            currentStudentId = id;
+            renderPage();
+        }
+
+        function openModal() { document.getElementById('add-student-modal').classList.remove('hidden'); }
+        function closeModal() { document.getElementById('add-student-modal').classList.add('hidden'); }
+        
+        function handleAddStudent() {
+            const btn = document.getElementById('btn-submit-add');
+            btn.innerHTML = '添加中...';
+            setTimeout(() => {
+                isMultipleMode = true; 
+                currentStudentId = 2; 
+                renderPage();
+                closeModal();
+                btn.innerHTML = '立即添加';
+                alert("添加成功！页面已自动更新为多考生管理视图。");
+            }, 800);
+        }
+
+        function saveProfile() {
+            const btn = document.getElementById('save-btn');
+            const originalHtml = btn.innerHTML;
+            
+            btn.disabled = true;
+            btn.innerHTML = '<i class="fa-solid fa-spinner fa-spin"></i> 正在核验身份信息...';
+            
+            setTimeout(() => {
+                btn.innerHTML = '<i class="fa-solid fa-check"></i> 核验通过并保存';
+                btn.className = "w-full sm:w-auto bg-green-500 text-white px-10 py-3.5 rounded-xl font-bold shadow-lg flex items-center justify-center gap-2";
+                
+                setTimeout(() => {
+                    btn.disabled = false;
+                    btn.innerHTML = originalHtml;
+                    btn.className = "w-full sm:w-auto bg-slate-900 text-white px-10 py-3.5 rounded-xl font-bold shadow-lg hover:bg-brand-600 transition-all duration-300 flex items-center justify-center gap-2";
+                }, 2000);
+            }, 1500);
+        }
+    </script>
+</body>
+</html>

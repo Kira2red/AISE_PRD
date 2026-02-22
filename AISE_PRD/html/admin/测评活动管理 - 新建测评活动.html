@@ -1,0 +1,578 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>测评活动管理 - AISE 后台</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+
+    <script>
+        tailwind.config = {
+            theme: {
+                extend: {
+                    fontFamily: {
+                        sans: ['Inter', 'sans-serif'],
+                    },
+                    colors: {
+                        brand: { 50: '#eff6ff', 100: '#dbeafe', 500: '#3b82f6', 600: '#2563eb', 700: '#1d4ed8' },
+                    },
+                    boxShadow: {
+                        'card': '0 1px 3px 0 rgba(0, 0, 0, 0.1), 0 1px 2px 0 rgba(0, 0, 0, 0.06)',
+                    }
+                }
+            }
+        }
+    </script>
+    <style>
+        body {
+            background-color: #F8FAFC;
+        }
+
+        .hide-scroll::-webkit-scrollbar {
+            display: none;
+        }
+
+        .nav-item.active::before {
+            content: '';
+            position: absolute;
+            left: 0;
+            top: 50%;
+            transform: translateY(-50%);
+            width: 4px;
+            height: 24px;
+            background-color: #3b82f6;
+            border-radius: 0 4px 4px 0;
+        }
+
+        tr.hover-row:hover td {
+            background-color: #f8fafc;
+        }
+
+        /* Modal Animation */
+        .modal-enter {
+            animation: modalFadeIn 0.2s ease-out forwards;
+        }
+
+        @keyframes modalFadeIn {
+            from {
+                opacity: 0;
+                transform: scale(0.95);
+            }
+
+            to {
+                opacity: 1;
+                transform: scale(1);
+            }
+        }
+
+        /* Tag Style from screenshot */
+        .tag-chip {
+            @apply flex items-center gap-1 px-2 py-1 rounded text-xs border cursor-default;
+        }
+    </style>
+</head>
+
+<body class="flex h-screen overflow-hidden text-slate-800 font-sans">
+
+    <aside class="w-64 bg-white border-r border-slate-200 flex flex-col flex-shrink-0 z-20">
+        <div class="h-16 flex items-center px-6 border-b border-slate-100">
+            <div
+                class="w-8 h-8 bg-gradient-to-br from-brand-600 to-indigo-600 rounded-lg flex items-center justify-center text-white font-bold text-lg mr-3 shadow-sm">
+                A</div>
+            <span class="font-bold text-lg text-slate-800 tracking-tight">AISE Admin</span>
+        </div>
+        <nav class="flex-1 overflow-y-auto py-4 space-y-1">
+            <a href="#"
+                class="nav-item active flex items-center gap-3 px-6 py-3 text-brand-600 bg-brand-50 transition relative">
+                <i class="fa-solid fa-graduation-cap w-5 text-center"></i><span class="font-medium text-sm">测评管理</span>
+            </a>
+        </nav>
+    </aside>
+
+    <main class="flex-1 flex flex-col min-w-0 bg-slate-50/50 relative">
+
+        <header
+            class="h-16 bg-white border-b border-slate-200 flex items-center justify-between px-8 flex-shrink-0 z-10">
+            <h1 class="text-xl font-bold text-slate-800">测评活动管理</h1>
+        </header>
+
+        <div class="px-8 py-6">
+            <div class="bg-white rounded-xl shadow-card border border-slate-100 p-5">
+                <div class="flex flex-col xl:flex-row gap-4 justify-between items-end xl:items-center">
+
+                    <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-3 w-full xl:w-auto flex-1">
+                        <div class="relative">
+                            <input type="text" placeholder="测评名称/ID"
+                                class="w-full pl-3 pr-4 py-2 rounded-lg border border-slate-200 text-sm focus:border-brand-500 outline-none transition">
+                        </div>
+                        <select
+                            class="px-3 py-2 rounded-lg border border-slate-200 text-sm text-slate-600 bg-white outline-none hover:border-slate-300 cursor-pointer">
+                            <option value="">所有同步状态</option>
+                            <option value="synced">已同步</option>
+                            <option value="unsynced">未同步</option>
+                            <option value="unassociated">未关联</option>
+                        </select>
+                        <select
+                            class="px-3 py-2 rounded-lg border border-slate-200 text-sm text-slate-600 bg-white outline-none hover:border-slate-300 cursor-pointer">
+                            <option value="">所有标签</option>
+                            <option value="ai">生成式人工智能</option>
+                            <option value="python">Python</option>
+                        </select>
+                        <select
+                            class="px-3 py-2 rounded-lg border border-slate-200 text-sm text-slate-600 bg-white outline-none hover:border-slate-300 cursor-pointer">
+                            <option value="">所属测评组</option>
+                            <option value="g1">2025春季统考</option>
+                        </select>
+                    </div>
+
+                    <div class="flex gap-3 shrink-0 w-full xl:w-auto justify-end">
+                        <button class="text-slate-500 hover:text-slate-700 text-sm font-medium px-3 py-2">重置</button>
+                        <button
+                            class="bg-white border border-slate-200 hover:bg-slate-50 text-slate-700 text-sm font-medium px-5 py-2 rounded-lg transition shadow-sm">查询</button>
+
+                        <button onclick="openActivityModal(null, 'new')"
+                            class="flex items-center gap-2 bg-brand-600 hover:bg-brand-700 text-white text-sm font-bold px-5 py-2 rounded-lg shadow-md transition ml-2">
+                            <i class="fa-solid fa-plus"></i> 新建测评活动
+                        </button>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div class="flex-1 overflow-y-auto px-8 pb-8 custom-scroll">
+            <div class="bg-white rounded-xl shadow-card border border-slate-200 overflow-hidden">
+                <table class="w-full text-left border-collapse">
+                    <thead>
+                        <tr class="border-b border-slate-100 bg-slate-50 text-xs uppercase text-slate-500 font-bold">
+                            <th class="p-4 pl-6">活动名称</th>
+                            <th class="p-4">数据来源 / 关联</th>
+                            <th class="p-4">标签</th>
+                            <th class="p-4">时间安排</th>
+                            <th class="p-4">状态</th>
+                            <th class="p-4 text-right pr-6 min-w-[300px]">操作</th>
+                        </tr>
+                    </thead>
+                    <tbody class="text-sm text-slate-700 divide-y divide-slate-100">
+
+                        <tr class="hover-row transition group">
+                            <td class="p-4 pl-6">
+                                <p class="font-bold text-slate-800">2025春季 Python 一级等级测评</p>
+                                <p class="text-xs text-slate-400 mt-0.5">ID: 1001</p>
+                            </td>
+                            <td class="p-4">
+                                <span
+                                    class="inline-flex items-center gap-1.5 px-2 py-0.5 rounded text-xs font-bold bg-green-50 text-green-600 border border-green-200">
+                                    <i class="fa-solid fa-link"></i> 已同步
+                                </span>
+                                <p class="text-xs text-slate-400 mt-1">源: 爱测评-Python-01</p>
+                            </td>
+                            <td class="p-4">
+                                <div class="flex flex-wrap gap-1">
+                                    <span class="tag-chip bg-slate-100 text-slate-600 border-slate-200">Python</span>
+                                    <span class="tag-chip bg-slate-100 text-slate-600 border-slate-200">1级</span>
+                                </div>
+                            </td>
+                            <td class="p-4 text-xs text-slate-500">
+                                <p>2026-02-04 15:00</p>
+                                <p>至 2026-02-05 15:00</p>
+                            </td>
+                            <td class="p-4">
+                                <span class="text-brand-600 font-medium text-xs">● 进行中</span>
+                            </td>
+                            <td class="p-4 text-right pr-6">
+                                <div class="flex items-center justify-end gap-4">
+                                    <button
+                                        class="text-red-500 hover:text-red-700 text-xs font-medium transition">取消同步</button>
+                                    <div class="w-px h-3 bg-slate-200"></div>
+                                    <button onclick="openActivityModal('2025春季 Python 一级等级测评', 'edit_synced')"
+                                        class="text-brand-600 hover:text-brand-800 text-xs font-medium transition">编辑</button>
+                                    <button
+                                        class="text-brand-600 hover:text-brand-800 text-xs font-medium transition">预览</button>
+                                    <button
+                                        class="text-brand-600 hover:text-brand-800 text-xs font-medium border border-brand-200 bg-brand-50 px-2 py-1 rounded hover:bg-brand-100 transition">模拟考试</button>
+                                </div>
+                            </td>
+                        </tr>
+
+                        <tr class="hover-row transition group" id="row-unsynced">
+                            <td class="p-4 pl-6">
+                                <div class="flex items-center gap-2">
+                                    <p class="font-bold text-slate-800">0206验收测试04【刘玮】</p>
+                                    <span class="bg-orange-100 text-orange-600 text-[10px] px-1.5 rounded">新</span>
+                                </div>
+                                <p class="text-xs text-slate-400 mt-0.5">ID: 1003</p>
+                            </td>
+                            <td class="p-4">
+                                <span
+                                    class="inline-flex items-center gap-1.5 px-2 py-0.5 rounded text-xs font-bold bg-slate-100 text-slate-500 border border-slate-200">
+                                    <i class="fa-solid fa-cloud"></i> 未同步
+                                </span>
+                                <p class="text-xs text-slate-400 mt-1">源: 爱测评自动推送</p>
+                            </td>
+                            <td class="p-4"><span class="text-slate-400 text-xs">-</span></td>
+                            <td class="p-4 text-xs text-slate-500">
+                                <p>2026-02-06 10:00</p>
+                                <p>至 2026-02-06 12:00</p>
+                            </td>
+                            <td class="p-4"><span class="text-slate-400 text-xs">● 未开始</span></td>
+                            <td class="p-4 text-right pr-6">
+                                <div class="flex items-center justify-end gap-4">
+                                    <button onclick="syncActivity(1003)"
+                                        class="text-brand-600 hover:text-brand-800 text-xs font-bold transition">立即同步</button>
+                                    <div class="w-px h-3 bg-slate-200"></div>
+                                    <button onclick="openActivityModal('0206验收测试04【刘玮】', 'edit_unsynced')"
+                                        class="text-brand-600 hover:text-brand-800 text-xs font-medium transition">编辑</button>
+                                    <button
+                                        class="text-brand-600 hover:text-brand-800 text-xs font-medium transition">预览</button>
+                                </div>
+                            </td>
+                        </tr>
+
+                        <tr class="hover-row transition group">
+                            <td class="p-4 pl-6">
+                                <p class="font-bold text-slate-800">2025夏季 AIGC 专项预热活动</p>
+                                <p class="text-xs text-slate-400 mt-0.5">ID: 1004</p>
+                            </td>
+                            <td class="p-4">
+                                <span
+                                    class="inline-flex items-center gap-1.5 px-2 py-0.5 rounded text-xs font-bold bg-red-50 text-red-600 border border-red-100">
+                                    <i class="fa-solid fa-link-slash"></i> 未关联
+                                </span>
+                                <p class="text-xs text-slate-400 mt-1">源: AISE后台新建</p>
+                            </td>
+                            <td class="p-4">
+                                <div class="flex flex-wrap gap-1">
+                                    <span class="tag-chip bg-slate-100 text-slate-600 border-slate-200">AIGC</span>
+                                </div>
+                            </td>
+                            <td class="p-4 text-xs text-slate-500">
+                                <p>待定</p>
+                            </td>
+                            <td class="p-4"><span class="text-slate-400 text-xs">● 草稿</span></td>
+                            <td class="p-4 text-right pr-6">
+                                <div class="flex items-center justify-end gap-4">
+                                    <button onclick="openActivityModal('2025夏季 AIGC 专项预热活动', 'edit_unassociated')"
+                                        class="text-brand-600 hover:text-brand-800 text-xs font-bold transition">关联/编辑</button>
+                                </div>
+                            </td>
+                        </tr>
+
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </main>
+
+    <div id="modal-activity"
+        class="fixed inset-0 z-50 hidden flex items-center justify-center bg-slate-900/50 backdrop-blur-sm transition-opacity opacity-0">
+        <div class="bg-white rounded-2xl shadow-2xl w-[650px] flex flex-col transform scale-95 transition-transform max-h-[90vh]"
+            id="modal-activity-content">
+
+            <div
+                class="px-6 py-4 border-b border-slate-100 flex justify-between items-center bg-slate-50 rounded-t-2xl">
+                <h3 class="font-bold text-slate-800 text-lg" id="modal-title">编辑测评信息</h3>
+                <button onclick="closeActivityModal()" class="text-slate-400 hover:text-slate-600"><i
+                        class="fa-solid fa-xmark"></i></button>
+            </div>
+
+            <div class="flex-1 overflow-y-auto p-8 space-y-6 custom-scroll">
+
+                <div class="bg-blue-50/50 p-4 rounded-xl border border-blue-100 dashed mb-6" id="link-section">
+                    <label class="block text-xs font-bold text-slate-600 uppercase mb-2">
+                        <i class="fa-solid fa-link text-brand-500 mr-1"></i> 关联爱测评源数据 <span
+                            class="text-slate-400 font-normal">(选填)</span>
+                    </label>
+                    <div class="relative">
+                        <select id="link-source"
+                            class="w-full pl-3 pr-8 py-2.5 rounded-lg border border-brand-200 focus:border-brand-500 focus:ring-2 focus:ring-brand-100 outline-none text-sm text-slate-700 bg-white appearance-none transition"
+                            onchange="handleSourceLink()">
+                            <option value="">-- 不关联 (仅创建AISE活动) --</option>
+                            <option value="1">0206验收测试04【刘玮】 (未同步)</option>
+                            <option value="2">2026算法大赛初赛 (未同步)</option>
+                        </select>
+                        <i
+                            class="fa-solid fa-chevron-down absolute right-3 top-1/2 -translate-y-1/2 text-slate-400 text-xs pointer-events-none"></i>
+                    </div>
+                </div>
+
+                <div>
+                    <label class="block text-xs font-bold text-slate-500 mb-2"><span class="text-red-500">*</span>
+                        测评名称</label>
+                    <input type="text" id="activity-name"
+                        class="w-full px-4 py-2.5 rounded-lg border border-slate-200 focus:border-brand-500 outline-none text-sm text-slate-800"
+                        placeholder="请输入活动名称">
+                </div>
+
+                <div class="grid grid-cols-2 gap-6">
+                    <div>
+                        <label class="block text-xs font-bold text-slate-500 mb-2"><span class="text-red-500">*</span>
+                            开始时间</label>
+                        <div class="relative">
+                            <input type="datetime-local"
+                                class="w-full pl-4 pr-3 py-2.5 rounded-lg border border-slate-200 text-sm outline-none text-slate-600 focus:border-brand-500">
+                        </div>
+                    </div>
+                    <div>
+                        <label class="block text-xs font-bold text-slate-500 mb-2"><span class="text-red-500">*</span>
+                            结束时间</label>
+                        <div class="relative">
+                            <input type="datetime-local"
+                                class="w-full pl-4 pr-3 py-2.5 rounded-lg border border-slate-200 text-sm outline-none text-slate-600 focus:border-brand-500">
+                        </div>
+                    </div>
+                </div>
+
+                <div>
+                    <label class="block text-xs font-bold text-slate-500 mb-2"><span class="text-red-500">*</span> 测评时长
+                        (分钟)</label>
+                    <input type="number"
+                        class="w-full px-4 py-2.5 rounded-lg border border-slate-200 focus:border-brand-500 outline-none text-sm text-slate-800"
+                        value="60">
+                </div>
+
+                <div>
+                    <label class="block text-xs font-bold text-slate-500 mb-2">标签配置</label>
+                    <div
+                        class="w-full px-3 py-2 rounded-lg border border-slate-200 focus-within:border-brand-500 focus-within:ring-1 focus-within:ring-brand-500 bg-white flex items-center justify-between cursor-pointer">
+                        <div class="flex flex-wrap gap-2">
+                            <span class="tag-chip bg-green-50 text-green-700 border-green-200">
+                                智能工具实操 <i
+                                    class="fa-solid fa-xmark ml-1 text-green-400 hover:text-green-600 cursor-pointer"></i>
+                            </span>
+                            <span class="tag-chip bg-blue-50 text-blue-700 border-blue-200">
+                                生成式人工智能一级 <i
+                                    class="fa-solid fa-xmark ml-1 text-blue-400 hover:text-blue-600 cursor-pointer"></i>
+                            </span>
+                            <span class="tag-chip bg-blue-50 text-blue-700 border-blue-200">
+                                生成式人工智能 <i
+                                    class="fa-solid fa-xmark ml-1 text-blue-400 hover:text-blue-600 cursor-pointer"></i>
+                            </span>
+                        </div>
+                        <i class="fa-solid fa-chevron-down text-slate-400 text-xs ml-2"></i>
+                    </div>
+                </div>
+
+                <div>
+                    <div class="flex items-center justify-between mb-3">
+                        <label class="block text-xs font-bold text-slate-500">
+                            <i class="fa-solid fa-vial text-purple-500 mr-1"></i> 模拟考配置
+                        </label>
+                        <label class="relative inline-flex items-center cursor-pointer">
+                            <input type="checkbox" id="mock-toggle" class="sr-only peer" onchange="toggleMockConfig()">
+                            <div
+                                class="w-9 h-5 bg-slate-200 peer-focus:outline-none peer-focus:ring-2 peer-focus:ring-brand-300 rounded-full peer peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:border-gray-300 after:border after:rounded-full after:h-4 after:w-4 after:transition-all peer-checked:bg-purple-500">
+                            </div>
+                            <span class="ml-2 text-xs font-medium text-slate-600">开启模拟考</span>
+                        </label>
+                    </div>
+
+                    <div id="mock-config-panel"
+                        class="hidden bg-purple-50/50 p-4 rounded-xl border border-purple-100 dashed space-y-4 transition-all duration-300">
+
+                        <div>
+                            <label class="block text-[10px] font-bold text-slate-500 uppercase mb-1.5">模拟卷来源 (Smart
+                                Default)</label>
+                            <div class="relative">
+                                <select id="mock-paper-source"
+                                    class="w-full px-3 py-2 rounded border border-purple-200 text-xs outline-none focus:border-purple-500 bg-white appearance-none">
+                                    <option value="" disabled>请选择试卷...</option>
+                                    <option value="last_used" selected>🔵 [智能推荐] 2024秋季 Python 一级模拟卷 A (上次使用)</option>
+                                    <option value="p2">2024秋季 Python 一级模拟卷 B</option>
+                                    <option value="p3">通用编程能力测试卷</option>
+                                    <option value="p4">AIGC 基础能力摸底卷</option>
+                                </select>
+                                <i
+                                    class="fa-solid fa-chevron-down absolute right-3 top-1/2 -translate-y-1/2 text-slate-400 text-xs pointer-events-none"></i>
+                            </div>
+                            <p class="text-[10px] text-purple-600 mt-1 flex items-center gap-1">
+                                <i class="fa-solid fa-wand-magic-sparkles"></i> 系统已自动选中您上次使用的模拟卷
+                            </p>
+                        </div>
+
+                        <div class="grid grid-cols-2 gap-4">
+                            <div>
+                                <label
+                                    class="block text-[10px] font-bold text-slate-500 uppercase mb-1.5">模拟考开始时间</label>
+                                <input type="datetime-local" id="mock-start-time"
+                                    class="w-full px-3 py-2 rounded border border-slate-200 text-xs outline-none focus:border-purple-500 bg-white">
+                                <p class="text-[10px] text-slate-400 mt-0.5">默认: 即刻起</p>
+                            </div>
+                            <div>
+                                <label
+                                    class="block text-[10px] font-bold text-slate-500 uppercase mb-1.5">模拟考结束时间</label>
+                                <input type="datetime-local" id="mock-end-time"
+                                    class="w-full px-3 py-2 rounded border border-slate-200 text-xs outline-none focus:border-purple-500 bg-white">
+                                <p class="text-[10px] text-slate-400 mt-0.5">默认: 正式开考前</p>
+                            </div>
+                        </div>
+
+                        <div>
+                            <label class="block text-[10px] font-bold text-slate-500 uppercase mb-1.5">考试次数限制</label>
+                            <div class="flex items-center gap-4">
+                                <label class="flex items-center gap-2 cursor-pointer">
+                                    <input type="radio" name="mock-limit" class="text-purple-600 focus:ring-purple-500"
+                                        checked>
+                                    <span class="text-xs text-slate-700">无限次 (默认)</span>
+                                </label>
+                                <label class="flex items-center gap-2 cursor-pointer">
+                                    <input type="radio" name="mock-limit" class="text-purple-600 focus:ring-purple-500">
+                                    <span class="text-xs text-slate-700">自定义</span>
+                                    <input type="number"
+                                        class="w-16 px-2 py-1 rounded border border-slate-200 text-xs outline-none focus:border-purple-500"
+                                        placeholder="次数">
+                                </label>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <div>
+                    <label class="block text-xs font-bold text-slate-500 mb-3">证书落款时间配置</label>
+                    <div class="space-y-4 pl-1">
+                        <label class="flex items-start gap-3 cursor-pointer group">
+                            <div class="relative flex items-center mt-0.5">
+                                <input type="radio" name="cert-date"
+                                    class="peer h-4 w-4 border-slate-300 text-brand-600 focus:ring-brand-500" checked>
+                            </div>
+                            <div class="text-sm">
+                                <span class="font-medium text-slate-800 block">用户初次查看时间 (Dynamic)</span>
+                                <span class="text-slate-400 text-xs mt-0.5 block">以用户首次生成证书的时刻为准。</span>
+                            </div>
+                        </label>
+                        <label class="flex items-center gap-3 cursor-pointer group">
+                            <div class="relative flex items-center">
+                                <input type="radio" name="cert-date"
+                                    class="peer h-4 w-4 border-slate-300 text-brand-600 focus:ring-brand-500">
+                            </div>
+                            <div class="text-sm font-medium text-slate-800">指定日期</div>
+                        </label>
+                    </div>
+                </div>
+
+            </div>
+
+            <div class="px-6 py-4 border-t border-slate-100 flex justify-end gap-3 bg-slate-50 rounded-b-2xl">
+                <button onclick="closeActivityModal()"
+                    class="px-5 py-2.5 text-sm font-medium text-slate-600 bg-white border border-slate-200 hover:bg-slate-50 rounded-lg transition shadow-sm">取消</button>
+                <button onclick="saveActivity()"
+                    class="px-6 py-2.5 bg-brand-600 text-white text-sm font-bold rounded-lg hover:bg-brand-700 transition shadow-md"
+                    id="btn-save">保存并同步</button>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        const modal = document.getElementById('modal-activity');
+        const content = document.getElementById('modal-activity-content');
+        const title = document.getElementById('modal-title');
+        const nameInput = document.getElementById('activity-name');
+        const sourceSelect = document.getElementById('link-source');
+        const saveBtn = document.getElementById('btn-save');
+        const linkSection = document.getElementById('link-section');
+
+        // 打开弹窗
+        // type: 'new' | 'edit_synced' | 'edit_unsynced' | 'edit_unassociated'
+        function openActivityModal(existingName = '', type = 'new') {
+            // 1. 重置表单状态
+            sourceSelect.value = "";
+            sourceSelect.disabled = false;
+
+            // 2. 根据类型配置弹窗
+            if (type === 'new') {
+                title.innerText = "新建测评活动";
+                nameInput.value = "";
+                linkSection.style.display = 'block'; // 新建时显示关联选项
+                handleSourceLink();
+            } else if (type === 'edit_unassociated') {
+                title.innerText = "关联 / 编辑测评活动";
+                nameInput.value = existingName;
+                linkSection.style.display = 'block'; // 编辑未关联时显示，允许关联
+                handleSourceLink();
+            } else {
+                // 已同步或未同步的普通编辑，隐藏关联选择（因为已经有关联或来源确定）
+                title.innerText = "编辑测评信息";
+                nameInput.value = existingName;
+                linkSection.style.display = 'none';
+                saveBtn.innerText = "保存修改";
+                saveBtn.className = "px-6 py-2.5 bg-brand-600 text-white text-sm font-bold rounded-lg hover:bg-brand-700 transition shadow-md";
+            }
+
+            // 3. 显示弹窗
+            modal.classList.remove('hidden');
+            setTimeout(() => {
+                modal.classList.remove('opacity-0');
+                content.classList.add('modal-enter');
+            }, 10);
+        }
+
+        function closeActivityModal() {
+            modal.classList.add('opacity-0');
+            setTimeout(() => {
+                modal.classList.add('hidden');
+                content.classList.remove('modal-enter');
+            }, 200);
+        }
+
+        function handleSourceLink() {
+            const val = sourceSelect.value;
+            if (val) {
+                saveBtn.innerText = "保存并同步";
+                saveBtn.className = "px-6 py-2.5 bg-green-600 text-white text-sm font-bold rounded-lg hover:bg-green-700 transition shadow-md";
+                if (!nameInput.value) {
+                    nameInput.value = sourceSelect.options[sourceSelect.selectedIndex].text.split(' (')[0];
+                }
+            } else {
+                saveBtn.innerText = "仅保存 (未关联)";
+                saveBtn.className = "px-6 py-2.5 bg-brand-600 text-white text-sm font-bold rounded-lg hover:bg-brand-700 transition shadow-md";
+            }
+        }
+
+        function saveActivity() {
+            alert("操作成功！数据已更新。");
+            closeActivityModal();
+        }
+
+        function toggleMockConfig() {
+            const checkBox = document.getElementById('mock-toggle');
+            const panel = document.getElementById('mock-config-panel');
+
+            if (checkBox.checked) {
+                panel.classList.remove('hidden');
+                initMockConfigDefaults();
+            } else {
+                panel.classList.add('hidden');
+            }
+        }
+
+        function initMockConfigDefaults() {
+            const startInput = document.getElementById('mock-start-time');
+            const endInput = document.getElementById('mock-end-time');
+
+            // Set Start Time to Now
+            if (!startInput.value) {
+                const now = new Date();
+                now.setMinutes(now.getMinutes() - now.getTimezoneOffset());
+                startInput.value = now.toISOString().slice(0, 16);
+            }
+
+            // Set End Time to 3 days later (Simulating formal exam start)
+            if (!endInput.value) {
+                const end = new Date();
+                end.setDate(end.getDate() + 3);
+                end.setMinutes(end.getMinutes() - end.getTimezoneOffset());
+                endInput.value = end.toISOString().slice(0, 16);
+            }
+        }
+
+        function syncActivity(id) {
+            if (confirm("确定要立即同步此测评吗？")) {
+                alert("同步成功！状态已更新为【已同步】");
+            }
+        }
+    </script>
+</body>
+
+</html>

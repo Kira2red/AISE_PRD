@@ -1,0 +1,261 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>设备环境检测 - AICA</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+
+    <script>
+        tailwind.config = {
+            theme: {
+                extend: {
+                    fontFamily: { sans: ['Inter', 'sans-serif'] },
+                    colors: {
+                        brand: { 500: '#3b82f6', 600: '#2563eb' },
+                    },
+                    animation: {
+                        'scan': 'scan 3s linear infinite',
+                        'wave': 'wave 1s ease-in-out infinite',
+                        'pulse-fast': 'pulse 1.5s cubic-bezier(0.4, 0, 0.6, 1) infinite',
+                    },
+                    keyframes: {
+                        scan: {
+                            '0%': { top: '0%', opacity: '0' },
+                            '10%': { opacity: '1' },
+                            '90%': { opacity: '1' },
+                            '100%': { top: '100%', opacity: '0' },
+                        },
+                        wave: {
+                            '0%, 100%': { height: '20%' },
+                            '50%': { height: '100%' },
+                        }
+                    }
+                }
+            }
+        }
+    </script>
+    <style>
+        /* 页面背景：深色科技风 */
+        body { 
+            background-color: #0f172a; 
+            background-image: 
+                radial-gradient(at 0% 0%, hsla(253,16%,7%,1) 0, transparent 50%), 
+                radial-gradient(at 100% 100%, hsla(225,39%,30%,1) 0, transparent 50%);
+            min-height: 100vh;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        /* 摄像头扫描网格背景 */
+        .grid-overlay {
+            background-image: linear-gradient(rgba(59, 130, 246, 0.1) 1px, transparent 1px),
+            linear-gradient(90deg, rgba(59, 130, 246, 0.1) 1px, transparent 1px);
+            background-size: 40px 40px;
+        }
+
+        /* 声波条样式 */
+        .bar { width: 4px; background: #cbd5e1; border-radius: 2px; height: 100%; transition: background 0.3s; }
+        .bar.active { background: #3b82f6; animation: wave 0.8s ease-in-out infinite; }
+        /* 给每个条增加不同延迟，形成波浪 */
+        .bar.active:nth-child(1) { animation-delay: 0.0s; }
+        .bar.active:nth-child(2) { animation-delay: 0.1s; }
+        .bar.active:nth-child(3) { animation-delay: 0.2s; }
+        .bar.active:nth-child(4) { animation-delay: 0.3s; }
+        .bar.active:nth-child(5) { animation-delay: 0.1s; }
+    </style>
+</head>
+<body class="p-4 sm:p-8">
+
+    <div class="w-full max-w-5xl bg-white rounded-3xl shadow-2xl overflow-hidden flex flex-col md:flex-row h-auto md:h-[640px] border border-slate-800/50">
+        
+        <div class="w-full md:w-7/12 bg-black relative group overflow-hidden">
+            
+            <img src="https://images.unsplash.com/photo-1535713875002-d1d0cf377fde?ixlib=rb-4.0.3&auto=format&fit=crop&w=1200&q=80" 
+                 class="absolute inset-0 w-full h-full object-cover opacity-80 group-hover:scale-105 transition duration-1000 ease-out">
+            
+            <div class="absolute inset-0 grid-overlay opacity-30 pointer-events-none"></div>
+            
+            <div class="absolute left-0 w-full h-0.5 bg-blue-400/80 shadow-[0_0_15px_rgba(96,165,250,0.8)] animate-scan z-10 pointer-events-none"></div>
+
+            <div class="absolute top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2 w-48 h-48 border-2 border-blue-400/50 rounded-lg flex flex-col justify-between p-2 pointer-events-none">
+                <div class="flex justify-between">
+                    <div class="w-2 h-2 border-t-2 border-l-2 border-blue-400"></div>
+                    <div class="w-2 h-2 border-t-2 border-r-2 border-blue-400"></div>
+                </div>
+                <div class="text-center">
+                    <span class="bg-blue-600/80 text-white text-[10px] px-1.5 py-0.5 rounded backdrop-blur-sm">FACE DETECTED</span>
+                </div>
+                <div class="flex justify-between">
+                    <div class="w-2 h-2 border-b-2 border-l-2 border-blue-400"></div>
+                    <div class="w-2 h-2 border-b-2 border-r-2 border-blue-400"></div>
+                </div>
+            </div>
+
+            <div class="absolute top-0 left-0 w-full p-4 flex justify-between items-start bg-gradient-to-b from-black/80 to-transparent z-20">
+                <div class="flex items-center gap-2">
+                    <div class="w-2 h-2 rounded-full bg-red-500 animate-pulse-fast"></div>
+                    <span class="text-xs font-mono text-red-400 font-bold tracking-wider">REC</span>
+                </div>
+                <div class="text-right">
+                    <p class="text-[10px] text-slate-400 uppercase">Resolution</p>
+                    <p class="text-xs text-white font-mono">1920x1080 @ 30fps</p>
+                </div>
+            </div>
+
+            <div class="absolute bottom-0 left-0 w-full p-6 flex justify-between items-end bg-gradient-to-t from-black/90 to-transparent z-20">
+                <div class="space-y-1">
+                    <div class="flex items-center gap-2">
+                        <i class="fa-solid fa-sun text-yellow-400 text-xs"></i>
+                        <span class="text-xs text-slate-300">环境光照: <span class="text-green-400">充足</span></span>
+                    </div>
+                    <div class="flex items-center gap-2">
+                        <i class="fa-solid fa-user-check text-blue-400 text-xs"></i>
+                        <span class="text-xs text-slate-300">人像居中: <span class="text-green-400">是</span></span>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div class="w-full md:w-5/12 bg-white flex flex-col">
+            
+            <div class="p-8 pb-4">
+                <h2 class="text-2xl font-bold text-slate-900 mb-2">设备检测</h2>
+                <p class="text-slate-500 text-sm">系统正在检查您的硬件环境，全绿通过后即可进入考试。</p>
+            </div>
+
+            <div class="flex-1 overflow-y-auto px-8 py-2 space-y-4">
+                
+                <div class="p-4 rounded-xl border border-green-200 bg-green-50 flex items-center gap-4 transition-all">
+                    <div class="w-10 h-10 rounded-full bg-white border border-green-100 flex items-center justify-center text-green-600 shadow-sm flex-shrink-0">
+                        <i class="fa-solid fa-video"></i>
+                    </div>
+                    <div class="flex-1 min-w-0">
+                        <div class="flex justify-between items-center mb-0.5">
+                            <h4 class="text-sm font-bold text-slate-800">摄像头</h4>
+                            <span class="text-[10px] font-bold text-green-600 bg-white px-2 py-0.5 rounded border border-green-200">正常</span>
+                        </div>
+                        <p class="text-xs text-slate-500 truncate">FaceTime HD Camera (Built-in)</p>
+                    </div>
+                    <i class="fa-solid fa-circle-check text-green-500 text-xl"></i>
+                </div>
+
+                <div class="p-4 rounded-xl border border-slate-200 bg-white hover:border-brand-500 hover:shadow-md transition-all group" id="mic-card">
+                    <div class="flex items-center gap-4">
+                        <div class="w-10 h-10 rounded-full bg-slate-50 flex items-center justify-center text-slate-400 group-hover:text-brand-600 group-hover:bg-blue-50 transition flex-shrink-0">
+                            <i class="fa-solid fa-microphone"></i>
+                        </div>
+                        <div class="flex-1 min-w-0">
+                            <h4 class="text-sm font-bold text-slate-800 mb-1">麦克风</h4>
+                            <div class="flex items-center gap-1 h-4" id="audio-viz">
+                                <div class="bar"></div><div class="bar"></div><div class="bar"></div>
+                                <div class="bar"></div><div class="bar"></div><div class="bar"></div>
+                                <div class="bar"></div><div class="bar"></div>
+                            </div>
+                        </div>
+                        <button onclick="testMic()" class="text-xs px-3 py-1.5 border border-slate-200 rounded hover:bg-slate-50 text-slate-600 font-medium transition whitespace-nowrap" id="mic-btn">
+                            点击说话
+                        </button>
+                    </div>
+                </div>
+
+                <div class="p-4 rounded-xl border border-slate-200 bg-white hover:border-brand-500 hover:shadow-md transition-all group opacity-80 hover:opacity-100" id="screen-card">
+                    <div class="flex items-center gap-4">
+                        <div class="w-10 h-10 rounded-full bg-slate-50 flex items-center justify-center text-slate-400 group-hover:text-brand-600 group-hover:bg-blue-50 transition flex-shrink-0">
+                            <i class="fa-solid fa-desktop"></i>
+                        </div>
+                        <div class="flex-1 min-w-0">
+                            <h4 class="text-sm font-bold text-slate-800 mb-0.5">屏幕共享</h4>
+                            <p class="text-xs text-slate-400">需要授予浏览器录屏权限</p>
+                        </div>
+                        <button onclick="testScreen()" class="text-xs px-3 py-1.5 bg-slate-900 text-white rounded hover:bg-brand-600 transition whitespace-nowrap shadow-md" id="screen-btn">
+                            授权
+                        </button>
+                    </div>
+                </div>
+
+                <div class="p-4 rounded-xl border border-slate-200 bg-slate-50 flex items-center gap-4 opacity-50">
+                    <div class="w-10 h-10 rounded-full bg-white flex items-center justify-center text-slate-400 flex-shrink-0">
+                        <i class="fa-solid fa-wifi"></i>
+                    </div>
+                    <div class="flex-1">
+                        <h4 class="text-sm font-bold text-slate-800">网络连接</h4>
+                        <p class="text-xs text-slate-400">等待上一步完成...</p>
+                    </div>
+                </div>
+
+            </div>
+
+            <div class="p-6 border-t border-slate-100 bg-slate-50">
+                <button id="start-btn" class="w-full py-3.5 bg-slate-200 text-slate-400 font-bold rounded-xl cursor-not-allowed flex items-center justify-center gap-2 transition-all duration-300" disabled>
+                    <i class="fa-solid fa-lock"></i> 
+                    <span>请先完成所有检测</span>
+                </button>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        let micPassed = false;
+        let screenPassed = false;
+
+        function checkAllPassed() {
+            if (micPassed && screenPassed) {
+                const btn = document.getElementById('start-btn');
+                btn.disabled = false;
+                btn.classList.remove('bg-slate-200', 'text-slate-400', 'cursor-not-allowed');
+                btn.classList.add('bg-brand-600', 'text-white', 'hover:bg-brand-700', 'shadow-lg');
+                btn.innerHTML = '进入考试 <i class="fa-solid fa-arrow-right"></i>';
+            }
+        }
+
+        function testMic() {
+            const viz = document.getElementById('audio-viz');
+            const bars = viz.querySelectorAll('.bar');
+            const btn = document.getElementById('mic-btn');
+            const card = document.getElementById('mic-card');
+
+            // 模拟声波跳动
+            bars.forEach(bar => bar.classList.add('active'));
+            btn.innerText = "检测中...";
+            btn.disabled = true;
+
+            setTimeout(() => {
+                // 模拟通过
+                bars.forEach(bar => bar.classList.remove('active')); // 停止跳动
+                // 变绿
+                card.classList.remove('bg-white', 'hover:border-brand-500');
+                card.classList.add('bg-green-50', 'border-green-200');
+                
+                // 替换按钮为勾选
+                btn.outerHTML = '<i class="fa-solid fa-circle-check text-green-500 text-xl"></i>';
+                
+                micPassed = true;
+                checkAllPassed();
+            }, 2000);
+        }
+
+        function testScreen() {
+            const btn = document.getElementById('screen-btn');
+            const card = document.getElementById('screen-card');
+
+            btn.innerText = "请求中...";
+            
+            setTimeout(() => {
+                // 变绿
+                card.classList.remove('bg-white', 'opacity-80');
+                card.classList.add('bg-green-50', 'border-green-200', 'opacity-100');
+                
+                // 替换按钮为勾选
+                btn.outerHTML = '<i class="fa-solid fa-circle-check text-green-500 text-xl"></i>';
+                
+                screenPassed = true;
+                checkAllPassed();
+            }, 1500);
+        }
+    </script>
+</body>
+</html>

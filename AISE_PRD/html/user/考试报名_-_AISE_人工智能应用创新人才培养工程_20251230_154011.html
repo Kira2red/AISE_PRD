@@ -1,0 +1,446 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>考试报名 - AISE 人工智能应用创新人才培养工程</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+
+    <script>
+        tailwind.config = {
+            theme: {
+                extend: {
+                    fontFamily: {
+                        sans: ['Inter', 'sans-serif'],
+                    },
+                    colors: {
+                        brand: {
+                            500: '#3b82f6',
+                            600: '#2563eb',
+                            700: '#1d4ed8',
+                        },
+                    },
+                    boxShadow: {
+                        'card': '0 20px 40px -10px rgba(0, 0, 0, 0.1)',
+                    },
+                    backgroundImage: {
+                        'premium-gradient': 'linear-gradient(135deg, #1e293b 0%, #0f172a 100%)',
+                    }
+                }
+            }
+        }
+    </script>
+    <style>
+        body { background-color: #F1F5F9; -webkit-font-smoothing: antialiased; }
+        input[type="file"] { display: none; }
+        .payment-card.selected {
+            border-color: #2563eb; background-color: #eff6ff; box-shadow: 0 0 0 2px rgba(37, 99, 235, 0.2);
+        }
+        /* 禁用状态样式 */
+        input:disabled, input[readonly], select:disabled {
+            background-color: #f1f5f9; color: #64748b; cursor: not-allowed; border-color: #e2e8f0;
+        }
+        /* 错误震动动画 */
+        .shake { animation: shake 0.5s cubic-bezier(.36,.07,.19,.97) both; }
+        @keyframes shake { 10%, 90% { transform: translate3d(-1px, 0, 0); } 20%, 80% { transform: translate3d(2px, 0, 0); } 30%, 50%, 70% { transform: translate3d(-4px, 0, 0); } 40%, 60% { transform: translate3d(4px, 0, 0); } }
+    </style>
+</head>
+<body class="min-h-screen flex flex-col">
+
+    <header class="bg-white border-b border-slate-200 h-16 flex items-center justify-center sticky top-0 z-50">
+        <div class="max-w-5xl w-full px-4 flex justify-between items-center">
+            <div class="flex items-center gap-2 text-slate-900 font-bold text-lg">
+                <div class="w-8 h-8 bg-gradient-to-br from-brand-600 to-indigo-600 rounded flex items-center justify-center text-white text-xs">A</div>
+                AISE <span class="text-slate-400 font-normal text-sm hidden sm:inline">| 测评报名</span>
+            </div>
+            <a href="index-logged-in.html" class="text-sm text-slate-500 hover:text-slate-800 font-medium">退出报名</a>
+        </div>
+    </header>
+
+    <main class="flex-grow flex items-start justify-center p-4 sm:p-8">
+        <div class="max-w-4xl w-full">
+            
+            <div class="mb-8">
+                <div class="flex items-center justify-between relative">
+                    <div class="absolute left-0 top-1/2 transform -translate-y-1/2 w-full h-1 bg-slate-200 -z-10"></div>
+                    
+                    <div class="step-item flex flex-col items-center gap-2 bg-F1F5F9">
+                        <div id="step-indicator-1" class="w-8 h-8 rounded-full bg-brand-600 text-white flex items-center justify-center font-bold text-sm ring-4 ring-[#F1F5F9]">1</div>
+                        <span class="text-xs font-medium text-brand-600 hidden sm:block">报名须知</span>
+                    </div>
+                    <div class="step-item flex flex-col items-center gap-2">
+                        <div id="step-indicator-2" class="w-8 h-8 rounded-full bg-slate-300 text-white flex items-center justify-center font-bold text-sm ring-4 ring-[#F1F5F9]">2</div>
+                        <span class="text-xs font-medium text-slate-400 hidden sm:block">填写信息</span>
+                    </div>
+                    <div class="step-item flex flex-col items-center gap-2">
+                        <div id="step-indicator-3" class="w-8 h-8 rounded-full bg-slate-300 text-white flex items-center justify-center font-bold text-sm ring-4 ring-[#F1F5F9]">3</div>
+                        <span class="text-xs font-medium text-slate-400 hidden sm:block">确认信息</span>
+                    </div>
+                    <div class="step-item flex flex-col items-center gap-2">
+                        <div id="step-indicator-4" class="w-8 h-8 rounded-full bg-slate-300 text-white flex items-center justify-center font-bold text-sm ring-4 ring-[#F1F5F9]">4</div>
+                        <span class="text-xs font-medium text-slate-400 hidden sm:block">支付费用</span>
+                    </div>
+                </div>
+            </div>
+
+            <div class="bg-white rounded-2xl shadow-card overflow-hidden border border-slate-100 min-h-[500px] relative">
+                
+                <div id="step-content-1" class="p-6 sm:p-10">
+                    <h2 class="text-2xl font-bold text-slate-900 mb-6">报名须知与协议</h2>
+                    <div class="bg-slate-50 p-6 rounded-xl border border-slate-200 h-80 overflow-y-auto text-sm text-slate-600 leading-relaxed mb-6">
+                        <p class="mb-4 font-bold text-slate-800">欢迎参加 AISE 人工智能应用创新人才培养工程测评。</p>
+                        <p class="mb-4">一、考生应保证填写的报名信息真实、准确。因信息填写错误导致的证书信息错误、无法参加考试等后果，由考生本人承担。</p>
+                        <p class="mb-4">二、数据使用：AISE 将严格保护您的个人隐私信息，相关数据仅用于考试管理、证书制作及相关服务。</p>
+                        <p>（此处省略更多法律条款...）</p>
+                    </div>
+                    <div class="flex items-center mb-8">
+                        <input id="agreement-check" type="checkbox" class="w-5 h-5 rounded border-slate-300 text-brand-600 focus:ring-brand-500 cursor-pointer">
+                        <label for="agreement-check" class="ml-2 text-sm text-slate-700 cursor-pointer select-none">我已完整阅读并同意《报名须知》及《用户隐私协议》</label>
+                    </div>
+                    <div class="flex justify-end">
+                        <button onclick="goToStep(2)" class="bg-slate-900 text-white px-8 py-3 rounded-xl font-semibold shadow-lg hover:bg-brand-600 transition disabled:opacity-50 disabled:cursor-not-allowed" id="btn-step-1" disabled>下一步</button>
+                    </div>
+                </div>
+
+                <div id="step-content-2" class="p-6 sm:p-10 hidden">
+                    <h2 class="text-xl font-bold text-slate-900 mb-6 flex items-center gap-2">
+                        <span class="w-1 h-6 bg-brand-600 rounded-full"></span> 基础信息填写
+                    </h2>
+
+                    <form id="info-form" class="grid grid-cols-1 md:grid-cols-2 gap-6 mb-8">
+                        
+                        <div class="md:col-span-2 bg-slate-50 p-5 rounded-xl border border-slate-200 grid grid-cols-1 md:grid-cols-2 gap-6 relative overflow-hidden">
+                            <div class="absolute top-0 left-0 w-1 h-full bg-brand-500"></div>
+                            
+                            <div class="md:col-span-2" id="channel-code-row">
+                                <label class="block text-xs font-bold text-slate-600 uppercase mb-1.5 flex justify-between">
+                                    <span>渠道识别码 <span class="text-slate-400 font-normal ml-1">(选填)</span></span>
+                                    <span class="text-[10px] text-brand-600 font-normal cursor-pointer hover:underline" onclick="alert('如果您是机构学员，请咨询您的老师获取识别码，可直接锁定对应课程。')"><i class="fa-regular fa-circle-question"></i> 什么是识别码？</span>
+                                </label>
+                                <div class="flex gap-2">
+                                    <input type="text" id="input-code" class="flex-1 px-4 py-2.5 rounded-lg border border-slate-200 focus:border-slate-800 focus:ring-0 outline-none text-sm transition font-mono tracking-wide" placeholder="输入识别码可快速定位课程">
+                                    <button type="button" onclick="manualVerifyCode()" class="px-5 py-2.5 bg-white border border-slate-200 text-slate-700 hover:text-brand-600 hover:border-brand-200 text-sm font-medium rounded-lg shadow-sm transition whitespace-nowrap">
+                                        验证
+                                    </button>
+                                </div>
+                                <p id="code-error-msg" class="text-xs text-red-500 mt-2 hidden flex items-center gap-1">
+                                    <i class="fa-solid fa-circle-exclamation"></i> 识别码无效，请检查后重新输入
+                                </p>
+                            </div>
+
+                            <div>
+                                <label class="block text-xs font-bold text-slate-500 uppercase mb-1.5">所属机构/学校 <span class="text-red-500">*</span></label>
+                                <div class="relative">
+                                    <select id="select-agency" class="w-full px-4 py-2.5 rounded-lg border border-slate-200 focus:border-slate-800 outline-none text-sm bg-white appearance-none" onchange="onAgencyChange()">
+                                        <option value="">请选择机构...</option>
+                                        </select>
+                                    <i class="fa-solid fa-chevron-down absolute right-4 top-3.5 text-slate-400 text-xs pointer-events-none"></i>
+                                </div>
+                            </div>
+
+                            <div>
+                                <label class="block text-xs font-bold text-slate-500 uppercase mb-1.5">报名测评项目 <span class="text-red-500">*</span></label>
+                                <div class="relative">
+                                    <select id="select-project" class="w-full px-4 py-2.5 rounded-lg border border-slate-200 focus:border-slate-800 outline-none text-sm bg-white appearance-none" disabled>
+                                        <option value="">请先选择机构...</option>
+                                    </select>
+                                    <i class="fa-solid fa-chevron-down absolute right-4 top-3.5 text-slate-400 text-xs pointer-events-none"></i>
+                                </div>
+                            </div>
+                        </div>
+
+                        <div>
+                            <label class="block text-xs font-bold text-slate-600 uppercase mb-1.5">考生姓名 <span class="text-red-500">*</span></label>
+                            <input type="text" id="input-name" value="张三" class="w-full px-4 py-2.5 rounded-lg border border-slate-200 focus:border-slate-800 outline-none text-sm">
+                        </div>
+                        <div>
+                            <label class="block text-xs font-bold text-slate-600 uppercase mb-1.5">身份证号 <span class="text-red-500">*</span></label>
+                            <input type="text" id="input-id" value="110101201501011234" class="w-full px-4 py-2.5 rounded-lg border border-slate-200 focus:border-slate-800 outline-none text-sm font-mono">
+                        </div>
+                        <div>
+                            <label class="block text-xs font-bold text-slate-600 uppercase mb-1.5">性别 <span class="text-red-500">*</span></label>
+                            <select id="input-gender" class="w-full px-4 py-2.5 rounded-lg border border-slate-200 focus:border-slate-800 outline-none text-sm bg-white">
+                                <option value="男" selected>男</option>
+                                <option value="女">女</option>
+                            </select>
+                        </div>
+                        <div>
+                            <label class="block text-xs font-bold text-slate-600 uppercase mb-1.5">电子邮箱</label>
+                            <input type="email" id="input-email" value="zhangsan@example.com" class="w-full px-4 py-2.5 rounded-lg border border-slate-200 focus:border-slate-800 outline-none text-sm">
+                        </div>
+
+                        <div class="md:col-span-2">
+                            <label class="block text-xs font-bold text-slate-600 uppercase mb-1.5">1寸免冠照片 <span class="text-red-500">*</span></label>
+                            <div class="flex items-start gap-4">
+                                <div class="w-24 h-32 bg-slate-50 rounded-lg border-2 border-dashed border-slate-300 flex flex-col items-center justify-center text-slate-400 hover:border-brand-500 hover:text-brand-500 cursor-pointer transition relative overflow-hidden group">
+                                    <input type="file" id="input-photo" class="absolute inset-0 opacity-0 cursor-pointer" onchange="previewImage(this)">
+                                    <i class="fa-solid fa-plus text-xl mb-1 group-hover:scale-110 transition"></i>
+                                    <span class="text-[10px]">上传照片</span>
+                                    <img id="photo-preview" class="absolute inset-0 w-full h-full object-cover hidden">
+                                </div>
+                                <div class="text-xs text-slate-400 pt-2 leading-relaxed">
+                                    请上传本人近期1寸免冠证件照。<br>支持 JPG/PNG 格式，文件大小不超过 2MB。
+                                </div>
+                            </div>
+                        </div>
+
+                        <div class="md:col-span-2 border-t border-slate-100 my-2"></div>
+                        
+                        <div><label class="block text-xs font-bold text-slate-600 uppercase mb-1.5">监护人姓名 <span class="text-red-500">*</span></label><input type="text" id="input-parent" value="李四" class="w-full px-4 py-2.5 rounded-lg border border-slate-200 focus:border-slate-800 outline-none text-sm"></div>
+                        <div><label class="block text-xs font-bold text-slate-600 uppercase mb-1.5">监护人电话 <span class="text-red-500">*</span></label><input type="tel" id="input-phone" value="13800138000" class="w-full px-4 py-2.5 rounded-lg border border-slate-200 focus:border-slate-800 outline-none text-sm font-mono"></div>
+                        <div><label class="block text-xs font-bold text-slate-600 uppercase mb-1.5">所在省市 <span class="text-red-500">*</span></label><input type="text" id="input-city" value="北京市 海淀区" class="w-full px-4 py-2.5 rounded-lg border border-slate-200 focus:border-slate-800 outline-none text-sm"></div>
+                        <div><label class="block text-xs font-bold text-slate-600 uppercase mb-1.5">详细寄送地址 <span class="text-red-500">*</span></label><input type="text" id="input-address" value="中关村软件园一号楼A座" class="w-full px-4 py-2.5 rounded-lg border border-slate-200 focus:border-slate-800 outline-none text-sm"></div>
+                    </form>
+
+                    <div class="flex justify-between pt-4">
+                        <button onclick="goToStep(1)" class="text-slate-500 px-6 py-3 rounded-xl font-medium hover:bg-slate-50 transition">上一步</button>
+                        <button onclick="goToStep(3)" class="bg-slate-900 text-white px-8 py-3 rounded-xl font-semibold shadow-lg hover:bg-brand-600 transition">确认信息</button>
+                    </div>
+                </div>
+
+                <div id="step-content-3" class="p-6 sm:p-10 hidden">
+                    <h2 class="text-xl font-bold text-slate-900 mb-6 flex items-center gap-2"><span class="w-1 h-6 bg-brand-600 rounded-full"></span> 请核对报名信息</h2>
+                    <div class="bg-slate-50 rounded-2xl border border-slate-200 p-6 sm:p-8 mb-8">
+                        <dl class="grid grid-cols-1 sm:grid-cols-2 gap-x-4 gap-y-6 text-sm">
+                            <div class="sm:col-span-2 border-b border-slate-200 pb-4 mb-2">
+                                <dt class="text-slate-400 text-xs mb-1">测评项目</dt>
+                                <dd class="font-bold text-brand-700 text-lg" id="view-project">--</dd>
+                            </div>
+                            <div><dt class="text-slate-400 text-xs mb-1">渠道/机构</dt><dd class="font-medium text-slate-800" id="view-agency">--</dd></div>
+                            <div><dt class="text-slate-400 text-xs mb-1">考生姓名</dt><dd class="font-medium text-slate-800" id="view-name">--</dd></div>
+                            <div><dt class="text-slate-400 text-xs mb-1">身份证号</dt><dd class="font-medium text-slate-800 font-mono" id="view-id">--</dd></div>
+                            <div><dt class="text-slate-400 text-xs mb-1">性别</dt><dd class="font-medium text-slate-800" id="view-gender">--</dd></div>
+                            <div class="sm:col-span-2 pt-2"><dt class="text-slate-400 text-xs mb-1">寄送地址</dt><dd class="font-medium text-slate-800" id="view-address">--</dd></div>
+                        </dl>
+                    </div>
+                    <div class="flex justify-between pt-4">
+                        <button onclick="goToStep(2)" class="text-slate-500 px-6 py-3 rounded-xl font-medium hover:bg-slate-50 transition">返回修改</button>
+                        <button onclick="goToStep(4)" class="bg-slate-900 text-white px-8 py-3 rounded-xl font-semibold shadow-lg hover:bg-brand-600 transition">确认并支付</button>
+                    </div>
+                </div>
+
+                <div id="step-content-4" class="p-6 sm:p-10 hidden">
+                    <div class="text-center mb-8">
+                        <p class="text-slate-500 text-sm mb-2">需支付考试费用</p>
+                        <h2 class="text-4xl font-bold text-slate-900">¥ 199.00</h2>
+                    </div>
+                    <div class="grid grid-cols-1 sm:grid-cols-2 gap-4 mb-8 max-w-lg mx-auto">
+                        <div class="payment-card selected cursor-pointer rounded-xl border border-slate-200 p-4 flex items-center gap-4 transition-all" onclick="selectPayment(this)">
+                            <div class="w-10 h-10 rounded-full bg-[#09BB07] text-white flex items-center justify-center text-xl"><i class="fa-brands fa-weixin"></i></div>
+                            <div><p class="font-bold text-slate-800">微信支付</p><p class="text-xs text-slate-400">推荐使用</p></div>
+                            <div class="ml-auto text-brand-600 check-icon"><i class="fa-solid fa-circle-check"></i></div>
+                        </div>
+                        <div class="payment-card cursor-pointer rounded-xl border border-slate-200 p-4 flex items-center gap-4 transition-all hover:bg-slate-50" onclick="selectPayment(this)">
+                            <div class="w-10 h-10 rounded-full bg-[#1677FF] text-white flex items-center justify-center text-xl"><i class="fa-brands fa-alipay"></i></div>
+                            <div><p class="font-bold text-slate-800">支付宝</p><p class="text-xs text-slate-400">安全快捷</p></div>
+                            <div class="ml-auto text-slate-200 check-icon hidden"><i class="fa-solid fa-circle-check"></i></div>
+                        </div>
+                    </div>
+                    <div class="flex flex-col items-center justify-center mb-8">
+                        <div class="w-40 h-40 bg-white p-2 border border-slate-100 rounded-lg shadow-sm mb-3">
+                            <img src="https://api.qrserver.com/v1/create-qr-code/?size=150x150&data=PaymentDemo" alt="QR" class="w-full h-full opacity-80">
+                        </div>
+                        <p class="text-xs text-slate-400">请使用手机扫码支付</p>
+                    </div>
+                    <div class="flex justify-center pt-4">
+                        <button onclick="finishPayment()" class="w-full sm:w-auto bg-premium-gradient text-white px-12 py-3.5 rounded-xl font-semibold shadow-btn-premium hover:scale-105 transition">我已完成支付</button>
+                    </div>
+                </div>
+
+            </div>
+        </div>
+    </main>
+
+    <script>
+        // 1. 模拟数据库 (Agency Data: 包含多个项目)
+        const agencyData = [
+            { code: "YPB2025", name: "猿编程教育科技", projects: ["2025春季 Python 程序设计（一级）", "2025春季 C++ 算法基础"] },
+            { code: "CB888", name: "CodeBear 代码熊", projects: ["2025夏季 AIGC 应用能力（二级）"] },
+            { code: "DEFAULT", name: "社会考生通道", projects: ["2025春季 Python 程序设计（一级）", "2025夏季 AIGC 应用能力（二级）"] }
+        ];
+
+        // 2. 初始化与步骤控制
+        const checkbox = document.getElementById('agreement-check');
+        const nextBtn1 = document.getElementById('btn-step-1');
+        checkbox.addEventListener('change', (e) => { nextBtn1.disabled = !e.target.checked; });
+
+        let currentStep = 1;
+        function goToStep(step) {
+            if (step === 3) {
+                // 必填校验
+                const agency = document.getElementById('select-agency').value;
+                const project = document.getElementById('select-project').value;
+                if (!agency || !project) {
+                    alert('请选择所属机构和测评项目');
+                    return;
+                }
+                syncDataToReview();
+            }
+            document.getElementById(`step-content-${currentStep}`).classList.add('hidden');
+            updateStepperUI(step);
+            document.getElementById(`step-content-${step}`).classList.remove('hidden');
+            currentStep = step;
+            window.scrollTo({ top: 0, behavior: 'smooth' });
+        }
+
+        function updateStepperUI(targetStep) {
+            for (let i = 1; i <= 4; i++) {
+                const indicator = document.getElementById(`step-indicator-${i}`);
+                if (i < targetStep) {
+                    indicator.className = "w-8 h-8 rounded-full bg-green-500 text-white flex items-center justify-center font-bold text-sm ring-4 ring-[#F1F5F9] transition-colors";
+                    indicator.innerHTML = '<i class="fa-solid fa-check"></i>';
+                } else if (i === targetStep) {
+                    indicator.className = "w-8 h-8 rounded-full bg-brand-600 text-white flex items-center justify-center font-bold text-sm ring-4 ring-blue-100 transition-colors shadow-lg shadow-brand-500/30";
+                    indicator.innerHTML = i;
+                } else {
+                    indicator.className = "w-8 h-8 rounded-full bg-slate-200 text-slate-500 flex items-center justify-center font-bold text-sm ring-4 ring-[#F1F5F9] transition-colors";
+                    indicator.innerHTML = i;
+                }
+            }
+        }
+
+        // 3. 核心逻辑：识别码与下拉框联动
+        
+        // 页面加载时执行
+        function initIdentityCode() {
+            const urlParams = new URLSearchParams(window.location.search);
+            const codeFromUrl = urlParams.get('code');
+            const codeRow = document.getElementById('channel-code-row');
+            
+            // 初始化下拉框的所有选项（针对官网直接进入的用户）
+            renderAgencyOptions();
+
+            if (codeFromUrl) {
+                // 场景 A: 扫码/链接进入 -> 隐藏渠道码输入框，锁定机构
+                codeRow.classList.add('hidden');
+                verifyAndLock(codeFromUrl);
+            } else {
+                // 场景 B: 官网进入 -> 显示渠道码（选填），允许自由选择
+                codeRow.classList.remove('hidden');
+            }
+        }
+
+        // 渲染机构下拉框
+        function renderAgencyOptions() {
+            const select = document.getElementById('select-agency');
+            select.innerHTML = '<option value="">请选择机构...</option>';
+            agencyData.forEach(item => {
+                const option = document.createElement('option');
+                option.value = item.code;
+                option.text = item.name;
+                select.appendChild(option);
+            });
+        }
+
+        // 机构变化时，联动项目下拉框
+        function onAgencyChange() {
+            const agencyCode = document.getElementById('select-agency').value;
+            const projectSelect = document.getElementById('select-project');
+            
+            projectSelect.innerHTML = '<option value="">请选择项目...</option>';
+            
+            if (!agencyCode) {
+                projectSelect.disabled = true;
+                return;
+            }
+
+            const agency = agencyData.find(a => a.code === agencyCode);
+            if (agency) {
+                agency.projects.forEach(p => {
+                    const option = document.createElement('option');
+                    option.value = p;
+                    option.text = p;
+                    projectSelect.appendChild(option);
+                });
+                projectSelect.disabled = false;
+            }
+        }
+
+        // 手动验证渠道码
+        function manualVerifyCode() {
+            const inputCode = document.getElementById('input-code');
+            const code = inputCode.value.trim();
+            const errorMsg = document.getElementById('code-error-msg');
+
+            errorMsg.classList.add('hidden');
+            
+            if (!code) {
+                alert("请输入识别码");
+                return;
+            }
+
+            const success = verifyAndLock(code);
+            if (!success) {
+                errorMsg.classList.remove('hidden');
+                inputCode.parentElement.classList.add('shake');
+                setTimeout(() => inputCode.parentElement.classList.remove('shake'), 500);
+            }
+        }
+
+        // 验证并通过代码锁定机构
+        function verifyAndLock(code) {
+            const agency = agencyData.find(a => a.code === code);
+            if (agency) {
+                // 锁定机构选择
+                const agencySelect = document.getElementById('select-agency');
+                agencySelect.value = agency.code;
+                agencySelect.disabled = true; // 锁定不让改
+                agencySelect.classList.add('bg-slate-100');
+
+                // 触发项目更新
+                onAgencyChange();
+                
+                // 视觉反馈：项目下拉框高亮
+                const projectSelect = document.getElementById('select-project');
+                projectSelect.classList.add('ring-2', 'ring-brand-200', 'bg-blue-50');
+
+                return true;
+            }
+            return false;
+        }
+
+        // 4. 数据同步与图片预览
+        function syncDataToReview() {
+            const agencySelect = document.getElementById('select-agency');
+            const agencyName = agencySelect.options[agencySelect.selectedIndex].text;
+            
+            document.getElementById('view-project').innerText = document.getElementById('select-project').value;
+            document.getElementById('view-agency').innerText = agencyName;
+            document.getElementById('view-name').innerText = document.getElementById('input-name').value;
+            document.getElementById('view-id').innerText = document.getElementById('input-id').value;
+            document.getElementById('view-gender').innerText = document.getElementById('input-gender').value;
+            document.getElementById('view-address').innerText = `${document.getElementById('input-city').value} ${document.getElementById('input-address').value}`;
+        }
+
+        function previewImage(input) {
+            if (input.files && input.files[0]) {
+                const reader = new FileReader();
+                reader.onload = function(e) {
+                    const img = document.getElementById('photo-preview');
+                    img.src = e.target.result;
+                    img.classList.remove('hidden');
+                }
+                reader.readAsDataURL(input.files[0]);
+            }
+        }
+
+        function selectPayment(card) {
+            document.querySelectorAll('.payment-card').forEach(c => {
+                c.classList.remove('selected', 'bg-eff6ff', 'border-brand-600');
+                c.querySelector('.check-icon').classList.add('hidden', 'text-slate-200');
+                c.querySelector('.check-icon').classList.remove('text-brand-600');
+            });
+            card.classList.add('selected');
+            const icon = card.querySelector('.check-icon');
+            icon.classList.remove('hidden', 'text-slate-200');
+            icon.classList.add('text-brand-600');
+        }
+
+        function finishPayment() { window.location.href = "registration-success.html"; }
+        
+        window.onload = initIdentityCode;
+    </script>
+</body>
+</html>

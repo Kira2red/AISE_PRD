@@ -1,0 +1,633 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>趣味编程大冒险 - 编程题 (完美修复版)</title>
+    <style>
+        /* --- 1. 全局标准风格定义 --- */
+        :root {
+            --bg-color: #e0f2f1;
+            --sidebar-bg: #e1f5fe;
+            --primary-blue: #4fc3f7;
+            --primary-dark: #0277bd;
+            
+            --btn-green: #66bb6a;
+            --btn-green-hover: #43a047;
+            
+            --accent-pink: #ff8a80;
+            --accent-green: #aed581;
+            --text-red: #ff5252;
+            --ink-color: #455a64;
+            
+            /* IDE 核心参数 (必须严格对齐) */
+            --ide-font-family: "Consolas", "Monaco", "Courier New", monospace;
+            --ide-font-size: 14px;
+            --ide-line-height: 24px; /* 每一行的高度 */
+            --ide-padding-v: 10px;   /* 上下内边距 */
+            
+            --ide-bg: #ffffff;
+            --ide-gutter: #f5f5f5;
+            --ide-border: #e0e0e0;
+            
+            --border-width: 3px;
+            --border-color: #81d4fa;
+            
+            --shadow-pop: 4px 4px 0px rgba(79, 195, 247, 0.4); 
+            --radius-box: 20px;
+            --header-height: 70px;
+        }
+
+        * { box-sizing: border-box; margin: 0; padding: 0; outline: none; }
+
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif;
+            background-color: var(--bg-color);
+            background-image: radial-gradient(#b2ebf2 10%, transparent 10%);
+            background-size: 20px 20px;
+            height: 100vh;
+            display: flex;
+            color: var(--ink-color);
+            overflow: hidden;
+        }
+
+        /* 滚动条美化 */
+        ::-webkit-scrollbar { width: 8px; height: 8px; }
+        ::-webkit-scrollbar-thumb { background-color: #cfd8dc; border-radius: 4px; }
+        ::-webkit-scrollbar-track { background: transparent; }
+
+        /* --- 侧边栏 (Sidebar) --- */
+        .sidebar {
+            width: 280px; background: var(--sidebar-bg); position: relative; 
+            display: flex; flex-direction: column; z-index: 20; flex-shrink: 0;
+            transition: all 0.3s;
+            border-right: var(--border-width) dashed var(--border-color);
+        }
+        .sidebar.collapsed { width: 0; border-right: none; }
+
+        .sidebar-toggle-handle {
+            position: absolute; top: 50%; right: -24px; width: 24px; height: 80px;
+            background: #b3e5fc; border: 2px solid #81d4fa; border-left: none; 
+            border-radius: 0 15px 15px 0; cursor: pointer; display: flex; align-items: center; justify-content: center;
+            color: #0277bd; font-weight: bold; font-size: 14px; z-index: 30;
+            transform: translateY(-50%); box-shadow: 2px 2px 0 rgba(0,0,0,0.1); transition: all 0.3s;
+        }
+        .sidebar-toggle-handle:hover { background: #81d4fa; color: #fff; }
+        .sidebar-mask { width: 100%; height: 100%; overflow: hidden; position: relative; display: flex; flex-direction: column; }
+
+        .sidebar-fixed-header {
+            flex-shrink: 0; padding: 15px 15px 5px 15px; 
+            border-bottom: 2px dashed rgba(129, 212, 250, 0.5); background: var(--sidebar-bg); z-index: 2;
+        }
+        .user-profile {
+            padding: 12px; background: #fff; border-radius: 15px;
+            border: var(--border-width) solid var(--border-color); box-shadow: var(--shadow-pop);
+            text-align: center; white-space: nowrap; 
+        }
+        .camera-box {
+            width: 90px; height: 68px; background: #000; margin: 0 auto 8px auto; 
+            border-radius: 8px; border: 2px solid #333; overflow: hidden; position: relative;
+        }
+        .camera-box img { width: 100%; height: 100%; object-fit: cover; display: block; }
+        .camera-dot {
+            position: absolute; top: 5px; right: 5px; width: 6px; height: 6px; 
+            background: red; border-radius: 50%; animation: blink 1s infinite; border: 1px solid #fff;
+        }
+        @keyframes blink { 50% { opacity: 0; } }
+        .student-name { font-size: 14px; font-weight: bold; color: #0277bd; margin-bottom: 8px; }
+        .status-grid { display: flex; justify-content: center; gap: 4px; flex-wrap: wrap; }
+        .status-badge {
+            font-size: 10px; background: #e8f5e9; color: #2e7d32; border: 1px solid #c8e6c9;
+            padding: 2px 5px; border-radius: 8px; display: flex; align-items: center; font-weight: 600;
+        }
+
+        .sidebar-scroll-area { flex: 1; overflow-y: auto; padding: 10px 15px 20px 15px; }
+        .legend-box {
+            background: rgba(255,255,255,0.6); border-radius: 10px; padding: 8px; margin-bottom: 15px;
+            display: flex; justify-content: center; gap: 15px; font-size: 12px;
+        }
+        .legend-item { display: flex; align-items: center; gap: 4px; color: #666; font-weight: bold; }
+        .dot { width: 10px; height: 10px; border-radius: 50%; display: inline-block; border: 1px solid rgba(0,0,0,0.1); }
+
+        .chapter-title {
+            font-size: 13px; color: #0277bd; margin: 15px 0 8px 0; font-weight: bold;
+            display: flex; align-items: center; white-space: nowrap;
+        }
+        .chapter-title::before { content: "🔹"; margin-right: 5px; font-size: 12px; }
+        .question-grid { display: grid; grid-template-columns: repeat(5, 1fr); gap: 8px; padding-bottom: 10px; }
+        
+        .q-tag {
+            width: 38px; height: 38px; background: #fff;
+            border: var(--border-width) solid #b3e5fc; border-radius: 50% 40% 50% 40%;
+            display: flex; align-items: center; justify-content: center;
+            font-size: 14px; font-weight: bold; cursor: pointer; transition: all 0.2s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+            color: #81d4fa;
+        }
+        .q-tag:hover { transform: scale(1.1) rotate(-5deg); border-color: var(--primary-blue); }
+        .q-tag.active { 
+            background: var(--primary-blue); color: #fff; border-color: #0288d1;
+            transform: scale(1.1); box-shadow: 2px 2px 0px rgba(0,0,0,0.1);
+        }
+        .q-tag.done { background: var(--accent-green); border-color: #7cb342; color: #fff; }
+
+        /* --- 主内容区 --- */
+        .main-container {
+            flex: 1; display: flex; flex-direction: column;
+            background: rgba(255, 255, 255, 0.6); margin: 10px; border-radius: 30px; 
+            border: var(--border-width) solid #fff; box-shadow: 0 10px 30px rgba(129, 212, 250, 0.3); 
+            overflow: hidden; position: relative;
+            /* 全屏动画 */
+            transition: all 0.3s cubic-bezier(0.25, 0.8, 0.25, 1);
+        }
+        .top-bar {
+            height: var(--header-height); background: #fff; border-bottom: var(--border-width) dashed #b3e5fc;
+            display: flex; align-items: center; justify-content: space-between; padding: 0 20px; flex-shrink: 0;
+        }
+        .exam-title { font-size: 18px; font-weight: 700; color: var(--primary-dark); }
+        .nav-controller { flex: 1; display: flex; justify-content: center; gap: 20px; }
+        .nav-pill-btn {
+            background: #fff; border: 2px solid #b0bec5; padding: 6px 20px; border-radius: 20px;
+            cursor: pointer; font-weight: bold; color: #78909c; box-shadow: 0 3px 0 #cfd8dc; transition: 0.1s; font-size: 14px;
+        }
+        .nav-pill-btn:hover { background: #eceff1; transform: translateY(-2px); }
+        .nav-pill-btn:active { box-shadow: 0 1px 0 #cfd8dc; transform: translateY(2px); }
+        .top-tools { display: flex; align-items: center; gap: 15px; }
+        .timer-box {
+            background: #fff; color: var(--text-red); padding: 6px 15px; border-radius: 20px; 
+            font-weight: bold; font-family: monospace; border: 2px solid var(--text-red);
+            box-shadow: 2px 2px 0 #ffebee; display: flex; align-items: center; justify-content: center;
+            min-width: 80px; white-space: nowrap;
+        }
+        .btn-icon {
+            background: #fff; border: 2px solid #b0bec5; width: 40px; height: 40px;
+            border-radius: 10px; cursor: pointer; display: flex; align-items: center; justify-content: center;
+            font-size: 18px; box-shadow: 0 3px 0 #cfd8dc;
+        }
+        .btn-submit-big {
+            background: var(--btn-green); color: #fff; border: 2px solid #2e7d32;
+            padding: 8px 25px; border-radius: 15px; font-size: 15px; font-weight: 700;
+            cursor: pointer; box-shadow: 0 4px 0 #1b5e20; transition: 0.2s; display: flex; align-items: center; gap: 5px;
+        }
+        .btn-submit-big:hover { background: var(--btn-green-hover); transform: scale(1.05); }
+        .btn-submit-big:active { box-shadow: 0 2px 0 #1b5e20; transform: translateY(3px); }
+
+        /* --- 题目容器 --- */
+        .question-wrapper { flex: 1; position: relative; overflow: hidden; padding: 0; }
+        .question-card { display: none; height: 100%; overflow-y: auto; padding: 30px; animation: fadeIn 0.3s; }
+        .question-card.active-card { display: block; }
+        @keyframes fadeIn { from { opacity: 0; transform: translateY(10px); } to { opacity: 1; transform: translateY(0); } }
+
+        /* 左右分栏布局 (IDE 模式) */
+        .question-card.layout-ide {
+            flex-direction: row; padding: 15px; gap: 10px; background: transparent; overflow: hidden; display: none;
+        }
+        .question-card.layout-ide.active-card { display: flex; }
+        
+        .split-col-left {
+            flex: 0.8; background: #fff; border-radius: 12px; padding: 20px;
+            overflow-y: auto; height: 100%; box-shadow: var(--shadow-pop); border: var(--border-width) solid #fff;
+            border-color: #b39ddb; background: #fdfbff; display: flex; flex-direction: column;
+        }
+        .split-col-right {
+            flex: 1.2; background: var(--ide-bg); border-radius: 12px; 
+            height: 100%; box-shadow: var(--shadow-pop); border: var(--border-width) solid var(--primary-blue);
+            display: flex; flex-direction: column; overflow: hidden;
+        }
+
+        .q-header {
+            border-bottom: 2px dashed #eceff1; padding-bottom: 10px; margin-bottom: 15px;
+            display: flex; justify-content: space-between; align-items: center; color: #90a4ae; font-size: 14px;
+        }
+        .q-badge {
+            background: var(--primary-blue); color: white; padding: 5px 12px;
+            border-radius: 6px; font-size: 13px; font-weight: bold; margin-right: 10px;
+        }
+        .q-stem-area { font-size: 15px; line-height: 1.6; color: #37474f; margin-bottom: 20px; }
+
+        /* --- 编程题专用样式 (浅色 IDE 风格) --- */
+
+        /* 1. IDE 顶部工具栏 */
+        .ide-toolbar {
+            height: 40px; background: #fafafa; border-bottom: 1px solid var(--ide-border);
+            display: flex; align-items: center; justify-content: space-between; padding: 0 15px; flex-shrink: 0;
+        }
+        .ide-title { color: #555; font-size: 13px; font-weight: bold; display: flex; align-items: center; gap: 8px; }
+        .ide-actions { display: flex; gap: 10px; }
+        .ide-icon-btn {
+            background: #fff; border: 1px solid #ccc; color: #555;
+            padding: 3px 8px; border-radius: 4px; cursor: pointer; font-size: 12px;
+            display: flex; align-items: center; gap: 5px; transition: 0.2s;
+        }
+        .ide-icon-btn:hover { background: #e0f7fa; color: #0277bd; border-color: #4fc3f7; }
+        .ide-icon-btn.fullscreen-btn { color: #f57f17; border-color: #ffe082; }
+        .ide-icon-btn.fullscreen-btn:hover { background: #fffde7; }
+
+        /* 2. 代码编辑器区域 (关键修复：强制对齐) */
+        .ide-editor-area {
+            flex: 1; position: relative; display: flex; 
+            background: var(--ide-bg); 
+            font-family: var(--ide-font-family);
+            overflow: hidden; /* 防止溢出 */
+        }
+        
+        /* 行号栏 */
+        .line-numbers {
+            width: 45px; 
+            background: var(--ide-gutter); 
+            border-right: 1px solid var(--ide-border);
+            color: #999; 
+            text-align: right; 
+            padding: var(--ide-padding-v) 5px var(--ide-padding-v) 0; /* 上下padding */
+            font-size: var(--ide-font-size); 
+            line-height: var(--ide-line-height);
+            user-select: none;
+            overflow: hidden; /* 必须隐藏，通过 JS 同步滚动 */
+            box-sizing: border-box;
+        }
+        .line-numbers div {
+            height: var(--ide-line-height); /* 确保行高一致 */
+        }
+        
+        /* 代码输入框 */
+        .code-input {
+            flex: 1; 
+            background: transparent; 
+            border: none; 
+            color: var(--ide-text);
+            padding: var(--ide-padding-v) 10px; /* 上下padding必须与行号一致 */
+            font-family: var(--ide-font-family); /* 强制字体一致 */
+            font-size: var(--ide-font-size); 
+            line-height: var(--ide-line-height); /* 强制行高一致 */
+            outline: none; 
+            resize: none;
+            white-space: pre; 
+            overflow: auto; /* 允许滚动 */
+            tab-size: 4;
+            box-sizing: border-box;
+        }
+        .code-input::selection { background: #b3d4fc; }
+
+        /* 3. 执行控制条 */
+        .ide-control-bar {
+            height: 45px; background: #fafafa; border-top: 1px solid var(--ide-border);
+            display: flex; align-items: center; justify-content: space-between; padding: 0 15px; flex-shrink: 0;
+        }
+        .run-btn {
+            background: #66bb6a; color: #fff; border: none; padding: 6px 18px;
+            border-radius: 20px; cursor: pointer; font-weight: bold; font-size: 13px;
+            display: flex; align-items: center; gap: 6px; box-shadow: 0 2px 0 #388e3c;
+        }
+        .run-btn:hover { background: #43a047; }
+        .run-btn:active { transform: translateY(1px); box-shadow: 0 1px 0 #388e3c; }
+
+        .ide-tools-right { display: flex; gap: 10px; align-items: center; }
+        .secondary-btn {
+            background: #fff; color: #666; border: 1px solid #ccc; padding: 5px 12px;
+            border-radius: 15px; cursor: pointer; font-size: 12px; transition: 0.2s;
+        }
+        .secondary-btn:hover { background: #f5f5f5; color: #333; }
+        
+        .collapse-btn { 
+            color: #999; font-size: 14px; cursor: pointer; padding: 5px; 
+            display: flex; align-items: center; gap: 4px;
+        }
+        .collapse-btn:hover { color: #555; }
+
+        /* 4. 终端/结果面板 (可折叠) */
+        .ide-terminal-panel {
+            height: 180px; background: #fff; border-top: 1px solid var(--ide-border);
+            display: flex; flex-direction: column; 
+            transition: height 0.3s cubic-bezier(0.25, 0.8, 0.25, 1);
+            overflow: hidden;
+        }
+        .ide-terminal-panel.collapsed { height: 0; border-top: none; }
+
+        /* 终端 Tabs */
+        .terminal-tabs {
+            display: flex; background: #f5f5f5; height: 32px; border-bottom: 1px solid var(--ide-border); flex-shrink: 0;
+        }
+        .term-tab {
+            padding: 0 20px; color: #666; cursor: pointer; font-size: 12px;
+            display: flex; align-items: center; border-right: 1px solid #e0e0e0;
+            background: #f5f5f5; transition: 0.2s;
+        }
+        .term-tab:hover { background: #eee; }
+        .term-tab.active { background: #fff; color: #0277bd; border-top: 2px solid #0277bd; font-weight: bold; }
+
+        /* 终端内容 */
+        .terminal-content {
+            flex: 1; padding: 15px; overflow-y: auto; 
+            color: #333; font-family: "Consolas", monospace; font-size: 13px;
+            background: #fff;
+        }
+        .term-output { display: none; }
+        .term-output.active { display: block; }
+        .output-line { margin-bottom: 5px; }
+        .output-line.success { color: #2e7d32; }
+        .output-line.error { color: #c62828; }
+        .output-line::before { content: "> "; color: #999; }
+
+        /* --- 关键：全屏模式样式修正 (Focus Mode Fix) --- */
+        body.focus-mode .main-container {
+            /* 强制全屏覆盖 */
+            position: fixed; 
+            top: 0; left: 0;
+            width: 100vw; height: 100vh;
+            margin: 0; border: none; border-radius: 0;
+            z-index: 1000; /* 最高层级 */
+            box-shadow: none;
+        }
+        /* 全屏时隐藏其他元素 (侧边栏、顶栏) */
+        body.focus-mode .sidebar { display: none; }
+        body.focus-mode .top-bar { display: none; }
+        
+        /* 全屏时内容微调 */
+        body.focus-mode .question-wrapper { padding: 0; }
+        body.focus-mode .question-card { padding: 0; }
+        body.focus-mode .layout-ide { 
+            padding: 10px; 
+            height: 100vh; 
+            box-sizing: border-box; 
+        }
+        /* 高亮退出全屏按钮 */
+        body.focus-mode .ide-icon-btn.fullscreen-btn { 
+            background: #fff9c4; border-color: #fbc02d; color: #f57f17; 
+        }
+
+    </style>
+</head>
+<body>
+
+    <aside class="sidebar" id="sidebar">
+        <div class="sidebar-toggle-handle" onclick="toggleSidebar()" title="点击展开/收起"><span id="toggle-icon">◀</span></div>
+        <div class="sidebar-mask">
+            <div class="sidebar-fixed-header">
+                <div class="user-profile">
+                    <div class="camera-box">
+                        <img src="https://api.dicebear.com/7.x/avataaars/svg?seed=Felix" alt="Live Camera">
+                        <div class="camera-dot"></div>
+                    </div>
+                    <div class="student-name">王小明</div>
+                    <div class="status-grid">
+                        <span class="status-badge">摄像头✅</span>
+                        <span class="status-badge">录屏✅</span>
+                        <span class="status-badge">检录✅</span>
+                    </div>
+                </div>
+            </div>
+            <div class="sidebar-scroll-area">
+                <div class="legend-box">
+                    <div class="legend-item"><span class="dot" style="background:var(--primary-blue)"></span>当前</div>
+                    <div class="legend-item"><span class="dot" style="background:var(--accent-green)"></span>已作答</div>
+                    <div class="legend-item"><span class="dot" style="background:#fff; border-color:#b3e5fc"></span>未答</div>
+                </div>
+                <div class="chapter-title">第一部分：算法编程</div>
+                <div class="question-grid">
+                    <div class="q-tag active" onclick="jumpTo(1)">10</div>
+                </div>
+            </div>
+        </div>
+    </aside>
+
+    <main class="main-container">
+        <header class="top-bar">
+            <div class="top-left-group">
+                <div class="exam-title">AICE2024 Python编程专项</div>
+            </div>
+            <div class="nav-controller">
+                <button class="nav-pill-btn" disabled>⬅️ <span>上一题</span></button>
+                <button class="nav-pill-btn" disabled><span>下一题</span> ➡️</button>
+            </div>
+            <div class="top-tools">
+                <div class="timer-box">119:40</div>
+                <button class="btn-icon" onclick="toggleWebFullscreen()" title="网页全屏">⛶</button>
+                <button class="btn-submit-big" onclick="alert('代码已保存并提交！')">✅ 交卷</button>
+            </div>
+        </header>
+
+        <div class="question-wrapper">
+            
+            <div id="q-1" class="question-card layout-ide active-card">
+                
+                <div class="split-col-left">
+                    <div class="q-header">
+                        <span class="q-badge">编程题 · 20分</span> <span>10 / 10</span>
+                    </div>
+                    <div class="q-stem-area">
+                        <h3 style="margin-bottom:15px;">【题目描述】</h3>
+                        <p>小明为机器人小狗设置了一些指令，比如 <code>'s'</code> 指令代表唱歌，<code>'d'</code> 指令代表跳舞，<code>'j'</code> 指令代表讲笑话。</p>
+                        <p>请你使用 Python 编写程序实现输入指令，输出对应的互动效果，要求如下：</p>
+                        <ul>
+                            <li>输入 <code>'s'</code>，输出 <code>'sing'</code>，表示唱歌；</li>
+                            <li>输入 <code>'d'</code>，输出 <code>'dance'</code>，表示跳舞；</li>
+                            <li>输入 <code>'j'</code>，输出 <code>'joke'</code>，表示讲笑话；</li>
+                        </ul>
+                        
+                        <div style="background:#f9f9f9; padding:15px; border-radius:8px; margin-top:20px; border:1px solid #eee;">
+                            <strong>输入描述：</strong><br>
+                            一行，一个字符串，表示指令 ( s, d, j )
+                        </div>
+                        <div style="background:#f9f9f9; padding:15px; border-radius:8px; margin-top:10px; border:1px solid #eee;">
+                            <strong>输出描述：</strong><br>
+                            一行，一个字符串，表示互动效果 ( sing, dance, joke )
+                        </div>
+                        
+                        <h4 style="margin-top:20px;">【样例输入】</h4>
+                        <pre style="background:#f5f5f5; border:1px solid #eee; color:#333; padding:10px; border-radius:6px;">s</pre>
+                        
+                        <h4>【样例输出】</h4>
+                        <pre style="background:#f5f5f5; border:1px solid #eee; color:#333; padding:10px; border-radius:6px;">sing</pre>
+                    </div>
+                </div>
+
+                <div class="split-col-right">
+                    
+                    <div class="ide-toolbar">
+                        <div class="ide-title">
+                            <span>🐍 Python 3</span> | main.py
+                        </div>
+                        <div class="ide-actions">
+                            <button class="ide-icon-btn" onclick="resetCode()" title="重置代码">↺ 重置</button>
+                            <button class="ide-icon-btn fullscreen-btn" onclick="toggleFocusMode()" title="专注模式">⛶ 全屏专注</button>
+                        </div>
+                    </div>
+
+                    <div class="ide-editor-area">
+                        <div class="line-numbers" id="lineNumbers">1</div>
+                        <textarea class="code-input" id="codeInput" spellcheck="false" 
+                                  oninput="updateLineNumbers()" onscroll="syncScroll()"># 请在下方编写代码
+command = input()
+
+if command == 's':
+    print('sing')
+elif command == 'd':
+    print('dance')
+else:
+    pass
+# 试着在这里回车，行号会自动增加
+</textarea>
+                    </div>
+
+                    <div class="ide-control-bar">
+                        <button class="run-btn" onclick="runCode()">
+                            <span>▶ 运行调试</span>
+                        </button>
+                        <div class="ide-tools-right">
+                            <button class="secondary-btn" onclick="alert('代码已保存到云端')">☁️ 保存</button>
+                            <div class="collapse-btn" onclick="toggleTerminal()" id="collapseToggle">
+                                <span id="collapseText">收起</span> 
+                                <span id="collapseIcon">▼</span>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="ide-terminal-panel" id="terminalPanel">
+                        <div class="terminal-tabs">
+                            <div class="term-tab active" onclick="switchTab(this, 'tab-result')">执行结果</div>
+                            <div class="term-tab" onclick="switchTab(this, 'tab-input')">样例输入</div>
+                            <div class="term-tab" onclick="switchTab(this, 'tab-output')">样例输出</div>
+                        </div>
+                        <div class="terminal-content">
+                            <div id="tab-result" class="term-output active">
+                                <div class="output-line">Running main.py...</div>
+                                <div class="output-line success" id="runOutput">[等待运行...]</div>
+                            </div>
+                            <div id="tab-input" class="term-output">
+                                <textarea style="width:100%; height:80px; background:#f9f9f9; border:1px solid #ddd; color:#333; padding:10px;">s</textarea>
+                            </div>
+                            <div id="tab-output" class="term-output">
+                                <div class="output-line">sing</div>
+                            </div>
+                        </div>
+                    </div>
+
+                </div>
+            </div>
+
+        </div>
+    </main>
+
+    <script>
+        // --- 侧边栏 & 基础逻辑 ---
+        function toggleSidebar() {
+            const sidebar = document.getElementById('sidebar');
+            const icon = document.getElementById('toggle-icon');
+            sidebar.classList.toggle('collapsed');
+            icon.innerText = sidebar.classList.contains('collapsed') ? "▶" : "◀";
+        }
+
+        // --- 核心：代码编辑器逻辑 ---
+        const codeInput = document.getElementById('codeInput');
+        const lineNumbers = document.getElementById('lineNumbers');
+
+        // 1. 初始化和更新行号
+        function updateLineNumbers() {
+            const lines = codeInput.value.split('
+').length;
+            // 确保至少显示1行
+            const count = Math.max(lines, 1);
+            
+            let html = '';
+            for(let i=1; i<=count; i++) {
+                html += `<div>${i}</div>`;
+            }
+            lineNumbers.innerHTML = html;
+        }
+
+        // 2. 同步滚动
+        function syncScroll() {
+            lineNumbers.scrollTop = codeInput.scrollTop;
+        }
+
+        // 3. 页面加载完成后强制初始化 (解决 Race Condition)
+        window.onload = function() {
+            setTimeout(updateLineNumbers, 0);
+        };
+
+        // --- 交互逻辑 ---
+
+        // 1. 全屏专注模式 (修复版)
+        function toggleFocusMode() {
+            document.body.classList.toggle('focus-mode');
+            const btn = document.querySelector('.ide-icon-btn.fullscreen-btn');
+            
+            if(document.body.classList.contains('focus-mode')) {
+                btn.innerHTML = "❌ 退出专注";
+            } else {
+                btn.innerHTML = "⛶ 全屏专注";
+            }
+            // 重新计算行号，防止布局变化导致错位
+            setTimeout(updateLineNumbers, 100);
+        }
+
+        // 网页全屏 (浏览器 API)
+        function toggleWebFullscreen() {
+            if (!document.fullscreenElement) document.documentElement.requestFullscreen();
+            else if (document.exitFullscreen) document.exitFullscreen();
+        }
+
+        // 2. 收起/展开终端
+        function toggleTerminal() {
+            const terminal = document.getElementById('terminalPanel');
+            const text = document.getElementById('collapseText');
+            const icon = document.getElementById('collapseIcon');
+            
+            terminal.classList.toggle('collapsed');
+            
+            if(terminal.classList.contains('collapsed')) {
+                text.innerText = "展开";
+                icon.innerText = "▲";
+            } else {
+                text.innerText = "收起";
+                icon.innerText = "▼";
+            }
+        }
+
+        // 3. 运行代码
+        function runCode() {
+            const terminal = document.getElementById('terminalPanel');
+            const output = document.getElementById('runOutput');
+            const code = codeInput.value;
+
+            // 自动展开
+            if(terminal.classList.contains('collapsed')) {
+                toggleTerminal();
+            }
+            // 切到结果Tab
+            switchTab(document.querySelector('.term-tab'), 'tab-result');
+
+            output.innerHTML = '<span style="color:#999">Compiling...</span>';
+            
+            setTimeout(() => {
+                if(code.includes("print('sing')")) {
+                    output.innerHTML = `sing<br><br><span style="color:#2e7d32">[Program exited with code 0]</span>`;
+                } else {
+                    output.innerHTML = `Error: NameError: name 'sing' is not defined<br><span style="color:#c62828">[Program exited with code 1]</span>`;
+                }
+            }, 600);
+        }
+
+        function switchTab(el, targetId) {
+            document.querySelectorAll('.term-tab').forEach(t => t.classList.remove('active'));
+            el.classList.add('active');
+            document.querySelectorAll('.term-output').forEach(content => content.classList.remove('active'));
+            document.getElementById(targetId).classList.add('active');
+        }
+
+        function resetCode() {
+            if(confirm("重置将丢失当前代码，确认吗？")) {
+                codeInput.value = "# 请在下方编写代码
+command = input()
+
+if command == 's':
+    print('sing')
+";
+                updateLineNumbers();
+            }
+        }
+
+        function jumpTo(id) {}
+        function navStep(step) {}
+    </script>
+</body>
+</html>

@@ -1,0 +1,336 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>试卷批改 - AIGC专项</title>
+    <link rel="stylesheet" href="https://unpkg.com/element-ui/lib/theme-chalk/index.css">
+    <style>
+        /* --- 基础布局 (保持原系统风格) --- */
+        body { margin: 0; padding: 20px; background-color: #f0f2f5; font-family: "Helvetica Neue",Helvetica,"PingFang SC","Hiragino Sans GB","Microsoft YaHei","微软雅黑",Arial,sans-serif; color: #606266; }
+        .main-container { max-width: 1200px; margin: 0 auto; }
+        
+        /* 题目卡片 */
+        .question-card { margin-bottom: 20px; border: 1px solid #EBEEF5; background-color: #FFF; color: #303133; border-radius: 4px; overflow: hidden; box-shadow: 0 2px 12px 0 rgba(0,0,0,.1); }
+        .card-header { padding: 18px 20px; border-bottom: 1px solid #EBEEF5; box-sizing: border-box; background: #fafafa; display: flex; justify-content: space-between; align-items: center; }
+        .card-body { padding: 20px; }
+        
+        /* 题目标签 */
+        .q-type-tag { margin-right: 10px; font-weight: bold; }
+        .q-score { color: #909399; font-size: 13px; }
+
+        /* 题干区域 */
+        .q-stem { margin-bottom: 20px; font-size: 15px; line-height: 1.6; color: #303133; }
+        
+        /* --- 答案区域通用样式 --- */
+        .answer-section { background: #f9faff; border: 1px solid #e1eaff; padding: 15px; border-radius: 4px; margin-bottom: 20px; }
+        .answer-label { font-size: 13px; color: #909399; margin-bottom: 10px; font-weight: bold; display: block; }
+
+        /* --- AIGC 多版本展示样式 --- */
+        .version-list { display: flex; gap: 15px; overflow-x: auto; padding-bottom: 5px; }
+        .version-card {
+            border: 1px solid #DCDFE6; border-radius: 4px; width: 160px; flex-shrink: 0;
+            background: #fff; cursor: pointer; transition: all 0.2s; position: relative; overflow: hidden;
+        }
+        .version-card:hover { border-color: #409EFF; box-shadow: 0 2px 8px rgba(0,0,0,0.1); }
+        .version-card.is-best { border-color: #E6A23C; background: #fdf6ec; }
+        
+        .version-header { padding: 5px 10px; font-size: 12px; color: #909399; border-bottom: 1px solid #EBEEF5; display: flex; justify-content: space-between; align-items: center;}
+        .version-body { height: 100px; display: flex; align-items: center; justify-content: center; background: #f5f7fa; color: #C0C4CC; font-size: 12px; overflow: hidden;}
+        .version-body img { width: 100%; height: 100%; object-fit: cover; }
+        .version-body.text-preview { padding: 8px; align-items: flex-start; justify-content: flex-start; line-height: 1.4; }
+        
+        /* 最优版本角标 */
+        .badge-best {
+            position: absolute; top: 0; right: 0; background: #E6A23C; color: #fff;
+            font-size: 10px; padding: 2px 6px; border-radius: 0 0 0 6px; z-index: 2;
+        }
+
+        /* --- 工作流样式 --- */
+        .workflow-box {
+            display: flex; align-items: center; justify-content: space-between;
+            background: #fff; border: 1px dashed #409EFF; padding: 20px; border-radius: 4px;
+        }
+        .workflow-info { display: flex; align-items: center; gap: 10px; }
+        .workflow-icon { font-size: 24px; color: #409EFF; }
+
+        /* --- 划线题样式 --- */
+        .highlight-answer-box { display: flex; flex-wrap: wrap; gap: 10px; }
+        .highlight-item {
+            background: #ecf5ff; border: 1px solid #d9ecff; color: #409EFF;
+            padding: 5px 10px; border-radius: 4px; font-size: 14px;
+        }
+
+        /* --- 赋分区域样式 (保持不变) --- */
+        .grading-section { background: #fffbe6; border: 1px solid #ffe58f; padding: 15px; border-radius: 4px; display: flex; align-items: center; justify-content: space-between; }
+        .grading-left { display: flex; align-items: center; gap: 20px; }
+        .teacher-comment { width: 400px; }
+
+        /* --- 弹窗样式 --- */
+        .modal-overlay {
+            display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%;
+            background: rgba(0,0,0,0.5); z-index: 999;
+        }
+        .modal-container {
+            position: absolute; top: 50%; left: 50%; transform: translate(-50%, -50%);
+            width: 800px; background: #fff; border-radius: 4px; box-shadow: 0 2px 12px 0 rgba(0,0,0,.1);
+            display: flex; flex-direction: column; max-height: 90vh;
+        }
+        .modal-header { padding: 15px 20px; border-bottom: 1px solid #EBEEF5; display: flex; justify-content: space-between; align-items: center; font-weight: bold; font-size: 16px; }
+        .modal-body { padding: 20px; overflow-y: auto; display: flex; gap: 20px; }
+        .modal-col { flex: 1; display: flex; flex-direction: column; }
+        .modal-label { font-weight: bold; margin-bottom: 10px; color: #303133; }
+        .modal-content-box { 
+            background: #f5f7fa; border: 1px solid #e4e7ed; border-radius: 4px; 
+            padding: 15px; min-height: 200px; font-size: 14px; line-height: 1.6; white-space: pre-wrap;
+        }
+        .modal-img-preview { width: 100%; border-radius: 4px; }
+        .close-btn { cursor: pointer; font-size: 20px; color: #909399; }
+        .close-btn:hover { color: #409EFF; }
+
+    </style>
+</head>
+<body>
+
+<div class="main-container">
+
+    <div style="margin-bottom: 20px; display: flex; justify-content: space-between; align-items: center;">
+        <h2 style="margin: 0; color: #303133;">试卷批改：AICE2024 人工智能专项测试</h2>
+        <button class="el-button el-button--primary el-button--small">返回列表</button>
+    </div>
+
+    <div class="question-card">
+        <div class="card-header">
+            <div>
+                <span class="el-tag el-tag--primary q-type-tag">文生图</span>
+                <span class="q-score">满分：20分</span>
+            </div>
+        </div>
+        <div class="card-body">
+            <div class="q-stem">
+                <p><strong>题目：</strong>请利用 AI 工具生成一张“2050年的未来城市”概念图，要求包含飞行汽车和赛博朋克风格。</p>
+            </div>
+
+            <div class="answer-section">
+                <span class="answer-label">学生作答记录 (点击版本查看详情，带🏆为学生提交的最优版本)</span>
+                
+                <div class="version-list">
+                    <div class="version-card" onclick="openModal('image', 'v1')">
+                        <div class="version-header"><span>版本 1</span></div>
+                        <div class="version-body"><img src="https://picsum.photos/id/1/200/200"></div>
+                    </div>
+                    <div class="version-card is-best" onclick="openModal('image', 'v2')">
+                        <div class="badge-best">🏆 最优</div>
+                        <div class="version-header"><span style="color:#E6A23C; font-weight:bold;">版本 2</span></div>
+                        <div class="version-body"><img src="https://picsum.photos/id/16/200/200"></div>
+                    </div>
+                    <div class="version-card" onclick="openModal('image', 'v3')">
+                        <div class="version-header"><span>版本 3</span></div>
+                        <div class="version-body"><img src="https://picsum.photos/id/24/200/200"></div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="grading-section">
+                <div class="grading-left">
+                    <span style="font-weight:bold; color:#606266;">得分：</span>
+                    <div class="el-input-number el-input-number--small">
+                        <span role="button" class="el-input-number__decrease"><i class="el-icon-minus">-</i></span>
+                        <div class="el-input"><input type="text" autocomplete="off" class="el-input__inner" role="spinbutton" aria-valuemax="20" aria-valuemin="0" value="18"></div>
+                        <span role="button" class="el-input-number__increase"><i class="el-icon-plus">+</i></span>
+                    </div>
+                </div>
+                <div class="teacher-comment">
+                    <input type="text" class="el-input__inner" placeholder="请输入评语（可选）">
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="question-card">
+        <div class="card-header">
+            <div>
+                <span class="el-tag el-tag--success q-type-tag">文生文</span>
+                <span class="q-score">满分：15分</span>
+            </div>
+        </div>
+        <div class="card-body">
+            <div class="q-stem">
+                <p><strong>题目：</strong>请利用 AI 续写科幻小说《星际迷航》，要求体现外星文明的友善。</p>
+            </div>
+
+            <div class="answer-section">
+                <span class="answer-label">学生作答记录</span>
+                <div class="version-list">
+                    <div class="version-card is-best" onclick="openModal('text', 't1')">
+                        <div class="badge-best">🏆 最优</div>
+                        <div class="version-header"><span style="color:#E6A23C; font-weight:bold;">版本 1</span></div>
+                        <div class="version-body text-preview">飞船缓缓降落，舱门打开后...</div>
+                    </div>
+                    <div class="version-card" onclick="openModal('text', 't2')">
+                        <div class="version-header"><span>版本 2</span></div>
+                        <div class="version-body text-preview">警报声突然停止，外星使者...</div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="grading-section">
+                <div class="grading-left">
+                    <span style="font-weight:bold; color:#606266;">得分：</span>
+                    <div class="el-input-number el-input-number--small">
+                        <span role="button" class="el-input-number__decrease">-</span>
+                        <div class="el-input"><input type="text" class="el-input__inner" value="15"></div>
+                        <span role="button" class="el-input-number__increase">+</span>
+                    </div>
+                </div>
+                <div class="teacher-comment">
+                    <input type="text" class="el-input__inner" placeholder="请输入评语（可选）">
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="question-card">
+        <div class="card-header">
+            <div>
+                <span class="el-tag el-tag--warning q-type-tag">工作流</span>
+                <span class="q-score">满分：30分</span>
+            </div>
+        </div>
+        <div class="card-body">
+            <div class="q-stem">
+                <p><strong>题目：</strong>请设计一个“智能翻译官”Agent 工作流，包含输入、LLM处理和输出节点。</p>
+            </div>
+
+            <div class="answer-section">
+                <span class="answer-label">学生提交的工作流</span>
+                <div class="workflow-box">
+                    <div class="workflow-info">
+                        <span class="workflow-icon">⚙️</span>
+                        <div>
+                            <div style="font-weight:bold; color:#303133;">智能翻译官_V1</div>
+                            <div style="font-size:12px; color:#909399; margin-top:4px;">节点数: 3 | 更新时间: 10:24:33</div>
+                        </div>
+                    </div>
+                    <button class="el-button el-button--primary el-button--small" onclick="window.open('#', '_blank')">
+                        <i class="el-icon-video-play"></i> 查看并运行工作流
+                    </button>
+                </div>
+            </div>
+
+            <div class="grading-section">
+                <div class="grading-left">
+                    <span style="font-weight:bold; color:#606266;">得分：</span>
+                    <div class="el-input-number el-input-number--small">
+                        <div class="el-input"><input type="text" class="el-input__inner" value="0"></div>
+                    </div>
+                </div>
+                <div class="teacher-comment">
+                    <input type="text" class="el-input__inner" placeholder="请输入评语（可选）">
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="question-card">
+        <div class="card-header">
+            <div>
+                <span class="el-tag el-tag--danger q-type-tag">划线题</span>
+                <span class="q-score">满分：15分</span>
+            </div>
+        </div>
+        <div class="card-body">
+            <div class="q-stem">
+                <p><strong>题目：</strong>请找出下文中关于冒泡排序描述错误的句子。</p>
+            </div>
+
+            <div class="answer-section">
+                <span class="answer-label">学生选中的句子 (共选中 3 处)</span>
+                <div class="highlight-answer-box">
+                    <div class="highlight-item">这个算法的名字由来是因为越大的元素会经由交换慢慢“浮”到数列的顶端。</div>
+                    <div class="highlight-item">在冒泡排序中，最好的时间复杂度是 O(n^2)。</div>
+                    <div class="highlight-item">这意味着无论数组是否已经有序，都需要进行完整的两层循环。</div>
+                </div>
+            </div>
+
+            <div class="grading-section">
+                <div class="grading-left">
+                    <span style="font-weight:bold; color:#606266;">得分：</span>
+                    <div class="el-input-number el-input-number--small">
+                        <div class="el-input"><input type="text" class="el-input__inner" value="15"></div>
+                    </div>
+                </div>
+                <div class="teacher-comment">
+                    <input type="text" class="el-input__inner" placeholder="请输入评语（可选）">
+                </div>
+            </div>
+        </div>
+    </div>
+
+</div>
+
+<div class="modal-overlay" id="detailModal">
+    <div class="modal-container">
+        <div class="modal-header">
+            <span id="modalTitle">作答详情 - 版本 X</span>
+            <span class="close-btn" onclick="closeModal()">×</span>
+        </div>
+        <div class="modal-body">
+            <div class="modal-col" style="flex: 0.8;">
+                <div class="modal-label">✨ 学生输入的提示词 (Prompt)</div>
+                <div class="modal-content-box" id="modalPrompt">
+                    </div>
+            </div>
+            <div class="modal-col" style="flex: 1.2;">
+                <div class="modal-label" id="modalResultLabel">🖼️ 生成结果</div>
+                <div class="modal-content-box" style="display:flex; align-items:center; justify-content:center; background:#000;">
+                    <img id="modalImage" src="" class="modal-img-preview" style="display:none;">
+                    <div id="modalText" style="display:none; color:#fff; width:100%; text-align:left;"></div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<script>
+    // 模拟数据
+    const mockData = {
+        'v1': { prompt: '一座未来的城市，有高楼大厦', img: 'https://picsum.photos/id/1/600/400' },
+        'v2': { prompt: '2050年赛博朋克城市，霓虹灯，飞行汽车穿梭其中，蓝色调，高细节', img: 'https://picsum.photos/id/16/600/400' },
+        'v3': { prompt: '未来的天空之城', img: 'https://picsum.photos/id/24/600/400' },
+        't1': { prompt: '续写星际迷航，外星人很友好', text: '飞船缓缓降落，舱门打开后，并没有预想中的武器相向。相反，一群身着发光长袍的生物手捧鲜花走了过来...' },
+        't2': { prompt: '外星人见面', text: '警报声突然停止，外星使者发来了和平的电波讯号。' }
+    };
+
+    function openModal(type, id) {
+        const modal = document.getElementById('detailModal');
+        const data = mockData[id];
+        
+        document.getElementById('modalTitle').innerText = '作答详情 - ' + (id.toUpperCase());
+        document.getElementById('modalPrompt').innerText = data.prompt;
+        
+        const imgEl = document.getElementById('modalImage');
+        const textEl = document.getElementById('modalText');
+        
+        if (type === 'image') {
+            document.getElementById('modalResultLabel').innerText = '🖼️ 生成图片';
+            imgEl.src = data.img;
+            imgEl.style.display = 'block';
+            textEl.style.display = 'none';
+        } else {
+            document.getElementById('modalResultLabel').innerText = '📝 生成文本';
+            imgEl.style.display = 'none';
+            textEl.style.display = 'block';
+            textEl.innerText = data.text;
+        }
+        
+        modal.style.display = 'block';
+    }
+
+    function closeModal() {
+        document.getElementById('detailModal').style.display = 'none';
+    }
+</script>
+
+</body>
+</html>

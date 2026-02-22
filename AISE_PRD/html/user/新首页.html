@@ -1,0 +1,349 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>首页 - AISE 人工智能应用创新人才培养工程</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+
+    <script>
+        tailwind.config = {
+            theme: {
+                extend: {
+                    fontFamily: {
+                        sans: ['Inter', 'sans-serif'],
+                    },
+                    colors: {
+                        brand: {
+                            50: '#F0F9FF',
+                            100: '#E0F2FE',
+                            500: '#3B82F6',
+                            600: '#2563EB',
+                            900: '#1E3A8A',
+                        },
+                        // --- 新增：来自 File 2 的高亮色系，用于背景光晕 ---
+                        pop: {
+                            pink: '#F472B6',   
+                            purple: '#A855F7', 
+                            cyan: '#22D3EE',   
+                            yellow: '#FACC15', 
+                            green: '#4ADE80',  
+                        },
+                        // ---------------------------------------------
+                        // 核心明黄色 (用于按钮和标签 - 保留 File 1)
+                        accent: {
+                            bright: '#FBED22', 
+                            dim: '#EAB308',
+                        },
+                        dark: {
+                            bg: '#0F172A', // Slate 900
+                            card: '#1E293B', // Slate 800
+                        }
+                    },
+                    boxShadow: {
+                        'soft': '0 10px 40px -10px rgba(0,0,0,0.08)',
+                        'card-hover': '0 20px 25px -5px rgba(0, 0, 0, 0.1), 0 10px 10px -5px rgba(0, 0, 0, 0.04)',
+                        'neon-yellow': '0 0 25px rgba(251, 237, 34, 0.4)', 
+                        'purple-glow': '0 10px 30px -5px rgba(124, 58, 237, 0.4)',
+                    },
+                    backgroundImage: {
+                        // 按钮渐变
+                        'btn-tech': 'linear-gradient(135deg, #FBED22 0%, #F59E0B 100%)',
+                        // 考试卡片渐变
+                        'card-purple': 'linear-gradient(135deg, #A78BFA 0%, #7C3AED 100%)',
+                    },
+                    animation: {
+                        'float': 'float 6s ease-in-out infinite',
+                        'blob': 'blob 10s infinite', // 调整为 File 2 的节奏
+                        'pulse-slow': 'pulse 4s cubic-bezier(0.4, 0, 0.6, 1) infinite',
+                    },
+                    keyframes: {
+                        float: {
+                            '0%, 100%': { transform: 'translateY(0)' },
+                            '50%': { transform: 'translateY(-10px)' },
+                        },
+                        // 使用 File 2 的 blob 动画定义
+                        blob: {
+                            '0%': { transform: 'translate(0px, 0px) scale(1)' },
+                            '33%': { transform: 'translate(30px, -50px) scale(1.1)' },
+                            '66%': { transform: 'translate(-20px, 20px) scale(0.9)' },
+                            '100%': { transform: 'translate(0px, 0px) scale(1)' },
+                        }
+                    }
+                }
+            }
+        }
+    </script>
+    <style>
+        body { 
+            background-color: #FFFFFF; 
+            font-family: 'Inter', sans-serif;
+            color: #334155;
+        }
+
+        /* 导航栏样式 */
+        .glass-nav { 
+            background: rgba(15, 23, 42, 0.6); 
+            backdrop-filter: blur(12px); 
+            border-bottom: 1px solid rgba(255,255,255,0.05);
+            transition: all 0.3s;
+        }
+        .glass-nav.scrolled {
+            background: rgba(255, 255, 255, 0.95);
+            border-bottom: 1px solid #E2E8F0;
+            box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.05);
+        }
+        
+        .nav-text { color: #E2E8F0; font-weight: 500; }
+        .glass-nav.scrolled .nav-text { color: #475569; }
+        .glass-nav.scrolled .nav-text:hover { color: #2563EB; }
+        
+        .logo-text { color: white; }
+        .glass-nav.scrolled .logo-text { color: #0F172A; }
+
+        /* --- File 2 的背景样式 --- */
+        .hero-bg { 
+            background-color: #0f172a; 
+            background-image: radial-gradient(at 0% 0%, hsla(253,16%,7%,1) 0, transparent 50%), radial-gradient(at 50% 100%, #1e1b4b 0, transparent 50%); 
+            position: relative; 
+            overflow: hidden; 
+        }
+        
+        .bg-blob { 
+            position: absolute; 
+            border-radius: 50%; 
+            filter: blur(60px); 
+            opacity: 0.4; 
+            animation: blob 10s infinite; 
+            z-index: 0;
+        }
+        
+        .grid-pattern { 
+            background-image: radial-gradient(rgba(255,255,255,0.15) 1px, transparent 1px); 
+            background-size: 30px 30px; 
+            opacity: 0.2; 
+            position: absolute;
+            top: 0; left: 0; right: 0; bottom: 0;
+            z-index: 0;
+        }
+        /* ----------------------- */
+
+        /* 按钮扫光 */
+        .btn-shine { position: relative; overflow: hidden; }
+        .btn-shine::after {
+            content: ''; position: absolute; top: 0; left: -100%; width: 50%; height: 100%;
+            background: linear-gradient(to right, rgba(255,255,255,0) 0%, rgba(255,255,255,0.6) 50%, rgba(255,255,255,0) 100%);
+            transform: skewX(-25deg); animation: shine 3s infinite;
+        }
+        @keyframes shine { 0% { left: -100%; } 20%, 100% { left: 200%; } }
+    </style>
+</head>
+<body class="flex flex-col min-h-screen">
+
+    <nav class="glass-nav fixed w-full z-50 top-0" id="navbar">
+        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+            <div class="flex justify-between items-center h-20">
+                <a href="#" class="flex items-center gap-3 group">
+                    <div class="w-10 h-10 bg-accent-bright rounded-lg flex items-center justify-center text-slate-900 font-bold text-xl shadow-lg shadow-yellow-400/20 group-hover:rotate-12 transition-transform">
+                        <i class="fa-solid fa-cube"></i>
+                    </div>
+                    <div class="flex flex-col">
+                        <span class="font-extrabold text-2xl tracking-tight font-sans logo-text">AISE</span>
+                        <span class="text-[10px] uppercase tracking-widest text-accent-bright font-bold">Future Talent</span>
+                    </div>
+                </a>
+
+                <div class="hidden md:flex items-center space-x-12">
+                    <a href="index-logged-in.html" class="nav-text text-sm tracking-wide transition-colors">首页</a>
+                    <a href="news-list.html" class="nav-text text-sm tracking-wide transition-colors">新闻中心</a>
+                    <a href="#" class="nav-text text-sm tracking-wide transition-colors">关于我们</a>
+                </div>
+
+                <div class="hidden md:flex items-center gap-4">
+                    <div class="flex items-center gap-3 px-4 py-1.5 bg-white/10 border border-white/20 rounded-full shadow-sm cursor-pointer hover:bg-white/20 transition backdrop-blur-md" id="user-pill">
+                        <div class="w-8 h-8 rounded-full bg-accent-bright text-slate-900 flex items-center justify-center text-xs font-bold">张</div>
+                        <span class="text-sm font-bold text-white transition-colors" id="user-name">张三同学</span>
+                        <i class="fa-solid fa-angle-down text-white/70 text-xs transition-colors" id="user-icon"></i>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </nav>
+
+    <section class="hero-bg relative pt-36 pb-48 overflow-hidden">
+        
+        <div class="bg-blob bg-pop-purple w-96 h-96 top-0 left-10 mix-blend-screen animate-blob"></div>
+        <div class="bg-blob bg-brand-600 w-96 h-96 bottom-0 right-10 mix-blend-screen animate-blob" style="animation-delay: 2s"></div>
+        <div class="bg-blob bg-pop-cyan w-80 h-80 top-20 right-1/3 mix-blend-screen animate-blob" style="animation-delay: 4s"></div>
+        <div class="grid-pattern"></div>
+        
+        <div class="absolute top-1/4 left-10 w-1 h-1 bg-white/30 rounded-full animate-pulse z-0"></div>
+        <div class="absolute top-1/3 right-20 w-1.5 h-1.5 bg-white/20 rounded-full animate-pulse z-0" style="animation-duration: 3s"></div>
+
+        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 relative z-10 text-center">
+            
+            <div class="inline-flex items-center gap-3 px-8 py-3 rounded-full bg-white/5 border border-accent-bright/50 text-accent-bright text-base font-bold mb-10 shadow-[0_0_20px_rgba(251,237,34,0.15)] hover:scale-105 transition-transform duration-300 cursor-pointer backdrop-blur-md group">
+                <span class="relative flex h-3 w-3">
+                  <span class="animate-ping absolute inline-flex h-full w-full rounded-full bg-accent-bright opacity-80"></span>
+                  <span class="relative inline-flex rounded-full h-3 w-3 bg-accent-bright"></span>
+                </span>
+                <span class="tracking-wide">2025 春季测评报名已开启</span>
+                <i class="fa-solid fa-chevron-right text-xs ml-1 group-hover:translate-x-1 transition-transform"></i>
+            </div>
+
+            <h1 class="text-5xl md:text-7xl font-extrabold text-white tracking-tight leading-[1.15] mb-8 drop-shadow-2xl">
+                定义未来的 <br class="hidden md:block" />
+                <span class="text-transparent bg-clip-text bg-gradient-to-r from-blue-300 via-purple-300 to-indigo-100 pb-2">AI 创新人才</span>
+            </h1>
+            
+            <p class="text-lg md:text-xl text-slate-300 font-light max-w-3xl mx-auto mb-14 leading-relaxed mix-blend-plus-lighter">
+                AISE 致力于构建国际领先的人工智能测评标准，连接教育与产业，<br class="hidden sm:block">通过趣味实践与专业评估，赋能每一位探索者。
+            </p>
+
+            <div class="flex flex-col sm:flex-row items-center justify-center gap-8">
+                
+                <button onclick="window.location.href='registration.html'" class="btn-shine group relative px-12 py-5 rounded-2xl bg-btn-tech text-slate-900 font-extrabold text-xl shadow-neon-yellow hover:-translate-y-1 transition-transform border border-yellow-200/50">
+                    <span class="relative z-10 flex items-center gap-3">
+                        立即报名 
+                        <i class="fa-solid fa-arrow-right-long group-hover:translate-x-1 transition-transform"></i>
+                    </span>
+                </button>
+
+                <div onclick="window.location.href='device-check.html'" class="group relative px-6 py-4 rounded-2xl bg-card-purple border border-white/20 shadow-purple-glow flex items-center gap-5 cursor-pointer hover:scale-[1.02] transition-all duration-300 w-full sm:w-auto min-w-[320px]">
+                    <div class="bg-white/20 rounded-xl p-3 text-center min-w-[80px] border border-white/10 backdrop-blur-sm shadow-inner">
+                        <div class="text-[10px] font-bold text-white/90 uppercase">Today</div>
+                        <div class="text-2xl font-black text-white tracking-tight">14:00</div>
+                    </div>
+                    
+                    <div class="text-left flex-1">
+                        <div class="flex items-center gap-2 mb-1">
+                            <div class="w-1.5 h-1.5 rounded-full bg-white animate-pulse shadow-[0_0_8px_white]"></div>
+                            <span class="text-xs font-bold text-white/90 uppercase tracking-wider">即将开始</span>
+                        </div>
+                        <div class="font-bold text-white text-sm truncate drop-shadow-md">Python 趣味编程挑战</div>
+                    </div>
+                    
+                    <div class="text-white/80 group-hover:text-white transition transform group-hover:scale-110">
+                        <i class="fa-solid fa-gamepad text-2xl"></i>
+                    </div>
+                </div>
+
+            </div>
+        </div>
+        
+        <div class="absolute bottom-0 left-0 w-full h-32 bg-gradient-to-t from-white to-transparent z-0"></div>
+    </section>
+
+    <section class="py-16 px-4 sm:px-6 lg:px-8 max-w-7xl mx-auto w-full mb-12 bg-white">
+        <div class="flex justify-between items-end mb-10">
+            <div>
+                <h2 class="text-3xl font-bold text-slate-900 flex items-center gap-3">
+                    <span class="w-10 h-10 bg-yellow-50 rounded-xl flex items-center justify-center text-accent-dim text-xl">
+                        <i class="fa-solid fa-bolt"></i>
+                    </span>
+                    最新动态
+                </h2>
+                <p class="text-slate-500 mt-2 text-sm ml-14">探索前沿科技，掌握赛事先机</p>
+            </div>
+            <a href="news-list.html" class="group text-slate-500 hover:text-brand-600 text-sm font-bold flex items-center gap-1 transition px-4 py-2 rounded-full bg-slate-50 hover:bg-brand-50">
+                全部动态 <i class="fa-solid fa-arrow-right group-hover:translate-x-1 transition-transform"></i>
+            </a>
+        </div>
+        
+        <div class="grid grid-cols-1 lg:grid-cols-3 gap-8 h-auto lg:h-[480px]">
+            
+            <div class="lg:col-span-2 relative group rounded-[2rem] overflow-hidden shadow-soft cursor-pointer h-80 lg:h-full transition-all duration-300 hover:shadow-card-hover" onclick="window.open('news-detail.html?id=1', '_blank')">
+                <img src="https://images.unsplash.com/photo-1535378437327-b7149a516f1d?ixlib=rb-4.0.3&auto=format&fit=crop&w=1600&q=80" alt="News" class="w-full h-full object-cover transition duration-700 group-hover:scale-105">
+                <div class="absolute inset-0 bg-gradient-to-t from-black/80 via-black/20 to-transparent"></div>
+                
+                <div class="absolute bottom-0 left-0 p-8 w-full z-10">
+                    <span class="inline-block bg-accent-bright text-slate-900 text-xs font-bold px-3 py-1.5 rounded-md mb-4 shadow-md">重磅发布</span>
+                    <h3 class="text-2xl md:text-3xl font-bold text-white mb-3 leading-tight group-hover:text-accent-bright transition-colors">2025 全球青少年人工智能创新挑战赛正式启动</h3>
+                    <p class="hidden md:block text-slate-200 text-sm line-clamp-2 max-w-xl">与全球 50+ 国家的伙伴同台竞技，赢取通往顶尖实验室的门票，开启你的 AI 探索之旅...</p>
+                </div>
+            </div>
+
+            <div class="flex flex-col gap-5 h-full">
+                
+                <div class="flex-1 bg-white p-6 rounded-[2rem] border border-slate-100 shadow-sm hover:shadow-lg hover:border-accent-bright/50 transition-all duration-300 cursor-pointer flex flex-col justify-center group relative overflow-hidden" onclick="window.open('news-detail.html?id=2', '_blank')">
+                    <div class="absolute -right-6 -top-6 w-20 h-20 bg-brand-50 rounded-full group-hover:bg-yellow-50 transition-colors"></div>
+                    <div class="flex justify-between items-center mb-3 relative z-10">
+                        <span class="text-brand-600 text-xs font-bold bg-brand-50 px-2 py-1 rounded group-hover:bg-accent-bright group-hover:text-slate-900 transition-colors">赛事通知</span>
+                        <span class="text-slate-400 text-xs font-mono">04-20</span>
+                    </div>
+                    <h4 class="font-bold text-slate-800 text-lg group-hover:text-brand-600 transition line-clamp-2 relative z-10">晋级必看：Python 专项赛考前冲刺指南</h4>
+                </div>
+
+                <div class="flex-1 bg-white p-6 rounded-[2rem] border border-slate-100 shadow-sm hover:shadow-lg hover:border-purple-200 transition-all duration-300 cursor-pointer flex flex-col justify-center group relative overflow-hidden" onclick="window.open('news-detail.html?id=3', '_blank')">
+                    <div class="absolute -right-6 -top-6 w-20 h-20 bg-purple-50 rounded-full"></div>
+                    <div class="flex justify-between items-center mb-3 relative z-10">
+                        <span class="text-purple-600 text-xs font-bold bg-purple-50 px-2 py-1 rounded">大纲解读</span>
+                        <span class="text-slate-400 text-xs font-mono">04-15</span>
+                    </div>
+                    <h4 class="font-bold text-slate-800 text-lg group-hover:text-purple-600 transition line-clamp-2 relative z-10">2025版 AISE 测评大纲（青少年版）修订说明</h4>
+                </div>
+
+                <div class="flex-1 bg-white p-6 rounded-[2rem] border border-slate-100 shadow-sm hover:shadow-lg hover:border-yellow-200 transition-all duration-300 cursor-pointer flex flex-col justify-center group relative overflow-hidden" onclick="window.open('news-detail.html?id=4', '_blank')">
+                    <div class="absolute -right-6 -top-6 w-20 h-20 bg-yellow-50 rounded-full"></div>
+                    <div class="flex justify-between items-center mb-3 relative z-10">
+                        <span class="text-yellow-700 text-xs font-bold bg-yellow-50 px-2 py-1 rounded">环境配置</span>
+                        <span class="text-slate-400 text-xs font-mono">04-10</span>
+                    </div>
+                    <h4 class="font-bold text-slate-800 text-lg group-hover:text-yellow-600 transition line-clamp-2 relative z-10">新手指南：在家搭建你的第一个 AI 实验室</h4>
+                </div>
+
+            </div>
+        </div>
+    </section>
+
+    <footer class="bg-slate-50 border-t border-slate-200 py-12 mt-auto">
+        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+            <div class="flex flex-col md:flex-row justify-between items-center gap-6">
+                <div class="text-center md:text-left">
+                    <div class="flex items-center justify-center md:justify-start gap-2 text-slate-900 font-bold text-xl mb-2">
+                         <div class="w-8 h-8 bg-accent-bright rounded-lg flex items-center justify-center text-slate-900 font-bold text-sm shadow-md">
+                            <i class="fa-solid fa-cube"></i>
+                        </div>
+                        AISE <span class="text-sm font-normal text-slate-400 ml-2 border-l border-slate-300 pl-3">Talent Engineering</span>
+                    </div>
+                    <p class="text-xs text-slate-500 mt-2">京ICP备12345678号-1 | © 2025 All rights reserved.</p>
+                </div>
+                <div class="flex gap-8 text-sm font-semibold text-slate-600">
+                    <a href="#" class="hover:text-brand-600 transition">关于我们</a>
+                    <a href="#" class="hover:text-brand-600 transition">成长计划</a>
+                    <a href="#" class="hover:text-brand-600 transition">联系支持</a>
+                </div>
+            </div>
+        </div>
+    </footer>
+
+    <script>
+        // 导航栏滚动变色逻辑 (保留 File 1)
+        window.addEventListener('scroll', function() {
+            const navbar = document.getElementById('navbar');
+            const userPill = document.getElementById('user-pill');
+            const userName = document.getElementById('user-name');
+            const userIcon = document.getElementById('user-icon');
+            
+            if (window.scrollY > 50) {
+                navbar.classList.add('scrolled');
+                // 切换为浅色主题样式
+                userPill.classList.remove('bg-white/10', 'border-white/20');
+                userPill.classList.add('bg-slate-100', 'border-slate-200');
+                userName.classList.replace('text-white', 'text-slate-700');
+                userIcon.classList.replace('text-white/70', 'text-slate-400');
+            } else {
+                navbar.classList.remove('scrolled');
+                // 恢复深色主题样式
+                userPill.classList.add('bg-white/10', 'border-white/20');
+                userPill.classList.remove('bg-slate-100', 'border-slate-200');
+                userName.classList.replace('text-slate-700', 'text-white');
+                userIcon.classList.replace('text-slate-400', 'text-white/70');
+            }
+        });
+    </script>
+
+</body>
+</html>

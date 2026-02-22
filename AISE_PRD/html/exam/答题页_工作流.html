@@ -1,0 +1,449 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>趣味编程大冒险 - AI 工作流 (UI修正版)</title>
+    <style>
+        /* --- 1. 全局童真风格定义 (保持一致) --- */
+        :root {
+            --bg-color: #e0f2f1;
+            --sidebar-bg: #e1f5fe;
+            --primary-blue: #4fc3f7;
+            --primary-dark: #0277bd;
+            
+            --btn-green: #66bb6a;
+            --btn-green-hover: #43a047;
+            
+            --accent-pink: #ff8a80;
+            --accent-green: #aed581;
+            --text-red: #ff5252;
+            --ink-color: #455a64;
+            
+            /* 修正后的工作流配色：科技蓝/工程灰 */
+            --flow-accent: #29b6f6; 
+            --flow-bg-grid: #f5f7fa;
+            
+            --border-width: 3px;
+            --border-color: #81d4fa;
+            
+            --shadow-pop: 4px 4px 0px rgba(79, 195, 247, 0.4); 
+            --radius-box: 20px;
+            --header-height: 70px;
+        }
+
+        * { box-sizing: border-box; margin: 0; padding: 0; outline: none; }
+
+        body {
+            font-family: "Comic Sans MS", "Chalkboard SE", "幼圆", "Yuppy SC", "Microsoft YaHei", sans-serif;
+            background-color: var(--bg-color);
+            background-image: radial-gradient(#b2ebf2 10%, transparent 10%);
+            background-size: 20px 20px;
+            height: 100vh;
+            display: flex;
+            color: var(--ink-color);
+            overflow: hidden;
+        }
+
+        ::-webkit-scrollbar { width: 10px; height: 10px; }
+        ::-webkit-scrollbar-thumb { background: var(--primary-blue); border-radius: 10px; border: 2px solid #fff; }
+        ::-webkit-scrollbar-track { background: transparent; }
+
+        /* --- 侧边栏 (保持一致) --- */
+        .sidebar {
+            width: 280px; background: var(--sidebar-bg);
+            position: relative; display: flex; flex-direction: column; z-index: 20; flex-shrink: 0;
+            transition: width 0.3s cubic-bezier(0.25, 0.8, 0.25, 1);
+            border-right: var(--border-width) dashed var(--border-color);
+        }
+        .sidebar.collapsed { width: 0; border-right: none; }
+        
+        .sidebar-toggle-handle {
+            position: absolute; top: 50%; right: -24px; width: 24px; height: 80px;
+            background: #b3e5fc; border: 2px solid #81d4fa; border-left: none; 
+            border-radius: 0 15px 15px 0; cursor: pointer; display: flex; align-items: center; justify-content: center;
+            color: #0277bd; font-weight: bold; font-size: 14px; z-index: 30;
+            transform: translateY(-50%); box-shadow: 2px 2px 0 rgba(0,0,0,0.1); transition: all 0.3s;
+        }
+        .sidebar-toggle-handle:hover { background: #81d4fa; color: #fff; }
+        .sidebar-mask { width: 100%; height: 100%; overflow: hidden; position: relative; }
+        .sidebar-inner { width: 280px; height: 100%; display: flex; flex-direction: column; overflow-y: auto; padding-bottom: 20px; }
+
+        .user-profile {
+            padding: 15px; background: #fff; margin: 15px; border-radius: var(--radius-box);
+            border: var(--border-width) solid var(--border-color); box-shadow: var(--shadow-pop);
+            text-align: center; white-space: nowrap; 
+        }
+        .camera-box {
+            width: 100%; aspect-ratio: 4 / 3; background: #000; margin: 0 auto 10px auto; 
+            border-radius: 10px; border: 2px solid #333; overflow: hidden; position: relative;
+        }
+        .camera-box img { width: 100%; height: 100%; object-fit: cover; display: block; }
+        .camera-dot {
+            position: absolute; top: 8px; right: 8px; width: 10px; height: 10px; 
+            background: red; border-radius: 50%; animation: blink 1s infinite; border: 1px solid #fff;
+        }
+        @keyframes blink { 50% { opacity: 0; } }
+
+        .question-map-container { flex: 1; padding: 0 15px 5px 15px; }
+        .chapter-title {
+            font-size: 14px; color: #0277bd; margin: 15px 0 8px 0; font-weight: bold;
+            display: flex; align-items: center; white-space: nowrap;
+        }
+        .chapter-title::before { content: "🔹"; margin-right: 5px; font-size: 12px; }
+        .question-grid { display: grid; grid-template-columns: repeat(4, 1fr); gap: 12px; padding-bottom: 10px; }
+        
+        .q-tag {
+            width: 45px; height: 45px; background: #fff;
+            border: var(--border-width) solid #b3e5fc; border-radius: 50% 40% 50% 40%;
+            display: flex; align-items: center; justify-content: center;
+            font-size: 16px; font-weight: bold; cursor: pointer; transition: all 0.2s; color: #81d4fa;
+        }
+        .q-tag:hover { transform: scale(1.1) rotate(-5deg); border-color: var(--primary-blue); }
+        .q-tag.active { 
+            background: var(--primary-blue); color: #fff; border-color: #0288d1;
+            transform: scale(1.1); box-shadow: 2px 2px 0px rgba(0,0,0,0.1);
+        }
+        .q-tag.done { background: var(--accent-green); border-color: #7cb342; color: #fff; }
+        
+        .sidebar-footer {
+            margin: 10px 15px; background: rgba(255,255,255,0.6); border-radius: 15px;
+            padding: 10px; font-size: 12px; display: flex; justify-content: center; gap: 20px; white-space: nowrap;
+        }
+        .legend-item { display: flex; align-items: center; gap: 4px; color: #666; font-weight: bold; }
+        .dot { width: 12px; height: 12px; border-radius: 50%; display: inline-block; border: 2px solid rgba(0,0,0,0.1); }
+
+        /* --- 主内容区 --- */
+        .main-container {
+            flex: 1; display: flex; flex-direction: column;
+            background: rgba(255, 255, 255, 0.6); margin: 10px; border-radius: 30px; 
+            border: var(--border-width) solid #fff; box-shadow: 0 10px 30px rgba(129, 212, 250, 0.3); 
+            overflow: hidden; position: relative;
+        }
+        .top-bar {
+            height: var(--header-height); background: #fff; border-bottom: var(--border-width) dashed #b3e5fc;
+            display: flex; align-items: center; justify-content: space-between; padding: 0 20px; flex-shrink: 0;
+        }
+        .exam-title { font-size: 18px; font-weight: 800; color: var(--primary-dark); }
+        .nav-controller { flex: 1; display: flex; justify-content: center; gap: 20px; }
+        .nav-pill-btn {
+            background: #fff; border: 2px solid #b0bec5; padding: 8px 25px; border-radius: 20px;
+            cursor: pointer; font-weight: bold; color: #78909c; box-shadow: 0 4px 0 #cfd8dc; transition: 0.1s;
+        }
+        .nav-pill-btn:hover { background: #eceff1; transform: translateY(-2px); }
+        .nav-pill-btn:active { box-shadow: 0 2px 0 #cfd8dc; transform: translateY(2px); }
+        .top-tools { display: flex; align-items: center; gap: 15px; }
+        .timer-box {
+            background: #fff; color: var(--text-red); padding: 6px 15px; border-radius: 20px; 
+            font-weight: bold; font-family: monospace; border: 2px solid var(--text-red);
+            box-shadow: 2px 2px 0 #ffebee; transform: rotate(2deg); min-width: 80px; display: flex; justify-content: center;
+        }
+        .btn-icon {
+            background: #fff; border: 2px solid #b0bec5; width: 40px; height: 40px;
+            border-radius: 10px; cursor: pointer; display: flex; align-items: center; justify-content: center;
+            font-size: 18px; box-shadow: 0 3px 0 #cfd8dc;
+        }
+        .btn-submit-big {
+            background: var(--btn-green); color: #fff; border: 2px solid #2e7d32;
+            padding: 8px 25px; border-radius: 15px; font-size: 16px; font-weight: 900;
+            cursor: pointer; box-shadow: 0 5px 0 #1b5e20; transition: 0.2s; display: flex; align-items: center; gap: 5px;
+        }
+        .btn-submit-big:hover { background: var(--btn-green-hover); transform: scale(1.05); }
+        .btn-submit-big:active { box-shadow: 0 2px 0 #1b5e20; transform: translateY(3px); }
+
+        /* --- 题目容器通用 --- */
+        .question-wrapper { flex: 1; position: relative; overflow: hidden; padding: 0; }
+        .question-card { display: none; height: 100%; overflow-y: auto; padding: 30px; animation: fadeIn 0.3s; }
+        .question-card.active-card { display: block; }
+        @keyframes fadeIn { from { opacity: 0; transform: translateY(10px); } to { opacity: 1; transform: translateY(0); } }
+
+        /* 左右分栏布局 */
+        .question-card.layout-split {
+            flex-direction: row; padding: 20px; gap: 20px; background: transparent; overflow: hidden;
+        }
+        .question-card.layout-split.active-card { display: flex; }
+        
+        .split-col-left {
+            flex: 1; background: #fff; border-radius: 20px; padding: 25px;
+            overflow-y: auto; height: 100%; box-shadow: var(--shadow-pop); 
+            border: var(--border-width) solid #b39ddb; background: #fdfbff;
+        }
+        .split-col-right {
+            flex: 1.2; background: #fff; border-radius: 20px; padding: 20px;
+            overflow-y: auto; height: 100%; box-shadow: var(--shadow-pop); 
+            border: var(--border-width) solid var(--primary-blue);
+            display: flex; flex-direction: column;
+        }
+
+        /* --- AI 工作流 (Workflow) 修正后样式 --- */
+
+        /* 1. 核心操作区 - 背景改为清爽的网格纸风格 */
+        .workflow-workspace {
+            flex: 1; display: flex; flex-direction: column; justify-content: center; align-items: center;
+            background-color: #fff;
+            /* 绘制工程网格 */
+            background-image: 
+                linear-gradient(rgba(200, 220, 255, 0.3) 1px, transparent 1px),
+                linear-gradient(90deg, rgba(200, 220, 255, 0.3) 1px, transparent 1px);
+            background-size: 20px 20px;
+            border-radius: 15px; border: 2px dashed #b3e5fc;
+            position: relative; overflow: hidden; transition: all 0.3s;
+        }
+        
+        .workflow-workspace.connected {
+            border-style: solid; border-color: var(--flow-accent); 
+            justify-content: flex-start; align-items: stretch; padding: 20px;
+            background-image: none; /* 连接后移除网格 */
+        }
+
+        /* 2. 修正后的启动按钮 - 稳重、居中、好看 */
+        .workflow-launcher-container {
+            /* 专门的容器用于绝对居中 */
+            display: flex; flex-direction: column; align-items: center; justify-content: center;
+            text-align: center;
+            width: 100%; height: 100%;
+        }
+
+        .workflow-launcher-btn {
+            background: linear-gradient(135deg, #29b6f6, #039be5); /* 回归清爽蓝 */
+            color: #fff;
+            width: 180px; height: 60px; /* 改为圆角矩形，不再是巨大的圆 */
+            border-radius: 30px; 
+            border: none;
+            display: flex; align-items: center; justify-content: center; gap: 10px;
+            cursor: pointer; 
+            box-shadow: 0 6px 0 #0277bd; /* 厚实的立体感 */
+            transition: all 0.1s;
+            font-size: 16px; font-weight: bold;
+            margin-bottom: 20px;
+        }
+        
+        .workflow-launcher-btn:hover {
+            transform: translateY(-2px); 
+            box-shadow: 0 8px 0 #0277bd;
+            background: linear-gradient(135deg, #4fc3f7, #0288d1);
+        }
+        
+        .workflow-launcher-btn:active {
+            transform: translateY(4px);
+            box-shadow: 0 2px 0 #0277bd;
+        }
+
+        /* 装饰性插画 (用 Emoji 拼凑，模拟工程感) */
+        .workflow-illustration {
+            font-size: 60px; margin-bottom: 20px;
+            filter: drop-shadow(0 4px 0 rgba(0,0,0,0.1));
+        }
+
+        /* 3. 已连接后的预览卡片 */
+        .flow-status-card {
+            background: #f1f8e9; border: 2px solid #aed581; border-radius: 15px;
+            padding: 15px; margin-bottom: 20px; display: flex; align-items: center; gap: 15px;
+            box-shadow: 0 4px 0 #dcedc8;
+        }
+        .flow-icon-box {
+            width: 50px; height: 50px; background: #fff; border-radius: 12px;
+            display: flex; align-items: center; justify-content: center; font-size: 24px; color: #558b2f;
+            border: 2px solid #aed581;
+        }
+        .flow-meta { flex: 1; }
+        .flow-meta h4 { margin: 0 0 5px 0; color: #33691e; }
+        .flow-meta p { margin: 0; font-size: 12px; color: #558b2f; }
+        .re-edit-btn {
+            padding: 8px 15px; background: #fff; border: 2px solid #b0bec5; border-radius: 10px;
+            color: #546e7a; font-weight: bold; cursor: pointer; font-size: 12px;
+        }
+        .re-edit-btn:hover { background: #eceff1; }
+
+        /* 4. 迷你调试终端 */
+        .mini-terminal {
+            flex: 1; background: #263238; border-radius: 12px; border: 4px solid #37474f;
+            padding: 15px; font-family: "Consolas", monospace; color: #a5d6a7; font-size: 13px;
+            overflow-y: auto; line-height: 1.6; display: flex; flex-direction: column;
+        }
+        .terminal-header { 
+            border-bottom: 1px solid #455a64; padding-bottom: 5px; margin-bottom: 10px; 
+            color: #78909c; font-size: 11px; display: flex; justify-content: space-between;
+        }
+        .log-line { margin-bottom: 5px; }
+        .log-line::before { content: "> "; color: #ef5350; }
+        .log-output { color: #fff; margin-bottom: 15px; white-space: pre-wrap; }
+
+        /* 遮罩层 */
+        .loading-mask {
+            position: absolute; top: 0; left: 0; width: 100%; height: 100%;
+            background: rgba(255,255,255,0.95); z-index: 10;
+            display: none; flex-direction: column; align-items: center; justify-content: center;
+        }
+
+    </style>
+</head>
+<body>
+
+    <aside class="sidebar" id="sidebar">
+        <div class="sidebar-toggle-handle" onclick="toggleSidebar()"><span id="toggle-icon">◀</span></div>
+        <div class="sidebar-mask">
+            <div class="sidebar-inner">
+                <div class="user-profile">
+                    <div class="camera-box">
+                        <img src="https://api.dicebear.com/7.x/avataaars/svg?seed=Felix" alt="Live Camera">
+                        <div class="camera-dot"></div>
+                    </div>
+                    <div style="font-size: 16px; font-weight: bold; color: #0277bd; margin-top: 5px;">王小明</div>
+                    <div style="font-size: 12px; color: #78909c;">📷 实时监考中</div>
+                </div>
+
+                <div class="question-map-container">
+                    <div class="chapter-title">第一部分：AI Agent</div>
+                    <div class="question-grid">
+                        <div class="q-tag active" onclick="jumpTo(1)">6</div>
+                    </div>
+                </div>
+
+                <div class="sidebar-footer">
+                    <div class="legend-item"><span class="dot" style="background:var(--primary-blue)"></span>当前</div>
+                    <div class="legend-item"><span class="dot" style="background:var(--accent-green)"></span>已作答</div>
+                </div>
+            </div>
+        </div>
+    </aside>
+
+    <main class="main-container">
+        <header class="top-bar">
+            <div class="top-left-group">
+                <div class="exam-title">AICE2024 AI工作流专项</div>
+            </div>
+            <div class="nav-controller">
+                <button class="nav-pill-btn" disabled style="opacity:0.5; cursor:not-allowed">⬅️ <span>上一题</span></button>
+                <button class="nav-pill-btn" disabled style="opacity:0.5; cursor:not-allowed"><span>下一题</span> ➡️</button>
+            </div>
+            <div class="top-tools">
+                <div class="timer-box">25:10</div>
+                <button class="btn-icon" onclick="toggleFullScreen()" title="全屏">⛶</button>
+                <button class="btn-submit-big" onclick="alert('交卷成功！')">✅ 交卷</button>
+            </div>
+        </header>
+
+        <div class="question-wrapper">
+            
+            <div id="q-1" class="question-card layout-split active-card">
+                
+                <div class="split-col-left">
+                    <h4 style="margin-bottom:15px; color:#5e35b1; font-size:18px;">🤖 任务：打造“智能翻译官”</h4>
+                    <div style="font-size: 16px; line-height: 1.8; color: #333;">
+                        <p><b>场景描述：</b></p>
+                        <p>你的学校来了一位只会说西班牙语的交换生。为了方便交流，请你设计一个 AI 工作流，帮助同学们进行实时翻译。</p>
+                        <hr style="border:1px dashed #ddd; margin: 15px 0;">
+                        <p><b>搭建要求：</b></p>
+                        <ul style="padding-left: 20px; list-style-type: disc;">
+                            <li>创建一个包含<b>“输入”</b>、<b>“LLM (大语言模型)”</b>和<b>“输出”</b>节点的工作流。</li>
+                            <li>LLM 的提示词 (Prompt) 中需要设定角色为“专业翻译官”。</li>
+                            <li>工作流需要能够将中文输入翻译成西班牙语。</li>
+                        </ul>
+                    </div>
+                </div>
+
+                <div class="split-col-right">
+                    
+                    <div class="q-header" style="margin-bottom:10px; flex-shrink:0;">
+                        <span class="q-badge" style="background:var(--primary-blue)">工作流配置区</span> <span>30分</span>
+                    </div>
+
+                    <div class="workflow-workspace" id="workflowArea">
+                        
+                        <div id="emptyState" class="workflow-launcher-container">
+                            <div class="workflow-illustration">⚙️⛓️🚀</div>
+                            <h3 style="color:#455a64; margin-bottom:20px;">准备好构建你的 AI 机器人了吗？</h3>
+                            
+                            <button class="workflow-launcher-btn" onclick="openWorkflowEditor()">
+                                <span>🛠️ 打开工作流编辑器</span>
+                            </button>
+                            
+                            <p style="color:#90a4ae; font-size:13px;">将在新窗口打开编辑器，完成后请保存并返回此处</p>
+                        </div>
+
+                        <div id="connectedState" style="display:none; width:100%; height:100%; flex-direction:column;">
+                            
+                            <div class="flow-status-card">
+                                <div class="flow-icon-box">⚡</div>
+                                <div class="flow-meta">
+                                    <h4>智能翻译官_V1</h4>
+                                    <p>🟢 状态: 已保存 | 节点数: 3 | 延迟: 120ms</p>
+                                </div>
+                                <button class="re-edit-btn" onclick="openWorkflowEditor()">🔧 修改结构</button>
+                            </div>
+
+                            <div class="mini-terminal">
+                                <div class="terminal-header">
+                                    <span>CONSOLE OUTPUT</span>
+                                    <span>Last Run: Just now</span>
+                                </div>
+                                
+                                <div class="log-line">System initializing...</div>
+                                <div class="log-line">Workflow loaded: [Start] -> [LLM] -> [End]</div>
+                                <div class="log-line">Input received: "你好，很高兴认识你"</div>
+                                <div class="log-line">Processing with LLM (gpt-3.5-turbo)...</div>
+                                <br>
+                                <div class="log-output">OUTPUT: "Hola, encantado de conocerte."</div>
+                                <br>
+                                <div class="log-line" style="color:#66bb6a">Execution successful. Token usage: 45.</div>
+                            </div>
+
+                            <div style="margin-top:15px; text-align:center; font-size:12px; color:#999;">
+                                * 点击上方“修改结构”可跳转编辑，点击顶部“交卷”提交作业
+                            </div>
+                        </div>
+
+                        <div class="loading-mask" id="loadingMask">
+                            <div style="font-size:40px; margin-bottom:10px;">⏳</div>
+                            <h3 style="color:#0277bd;">正在打开编辑器...</h3>
+                            <p style="color:#777;">请稍候...</p>
+                        </div>
+
+                    </div>
+
+                </div>
+            </div>
+
+        </div>
+    </main>
+
+    <script>
+        // --- 侧边栏 & 全屏逻辑 (保持一致) ---
+        function toggleSidebar() {
+            const sidebar = document.getElementById('sidebar');
+            const icon = document.getElementById('toggle-icon');
+            sidebar.classList.toggle('collapsed');
+            icon.innerText = sidebar.classList.contains('collapsed') ? "▶" : "◀";
+        }
+        function toggleFullScreen() {
+            if (!document.fullscreenElement) document.documentElement.requestFullscreen();
+            else if (document.exitFullscreen) document.exitFullscreen();
+        }
+
+        // --- 工作流交互逻辑 ---
+
+        function openWorkflowEditor() {
+            const mask = document.getElementById('loadingMask');
+            const emptyState = document.getElementById('emptyState');
+            const connectedState = document.getElementById('connectedState');
+            const workspace = document.getElementById('workflowArea');
+
+            // 1. 显示加载遮罩
+            mask.style.display = 'flex';
+
+            // 2. 模拟 1.5秒后返回
+            setTimeout(() => {
+                mask.style.display = 'none';
+                emptyState.style.display = 'none';
+                connectedState.style.display = 'flex';
+                workspace.classList.add('connected');
+                
+                document.querySelector('.q-tag.active').classList.add('done');
+            }, 1500);
+        }
+
+        function jumpTo(id) { }
+    </script>
+</body>
+</html>

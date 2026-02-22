@@ -1,0 +1,497 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>趣味编程大冒险 - AIGC 写作题</title>
+    <style>
+        /* --- 1. 全局童真风格定义 (标准版一致) --- */
+        :root {
+            --bg-color: #e0f2f1;
+            --sidebar-bg: #e1f5fe;
+            --primary-blue: #4fc3f7;
+            --primary-dark: #0277bd;
+            
+            --btn-green: #66bb6a;
+            --btn-green-hover: #43a047;
+            
+            --accent-pink: #ff8a80;
+            --accent-green: #aed581;
+            --text-red: #ff5252;
+            --ink-color: #455a64;
+            
+            /* AIGC 专用颜色 (写作主题 - 橙色/纸张色) */
+            --magic-orange: #ff9800;
+            --magic-orange-hover: #f57c00;
+            --paper-bg: #fffbf0;
+            
+            --border-width: 3px;
+            --border-color: #81d4fa;
+            
+            --shadow-pop: 4px 4px 0px rgba(79, 195, 247, 0.4); 
+            --radius-box: 20px;
+            --header-height: 70px;
+        }
+
+        * { box-sizing: border-box; margin: 0; padding: 0; outline: none; }
+
+        body {
+            font-family: "Comic Sans MS", "Chalkboard SE", "幼圆", "Yuppy SC", "Microsoft YaHei", sans-serif;
+            background-color: var(--bg-color);
+            background-image: radial-gradient(#b2ebf2 10%, transparent 10%);
+            background-size: 20px 20px;
+            height: 100vh;
+            display: flex;
+            color: var(--ink-color);
+            overflow: hidden;
+        }
+
+        /* 滚动条美化 */
+        ::-webkit-scrollbar { width: 10px; height: 10px; }
+        ::-webkit-scrollbar-thumb { background: var(--primary-blue); border-radius: 10px; border: 2px solid #fff; }
+        ::-webkit-scrollbar-track { background: transparent; }
+
+        /* --- 侧边栏通用样式 --- */
+        .sidebar {
+            width: 280px; background: var(--sidebar-bg);
+            position: relative; display: flex; flex-direction: column; z-index: 20; flex-shrink: 0;
+            transition: width 0.3s cubic-bezier(0.25, 0.8, 0.25, 1);
+            border-right: var(--border-width) dashed var(--border-color);
+        }
+        .sidebar.collapsed { width: 0; border-right: none; }
+        
+        .sidebar-toggle-handle {
+            position: absolute; top: 50%; right: -24px; width: 24px; height: 80px;
+            background: #b3e5fc; border: 2px solid #81d4fa; border-left: none; 
+            border-radius: 0 15px 15px 0; cursor: pointer; display: flex; align-items: center; justify-content: center;
+            color: #0277bd; font-weight: bold; font-size: 14px; z-index: 30;
+            transform: translateY(-50%); box-shadow: 2px 2px 0 rgba(0,0,0,0.1); transition: all 0.3s;
+        }
+        .sidebar-toggle-handle:hover { background: #81d4fa; color: #fff; }
+        .sidebar-mask { width: 100%; height: 100%; overflow: hidden; position: relative; }
+        .sidebar-inner { width: 280px; height: 100%; display: flex; flex-direction: column; overflow-y: auto; padding-bottom: 20px; }
+
+        .user-profile {
+            padding: 15px; background: #fff; margin: 15px; border-radius: var(--radius-box);
+            border: var(--border-width) solid var(--border-color); box-shadow: var(--shadow-pop);
+            text-align: center; white-space: nowrap; 
+        }
+        .camera-box {
+            width: 100%; aspect-ratio: 4 / 3; background: #000; margin: 0 auto 10px auto; 
+            border-radius: 10px; border: 2px solid #333; overflow: hidden; position: relative;
+        }
+        .camera-box img { width: 100%; height: 100%; object-fit: cover; display: block; }
+        .camera-dot {
+            position: absolute; top: 8px; right: 8px; width: 10px; height: 10px; 
+            background: red; border-radius: 50%; animation: blink 1s infinite; border: 1px solid #fff;
+        }
+        @keyframes blink { 50% { opacity: 0; } }
+
+        .question-map-container { flex: 1; padding: 0 15px 5px 15px; }
+        .chapter-title {
+            font-size: 14px; color: #0277bd; margin: 15px 0 8px 0; font-weight: bold;
+            display: flex; align-items: center; white-space: nowrap;
+        }
+        .chapter-title::before { content: "🔹"; margin-right: 5px; font-size: 12px; }
+        .question-grid { display: grid; grid-template-columns: repeat(4, 1fr); gap: 12px; padding-bottom: 10px; }
+        
+        .q-tag {
+            width: 45px; height: 45px; background: #fff;
+            border: var(--border-width) solid #b3e5fc; border-radius: 50% 40% 50% 40%;
+            display: flex; align-items: center; justify-content: center;
+            font-size: 16px; font-weight: bold; cursor: pointer; transition: all 0.2s; color: #81d4fa;
+        }
+        .q-tag:hover { transform: scale(1.1) rotate(-5deg); border-color: var(--primary-blue); }
+        .q-tag.active { 
+            background: var(--primary-blue); color: #fff; border-color: #0288d1;
+            transform: scale(1.1); box-shadow: 2px 2px 0px rgba(0,0,0,0.1);
+        }
+        .sidebar-footer {
+            margin: 10px 15px; background: rgba(255,255,255,0.6); border-radius: 15px;
+            padding: 10px; font-size: 12px; display: flex; justify-content: center; gap: 20px; white-space: nowrap;
+        }
+        .legend-item { display: flex; align-items: center; gap: 4px; color: #666; font-weight: bold; }
+        .dot { width: 12px; height: 12px; border-radius: 50%; display: inline-block; border: 2px solid rgba(0,0,0,0.1); }
+
+        /* --- 主内容区通用样式 --- */
+        .main-container {
+            flex: 1; display: flex; flex-direction: column;
+            background: rgba(255, 255, 255, 0.6); margin: 10px; border-radius: 30px; 
+            border: var(--border-width) solid #fff; box-shadow: 0 10px 30px rgba(129, 212, 250, 0.3); 
+            overflow: hidden; position: relative;
+        }
+        .top-bar {
+            height: var(--header-height); background: #fff; border-bottom: var(--border-width) dashed #b3e5fc;
+            display: flex; align-items: center; justify-content: space-between; padding: 0 20px; flex-shrink: 0;
+        }
+        .exam-title { font-size: 18px; font-weight: 800; color: var(--primary-dark); }
+        .nav-controller { flex: 1; display: flex; justify-content: center; gap: 20px; }
+        .nav-pill-btn {
+            background: #fff; border: 2px solid #b0bec5; padding: 8px 25px; border-radius: 20px;
+            cursor: pointer; font-weight: bold; color: #78909c; box-shadow: 0 4px 0 #cfd8dc; transition: 0.1s;
+        }
+        .nav-pill-btn:hover { background: #eceff1; transform: translateY(-2px); }
+        .nav-pill-btn:active { box-shadow: 0 2px 0 #cfd8dc; transform: translateY(2px); }
+        .top-tools { display: flex; align-items: center; gap: 15px; }
+        .timer-box {
+            background: #fff; color: var(--text-red); padding: 6px 15px; border-radius: 20px; 
+            font-weight: bold; font-family: monospace; border: 2px solid var(--text-red);
+            box-shadow: 2px 2px 0 #ffebee; transform: rotate(2deg); min-width: 80px; display: flex; justify-content: center;
+        }
+        .btn-icon {
+            background: #fff; border: 2px solid #b0bec5; width: 40px; height: 40px;
+            border-radius: 10px; cursor: pointer; display: flex; align-items: center; justify-content: center;
+            font-size: 18px; box-shadow: 0 3px 0 #cfd8dc;
+        }
+        .btn-submit-big {
+            background: var(--btn-green); color: #fff; border: 2px solid #2e7d32;
+            padding: 8px 25px; border-radius: 15px; font-size: 16px; font-weight: 900;
+            cursor: pointer; box-shadow: 0 5px 0 #1b5e20; transition: 0.2s; display: flex; align-items: center; gap: 5px;
+        }
+        .btn-submit-big:hover { background: var(--btn-green-hover); transform: scale(1.05); }
+        .btn-submit-big:active { box-shadow: 0 2px 0 #1b5e20; transform: translateY(3px); }
+
+        /* --- 题目容器通用 --- */
+        .question-wrapper { flex: 1; position: relative; overflow: hidden; padding: 0; }
+        .question-card { display: none; height: 100%; overflow-y: auto; padding: 30px; animation: fadeIn 0.3s; }
+        .question-card.active-card { display: block; }
+        @keyframes fadeIn { from { opacity: 0; transform: translateY(10px); } to { opacity: 1; transform: translateY(0); } }
+
+        /* 左右分栏布局 */
+        .question-card.layout-split {
+            flex-direction: row; padding: 20px; gap: 20px; background: transparent; overflow: hidden;
+        }
+        .question-card.layout-split.active-card { display: flex; }
+        
+        .split-col-left {
+            flex: 1; background: #fff; border-radius: 20px; padding: 25px;
+            overflow-y: auto; height: 100%; box-shadow: var(--shadow-pop); 
+            border: var(--border-width) solid #b39ddb; background: #fdfbff;
+        }
+        .split-col-right {
+            flex: 1.2; background: #fff; border-radius: 20px; padding: 20px;
+            overflow-y: auto; height: 100%; box-shadow: var(--shadow-pop); 
+            border: var(--border-width) solid var(--primary-blue);
+            display: flex; flex-direction: column;
+        }
+
+        /* --- AIGC 文生文 专用样式 --- */
+        
+        /* 1. 输入区域 */
+        .aigc-input-area { margin-bottom: 15px; }
+        .prompt-textarea {
+            width: 100%; height: 80px; padding: 15px; margin-bottom: 10px;
+            border: 2px solid #ddd; border-radius: 15px; resize: none;
+            font-family: inherit; font-size: 15px; background: #fafafa;
+            transition: 0.2s;
+        }
+        .prompt-textarea:focus { border-color: var(--magic-orange); background: #fff; }
+        
+        .gen-btn {
+            width: 100%; background: var(--magic-orange); color: #fff; border: none;
+            padding: 10px; border-radius: 12px; font-weight: bold; cursor: pointer;
+            box-shadow: 0 4px 0 #e65100; transition: 0.1s; display: flex; justify-content: center; align-items: center; gap: 8px;
+        }
+        .gen-btn:hover { background: var(--magic-orange-hover); transform: translateY(-2px); }
+        .gen-btn:active { box-shadow: 0 2px 0 #e65100; transform: translateY(2px); }
+        .gen-btn:disabled { background: #ccc; box-shadow: none; cursor: not-allowed; transform: none; }
+
+        /* 2. 文本生成结果区域 (信纸风格) */
+        .text-preview-wrapper {
+            flex: 1; border: 2px solid #ffcc80; border-radius: 15px;
+            background: var(--paper-bg); position: relative; overflow: hidden;
+            display: flex; flex-direction: column;
+            min-height: 250px; margin-bottom: 15px;
+            box-shadow: inset 0 0 20px rgba(0,0,0,0.05);
+        }
+        
+        /* 纸张横线背景 */
+        .paper-lines {
+            flex: 1; overflow-y: auto; padding: 25px;
+            background-image: linear-gradient(#cfd8dc 1px, transparent 1px);
+            background-size: 100% 30px; /* 行高 */
+            line-height: 30px;
+            font-size: 16px; color: #37474f; font-family: "KaiTi", "楷体", serif;
+        }
+
+        /* 状态A: 空闲 */
+        .state-empty { text-align: center; color: #bdbdbd; margin-top: 80px; }
+        .state-empty i { font-size: 40px; display: block; margin-bottom: 10px; }
+
+        /* 状态B: 生成中 (打字机光标) */
+        .typing-cursor::after {
+            content: '|'; animation: blink 1s infinite; color: var(--magic-orange); margin-left: 2px;
+        }
+
+        /* 状态D: 错误 */
+        .state-error { display: none; text-align: center; color: var(--text-red); margin-top: 50px; }
+
+        /* 3. 历史记录 (版本胶囊) */
+        .history-chips {
+            height: 50px; display: flex; gap: 10px; overflow-x: auto; 
+            padding: 5px 0; margin-bottom: 15px; align-items: center;
+        }
+        .version-chip {
+            background: #fff; border: 2px solid #b0bec5; border-radius: 20px;
+            padding: 5px 15px; font-size: 12px; font-weight: bold; color: #78909c;
+            cursor: pointer; transition: 0.2s; white-space: nowrap; flex-shrink: 0;
+            display: flex; align-items: center; gap: 5px;
+        }
+        .version-chip:hover { border-color: var(--magic-orange); color: var(--magic-orange); }
+        .version-chip.active { 
+            background: #fff3e0; border-color: var(--magic-orange); color: #e65100; 
+            box-shadow: 0 2px 0 #ffe0b2;
+        }
+
+        /* 4. 底部提交按钮 */
+        .confirm-answer-btn {
+            background: #4db6ac; color: #fff; border: 2px solid #00897b;
+            padding: 10px; border-radius: 12px; font-weight: bold; cursor: pointer;
+            box-shadow: 0 4px 0 #00695c; width: 100%; text-align: center;
+        }
+        .confirm-answer-btn:hover { background: #26a69a; }
+        .confirm-answer-btn:active { box-shadow: 0 2px 0 #00695c; transform: translateY(2px); }
+
+    </style>
+</head>
+<body>
+
+    <aside class="sidebar" id="sidebar">
+        <div class="sidebar-toggle-handle" onclick="toggleSidebar()"><span id="toggle-icon">◀</span></div>
+        <div class="sidebar-mask">
+            <div class="sidebar-inner">
+                <div class="user-profile">
+                    <div class="camera-box">
+                        <img src="https://api.dicebear.com/7.x/avataaars/svg?seed=Felix" alt="Live Camera">
+                        <div class="camera-dot"></div>
+                    </div>
+                    <div style="font-size: 16px; font-weight: bold; color: #0277bd; margin-top: 5px;">王小明</div>
+                    <div style="font-size: 12px; color: #78909c;">📷 实时监考中</div>
+                </div>
+
+                <div class="question-map-container">
+                    <div class="chapter-title">第一部分：AI 写作</div>
+                    <div class="question-grid">
+                        <div class="q-tag active" onclick="jumpTo(1)">1</div>
+                    </div>
+                </div>
+
+                <div class="sidebar-footer">
+                    <div class="legend-item"><span class="dot" style="background:var(--primary-blue)"></span>当前</div>
+                    <div class="legend-item"><span class="dot" style="background:var(--accent-green)"></span>已作答</div>
+                </div>
+            </div>
+        </div>
+    </aside>
+
+    <main class="main-container">
+        <header class="top-bar">
+            <div class="top-left-group">
+                <div class="exam-title">AICE2024 人工智能写作专项</div>
+            </div>
+            <div class="nav-controller">
+                <button class="nav-pill-btn" disabled style="opacity:0.5; cursor:not-allowed">⬅️ <span>上一题</span></button>
+                <button class="nav-pill-btn" disabled style="opacity:0.5; cursor:not-allowed"><span>下一题</span> ➡️</button>
+            </div>
+            <div class="top-tools">
+                <div class="timer-box">15:30</div>
+                <button class="btn-icon" onclick="toggleFullScreen()" title="全屏">⛶</button>
+                <button class="btn-submit-big" onclick="alert('交卷成功！')">✅ 交卷</button>
+            </div>
+        </header>
+
+        <div class="question-wrapper">
+            
+            <div id="q-1" class="question-card layout-split active-card">
+                
+                <div class="split-col-left">
+                    <h4 style="margin-bottom:15px; color:#5e35b1; font-size:18px;">📝 任务：科幻小说续写</h4>
+                    <div style="font-size: 16px; line-height: 1.8; color: #333;">
+                        <p><b>背景故事：</b></p>
+                        <p style="background:#f3e5f5; padding:15px; border-radius:10px; font-style:italic;">
+                            “飞船的警报声突然响彻了整个驾驶舱。艾力克看了一眼仪表盘，发现氧气含量正在急速下降，而窗外，一颗巨大的蓝色星球正缓缓升起……”
+                        </p>
+                        <hr style="border:1px dashed #ddd; margin: 15px 0;">
+                        <p><b>你的任务：</b></p>
+                        <ul style="padding-left: 20px; list-style-type: disc;">
+                            <li>请利用 AI 工具续写这个故事的结局。</li>
+                            <li>结局必须包含“外星文明”和“和平协议”两个要素。</li>
+                            <li>字数在 100 字左右。</li>
+                        </ul>
+                        <p style="margin-top:20px; background:#fff3e0; padding:10px; border-radius:10px; color:#e65100; font-size:14px;">
+                            💡 <b>提示：</b> 你可以这样问 AI：“请帮我续写这个故事，艾力克遇到了友好的外星人...”
+                        </p>
+                    </div>
+                </div>
+
+                <div class="split-col-right">
+                    
+                    <div class="aigc-input-area">
+                        <label style="font-weight:bold; color:#455a64; font-size:14px; margin-bottom:5px; display:block;">✨ 写作指令 (Prompt)</label>
+                        <textarea class="prompt-textarea" id="promptInput" placeholder="请输入你的指令，例如：请续写一个大团圆结局..."></textarea>
+                        <button class="gen-btn" id="generateBtn" onclick="startTextGeneration()">
+                            <span>🖊️ 让 AI 开始写作 (Generate)</span>
+                        </button>
+                    </div>
+
+                    <div class="text-preview-wrapper" id="previewBox">
+                        <div class="paper-lines" id="textOutput">
+                            <div class="state-empty" id="stateEmpty">
+                                <i>📄</i>
+                                <p>AI 生成的文章将显示在这张信纸上</p>
+                            </div>
+                            
+                            <div class="state-error" id="stateError">⚠️ 生成失败，请重试</div>
+                        </div>
+                    </div>
+
+                    <div style="display:flex; justify-content:space-between; align-items:center;">
+                        <div style="font-size:12px; color:#78909c; font-weight:bold;">🕒 版本历史</div>
+                        <div style="font-size:12px; color:#ccc;" id="verCount">0/5</div>
+                    </div>
+                    
+                    <div class="history-chips" id="historyStrip">
+                        <span style="font-size:12px; color:#ccc; padding-left:5px;">暂无生成记录</span>
+                    </div>
+
+                    <div style="margin-top:auto;">
+                        <button class="confirm-answer-btn" onclick="confirmSelection()">
+                            📌 提交当前显示的文字内容
+                        </button>
+                    </div>
+
+                </div>
+            </div>
+
+        </div>
+    </main>
+
+    <script>
+        // --- 侧边栏 & 全屏逻辑 (保持一致) ---
+        function toggleSidebar() {
+            const sidebar = document.getElementById('sidebar');
+            const icon = document.getElementById('toggle-icon');
+            sidebar.classList.toggle('collapsed');
+            icon.innerText = sidebar.classList.contains('collapsed') ? "▶" : "◀";
+        }
+        function toggleFullScreen() {
+            if (!document.fullscreenElement) document.documentElement.requestFullscreen();
+            else if (document.exitFullscreen) document.exitFullscreen();
+        }
+
+        // --- 文生文 交互逻辑 ---
+        
+        let historyData = []; // 存储生成的文本
+        let isGenerating = false;
+
+        // 模拟 AI 回复库
+        const mockResponses = [
+            "艾力克屏住呼吸，紧盯着那颗蓝色星球。突然，一道柔和的光束笼罩了飞船。通讯器里传来了未知但友好的声音。原来，这是守护星系的“蓝光族”。他们修复了艾力克的飞船，并与人类签订了《银河和平协议》。艾力克成为了两个文明的信使。",
+            "就在氧气即将耗尽时，一艘巨大的星际母舰出现在艾力克面前。舱门打开，走出几个身形修长的生物。他们递给艾力克一瓶蓝色的液体，那竟然是高浓度的氧气合剂！为了感谢他们的救助，艾力克代表地球与他们签署了和平共处的秘密协议。",
+            "蓝色星球上传来一阵引力波，平稳地接管了飞船的控制权。飞船降落在一个充满水晶建筑的广场上。外星文明的首领热情地接待了艾力克。经过几天的友好交流，双方决定建立贸易往来，并草拟了一份跨星际的和平协议。"
+        ];
+
+        function startTextGeneration() {
+            const prompt = document.getElementById('promptInput').value;
+            if(!prompt.trim()) {
+                alert("请先输入指令！");
+                return;
+            }
+            if(isGenerating) return;
+
+            // 1. UI 状态切换
+            isGenerating = true;
+            document.getElementById('generateBtn').disabled = true;
+            document.getElementById('generateBtn').innerText = "⏳ AI 正在思考中...";
+            
+            const outputArea = document.getElementById('textOutput');
+            outputArea.innerHTML = '<span class="typing-cursor">AI 正在撰写...</span>'; // 清空并显示光标
+            
+            // 2. 模拟网络延迟后开始打字
+            setTimeout(() => {
+                const responseText = mockResponses[historyData.length % mockResponses.length];
+                typeWriterEffect(responseText, outputArea);
+            }, 1000);
+        }
+
+        // 打字机效果函数
+        function typeWriterEffect(text, container) {
+            container.innerHTML = ""; // 清空
+            let i = 0;
+            const speed = 50; // 打字速度
+
+            function type() {
+                if (i < text.length) {
+                    container.innerHTML = text.substring(0, i + 1) + '<span class="typing-cursor"></span>';
+                    i++;
+                    // 自动滚动到底部
+                    container.scrollTop = container.scrollHeight;
+                    setTimeout(type, speed);
+                } else {
+                    // 完成
+                    container.innerHTML = text; // 移除光标
+                    finishGeneration(text);
+                }
+            }
+            type();
+        }
+
+        function finishGeneration(text) {
+            isGenerating = false;
+            const btn = document.getElementById('generateBtn');
+            btn.disabled = false;
+            btn.innerHTML = '<span>🖊️ 重新生成 (Generate)</span>';
+
+            // 添加到历史
+            historyData.push(text);
+            updateHistoryUI();
+            
+            // 选中最新
+            highlightVersion(historyData.length - 1);
+        }
+
+        function updateHistoryUI() {
+            const strip = document.getElementById('historyStrip');
+            document.getElementById('verCount').innerText = `${historyData.length}/5`;
+            
+            strip.innerHTML = ''; // 重绘
+            
+            historyData.forEach((text, index) => {
+                const chip = document.createElement('div');
+                chip.className = 'version-chip';
+                chip.innerHTML = `📄 版本 ${index + 1}`;
+                chip.onclick = () => {
+                    // 切换显示
+                    document.getElementById('textOutput').innerText = text;
+                    highlightVersion(index);
+                };
+                strip.appendChild(chip);
+            });
+        }
+
+        function highlightVersion(index) {
+            const chips = document.querySelectorAll('.version-chip');
+            chips.forEach((c, i) => {
+                if(i === index) c.classList.add('active');
+                else c.classList.remove('active');
+            });
+        }
+
+        function confirmSelection() {
+            // 检查当前是否有内容
+            const currentText = document.getElementById('textOutput').innerText;
+            const isEmpty = document.getElementById('stateEmpty');
+            
+            if(historyData.length === 0 || (isEmpty && isEmpty.style.display !== 'none')) {
+                alert("请先生成一段文字！");
+                return;
+            }
+            
+            alert(`已提交当前内容作为答案：
+
+"${currentText.substring(0, 20)}..."`);
+            document.querySelector('.q-tag.active').classList.add('done');
+        }
+    </script>
+</body>
+</html>

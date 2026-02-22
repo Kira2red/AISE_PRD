@@ -1,0 +1,255 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>考试进行中 - AICA</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+
+    <script>
+        tailwind.config = {
+            theme: {
+                extend: {
+                    fontFamily: {
+                        sans: ['Inter', 'sans-serif'],
+                        mono: ['JetBrains Mono', 'monospace'],
+                    },
+                    colors: {
+                        brand: { 500: '#3b82f6', 600: '#2563eb' },
+                    }
+                }
+            }
+        }
+    </script>
+    <style>
+        /* 强制全屏无滚动，类似APP体验 */
+        body, html { 
+            height: 100%; 
+            overflow: hidden; 
+            background-color: #F1F5F9;
+        }
+        
+        /* 自定义滚动条，更细更美观 */
+        .custom-scroll::-webkit-scrollbar { width: 6px; height: 6px; }
+        .custom-scroll::-webkit-scrollbar-track { background: transparent; }
+        .custom-scroll::-webkit-scrollbar-thumb { background-color: #cbd5e1; border-radius: 3px; }
+        .custom-scroll::-webkit-scrollbar-thumb:hover { background-color: #94a3b8; }
+
+        /* 答题卡格子样式 */
+        .q-grid {
+            display: grid;
+            grid-template-columns: repeat(5, 1fr);
+            gap: 8px;
+        }
+        .q-item {
+            aspect-ratio: 1;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            border-radius: 6px;
+            font-size: 12px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.1s;
+        }
+        /* 状态颜色 */
+        .q-done { background: #dbeafe; color: #2563eb; border: 1px solid #bfdbfe; }
+        .q-current { background: #2563eb; color: #fff; border: 1px solid #2563eb; box-shadow: 0 0 0 2px #bfdbfe; }
+        .q-mark { border: 1px solid #fcd34d; background: #fffbeb; color: #d97706; }
+        .q-normal { background: #f8fafc; border: 1px solid #e2e8f0; color: #64748b; }
+        .q-normal:hover { border-color: #94a3b8; }
+
+        /* 选项卡片交互 */
+        .option-label { cursor: pointer; display: block; }
+        .option-radio:checked + .option-card {
+            background-color: #eff6ff;
+            border-color: #3b82f6;
+            box-shadow: 0 0 0 1px #3b82f6;
+        }
+        .option-radio:checked + .option-card .option-key {
+            background-color: #3b82f6;
+            color: white;
+            border-color: #3b82f6;
+        }
+
+        /* 代码块防溢出 */
+        pre {
+            white-space: pre-wrap;       /* 允许换行 */
+            word-wrap: break-word;       /* 长单词换行 */
+            max-width: 100%;             /* 限制最大宽度 */
+        }
+    </style>
+</head>
+<body class="flex flex-col h-screen w-full">
+
+    <header class="h-16 bg-white border-b border-slate-200 flex items-center justify-between px-4 sm:px-6 z-30 flex-shrink-0 shadow-sm">
+        
+        <div class="flex items-center gap-3">
+            <button class="md:hidden text-slate-500 hover:text-brand-600 p-1">
+                <i class="fa-solid fa-bars text-xl"></i>
+            </button>
+            <div class="flex items-center gap-2">
+                <div class="w-7 h-7 bg-slate-900 rounded flex items-center justify-center text-white font-bold text-sm">A</div>
+                <span class="font-bold text-slate-800 text-sm sm:text-base truncate max-w-[150px] sm:max-w-none">Python 程序设计（一级）</span>
+            </div>
+        </div>
+
+        <div class="absolute left-1/2 top-1/2 transform -translate-x-1/2 -translate-y-1/2 bg-slate-100 border border-slate-200 rounded-full px-4 py-1 flex items-center gap-2 shadow-inner hidden sm:flex">
+            <i class="fa-regular fa-clock text-slate-500 text-xs"></i>
+            <span class="font-mono font-bold text-slate-800 text-base">00:45:22</span>
+        </div>
+        <div class="sm:hidden font-mono font-bold text-slate-800 text-sm bg-slate-100 px-2 py-1 rounded">
+            45:22
+        </div>
+
+        <div class="flex items-center gap-3">
+            <div class="hidden lg:flex items-center gap-2 text-xs text-slate-500">
+                <div class="w-2 h-2 rounded-full bg-green-500 animate-pulse"></div>
+                <span>监控中</span>
+            </div>
+            <button class="bg-slate-900 hover:bg-brand-600 text-white text-xs sm:text-sm font-bold px-4 py-2 rounded-lg transition shadow-lg">
+                交 卷
+            </button>
+        </div>
+    </header>
+
+    <div class="flex-1 flex overflow-hidden relative">
+        
+        <aside class="w-72 bg-white border-r border-slate-200 flex flex-col z-20 flex-shrink-0 hidden md:flex">
+            <div class="p-5 border-b border-slate-100 flex-shrink-0">
+                <div class="flex items-center justify-between mb-3">
+                    <h3 class="font-bold text-slate-800">答题卡</h3>
+                    <span class="text-xs bg-blue-50 text-brand-600 px-2 py-0.5 rounded font-medium">进度 12/50</span>
+                </div>
+                <div class="flex justify-between text-[10px] text-slate-500 bg-slate-50 p-2 rounded-lg">
+                    <div class="flex items-center gap-1"><div class="w-2 h-2 rounded-full bg-blue-600"></div>当前</div>
+                    <div class="flex items-center gap-1"><div class="w-2 h-2 rounded-full bg-blue-100 border border-blue-200"></div>已答</div>
+                    <div class="flex items-center gap-1"><div class="w-2 h-2 rounded-full bg-yellow-50 border border-yellow-200"></div>标记</div>
+                </div>
+            </div>
+            
+            <div class="flex-1 overflow-y-auto p-5 custom-scroll">
+                <div class="mb-6">
+                    <p class="text-xs font-bold text-slate-400 uppercase mb-3 sticky top-0 bg-white py-1 z-10">一、单项选择题 (40分)</p>
+                    <div class="q-grid">
+                        <div class="q-item q-done">1</div>
+                        <div class="q-item q-done">2</div>
+                        <div class="q-item q-mark">3</div>
+                        <div class="q-item q-done">4</div>
+                        <div class="q-item q-current">5</div>
+                        <div class="q-item q-normal">6</div>
+                        <div class="q-item q-normal">7</div>
+                        <div class="q-item q-normal">8</div>
+                        <div class="q-item q-normal">9</div>
+                        <div class="q-item q-normal">10</div>
+                        <div class="q-item q-normal">11</div>
+                        <div class="q-item q-normal">12</div>
+                        <div class="q-item q-normal">13</div>
+                        <div class="q-item q-normal">14</div>
+                        <div class="q-item q-normal">15</div>
+                    </div>
+                </div>
+                <div>
+                    <p class="text-xs font-bold text-slate-400 uppercase mb-3 sticky top-0 bg-white py-1 z-10">二、判断题 (20分)</p>
+                    <div class="q-grid">
+                        <div class="q-item q-normal">21</div>
+                        <div class="q-item q-normal">22</div>
+                        <div class="q-item q-normal">23</div>
+                        <div class="q-item q-normal">24</div>
+                        <div class="q-item q-normal">25</div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="p-4 bg-slate-50 border-t border-slate-200 flex items-center gap-3 flex-shrink-0">
+                <div class="w-8 h-8 rounded-full bg-slate-300 overflow-hidden">
+                     <img src="https://api.dicebear.com/7.x/avataaars/svg?seed=ZhangSan" class="w-full h-full object-cover">
+                </div>
+                <div class="overflow-hidden">
+                    <p class="text-sm font-bold text-slate-800 truncate">张三</p>
+                    <p class="text-xs text-slate-500 truncate font-mono">ID: 2025001</p>
+                </div>
+            </div>
+        </aside>
+
+        <section class="flex-1 flex flex-col min-w-0 bg-slate-50 h-full relative">
+            
+            <div class="flex-1 overflow-y-auto p-4 sm:p-6 md:p-10 custom-scroll flex justify-center">
+                <div class="w-full max-w-3xl pb-20"> <div class="bg-white rounded-2xl shadow-sm border border-slate-200 p-6 sm:p-10 min-h-[400px]">
+                        
+                        <div class="flex justify-between items-start mb-6 border-b border-slate-100 pb-4">
+                            <div class="flex items-baseline gap-3">
+                                <span class="text-4xl font-bold text-slate-200 select-none">05</span>
+                                <h2 class="text-lg font-bold text-slate-800">单项选择题</h2>
+                            </div>
+                            <span class="bg-blue-50 text-brand-600 text-xs font-bold px-3 py-1.5 rounded-lg border border-blue-100">
+                                本题 2 分
+                            </span>
+                        </div>
+
+                        <div class="mb-8">
+                            <p class="text-base sm:text-lg font-medium text-slate-900 leading-relaxed mb-4">
+                                运行以下 Python 代码，控制台输出的结果是：
+                            </p>
+                            
+                            <div class="bg-[#1e293b] rounded-xl p-4 sm:p-6 overflow-x-auto shadow-inner">
+<pre class="font-mono text-sm text-slate-300 leading-relaxed">
+a = [1, 2, 3]
+b = a
+b.append(4)
+print(a)
+</pre>
+                            </div>
+                        </div>
+
+                        <div class="space-y-4">
+                            <label class="option-label">
+                                <input type="radio" name="q5" class="hidden option-radio">
+                                <div class="option-card flex items-center gap-4 p-4 rounded-xl border border-slate-200 hover:bg-slate-50 transition bg-white">
+                                    <div class="option-key w-8 h-8 rounded-lg border border-slate-300 flex items-center justify-center text-sm font-bold text-slate-500 transition flex-shrink-0">A</div>
+                                    <div class="text-slate-700 font-mono text-sm">[1, 2, 3]</div>
+                                </div>
+                            </label>
+
+                            <label class="option-label">
+                                <input type="radio" name="q5" class="hidden option-radio">
+                                <div class="option-card flex items-center gap-4 p-4 rounded-xl border border-slate-200 hover:bg-slate-50 transition bg-white">
+                                    <div class="option-key w-8 h-8 rounded-lg border border-slate-300 flex items-center justify-center text-sm font-bold text-slate-500 transition flex-shrink-0">B</div>
+                                    <div class="text-slate-700 font-mono text-sm">[1, 2, 3, 4]</div>
+                                </div>
+                            </label>
+
+                            <label class="option-label">
+                                <input type="radio" name="q5" class="hidden option-radio">
+                                <div class="option-card flex items-center gap-4 p-4 rounded-xl border border-slate-200 hover:bg-slate-50 transition bg-white">
+                                    <div class="option-key w-8 h-8 rounded-lg border border-slate-300 flex items-center justify-center text-sm font-bold text-slate-500 transition flex-shrink-0">C</div>
+                                    <div class="text-slate-700 font-mono text-sm text-red-500">Error</div>
+                                </div>
+                            </label>
+                        </div>
+
+                    </div>
+                </div>
+            </div>
+
+            <div class="absolute bottom-0 left-0 w-full bg-white border-t border-slate-200 p-4 flex justify-between items-center z-30 shadow-[0_-4px_6px_-1px_rgba(0,0,0,0.05)]">
+                <button class="text-slate-400 hover:text-amber-500 text-sm font-medium flex items-center gap-2 transition px-2">
+                    <i class="fa-regular fa-flag"></i> <span class="hidden sm:inline">标记本题</span>
+                </button>
+                
+                <div class="flex gap-3">
+                    <button class="px-5 py-2.5 rounded-lg border border-slate-200 text-slate-600 font-medium hover:bg-slate-50 transition text-sm">上一题</button>
+                    <button class="px-6 py-2.5 rounded-lg bg-brand-600 text-white font-medium hover:bg-brand-700 shadow-lg shadow-brand-500/30 transition text-sm flex items-center gap-2">
+                        下一题 <i class="fa-solid fa-chevron-right text-xs"></i>
+                    </button>
+                </div>
+            </div>
+
+        </section>
+    </div>
+
+</body>
+</html>

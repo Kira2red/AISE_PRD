@@ -1,0 +1,346 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>测评管理 - AICA 后台</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+
+    <script>
+        tailwind.config = {
+            theme: {
+                extend: {
+                    fontFamily: {
+                        sans: ['Inter', 'sans-serif'],
+                        mono: ['JetBrains Mono', 'monospace'],
+                    },
+                    colors: {
+                        brand: { 50: '#eff6ff', 100: '#dbeafe', 500: '#3b82f6', 600: '#2563eb', 700: '#1d4ed8' },
+                    },
+                    boxShadow: {
+                        'card': '0 1px 3px 0 rgba(0, 0, 0, 0.1), 0 1px 2px 0 rgba(0, 0, 0, 0.06)',
+                        'popover': '0 20px 25px -5px rgba(0, 0, 0, 0.1), 0 10px 10px -5px rgba(0, 0, 0, 0.04)',
+                    }
+                }
+            }
+        }
+    </script>
+    <style>
+        body { background-color: #F8FAFC; }
+        .hide-scroll::-webkit-scrollbar { display: none; }
+        .nav-item.active::before {
+            content: ''; position: absolute; left: 0; top: 50%; transform: translateY(-50%);
+            width: 4px; height: 24px; background-color: #3b82f6; border-radius: 0 4px 4px 0;
+        }
+        tr.hover-row:hover td { background-color: #f8fafc; }
+        
+        /* Modal Animation */
+        .modal-enter { animation: modalFadeIn 0.2s ease-out forwards; }
+        @keyframes modalFadeIn { from { opacity: 0; transform: scale(0.95); } to { opacity: 1; transform: scale(1); } }
+    </style>
+</head>
+<body class="flex h-screen overflow-hidden text-slate-800 font-sans">
+
+    <aside class="w-64 bg-white border-r border-slate-200 flex flex-col flex-shrink-0 z-20">
+        <div class="h-16 flex items-center px-6 border-b border-slate-100">
+            <div class="w-8 h-8 bg-gradient-to-br from-brand-600 to-indigo-600 rounded-lg flex items-center justify-center text-white font-bold text-lg mr-3 shadow-sm">A</div>
+            <span class="font-bold text-lg text-slate-800 tracking-tight">AICA Admin</span>
+        </div>
+        <nav class="flex-1 overflow-y-auto py-4 space-y-1">
+            <a href="#" class="nav-item flex items-center gap-3 px-6 py-3 text-slate-500 hover:bg-slate-50 hover:text-brand-600 transition relative">
+                <i class="fa-solid fa-layer-group w-5 text-center"></i><span class="font-medium text-sm">题库管理</span>
+            </a>
+            <a href="#" class="nav-item flex items-center gap-3 px-6 py-3 text-slate-500 hover:bg-slate-50 hover:text-brand-600 transition relative">
+                <i class="fa-solid fa-file-lines w-5 text-center"></i><span class="font-medium text-sm">试卷管理</span>
+            </a>
+            <a href="#" class="nav-item active flex items-center gap-3 px-6 py-3 text-brand-600 bg-brand-50 transition relative">
+                <i class="fa-solid fa-graduation-cap w-5 text-center"></i><span class="font-medium text-sm">测评管理</span>
+            </a>
+            <div class="px-6 py-2 mt-4 text-xs font-bold text-slate-400 uppercase tracking-wider">考务与用户</div>
+            <a href="#" class="nav-item flex items-center gap-3 px-6 py-3 text-slate-500 hover:bg-slate-50 hover:text-brand-600 transition relative">
+                <i class="fa-solid fa-users w-5 text-center"></i><span class="font-medium text-sm">考生管理</span>
+            </a>
+        </nav>
+    </aside>
+
+    <main class="flex-1 flex flex-col min-w-0 bg-slate-50/50 relative">
+
+        <header class="h-16 bg-white border-b border-slate-200 flex items-center justify-between px-8 flex-shrink-0 z-10">
+            <h1 class="text-xl font-bold text-slate-800">测评活动管理</h1>
+            <div class="flex items-center gap-2 text-xs text-slate-500 bg-blue-50 px-3 py-1.5 rounded-lg border border-blue-100">
+                <i class="fa-solid fa-rotate text-brand-600"></i>
+                <span>数据源自：爱测评 - AICA 专项组织</span>
+            </div>
+        </header>
+
+        <div class="px-8 py-6">
+            <div class="bg-white rounded-xl shadow-card border border-slate-100 p-4 flex gap-4 items-center">
+                <div class="relative w-72">
+                    <i class="fa-solid fa-magnifying-glass absolute left-3 top-1/2 transform -translate-y-1/2 text-slate-400 text-sm"></i>
+                    <input type="text" placeholder="搜索测评名称..." class="w-full pl-9 pr-4 py-2 rounded-lg border border-slate-200 text-sm focus:border-brand-500 outline-none transition">
+                </div>
+                <select class="px-3 py-2 rounded-lg border border-slate-200 text-sm text-slate-600 bg-white outline-none hover:border-slate-300 cursor-pointer">
+                    <option value="">同步状态</option>
+                    <option value="synced">已同步</option>
+                    <option value="unsynced">未同步</option>
+                </select>
+                <button class="bg-white border border-slate-200 hover:bg-slate-50 text-slate-700 text-sm font-medium px-4 py-2 rounded-lg shadow-sm transition">查询</button>
+            </div>
+        </div>
+
+        <div class="flex-1 overflow-y-auto px-8 pb-8 custom-scroll">
+            <div class="bg-white rounded-xl shadow-card border border-slate-200 overflow-hidden">
+                <table class="w-full text-left border-collapse">
+                    <thead>
+                        <tr class="border-b border-slate-100 bg-slate-50 text-xs uppercase text-slate-500 font-bold">
+                            <th class="p-4 pl-6">测评名称 / ID</th>
+                            <th class="p-4">创建人</th>
+                            <th class="p-4">起止时间</th>
+                            <th class="p-4">时长</th>
+                            <th class="p-4">测评状态</th>
+                            <th class="p-4">同步状态</th>
+                            <th class="p-4 text-right pr-6">操作</th>
+                        </tr>
+                    </thead>
+                    <tbody class="text-sm text-slate-700 divide-y divide-slate-100">
+                        
+                        <tr class="hover-row transition group" id="row-1001">
+                            <td class="p-4 pl-6">
+                                <p class="font-bold text-slate-800">2025春季 Python 一级等级测评</p>
+                                <p class="text-xs text-slate-400 font-mono mt-0.5">ID: 1001</p>
+                            </td>
+                            <td class="p-4 text-slate-600">张教务</td>
+                            <td class="p-4 text-xs text-slate-500">
+                                <p>2025-05-20 14:00</p>
+                                <p>至 2025-05-20 16:00</p>
+                            </td>
+                            <td class="p-4 font-mono">60m</td>
+                            <td class="p-4">
+                                <span class="inline-flex items-center gap-1.5 px-2 py-0.5 rounded text-xs font-bold bg-green-50 text-green-700 border border-green-100">
+                                    <span class="w-1.5 h-1.5 rounded-full bg-green-500 animate-pulse"></span> 进行中
+                                </span>
+                            </td>
+                            <td class="p-4">
+                                <span class="status-badge bg-brand-50 text-brand-600 border border-brand-100 px-2 py-0.5 rounded text-xs font-bold">已同步</span>
+                            </td>
+                            <td class="p-4 text-right pr-6">
+                                <div class="flex items-center justify-end gap-3 opacity-100">
+                                    <button onclick="toggleSync(1001, true)" class="text-slate-400 hover:text-red-500 text-xs font-medium transition btn-sync">取消同步</button>
+                                    <div class="w-px h-3 bg-slate-200"></div>
+                                    <button onclick="openEditModal('2025春季 Python 一级等级测评')" class="text-slate-400 hover:text-brand-600 text-xs font-medium transition">编辑</button>
+                                    <button onclick="openPreviewModal()" class="text-slate-400 hover:text-brand-600 text-xs font-medium transition">预览</button>
+                                    <button onclick="window.open('assessment-exam.html', '_blank')" class="text-brand-600 hover:text-brand-700 text-xs font-bold border border-brand-200 bg-brand-50 px-2 py-1 rounded hover:bg-brand-100 transition">模拟考试</button>
+                                </div>
+                            </td>
+                        </tr>
+
+                        <tr class="hover-row transition group" id="row-1002">
+                            <td class="p-4 pl-6">
+                                <p class="font-bold text-slate-800">2025夏季 AIGC 应用能力二级测评</p>
+                                <p class="text-xs text-slate-400 font-mono mt-0.5">ID: 1002</p>
+                            </td>
+                            <td class="p-4 text-slate-600">李运营</td>
+                            <td class="p-4 text-xs text-slate-500">
+                                <p>2025-06-15 09:00</p>
+                                <p>至 2025-06-15 11:00</p>
+                            </td>
+                            <td class="p-4 font-mono">90m</td>
+                            <td class="p-4">
+                                <span class="inline-flex items-center gap-1.5 px-2 py-0.5 rounded text-xs font-bold bg-blue-50 text-blue-600 border border-blue-100">
+                                    未开始
+                                </span>
+                            </td>
+                            <td class="p-4">
+                                <span class="status-badge bg-slate-100 text-slate-500 border border-slate-200 px-2 py-0.5 rounded text-xs font-bold">未同步</span>
+                            </td>
+                            <td class="p-4 text-right pr-6">
+                                <div class="flex items-center justify-end gap-3 opacity-100">
+                                    <button onclick="openSyncModal(1002)" class="text-brand-600 hover:text-brand-800 text-xs font-bold transition btn-sync">立即同步</button>
+                                    <div class="w-px h-3 bg-slate-200"></div>
+                                    <button onclick="openEditModal('2025夏季 AIGC 应用能力二级测评')" class="text-slate-400 hover:text-brand-600 text-xs font-medium transition">编辑</button>
+                                    <button onclick="openPreviewModal()" class="text-slate-400 hover:text-brand-600 text-xs font-medium transition">预览</button>
+                                    <button onclick="window.open('assessment-exam.html', '_blank')" class="text-slate-400 hover:text-brand-600 text-xs font-medium border border-slate-200 px-2 py-1 rounded hover:bg-slate-50 transition">模拟考试</button>
+                                </div>
+                            </td>
+                        </tr>
+
+                    </tbody>
+                </table>
+            </div>
+        </div>
+
+    </main>
+
+    <div id="modal-sync" class="fixed inset-0 z-50 hidden flex items-center justify-center bg-slate-900/50 backdrop-blur-sm transition-opacity opacity-0">
+        <div class="bg-white rounded-2xl shadow-xl w-96 p-6 transform scale-95 transition-transform" id="modal-sync-content">
+            <div class="text-center mb-6">
+                <div class="w-12 h-12 bg-brand-50 rounded-full flex items-center justify-center mx-auto mb-4 text-brand-600 text-xl">
+                    <i class="fa-solid fa-cloud-arrow-up"></i>
+                </div>
+                <h3 class="font-bold text-slate-800 text-lg">确认同步测评?</h3>
+                <p class="text-sm text-slate-500 mt-1">同步后将显示在 AICA 官网供用户报名。</p>
+            </div>
+            
+            <div class="mb-6">
+                <label class="block text-xs font-bold text-slate-500 uppercase mb-2">设置默认报名费 (元) <span class="text-red-500">*</span></label>
+                <div class="relative">
+                    <span class="absolute left-4 top-2.5 text-slate-400 text-sm">¥</span>
+                    <input type="number" class="w-full pl-8 pr-4 py-2.5 rounded-lg border border-slate-200 focus:border-brand-500 focus:ring-1 focus:ring-brand-500 outline-none font-bold text-slate-800" value="0.00">
+                </div>
+                <p class="text-[10px] text-slate-400 mt-1">后续可在渠道管理中为不同渠道设置特定价格。</p>
+            </div>
+
+            <div class="flex gap-3">
+                <button onclick="closeSyncModal()" class="flex-1 px-4 py-2 text-sm font-medium text-slate-600 bg-slate-50 hover:bg-slate-100 rounded-lg transition">取消</button>
+                <button onclick="confirmSync()" class="flex-1 px-4 py-2 text-sm font-bold text-white bg-brand-600 hover:bg-brand-700 rounded-lg shadow-md transition">确认同步</button>
+            </div>
+        </div>
+    </div>
+
+    <div id="modal-edit" class="fixed inset-0 z-50 hidden flex items-center justify-center bg-slate-900/50 backdrop-blur-sm transition-opacity opacity-0">
+        <div class="bg-white rounded-2xl shadow-xl w-[500px] p-6 transform scale-95 transition-transform" id="modal-edit-content">
+            <div class="flex justify-between items-center mb-6">
+                <h3 class="font-bold text-slate-800 text-lg">编辑测评信息</h3>
+                <button onclick="closeEditModal()" class="text-slate-400 hover:text-slate-600"><i class="fa-solid fa-xmark"></i></button>
+            </div>
+            
+            <div class="space-y-4">
+                <div>
+                    <label class="block text-xs font-bold text-slate-500 uppercase mb-2">测评名称</label>
+                    <input type="text" id="edit-name" class="w-full px-4 py-2.5 rounded-lg border border-slate-200 focus:border-brand-500 outline-none text-sm font-medium">
+                </div>
+                <div class="grid grid-cols-2 gap-4">
+                    <div>
+                        <label class="block text-xs font-bold text-slate-500 uppercase mb-2">开始时间</label>
+                        <input type="datetime-local" class="w-full px-3 py-2.5 rounded-lg border border-slate-200 text-sm outline-none text-slate-600" value="2025-05-20T14:00">
+                    </div>
+                    <div>
+                        <label class="block text-xs font-bold text-slate-500 uppercase mb-2">结束时间</label>
+                        <input type="datetime-local" class="w-full px-3 py-2.5 rounded-lg border border-slate-200 text-sm outline-none text-slate-600" value="2025-05-20T16:00">
+                    </div>
+                </div>
+                <div>
+                    <label class="block text-xs font-bold text-slate-500 uppercase mb-2">测评时长 (分钟)</label>
+                    <input type="number" class="w-full px-4 py-2.5 rounded-lg border border-slate-200 focus:border-brand-500 outline-none text-sm" value="60">
+                </div>
+            </div>
+
+            <div class="mt-8 pt-4 border-t border-slate-100 flex justify-end gap-3">
+                <button onclick="closeEditModal()" class="px-4 py-2 text-sm text-slate-600 hover:bg-slate-50 rounded-lg transition">取消</button>
+                <button onclick="closeEditModal()" class="px-6 py-2 bg-brand-600 text-white text-sm font-bold rounded-lg hover:bg-brand-700 transition shadow-sm">保存并同步</button>
+            </div>
+        </div>
+    </div>
+
+    <div id="modal-preview" class="fixed inset-0 z-50 hidden flex items-center justify-center bg-slate-900/50 backdrop-blur-sm transition-opacity opacity-0">
+        <div class="bg-white rounded-2xl shadow-2xl w-[800px] h-[80vh] flex flex-col transform scale-95 transition-transform" id="modal-preview-content">
+            <div class="px-6 py-4 border-b border-slate-100 flex justify-between items-center bg-slate-50 rounded-t-2xl">
+                <h3 class="font-bold text-slate-800 text-lg">试卷预览</h3>
+                <button onclick="closePreviewModal()" class="text-slate-400 hover:text-slate-600"><i class="fa-solid fa-xmark"></i></button>
+            </div>
+            <div class="flex-1 overflow-y-auto p-8 custom-scroll">
+                <div class="space-y-8">
+                    <div>
+                        <h4 class="font-bold text-slate-800 mb-4">一、单项选择题 (共2题，每题5分)</h4>
+                        <div class="space-y-6">
+                            <div class="bg-white border border-slate-100 p-4 rounded-xl shadow-sm">
+                                <div class="flex justify-between mb-2">
+                                    <span class="font-bold text-brand-600">1.</span>
+                                    <span class="text-xs bg-slate-100 px-2 py-0.5 rounded text-slate-500">5分</span>
+                                </div>
+                                <p class="text-sm text-slate-700 mb-3">Python 中用于输出的函数是？</p>
+                                <div class="grid grid-cols-2 gap-2 text-xs text-slate-600">
+                                    <div class="p-2 bg-slate-50 rounded">A. input()</div>
+                                    <div class="p-2 bg-green-50 text-green-700 border border-green-200 rounded font-bold">B. print() <i class="fa-solid fa-check ml-1"></i></div>
+                                    <div class="p-2 bg-slate-50 rounded">C. output()</div>
+                                    <div class="p-2 bg-slate-50 rounded">D. write()</div>
+                                </div>
+                            </div>
+                            </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // Sync Modal Logic
+        let currentSyncId = null;
+        const syncModal = document.getElementById('modal-sync');
+        const syncContent = document.getElementById('modal-sync-content');
+
+        function openSyncModal(id) {
+            currentSyncId = id;
+            syncModal.classList.remove('hidden');
+            setTimeout(() => { syncModal.classList.remove('opacity-0'); syncContent.classList.add('modal-enter'); }, 10);
+        }
+        function closeSyncModal() {
+            syncModal.classList.add('opacity-0');
+            setTimeout(() => { syncModal.classList.add('hidden'); syncContent.classList.remove('modal-enter'); }, 200);
+        }
+        function confirmSync() {
+            // 模拟状态变更
+            const row = document.getElementById(`row-${currentSyncId}`);
+            const badge = row.querySelector('.status-badge');
+            const btn = row.querySelector('.btn-sync');
+            
+            // Update UI
+            badge.className = 'status-badge bg-brand-50 text-brand-600 border border-brand-100 px-2 py-0.5 rounded text-xs font-bold';
+            badge.innerText = '已同步';
+            
+            // Change button to "Unsync" style
+            btn.innerText = '取消同步';
+            btn.className = 'text-slate-400 hover:text-red-500 text-xs font-medium transition btn-sync';
+            btn.onclick = function() { toggleSync(currentSyncId, true); };
+
+            closeSyncModal();
+        }
+
+        function toggleSync(id, isSynced) {
+            if (isSynced) {
+                if(confirm('确定要取消同步吗？已报名的用户将不受影响，但新的用户将无法报名。')) {
+                    // Revert to unsynced
+                    const row = document.getElementById(`row-${id}`);
+                    const badge = row.querySelector('.status-badge');
+                    const btn = row.querySelector('.btn-sync');
+                    
+                    badge.className = 'status-badge bg-slate-100 text-slate-500 border border-slate-200 px-2 py-0.5 rounded text-xs font-bold';
+                    badge.innerText = '未同步';
+                    
+                    btn.innerText = '立即同步';
+                    btn.className = 'text-brand-600 hover:text-brand-800 text-xs font-bold transition btn-sync';
+                    btn.onclick = function() { openSyncModal(id); };
+                }
+            }
+        }
+
+        // Edit Modal Logic
+        const editModal = document.getElementById('modal-edit');
+        const editContent = document.getElementById('modal-edit-content');
+        function openEditModal(name) {
+            document.getElementById('edit-name').value = name;
+            editModal.classList.remove('hidden');
+            setTimeout(() => { editModal.classList.remove('opacity-0'); editContent.classList.add('modal-enter'); }, 10);
+        }
+        function closeEditModal() {
+            editModal.classList.add('opacity-0');
+            setTimeout(() => { editModal.classList.add('hidden'); editContent.classList.remove('modal-enter'); }, 200);
+        }
+
+        // Preview Modal Logic
+        const prevModal = document.getElementById('modal-preview');
+        const prevContent = document.getElementById('modal-preview-content');
+        function openPreviewModal() {
+            prevModal.classList.remove('hidden');
+            setTimeout(() => { prevModal.classList.remove('opacity-0'); prevContent.classList.add('modal-enter'); }, 10);
+        }
+        function closePreviewModal() {
+            prevModal.classList.add('opacity-0');
+            setTimeout(() => { prevModal.classList.add('hidden'); prevContent.classList.remove('modal-enter'); }, 200);
+        }
+    </script>
+</body>
+</html>

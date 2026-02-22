@@ -1,0 +1,446 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>测评管理 - AISE 后台</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+
+    <script>
+        tailwind.config = {
+            theme: {
+                extend: {
+                    fontFamily: {
+                        sans: ['Inter', 'sans-serif'],
+                        mono: ['JetBrains Mono', 'monospace'],
+                    },
+                    colors: {
+                        brand: { 50: '#eff6ff', 100: '#dbeafe', 500: '#3b82f6', 600: '#2563eb', 700: '#1d4ed8' },
+                    },
+                    boxShadow: {
+                        'card': '0 1px 3px 0 rgba(0, 0, 0, 0.1), 0 1px 2px 0 rgba(0, 0, 0, 0.06)',
+                        'popover': '0 10px 15px -3px rgba(0, 0, 0, 0.1), 0 4px 6px -2px rgba(0, 0, 0, 0.05)',
+                        'tooltip': '0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -1px rgba(0, 0, 0, 0.06)',
+                    }
+                }
+            }
+        }
+    </script>
+    <style>
+        body { background-color: #F8FAFC; }
+        .hide-scroll::-webkit-scrollbar { display: none; }
+        .custom-scroll::-webkit-scrollbar { width: 6px; height: 6px; }
+        .custom-scroll::-webkit-scrollbar-thumb { background-color: #cbd5e1; border-radius: 3px; }
+        .custom-scroll::-webkit-scrollbar-track { background-color: transparent; }
+        
+        .nav-item.active::before {
+            content: ''; position: absolute; left: 0; top: 50%; transform: translateY(-50%);
+            width: 4px; height: 24px; background-color: #3b82f6; border-radius: 0 4px 4px 0;
+        }
+        tr.hover-row:hover td { background-color: #f8fafc; }
+        
+        /* Modal Animation */
+        .modal-enter { animation: modalFadeIn 0.2s ease-out forwards; }
+        @keyframes modalFadeIn { from { opacity: 0; transform: scale(0.95); } to { opacity: 1; transform: scale(1); } }
+
+        /* Tooltip */
+        .tooltip-trigger:hover .tooltip-content { display: block; }
+    </style>
+</head>
+<body class="flex h-screen overflow-hidden text-slate-800 font-sans">
+
+    <aside class="w-64 bg-white border-r border-slate-200 flex flex-col flex-shrink-0 z-20">
+        <div class="h-16 flex items-center px-6 border-b border-slate-100">
+            <div class="w-8 h-8 bg-gradient-to-br from-brand-600 to-indigo-600 rounded-lg flex items-center justify-center text-white font-bold text-lg mr-3 shadow-sm">A</div>
+            <span class="font-bold text-lg text-slate-800 tracking-tight">AISE Admin</span>
+        </div>
+        <nav class="flex-1 overflow-y-auto py-4 space-y-1">
+            <a href="#" class="nav-item flex items-center gap-3 px-6 py-3 text-slate-500 hover:bg-slate-50 hover:text-brand-600 transition relative">
+                <i class="fa-solid fa-layer-group w-5 text-center"></i><span class="font-medium text-sm">题库管理</span>
+            </a>
+            <a href="#" class="nav-item flex items-center gap-3 px-6 py-3 text-slate-500 hover:bg-slate-50 hover:text-brand-600 transition relative">
+                <i class="fa-solid fa-file-lines w-5 text-center"></i><span class="font-medium text-sm">试卷管理</span>
+            </a>
+            <a href="#" class="nav-item active flex items-center gap-3 px-6 py-3 text-brand-600 bg-brand-50 transition relative">
+                <i class="fa-solid fa-graduation-cap w-5 text-center"></i><span class="font-medium text-sm">测评管理</span>
+            </a>
+            <a href="#" class="nav-item flex items-center gap-3 px-6 py-3 text-slate-500 hover:bg-slate-50 hover:text-brand-600 transition relative">
+                <i class="fa-solid fa-tags w-5 text-center"></i><span class="font-medium text-sm">标签配置</span>
+            </a>
+            <a href="#" class="nav-item flex items-center gap-3 px-6 py-3 text-slate-500 hover:bg-slate-50 hover:text-brand-600 transition relative">
+                <i class="fa-solid fa-boxes-stacked w-5 text-center"></i><span class="font-medium text-sm">测评组管理</span>
+            </a>
+            <div class="px-6 py-2 mt-4 text-xs font-bold text-slate-400 uppercase tracking-wider">考务与用户</div>
+            <a href="#" class="nav-item flex items-center gap-3 px-6 py-3 text-slate-500 hover:bg-slate-50 hover:text-brand-600 transition relative">
+                <i class="fa-solid fa-users w-5 text-center"></i><span class="font-medium text-sm">考生管理</span>
+            </a>
+        </nav>
+    </aside>
+
+    <main class="flex-1 flex flex-col min-w-0 bg-slate-50/50 relative overflow-hidden">
+
+        <header class="h-16 bg-white border-b border-slate-200 flex items-center justify-between px-8 flex-shrink-0 z-10">
+            <h1 class="text-xl font-bold text-slate-800">测评管理</h1>
+            <div class="flex items-center gap-3">
+                <span class="text-xs text-slate-400">上次同步：10分钟前</span>
+                <button class="bg-white border border-slate-200 hover:bg-slate-50 text-slate-600 text-sm font-medium px-3 py-1.5 rounded-lg transition flex items-center gap-2">
+                    <i class="fa-solid fa-rotate"></i> 同步爱测评数据
+                </button>
+            </div>
+        </header>
+
+        <div class="flex-1 flex flex-col overflow-hidden">
+            
+            <div class="px-8 py-6 flex-shrink-0 space-y-4">
+                <div class="bg-white rounded-xl shadow-card border border-slate-100 p-4">
+                    <div class="flex flex-wrap gap-4 items-center">
+                        <div class="relative w-64">
+                            <i class="fa-solid fa-magnifying-glass absolute left-3 top-1/2 transform -translate-y-1/2 text-slate-400 text-sm"></i>
+                            <input type="text" placeholder="测评名称 / ID" class="w-full pl-9 pr-4 py-2 rounded-lg border border-slate-200 text-sm focus:border-brand-500 outline-none transition">
+                        </div>
+                        
+                        <div class="relative group w-60">
+                            <button id="filter-tag-btn" onclick="toggleFilterDropdown()" class="w-full text-left px-3 py-2 rounded-lg border border-slate-200 text-sm bg-white hover:border-brand-300 focus:border-brand-500 focus:ring-1 focus:ring-brand-200 flex justify-between items-center text-slate-500 transition">
+                                <span class="truncate">按标签筛选 (多选)...</span>
+                                <i class="fa-solid fa-chevron-down text-xs transition-transform" id="filter-arrow"></i>
+                            </button>
+                            <div id="filter-tag-menu" class="hidden absolute top-full left-0 w-72 mt-2 bg-white border border-slate-200 rounded-lg shadow-popover z-50 p-0 flex flex-col max-h-80 overflow-hidden animate-fade-in origin-top-left">
+                                <div class="overflow-y-auto p-2 custom-scroll">
+                                    <div class="mb-3">
+                                        <div class="text-[10px] font-bold text-slate-400 uppercase bg-slate-50 px-2 py-1 rounded mb-1">所属模块</div>
+                                        <label class="flex items-center px-2 py-1.5 hover:bg-slate-50 cursor-pointer rounded"><input type="checkbox" class="mr-2 rounded border-slate-300 text-brand-600 focus:ring-0"> <span class="text-sm text-slate-600">Python</span></label>
+                                        <label class="flex items-center px-2 py-1.5 hover:bg-slate-50 cursor-pointer rounded"><input type="checkbox" class="mr-2 rounded border-slate-300 text-brand-600 focus:ring-0"> <span class="text-sm text-slate-600">C++</span></label>
+                                    </div>
+                                    <div class="mb-1">
+                                        <div class="text-[10px] font-bold text-slate-400 uppercase bg-slate-50 px-2 py-1 rounded mb-1">难度等级</div>
+                                        <label class="flex items-center px-2 py-1.5 hover:bg-slate-50 cursor-pointer rounded"><input type="checkbox" class="mr-2 rounded border-slate-300 text-brand-600 focus:ring-0"> <span class="text-sm text-slate-600">1级 (入门)</span></label>
+                                        <label class="flex items-center px-2 py-1.5 hover:bg-slate-50 cursor-pointer rounded"><input type="checkbox" class="mr-2 rounded border-slate-300 text-brand-600 focus:ring-0"> <span class="text-sm text-slate-600">2级 (初级)</span></label>
+                                    </div>
+                                </div>
+                                <div class="border-t border-slate-100 p-2 bg-slate-50 flex justify-between items-center">
+                                    <button class="text-xs text-slate-400 hover:text-slate-600">重置</button>
+                                    <button class="text-xs bg-brand-600 text-white px-3 py-1 rounded hover:bg-brand-700" onclick="toggleFilterDropdown()">确认</button>
+                                </div>
+                            </div>
+                        </div>
+
+                        <div class="w-48">
+                            <select class="w-full px-3 py-2 rounded-lg border border-slate-200 text-sm bg-white focus:border-brand-500 outline-none text-slate-600">
+                                <option value="">所有测评组</option>
+                                <option value="1">首页推荐位</option>
+                                <option value="2">Python 专项赛合集</option>
+                            </select>
+                        </div>
+
+                        <div class="w-32">
+                            <select class="w-full px-3 py-2 rounded-lg border border-slate-200 text-sm bg-white focus:border-brand-500 outline-none text-slate-600">
+                                <option value="">同步状态</option>
+                                <option value="sync">已同步</option>
+                                <option value="unsync">未同步</option>
+                            </select>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="flex-1 overflow-y-auto px-8 pb-8 custom-scroll">
+                <div class="bg-white rounded-xl shadow-card border border-slate-200 overflow-hidden">
+                    <table class="w-full text-left border-collapse">
+                        <thead>
+                            <tr class="border-b border-slate-100 bg-slate-50 text-xs uppercase text-slate-500 font-bold">
+                                <th class="p-4 pl-6 w-10"><input type="checkbox" class="rounded border-slate-300 text-brand-600 focus:ring-0 cursor-pointer"></th>
+                                <th class="p-4 w-1/4">测评名称 / ID</th>
+                                <th class="p-4 w-1/5">标签 (Tags)</th> 
+                                <th class="p-4 w-1/6">所属分组</th> 
+                                <th class="p-4">时间 / 状态</th>
+                                <th class="p-4 text-right pr-6">操作</th>
+                            </tr>
+                        </thead>
+                        <tbody class="text-sm text-slate-700 divide-y divide-slate-100">
+                            
+                            <tr class="hover-row transition">
+                                <td class="p-4 pl-6"><input type="checkbox" class="rounded border-slate-300 text-brand-600 focus:ring-0 cursor-pointer"></td>
+                                <td class="p-4">
+                                    <p class="font-bold text-slate-800">2025春季 Python 一级等级测评</p>
+                                    <p class="text-xs text-slate-400 font-mono mt-0.5">ID: 2025001</p>
+                                </td>
+                                <td class="p-4">
+                                    <div class="flex flex-wrap gap-1.5 items-center tooltip-trigger relative">
+                                        <span class="inline-flex px-1.5 py-0.5 rounded text-[10px] font-bold bg-blue-50 text-blue-600 border border-blue-100">Python</span>
+                                        <span class="inline-flex px-1.5 py-0.5 rounded text-[10px] font-bold bg-green-50 text-green-600 border border-green-100">1级</span>
+                                        <span class="inline-flex px-1.5 py-0.5 rounded text-[10px] font-bold bg-slate-100 text-slate-600 border border-slate-200">热门</span>
+                                        <span class="text-[10px] text-slate-400 bg-slate-50 px-1 rounded cursor-help">+1</span>
+                                        <div class="tooltip-content hidden absolute bottom-full left-0 mb-2 w-48 bg-slate-800 text-white text-xs rounded p-2 shadow-tooltip z-50">
+                                            <div class="font-bold mb-1 border-b border-slate-600 pb-1">所有标签</div>
+                                            <div class="flex flex-wrap gap-1">
+                                                <span class="bg-blue-900 text-blue-200 px-1 rounded">Python</span>
+                                                <span class="bg-green-900 text-green-200 px-1 rounded">1级</span>
+                                                <span class="bg-slate-600 text-slate-200 px-1 rounded">热门</span>
+                                                <span class="bg-slate-600 text-slate-200 px-1 rounded">2025春季</span>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </td>
+                                <td class="p-4">
+                                    <div class="flex flex-col gap-1">
+                                        <span class="text-xs text-slate-600 bg-slate-50 px-2 py-0.5 rounded border border-slate-100 inline-block w-fit max-w-full truncate">首页推荐位</span>
+                                        <span class="text-xs text-slate-600 bg-slate-50 px-2 py-0.5 rounded border border-slate-100 inline-block w-fit max-w-full truncate">Python 专区</span>
+                                    </div>
+                                </td>
+                                <td class="p-4">
+                                    <p class="text-xs font-mono text-slate-500">2025-05-01 ~ 05-31</p>
+                                    <span class="inline-flex items-center gap-1 mt-1 px-2 py-0.5 rounded text-[10px] font-bold bg-green-50 text-green-700 border border-green-100">
+                                        <span class="w-1.5 h-1.5 rounded-full bg-green-500"></span> 已同步
+                                    </span>
+                                </td>
+                                <td class="p-4 text-right pr-6">
+                                    <button onclick="openEditModal('2025春季 Python 一级等级测评')" class="text-brand-600 hover:text-brand-800 text-xs font-bold mr-3 transition">编辑</button>
+                                    <button class="text-slate-400 hover:text-brand-600 text-xs font-medium transition">下架</button>
+                                </td>
+                            </tr>
+
+                            <tr class="hover-row transition">
+                                <td class="p-4 pl-6"><input type="checkbox" class="rounded border-slate-300 text-brand-600 focus:ring-0 cursor-pointer"></td>
+                                <td class="p-4">
+                                    <p class="font-bold text-slate-800">2025春季 C++ 算法挑战赛</p>
+                                    <p class="text-xs text-slate-400 font-mono mt-0.5">ID: 2025002</p>
+                                </td>
+                                <td class="p-4">
+                                    <div class="flex flex-wrap gap-1.5">
+                                        <span class="inline-flex px-1.5 py-0.5 rounded text-[10px] font-bold bg-purple-50 text-purple-600 border border-purple-100">C++</span>
+                                    </div>
+                                </td>
+                                <td class="p-4">
+                                    <span class="text-xs text-slate-400 italic">未分组</span>
+                                </td>
+                                <td class="p-4">
+                                    <p class="text-xs font-mono text-slate-500">2025-06-01 ~ 06-15</p>
+                                    <span class="inline-flex items-center gap-1 mt-1 px-2 py-0.5 rounded text-[10px] font-bold bg-slate-100 text-slate-500 border border-slate-200">
+                                        未同步
+                                    </span>
+                                </td>
+                                <td class="p-4 text-right pr-6">
+                                    <button onclick="openEditModal('2025春季 C++ 算法挑战赛')" class="text-brand-600 hover:text-brand-800 text-xs font-bold mr-3 transition">编辑</button>
+                                    <button class="text-brand-600 hover:text-brand-800 text-xs font-medium transition">同步</button>
+                                </td>
+                            </tr>
+
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
+
+    </main>
+
+    <div id="modal-edit" class="fixed inset-0 z-50 hidden flex items-center justify-center bg-slate-900/50 backdrop-blur-sm transition-opacity opacity-0">
+        <div class="bg-white rounded-2xl shadow-xl w-[600px] p-6 transform scale-95 transition-transform flex flex-col" id="modal-edit-content" style="max-height: 90vh;">
+            <div class="flex justify-between items-center mb-6 flex-shrink-0">
+                <h3 class="font-bold text-slate-800 text-lg">编辑测评信息</h3>
+                <button onclick="closeModal('modal-edit')" class="text-slate-400 hover:text-slate-600"><i class="fa-solid fa-xmark"></i></button>
+            </div>
+            
+            <div class="space-y-6 flex-1 overflow-y-auto px-1 custom-scroll" id="modal-scroll-area">
+                <div>
+                    <label class="block text-xs font-bold text-slate-500 uppercase mb-2">显示名称</label>
+                    <input type="text" id="edit-name" class="w-full px-4 py-2.5 rounded-lg border border-slate-200 focus:border-brand-500 outline-none text-sm font-medium transition">
+                </div>
+                
+                <div class="grid grid-cols-2 gap-4">
+                    <div>
+                        <label class="block text-xs font-bold text-slate-500 uppercase mb-2">开始时间</label>
+                        <input type="datetime-local" class="w-full px-3 py-2.5 rounded-lg border border-slate-200 text-sm outline-none text-slate-600">
+                    </div>
+                    <div>
+                        <label class="block text-xs font-bold text-slate-500 uppercase mb-2">结束时间</label>
+                        <input type="datetime-local" class="w-full px-3 py-2.5 rounded-lg border border-slate-200 text-sm outline-none text-slate-600">
+                    </div>
+                </div>
+
+                <div>
+                    <label class="block text-xs font-bold text-slate-500 uppercase mb-2">标签配置</label>
+                    <div class="relative group" id="edit-tag-container">
+                        <div id="edit-tag-trigger" tabindex="0" onclick="toggleEditDropdown()" class="min-h-[44px] w-full bg-white border border-slate-300 rounded-lg px-3 py-2 cursor-pointer flex flex-wrap gap-2 items-center hover:border-brand-400 focus-within:border-brand-500 focus-within:ring-2 focus-within:ring-brand-100 transition">
+                            <span class="bg-blue-50 text-blue-700 text-xs font-bold px-2 py-1 rounded border border-blue-100 flex items-center gap-1.5 transition">
+                                Python <i onclick="event.stopPropagation(); this.parentElement.remove()" class="fa-solid fa-xmark text-[10px] opacity-60 hover:opacity-100 cursor-pointer" title="移除"></i>
+                            </span>
+                            <span class="bg-green-50 text-green-700 text-xs font-bold px-2 py-1 rounded border border-green-100 flex items-center gap-1.5 transition">
+                                1级 <i onclick="event.stopPropagation(); this.parentElement.remove()" class="fa-solid fa-xmark text-[10px] opacity-60 hover:opacity-100 cursor-pointer" title="移除"></i>
+                            </span>
+                            <span class="text-sm text-slate-400 flex-1 ml-1 select-none">点击添加标签...</span>
+                            <i class="fa-solid fa-chevron-down text-xs text-slate-400"></i>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="pt-4 border-t border-slate-100 pb-2">
+                    <label class="block text-xs font-bold text-slate-500 uppercase mb-3">证书落款时间配置</label>
+                    <div class="space-y-3">
+                        <label class="flex items-start gap-3 cursor-pointer group">
+                            <input type="radio" name="cert-date-type" value="dynamic" class="mt-1 w-4 h-4 text-brand-600 border-slate-300 focus:ring-brand-500" checked onchange="toggleCertDateInput()">
+                            <div>
+                                <span class="block text-sm font-medium text-slate-700 group-hover:text-brand-700">用户初次查看时间 (Dynamic)</span>
+                                <span class="block text-xs text-slate-400 mt-0.5">以用户首次生成证书的时刻为准。</span>
+                            </div>
+                        </label>
+                        <div class="flex items-start gap-3">
+                            <label class="flex items-center gap-3 cursor-pointer group pt-1.5">
+                                <input type="radio" name="cert-date-type" value="static" class="w-4 h-4 text-brand-600 border-slate-300 focus:ring-brand-500" onchange="toggleCertDateInput()">
+                                <span class="text-sm font-medium text-slate-700 group-hover:text-brand-700">指定日期</span>
+                            </label>
+                            <input type="date" id="cert-date-input" disabled class="px-3 py-1.5 rounded-lg border border-slate-200 text-sm outline-none text-slate-600 focus:border-brand-500 disabled:bg-slate-100 disabled:text-slate-400 disabled:cursor-not-allowed transition">
+                        </div>
+                    </div>
+                </div>
+
+            </div>
+
+            <div class="mt-8 pt-4 border-t border-slate-100 flex justify-end gap-3 flex-shrink-0">
+                <button onclick="closeModal('modal-edit')" class="px-4 py-2 text-sm text-slate-600 hover:bg-slate-50 rounded-lg transition">取消</button>
+                <button onclick="closeModal('modal-edit')" class="px-6 py-2 bg-brand-600 text-white text-sm font-bold rounded-lg hover:bg-brand-700 transition shadow-sm">保存修改</button>
+            </div>
+        </div>
+    </div>
+
+    <div id="edit-tag-menu" class="hidden bg-white border border-slate-200 rounded-lg shadow-popover flex-col max-h-64 overflow-hidden transform origin-top transition-all z-[9999]">
+        <div class="p-3 border-b border-slate-100 bg-slate-50/50 sticky top-0 z-10">
+            <div class="relative">
+                <i class="fa-solid fa-search absolute left-3 top-1/2 -translate-y-1/2 text-slate-400 text-xs"></i>
+                <input type="text" placeholder="搜索标签..." class="w-full pl-9 pr-3 py-2 text-xs bg-white border border-slate-200 rounded-md outline-none focus:border-brand-500 transition">
+            </div>
+        </div>
+        <div class="overflow-y-auto p-2 custom-scroll space-y-4">
+            <div>
+                <div class="px-2 mb-1.5 flex items-center gap-2">
+                    <span class="text-[10px] font-bold text-slate-400 uppercase tracking-wider bg-slate-100 px-1.5 py-0.5 rounded">所属模块</span>
+                </div>
+                <div class="space-y-1">
+                    <label class="flex items-center gap-3 px-3 py-2 hover:bg-brand-50 rounded-md cursor-pointer transition"><input type="checkbox" checked class="w-4 h-4 rounded border-slate-300 text-brand-600 focus:ring-0"><span class="text-sm text-slate-600">Python</span></label>
+                    <label class="flex items-center gap-3 px-3 py-2 hover:bg-brand-50 rounded-md cursor-pointer transition"><input type="checkbox" class="w-4 h-4 rounded border-slate-300 text-brand-600 focus:ring-0"><span class="text-sm text-slate-600">C++</span></label>
+                </div>
+            </div>
+            <div>
+                <div class="px-2 mb-1.5 flex items-center gap-2">
+                    <span class="text-[10px] font-bold text-slate-400 uppercase tracking-wider bg-slate-100 px-1.5 py-0.5 rounded">难度等级 (单选)</span>
+                </div>
+                <div class="space-y-1">
+                    <label class="flex items-center gap-3 px-3 py-2 hover:bg-brand-50 rounded-md cursor-pointer transition"><input type="radio" name="edit-level" checked class="w-4 h-4 text-brand-600 focus:ring-0"><span class="text-sm text-slate-600">1级</span></label>
+                    <label class="flex items-center gap-3 px-3 py-2 hover:bg-brand-50 rounded-md cursor-pointer transition"><input type="radio" name="edit-level" class="w-4 h-4 text-brand-600 focus:ring-0"><span class="text-sm text-slate-600">2级</span></label>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // --- Modal Logic ---
+        function closeModal(id) {
+            const modal = document.getElementById(id);
+            const content = document.getElementById(id + '-content');
+            modal.classList.add('opacity-0');
+            setTimeout(() => { modal.classList.add('hidden'); content.classList.remove('modal-enter'); }, 200);
+        }
+
+        // --- 3.3 Edit Modal Logic ---
+        function openEditModal(name) {
+            document.getElementById('edit-name').value = name;
+            const modal = document.getElementById('modal-edit');
+            const content = document.getElementById('modal-edit-content');
+            modal.classList.remove('hidden');
+            setTimeout(() => { modal.classList.remove('opacity-0'); content.classList.add('modal-enter'); }, 10);
+        }
+
+        // --- FIXED Positioning for Edit Dropdown (Portal Strategy) ---
+        let dropdownMoved = false;
+        function toggleEditDropdown() {
+            const menu = document.getElementById('edit-tag-menu');
+            const trigger = document.getElementById('edit-tag-trigger');
+            
+            // Move to body once to avoid clipping
+            if (!dropdownMoved) {
+                document.body.appendChild(menu);
+                dropdownMoved = true;
+            }
+            
+            if (menu.classList.contains('hidden')) {
+                // Show logic
+                menu.classList.remove('hidden');
+                
+                // Calculate position relative to viewport
+                const rect = trigger.getBoundingClientRect();
+                
+                // Apply Fixed positioning
+                menu.style.position = 'fixed';
+                menu.style.top = (rect.bottom + 5) + 'px'; 
+                menu.style.left = rect.left + 'px';
+                menu.style.width = rect.width + 'px';
+                
+            } else {
+                menu.classList.add('hidden');
+            }
+        }
+
+        // --- Certificate Date Logic ---
+        function toggleCertDateInput() {
+            const radios = document.getElementsByName('cert-date-type');
+            const dateInput = document.getElementById('cert-date-input');
+            let isStatic = false;
+            for (const radio of radios) {
+                if (radio.checked && radio.value === 'static') {
+                    isStatic = true;
+                    break;
+                }
+            }
+            if (isStatic) {
+                dateInput.disabled = false;
+                dateInput.classList.remove('bg-slate-100');
+                dateInput.classList.add('bg-white');
+                dateInput.focus();
+            } else {
+                dateInput.disabled = true;
+                dateInput.classList.add('bg-slate-100');
+                dateInput.classList.remove('bg-white');
+                dateInput.value = '';
+            }
+        }
+
+        // --- 3.2.1 Filter Dropdown Logic ---
+        function toggleFilterDropdown() {
+            const menu = document.getElementById('filter-tag-menu');
+            const arrow = document.getElementById('filter-arrow');
+            menu.classList.toggle('hidden');
+            arrow.classList.toggle('rotate-180');
+        }
+
+        // Close dropdowns on click outside
+        document.addEventListener('click', function(e) {
+            // Edit Modal Dropdown
+            const editTrigger = document.getElementById('edit-tag-trigger');
+            const editMenu = document.getElementById('edit-tag-menu');
+            
+            // Note: Since menu is in body, we check if click target is inside trigger OR inside menu
+            if (editTrigger && editMenu && !editTrigger.contains(e.target) && !editMenu.contains(e.target)) {
+                editMenu.classList.add('hidden');
+            }
+
+            // Filter Dropdown
+            const filterBtn = document.getElementById('filter-tag-btn');
+            const filterMenu = document.getElementById('filter-tag-menu');
+            if (filterBtn && filterMenu && !filterBtn.contains(e.target) && !filterMenu.contains(e.target)) {
+                filterMenu.classList.add('hidden');
+                document.getElementById('filter-arrow').classList.remove('rotate-180');
+            }
+        });
+
+        // Close fixed dropdown on scroll to avoid detachment
+        window.addEventListener('scroll', function() {
+             const editMenu = document.getElementById('edit-tag-menu');
+             if (editMenu && !editMenu.classList.contains('hidden')) {
+                 editMenu.classList.add('hidden');
+             }
+        }, true);
+    </script>
+</body>
+</html>

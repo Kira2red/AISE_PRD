@@ -1,0 +1,402 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>试卷管理 - AICA 后台管理系统</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+
+    <script>
+        tailwind.config = {
+            theme: {
+                extend: {
+                    fontFamily: {
+                        sans: ['Inter', 'sans-serif'],
+                        mono: ['JetBrains Mono', 'monospace'],
+                    },
+                    colors: {
+                        brand: { 50: '#eff6ff', 100: '#dbeafe', 500: '#3b82f6', 600: '#2563eb', 700: '#1d4ed8' },
+                    },
+                    boxShadow: {
+                        'paper': '0 4px 6px -1px rgba(0, 0, 0, 0.05), 0 2px 4px -1px rgba(0, 0, 0, 0.03)',
+                        'hover-action': '0 10px 15px -3px rgba(0, 0, 0, 0.1)',
+                    }
+                }
+            }
+        }
+    </script>
+    <style>
+        body { background-color: #F8FAFC; }
+        .hide-scroll::-webkit-scrollbar { display: none; }
+        
+        /* 侧边栏样式 */
+        .nav-item.active::before {
+            content: ''; position: absolute; left: 0; top: 50%; transform: translateY(-50%);
+            width: 4px; height: 24px; background-color: #3b82f6; border-radius: 0 4px 4px 0;
+        }
+
+        /* 试卷列表卡片装饰 */
+        .paper-spine {
+            background: radial-gradient(circle, #cbd5e1 2px, transparent 2.5px) left center / 10px 20px repeat-y;
+            border-right: 1px dashed #cbd5e1;
+        }
+
+        /* 题目悬浮操作栏动画 */
+        .question-item .action-bar { opacity: 0; transform: translateX(10px); transition: all 0.2s; }
+        .question-item:hover .action-bar { opacity: 1; transform: translateX(0); }
+        .question-item:hover { background-color: #f8fafc; }
+
+        /* 模态框动画 */
+        .modal-enter { animation: modalFadeIn 0.2s ease-out forwards; }
+        @keyframes modalFadeIn { from { opacity: 0; transform: scale(0.98); } to { opacity: 1; transform: scale(1); } }
+    </style>
+</head>
+<body class="flex h-screen overflow-hidden text-slate-800 font-sans">
+
+    <aside class="w-64 bg-white border-r border-slate-200 flex flex-col flex-shrink-0 z-20">
+        <div class="h-16 flex items-center px-6 border-b border-slate-100">
+            <div class="w-8 h-8 bg-gradient-to-br from-brand-600 to-indigo-600 rounded-lg flex items-center justify-center text-white font-bold text-lg mr-3 shadow-sm">A</div>
+            <span class="font-bold text-lg text-slate-800 tracking-tight">AICA Admin</span>
+        </div>
+        <nav class="flex-1 overflow-y-auto py-4 space-y-1">
+            <a href="#" class="nav-item flex items-center gap-3 px-6 py-3 text-slate-500 hover:bg-slate-50 hover:text-brand-600 transition relative">
+                <i class="fa-solid fa-layer-group w-5 text-center"></i><span class="font-medium text-sm">题库管理</span>
+            </a>
+            <a href="#" class="nav-item active flex items-center gap-3 px-6 py-3 text-brand-600 bg-brand-50 transition relative">
+                <i class="fa-solid fa-file-lines w-5 text-center"></i><span class="font-medium text-sm">试卷管理</span>
+            </a>
+            </nav>
+    </aside>
+
+    <main class="flex-1 flex flex-col min-w-0 bg-slate-50/50 relative">
+
+        <div id="view-list" class="flex flex-col h-full">
+            <header class="h-16 bg-white border-b border-slate-200 flex items-center justify-between px-8 flex-shrink-0">
+                <h1 class="text-xl font-bold text-slate-800">试卷管理</h1>
+                <button onclick="switchView('detail')" class="bg-brand-600 hover:bg-brand-700 text-white text-sm font-medium px-5 py-2.5 rounded-lg shadow-sm transition flex items-center gap-2">
+                    <i class="fa-solid fa-plus"></i> 创建新试卷
+                </button>
+            </header>
+
+            <div class="p-8">
+                <div class="bg-white rounded-xl shadow-sm border border-slate-100 p-4 mb-6 flex gap-4">
+                    <div class="relative w-64">
+                        <i class="fa-solid fa-magnifying-glass absolute left-3 top-1/2 transform -translate-y-1/2 text-slate-400 text-sm"></i>
+                        <input type="text" placeholder="搜索试卷名称..." class="w-full pl-9 pr-4 py-2 rounded-lg border border-slate-200 text-sm focus:border-brand-500 outline-none">
+                    </div>
+                    <select class="px-3 py-2 rounded-lg border border-slate-200 text-sm text-slate-600 bg-white outline-none">
+                        <option>全部科目</option>
+                        <option>Python 一级</option>
+                    </select>
+                </div>
+
+                <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6">
+                    
+                    <div class="group bg-white rounded-xl border border-slate-200 shadow-paper hover:shadow-md hover:border-brand-300 transition-all cursor-pointer relative overflow-hidden flex flex-col h-64" onclick="switchView('detail')">
+                        <div class="absolute top-0 left-0 bottom-0 w-8 paper-spine bg-slate-50"></div>
+                        <div class="p-5 pl-12 flex flex-col h-full">
+                            <div class="flex justify-between items-start mb-3">
+                                <span class="bg-blue-50 text-brand-600 text-[10px] font-bold px-2 py-0.5 rounded border border-blue-100">正式卷</span>
+                                <div class="opacity-0 group-hover:opacity-100 transition">
+                                    <i class="fa-solid fa-ellipsis text-slate-400"></i>
+                                </div>
+                            </div>
+                            <h3 class="font-bold text-slate-800 text-lg leading-snug mb-2 group-hover:text-brand-600 transition">2025春季 Python 一级等级测评试卷A</h3>
+                            <p class="text-xs text-slate-400 mb-4">创建于 2025-05-20</p>
+                            
+                            <div class="mt-auto grid grid-cols-3 gap-2 border-t border-slate-100 pt-4">
+                                <div class="text-center">
+                                    <p class="text-[10px] text-slate-400 uppercase">总分</p>
+                                    <p class="text-sm font-bold text-slate-700">100</p>
+                                </div>
+                                <div class="text-center border-l border-slate-100">
+                                    <p class="text-[10px] text-slate-400 uppercase">时长</p>
+                                    <p class="text-sm font-bold text-slate-700">60m</p>
+                                </div>
+                                <div class="text-center border-l border-slate-100">
+                                    <p class="text-[10px] text-slate-400 uppercase">题数</p>
+                                    <p class="text-sm font-bold text-slate-700">35</p>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="group bg-white rounded-xl border border-slate-200 shadow-paper hover:shadow-md hover:border-brand-300 transition-all cursor-pointer relative overflow-hidden flex flex-col h-64" onclick="switchView('detail')">
+                        <div class="absolute top-0 left-0 bottom-0 w-8 paper-spine bg-slate-50"></div>
+                        <div class="p-5 pl-12 flex flex-col h-full">
+                            <div class="flex justify-between items-start mb-3">
+                                <span class="bg-purple-50 text-purple-600 text-[10px] font-bold px-2 py-0.5 rounded border border-purple-100">模拟卷</span>
+                            </div>
+                            <h3 class="font-bold text-slate-800 text-lg leading-snug mb-2 group-hover:text-brand-600 transition">AIGC 应用能力二级模拟练习卷</h3>
+                            <p class="text-xs text-slate-400 mb-4">创建于 2025-05-18</p>
+                            
+                            <div class="mt-auto grid grid-cols-3 gap-2 border-t border-slate-100 pt-4">
+                                <div class="text-center">
+                                    <p class="text-slate-400 text-[10px]">总分</p>
+                                    <p class="font-bold text-slate-700 text-sm">100</p>
+                                </div>
+                                <div class="text-center border-l border-slate-100">
+                                    <p class="text-slate-400 text-[10px]">时长</p>
+                                    <p class="font-bold text-slate-700 text-sm">90m</p>
+                                </div>
+                                <div class="text-center border-l border-slate-100">
+                                    <p class="text-slate-400 text-[10px]">题数</p>
+                                    <p class="font-bold text-slate-700 text-sm">40</p>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                </div>
+            </div>
+        </div>
+
+        <div id="view-detail" class="hidden flex flex-col h-full bg-slate-100">
+            <header class="h-16 bg-white border-b border-slate-200 flex items-center justify-between px-6 flex-shrink-0 z-30 shadow-sm">
+                <div class="flex items-center gap-4">
+                    <button onclick="switchView('list')" class="text-slate-500 hover:text-slate-800"><i class="fa-solid fa-arrow-left"></i></button>
+                    <div class="h-6 w-px bg-slate-200"></div>
+                    <input type="text" value="2025春季 Python 一级等级测评试卷A" class="font-bold text-slate-800 text-lg bg-transparent border-none outline-none focus:ring-0 w-96 hover:bg-slate-50 rounded px-2 transition">
+                </div>
+                <div class="flex items-center gap-4">
+                    <div class="flex items-center gap-6 text-sm mr-4 bg-slate-50 px-4 py-1.5 rounded-lg border border-slate-100">
+                        <div class="flex items-center gap-2">
+                            <span class="text-slate-500">总分:</span>
+                            <span class="font-bold text-brand-600 text-lg">100</span>
+                        </div>
+                        <div class="w-px h-4 bg-slate-200"></div>
+                        <div class="flex items-center gap-2">
+                            <span class="text-slate-500">题数:</span>
+                            <span class="font-bold text-slate-800">35</span>
+                        </div>
+                        <div class="w-px h-4 bg-slate-200"></div>
+                        <div class="flex items-center gap-2">
+                            <span class="text-slate-500">建议时长:</span>
+                            <input type="number" value="60" class="w-12 bg-white border border-slate-200 rounded px-1 py-0.5 text-center font-bold text-slate-800 focus:border-brand-500 outline-none">
+                            <span class="text-slate-500">分钟</span>
+                        </div>
+                    </div>
+                    <button class="bg-brand-600 hover:bg-brand-700 text-white text-sm font-medium px-6 py-2 rounded-lg shadow-sm transition">保存试卷</button>
+                </div>
+            </header>
+
+            <div class="flex-1 overflow-y-auto p-8 flex justify-center custom-scroll">
+                <div class="w-full max-w-4xl bg-white shadow-paper min-h-[800px] p-10 relative">
+                    
+                    <div class="text-center border-b-2 border-slate-800 pb-6 mb-8">
+                        <h2 class="text-2xl font-bold text-slate-900 mb-2">2025春季 AICA 人工智能应用创新人才培养工程</h2>
+                        <h3 class="text-xl font-bold text-slate-800">Python 程序设计（一级）</h3>
+                    </div>
+
+                    <div class="mb-8">
+                        <div class="flex items-center justify-between mb-4 bg-slate-50 p-3 rounded-lg border border-slate-100 group cursor-move">
+                            <h4 class="font-bold text-slate-800">一、单项选择题（共 20 题，每题 2 分，共 40 分）</h4>
+                            <div class="text-slate-400 opacity-0 group-hover:opacity-100 transition cursor-grab">
+                                <i class="fa-solid fa-grip-vertical"></i>
+                            </div>
+                        </div>
+
+                        <div class="question-item relative p-4 rounded-xl border border-transparent transition-all mb-2 group">
+                            <div class="flex gap-4">
+                                <span class="font-bold text-slate-500 pt-0.5">1.</span>
+                                <div class="flex-1">
+                                    <p class="text-sm text-slate-800 mb-3 font-medium">在 Python 中，以下哪个关键字用于定义函数？</p>
+                                    <div class="grid grid-cols-4 gap-4 text-xs text-slate-600">
+                                        <div>A. function</div>
+                                        <div>B. def <i class="fa-solid fa-check text-green-500 ml-1"></i></div>
+                                        <div>C. define</div>
+                                        <div>D. func</div>
+                                    </div>
+                                </div>
+                                <div class="text-right">
+                                    <span class="bg-slate-100 text-slate-500 text-xs font-bold px-2 py-1 rounded">2 分</span>
+                                </div>
+                            </div>
+                            
+                            <div class="action-bar absolute top-0 right-0 bottom-0 flex items-center gap-2 pr-4 bg-gradient-to-l from-white via-white to-transparent pl-8">
+                                <button onclick="openScoreModal('single', 2)" class="w-8 h-8 rounded-full bg-blue-50 text-brand-600 hover:bg-brand-600 hover:text-white transition flex items-center justify-center shadow-sm" title="设置分值">
+                                    <i class="fa-solid fa-pen"></i>
+                                </button>
+                                <button class="w-8 h-8 rounded-full bg-slate-50 text-slate-500 hover:bg-slate-200 transition flex items-center justify-center shadow-sm" title="上移">
+                                    <i class="fa-solid fa-arrow-up"></i>
+                                </button>
+                                <button class="w-8 h-8 rounded-full bg-slate-50 text-slate-500 hover:bg-slate-200 transition flex items-center justify-center shadow-sm" title="下移">
+                                    <i class="fa-solid fa-arrow-down"></i>
+                                </button>
+                                <button class="w-8 h-8 rounded-full bg-red-50 text-red-500 hover:bg-red-500 hover:text-white transition flex items-center justify-center shadow-sm" title="移除">
+                                    <i class="fa-solid fa-trash-can"></i>
+                                </button>
+                            </div>
+                        </div>
+
+                        <div class="question-item relative p-4 rounded-xl border border-transparent transition-all mb-2 group">
+                            <div class="flex gap-4">
+                                <span class="font-bold text-slate-500 pt-0.5">2.</span>
+                                <div class="flex-1">
+                                    <p class="text-sm text-slate-800 mb-3 font-medium">【多选】下列属于人工智能应用的是：</p>
+                                    <div class="grid grid-cols-2 gap-2 text-xs text-slate-600">
+                                        <div>A. 人脸识别 <i class="fa-solid fa-check text-green-500 ml-1"></i></div>
+                                        <div>B. 自动驾驶 <i class="fa-solid fa-check text-green-500 ml-1"></i></div>
+                                        <div>C. 机器翻译 <i class="fa-solid fa-check text-green-500 ml-1"></i></div>
+                                        <div>D. 手工算账</div>
+                                    </div>
+                                </div>
+                                <div class="text-right flex flex-col items-end gap-1">
+                                    <span class="bg-slate-100 text-slate-500 text-xs font-bold px-2 py-1 rounded">5 分</span>
+                                    <span class="text-[10px] text-brand-600 bg-brand-50 px-1.5 py-0.5 rounded border border-brand-100">漏选得一半</span>
+                                </div>
+                            </div>
+                            
+                            <div class="action-bar absolute top-0 right-0 bottom-0 flex items-center gap-2 pr-4 bg-gradient-to-l from-white via-white to-transparent pl-8">
+                                <button onclick="openScoreModal('multi', 5, 'partial')" class="w-8 h-8 rounded-full bg-blue-50 text-brand-600 hover:bg-brand-600 hover:text-white transition flex items-center justify-center shadow-sm">
+                                    <i class="fa-solid fa-pen"></i>
+                                </button>
+                                <button class="w-8 h-8 rounded-full bg-slate-50 text-slate-500 hover:bg-slate-200 transition flex items-center justify-center shadow-sm">
+                                    <i class="fa-solid fa-arrow-up"></i>
+                                </button>
+                                <button class="w-8 h-8 rounded-full bg-slate-50 text-slate-500 hover:bg-slate-200 transition flex items-center justify-center shadow-sm">
+                                    <i class="fa-solid fa-arrow-down"></i>
+                                </button>
+                                <button class="w-8 h-8 rounded-full bg-red-50 text-red-500 hover:bg-red-500 hover:text-white transition flex items-center justify-center shadow-sm">
+                                    <i class="fa-solid fa-trash-can"></i>
+                                </button>
+                            </div>
+                        </div>
+                    </div>
+
+                    <button class="w-full py-4 border-2 border-dashed border-slate-200 rounded-xl text-slate-400 font-bold hover:border-brand-500 hover:text-brand-600 hover:bg-brand-50 transition flex items-center justify-center gap-2">
+                        <i class="fa-solid fa-plus"></i> 添加题目到试卷
+                    </button>
+
+                </div>
+            </div>
+        </div>
+
+    </main>
+
+    <div id="modal-score" class="fixed inset-0 z-50 hidden flex items-center justify-center bg-slate-900/50 backdrop-blur-sm transition-opacity opacity-0">
+        <div class="bg-white rounded-2xl shadow-xl w-96 p-6 transform scale-95 transition-transform" id="modal-content">
+            <div class="flex justify-between items-center mb-6">
+                <h3 class="font-bold text-slate-800 text-lg">设置分值</h3>
+                <button onclick="closeScoreModal()" class="text-slate-400 hover:text-slate-600"><i class="fa-solid fa-xmark"></i></button>
+            </div>
+            
+            <div class="space-y-6">
+                <div>
+                    <label class="block text-xs font-bold text-slate-500 uppercase mb-2">每题分值</label>
+                    <div class="relative">
+                        <input type="number" id="score-input" class="w-full pl-4 pr-10 py-2.5 rounded-lg border border-slate-200 focus:border-brand-500 focus:ring-1 focus:ring-brand-500 outline-none transition font-bold text-slate-800" value="2">
+                        <span class="absolute right-4 top-1/2 transform -translate-y-1/2 text-slate-400 text-sm">分</span>
+                    </div>
+                </div>
+
+                <div id="multi-choice-options" class="hidden">
+                    <label class="block text-xs font-bold text-slate-500 uppercase mb-3">多选判分规则</label>
+                    
+                    <div class="space-y-3">
+                        <label class="flex items-start gap-3 p-3 rounded-lg border border-slate-200 hover:border-brand-300 cursor-pointer transition bg-white" onclick="togglePartialScore(false)">
+                            <input type="radio" name="score-rule" value="exact" class="mt-1 w-4 h-4 text-brand-600 focus:ring-brand-500 border-slate-300">
+                            <div>
+                                <span class="block text-sm font-bold text-slate-700">完全匹配</span>
+                                <span class="block text-xs text-slate-400 mt-0.5">少选、错选均不得分</span>
+                            </div>
+                        </label>
+
+                        <label class="flex items-start gap-3 p-3 rounded-lg border border-brand-200 bg-brand-50 cursor-pointer transition" onclick="togglePartialScore(true)">
+                            <input type="radio" name="score-rule" value="partial" checked class="mt-1 w-4 h-4 text-brand-600 focus:ring-brand-500 border-slate-300">
+                            <div class="flex-1">
+                                <span class="block text-sm font-bold text-slate-700">部分匹配</span>
+                                <span class="block text-xs text-slate-500 mt-0.5">错选不得分，漏选得部分分</span>
+                                
+                                <div class="mt-3 pl-1 border-l-2 border-brand-200" id="partial-settings">
+                                    <label class="text-xs font-medium text-brand-700 mb-1 block">漏选得分比例</label>
+                                    <div class="flex items-center gap-2">
+                                        <input type="number" value="50" class="w-16 px-2 py-1 rounded border border-brand-200 text-sm text-center font-bold text-brand-700 focus:ring-brand-500 outline-none">
+                                        <span class="text-xs text-brand-600">%</span>
+                                    </div>
+                                </div>
+                            </div>
+                        </label>
+                    </div>
+                </div>
+            </div>
+
+            <div class="mt-8 pt-4 border-t border-slate-100 flex justify-end gap-3">
+                <button onclick="closeScoreModal()" class="px-4 py-2 text-sm text-slate-600 hover:bg-slate-50 rounded-lg transition">取消</button>
+                <button onclick="closeScoreModal()" class="px-6 py-2 bg-brand-600 text-white text-sm font-bold rounded-lg hover:bg-brand-700 transition shadow-sm">确定</button>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // 视图切换
+        function switchView(viewName) {
+            const list = document.getElementById('view-list');
+            const detail = document.getElementById('view-detail');
+            
+            if (viewName === 'detail') {
+                list.classList.add('hidden');
+                detail.classList.remove('hidden');
+            } else {
+                detail.classList.add('hidden');
+                list.classList.remove('hidden');
+            }
+        }
+
+        // 弹窗逻辑
+        const modal = document.getElementById('modal-score');
+        const modalContent = document.getElementById('modal-content');
+        const multiOptions = document.getElementById('multi-choice-options');
+        const partialSettings = document.getElementById('partial-settings');
+
+        function openScoreModal(type, score, rule = 'exact') {
+            document.getElementById('score-input').value = score;
+            
+            // 根据题型显示/隐藏多选规则
+            if (type === 'multi') {
+                multiOptions.classList.remove('hidden');
+                // 模拟选中状态
+                if(rule === 'partial') {
+                    togglePartialScore(true); // 激活部分匹配UI
+                } else {
+                    togglePartialScore(false);
+                }
+            } else {
+                multiOptions.classList.add('hidden');
+            }
+
+            modal.classList.remove('hidden');
+            // 简单进场动画
+            setTimeout(() => {
+                modal.classList.remove('opacity-0');
+                modalContent.classList.add('modal-enter');
+            }, 10);
+        }
+
+        function closeScoreModal() {
+            modal.classList.add('opacity-0');
+            setTimeout(() => {
+                modal.classList.add('hidden');
+                modalContent.classList.remove('modal-enter');
+            }, 200);
+        }
+
+        // 切换部分得分的UI显示
+        function togglePartialScore(enable) {
+            const radios = document.getElementsByName('score-rule');
+            if(enable) {
+                radios[1].checked = true;
+                partialSettings.style.opacity = '1';
+                partialSettings.style.pointerEvents = 'auto';
+            } else {
+                radios[0].checked = true;
+                partialSettings.style.opacity = '0.5';
+                partialSettings.style.pointerEvents = 'none';
+            }
+        }
+    </script>
+</body>
+</html>

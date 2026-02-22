@@ -1,0 +1,158 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>选择考生身份 - AICA</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+
+    <script>
+        tailwind.config = {
+            theme: {
+                extend: {
+                    fontFamily: {
+                        sans: ['Inter', 'sans-serif'],
+                    },
+                    colors: {
+                        brand: {
+                            50: '#eff6ff',
+                            100: '#dbeafe',
+                            500: '#3b82f6',
+                            600: '#2563eb',
+                            700: '#1d4ed8',
+                        },
+                        dark: {
+                            900: '#0f172a',
+                        }
+                    },
+                    boxShadow: {
+                        'card': '0 25px 50px -12px rgba(0, 0, 0, 0.25)',
+                        'glow': '0 0 20px -5px rgba(59, 130, 246, 0.3)',
+                    }
+                }
+            }
+        }
+    </script>
+    <style>
+        /* 复用登录页背景 */
+        .hero-bg {
+            background-color: #0f172a;
+            background-image: radial-gradient(at 0% 0%, hsla(253,16%,7%,1) 0, transparent 50%), radial-gradient(at 50% 0%, hsla(225,39%,30%,1) 0, transparent 50%), radial-gradient(at 100% 0%, hsla(339,49%,30%,1) 0, transparent 50%);
+            min-height: 100vh;
+        }
+        .grid-pattern {
+            background-image: radial-gradient(rgba(255,255,255,0.1) 1px, transparent 1px);
+            background-size: 30px 30px;
+            opacity: 0.2;
+        }
+        
+        /* 入场动画 */
+        .fade-in-up { animation: fadeInUp 0.5s ease-out forwards; opacity: 0; transform: translateY(20px); }
+        @keyframes fadeInUp { to { opacity: 1; transform: translateY(0); } }
+
+        /* 卡片悬浮特效 */
+        .profile-card { transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1); }
+        .profile-card:hover { transform: translateY(-4px); border-color: #3b82f6; box-shadow: 0 10px 30px -5px rgba(59, 130, 246, 0.15); }
+        .profile-card:hover .check-icon { opacity: 1; transform: scale(1); }
+    </style>
+</head>
+<body class="hero-bg flex items-center justify-center p-4">
+    <div class="absolute inset-0 grid-pattern pointer-events-none"></div>
+
+    <div class="bg-white w-full max-w-2xl rounded-3xl shadow-card relative z-10 overflow-hidden fade-in-up">
+        
+        <div class="px-8 py-8 border-b border-slate-100 bg-slate-50/50 text-center">
+            <div class="inline-flex items-center justify-center w-12 h-12 rounded-xl bg-brand-50 text-brand-600 mb-4 shadow-sm">
+                <i class="fa-solid fa-users text-xl"></i>
+            </div>
+            <h1 class="text-2xl font-bold text-slate-900">请选择考生身份</h1>
+            <p class="text-slate-500 text-sm mt-2">
+                检测到家长账号 <span class="font-mono font-medium text-slate-700">138****8888</span> 关联了多名考生
+            </p>
+        </div>
+
+        <div class="p-8 sm:p-10 bg-white">
+            <div class="grid grid-cols-1 sm:grid-cols-2 gap-5">
+                
+                <div onclick="selectStudent('ZhangSan')" class="profile-card group relative cursor-pointer border-2 border-slate-100 rounded-2xl p-5 flex items-center gap-4 bg-white hover:bg-brand-50/30">
+                    <div class="relative">
+                        <div class="w-14 h-14 rounded-full bg-gradient-to-tr from-blue-500 to-purple-600 text-white flex items-center justify-center text-xl font-bold shadow-md">
+                            张
+                        </div>
+                        <div class="absolute -bottom-1 -right-1 bg-green-500 border-2 border-white w-5 h-5 rounded-full flex items-center justify-center text-[10px] text-white" title="已通过公安实名校验">
+                            <i class="fa-solid fa-check"></i>
+                        </div>
+                    </div>
+                    
+                    <div class="flex-1 min-w-0">
+                        <h3 class="font-bold text-slate-900 text-lg truncate">张三</h3>
+                        <p class="text-xs text-slate-400 font-mono mt-0.5">ID: 2025001</p>
+                        <div class="mt-1.5 inline-flex items-center gap-1.5 px-2 py-0.5 rounded text-[10px] font-medium bg-slate-100 text-slate-500 group-hover:bg-brand-100 group-hover:text-brand-600 transition-colors">
+                            <span class="w-1.5 h-1.5 rounded-full bg-slate-400 group-hover:bg-brand-500"></span>
+                            最近登录
+                        </div>
+                    </div>
+
+                    <div class="check-icon absolute top-1/2 right-4 -translate-y-1/2 w-8 h-8 bg-brand-500 rounded-full flex items-center justify-center text-white opacity-0 transform scale-75 transition-all duration-300 shadow-glow">
+                        <i class="fa-solid fa-arrow-right"></i>
+                    </div>
+                </div>
+
+                <div onclick="selectStudent('LiSi')" class="profile-card group relative cursor-pointer border-2 border-slate-100 rounded-2xl p-5 flex items-center gap-4 bg-white hover:bg-brand-50/30">
+                    <div class="relative">
+                        <div class="w-14 h-14 rounded-full bg-purple-100 text-purple-600 flex items-center justify-center text-xl font-bold border border-purple-200">
+                            李
+                        </div>
+                    </div>
+                    
+                    <div class="flex-1 min-w-0">
+                        <h3 class="font-bold text-slate-900 text-lg truncate">李四</h3>
+                        <p class="text-xs text-slate-400 font-mono mt-0.5">ID: 2025002</p>
+                        <div class="mt-1.5 inline-flex items-center gap-1.5 px-2 py-0.5 rounded text-[10px] font-medium bg-slate-50 text-slate-400">
+                            未报考
+                        </div>
+                    </div>
+
+                    <div class="check-icon absolute top-1/2 right-4 -translate-y-1/2 w-8 h-8 bg-brand-500 rounded-full flex items-center justify-center text-white opacity-0 transform scale-75 transition-all duration-300 shadow-glow">
+                        <i class="fa-solid fa-arrow-right"></i>
+                    </div>
+                </div>
+
+            </div>
+
+            <div class="mt-8 flex flex-col sm:flex-row items-center justify-between gap-4 pt-6 border-t border-slate-100">
+                <button class="text-sm text-slate-500 hover:text-slate-800 transition flex items-center gap-2 group">
+                    <div class="w-8 h-8 rounded-full border border-dashed border-slate-300 flex items-center justify-center text-slate-400 group-hover:border-slate-500 group-hover:text-slate-600">
+                        <i class="fa-solid fa-plus text-xs"></i>
+                    </div>
+                    关联新考生
+                </button>
+
+                <button onclick="window.location.href='登录、注册、忘记密码.html'" class="text-sm text-slate-400 hover:text-red-500 transition">
+                    退出当前账号
+                </button>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        function selectStudent(studentName) {
+            // 模拟选中逻辑
+            // 存入本地存储，用于首页显示名字
+            localStorage.setItem('currentStudent', studentName === 'ZhangSan' ? '张三' : '李四');
+            
+            // 加载反馈
+            const cards = document.querySelectorAll('.profile-card');
+            cards.forEach(c => c.classList.add('opacity-50', 'pointer-events-none'));
+            
+            setTimeout(() => {
+                // 跳转到登录后的首页
+                // 请确保这里的 '首页 - 登录态 - 2.html' 是你实际的首页文件名
+                window.location.href = '首页 - 登录态 - 2.html'; 
+            }, 300);
+        }
+    </script>
+</body>
+</html>

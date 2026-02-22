@@ -1,0 +1,289 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>录入题目 - AICA 后台管理系统</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+
+    <script>
+        tailwind.config = {
+            theme: {
+                extend: {
+                    fontFamily: {
+                        sans: ['Inter', 'sans-serif'],
+                        mono: ['JetBrains Mono', 'monospace'],
+                    },
+                    colors: {
+                        brand: {
+                            50: '#eff6ff',
+                            100: '#dbeafe',
+                            500: '#3b82f6',
+                            600: '#2563eb',
+                            700: '#1d4ed8',
+                        },
+                    },
+                    boxShadow: {
+                        'card': '0 1px 3px 0 rgba(0, 0, 0, 0.1), 0 1px 2px 0 rgba(0, 0, 0, 0.06)',
+                    }
+                }
+            }
+        }
+    </script>
+    <style>
+        body { background-color: #F8FAFC; }
+        .hide-scroll::-webkit-scrollbar { display: none; }
+        
+        .nav-item.active::before {
+            content: '';
+            position: absolute;
+            left: 0;
+            top: 50%;
+            transform: translateY(-50%);
+            width: 4px;
+            height: 24px;
+            background-color: #3b82f6;
+            border-radius: 0 4px 4px 0;
+        }
+
+        /* 模拟富文本编辑器样式 */
+        .editor-toolbar button {
+            padding: 6px;
+            border-radius: 4px;
+            color: #64748b;
+            transition: all 0.2s;
+        }
+        .editor-toolbar button:hover {
+            background-color: #f1f5f9;
+            color: #3b82f6;
+        }
+        .editor-content {
+            min-height: 150px;
+            outline: none;
+        }
+        .editor-content:empty:before {
+            content: attr(placeholder);
+            color: #94a3b8;
+        }
+
+        /* 选项卡片交互 */
+        .option-row:hover .drag-handle { opacity: 1; }
+        .drag-handle { opacity: 0; transition: opacity 0.2s; cursor: grab; }
+    </style>
+</head>
+<body class="flex h-screen overflow-hidden text-slate-800 font-sans">
+
+    <aside class="w-64 bg-white border-r border-slate-200 flex flex-col flex-shrink-0 z-20">
+        <div class="h-16 flex items-center px-6 border-b border-slate-100">
+            <div class="w-8 h-8 bg-gradient-to-br from-brand-600 to-indigo-600 rounded-lg flex items-center justify-center text-white font-bold text-lg mr-3 shadow-sm">A</div>
+            <span class="font-bold text-lg text-slate-800 tracking-tight">AICA Admin</span>
+        </div>
+
+        <nav class="flex-1 overflow-y-auto py-4 space-y-1">
+            <a href="#" class="nav-item flex items-center gap-3 px-6 py-3 text-slate-500 hover:bg-slate-50 hover:text-brand-600 transition relative">
+                <i class="fa-solid fa-chart-pie w-5 text-center"></i>
+                <span class="font-medium text-sm">工作台</span>
+            </a>
+            <div class="px-6 py-2 mt-4 text-xs font-bold text-slate-400 uppercase tracking-wider">教务管理</div>
+            <a href="admin-question-list.html" class="nav-item active flex items-center gap-3 px-6 py-3 text-brand-600 bg-brand-50 transition relative">
+                <i class="fa-solid fa-layer-group w-5 text-center"></i>
+                <span class="font-medium text-sm">题库管理</span>
+            </a>
+            </nav>
+        
+        <div class="p-4 border-t border-slate-100">
+            <div class="flex items-center gap-3 p-2 rounded-lg hover:bg-slate-50 cursor-pointer transition">
+                <div class="w-9 h-9 rounded-full bg-slate-200 flex items-center justify-center font-bold text-slate-500">A</div>
+                <div class="flex-1 min-w-0">
+                    <p class="text-sm font-bold text-slate-700 truncate">系统管理员</p>
+                </div>
+            </div>
+        </div>
+    </aside>
+
+    <main class="flex-1 flex flex-col min-w-0 bg-slate-50/50">
+        
+        <header class="h-16 bg-white border-b border-slate-200 flex items-center justify-between px-8 flex-shrink-0 z-10">
+            <div class="flex items-center gap-4">
+                <button onclick="window.history.back()" class="w-8 h-8 rounded-full hover:bg-slate-100 flex items-center justify-center text-slate-500 transition">
+                    <i class="fa-solid fa-arrow-left"></i>
+                </button>
+                <h1 class="text-xl font-bold text-slate-800">录入题目</h1>
+            </div>
+            <div class="flex items-center gap-3">
+                <button class="text-slate-500 text-sm hover:text-brand-600 font-medium px-3 py-2">取消</button>
+                <button class="bg-brand-600 hover:bg-brand-700 text-white text-sm font-medium px-6 py-2 rounded-lg shadow-sm transition flex items-center gap-2">
+                    <i class="fa-regular fa-floppy-disk"></i> 保存题目
+                </button>
+            </div>
+        </header>
+
+        <div class="flex-1 overflow-y-auto p-8 pb-32">
+            <div class="max-w-4xl mx-auto space-y-6">
+
+                <div class="bg-white rounded-xl shadow-card border border-slate-100 p-6">
+                    <h2 class="text-sm font-bold text-slate-900 border-l-4 border-brand-500 pl-3 mb-6">基础属性</h2>
+                    
+                    <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+                        <div>
+                            <label class="block text-xs font-bold text-slate-500 uppercase mb-2">题目类型</label>
+                            <div class="relative">
+                                <select class="w-full appearance-none px-4 py-2.5 rounded-lg border border-slate-200 bg-white text-sm focus:border-brand-500 focus:ring-1 focus:ring-brand-500 outline-none transition" id="question-type-select">
+                                    <option value="single">单项选择题</option>
+                                    <option value="multi">多项选择题</option>
+                                    <option value="judge">判断题</option>
+                                    <option value="code">实操编程题</option>
+                                </select>
+                                <i class="fa-solid fa-chevron-down absolute right-4 top-1/2 transform -translate-y-1/2 text-slate-400 pointer-events-none"></i>
+                            </div>
+                        </div>
+
+                        <div>
+                            <label class="block text-xs font-bold text-slate-500 uppercase mb-2">难度等级</label>
+                            <div class="flex gap-4 items-center h-[42px]">
+                                <label class="flex items-center gap-2 cursor-pointer">
+                                    <input type="radio" name="difficulty" class="text-brand-600 focus:ring-brand-500" checked>
+                                    <span class="text-sm text-slate-700">简单</span>
+                                </label>
+                                <label class="flex items-center gap-2 cursor-pointer">
+                                    <input type="radio" name="difficulty" class="text-brand-600 focus:ring-brand-500">
+                                    <span class="text-sm text-slate-700">中等</span>
+                                </label>
+                                <label class="flex items-center gap-2 cursor-pointer">
+                                    <input type="radio" name="difficulty" class="text-brand-600 focus:ring-brand-500">
+                                    <span class="text-sm text-slate-700">困难</span>
+                                </label>
+                            </div>
+                        </div>
+
+                        <div class="md:col-span-2">
+                            <label class="block text-xs font-bold text-slate-500 uppercase mb-2">知识点标签</label>
+                            <div class="flex flex-wrap items-center gap-2 px-3 py-2 rounded-lg border border-slate-200 bg-white focus-within:border-brand-500 focus-within:ring-1 focus-within:ring-brand-500 transition min-h-[44px]">
+                                <span class="bg-blue-50 text-brand-600 text-xs font-medium px-2 py-1 rounded flex items-center gap-1">
+                                    Python基础 <i class="fa-solid fa-xmark cursor-pointer hover:text-brand-800"></i>
+                                </span>
+                                <span class="bg-blue-50 text-brand-600 text-xs font-medium px-2 py-1 rounded flex items-center gap-1">
+                                    循环结构 <i class="fa-solid fa-xmark cursor-pointer hover:text-brand-800"></i>
+                                </span>
+                                <input type="text" placeholder="输入标签按回车添加..." class="flex-1 outline-none text-sm bg-transparent min-w-[120px]">
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="bg-white rounded-xl shadow-card border border-slate-100 p-6">
+                    <h2 class="text-sm font-bold text-slate-900 border-l-4 border-brand-500 pl-3 mb-4">题干内容</h2>
+                    
+                    <div class="border border-slate-200 rounded-lg overflow-hidden focus-within:border-brand-500 focus-within:ring-1 focus-within:ring-brand-500 transition">
+                        <div class="bg-slate-50 border-b border-slate-200 px-3 py-2 flex items-center gap-1 editor-toolbar">
+                            <button title="加粗"><i class="fa-solid fa-bold"></i></button>
+                            <button title="斜体"><i class="fa-solid fa-italic"></i></button>
+                            <div class="w-px h-4 bg-slate-300 mx-2"></div>
+                            <button title="插入代码块"><i class="fa-solid fa-code"></i></button>
+                            <button title="插入图片"><i class="fa-regular fa-image"></i></button>
+                            <button title="公式"><i class="fa-solid fa-square-root-variable"></i></button>
+                            <div class="flex-1"></div>
+                            <button title="全屏"><i class="fa-solid fa-expand"></i></button>
+                        </div>
+                        <div class="editor-content p-4 text-sm text-slate-700" contenteditable="true" placeholder="在此输入题目描述，支持 Markdown 语法...">
+                            <p>请阅读以下 Python 代码，选出输出结果正确的一项：</p>
+                            <pre class="bg-slate-800 text-slate-200 p-3 rounded mt-2 font-mono text-xs">print("Hello" + " " + "World")</pre>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="bg-white rounded-xl shadow-card border border-slate-100 p-6">
+                    <div class="flex justify-between items-center mb-6">
+                        <h2 class="text-sm font-bold text-slate-900 border-l-4 border-brand-500 pl-3">选项设置</h2>
+                        <span class="text-xs text-slate-400"><i class="fa-solid fa-circle-info mr-1"></i>勾选左侧圆圈设置为正确答案</span>
+                    </div>
+
+                    <div class="space-y-3" id="options-container">
+                        <div class="option-row flex items-center gap-3">
+                            <i class="fa-solid fa-grip-vertical text-slate-300 drag-handle"></i>
+                            <div class="flex items-center gap-2">
+                                <input type="radio" name="correct-answer" class="w-5 h-5 text-brand-600 focus:ring-brand-500 border-slate-300 cursor-pointer">
+                                <span class="text-sm font-bold text-slate-500 w-4 text-center">A</span>
+                            </div>
+                            <div class="flex-1 relative">
+                                <input type="text" class="w-full pl-3 pr-10 py-2.5 rounded-lg border border-slate-200 text-sm focus:border-brand-500 focus:ring-1 focus:ring-brand-500 outline-none transition" value="Hello World">
+                                <div class="absolute right-2 top-1/2 transform -translate-y-1/2 flex gap-1">
+                                    <button class="text-slate-400 hover:text-slate-600 p-1"><i class="fa-regular fa-image"></i></button>
+                                </div>
+                            </div>
+                            <button class="text-slate-400 hover:text-red-500 p-2 transition"><i class="fa-regular fa-trash-can"></i></button>
+                        </div>
+
+                        <div class="option-row flex items-center gap-3">
+                            <i class="fa-solid fa-grip-vertical text-slate-300 drag-handle"></i>
+                            <div class="flex items-center gap-2">
+                                <input type="radio" name="correct-answer" checked class="w-5 h-5 text-brand-600 focus:ring-brand-500 border-slate-300 cursor-pointer">
+                                <span class="text-sm font-bold text-brand-600 w-4 text-center">B</span>
+                            </div>
+                            <div class="flex-1 relative">
+                                <input type="text" class="w-full pl-3 pr-10 py-2.5 rounded-lg border border-brand-500 ring-1 ring-brand-500 text-sm outline-none transition font-medium" value="Hello World">
+                            </div>
+                            <button class="text-slate-400 hover:text-red-500 p-2 transition"><i class="fa-regular fa-trash-can"></i></button>
+                        </div>
+
+                        <div class="option-row flex items-center gap-3">
+                            <i class="fa-solid fa-grip-vertical text-slate-300 drag-handle"></i>
+                            <div class="flex items-center gap-2">
+                                <input type="radio" name="correct-answer" class="w-5 h-5 text-brand-600 focus:ring-brand-500 border-slate-300 cursor-pointer">
+                                <span class="text-sm font-bold text-slate-500 w-4 text-center">C</span>
+                            </div>
+                            <div class="flex-1 relative">
+                                <input type="text" class="w-full pl-3 pr-10 py-2.5 rounded-lg border border-slate-200 text-sm focus:border-brand-500 focus:ring-1 focus:ring-brand-500 outline-none transition" value="Error">
+                            </div>
+                            <button class="text-slate-400 hover:text-red-500 p-2 transition"><i class="fa-regular fa-trash-can"></i></button>
+                        </div>
+
+                        <div class="option-row flex items-center gap-3">
+                            <i class="fa-solid fa-grip-vertical text-slate-300 drag-handle"></i>
+                            <div class="flex items-center gap-2">
+                                <input type="radio" name="correct-answer" class="w-5 h-5 text-brand-600 focus:ring-brand-500 border-slate-300 cursor-pointer">
+                                <span class="text-sm font-bold text-slate-500 w-4 text-center">D</span>
+                            </div>
+                            <div class="flex-1 relative">
+                                <input type="text" class="w-full pl-3 pr-10 py-2.5 rounded-lg border border-slate-200 text-sm focus:border-brand-500 focus:ring-1 focus:ring-brand-500 outline-none transition" value="HelloWorld">
+                            </div>
+                            <button class="text-slate-400 hover:text-red-500 p-2 transition"><i class="fa-regular fa-trash-can"></i></button>
+                        </div>
+                    </div>
+
+                    <div class="mt-4 pl-9">
+                        <button class="flex items-center gap-2 text-sm text-brand-600 hover:text-brand-700 font-medium px-4 py-2 rounded-lg hover:bg-brand-50 transition border border-dashed border-brand-200 w-full justify-center">
+                            <i class="fa-solid fa-plus"></i> 添加选项
+                        </button>
+                    </div>
+                </div>
+
+                <div class="bg-white rounded-xl shadow-card border border-slate-100 p-6">
+                    <h2 class="text-sm font-bold text-slate-900 border-l-4 border-brand-500 pl-3 mb-4">答案解析</h2>
+                    
+                    <div class="border border-slate-200 rounded-lg overflow-hidden focus-within:border-brand-500 focus-within:ring-1 focus-within:ring-brand-500 transition">
+                         <div class="bg-slate-50 border-b border-slate-200 px-3 py-1.5 flex items-center gap-1 editor-toolbar">
+                             <button title="插入图片"><i class="fa-regular fa-image text-xs"></i></button>
+                             <button title="公式"><i class="fa-solid fa-square-root-variable text-xs"></i></button>
+                         </div>
+                         <div class="editor-content p-4 text-sm text-slate-700 min-h-[100px]" contenteditable="true" placeholder="输入解析内容，帮助学生理解...">
+                             在 Python 中，`+` 运算符用于字符串拼接，且会自动处理空格，但本题中明确写了空格字符串 " "，因此结果包含空格。
+                         </div>
+                    </div>
+                </div>
+
+            </div>
+        </div>
+
+    </main>
+
+    <script>
+        const typeSelect = document.getElementById('question-type-select');
+        // 这里仅做演示：实际开发中需根据 value 隐藏/显示 #options-container
+        // 比如选了“实操题”，则隐藏选项卡片，显示“参考代码”卡片
+    </script>
+</body>
+</html>
