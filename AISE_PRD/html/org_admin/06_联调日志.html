@@ -1,0 +1,385 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>联调与接口日志 - 组织后台中心</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <script>
+        tailwind.config = {
+            theme: {
+                extend: {
+                    fontFamily: { sans: ['Inter', 'sans-serif'], mono: ['JetBrains Mono', 'monospace'] },
+                    colors: { brand: { 50: '#f0fdfa', 100: '#ccfbf1', 500: '#14b8a6', 600: '#0d9488', 700: '#0f766e' } },
+                    boxShadow: { 'drawer': '-10px 0 30px -10px rgba(0, 0, 0, 0.1)' }
+                }
+            }
+        }
+    </script>
+    <style>
+        body {
+            background-color: #F8FAFC;
+        }
+
+        .custom-scroll::-webkit-scrollbar {
+            width: 6px;
+            height: 6px;
+        }
+
+        .custom-scroll::-webkit-scrollbar-track {
+            background: transparent;
+        }
+
+        .custom-scroll::-webkit-scrollbar-thumb {
+            background: #cbd5e1;
+            border-radius: 3px;
+        }
+
+        .nav-item.active {
+            background-color: #f0fdfa;
+            color: #0d9488;
+            font-weight: 600;
+        }
+
+        .nav-item.active::before {
+            content: '';
+            position: absolute;
+            left: 0;
+            top: 10%;
+            height: 80%;
+            width: 4px;
+            border-radius: 0 4px 4px 0;
+            background-color: #0d9488;
+        }
+
+        .drawer-enter {
+            transform: translateX(100%);
+        }
+
+        .drawer-active {
+            transform: translateX(0);
+        }
+    </style>
+</head>
+
+<body class="flex h-screen overflow-hidden text-slate-800 font-sans">
+
+    <!-- 侧边栏 (复用结构) -->
+    <aside class="w-64 bg-slate-900 text-slate-300 flex flex-col flex-shrink-0 z-20">
+        <div class="h-[72px] flex items-center px-6 border-b border-slate-800 bg-slate-950/50">
+            <div
+                class="w-8 h-8 bg-gradient-to-br from-brand-500 to-emerald-600 rounded flex items-center justify-center text-white font-bold text-lg mr-3 shadow-lg">
+                Y</div>
+            <div class="flex-1 min-w-0">
+                <h1 class="font-bold text-sm text-white truncate">猿编程教育科技</h1>
+                <p class="text-[10px] text-slate-500 font-mono truncate">ID: YPB2025</p>
+            </div>
+        </div>
+        <nav class="flex-1 overflow-y-auto py-6 space-y-1 custom-scroll px-3 cursor-pointer">
+            <div class="px-3 pb-2 text-[10px] font-bold text-slate-500 uppercase tracking-wider">业务数据中心</div>
+            <a href="03_学生列表.html"
+                class="nav-item flex items-center gap-3 px-3 py-2.5 rounded-lg text-slate-400 hover:bg-slate-800 hover:text-white transition relative group">
+                <i class="fa-solid fa-users w-5 text-center group-hover:text-brand-400 transition-colors"></i><span
+                    class="text-sm">本渠道学生</span>
+            </a>
+            <a href="04_报名列表.html"
+                class="nav-item flex items-center gap-3 px-3 py-2.5 rounded-lg text-slate-400 hover:bg-slate-800 hover:text-white transition relative group">
+                <i
+                    class="fa-solid fa-clipboard-list w-5 text-center group-hover:text-brand-400 transition-colors"></i><span
+                    class="text-sm">成绩与进度查询</span>
+            </a>
+            <div class="px-3 pb-2 pt-6 text-[10px] font-bold text-slate-500 uppercase tracking-wider">系统与开发者</div>
+            <a href="05_密钥与Webhook.html"
+                class="nav-item flex items-center gap-3 px-3 py-2.5 rounded-lg text-slate-400 hover:bg-slate-800 hover:text-white transition relative group">
+                <i class="fa-solid fa-key w-5 text-center group-hover:text-brand-400 transition-colors"></i><span
+                    class="text-sm">配置与密钥 (API)</span>
+            </a>
+            <a href="06_联调日志.html"
+                class="nav-item active flex items-center gap-3 px-3 py-2.5 rounded-lg transition relative group">
+                <i class="fa-solid fa-satellite-dish w-5 text-center text-brand-500"></i><span
+                    class="text-sm text-brand-700">联调与接口日志</span>
+            </a>
+        </nav>
+        <div class="p-4 border-t border-slate-800">
+            <div class="flex items-center gap-3 hover:bg-slate-800 p-2 rounded-lg cursor-pointer transition">
+                <img src="https://api.dicebear.com/7.x/avataaars/svg?seed=AdminUser"
+                    class="w-8 h-8 rounded-full bg-slate-800 border border-slate-700">
+                <div class="flex-1 min-w-0">
+                    <p class="text-xs font-bold text-slate-200 truncate">admin_ypb2025</p>
+                    <p class="text-[10px] text-slate-500 truncate">管理员</p>
+                </div>
+                <i
+                    class="fa-solid fa-arrow-right-from-bracket text-slate-500 hover:text-red-400 transition text-sm"></i>
+            </div>
+        </div>
+    </aside>
+
+    <main class="flex-1 flex flex-col min-w-0 bg-slate-50/50 relative">
+
+        <header
+            class="h-[72px] bg-white border-b border-slate-200 flex items-center justify-between px-8 flex-shrink-0 z-10 sticky top-0 backdrop-blur-md bg-white/90">
+            <h2 class="text-lg font-bold text-slate-800">联调与接口日志</h2>
+
+            <div class="flex items-center gap-5">
+                <button
+                    class="text-slate-400 hover:text-brand-600 transition flex items-center gap-2 text-sm font-medium">
+                    <i class="fa-solid fa-book-open text-brand-500"></i> 开发文档中心
+                </button>
+            </div>
+        </header>
+
+        <div class="p-8 pb-4">
+            <div class="bg-white rounded-xl shadow-sm border border-slate-200 p-4 flex flex-wrap gap-4 items-center">
+
+                <select
+                    class="px-3 py-2 rounded-lg border border-slate-200 text-sm text-slate-600 bg-white outline-none hover:border-slate-300">
+                    <option value="all">所有的记录模式</option>
+                    <option value="inbound">← API Request (系统接收调用)</option>
+                    <option value="outbound">→ Webhook (系统发出的推送)</option>
+                </select>
+
+                <select
+                    class="px-3 py-2 w-48 rounded-lg border border-slate-200 text-sm text-slate-600 bg-white outline-none hover:border-slate-300">
+                    <option value="">请求状态分类</option>
+                    <option value="200">200 OK 请求成功</option>
+                    <option value="4xx">4xx 业务/校验异常</option>
+                    <option value="5xx">5xx Webhook无响应</option>
+                </select>
+
+                <div class="relative w-64 flex-1">
+                    <i
+                        class="fa-solid fa-magnifying-glass absolute left-3 top-1/2 transform -translate-y-1/2 text-slate-400 text-sm"></i>
+                    <input type="text" placeholder="搜索报文关键字 / TraceID..."
+                        class="w-full pl-9 pr-4 py-2 rounded-lg border border-slate-200 text-sm focus:border-brand-500 outline-none transition font-mono bg-slate-50">
+                </div>
+
+                <button
+                    class="bg-brand-600 hover:bg-brand-700 text-white text-sm font-bold px-5 py-2 rounded-lg shadow-sm transition">
+                    筛选追踪
+                </button>
+            </div>
+        </div>
+
+        <!-- 日志列表 -->
+        <div class="flex-1 overflow-y-auto px-8 pb-8 custom-scroll">
+            <div class="bg-white rounded-xl shadow-sm border border-slate-200 overflow-hidden">
+                <table class="w-full text-left">
+                    <thead
+                        class="bg-slate-50 border-b border-slate-100 text-xs text-slate-500 font-bold uppercase tracking-wider">
+                        <tr>
+                            <th class="p-4 pl-6 w-32">模式</th>
+                            <th class="p-4">接口路径 / 事件类别</th>
+                            <th class="p-4">HTTP 状态</th>
+                            <th class="p-4">请求耗时</th>
+                            <th class="p-4 text-right pr-6">记录时间</th>
+                        </tr>
+                    </thead>
+                    <tbody class="text-sm divide-y divide-slate-100 font-mono text-slate-600 cursor-pointer">
+
+                        <!-- Webhook推送失败重试记录 -->
+                        <tr class="hover:bg-red-50/30 transition group" onclick="openDrawer()">
+                            <td class="p-4 pl-6">
+                                <span
+                                    class="bg-orange-100 text-orange-700 border border-orange-200 px-2 py-0.5 rounded text-[10px] font-bold"><i
+                                        class="fa-solid fa-arrow-right mr-1"></i>Webhook</span>
+                            </td>
+                            <td class="p-4 text-slate-800">
+                                <div><span class="font-bold text-xs bg-slate-100 px-1.5 py-0.5 rounded mr-2">POST</span>
+                                    /v1/aise/webhook_receiver</div>
+                                <div class="text-[10px] text-slate-400 mt-1">事件: <span
+                                        class="text-brand-600">RESULT_SCORE</span> (重试 1/3)</div>
+                            </td>
+                            <td class="p-4">
+                                <span
+                                    class="inline-flex items-center gap-1.5 px-2 py-0.5 rounded text-xs font-bold bg-red-100 text-red-700 border border-red-200">
+                                    <span class="w-1.5 h-1.5 rounded-full bg-red-500"></span> 504 Timeout
+                                </span>
+                            </td>
+                            <td class="p-4">3052 ms</td>
+                            <td class="p-4 text-right pr-6 relative">
+                                <span class="text-xs text-slate-500 font-sans">14:52:01.320</span>
+                                <div
+                                    class="absolute inset-y-0 right-2 w-1.5 bg-brand-500 scale-y-0 group-hover:scale-y-100 transition-transform origin-center rounded-l">
+                                </div>
+                            </td>
+                        </tr>
+
+                        <!-- API接收成功记录 -->
+                        <tr class="hover:bg-slate-50 transition group" onclick="openDrawer()">
+                            <td class="p-4 pl-6">
+                                <span
+                                    class="bg-indigo-50 text-indigo-700 border border-indigo-200 px-2 py-0.5 rounded text-[10px] font-bold"><i
+                                        class="fa-solid fa-arrow-left mr-1"></i>API Req</span>
+                            </td>
+                            <td class="p-4 text-slate-800">
+                                <div><span class="font-bold text-xs bg-slate-100 px-1.5 py-0.5 rounded mr-2">POST</span>
+                                    /api/v1/students/pre_enroll</div>
+                                <div class="text-[10px] text-slate-400 mt-1">10.0.8.214</div>
+                            </td>
+                            <td class="p-4">
+                                <span
+                                    class="inline-flex items-center gap-1.5 px-2 py-0.5 rounded text-xs font-bold bg-emerald-50 text-emerald-700 border border-emerald-200">
+                                    <span class="w-1.5 h-1.5 rounded-full bg-emerald-500"></span> 200 OK
+                                </span>
+                            </td>
+                            <td class="p-4">45 ms</td>
+                            <td class="p-4 text-right pr-6 relative">
+                                <span class="text-xs text-slate-500 font-sans">14:26:05.101</span>
+                                <div
+                                    class="absolute inset-y-0 right-2 w-1.5 bg-brand-500 scale-y-0 group-hover:scale-y-100 transition-transform origin-center rounded-l">
+                                </div>
+                            </td>
+                        </tr>
+
+                        <!-- API接收异常 (如鉴权失败) -->
+                        <tr class="hover:bg-amber-50/30 transition group" onclick="openDrawer()">
+                            <td class="p-4 pl-6">
+                                <span
+                                    class="bg-indigo-50 text-indigo-700 border border-indigo-200 px-2 py-0.5 rounded text-[10px] font-bold"><i
+                                        class="fa-solid fa-arrow-left mr-1"></i>API Req</span>
+                            </td>
+                            <td class="p-4 text-slate-800">
+                                <div><span class="font-bold text-xs bg-slate-100 px-1.5 py-0.5 rounded mr-2">GET</span>
+                                    /api/v1/activity/list</div>
+                                <div class="text-[10px] text-slate-400 mt-1">鉴权错误</div>
+                            </td>
+                            <td class="p-4">
+                                <span
+                                    class="inline-flex items-center gap-1.5 px-2 py-0.5 rounded text-xs font-bold bg-amber-100 text-amber-700 border border-amber-200">
+                                    <span class="w-1.5 h-1.5 rounded-full bg-amber-500"></span> 401 Unauth
+                                </span>
+                            </td>
+                            <td class="p-4">2 ms</td>
+                            <td class="p-4 text-right pr-6 relative">
+                                <span class="text-xs text-slate-500 font-sans">14:15:33.980</span>
+                                <div
+                                    class="absolute inset-y-0 right-2 w-1.5 bg-brand-500 scale-y-0 group-hover:scale-y-100 transition-transform origin-center rounded-l">
+                                </div>
+                            </td>
+                        </tr>
+
+                    </tbody>
+                </table>
+            </div>
+            <p class="text-center text-xs text-slate-400 mt-4"><i class="fa-solid fa-rotate-right mr-1"></i> 日志最多保留近 7
+                天的数据，如需历史请提工单导出</p>
+        </div>
+
+    </main>
+
+    <!-- 日志明细右侧抽屉 -->
+    <div id="log-drawer-overlay"
+        class="fixed inset-0 bg-slate-900/40 backdrop-blur-sm z-40 hidden transition-opacity opacity-0"
+        onclick="closeDrawer()"></div>
+    <div id="log-drawer"
+        class="fixed inset-y-0 right-0 w-[550px] bg-white shadow-drawer z-50 flex flex-col drawer-enter transition-transform duration-300">
+
+        <div class="px-6 py-5 border-b border-slate-100 flex justify-between items-center bg-slate-50">
+            <div>
+                <h3 class="font-bold text-slate-800 flex items-center gap-2">
+                    <span
+                        class="bg-orange-100 text-orange-700 border border-orange-200 px-1.5 py-0.5 rounded text-[10px]">Webhook</span>
+                    请求追踪明细
+                </h3>
+                <p class="text-[10px] text-slate-400 font-mono mt-1">Trace-ID: log_abc123456789defg</p>
+            </div>
+            <div class="flex items-center gap-3">
+                <button
+                    class="bg-brand-600 hover:bg-brand-700 text-white text-[11px] font-bold px-3 py-1.5 rounded shadow-sm transition"><i
+                        class="fa-solid fa-rotate-right mr-1"></i>主动作废重试</button>
+                <button onclick="closeDrawer()"
+                    class="text-slate-400 hover:text-slate-700 transition w-8 h-8 rounded-full hover:bg-slate-200 flex items-center justify-center">
+                    <i class="fa-solid fa-xmark"></i>
+                </button>
+            </div>
+        </div>
+
+        <div class="flex-1 overflow-y-auto p-6 bg-white space-y-6 text-sm font-mono text-slate-700 custom-scroll">
+
+            <div>
+                <label class="block text-xs font-bold text-slate-400 uppercase font-sans mb-1.5">Request URL /
+                    推送目标</label>
+                <div class="bg-slate-50 border border-slate-100 p-3 rounded-lg text-xs break-all">
+                    <span class="font-bold text-blue-600">POST</span>
+                    https://api.yuanbiancheng.com/v1/aise/webhook_receiver
+                </div>
+            </div>
+
+            <div class="grid grid-cols-2 gap-4">
+                <div>
+                    <label class="block text-xs font-bold text-slate-400 uppercase font-sans mb-1.5">系统投递时间</label>
+                    <p class="text-xs">2026-05-20 14:52:01</p>
+                </div>
+                <div>
+                    <label class="block text-xs font-bold text-slate-400 uppercase font-sans mb-1.5">目标机房响应耗时</label>
+                    <p class="text-xs text-amber-600 font-bold">3052 ms</p>
+                </div>
+            </div>
+
+            <div>
+                <label class="block text-xs font-bold text-slate-400 uppercase font-sans mb-1.5">Request Payload /
+                    推送的业务数据</label>
+                <div class="bg-slate-900 border border-slate-800 rounded-lg overflow-hidden relative">
+                    <button
+                        class="absolute top-2 right-2 text-slate-400 hover:text-white transition bg-slate-800 px-2 py-1 rounded text-[10px] font-sans">复制
+                        JSON</button>
+                    <pre class="p-4 text-[11px] text-green-400 overflow-x-auto">
+{
+  "event": "RESULT_SCORE",
+  "data": {
+    "channel_id": "YPB2025",
+    "order_no": "ORD-20250520-001",
+    "student_telephone": "13800138000",
+    "exam_id": "EX001",
+    "score": 98.5,
+    "timestamp": 1716187920
+  },
+  "sign": "a1b2c3d4e5f6..."
+}
+                    </pre>
+                </div>
+            </div>
+
+            <div>
+                <div class="flex items-center justify-between mb-1.5">
+                    <label class="block text-xs font-bold text-slate-400 uppercase font-sans">Response / 对方返回报错</label>
+                    <span class="px-1.5 py-0.5 bg-red-100 text-red-700 text-[10px] rounded font-bold">504 Gateway
+                        Timeout</span>
+                </div>
+                <div class="bg-red-50 border border-red-100 p-3 rounded-lg text-xs break-all text-red-600">
+                    <p class="mb-2 font-bold">Error Info:</p>
+                    <p>Read timeout waiting for target server to respond. The connection was closed.</p>
+                </div>
+            </div>
+
+        </div>
+    </div>
+
+    <script>
+        function openDrawer() {
+            const overlay = document.getElementById('log-drawer-overlay');
+            const drawer = document.getElementById('log-drawer');
+            overlay.classList.remove('hidden');
+            setTimeout(() => {
+                overlay.classList.remove('opacity-0');
+                drawer.classList.add('drawer-active');
+            }, 10);
+        }
+
+        function closeDrawer() {
+            const overlay = document.getElementById('log-drawer-overlay');
+            const drawer = document.getElementById('log-drawer');
+            drawer.classList.remove('drawer-active');
+            overlay.classList.add('opacity-0');
+            setTimeout(() => {
+                overlay.classList.add('hidden');
+            }, 300);
+        }
+    </script>
+</body>
+
+</html>

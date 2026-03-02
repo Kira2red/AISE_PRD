@@ -1,0 +1,170 @@
+﻿<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>活动证书管理 - AISE 后台</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <script>
+        tailwind.config = {
+            theme: {
+                extend: {
+                    fontFamily: { sans: ['Inter', 'sans-serif'], mono: ['JetBrains Mono', 'monospace'] },
+                    colors: { brand: { 50: '#eff6ff', 500: '#3b82f6', 600: '#2563eb', 700: '#1d4ed8' } },
+                    boxShadow: { 'card': '0 1px 3px 0 rgba(0, 0, 0, 0.1), 0 1px 2px 0 rgba(0, 0, 0, 0.06)' }
+                }
+            }
+        }
+    </script>
+    <style>
+        body { background-color: #F8FAFC; }
+        .nav-item.active::before {
+            content: ''; position: absolute; left: 0; top: 50%; transform: translateY(-50%);
+            width: 4px; height: 24px; background-color: #3b82f6; border-radius: 0 4px 4px 0;
+        }
+        tr.hover-row:hover td { background-color: #f8fafc; }
+    </style>
+</head>
+<body class="flex h-screen overflow-hidden text-slate-800 font-sans">
+
+    <aside class="w-64 bg-white border-r border-slate-200 flex flex-col flex-shrink-0 z-20">
+        <div class="h-16 flex items-center px-6 border-b border-slate-100">
+            <div class="w-8 h-8 bg-gradient-to-br from-brand-600 to-indigo-600 rounded-lg flex items-center justify-center text-white font-bold text-lg mr-3 shadow-sm">A</div>
+            <span class="font-bold text-lg text-slate-800 tracking-tight">AISE Admin</span>
+        </div>
+        <nav class="flex-1 overflow-y-auto py-4 space-y-1">
+            <a href="#" class="nav-item flex items-center gap-3 px-6 py-3 text-slate-500 hover:bg-slate-50 hover:text-brand-600 transition relative">
+                <i class="fa-solid fa-graduation-cap w-5 text-center"></i><span class="font-medium text-sm">测评管理</span>
+            </a>
+            <a href="#" class="nav-item active flex items-center gap-3 px-6 py-3 text-brand-600 bg-brand-50 transition relative">
+                <i class="fa-solid fa-certificate w-5 text-center"></i><span class="font-medium text-sm">活动证书管理</span>
+            </a>
+            <div class="px-6 py-2 mt-4 text-xs font-bold text-slate-400 uppercase tracking-wider">考务与用户</div>
+            <a href="#" class="nav-item flex items-center gap-3 px-6 py-3 text-slate-500 hover:bg-slate-50 hover:text-brand-600 transition relative">
+                <i class="fa-solid fa-users w-5 text-center"></i><span class="font-medium text-sm">考生管理</span>
+            </a>
+        </nav>
+    </aside>
+
+    <main class="flex-1 flex flex-col min-w-0 bg-slate-50/50 relative">
+        <header class="h-16 bg-white border-b border-slate-200 flex items-center justify-between px-8 flex-shrink-0 z-10">
+            <h1 class="text-xl font-bold text-slate-800">活动证书管理</h1>
+            <div class="flex items-center gap-2 text-xs text-slate-500 bg-blue-50 px-3 py-1.5 rounded-lg border border-blue-100">
+                <i class="fa-solid fa-shield-halved text-brand-600"></i>
+                <span>管理员：Admin</span>
+            </div>
+        </header>
+
+        <div class="px-8 py-6">
+            <div class="bg-white rounded-xl shadow-card border border-slate-100 p-4 flex flex-wrap gap-4 items-center">
+                <div class="relative w-64">
+                    <i class="fa-solid fa-magnifying-glass absolute left-3 top-1/2 transform -translate-y-1/2 text-slate-400 text-sm"></i>
+                    <input type="text" placeholder="搜索测评名称/ID..." class="w-full pl-9 pr-4 py-2 rounded-lg border border-slate-200 text-sm focus:border-brand-500 outline-none transition">
+                </div>
+                <select class="px-3 py-2 rounded-lg border border-slate-200 text-sm text-slate-600 bg-white outline-none hover:border-slate-300 cursor-pointer">
+                    <option value="">所有状态</option>
+                    <option value="grading">批改中</option>
+                    <option value="graded">批改完成</option>
+                    <option value="public">公示中</option>
+                    <option value="making">制作中</option>
+                    <option value="sent">已寄送</option>
+                </select>
+                <button class="bg-brand-600 hover:bg-brand-700 text-white text-sm font-medium px-5 py-2 rounded-lg shadow-sm transition ml-auto">
+                    <i class="fa-solid fa-filter mr-1"></i> 筛选
+                </button>
+            </div>
+        </div>
+
+        <div class="flex-1 overflow-y-auto px-8 pb-8 custom-scroll">
+            <div class="bg-white rounded-xl shadow-card border border-slate-200 overflow-hidden">
+                <table class="w-full text-left border-collapse">
+                    <thead>
+                        <tr class="border-b border-slate-100 bg-slate-50 text-xs uppercase text-slate-500 font-bold">
+                            <th class="p-4 pl-6">测评名称 / ID</th>
+                            <th class="p-4">参测人数</th>
+                            <th class="p-4">开始时间</th>
+                            <th class="p-4">批改情况</th>
+                            <th class="p-4">证书状态</th>
+                            <th class="p-4 text-right pr-6">操作</th>
+                        </tr>
+                    </thead>
+                    <tbody class="text-sm text-slate-700 divide-y divide-slate-100">
+                        
+                        <tr class="hover-row transition group">
+                            <td class="p-4 pl-6">
+                                <p class="font-bold text-slate-800">2025春季 Python 一级等级测评</p>
+                                <p class="text-xs text-slate-400 font-mono mt-0.5">ID: 1001</p>
+                            </td>
+                            <td class="p-4 font-mono text-slate-600">1,240</td>
+                            <td class="p-4 text-slate-500 text-xs">2025-05-20 14:00</td>
+                            <td class="p-4">
+                                <div class="flex items-center gap-2">
+                                    <span class="font-mono font-bold text-brand-600">890</span>
+                                    <span class="text-slate-300">/</span>
+                                    <span class="font-mono text-slate-500">1240</span>
+                                </div>
+                                <div class="w-24 h-1 bg-slate-100 rounded-full mt-1.5 overflow-hidden">
+                                    <div class="h-full bg-brand-500 rounded-full" style="width: 71%"></div>
+                                </div>
+                            </td>
+                            <td class="p-4">
+                                <span class="inline-flex items-center gap-1.5 px-2 py-0.5 rounded text-xs font-bold bg-amber-50 text-amber-700 border border-amber-100">
+                                    <i class="fa-solid fa-pen-nib text-[10px]"></i> 批改中
+                                </span>
+                            </td>
+                            <td class="p-4 text-right pr-6">
+                                <div class="flex items-center justify-end gap-2">
+                                    <a href="#" class="text-slate-600 hover:text-brand-600 text-xs font-bold border border-slate-200 bg-white hover:bg-slate-50 px-3 py-1.5 rounded transition inline-flex items-center gap-1">
+                                        <i class="fa-solid fa-user-graduate"></i> 查看考生证书
+                                    </a>
+                                    <a href="certificate-detail.html" target="_blank" class="text-brand-600 hover:text-brand-700 text-xs font-bold border border-brand-200 bg-brand-50 hover:bg-brand-100 px-3 py-1.5 rounded transition inline-flex items-center gap-1">
+                                        <i class="fa-solid fa-gear"></i> 管理证书
+                                    </a>
+                                </div>
+                            </td>
+                        </tr>
+
+                        <tr class="hover-row transition group">
+                            <td class="p-4 pl-6">
+                                <p class="font-bold text-slate-800">2025夏季 AIGC 应用能力二级测评</p>
+                                <p class="text-xs text-slate-400 font-mono mt-0.5">ID: 1002</p>
+                            </td>
+                            <td class="p-4 font-mono text-slate-600">856</td>
+                            <td class="p-4 text-slate-500 text-xs">2025-06-15 09:00</td>
+                            <td class="p-4">
+                                <div class="flex items-center gap-2">
+                                    <span class="font-mono font-bold text-slate-800">856</span>
+                                    <span class="text-slate-300">/</span>
+                                    <span class="font-mono text-slate-500">856</span>
+                                </div>
+                                <div class="w-24 h-1 bg-slate-100 rounded-full mt-1.5 overflow-hidden">
+                                    <div class="h-full bg-green-500 rounded-full" style="width: 100%"></div>
+                                </div>
+                            </td>
+                            <td class="p-4">
+                                <span class="inline-flex items-center gap-1.5 px-2 py-0.5 rounded text-xs font-bold bg-purple-50 text-purple-700 border border-purple-100">
+                                    <i class="fa-solid fa-bullhorn text-[10px]"></i> 公示中
+                                </span>
+                            </td>
+                            <td class="p-4 text-right pr-6">
+                                <div class="flex items-center justify-end gap-2">
+                                    <a href="#" class="text-slate-600 hover:text-brand-600 text-xs font-bold border border-slate-200 bg-white hover:bg-slate-50 px-3 py-1.5 rounded transition inline-flex items-center gap-1">
+                                        <i class="fa-solid fa-user-graduate"></i> 查看考生证书
+                                    </a>
+                                    <a href="certificate-detail.html" target="_blank" class="text-brand-600 hover:text-brand-700 text-xs font-bold border border-brand-200 bg-brand-50 hover:bg-brand-100 px-3 py-1.5 rounded transition inline-flex items-center gap-1">
+                                        <i class="fa-solid fa-gear"></i> 管理证书
+                                    </a>
+                                </div>
+                            </td>
+                        </tr>
+
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </main>
+</body>
+</html>

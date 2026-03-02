@@ -1,0 +1,441 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>配置与密钥 - 组织后台中心</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <script>
+        tailwind.config = {
+            theme: {
+                extend: {
+                    fontFamily: { sans: ['Inter', 'sans-serif'], mono: ['JetBrains Mono', 'monospace'] },
+                    colors: { brand: { 50: '#f0fdfa', 100: '#ccfbf1', 500: '#14b8a6', 600: '#0d9488', 700: '#0f766e' } },
+                    boxShadow: { 'card': '0 1px 3px 0 rgba(0, 0, 0, 0.1), 0 1px 2px 0 rgba(0, 0, 0, 0.06)' }
+                }
+            }
+        }
+    </script>
+    <style>
+        body {
+            background-color: #F8FAFC;
+        }
+
+        .custom-scroll::-webkit-scrollbar {
+            width: 6px;
+            height: 6px;
+        }
+
+        .custom-scroll::-webkit-scrollbar-track {
+            background: transparent;
+        }
+
+        .custom-scroll::-webkit-scrollbar-thumb {
+            background: #cbd5e1;
+            border-radius: 3px;
+        }
+
+        .nav-item.active {
+            background-color: #f0fdfa;
+            color: #0d9488;
+            font-weight: 600;
+        }
+
+        .nav-item.active::before {
+            content: '';
+            position: absolute;
+            left: 0;
+            top: 10%;
+            height: 80%;
+            width: 4px;
+            border-radius: 0 4px 4px 0;
+            background-color: #0d9488;
+        }
+
+        .modal-enter {
+            animation: modalScaleIn 0.2s cubic-bezier(0.16, 1, 0.3, 1) forwards;
+        }
+
+        @keyframes modalScaleIn {
+            from {
+                transform: scale(0.95);
+                opacity: 0;
+            }
+
+            to {
+                transform: scale(1);
+                opacity: 1;
+            }
+        }
+    </style>
+</head>
+
+<body class="flex h-screen overflow-hidden text-slate-800 font-sans">
+
+    <!-- 侧边栏 -->
+    <aside class="w-64 bg-slate-900 text-slate-300 flex flex-col flex-shrink-0 z-20">
+        <div class="h-[72px] flex items-center px-6 border-b border-slate-800 bg-slate-950/50">
+            <div
+                class="w-8 h-8 bg-gradient-to-br from-brand-500 to-emerald-600 rounded flex items-center justify-center text-white font-bold text-lg mr-3 shadow-lg">
+                Y</div>
+            <div class="flex-1 min-w-0">
+                <h1 class="font-bold text-sm text-white truncate">猿编程教育科技</h1>
+                <p class="text-[10px] text-slate-500 font-mono truncate">ID: YPB2025</p>
+            </div>
+        </div>
+        <nav class="flex-1 overflow-y-auto py-6 space-y-1 custom-scroll px-3 cursor-pointer">
+            <div class="px-3 pb-2 text-[10px] font-bold text-slate-500 uppercase tracking-wider">业务数据中心</div>
+            <a href="03_学生列表.html"
+                class="nav-item flex items-center gap-3 px-3 py-2.5 rounded-lg text-slate-400 hover:bg-slate-800 hover:text-white transition relative group">
+                <i class="fa-solid fa-users w-5 text-center group-hover:text-brand-400 transition-colors"></i><span
+                    class="text-sm">本渠道学生</span>
+            </a>
+            <a href="04_报名列表.html"
+                class="nav-item flex items-center gap-3 px-3 py-2.5 rounded-lg text-slate-400 hover:bg-slate-800 hover:text-white transition relative group">
+                <i
+                    class="fa-solid fa-clipboard-list w-5 text-center group-hover:text-brand-400 transition-colors"></i><span
+                    class="text-sm">成绩与进度查询</span>
+            </a>
+            <div class="px-3 pb-2 pt-6 text-[10px] font-bold text-slate-500 uppercase tracking-wider">系统与开发者</div>
+            <a href="05_密钥与Webhook.html"
+                class="nav-item active flex items-center gap-3 px-3 py-2.5 rounded-lg transition relative group">
+                <i class="fa-solid fa-key w-5 text-center text-brand-500"></i><span class="text-sm text-brand-700">配置与密钥
+                    (API)</span>
+            </a>
+            <a href="06_联调日志.html"
+                class="nav-item flex items-center gap-3 px-3 py-2.5 rounded-lg text-slate-400 hover:bg-slate-800 hover:text-white transition relative group">
+                <i
+                    class="fa-solid fa-satellite-dish w-5 text-center group-hover:text-brand-400 transition-colors"></i><span
+                    class="text-sm">联调与接口日志</span>
+            </a>
+        </nav>
+        <div class="p-4 border-t border-slate-800">
+            <div class="flex items-center gap-3 hover:bg-slate-800 p-2 rounded-lg cursor-pointer transition">
+                <img src="https://api.dicebear.com/7.x/avataaars/svg?seed=AdminUser"
+                    class="w-8 h-8 rounded-full bg-slate-800 border border-slate-700">
+                <div class="flex-1 min-w-0">
+                    <p class="text-xs font-bold text-slate-200 truncate">admin_ypb2025</p>
+                    <p class="text-[10px] text-slate-500 truncate">管理员</p>
+                </div>
+                <i
+                    class="fa-solid fa-arrow-right-from-bracket text-slate-500 hover:text-red-400 transition text-sm"></i>
+            </div>
+        </div>
+    </aside>
+
+    <!-- 主右侧内容区 -->
+    <main class="flex-1 flex flex-col min-w-0 relative">
+        <header
+            class="h-[72px] bg-white border-b border-slate-200 flex items-center justify-between px-8 flex-shrink-0 z-10 sticky top-0 backdrop-blur-md bg-white/90 shadow-sm">
+            <div class="flex items-center gap-4">
+                <h2 class="text-lg font-bold text-slate-800">配置与密钥 (API Keys)</h2>
+                <span
+                    class="bg-brand-50 text-brand-600 text-xs px-2.5 py-1 rounded-full font-medium border border-brand-100 flex items-center gap-1.5"><span
+                        class="w-1.5 h-1.5 bg-brand-500 rounded-full"></span> 接口调用正常</span>
+            </div>
+            <div class="flex items-center gap-5">
+                <button
+                    class="text-slate-400 hover:text-brand-600 transition flex items-center gap-2 text-sm font-medium">
+                    <i class="fa-solid fa-book-open text-brand-500"></i> 开发文档中心
+                </button>
+                <div class="w-px h-5 bg-slate-200"></div>
+                <button class="text-slate-400 hover:text-slate-600 transition">
+                    <i class="fa-regular fa-bell text-lg"></i>
+                </button>
+            </div>
+        </header>
+
+        <div class="flex-1 overflow-y-auto p-8 custom-scroll bg-slate-50/50">
+            <div class="max-w-4xl mx-auto space-y-6">
+
+                <!-- 模块1：密钥管理 -->
+                <section class="bg-white rounded-xl shadow-card border border-slate-200 overflow-hidden">
+                    <div class="p-6 border-b border-slate-100">
+                        <div class="flex justify-between items-start">
+                            <div>
+                                <h3 class="text-base font-bold text-slate-800 flex items-center gap-2"><i
+                                        class="fa-solid fa-key text-brand-500"></i> API 访问凭据</h3>
+                                <p class="text-xs text-slate-500 mt-1">请妥善保管您的 AppKey 与 AppSecret，它们是调用 AISE 对接接口的唯一凭证。
+                                </p>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="p-6 space-y-5 bg-slate-50/30">
+                        <!-- AppKey -->
+                        <div class="flex items-center gap-6">
+                            <label
+                                class="w-24 text-right text-sm font-bold text-slate-600 uppercase tracking-wider">AppKey</label>
+                            <div class="flex-1 flex items-center gap-3">
+                                <div class="relative w-full max-w-md">
+                                    <input type="text" value="YPB2025" readonly
+                                        class="w-full bg-white border border-slate-200 text-slate-800 text-sm font-mono px-4 py-2.5 rounded-lg focus:outline-none shadow-sm cursor-text">
+                                    <button
+                                        class="absolute right-3 top-1/2 -translate-y-1/2 text-slate-400 hover:text-brand-600 transition p-1"
+                                        title="复制"><i class="fa-regular fa-copy"></i></button>
+                                </div>
+                                <span class="text-[10px] text-slate-400 font-medium">应用唯一标识</span>
+                            </div>
+                        </div>
+
+                        <!-- AppSecret -->
+                        <div class="flex items-start gap-6">
+                            <label
+                                class="w-24 text-right text-sm font-bold text-slate-600 uppercase tracking-wider mt-2.5">AppSecret</label>
+                            <div class="flex-1">
+                                <div class="flex items-center gap-3 mb-2">
+                                    <div class="relative w-full max-w-md">
+                                        <input type="password" value="sk_Live_8f9a2b3c4d5e6f7g8h9i0j1k" readonly
+                                            id="org-secret-input"
+                                            class="w-full bg-white border border-slate-200 text-slate-800 text-sm font-mono px-4 py-2.5 rounded-lg focus:outline-none shadow-sm pr-20">
+                                        <div class="absolute right-2 top-1/2 -translate-y-1/2 flex gap-1">
+                                            <button onclick="toggleSecretVisibility()"
+                                                class="p-1.5 text-slate-400 hover:text-slate-600 transition"
+                                                title="显示密钥"><i class="fa-regular fa-eye"
+                                                    id="secret-eye-icon"></i></button>
+                                            <button class="p-1.5 text-slate-400 hover:text-brand-600 transition"
+                                                title="复制"><i class="fa-regular fa-copy"></i></button>
+                                        </div>
+                                    </div>
+                                    <button onclick="openResetModal()"
+                                        class="px-3 py-2 border border-red-200 text-red-600 hover:bg-red-50 hover:text-red-700 rounded-lg text-xs font-bold transition shadow-sm bg-white">重置密钥</button>
+                                </div>
+                                <p
+                                    class="text-[11px] text-amber-600 bg-amber-50 px-2.5 py-1.5 rounded-md inline-flex items-center gap-1.5 border border-amber-100/50 mt-1">
+                                    <i class="fa-solid fa-triangle-exclamation"></i> 警告：永远不要将以 sk_Live_ 开头的 Secret
+                                    暴露在前端应用或代码仓库中。
+                                </p>
+                            </div>
+                        </div>
+
+                        <!-- 弃用密钥过渡提醒 (默认隐藏, 重置后显示) -->
+                        <div id="legacy-secret-warning"
+                            class="hidden flex items-start gap-6 pt-4 border-t border-slate-100">
+                            <div class="w-24 text-right flex flex-col items-end">
+                                <span
+                                    class="bg-red-100 text-red-700 text-[10px] font-bold px-2 py-0.5 rounded border border-red-200">待失效</span>
+                            </div>
+                            <div
+                                class="flex-1 bg-white border border-red-100 rounded-lg p-3 shadow-sm border-l-4 border-l-red-500">
+                                <p class="text-[11px] text-red-600 font-bold mb-1">您于 <span id="reset-time-ds">前</span>
+                                    重置了密钥！系统正在为您保持新旧密钥间的平滑过渡。</p>
+                                <p class="text-xs text-slate-600 font-mono mb-2 truncate max-w-sm">旧密钥: <span
+                                        class="text-slate-400 blur-[2px] hover:blur-none transition cursor-pointer">sk_Live_old8f9a2b3c...</span>
+                                    (系统将继续接受旧密钥请求)</p>
+                                <div class="flex items-center justify-between text-[11px]">
+                                    <span class="text-slate-500">平滑过渡期剩余时间：</span>
+                                    <span class="font-bold text-red-500 font-mono text-sm"
+                                        id="countdown">23:59:59</span>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </section>
+
+                <!-- 模块2：Webhook 配置 -->
+                <section class="bg-white rounded-xl shadow-card border border-slate-200 overflow-hidden">
+                    <div class="p-6 border-b border-slate-100 flex justify-between items-center bg-slate-50/50">
+                        <div>
+                            <h3 class="text-base font-bold text-slate-800 flex items-center gap-2"><i
+                                    class="fa-solid fa-satellite-dish text-indigo-500"></i> Webhook 事件订阅</h3>
+                            <p class="text-xs text-slate-500 mt-1">当测评进度状态变更或成绩发布时，系统会将数据 POST 推送至您配置的回调地址。</p>
+                        </div>
+                        <label class="relative inline-flex items-center cursor-pointer">
+                            <input type="checkbox" class="sr-only peer" checked id="webhook-toggle">
+                            <div
+                                class="w-11 h-6 bg-slate-200 peer-focus:outline-none rounded-full peer peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:border-slate-300 after:border after:rounded-full after:h-5 after:w-5 after:transition-all peer-checked:bg-indigo-500">
+                            </div>
+                            <span class="ml-3 text-sm font-bold text-indigo-600" id="webhook-status-text">接收推送中</span>
+                        </label>
+                    </div>
+
+                    <div class="p-6 space-y-6">
+                        <!-- URL 配置 -->
+                        <div>
+                            <label class="block text-xs font-bold text-slate-600 uppercase mb-2">接收推送回调地址 (Callback
+                                URL)</label>
+                            <div class="flex gap-3">
+                                <div class="relative flex-1">
+                                    <div
+                                        class="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none text-slate-400 font-mono text-sm">
+                                        POST</div>
+                                    <input type="url" value="https://api.yuanbiancheng.com/v1/aise/webhook_receiver"
+                                        class="w-full pl-14 pr-4 py-2.5 rounded-lg border border-slate-200 focus:border-indigo-500 focus:ring-1 focus:ring-indigo-500 outline-none transition text-sm text-slate-800 font-mono shadow-sm bg-slate-50">
+                                </div>
+                                <button
+                                    class="px-5 py-2.5 bg-white border border-slate-200 text-slate-700 text-sm font-bold rounded-lg hover:bg-slate-50 hover:border-slate-300 transition shadow-sm">保存地址</button>
+                            </div>
+                            <p class="text-[10px] text-slate-400 mt-2">服务端需在 3000ms 内响应 HTTP 200，否则视作推送失败并触发梯级重试策略。</p>
+                        </div>
+
+                        <!-- 订阅事件类型 -->
+                        <div>
+                            <label class="block text-xs font-bold text-slate-600 uppercase mb-3">订阅的事件类型</label>
+                            <div class="grid grid-cols-2 md:grid-cols-3 gap-3">
+
+                                <label
+                                    class="border border-indigo-200 bg-indigo-50/50 rounded-lg p-3 cursor-pointer hover:bg-indigo-50 transition flex items-start gap-3 relative overflow-hidden group">
+                                    <div
+                                        class="absolute top-0 right-0 w-8 h-8 bg-indigo-500 rounded-bl-3xl flex items-center justify-center translate-x-3 -translate-y-3 group-hover:translate-x-0 group-hover:translate-y-0 transition-transform">
+                                        <i
+                                            class="fa-solid fa-check text-white text-[10px] translate-x-1 -translate-y-1"></i>
+                                    </div>
+                                    <input type="checkbox" checked
+                                        class="mt-0.5 text-indigo-600 rounded border-slate-300 focus:ring-indigo-500 shadow-sm">
+                                    <div>
+                                        <p class="text-sm font-bold text-slate-800">支付事件</p>
+                                        <p class="text-[10px] text-slate-500 mt-0.5 font-mono">PAYMENT_SUCCESS</p>
+                                    </div>
+                                </label>
+
+                                <label
+                                    class="border border-indigo-200 bg-indigo-50/50 rounded-lg p-3 cursor-pointer hover:bg-indigo-50 transition flex items-start gap-3 relative overflow-hidden group">
+                                    <div
+                                        class="absolute top-0 right-0 w-8 h-8 bg-indigo-500 rounded-bl-3xl flex items-center justify-center translate-x-3 -translate-y-3 group-hover:translate-x-0 group-hover:translate-y-0 transition-transform">
+                                        <i
+                                            class="fa-solid fa-check text-white text-[10px] translate-x-1 -translate-y-1"></i>
+                                    </div>
+                                    <input type="checkbox" checked
+                                        class="mt-0.5 text-indigo-600 rounded border-slate-300 focus:ring-indigo-500 shadow-sm">
+                                    <div>
+                                        <p class="text-sm font-bold text-slate-800">考务进度变更</p>
+                                        <p class="text-[10px] text-slate-500 mt-0.5 font-mono"
+                                            title="包含: 候考中、测评中、已测评、缺考">STATUS_x</p>
+                                    </div>
+                                </label>
+
+                                <label
+                                    class="border border-indigo-200 bg-indigo-50/50 rounded-lg p-3 cursor-pointer hover:bg-indigo-50 transition flex items-start gap-3 relative overflow-hidden group">
+                                    <div
+                                        class="absolute top-0 right-0 w-8 h-8 bg-indigo-500 rounded-bl-3xl flex items-center justify-center translate-x-3 -translate-y-3 group-hover:translate-x-0 group-hover:translate-y-0 transition-transform">
+                                        <i
+                                            class="fa-solid fa-check text-white text-[10px] translate-x-1 -translate-y-1"></i>
+                                    </div>
+                                    <input type="checkbox" checked
+                                        class="mt-0.5 text-indigo-600 rounded border-slate-300 focus:ring-indigo-500 shadow-sm">
+                                    <div>
+                                        <p class="text-sm font-bold text-slate-800">成绩/证书下发</p>
+                                        <p class="text-[10px] text-slate-500 mt-0.5 font-mono">RESULT_SCORE/CERT</p>
+                                    </div>
+                                </label>
+
+                                <!-- 预留其他事件 -->
+                                <label
+                                    class="border border-slate-200 bg-white rounded-lg p-3 cursor-pointer hover:border-indigo-300 hover:bg-indigo-50/30 transition flex items-start gap-3">
+                                    <input type="checkbox"
+                                        class="mt-0.5 text-indigo-600 rounded border-slate-300 focus:ring-indigo-500 shadow-sm">
+                                    <div class="opacity-60">
+                                        <p class="text-sm font-bold text-slate-800">退款/取消报名</p>
+                                        <p class="text-[10px] text-slate-500 mt-0.5 font-mono">ORDER_REFUND</p>
+                                    </div>
+                                </label>
+                            </div>
+                        </div>
+                    </div>
+                </section>
+
+            </div>
+        </div>
+    </main>
+
+    <!-- 重置 AppSecret 确认大弹窗 -->
+    <div id="modal-reset"
+        class="fixed inset-0 z-50 hidden flex justify-center items-start pt-20 bg-slate-900/60 backdrop-blur-sm transition-opacity opacity-0">
+        <div class="bg-white rounded-2xl shadow-2xl w-[500px] border border-slate-100 overflow-hidden transform scale-95 transition-transform"
+            id="modal-reset-content">
+            <div class="bg-red-50 px-6 py-5 border-b border-red-100 flex items-start gap-4">
+                <div
+                    class="w-10 h-10 rounded-full bg-red-100 text-red-600 flex items-center justify-center flex-shrink-0">
+                    <i class="fa-solid fa-triangle-exclamation text-lg"></i>
+                </div>
+                <div>
+                    <h3 class="font-bold text-red-800 text-lg">重置 AppSecret</h3>
+                    <p class="text-xs text-red-600/80 mt-1 leading-relaxed">如果您的 Secret 已泄漏给非信任第三方，请立即重置。系统支持平滑重置：生成新
+                        Secret 后，旧 Secret 将保留 48 小时缓冲期，以防您的线上业务意外中断。</p>
+                </div>
+            </div>
+
+            <div class="p-6">
+                <!-- 模拟二次验证 -->
+                <label class="block text-sm font-bold text-slate-700 mb-2">为验证您的身份，请输入当前登录的密码</label>
+                <input type="password" value="" placeholder="输入 admin_ypb2025 的登录密码"
+                    class="w-full px-4 py-2.5 rounded-lg border border-slate-200 focus:border-red-500 focus:ring-1 focus:ring-red-500 outline-none text-sm shadow-sm mb-6">
+
+                <div class="flex justify-end gap-3 mt-4">
+                    <button onclick="closeResetModal()"
+                        class="px-5 py-2 text-sm text-slate-600 hover:bg-slate-50 border border-slate-200 rounded-lg transition font-medium">取消</button>
+                    <button onclick="confirmReset()"
+                        class="px-5 py-2 bg-red-600 hover:bg-red-700 text-white text-sm font-bold rounded-lg shadow-sm transition flex items-center gap-2">
+                        确认重置并生成新密钥
+                    </button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // 查看/隐藏明文
+        function toggleSecretVisibility() {
+            const secretInput = document.getElementById('org-secret-input');
+            const eyeIcon = document.getElementById('secret-eye-icon');
+            if (secretInput.type === 'password') {
+                secretInput.type = 'text';
+                eyeIcon.classList.replace('fa-eye', 'fa-eye-slash');
+            } else {
+                secretInput.type = 'password';
+                eyeIcon.classList.replace('fa-eye-slash', 'fa-eye');
+            }
+        }
+
+        // 弹窗逻辑
+        const resetModal = document.getElementById('modal-reset');
+        const resetContent = document.getElementById('modal-reset-content');
+        function openResetModal() {
+            resetModal.classList.remove('hidden');
+            setTimeout(() => { resetModal.classList.remove('opacity-0'); resetContent.classList.add('modal-enter'); }, 10);
+        }
+        function closeResetModal() {
+            resetModal.classList.add('opacity-0');
+            setTimeout(() => { resetModal.classList.add('hidden'); resetContent.classList.remove('modal-enter'); }, 200);
+        }
+
+        // 模拟重置成功并展示过渡提醒
+        function confirmReset() {
+            closeResetModal();
+            const legacyWarn = document.getElementById('legacy-secret-warning');
+            const newSecret = document.getElementById('org-secret-input');
+
+            // 简单模拟动画延迟
+            setTimeout(() => {
+                newSecret.value = "sk_Live_new" + Math.random().toString(36).substr(2, 10);
+                newSecret.classList.add('text-green-600', 'bg-green-50/50', 'border-green-200');
+                legacyWarn.classList.remove('hidden');
+
+                const now = new Date();
+                document.getElementById('reset-time-ds').innerText = now.getHours() + ':' + (now.getMinutes() < 10 ? '0' : '') + now.getMinutes();
+
+                // 移除高亮
+                setTimeout(() => {
+                    newSecret.classList.remove('text-green-600', 'bg-green-50/50', 'border-green-200');
+                }, 2000);
+            }, 300);
+        }
+
+        // Webhook 开关联动 
+        document.getElementById('webhook-toggle').addEventListener('change', function () {
+            const text = document.getElementById('webhook-status-text');
+            if (this.checked) {
+                text.innerText = "接收推送中";
+                text.classList.replace('text-slate-500', 'text-indigo-600');
+            } else {
+                text.innerText = "暂停推送";
+                text.classList.replace('text-indigo-600', 'text-slate-500');
+            }
+        });
+    </script>
+</body>
+
+</html>

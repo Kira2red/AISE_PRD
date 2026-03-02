@@ -1,0 +1,373 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>本渠道学生 - 组织后台中心</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <script>
+        tailwind.config = {
+            theme: {
+                extend: {
+                    fontFamily: { sans: ['Inter', 'sans-serif'], mono: ['JetBrains Mono', 'monospace'] },
+                    colors: { brand: { 50: '#f0fdfa', 100: '#ccfbf1', 500: '#14b8a6', 600: '#0d9488', 700: '#0f766e' } },
+                    boxShadow: { 'drawer': '-10px 0 30px -10px rgba(0, 0, 0, 0.1)' }
+                }
+            }
+        }
+    </script>
+    <style>
+        body {
+            background-color: #F8FAFC;
+        }
+
+        .custom-scroll::-webkit-scrollbar {
+            width: 6px;
+            height: 6px;
+        }
+
+        .custom-scroll::-webkit-scrollbar-track {
+            background: transparent;
+        }
+
+        .custom-scroll::-webkit-scrollbar-thumb {
+            background: #cbd5e1;
+            border-radius: 3px;
+        }
+
+        .nav-item.active {
+            background-color: #f0fdfa;
+            color: #0d9488;
+            font-weight: 600;
+        }
+
+        .nav-item.active::before {
+            content: '';
+            position: absolute;
+            left: 0;
+            top: 10%;
+            height: 80%;
+            width: 4px;
+            border-radius: 0 4px 4px 0;
+            background-color: #0d9488;
+        }
+
+        .drawer-enter {
+            transform: translateX(100%);
+        }
+
+        .drawer-active {
+            transform: translateX(0);
+        }
+    </style>
+</head>
+
+<body class="flex h-screen overflow-hidden text-slate-800 font-sans">
+
+    <!-- 侧边栏 -->
+    <aside class="w-64 bg-slate-900 text-slate-300 flex flex-col flex-shrink-0 z-20">
+        <div class="h-[72px] flex items-center px-6 border-b border-slate-800 bg-slate-950/50">
+            <div
+                class="w-8 h-8 bg-gradient-to-br from-brand-500 to-emerald-600 rounded flex items-center justify-center text-white font-bold text-lg mr-3 shadow-lg">
+                Y</div>
+            <div class="flex-1 min-w-0">
+                <h1 class="font-bold text-sm text-white truncate">猿编程教育科技</h1>
+                <p class="text-[10px] text-slate-500 font-mono truncate">ID: YPB2025</p>
+            </div>
+        </div>
+        <nav class="flex-1 overflow-y-auto py-6 space-y-1 custom-scroll px-3 cursor-pointer">
+            <div class="px-3 pb-2 text-[10px] font-bold text-slate-500 uppercase tracking-wider">业务数据中心</div>
+            <a href="03_学生列表.html"
+                class="nav-item active flex items-center gap-3 px-3 py-2.5 rounded-lg text-brand-700 transition relative group">
+                <i class="fa-solid fa-users w-5 text-center text-brand-500"></i><span
+                    class="text-sm border-brand-500">本渠道学生</span>
+            </a>
+            <a href="04_报名列表.html"
+                class="nav-item flex items-center gap-3 px-3 py-2.5 rounded-lg text-slate-400 hover:bg-slate-800 hover:text-white transition relative group">
+                <i
+                    class="fa-solid fa-clipboard-list w-5 text-center group-hover:text-brand-400 transition-colors"></i><span
+                    class="text-sm">成绩与进度查询</span>
+            </a>
+            <div class="px-3 pb-2 pt-6 text-[10px] font-bold text-slate-500 uppercase tracking-wider">系统与开发者</div>
+            <a href="05_密钥与Webhook.html"
+                class="nav-item flex items-center gap-3 px-3 py-2.5 rounded-lg text-slate-400 hover:bg-slate-800 hover:text-white transition relative group">
+                <i class="fa-solid fa-key w-5 text-center group-hover:text-brand-400 transition-colors"></i><span
+                    class="text-sm">配置与密钥 (API)</span>
+            </a>
+            <a href="06_联调日志.html"
+                class="nav-item flex items-center gap-3 px-3 py-2.5 rounded-lg text-slate-400 hover:bg-slate-800 hover:text-white transition relative group">
+                <i
+                    class="fa-solid fa-satellite-dish w-5 text-center group-hover:text-brand-400 transition-colors"></i><span
+                    class="text-sm">联调与接口日志</span>
+            </a>
+        </nav>
+        <div class="p-4 border-t border-slate-800">
+            <div class="flex items-center gap-3 hover:bg-slate-800 p-2 rounded-lg cursor-pointer transition">
+                <img src="https://api.dicebear.com/7.x/avataaars/svg?seed=AdminUser"
+                    class="w-8 h-8 rounded-full bg-slate-800 border border-slate-700">
+                <div class="flex-1 min-w-0">
+                    <p class="text-xs font-bold text-slate-200 truncate">admin_ypb2025</p>
+                    <p class="text-[10px] text-slate-500 truncate">管理员</p>
+                </div>
+                <i
+                    class="fa-solid fa-arrow-right-from-bracket text-slate-500 hover:text-red-400 transition text-sm"></i>
+            </div>
+        </div>
+    </aside>
+
+    <main class="flex-1 flex flex-col min-w-0 bg-slate-50/50 relative">
+        <header
+            class="h-[72px] bg-white border-b border-slate-200 flex items-center justify-between px-8 flex-shrink-0 z-10 sticky top-0 backdrop-blur-md bg-white/90">
+            <div class="flex items-center gap-4">
+                <h2 class="text-lg font-bold text-slate-800">本渠道学生目录</h2>
+                <div class="bg-blue-50 text-blue-700 text-xs px-2.5 py-1 rounded-full font-bold border border-blue-100 flex items-center gap-1.5 focus:outline-none cursor-pointer"
+                    title="点击查看说明">
+                    <i class="fa-solid fa-circle-question text-blue-500"></i> 数据脱敏说明
+                </div>
+            </div>
+
+            <div class="flex items-center gap-4">
+                <button
+                    class="bg-white border border-slate-200 hover:bg-slate-50 text-slate-700 text-sm font-medium px-4 py-2 rounded-lg shadow-sm transition flex items-center gap-2">
+                    <i class="fa-solid fa-file-export text-slate-400"></i> 导出名单 (需鉴权)
+                </button>
+            </div>
+        </header>
+
+        <div class="p-8 pb-4">
+            <div class="bg-white rounded-xl shadow-sm border border-slate-200 p-4 flex flex-wrap gap-4 items-center">
+
+                <div class="relative w-64">
+                    <i
+                        class="fa-solid fa-user absolute left-3 top-1/2 transform -translate-y-1/2 text-slate-400 text-sm"></i>
+                    <input type="text" placeholder="学生姓名"
+                        class="w-full pl-9 pr-4 py-2 rounded-lg border border-slate-200 text-sm focus:border-brand-500 outline-none transition bg-slate-50">
+                </div>
+
+                <div class="relative w-64">
+                    <i
+                        class="fa-solid fa-mobile-screen absolute left-3 top-1/2 transform -translate-y-1/2 text-slate-400 text-sm"></i>
+                    <input type="text" placeholder="家长的注册手机（支持后四位）"
+                        class="w-full pl-9 pr-4 py-2 rounded-lg border border-slate-200 text-sm focus:border-brand-500 outline-none transition bg-slate-50">
+                </div>
+
+                <div class="relative w-64">
+                    <i
+                        class="fa-regular fa-id-card absolute left-3 top-1/2 transform -translate-y-1/2 text-slate-400 text-sm"></i>
+                    <input type="text" placeholder="证件号码缩影查询..."
+                        class="w-full pl-9 pr-4 py-2 rounded-lg border border-slate-200 text-sm focus:border-brand-500 outline-none transition bg-slate-50">
+                </div>
+
+                <button
+                    class="bg-brand-600 hover:bg-brand-700 text-white text-sm font-bold px-5 py-2 rounded-lg shadow-sm transition">
+                    精确匹配检索
+                </button>
+            </div>
+        </div>
+
+        <div class="flex-1 overflow-y-auto px-8 pb-8 custom-scroll">
+            <div class="bg-white rounded-xl shadow-sm border border-slate-200 overflow-hidden">
+                <table class="w-full text-left">
+                    <thead
+                        class="bg-slate-50 border-b border-slate-100 text-xs text-slate-500 font-bold tracking-wider">
+                        <tr>
+                            <th class="p-4 pl-6">学生信息</th>
+                            <th class="p-4 text-center">性别</th>
+                            <th class="p-4">出生日期</th>
+                            <th class="p-4">证件信息 (脱敏)</th>
+                            <th class="p-4">家长手机 (脱敏)</th>
+                            <th class="p-4">所属省市</th>
+                            <th class="p-4 text-right pr-6">名下测评订单</th>
+                        </tr>
+                    </thead>
+                    <tbody class="text-sm divide-y divide-slate-100 text-slate-700 cursor-pointer">
+
+                        <tr class="hover:bg-slate-50 transition group" onclick="openStudentDrawer()">
+                            <td class="p-4 pl-6">
+                                <div class="flex items-center gap-3">
+                                    <img src="https://api.dicebear.com/7.x/avataaars/svg?seed=ZhangSan"
+                                        class="w-8 h-8 rounded-full border border-slate-200 bg-slate-50">
+                                    <div>
+                                        <p class="font-bold text-slate-800">张小三</p>
+                                        <p class="text-[10px] text-slate-400 mt-0.5">UID: stu_10086v2</p>
+                                    </div>
+                                </div>
+                            </td>
+                            <td class="p-4 text-center">
+                                <span
+                                    class="bg-blue-50 text-blue-500 text-[10px] font-bold px-1.5 py-0.5 rounded border border-blue-100">男</span>
+                            </td>
+                            <td class="p-4 font-mono text-xs text-slate-500">2012-05-18</td>
+                            <td class="p-4">
+                                <p class="text-xs font-mono">110105********1234</p>
+                                <p class="text-[10px] text-slate-400 mt-0.5">身份证</p>
+                            </td>
+                            <td class="p-4 font-mono">138****8000</td>
+                            <td class="p-4 text-xs text-slate-600">北京市 朝阳区</td>
+                            <td class="p-4 text-right pr-6 relative">
+                                <span
+                                    class="bg-slate-100 text-slate-600 text-[11px] font-bold px-2 py-1 rounded-full group-hover:bg-brand-50 group-hover:text-brand-600 transition-colors">3
+                                    条记录</span>
+                            </td>
+                        </tr>
+
+                        <tr class="hover:bg-slate-50 transition group" onclick="openStudentDrawer()">
+                            <td class="p-4 pl-6">
+                                <div class="flex items-center gap-3">
+                                    <div
+                                        class="w-8 h-8 rounded-full bg-purple-100 text-purple-600 font-bold flex items-center justify-center text-xs">
+                                        李</div>
+                                    <div>
+                                        <p class="font-bold text-slate-800">李小花</p>
+                                        <p class="text-[10px] text-slate-400 mt-0.5">UID: stu_99182x</p>
+                                    </div>
+                                </div>
+                            </td>
+                            <td class="p-4 text-center">
+                                <span
+                                    class="bg-pink-50 text-pink-500 text-[10px] font-bold px-1.5 py-0.5 rounded border border-pink-100">女</span>
+                            </td>
+                            <td class="p-4 font-mono text-xs text-slate-500">2014-11-20</td>
+                            <td class="p-4">
+                                <p class="text-xs font-mono">310115********5678</p>
+                                <p class="text-[10px] text-slate-400 mt-0.5">护照</p>
+                            </td>
+                            <td class="p-4 font-mono">139****5678</td>
+                            <td class="p-4 text-xs text-slate-600">上海市 浦东新区</td>
+                            <td class="p-4 text-right pr-6 relative">
+                                <span
+                                    class="bg-slate-100 text-slate-600 text-[11px] font-bold px-2 py-1 rounded-full group-hover:bg-brand-50 group-hover:text-brand-600 transition-colors">1
+                                    条记录</span>
+                            </td>
+                        </tr>
+
+                    </tbody>
+                </table>
+            </div>
+
+            <div class="flex justify-between items-center mt-4 px-2">
+                <span class="text-xs text-slate-500">共查询到 <span class="font-bold text-slate-700">2</span>
+                    名本渠道归档学生记录</span>
+                <div class="flex items-center gap-2">
+                    <button
+                        class="px-3 py-1.5 border border-slate-200 rounded text-xs font-medium text-slate-400 cursor-not-allowed bg-white">上一页</button>
+                    <span class="text-xs text-slate-600 font-mono px-2">1 / 1</span>
+                    <button
+                        class="px-3 py-1.5 border border-slate-200 rounded text-xs font-medium text-slate-400 cursor-not-allowed bg-white">下一页</button>
+                </div>
+            </div>
+        </div>
+    </main>
+
+    <!-- 学生详情抽屉 -->
+    <div id="student-drawer-overlay"
+        class="fixed inset-0 bg-slate-900/40 backdrop-blur-sm z-40 hidden transition-opacity opacity-0"
+        onclick="closeStudentDrawer()"></div>
+    <div id="student-drawer"
+        class="fixed inset-y-0 right-0 w-[600px] bg-white shadow-drawer z-50 flex flex-col drawer-enter transition-transform duration-300">
+
+        <div
+            class="px-6 py-5 border-b border-slate-100 flex justify-between items-center bg-brand-50 relative overflow-hidden">
+            <div class="absolute -right-10 -top-10 w-32 h-32 bg-brand-100 rounded-full opacity-50 blur-xl"></div>
+
+            <div class="flex items-center gap-4 relative z-10">
+                <img src="https://api.dicebear.com/7.x/avataaars/svg?seed=ZhangSan"
+                    class="w-14 h-14 rounded-full border-2 border-white shadow-sm bg-white">
+                <div>
+                    <h3 class="font-bold text-slate-800 text-lg flex items-center gap-2">张小三 <span
+                            class="bg-blue-100 text-blue-600 text-[10px] font-bold px-1.5 py-0.5 rounded border border-blue-200">男</span>
+                    </h3>
+                    <p class="text-[11px] text-slate-500 font-mono mt-1">全局唯一标示 UID: stu_10086v2</p>
+                </div>
+            </div>
+            <button onclick="closeStudentDrawer()"
+                class="text-slate-400 hover:text-slate-700 transition w-8 h-8 rounded-full hover:bg-slate-200/50 flex items-center justify-center relative z-10">
+                <i class="fa-solid fa-xmark"></i>
+            </button>
+        </div>
+
+        <div class="flex-1 overflow-y-auto bg-slate-50 space-y-4 p-6 custom-scroll">
+
+            <h4 class="text-xs font-bold text-slate-400 uppercase tracking-wider mb-2 flex items-center gap-2"><i
+                    class="fa-regular fa-id-card"></i> 核心身份与联系信息</h4>
+            <div
+                class="bg-white rounded-xl shadow-sm border border-slate-200 p-5 grid grid-cols-2 gap-y-5 gap-x-4 text-sm">
+                <div>
+                    <p class="text-xs text-slate-400 mb-1">证件类型</p>
+                    <p class="font-medium text-slate-800">中华人民共和国居民身份证</p>
+                </div>
+                <div>
+                    <p class="text-xs text-slate-400 mb-1">证件号码</p>
+                    <p class="font-mono font-medium text-slate-800">110105<span
+                            class="text-slate-300">********</span>1234</p>
+                </div>
+                <div>
+                    <p class="text-xs text-slate-400 mb-1">出生日期</p>
+                    <p class="font-mono font-medium text-slate-800">2012-05-18 <span
+                            class="text-xs text-slate-400 font-sans ml-1">(12岁)</span></p>
+                </div>
+                <div>
+                    <p class="text-xs text-slate-400 mb-1">家长拼音/英文名</p>
+                    <p class="font-medium text-slate-800">Zhang Xiaosan</p>
+                </div>
+                <div class="col-span-2 border-t border-slate-100 pt-3">
+                    <p class="text-xs text-slate-400 mb-1">家长联系手机</p>
+                    <p class="font-mono font-medium text-slate-800">138<span class="text-slate-300">****</span>8000</p>
+                </div>
+            </div>
+
+            <h4 class="text-xs font-bold text-slate-400 uppercase tracking-wider mb-2 mt-6 flex items-center gap-2"><i
+                    class="fa-solid fa-map-location-dot"></i> 所在地区与学习信息</h4>
+            <div
+                class="bg-white rounded-xl shadow-sm border border-slate-200 p-5 grid grid-cols-2 gap-y-5 gap-x-4 text-sm">
+                <div>
+                    <p class="text-xs text-slate-400 mb-1">所在省市</p>
+                    <p class="font-medium text-slate-800">北京市 - 朝阳区</p>
+                </div>
+                <div>
+                    <p class="text-xs text-slate-400 mb-1">就读学校与年级</p>
+                    <p class="font-medium text-slate-800 text-sm truncate">北京市朝阳区实验小学 (六年级)</p>
+                </div>
+                <div class="col-span-2 border-t border-slate-100 pt-3">
+                    <p class="text-xs text-slate-400 mb-1">详细联系地址</p>
+                    <p class="font-medium text-slate-600 text-sm">详细地址涉及隐私已折叠，测评邮寄地址请以报名时所填为准。</p>
+                </div>
+            </div>
+
+        </div>
+
+        <div class="p-4 border-t border-slate-100 bg-white flex justify-center">
+            <button class="text-brand-600 text-sm font-bold hover:text-brand-800 transition flex items-center gap-2">
+                查验该名下所有报名与成绩记录 <i class="fa-solid fa-arrow-right"></i>
+            </button>
+        </div>
+    </div>
+
+    <script>
+        function openStudentDrawer() {
+            const overlay = document.getElementById('student-drawer-overlay');
+            const drawer = document.getElementById('student-drawer');
+            overlay.classList.remove('hidden');
+            setTimeout(() => {
+                overlay.classList.remove('opacity-0');
+                drawer.classList.add('drawer-active');
+            }, 10);
+        }
+
+        function closeStudentDrawer() {
+            const overlay = document.getElementById('student-drawer-overlay');
+            const drawer = document.getElementById('student-drawer');
+            drawer.classList.remove('drawer-active');
+            overlay.classList.add('opacity-0');
+            setTimeout(() => {
+                overlay.classList.add('hidden');
+            }, 300);
+        }
+    </script>
+</body>
+
+</html>

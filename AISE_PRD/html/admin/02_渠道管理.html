@@ -1,0 +1,965 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>渠道管理 - AISE 后台</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+
+    <script>
+        tailwind.config = {
+            theme: {
+                extend: {
+                    fontFamily: {
+                        sans: ['Inter', 'sans-serif'],
+                        mono: ['JetBrains Mono', 'monospace'],
+                    },
+                    colors: {
+                        brand: { 50: '#eff6ff', 100: '#dbeafe', 500: '#3b82f6', 600: '#2563eb', 700: '#1d4ed8' },
+                    },
+                    boxShadow: {
+                        'card': '0 1px 3px 0 rgba(0, 0, 0, 0.1), 0 1px 2px 0 rgba(0, 0, 0, 0.06)',
+                        'popover': '0 20px 25px -5px rgba(0, 0, 0, 0.1), 0 10px 10px -5px rgba(0, 0, 0, 0.04)',
+                    }
+                }
+            }
+        }
+    </script>
+    <style>
+        body {
+            background-color: #F8FAFC;
+        }
+
+        .hide-scroll::-webkit-scrollbar {
+            display: none;
+        }
+
+        .nav-item.active::before {
+            content: '';
+            position: absolute;
+            left: 0;
+            top: 50%;
+            transform: translateY(-50%);
+            width: 4px;
+            height: 24px;
+            background-color: #3b82f6;
+            border-radius: 0 4px 4px 0;
+        }
+
+        tr.hover-row:hover td {
+            background-color: #f8fafc;
+        }
+
+        /* Modal Animation */
+        .modal-enter {
+            animation: modalFadeIn 0.2s ease-out forwards;
+        }
+
+        @keyframes modalFadeIn {
+            from {
+                opacity: 0;
+                transform: scale(0.98);
+            }
+
+            to {
+                opacity: 1;
+                transform: scale(1);
+            }
+        }
+
+        .qr-popover {
+            opacity: 0;
+            transform: scale(0.95) translateY(10px);
+            pointer-events: none;
+            transition: all 0.2s;
+        }
+
+        .qr-popover.show {
+            opacity: 1;
+            transform: scale(1) translateY(0);
+            pointer-events: auto;
+        }
+
+        .input-disabled {
+            background-color: #F1F5F9;
+            color: #94A3B8;
+            cursor: not-allowed;
+        }
+    </style>
+</head>
+
+<body class="flex h-screen overflow-hidden text-slate-800 font-sans">
+
+    <aside class="w-64 bg-white border-r border-slate-200 flex flex-col flex-shrink-0 z-20">
+        <div class="h-16 flex items-center px-6 border-b border-slate-100">
+            <div
+                class="w-8 h-8 bg-gradient-to-br from-brand-600 to-indigo-600 rounded-lg flex items-center justify-center text-white font-bold text-lg mr-3 shadow-sm">
+                A</div>
+            <span class="font-bold text-lg text-slate-800 tracking-tight">AISE Admin</span>
+        </div>
+        <nav class="flex-1 overflow-y-auto py-4 space-y-1">
+            <a href="#"
+                class="nav-item flex items-center gap-3 px-6 py-3 text-slate-500 hover:bg-slate-50 hover:text-brand-600 transition relative">
+                <i class="fa-solid fa-graduation-cap w-5 text-center"></i><span class="font-medium text-sm">测评管理</span>
+            </a>
+            <div class="px-6 py-2 mt-4 text-xs font-bold text-slate-400 uppercase tracking-wider">运营中心</div>
+            <a href="#"
+                class="nav-item active flex items-center gap-3 px-6 py-3 text-brand-600 bg-brand-50 transition relative">
+                <i class="fa-solid fa-sitemap w-5 text-center"></i><span class="font-medium text-sm">渠道管理</span>
+            </a>
+            <a href="#"
+                class="nav-item flex items-center gap-3 px-6 py-3 text-slate-500 hover:bg-slate-50 hover:text-brand-600 transition relative">
+                <i class="fa-solid fa-clipboard-check w-5 text-center"></i><span class="font-medium text-sm">报名管理</span>
+            </a>
+        </nav>
+    </aside>
+
+    <main class="flex-1 flex flex-col min-w-0 bg-slate-50/50 relative">
+
+        <header
+            class="h-16 bg-white border-b border-slate-200 flex items-center justify-between px-8 flex-shrink-0 z-10">
+            <h1 class="text-xl font-bold text-slate-800">渠道管理</h1>
+            <button onclick="openEditModal('create')"
+                class="bg-brand-600 hover:bg-brand-700 text-white text-sm font-medium px-5 py-2.5 rounded-lg shadow-sm transition flex items-center gap-2">
+                <i class="fa-solid fa-plus"></i> 新建渠道
+            </button>
+        </header>
+
+        <div class="px-8 py-6">
+            <div class="bg-white rounded-xl shadow-card border border-slate-100 p-4 flex gap-4 items-center">
+                <div class="relative w-72">
+                    <i
+                        class="fa-solid fa-magnifying-glass absolute left-3 top-1/2 transform -translate-y-1/2 text-slate-400 text-sm"></i>
+                    <input type="text" placeholder="搜索渠道名称 / ID..."
+                        class="w-full pl-9 pr-4 py-2 rounded-lg border border-slate-200 text-sm focus:border-brand-500 outline-none transition">
+                </div>
+                <!-- 新增：后台开通状态筛选 -->
+                <select
+                    class="px-3 py-2 rounded-lg border border-slate-200 text-sm text-slate-600 bg-white outline-none hover:border-slate-300 cursor-pointer">
+                    <option value="">组织后台状态</option>
+                    <option value="active">正常</option>
+                    <option value="unopened">未开通</option>
+                    <option value="disabled">已禁用</option>
+                </select>
+                <button
+                    class="bg-white border border-slate-200 hover:bg-slate-50 text-slate-700 text-sm font-medium px-4 py-2 rounded-lg shadow-sm transition">查询</button>
+            </div>
+        </div>
+
+        <div class="flex-1 overflow-y-auto px-8 pb-8 custom-scroll">
+            <div class="bg-white rounded-xl shadow-card border border-slate-200 overflow-hidden">
+                <table class="w-full text-left border-collapse">
+                    <thead>
+                        <tr class="border-b border-slate-100 bg-slate-50 text-xs uppercase text-slate-500 font-bold">
+                            <th class="p-4 pl-6">渠道名称</th>
+                            <th class="p-4">渠道号 (ID)</th>
+                            <th class="p-4">渠道推广入口 <span
+                                    class="text-[10px] font-normal text-brand-600 bg-brand-50 px-1 rounded ml-1">聚合页</span>
+                            </th>
+                            <th class="p-4">关联活动</th>
+                            <th class="p-4">创建时间</th>
+                            <th class="p-4">组织后台状态</th>
+                            <th class="p-4 text-right pr-6">操作</th>
+                        </tr>
+                    </thead>
+                    <tbody class="text-sm text-slate-700 divide-y divide-slate-100">
+
+                        <tr class="hover-row transition">
+                            <td class="p-4 pl-6 font-bold text-slate-800">猿编程教育科技</td>
+                            <td class="p-4 font-mono text-slate-600">YPB2025</td>
+                            <td class="p-4">
+                                <div class="flex gap-2">
+                                    <button
+                                        class="text-slate-400 hover:text-brand-600 p-1.5 rounded border border-slate-200 hover:border-brand-300 bg-white transition text-xs flex items-center gap-1 group"
+                                        title="复制聚合报名链接">
+                                        <i class="fa-regular fa-copy"></i> <span class="text-[10px]">链接</span>
+                                    </button>
+                                    <div class="relative group/qr">
+                                        <button
+                                            class="text-slate-400 hover:text-brand-600 p-1.5 rounded border border-slate-200 hover:border-brand-300 bg-white transition text-xs flex items-center gap-1">
+                                            <i class="fa-solid fa-qrcode"></i> <span class="text-[10px]">码</span>
+                                        </button>
+                                        <div
+                                            class="qr-popover absolute left-0 bottom-full mb-2 w-36 bg-white rounded-lg shadow-xl border border-slate-100 p-3 z-50 group-hover/qr:show text-center">
+                                            <img src="https://api.qrserver.com/v1/create-qr-code/?size=100x100&data=ChannelHome_YPB2025"
+                                                class="w-full h-full opacity-90 mb-2">
+                                            <p class="text-[10px] text-slate-500">扫码进入选课列表</p>
+                                        </div>
+                                    </div>
+                                </div>
+                            </td>
+                            <td class="p-4">
+                                <button onclick="openRelationModal('猿编程教育科技', 'YPB2025')"
+                                    class="text-brand-600 hover:text-brand-800 hover:underline font-bold px-2 py-1 rounded hover:bg-brand-50 transition">
+                                    3 个活动
+                                </button>
+                            </td>
+                            <td class="p-4 text-slate-500 text-xs">2025-01-10 10:00</td>
+                            <td class="p-4">
+                                <span
+                                    class="inline-flex items-center gap-1.5 px-2 py-0.5 rounded text-xs font-bold bg-green-50 text-green-700 border border-green-100">
+                                    <span class="w-1.5 h-1.5 rounded-full bg-green-500"></span> 正常
+                                </span>
+                            </td>
+                            <td class="p-4 text-right pr-6">
+                                <div class="flex justify-end gap-2">
+                                    <button onclick="openEditModal('edit', 'YPB2025', '猿编程教育科技')"
+                                        class="text-slate-400 hover:text-brand-600 p-1.5 rounded border border-slate-200 hover:border-brand-300 bg-white transition text-xs flex items-center gap-1 group"
+                                        title="编辑渠道基础信息">
+                                        <i class="fa-regular fa-pen-to-square"></i> <span class="text-[10px]">渠道</span>
+                                    </button>
+                                    <button onclick="openOrgModal('YPB2025', '猿编程教育科技')"
+                                        class="text-slate-400 hover:text-indigo-600 p-1.5 rounded border border-slate-200 hover:border-indigo-300 bg-white transition text-xs flex items-center gap-1 group"
+                                        title="配置组织后台与API参数">
+                                        <i class="fa-solid fa-building-user"></i> <span class="text-[10px]">组织</span>
+                                    </button>
+                                </div>
+                            </td>
+                        </tr>
+
+                        <tr class="hover-row transition">
+                            <td class="p-4 pl-6 font-bold text-slate-800">CodeBear 代码熊</td>
+                            <td class="p-4 font-mono text-slate-600">CB888</td>
+                            <td class="p-4">
+                                <div class="flex gap-2">
+                                    <button
+                                        class="text-slate-400 hover:text-brand-600 p-1.5 rounded border border-slate-200 hover:border-brand-300 bg-white transition text-xs flex items-center gap-1 group">
+                                        <i class="fa-regular fa-copy"></i> <span class="text-[10px]">链接</span>
+                                    </button>
+                                    <div class="relative group/qr">
+                                        <button
+                                            class="text-slate-400 hover:text-brand-600 p-1.5 rounded border border-slate-200 hover:border-brand-300 bg-white transition text-xs flex items-center gap-1">
+                                            <i class="fa-solid fa-qrcode"></i> <span class="text-[10px]">码</span>
+                                        </button>
+                                        <div
+                                            class="qr-popover absolute left-0 bottom-full mb-2 w-36 bg-white rounded-lg shadow-xl border border-slate-100 p-3 z-50 group-hover/qr:show text-center">
+                                            <img src="https://api.qrserver.com/v1/create-qr-code/?size=100x100&data=ChannelHome_CB888"
+                                                class="w-full h-full opacity-90 mb-2">
+                                            <p class="text-[10px] text-slate-500">扫码进入选课列表</p>
+                                        </div>
+                                    </div>
+                                </div>
+                            </td>
+                            <td class="p-4">
+                                <button onclick="openRelationModal('CodeBear 代码熊', 'CB888')"
+                                    class="text-brand-600 hover:text-brand-800 hover:underline font-bold px-2 py-1 rounded hover:bg-brand-50 transition">
+                                    1 个活动
+                                </button>
+                            </td>
+                            <td class="p-4 text-slate-500 text-xs">2025-03-22 09:15</td>
+                            <td class="p-4">
+                                <span
+                                    class="inline-flex items-center gap-1.5 px-2 py-0.5 rounded text-xs font-bold bg-slate-100 text-slate-500 border border-slate-200">
+                                    <span class="w-1.5 h-1.5 rounded-full bg-slate-400"></span> 未开通
+                                </span>
+                            </td>
+                            <td class="p-4 text-right pr-6">
+                                <div class="flex justify-end gap-2">
+                                    <button onclick="openEditModal('edit', 'CB888', 'CodeBear 代码熊')"
+                                        class="text-slate-400 hover:text-brand-600 p-1.5 rounded border border-slate-200 hover:border-brand-300 bg-white transition text-xs flex items-center gap-1 group"
+                                        title="编辑渠道基础信息">
+                                        <i class="fa-regular fa-pen-to-square"></i> <span class="text-[10px]">渠道</span>
+                                    </button>
+                                    <button onclick="openOrgModal('CB888', 'CodeBear 代码熊')"
+                                        class="text-slate-400 hover:text-indigo-600 p-1.5 rounded border border-slate-200 hover:border-indigo-300 bg-white transition text-xs flex items-center gap-1 group"
+                                        title="配置组织后台与API参数">
+                                        <i class="fa-solid fa-building-user"></i> <span class="text-[10px]">组织</span>
+                                    </button>
+                                </div>
+                            </td>
+                        </tr>
+
+                    </tbody>
+                </table>
+            </div>
+        </div>
+
+    </main>
+
+    <div id="modal-edit"
+        class="fixed inset-0 z-50 hidden flex items-center justify-center bg-slate-900/50 backdrop-blur-sm transition-opacity opacity-0">
+        <div class="bg-white rounded-2xl shadow-xl w-96 p-6 transform scale-95 transition-transform"
+            id="modal-edit-content">
+            <div class="flex justify-between items-center mb-6">
+                <h3 class="font-bold text-slate-800 text-lg" id="edit-modal-title">新增渠道</h3>
+                <button onclick="closeEditModal()" class="text-slate-400 hover:text-slate-600"><i
+                        class="fa-solid fa-xmark"></i></button>
+            </div>
+            <div class="space-y-4">
+                <div id="id-field" class="hidden">
+                    <label class="block text-xs font-bold text-slate-400 uppercase mb-2">渠道号 (ID)</label>
+                    <input type="text" id="channel-id"
+                        class="w-full px-4 py-2.5 rounded-lg border border-slate-100 bg-slate-50 text-slate-500 text-sm font-mono focus:outline-none"
+                        readonly>
+                </div>
+                <div>
+                    <label class="block text-xs font-bold text-slate-500 uppercase mb-2">渠道名称 <span
+                            class="text-red-500">*</span></label>
+                    <input type="text" id="channel-name"
+                        class="w-full px-4 py-2.5 rounded-lg border border-slate-200 focus:border-brand-500 focus:ring-1 focus:ring-brand-500 outline-none transition text-sm text-slate-800"
+                        placeholder="请输入名称">
+                </div>
+            </div>
+            <div class="mt-8 pt-4 border-t border-slate-100 flex justify-end gap-3">
+                <button onclick="closeEditModal()"
+                    class="px-4 py-2 text-sm text-slate-600 hover:bg-slate-50 rounded-lg transition">取消</button>
+                <button
+                    class="px-6 py-2 bg-brand-600 text-white text-sm font-bold rounded-lg hover:bg-brand-700 transition shadow-sm">保存</button>
+            </div>
+        </div>
+    </div>
+
+    <div id="modal-relation"
+        class="fixed inset-0 z-50 hidden flex items-center justify-center bg-slate-900/50 backdrop-blur-sm transition-opacity opacity-0">
+        <div class="bg-white rounded-2xl shadow-2xl w-[960px] max-h-[80vh] flex flex-col transform scale-95 transition-transform"
+            id="modal-relation-content">
+
+            <div
+                class="px-6 py-4 border-b border-slate-100 flex justify-between items-center bg-slate-50 rounded-t-2xl">
+                <div>
+                    <h3 class="font-bold text-slate-800 text-lg">关联活动管理</h3>
+                    <p class="text-xs text-slate-500 mt-1">当前渠道：<span class="font-bold text-brand-600"
+                            id="relation-channel-name">猿编程</span></p>
+                </div>
+                <div class="flex items-center gap-4">
+                    <button onclick="openAddRelationModal()"
+                        class="bg-brand-600 hover:bg-brand-700 text-white text-xs font-bold px-4 py-2 rounded-lg shadow-sm transition flex items-center gap-2">
+                        <i class="fa-solid fa-link"></i> 关联新测评
+                    </button>
+                    <button onclick="closeRelationModal()"
+                        class="w-8 h-8 rounded-full hover:bg-slate-200 flex items-center justify-center text-slate-400 transition">
+                        <i class="fa-solid fa-xmark"></i>
+                    </button>
+                </div>
+            </div>
+
+            <div class="p-6 overflow-y-auto custom-scroll bg-white">
+                <table class="w-full text-left border-collapse">
+                    <thead>
+                        <tr class="border-b border-slate-100 text-xs uppercase text-slate-500 font-bold">
+                            <th class="pb-3 w-1/3">测评名称</th>
+                            <th class="pb-3">时间信息</th>
+                            <th class="pb-3">报名费 (元)</th>
+                            <th class="pb-3">已报名</th>
+                            <th class="pb-3 text-right w-44">操作</th>
+                        </tr>
+                    </thead>
+                    <tbody class="text-sm text-slate-700 divide-y divide-slate-50">
+                        <tr class="group hover:bg-slate-50 transition">
+                            <td class="py-4 pr-4 font-medium text-slate-800 align-top">
+                                2025春季 Python 一级等级测评
+                                <div class="mt-1 text-xs text-brand-600 bg-brand-50 inline-block px-1.5 py-0.5 rounded">
+                                    展示中</div>
+                            </td>
+                            <td class="py-4 text-xs align-top">
+                                <div class="mb-1"><span class="text-slate-400 w-8 inline-block">考试:</span> 2025-05-20
+                                </div>
+                                <div><span class="text-slate-400 w-8 inline-block">展示:</span> 永久有效</div>
+                            </td>
+                            <td class="py-4 font-mono font-bold text-slate-700 align-top">¥ 199.00</td>
+                            <td class="py-4 align-top"><span
+                                    class="bg-green-50 text-green-700 px-2 py-0.5 rounded text-xs font-bold">156</span>
+                            </td>
+                            <td class="py-4 text-right align-top">
+                                <div class="flex justify-end gap-2">
+                                    <button onclick="openEditRelationModal('2025春季 Python 一级等级测评', 199, true)"
+                                        class="text-slate-400 hover:text-brand-600 p-1.5 rounded border border-slate-200 hover:border-brand-300 bg-white transition text-xs"
+                                        title="编辑配置"><i class="fa-regular fa-pen-to-square"></i></button>
+
+                                    <button
+                                        class="text-slate-400 hover:text-brand-600 p-1.5 rounded border border-slate-200 hover:border-brand-300 bg-white transition text-xs"
+                                        title="复制链接"><i class="fa-regular fa-copy"></i></button>
+                                    <div class="relative group/qr">
+                                        <button
+                                            class="text-slate-400 hover:text-brand-600 p-1.5 rounded border border-slate-200 hover:border-brand-300 bg-white transition text-xs"><i
+                                                class="fa-solid fa-qrcode"></i></button>
+                                        <div
+                                            class="qr-popover absolute right-0 bottom-full mb-2 w-32 bg-white rounded-lg shadow-xl border border-slate-100 p-2 z-50 group-hover/qr:show">
+                                            <img src="https://api.qrserver.com/v1/create-qr-code/?size=100x100&data=SingleActivity"
+                                                class="w-full h-full opacity-90">
+                                            <p class="text-[10px] text-center text-slate-500 mt-1">单项报名码</p>
+                                        </div>
+                                    </div>
+                                    <button
+                                        class="text-slate-300 hover:text-red-500 p-1.5 rounded hover:bg-red-50 transition text-xs"
+                                        title="取消关联"><i class="fa-solid fa-link-slash"></i></button>
+                                </div>
+                            </td>
+                        </tr>
+                        <tr class="group hover:bg-slate-50 transition">
+                            <td class="py-4 pr-4 font-medium text-slate-800 align-top">
+                                2025夏季 AIGC 应用能力二级
+                                <div
+                                    class="mt-1 text-xs text-slate-400 bg-slate-100 inline-block px-1.5 py-0.5 rounded">
+                                    未开始展示</div>
+                            </td>
+                            <td class="py-4 text-xs align-top">
+                                <div class="mb-1"><span class="text-slate-400 w-8 inline-block">考试:</span> 2025-06-15
+                                </div>
+                                <div><span class="text-slate-400 w-8 inline-block">展示:</span> 06-01 至 06-15</div>
+                            </td>
+                            <td class="py-4 font-mono font-bold text-slate-700 align-top">¥ 0.00</td>
+                            <td class="py-4 align-top"><span
+                                    class="bg-slate-100 text-slate-500 px-2 py-0.5 rounded text-xs font-bold">0</span>
+                            </td>
+                            <td class="py-4 text-right align-top">
+                                <div class="flex justify-end gap-2">
+                                    <button
+                                        onclick="openEditRelationModal('2025夏季 AIGC 应用能力二级', 0, false, '2025-06-01T10:00', '2025-06-15T22:00')"
+                                        class="text-slate-400 hover:text-brand-600 p-1.5 rounded border border-slate-200 hover:border-brand-300 bg-white transition text-xs"
+                                        title="编辑配置"><i class="fa-regular fa-pen-to-square"></i></button>
+
+                                    <button
+                                        class="text-slate-400 hover:text-brand-600 p-1.5 rounded border border-slate-200 hover:border-brand-300 bg-white transition text-xs"><i
+                                            class="fa-regular fa-copy"></i></button>
+                                    <div class="relative group/qr">
+                                        <button
+                                            class="text-slate-400 hover:text-brand-600 p-1.5 rounded border border-slate-200 hover:border-brand-300 bg-white transition text-xs"><i
+                                                class="fa-solid fa-qrcode"></i></button>
+                                    </div>
+                                    <button
+                                        class="text-slate-300 hover:text-red-500 p-1.5 rounded hover:bg-red-50 transition text-xs"><i
+                                            class="fa-solid fa-link-slash"></i></button>
+                                </div>
+                            </td>
+                        </tr>
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </div>
+
+    <div id="modal-add-relation"
+        class="fixed inset-0 z-[60] hidden flex items-center justify-center bg-slate-900/20 backdrop-blur-[2px] transition-opacity opacity-0">
+        <div class="bg-white rounded-xl shadow-2xl w-[450px] p-6 transform scale-95 transition-transform"
+            id="modal-add-content">
+            <h3 class="font-bold text-slate-800 text-lg mb-4" id="relation-modal-title">关联新测评</h3>
+            <div class="space-y-4">
+                <div>
+                    <label class="block text-xs font-bold text-slate-500 uppercase mb-1.5">测评名称</label>
+                    <select id="rel-exam-select"
+                        class="w-full px-3 py-2 rounded-lg border border-slate-200 text-sm focus:border-brand-500 outline-none bg-white">
+                        <option value="">请选择...</option>
+                        <option value="2025春季 Python 一级等级测评">2025春季 Python 一级等级测评</option>
+                        <option value="2025夏季 AIGC 应用能力二级">2025夏季 AIGC 应用能力二级</option>
+                        <option value="2025秋季 C++ 算法大赛">2025秋季 C++ 算法大赛</option>
+                    </select>
+                </div>
+
+                <div class="grid grid-cols-2 gap-4">
+                    <div>
+                        <label class="block text-xs font-bold text-slate-500 uppercase mb-1.5">配置报名费</label>
+                        <div class="relative">
+                            <span class="absolute left-3 top-2 text-slate-400 text-sm">¥</span>
+                            <input type="number" id="rel-price-input"
+                                class="w-full pl-7 pr-3 py-2 rounded-lg border border-slate-200 text-sm focus:border-brand-500 outline-none"
+                                placeholder="0.00">
+                        </div>
+                    </div>
+                    <div>
+                        <label class="block text-xs font-bold text-slate-500 uppercase mb-1.5">&nbsp;</label>
+                        <p class="text-[10px] text-slate-400 mt-2">此价格仅对当前渠道生效</p>
+                    </div>
+                </div>
+
+                <div class="border-t border-slate-100 pt-3">
+                    <div class="flex justify-between items-center mb-2">
+                        <label class="block text-xs font-bold text-slate-500 uppercase">前端展示时间</label>
+                        <div class="flex items-center">
+                            <input type="checkbox" id="display-permanent"
+                                class="w-3.5 h-3.5 text-brand-600 rounded border-slate-300 focus:ring-brand-500" checked
+                                onchange="toggleDateInputs(this)">
+                            <label for="display-permanent"
+                                class="ml-1.5 text-xs text-slate-600 select-none">永久有效</label>
+                        </div>
+                    </div>
+
+                    <div id="date-inputs"
+                        class="grid grid-cols-2 gap-3 opacity-50 pointer-events-none transition-opacity">
+                        <div>
+                            <span class="text-[10px] text-slate-400 block mb-1">开始展示</span>
+                            <input type="datetime-local" id="date-start"
+                                class="w-full px-2 py-1.5 rounded border border-slate-200 text-xs text-slate-600 focus:border-brand-500 outline-none bg-slate-50"
+                                disabled>
+                        </div>
+                        <div>
+                            <span class="text-[10px] text-slate-400 block mb-1">结束展示</span>
+                            <input type="datetime-local" id="date-end"
+                                class="w-full px-2 py-1.5 rounded border border-slate-200 text-xs text-slate-600 focus:border-brand-500 outline-none bg-slate-50"
+                                disabled>
+                        </div>
+                    </div>
+                    <p class="text-[10px] text-slate-400 mt-2">如果在时间范围外，用户在报名页无法选中此项目。</p>
+                </div>
+
+            </div>
+            <div class="mt-6 flex justify-end gap-2">
+                <button onclick="closeAddRelationModal()"
+                    class="px-3 py-1.5 text-sm text-slate-500 hover:bg-slate-50 rounded transition">取消</button>
+                <button onclick="closeAddRelationModal()"
+                    class="px-4 py-1.5 bg-brand-600 text-white text-sm font-bold rounded hover:bg-brand-700 transition"
+                    id="rel-btn-save">确定</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- 新增：编辑组织后台大弹窗 -->
+    <div id="modal-org"
+        class="fixed inset-0 z-[70] hidden flex items-center justify-center bg-slate-900/60 backdrop-blur-sm transition-opacity opacity-0">
+        <div class="bg-white rounded-2xl shadow-2xl w-[800px] max-h-[90vh] flex flex-col transform scale-95 transition-transform"
+            id="modal-org-content">
+
+            <div
+                class="px-8 py-5 border-b border-slate-100 flex justify-between items-center z-10 bg-white rounded-t-2xl">
+                <div>
+                    <h3 class="font-bold text-slate-800 text-xl flex items-center gap-2">
+                        <i class="fa-solid fa-building-user text-indigo-600"></i> 组织后台与 API 管理
+                    </h3>
+                    <p class="text-sm text-slate-500 mt-1">正在配置渠道：<span id="org-modal-name"
+                            class="font-bold text-slate-700">猿编程教育科技 (YPB2025)</span></p>
+                </div>
+                <button onclick="closeOrgModal()"
+                    class="w-8 h-8 rounded-full hover:bg-slate-100 flex items-center justify-center text-slate-400 transition text-lg">
+                    <i class="fa-solid fa-xmark"></i>
+                </button>
+            </div>
+
+            <div class="p-8 overflow-y-auto custom-scroll bg-slate-50/50 flex-1 space-y-8">
+
+                <!-- 模块1：组织系统状态 -->
+                <section class="bg-white p-6 rounded-xl border border-slate-200 shadow-sm">
+                    <div class="flex justify-between items-start mb-4">
+                        <div>
+                            <h4 class="font-bold text-slate-800 text-base mb-1">组织后台总体状态</h4>
+                            <p class="text-xs text-slate-500">控制该机构管理员是否可以登录专属工作台，以及是否允许调用业务 API。</p>
+                        </div>
+                        <label class="relative inline-flex items-center cursor-pointer">
+                            <input type="checkbox" class="sr-only peer" checked id="org-status-toggle">
+                            <div
+                                class="w-11 h-6 bg-slate-200 peer-focus:outline-none rounded-full peer peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:border-slate-300 after:border after:rounded-full after:h-5 after:w-5 after:transition-all peer-checked:bg-green-500">
+                            </div>
+                            <span class="ml-3 text-sm font-bold text-green-600" id="org-status-text">已启用</span>
+                        </label>
+                    </div>
+                </section>
+
+                <!-- 模块2：开发者配置 (API 凭证) -->
+                <section class="bg-white p-6 rounded-xl border border-slate-200 shadow-sm">
+                    <div class="flex justify-between items-center mb-5">
+                        <h4 class="font-bold text-slate-800 text-base mb-1">开发者凭证 (API Keys)</h4>
+                        <button
+                            class="text-xs bg-indigo-50 text-indigo-700 px-3 py-1.5 rounded-lg border border-indigo-100 font-medium hover:bg-indigo-100 transition">
+                            <i class="fa-solid fa-book mr-1"></i> API 接口文档
+                        </button>
+                    </div>
+
+                    <div class="space-y-4">
+                        <div class="flex items-center gap-4">
+                            <label class="w-24 text-right text-sm font-bold text-slate-500">AppKey</label>
+                            <div class="flex-1 relative">
+                                <input type="text" value="YPB2025" readonly
+                                    class="w-full bg-slate-50 border border-slate-200 text-slate-700 text-sm font-mono px-4 py-2.5 rounded-lg focus:outline-none">
+                                <button
+                                    class="absolute right-3 top-1/2 -translate-y-1/2 text-slate-400 hover:text-brand-600 transition"><i
+                                        class="fa-regular fa-copy"></i></button>
+                            </div>
+                        </div>
+                        <div class="flex items-start gap-4">
+                            <label class="w-24 text-right text-sm font-bold text-slate-500 mt-2.5">AppSecret</label>
+                            <div class="flex-1">
+                                <div class="relative mb-2">
+                                    <input type="password" value="sk_Live_8f9a2b3c4d5e6f7g8h9i0j1k" readonly
+                                        id="org-secret-input"
+                                        class="w-full bg-slate-50 border border-slate-200 text-slate-700 text-sm font-mono px-4 py-2.5 rounded-lg focus:outline-none pr-24">
+                                    <div class="absolute right-2 top-1/2 -translate-y-1/2 flex gap-1">
+                                        <button onclick="toggleSecretVisibility()"
+                                            class="p-1.5 text-slate-400 hover:text-slate-600 transition"><i
+                                                class="fa-regular fa-eye" id="secret-eye-icon"></i></button>
+                                        <button class="p-1.5 text-slate-400 hover:text-brand-600 transition"><i
+                                                class="fa-regular fa-copy"></i></button>
+                                    </div>
+                                </div>
+                                <div class="flex justify-between items-center">
+                                    <p
+                                        class="text-[11px] text-amber-600 bg-amber-50 px-2 py-1 rounded inline-flex items-center gap-1.5">
+                                        <i class="fa-solid fa-triangle-exclamation"></i> 警告：请勿将 Secret 泄露给第三方。
+                                    </p>
+                                    <button
+                                        class="text-xs text-red-600 hover:text-red-700 font-medium underline underline-offset-2">重置密钥</button>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="flex items-center gap-4 pt-3 border-t border-slate-100 mt-2">
+                            <label class="w-24 text-right text-sm font-bold text-slate-500">API 调用权限</label>
+                            <label class="relative inline-flex items-center cursor-pointer">
+                                <input type="checkbox" class="sr-only peer" checked>
+                                <div
+                                    class="w-9 h-5 bg-slate-200 peer-focus:outline-none rounded-full peer peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:border-slate-300 after:border after:rounded-full after:h-4 after:w-4 after:transition-all peer-checked:bg-indigo-500">
+                                </div>
+                                <span class="ml-2 text-xs text-slate-500">允许该渠道通过此凭据调用预报名等接口</span>
+                            </label>
+                        </div>
+                    </div>
+                </section>
+
+                <!-- 模块3：管理员账号 -->
+                <section class="bg-white p-6 rounded-xl border border-slate-200 shadow-sm mb-4">
+                    <div class="flex justify-between items-center mb-4">
+                        <div>
+                            <h4 class="font-bold text-slate-800 text-base mb-1">组织管理员账号</h4>
+                            <p class="text-xs text-slate-500">配置可登录并管理此渠道组织后台的人员账号。</p>
+                        </div>
+                        <button onclick="openAddAdminModal('add')"
+                            class="text-xs bg-slate-100 text-slate-700 px-3 py-1.5 rounded-lg border border-slate-200 font-medium hover:bg-slate-200 transition flex items-center gap-1">
+                            <i class="fa-solid fa-plus"></i> 新增管理员
+                        </button>
+                    </div>
+
+                    <div class="border border-slate-100 rounded-lg overflow-hidden">
+                        <table class="w-full text-left">
+                            <thead
+                                class="bg-slate-50 border-b border-slate-100 text-[11px] uppercase text-slate-500 font-bold">
+                                <tr>
+                                    <th class="py-2.5 px-4">登录账号</th>
+                                    <th class="py-2.5 px-4">姓名 / 手机号</th>
+                                    <th class="py-2.5 px-4">角色</th>
+                                    <th class="py-2.5 px-4 text-center">状态</th>
+                                    <th class="py-2.5 px-4 text-right">操作</th>
+                                </tr>
+                            </thead>
+                            <tbody class="text-sm divide-y divide-slate-100">
+                                <tr>
+                                    <td class="py-3 px-4 font-mono font-medium text-slate-700">admin_ypb2025</td>
+                                    <td class="py-3 px-4">
+                                        <p class="font-bold text-slate-800 text-xs">王校长</p>
+                                        <p class="text-[10px] text-slate-400">13800001111</p>
+                                    </td>
+                                    <td class="py-3 px-4"><span
+                                            class="bg-indigo-50 text-indigo-700 text-[10px] px-2 py-0.5 rounded font-bold border border-indigo-100">默认管理员</span>
+                                    </td>
+                                    <td class="py-3 px-4 text-center"><span
+                                            class="text-green-600 flex items-center justify-center gap-1 text-xs"><i
+                                                class="fa-solid fa-circle-check"></i> 正常</span></td>
+                                    <td class="py-3 px-4 text-right">
+                                        <button onclick="resetAdminPwd()"
+                                            class="text-slate-400 hover:text-brand-600 text-xs mx-1" title="重置密码"><i
+                                                class="fa-solid fa-key"></i></button>
+                                        <button onclick="openAddAdminModal('edit')"
+                                            class="text-slate-400 hover:text-brand-600 text-xs mx-1" title="编辑信息"><i
+                                                class="fa-regular fa-pen-to-square"></i></button>
+                                    </td>
+                                </tr>
+                                <tr>
+                                    <td class="py-3 px-4 font-mono font-medium text-slate-700">ypb_tech01</td>
+                                    <td class="py-3 px-4">
+                                        <p class="font-bold text-slate-800 text-xs">张技术</p>
+                                        <p class="text-[10px] text-slate-400">-</p>
+                                    </td>
+                                    <td class="py-3 px-4"><span
+                                            class="bg-slate-100 text-slate-600 text-[10px] px-2 py-0.5 rounded border border-slate-200">普通管理员</span>
+                                    </td>
+                                    <td class="py-3 px-4 text-center"><span
+                                            class="text-green-600 flex items-center justify-center gap-1 text-xs"><i
+                                                class="fa-solid fa-circle-check"></i> 正常</span></td>
+                                    <td class="py-3 px-4 text-right">
+                                        <button onclick="resetAdminPwd()"
+                                            class="text-slate-400 hover:text-brand-600 text-xs mx-1" title="重置密码"><i
+                                                class="fa-solid fa-key"></i></button>
+                                        <button onclick="openAddAdminModal('edit')"
+                                            class="text-slate-400 hover:text-brand-600 text-xs mx-1" title="编辑信息"><i
+                                                class="fa-regular fa-pen-to-square"></i></button>
+                                        <button onclick="toggleAdminStatus(this)"
+                                            class="text-slate-400 hover:text-red-500 text-xs mx-1" title="禁用"><i
+                                                class="fa-solid fa-ban"></i></button>
+                                    </td>
+                                </tr>
+                            </tbody>
+                        </table>
+                    </div>
+                </section>
+
+            </div>
+
+            <div
+                class="px-8 py-4 border-t border-slate-100 bg-white rounded-b-2xl flex justify-between items-center z-10">
+                <p class="text-xs text-slate-400"><i class="fa-solid fa-circle-info mr-1"></i> 修改配置后实时生效</p>
+                <div class="flex gap-3">
+                    <button onclick="closeOrgModal()"
+                        class="px-5 py-2.5 text-sm text-slate-600 bg-white border border-slate-200 hover:bg-slate-50 rounded-lg transition font-medium">关闭</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // Edit/Create Channel Modal
+        const editModal = document.getElementById('modal-edit');
+        const editContent = document.getElementById('modal-edit-content');
+
+        function openEditModal(mode, id, name) {
+            const title = document.getElementById('edit-modal-title');
+            const idField = document.getElementById('id-field');
+            const nameInput = document.getElementById('channel-name');
+
+            if (mode === 'edit') {
+                title.innerText = '编辑渠道';
+                idField.classList.remove('hidden');
+                document.getElementById('channel-id').value = id;
+                nameInput.value = name;
+            } else {
+                title.innerText = '新增渠道';
+                idField.classList.add('hidden');
+                nameInput.value = '';
+            }
+
+            editModal.classList.remove('hidden');
+            setTimeout(() => {
+                editModal.classList.remove('opacity-0');
+                editContent.classList.add('modal-enter');
+            }, 10);
+        }
+
+        function closeEditModal() {
+            editModal.classList.add('opacity-0');
+            setTimeout(() => {
+                editModal.classList.add('hidden');
+                editContent.classList.remove('modal-enter');
+            }, 200);
+        }
+
+        // Relation Modal
+        const relModal = document.getElementById('modal-relation');
+        const relContent = document.getElementById('modal-relation-content');
+
+        function openRelationModal(name, id) {
+            document.getElementById('relation-channel-name').innerText = name;
+            relModal.classList.remove('hidden');
+            setTimeout(() => {
+                relModal.classList.remove('opacity-0');
+                relContent.classList.add('modal-enter');
+            }, 10);
+        }
+
+        function closeRelationModal() {
+            relModal.classList.add('opacity-0');
+            setTimeout(() => {
+                relModal.classList.add('hidden');
+                relContent.classList.remove('modal-enter');
+            }, 200);
+        }
+
+        // Add/Edit Relation Sub-Modal
+        const addRelModal = document.getElementById('modal-add-relation');
+        const addRelContent = document.getElementById('modal-add-content');
+
+        // Input References
+        const relTitle = document.getElementById('relation-modal-title');
+        const relSelect = document.getElementById('rel-exam-select');
+        const relPrice = document.getElementById('rel-price-input');
+        const relCheck = document.getElementById('display-permanent');
+        const relDateStart = document.getElementById('date-start');
+        const relDateEnd = document.getElementById('date-end');
+        const relBtnSave = document.getElementById('rel-btn-save');
+
+        function openAddRelationModal() {
+            // Reset to Add Mode
+            relTitle.innerText = "关联新测评";
+            relSelect.value = ""; // Reset dropdown
+            relPrice.value = '';
+            relCheck.checked = true;
+            relBtnSave.innerText = "确定关联";
+            toggleDateInputs(relCheck);
+
+            showRelModal();
+        }
+
+        // New Function: Open Modal in Edit Mode
+        function openEditRelationModal(name, price, isPermanent, start, end) {
+            // Set to Edit Mode
+            relTitle.innerText = "编辑活动配置";
+
+            // Allow selecting a different exam (Select is visible)
+            relSelect.value = name;
+
+            relPrice.value = price;
+            relCheck.checked = isPermanent;
+
+            if (!isPermanent && start && end) {
+                relDateStart.value = start;
+                relDateEnd.value = end;
+            } else {
+                relDateStart.value = '';
+                relDateEnd.value = '';
+            }
+
+            relBtnSave.innerText = "保存修改";
+            toggleDateInputs(relCheck);
+
+            showRelModal();
+        }
+
+        function showRelModal() {
+            addRelModal.classList.remove('hidden');
+            setTimeout(() => {
+                addRelModal.classList.remove('opacity-0');
+                addRelContent.classList.add('modal-enter');
+            }, 10);
+        }
+
+        function closeAddRelationModal() {
+            addRelModal.classList.add('opacity-0');
+            setTimeout(() => {
+                addRelModal.classList.add('hidden');
+                addRelContent.classList.remove('modal-enter');
+            }, 200);
+        }
+
+        function toggleDateInputs(checkbox) {
+            const container = document.getElementById('date-inputs');
+            const inputs = container.querySelectorAll('input');
+
+            if (checkbox.checked) {
+                container.classList.add('opacity-50', 'pointer-events-none');
+                inputs.forEach(input => {
+                    input.disabled = true;
+                    input.classList.add('bg-slate-50');
+                    input.classList.remove('bg-white');
+                });
+            } else {
+                container.classList.remove('opacity-50', 'pointer-events-none');
+                inputs.forEach(input => {
+                    input.disabled = false;
+                    input.classList.remove('bg-slate-50');
+                    input.classList.add('bg-white');
+                });
+            }
+        }
+
+        // --- 新增：组织大弹窗逻辑 ---
+        const orgModal = document.getElementById('modal-org');
+        const orgContent = document.getElementById('modal-org-content');
+
+        function openOrgModal(id, name) {
+            document.getElementById('org-modal-name').innerText = `${name} (${id})`;
+
+            orgModal.classList.remove('hidden');
+            setTimeout(() => {
+                orgModal.classList.remove('opacity-0');
+                orgContent.classList.add('modal-enter');
+            }, 10);
+        }
+
+        function closeOrgModal() {
+            orgModal.classList.add('opacity-0');
+            setTimeout(() => {
+                orgModal.classList.add('hidden');
+                orgContent.classList.remove('modal-enter');
+            }, 200);
+        }
+
+        // 总体状态文字切换联动
+        const statusToggle = document.getElementById('org-status-toggle');
+        const statusText = document.getElementById('org-status-text');
+        if (statusToggle) {
+            statusToggle.addEventListener('change', function () {
+                if (this.checked) {
+                    statusText.innerText = "已启用";
+                    statusText.classList.remove('text-slate-500');
+                    statusText.classList.add('text-green-600');
+                } else {
+                    statusText.innerText = "已停用";
+                    statusText.classList.remove('text-green-600');
+                    statusText.classList.add('text-slate-500');
+                }
+            });
+        }
+
+        // 密码/Secret 显示隐藏切换
+        function toggleSecretVisibility() {
+            const secretInput = document.getElementById('org-secret-input');
+            const eyeIcon = document.getElementById('secret-eye-icon');
+            if (secretInput.type === 'password') {
+                secretInput.type = 'text';
+                eyeIcon.classList.replace('fa-eye', 'fa-eye-slash');
+            } else {
+                secretInput.type = 'password';
+                eyeIcon.classList.replace('fa-eye-slash', 'fa-eye');
+            }
+        }
+        // 新增/编辑管理员
+        const adminModal = document.getElementById('modal-admin');
+        const adminContent = document.getElementById('modal-admin-content');
+        function openAddAdminModal(mode = 'add') {
+            document.getElementById('admin-modal-title').innerText = mode === 'add' ? '新增管理员' : '编辑管理员';
+            adminModal.classList.remove('hidden');
+            setTimeout(() => { adminModal.classList.remove('opacity-0'); adminContent.classList.add('modal-enter'); }, 10);
+        }
+        function closeAddAdminModal() {
+            adminModal.classList.add('opacity-0');
+            setTimeout(() => { adminModal.classList.add('hidden'); adminContent.classList.remove('modal-enter'); }, 200);
+        }
+        function resetAdminPwd() {
+            alert('操作演示：已为该管理员生成临时密码并进入复制状态！');
+        }
+        function toggleAdminStatus(btn) {
+            const icon = btn.querySelector('i');
+            if (icon.classList.contains('fa-ban')) {
+                icon.classList.replace('fa-ban', 'fa-play');
+                btn.title = '启用';
+                btn.classList.replace('text-red-500', 'text-green-500');
+            } else {
+                icon.classList.replace('fa-play', 'fa-ban');
+                btn.title = '禁用';
+                btn.classList.replace('text-green-500', 'text-red-500');
+            }
+        }
+    </script>
+
+    <!-- 新增/编辑管理员弹窗 -->
+    <div id="modal-admin"
+        class="fixed inset-0 z-[80] hidden flex items-center justify-center bg-slate-900/60 backdrop-blur-sm transition-opacity opacity-0">
+        <div class="bg-white rounded-xl shadow-2xl w-[400px] flex flex-col transform scale-95 transition-transform"
+            id="modal-admin-content">
+            <div class="px-6 py-4 border-b border-slate-100 flex justify-between items-center bg-slate-50 rounded-t-xl">
+                <h3 class="font-bold text-slate-800" id="admin-modal-title">新增管理员</h3>
+                <button onclick="closeAddAdminModal()" class="text-slate-400 hover:text-slate-600 transition">
+                    <i class="fa-solid fa-xmark"></i>
+                </button>
+            </div>
+            <div class="p-6 space-y-4">
+                <div>
+                    <label class="block text-xs font-bold text-slate-600 mb-1">登录账号</label>
+                    <input type="text" placeholder="输入账号名称"
+                        class="w-full px-3 py-2 rounded-lg border border-slate-200 focus:border-brand-500 outline-none text-sm">
+                </div>
+                <div>
+                    <label class="block text-xs font-bold text-slate-600 mb-1">初始密码</label>
+                    <input type="password" placeholder="设置初始密码"
+                        class="w-full px-3 py-2 rounded-lg border border-slate-200 focus:border-brand-500 outline-none text-sm">
+                </div>
+                <div>
+                    <label class="block text-xs font-bold text-slate-600 mb-1">姓名 (选填)</label>
+                    <input type="text" placeholder="负责人姓名"
+                        class="w-full px-3 py-2 rounded-lg border border-slate-200 focus:border-brand-500 outline-none text-sm">
+                </div>
+                <div>
+                    <label class="block text-xs font-bold text-slate-600 mb-1">手机号 (选填)</label>
+                    <input type="text" placeholder="联系手机号"
+                        class="w-full px-3 py-2 rounded-lg border border-slate-200 focus:border-brand-500 outline-none text-sm">
+                </div>
+            </div>
+            <div class="px-6 py-4 border-t border-slate-100 bg-slate-50 flex justify-end gap-2 rounded-b-xl">
+                <button onclick="closeAddAdminModal()"
+                    class="px-4 py-2 text-sm text-slate-600 hover:bg-slate-200 rounded-lg transition font-medium border border-slate-200 bg-white">取消</button>
+                <button onclick="closeAddAdminModal()"
+                    class="px-4 py-2 bg-brand-600 text-white text-sm font-bold rounded-lg hover:bg-brand-700 transition">保存</button>
+            </div>
+        </div>
+    </div>
+</body>
+
+</html>
