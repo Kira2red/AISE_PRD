@@ -1,0 +1,1012 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>爱测评 - 试卷编辑</title>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+    <style>
+        :root {
+            --primary: #4F46E5;
+            --primary-hover: #4338CA;
+            --primary-light: #EEF2FF;
+            --bg-color: #F3F4F6;
+            --surface-color: #FFFFFF;
+            --text-primary: #111827;
+            --text-secondary: #4B5563;
+            --text-tertiary: #9CA3AF;
+            --border-color: #E5E7EB;
+            --danger: #EF4444;
+            --success: #10B981;
+            --warning: #F59E0B;
+            --shadow-sm: 0 1px 2px 0 rgba(0, 0, 0, 0.05);
+            --shadow-lg: 0 10px 15px -3px rgba(0, 0, 0, 0.1), 0 4px 6px -2px rgba(0, 0, 0, 0.05);
+        }
+
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Inter', -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+            background-color: var(--bg-color);
+            color: var(--text-primary);
+            height: 100vh;
+            display: flex;
+            flex-direction: column;
+            overflow: hidden;
+        }
+
+        /* ===== Top Title Bar (same as 题目管理) ===== */
+        .title-bar {
+            height: 56px;
+            background-color: var(--surface-color);
+            border-bottom: 1px solid var(--border-color);
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            padding: 0 32px;
+            z-index: 20;
+            flex-shrink: 0;
+        }
+
+        .title-bar-left {
+            display: flex;
+            align-items: center;
+            gap: 32px;
+        }
+
+        .site-name {
+            font-weight: 700;
+            font-size: 1.125rem;
+            color: var(--primary);
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .top-nav {
+            display: flex;
+            gap: 4px;
+        }
+
+        .top-nav-item {
+            padding: 8px 16px;
+            border-radius: 6px;
+            font-size: 0.875rem;
+            font-weight: 500;
+            color: var(--text-secondary);
+            cursor: pointer;
+            transition: all 0.2s;
+            text-decoration: none;
+        }
+
+        .top-nav-item:hover {
+            background-color: #F9FAFB;
+            color: var(--text-primary);
+        }
+
+        .top-nav-item.active {
+            background-color: var(--primary-light);
+            color: var(--primary);
+        }
+
+        .title-bar-right {
+            display: flex;
+            align-items: center;
+            gap: 16px;
+        }
+
+        .avatar {
+            width: 32px;
+            height: 32px;
+            border-radius: 16px;
+            background-color: var(--primary-light);
+            color: var(--primary);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 0.75rem;
+            font-weight: 600;
+            cursor: pointer;
+        }
+
+        /* ===== Layout Body ===== */
+        .layout-body {
+            flex: 1;
+            display: flex;
+            overflow: hidden;
+        }
+
+        .sidebar {
+            width: 220px;
+            background-color: var(--surface-color);
+            border-right: 1px solid var(--border-color);
+            display: flex;
+            flex-direction: column;
+            z-index: 10;
+        }
+
+        .sidebar-title {
+            padding: 20px 20px 12px;
+            font-size: 0.75rem;
+            font-weight: 600;
+            color: var(--text-tertiary);
+            text-transform: uppercase;
+            letter-spacing: 0.05em;
+        }
+
+        .nav-list {
+            list-style: none;
+            padding: 0 12px;
+            flex: 1;
+        }
+
+        .nav-item {
+            padding: 10px 16px;
+            border-radius: 8px;
+            margin-bottom: 2px;
+            cursor: pointer;
+            color: var(--text-secondary);
+            font-weight: 500;
+            font-size: 0.875rem;
+            transition: all 0.2s;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+
+        .nav-item:hover {
+            background-color: #F9FAFB;
+        }
+
+        .nav-item.active {
+            background-color: var(--primary-light);
+            color: var(--primary);
+        }
+
+        /* ===== Main Content ===== */
+        .main-content {
+            flex: 1;
+            display: flex;
+            flex-direction: column;
+            overflow: hidden;
+        }
+
+        .content-body {
+            flex: 1;
+            overflow-y: auto;
+            padding: 24px 32px 80px;
+        }
+
+        button.btn {
+            padding: 7px 16px;
+            border-radius: 6px;
+            font-size: 0.875rem;
+            font-weight: 500;
+            cursor: pointer;
+            transition: all 0.2s;
+            border: 1px solid transparent;
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            height: 34px;
+            gap: 6px;
+        }
+
+        button.btn-primary {
+            background-color: var(--primary);
+            color: white;
+        }
+
+        button.btn-primary:hover {
+            background-color: var(--primary-hover);
+        }
+
+        button.btn-outline {
+            border-color: var(--border-color);
+            background-color: white;
+            color: var(--text-secondary);
+        }
+
+        button.btn-outline:hover {
+            border-color: var(--text-tertiary);
+            color: var(--text-primary);
+        }
+
+        button.btn-warning {
+            background-color: var(--warning);
+            color: white;
+            border-color: var(--warning);
+        }
+
+        button.btn-warning:hover {
+            background-color: #d97706;
+        }
+
+        button.btn-sm {
+            height: 30px;
+            padding: 4px 12px;
+            font-size: 0.8rem;
+        }
+
+        /* ===== Paper Header ===== */
+        .paper-header {
+            background: var(--surface-color);
+            border-radius: 12px;
+            padding: 24px;
+            box-shadow: var(--shadow-sm);
+            margin-bottom: 20px;
+        }
+
+        .paper-title-row {
+            display: flex;
+            justify-content: space-between;
+            align-items: flex-start;
+            margin-bottom: 16px;
+        }
+
+        .paper-name {
+            font-size: 1.25rem;
+            font-weight: 700;
+        }
+
+        .paper-meta {
+            display: flex;
+            gap: 24px;
+            flex-wrap: wrap;
+        }
+
+        .paper-meta-item {
+            font-size: 0.8rem;
+            color: var(--text-secondary);
+        }
+
+        .paper-meta-item span {
+            font-weight: 600;
+            color: var(--text-primary);
+        }
+
+        /* ===== Question Section ===== */
+        .section-card {
+            background: var(--surface-color);
+            border-radius: 12px;
+            box-shadow: var(--shadow-sm);
+            margin-bottom: 16px;
+            overflow: hidden;
+        }
+
+        .section-header {
+            padding: 16px 24px;
+            background-color: #F9FAFB;
+            border-bottom: 1px solid var(--border-color);
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .section-title {
+            font-weight: 600;
+            font-size: 0.95rem;
+        }
+
+        .section-score {
+            font-size: 0.8rem;
+            color: var(--text-secondary);
+        }
+
+        /* ===== Question Item ===== */
+        .q-item {
+            padding: 16px 24px;
+            border-bottom: 1px solid var(--border-color);
+            display: flex;
+            gap: 16px;
+            align-items: flex-start;
+            transition: background-color 0.15s;
+        }
+
+        .q-item:hover {
+            background-color: #FAFBFC;
+        }
+
+        .q-item:last-child {
+            border-bottom: none;
+        }
+
+        .q-number {
+            width: 28px;
+            height: 28px;
+            border-radius: 6px;
+            background-color: var(--primary-light);
+            color: var(--primary);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-weight: 600;
+            font-size: 0.8rem;
+            flex-shrink: 0;
+        }
+
+        .q-body {
+            flex: 1;
+            min-width: 0;
+        }
+
+        .q-stem {
+            font-size: 0.875rem;
+            color: var(--text-primary);
+            line-height: 1.6;
+            margin-bottom: 8px;
+            display: -webkit-box;
+            -webkit-line-clamp: 2;
+            -webkit-box-orient: vertical;
+            overflow: hidden;
+        }
+
+        .q-info {
+            display: flex;
+            gap: 12px;
+            align-items: center;
+            flex-wrap: wrap;
+        }
+
+        .q-badge {
+            padding: 2px 8px;
+            border-radius: 4px;
+            font-size: 0.7rem;
+            font-weight: 500;
+        }
+
+        .q-badge-type {
+            background-color: #DBEAFE;
+            color: #1E40AF;
+        }
+
+        .q-badge-diff-easy {
+            background-color: #D1FAE5;
+            color: #065F46;
+        }
+
+        .q-badge-diff-mid {
+            background-color: #FEF3C7;
+            color: #92400E;
+        }
+
+        .q-badge-diff-hard {
+            background-color: #FEE2E2;
+            color: #991B1B;
+        }
+
+        .q-score {
+            font-size: 0.8rem;
+            color: var(--text-secondary);
+        }
+
+        .q-author {
+            font-size: 0.75rem;
+            color: var(--text-tertiary);
+        }
+
+        .q-actions {
+            display: flex;
+            flex-direction: column;
+            gap: 6px;
+            flex-shrink: 0;
+            align-items: flex-end;
+        }
+
+        .q-action-link {
+            font-size: 0.8rem;
+            color: var(--primary);
+            cursor: pointer;
+            text-decoration: none;
+            white-space: nowrap;
+        }
+
+        .q-action-link:hover {
+            text-decoration: underline;
+        }
+
+        .q-action-link.danger {
+            color: var(--danger);
+        }
+
+        /* ===== Question Detail Modal ===== */
+        .modal-overlay {
+            position: fixed;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background-color: rgba(0, 0, 0, 0.45);
+            z-index: 200;
+            display: none;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .modal-overlay.show {
+            display: flex;
+        }
+
+        .modal-box {
+            width: 780px;
+            max-width: 92vw;
+            max-height: 85vh;
+            background: var(--surface-color);
+            border-radius: 12px;
+            box-shadow: 0 20px 60px rgba(0, 0, 0, 0.15);
+            display: flex;
+            flex-direction: column;
+            overflow: hidden;
+            animation: modalIn 0.25s ease;
+        }
+
+        @keyframes modalIn {
+            from {
+                opacity: 0;
+                transform: translateY(30px) scale(0.97);
+            }
+
+            to {
+                opacity: 1;
+                transform: translateY(0) scale(1);
+            }
+        }
+
+        .modal-header {
+            padding: 20px 24px;
+            border-bottom: 1px solid var(--border-color);
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .modal-title {
+            font-size: 1.05rem;
+            font-weight: 700;
+        }
+
+        .modal-close {
+            width: 28px;
+            height: 28px;
+            border-radius: 6px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            cursor: pointer;
+            color: var(--text-tertiary);
+            transition: all 0.2s;
+        }
+
+        .modal-close:hover {
+            background-color: #F3F4F6;
+            color: var(--text-primary);
+        }
+
+        .modal-body {
+            flex: 1;
+            overflow-y: auto;
+            padding: 24px;
+        }
+
+        .modal-footer {
+            padding: 16px 24px;
+            border-top: 1px solid var(--border-color);
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        /* Detail content */
+        .detail-label {
+            font-size: 0.75rem;
+            font-weight: 600;
+            color: var(--text-tertiary);
+            text-transform: uppercase;
+            letter-spacing: 0.05em;
+            margin-bottom: 8px;
+        }
+
+        .detail-stem {
+            font-size: 0.9rem;
+            line-height: 1.7;
+            color: var(--text-primary);
+            margin-bottom: 20px;
+        }
+
+        .detail-stem img {
+            max-width: 100%;
+            border-radius: 6px;
+            margin: 8px 0;
+        }
+
+        .detail-options {
+            margin-bottom: 20px;
+        }
+
+        .detail-option {
+            padding: 10px 14px;
+            border: 1px solid var(--border-color);
+            border-radius: 8px;
+            margin-bottom: 8px;
+            font-size: 0.875rem;
+            display: flex;
+            gap: 8px;
+            align-items: flex-start;
+        }
+
+        .detail-option.correct {
+            border-color: var(--success);
+            background-color: #F0FDF4;
+        }
+
+        .detail-option-letter {
+            font-weight: 600;
+            color: var(--text-secondary);
+            flex-shrink: 0;
+        }
+
+        .detail-meta-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(180px, 1fr));
+            gap: 12px;
+            margin-bottom: 20px;
+        }
+
+        .detail-meta-card {
+            padding: 12px;
+            background: #F9FAFB;
+            border-radius: 8px;
+        }
+
+        .detail-meta-card .dm-label {
+            font-size: 0.7rem;
+            color: var(--text-tertiary);
+            margin-bottom: 4px;
+        }
+
+        .detail-meta-card .dm-value {
+            font-size: 0.875rem;
+            font-weight: 500;
+        }
+
+        .detail-analysis {
+            background: #FFFBEB;
+            border: 1px solid #FDE68A;
+            border-radius: 8px;
+            padding: 14px;
+            font-size: 0.85rem;
+            line-height: 1.6;
+        }
+
+        /* Toast */
+        .toast {
+            position: fixed;
+            top: 24px;
+            left: 50%;
+            transform: translateX(-50%);
+            background: var(--text-primary);
+            color: white;
+            padding: 10px 24px;
+            border-radius: 8px;
+            font-size: 0.875rem;
+            z-index: 300;
+            opacity: 0;
+            transition: opacity 0.3s;
+            pointer-events: none;
+        }
+
+        .toast.show {
+            opacity: 1;
+        }
+    </style>
+</head>
+
+<body>
+
+    <!-- ===== Top Title Bar ===== -->
+    <header class="title-bar">
+        <div class="title-bar-left">
+            <div class="site-name">
+                <svg width="22" height="22" viewBox="0 0 24 24" fill="none">
+                    <path d="M12 2L2 7L12 12L22 7L12 2Z" fill="#4F46E5" />
+                    <path d="M2 17L12 22L22 17M2 12L12 17L22 12" stroke="#4F46E5" stroke-width="2"
+                        stroke-linecap="round" stroke-linejoin="round" />
+                </svg>
+                爱测评
+            </div>
+            <nav class="top-nav">
+                <a class="top-nav-item" href="#">首页</a>
+                <a class="top-nav-item active" href="#">测评管理</a>
+                <a class="top-nav-item" href="#">测评报告</a>
+            </nav>
+        </div>
+        <div class="title-bar-right">
+            <div class="avatar" title="个人信息">我</div>
+        </div>
+    </header>
+
+    <!-- ===== Body ===== -->
+    <div class="layout-body">
+        <aside class="sidebar">
+            <div class="sidebar-title">测评管理</div>
+            <ul class="nav-list">
+                <li class="nav-item">
+                    <svg width="18" height="18" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                            d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2">
+                        </path>
+                    </svg>
+                    题目管理
+                </li>
+                <li class="nav-item active">
+                    <svg width="18" height="18" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                            d="M12 6.253v13m0-13C10.832 5.477 9.246 5 7.5 5S4.168 5.477 3 6.253v13C4.168 18.477 5.754 18 7.5 18s3.332.477 4.5 1.253m0-13C13.168 5.477 14.754 5 16.5 5c1.747 0 3.332.477 4.5 1.253v13C19.832 18.477 18.247 18 16.5 18c-1.746 0-3.332.477-4.5 1.253">
+                        </path>
+                    </svg>
+                    试卷库
+                </li>
+                <li class="nav-item">
+                    <svg width="18" height="18" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                            d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"></path>
+                    </svg>
+                    考试任务
+                </li>
+            </ul>
+        </aside>
+
+        <main class="main-content">
+            <div class="content-body" id="scrollContainer">
+                <!-- Paper Header -->
+                <div class="paper-header">
+                    <div class="paper-title-row">
+                        <div>
+                            <div class="paper-name">2024 秋季招聘 - 前端工程师笔试卷 A</div>
+                        </div>
+                        <div style="display: flex; gap: 8px;">
+                            <button class="btn btn-outline btn-sm">预览试卷</button>
+                            <button class="btn btn-primary btn-sm">保存</button>
+                        </div>
+                    </div>
+                    <div class="paper-meta">
+                        <div class="paper-meta-item">试卷 ID：<span>PAPER20250310000002</span></div>
+                        <div class="paper-meta-item">总分：<span id="totalScore">100</span> 分</div>
+                        <div class="paper-meta-item">题目数量：<span id="totalCount">8</span> 道</div>
+                        <div class="paper-meta-item">创建人：<span>Kira</span></div>
+                        <div class="paper-meta-item">更新时间：<span>2025-03-10 14:30</span></div>
+                    </div>
+                </div>
+
+                <!-- Sections with questions -->
+                <div id="paperSections"></div>
+
+            </div>
+        </main>
+    </div>
+
+    <!-- ===== Question Detail Modal ===== -->
+    <div class="modal-overlay" id="detailModal">
+        <div class="modal-box">
+            <div class="modal-header">
+                <div class="modal-title" id="detailModalTitle">题目详情</div>
+                <div class="modal-close" onclick="closeDetailModal()">
+                    <svg width="18" height="18" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12">
+                        </path>
+                    </svg>
+                </div>
+            </div>
+            <div class="modal-body" id="detailModalBody"></div>
+            <div class="modal-footer" id="detailModalFooter"></div>
+        </div>
+    </div>
+
+    <!-- Toast -->
+    <div class="toast" id="toast"></div>
+
+    <script>
+        const CURRENT_USER = 'Kira';
+
+        // ===== Mock Data =====
+        const PAPER_SECTIONS = [
+            {
+                title: '一、单选题',
+                scoreEach: 5,
+                questions: [
+                    {
+                        id: 10301, type: '单选题', difficulty: '中等', score: 5, author: 'Kira',
+                        stem_text: '下面关于 React 的 useState 的描述，错误的是？',
+                        stem_html: '<p>下面关于 React 的 <code>useState</code> 的描述，错误的是？</p><img src="https://images.unsplash.com/photo-1633356122544-f134324a6cee?ixlib=rb-4.0.3&auto=format&fit=crop&w=300&q=80" alt="react">',
+                        options: [
+                            { letter: 'A', text: '返回一个 state 以及更新 state 的函数', correct: false },
+                            { letter: 'B', text: 'initialState 只在首次渲染时被计算', correct: false },
+                            { letter: 'C', text: '可以在循环或条件语句中调用 useState', correct: true },
+                            { letter: 'D', text: '调用 setState 后状态更新是异步的', correct: false },
+                        ],
+                        knowledge: ['React Hooks'], tags: ['前端'], analysis: '选项 C 错误。React Hooks 必须在组件顶层调用，不允许在循环、条件或嵌套函数中调用，否则会导致 Hook 的调用顺序不一致。'
+                    },
+                    {
+                        id: 10302, type: '单选题', difficulty: '简单', score: 5, author: 'Admin',
+                        stem_text: '以下哪个 CSS 属性用于设置元素的外边距？',
+                        stem_html: '<p>以下哪个 CSS 属性用于设置元素的<strong>外边距</strong>？</p>',
+                        options: [
+                            { letter: 'A', text: 'padding', correct: false },
+                            { letter: 'B', text: 'margin', correct: true },
+                            { letter: 'C', text: 'border', correct: false },
+                            { letter: 'D', text: 'outline', correct: false },
+                        ],
+                        knowledge: ['CSS基础'], tags: ['基础'], analysis: 'margin 用于设置外边距，padding 用于内边距。'
+                    },
+                    {
+                        id: 10303, type: '单选题', difficulty: '困难', score: 5, author: 'System',
+                        stem_text: '在 JavaScript 中，Promise.allSettled() 与 Promise.all() 的主要区别是什么？',
+                        stem_html: '<p>在 JavaScript 中，<code>Promise.allSettled()</code> 与 <code>Promise.all()</code> 的主要区别是什么？</p>',
+                        options: [
+                            { letter: 'A', text: 'allSettled 会等待所有 Promise 完成（无论成功或失败）', correct: true },
+                            { letter: 'B', text: 'allSettled 会在第一个失败时立即 reject', correct: false },
+                            { letter: 'C', text: '它们完全相同', correct: false },
+                            { letter: 'D', text: 'allSettled 只接受两个参数', correct: false },
+                        ],
+                        knowledge: ['异步编程', 'Promise'], tags: ['高频'], analysis: 'Promise.allSettled() 会等待所有 Promise 都 settled（fulfilled 或 rejected），而 Promise.all() 在任一 Promise 被 rejected 时立即 reject。'
+                    },
+                ]
+            },
+            {
+                title: '二、多选题',
+                scoreEach: 10,
+                questions: [
+                    {
+                        id: 10401, type: '多选题', difficulty: '中等', score: 10, author: 'Kira',
+                        stem_text: '以下哪些是 Vue 3 的 Composition API 中的核心函数？',
+                        stem_html: '<p>以下哪些是 Vue 3 的 <strong>Composition API</strong> 中的核心函数？</p>',
+                        options: [
+                            { letter: 'A', text: 'ref()', correct: true },
+                            { letter: 'B', text: 'reactive()', correct: true },
+                            { letter: 'C', text: 'computed()', correct: true },
+                            { letter: 'D', text: 'jQuery()', correct: false },
+                        ],
+                        knowledge: ['Vue3'], tags: ['核心'], analysis: 'ref、reactive、computed 是 Vue 3 Composition API 的核心响应式函数。jQuery 与 Vue 无关。'
+                    },
+                    {
+                        id: 10402, type: '多选题', difficulty: '困难', score: 10, author: 'Admin',
+                        stem_text: '关于 HTTP/2 协议，以下哪些说法是正确的？',
+                        stem_html: '<p>关于 <strong>HTTP/2</strong> 协议，以下哪些说法是正确的？</p>',
+                        options: [
+                            { letter: 'A', text: '支持多路复用（Multiplexing）', correct: true },
+                            { letter: 'B', text: '支持头部压缩（HPACK）', correct: true },
+                            { letter: 'C', text: '必须使用 HTTPS', correct: false },
+                            { letter: 'D', text: '支持服务器推送（Server Push）', correct: true },
+                        ],
+                        knowledge: ['计算机网络'], tags: ['高频面试题'], analysis: 'HTTP/2 支持多路复用、HPACK 头部压缩和服务器推送。虽然浏览器实现中通常要求 HTTPS，但协议本身并不强制。'
+                    },
+                ]
+            },
+            {
+                title: '三、编程题',
+                scoreEach: 25,
+                questions: [
+                    {
+                        id: 10501, type: '编程题', difficulty: '中等', score: 25, author: 'Kira',
+                        stem_text: '请实现一个防抖（debounce）函数，支持 leading 和 trailing 两种模式。',
+                        stem_html: '<p>请实现一个<strong>防抖（debounce）</strong>函数。</p><p>要求：</p><ul><li>支持 <code>leading</code> 模式（首次立即执行）</li><li>支持 <code>trailing</code> 模式（延迟后执行）</li><li>返回的函数应包含 <code>cancel</code> 方法用于取消延时</li></ul><pre style="background:#f4f4f4;padding:12px;border-radius:6px;"><code>function debounce(fn, delay, options) {\n  // your code here\n}</code></pre>',
+                        options: [],
+                        knowledge: ['JS高级', '性能优化'], tags: ['必考'], analysis: '防抖函数的核心是使用 setTimeout 延迟执行，每次调用时清除前一个定时器。leading 模式需在首次调用时立即执行。'
+                    },
+                    {
+                        id: 10502, type: '编程题', difficulty: '困难', score: 25, author: 'System',
+                        stem_text: '实现一个简化版的 Virtual DOM diff 算法，比较两棵虚拟 DOM 树的差异。',
+                        stem_html: '<p>实现一个简化版的 <strong>Virtual DOM diff 算法</strong>。</p><p>给定两棵虚拟 DOM 树（以嵌套对象表示），输出它们之间的差异补丁（patches）。</p><pre style="background:#f4f4f4;padding:12px;border-radius:6px;"><code>const oldTree = { tag: "div", props: { class: "a" }, children: [...] }\nconst newTree = { tag: "div", props: { class: "b" }, children: [...] }\n\nfunction diff(oldTree, newTree) {\n  // return patches\n}</code></pre>',
+                        options: [],
+                        knowledge: ['虚拟DOM', '算法'], tags: ['高难度'], analysis: '核心思路：递归比较节点类型、属性和子节点，生成类型为 REPLACE、PROPS、TEXT、REORDER 的补丁数组。'
+                    },
+                    {
+                        id: 10503, type: '编程题', difficulty: '简单', score: 25, author: 'Admin',
+                        stem_text: '请用 JavaScript 实现一个 flatten 函数，将多层嵌套数组扁平化为一维数组。',
+                        stem_html: '<p>请用 JavaScript 实现一个 <code>flatten</code> 函数，将多层嵌套数组扁平化为一维数组。</p><p>示例：</p><pre style="background:#f4f4f4;padding:12px;border-radius:6px;"><code>flatten([1, [2, [3, 4], 5], 6])\n// => [1, 2, 3, 4, 5, 6]</code></pre>',
+                        options: [],
+                        knowledge: ['JS基础', '递归'], tags: ['基础'], analysis: '可以使用递归、reduce 或 Array.prototype.flat(Infinity) 实现。'
+                    },
+                ]
+            }
+        ];
+
+        // Build a flat index for quick lookup
+        let allQuestions = [];
+        PAPER_SECTIONS.forEach(s => s.questions.forEach(q => allQuestions.push(q)));
+
+        // ===== Render Sections =====
+        function renderPaper() {
+            const container = document.getElementById('paperSections');
+            container.innerHTML = '';
+            let globalIndex = 0;
+
+            PAPER_SECTIONS.forEach((section, si) => {
+                const card = document.createElement('div');
+                card.className = 'section-card';
+
+                const totalSectionScore = section.questions.reduce((sum, q) => sum + q.score, 0);
+                let qItemsHtml = '';
+
+                section.questions.forEach((q, qi) => {
+                    globalIndex++;
+                    const diffClass = q.difficulty === '简单' ? 'q-badge-diff-easy' : q.difficulty === '中等' ? 'q-badge-diff-mid' : 'q-badge-diff-hard';
+
+                    qItemsHtml += `
+                        <div class="q-item">
+                            <div class="q-number">${globalIndex}</div>
+                            <div class="q-body">
+                                <div class="q-stem">${q.stem_text}</div>
+                                <div class="q-info">
+                                    <span class="q-badge q-badge-type">${q.type}</span>
+                                    <span class="q-badge ${diffClass}">${q.difficulty}</span>
+                                    <span class="q-score">${q.score} 分</span>
+                                    <span class="q-author">出题人：${q.author}</span>
+                                </div>
+                            </div>
+                            <div class="q-actions">
+                                <a class="q-action-link" onclick="openDetailModal(${q.id})">题目详情</a>
+                                <a class="q-action-link danger" onclick="removeQuestion(${si}, ${qi})">移除</a>
+                            </div>
+                        </div>
+                    `;
+                });
+
+                card.innerHTML = `
+                    <div class="section-header">
+                        <div class="section-title">${section.title}（共 ${section.questions.length} 题，每题 ${section.scoreEach} 分）</div>
+                        <div class="section-score">小计 ${totalSectionScore} 分</div>
+                    </div>
+                    ${qItemsHtml}
+                `;
+                container.appendChild(card);
+            });
+
+            // Update header counts
+            const total = allQuestions.length;
+            const totalS = allQuestions.reduce((s, q) => s + q.score, 0);
+            document.getElementById('totalCount').textContent = total;
+            document.getElementById('totalScore').textContent = totalS;
+        }
+
+        function removeQuestion(si, qi) {
+            if (!confirm('确定要将此题从试卷中移除吗？')) return;
+            const removed = PAPER_SECTIONS[si].questions.splice(qi, 1)[0];
+            allQuestions = allQuestions.filter(q => q.id !== removed.id);
+            renderPaper();
+            showToast('已移除题目');
+        }
+
+        // ===== Detail Modal =====
+        const detailModal = document.getElementById('detailModal');
+        const detailModalBody = document.getElementById('detailModalBody');
+        const detailModalFooter = document.getElementById('detailModalFooter');
+        const detailModalTitle = document.getElementById('detailModalTitle');
+
+        function openDetailModal(qId) {
+            const q = allQuestions.find(x => x.id === qId);
+            if (!q) return;
+
+            detailModalTitle.textContent = `题目详情 #${q.id}`;
+
+            // Build body
+            let bodyHtml = '';
+            bodyHtml += `<div class="detail-label">题干</div>`;
+            bodyHtml += `<div class="detail-stem">${q.stem_html}</div>`;
+
+            if (q.options && q.options.length > 0) {
+                bodyHtml += `<div class="detail-label">选项</div>`;
+                bodyHtml += `<div class="detail-options">`;
+                q.options.forEach(opt => {
+                    bodyHtml += `<div class="detail-option ${opt.correct ? 'correct' : ''}">
+                        <span class="detail-option-letter">${opt.letter}.</span>
+                        <span>${opt.text}</span>
+                        ${opt.correct ? '<span style="margin-left:auto;font-size:0.75rem;color:var(--success);font-weight:600;">✓ 正确答案</span>' : ''}
+                    </div>`;
+                });
+                bodyHtml += `</div>`;
+            }
+
+            bodyHtml += `<div class="detail-label">题目信息</div>`;
+            bodyHtml += `<div class="detail-meta-grid">
+                <div class="detail-meta-card"><div class="dm-label">题型</div><div class="dm-value">${q.type}</div></div>
+                <div class="detail-meta-card"><div class="dm-label">难度</div><div class="dm-value">${q.difficulty}</div></div>
+                <div class="detail-meta-card"><div class="dm-label">分值</div><div class="dm-value">${q.score} 分</div></div>
+                <div class="detail-meta-card"><div class="dm-label">出题人</div><div class="dm-value">${q.author}</div></div>
+                <div class="detail-meta-card"><div class="dm-label">知识点</div><div class="dm-value">${q.knowledge.join('、')}</div></div>
+                <div class="detail-meta-card"><div class="dm-label">标签</div><div class="dm-value">${q.tags.join('、')}</div></div>
+            </div>`;
+
+            if (q.analysis) {
+                bodyHtml += `<div class="detail-label">解析</div>`;
+                bodyHtml += `<div class="detail-analysis">${q.analysis}</div>`;
+            }
+
+            detailModalBody.innerHTML = bodyHtml;
+
+            // Build footer with the dynamic button
+            let footerHtml = '<div></div><div style="display:flex;gap:8px;">';
+            if (q.author === CURRENT_USER) {
+                // Own question — "修改题目"
+                footerHtml += `<button class="btn btn-primary" onclick="editOwnQuestion(${q.id})">
+                    <svg width="16" height="16" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z"></path></svg>
+                    修改题目</button>`;
+            } else {
+                // Other's question — "复制且修改"
+                footerHtml += `<button class="btn btn-warning" onclick="copyAndEditQuestion(${q.id})">
+                    <svg width="16" height="16" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 7v8a2 2 0 002 2h6M8 7V5a2 2 0 012-2h4.586a1 1 0 01.707.293l4.414 4.414a1 1 0 01.293.707V15a2 2 0 01-2 2h-2M8 7H6a2 2 0 00-2 2v10a2 2 0 002 2h8a2 2 0 002-2v-2"></path></svg>
+                    复制且修改</button>`;
+            }
+            footerHtml += `<button class="btn btn-outline" onclick="closeDetailModal()">关闭</button>`;
+            footerHtml += '</div>';
+            detailModalFooter.innerHTML = footerHtml;
+
+            detailModal.classList.add('show');
+        }
+
+        function closeDetailModal() {
+            detailModal.classList.remove('show');
+        }
+        detailModal.addEventListener('click', (e) => { if (e.target === detailModal) closeDetailModal(); });
+
+        // ===== Edit Own Question =====
+        function editOwnQuestion(qId) {
+            closeDetailModal();
+            // In real app: open new page/tab to edit question
+            showToast(`正在打开题目 #${qId} 的编辑页面...`);
+            setTimeout(() => {
+                alert(`[Demo] 已打开新页面编辑您的题目 #${qId}。\n\n修改保存后，试卷中的题目内容将同步更新。`);
+            }, 300);
+        }
+
+        // ===== Copy and Edit (other's question) =====
+        function copyAndEditQuestion(qId) {
+            const q = allQuestions.find(x => x.id === qId);
+            if (!q) return;
+
+            // Step 1: Copy the question with new ID, author = CURRENT_USER
+            const newId = 20000 + Math.floor(Math.random() * 10000);
+            const copiedQuestion = { ...q, id: newId, author: CURRENT_USER };
+            // Deep copy options
+            if (q.options) copiedQuestion.options = q.options.map(o => ({ ...o }));
+
+            // Step 2: Replace the original question in the paper with the copied one
+            PAPER_SECTIONS.forEach(section => {
+                const idx = section.questions.findIndex(sq => sq.id === qId);
+                if (idx !== -1) {
+                    section.questions[idx] = copiedQuestion;
+                }
+            });
+            // Update flat index
+            const flatIdx = allQuestions.findIndex(sq => sq.id === qId);
+            if (flatIdx !== -1) allQuestions[flatIdx] = copiedQuestion;
+
+            // Step 3: Re-render and open edit
+            renderPaper();
+            closeDetailModal();
+
+            showToast(`已复制题目并替换到试卷中（新题目 #${newId}），正在打开编辑页面...`);
+            setTimeout(() => {
+                alert(`[Demo] 操作完成！\n\n1. 已复制原题目 #${qId}（出题人：${q.author}）\n2. 生成了新题目 #${newId}（出题人：${CURRENT_USER}）\n3. 试卷中原题已被替换为您的新题目\n4. 已打开新页面编辑题目 #${newId}\n\n修改保存后，试卷中的内容将同步更新。`);
+            }, 500);
+        }
+
+        // ===== Toast =====
+        function showToast(msg) {
+            const el = document.getElementById('toast');
+            el.textContent = msg;
+            el.classList.add('show');
+            setTimeout(() => el.classList.remove('show'), 2500);
+        }
+
+        // Init
+        renderPaper();
+    </script>
+</body>
+
+</html>

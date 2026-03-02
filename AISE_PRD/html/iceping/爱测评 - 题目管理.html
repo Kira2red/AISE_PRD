@@ -1,0 +1,1332 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>爱测评 - 题目管理</title>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+    <style>
+        :root {
+            --primary: #4F46E5;
+            --primary-hover: #4338CA;
+            --primary-light: #EEF2FF;
+            --bg-color: #F3F4F6;
+            --surface-color: #FFFFFF;
+            --text-primary: #111827;
+            --text-secondary: #4B5563;
+            --text-tertiary: #9CA3AF;
+            --border-color: #E5E7EB;
+            --danger: #EF4444;
+            --success: #10B981;
+            --warning: #F59E0B;
+            --shadow-sm: 0 1px 2px 0 rgba(0, 0, 0, 0.05);
+            --shadow-lg: 0 10px 15px -3px rgba(0, 0, 0, 0.1), 0 4px 6px -2px rgba(0, 0, 0, 0.05);
+        }
+
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Inter', -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif;
+            background-color: var(--bg-color);
+            color: var(--text-primary);
+            height: 100vh;
+            display: flex;
+            flex-direction: column;
+            overflow: hidden;
+        }
+
+        /* ===== Top Title Bar ===== */
+        .title-bar {
+            height: 56px;
+            background-color: var(--surface-color);
+            border-bottom: 1px solid var(--border-color);
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            padding: 0 32px;
+            z-index: 20;
+            flex-shrink: 0;
+        }
+
+        .title-bar-left {
+            display: flex;
+            align-items: center;
+            gap: 32px;
+        }
+
+        .site-name {
+            font-weight: 700;
+            font-size: 1.125rem;
+            color: var(--primary);
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .top-nav {
+            display: flex;
+            gap: 4px;
+        }
+
+        .top-nav-item {
+            padding: 8px 16px;
+            border-radius: 6px;
+            font-size: 0.875rem;
+            font-weight: 500;
+            color: var(--text-secondary);
+            cursor: pointer;
+            transition: all 0.2s;
+            text-decoration: none;
+        }
+
+        .top-nav-item:hover {
+            background-color: #F9FAFB;
+            color: var(--text-primary);
+        }
+
+        .top-nav-item.active {
+            background-color: var(--primary-light);
+            color: var(--primary);
+        }
+
+        .title-bar-right {
+            display: flex;
+            align-items: center;
+            gap: 16px;
+        }
+
+        .avatar {
+            width: 32px;
+            height: 32px;
+            border-radius: 16px;
+            background-color: var(--primary-light);
+            color: var(--primary);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 0.75rem;
+            font-weight: 600;
+            cursor: pointer;
+        }
+
+        /* ===== Layout Body ===== */
+        .layout-body {
+            flex: 1;
+            display: flex;
+            overflow: hidden;
+        }
+
+        /* ===== Sidebar ===== */
+        .sidebar {
+            width: 220px;
+            background-color: var(--surface-color);
+            border-right: 1px solid var(--border-color);
+            display: flex;
+            flex-direction: column;
+            z-index: 10;
+        }
+
+        .sidebar-title {
+            padding: 20px 20px 12px;
+            font-size: 0.75rem;
+            font-weight: 600;
+            color: var(--text-tertiary);
+            text-transform: uppercase;
+            letter-spacing: 0.05em;
+        }
+
+        .nav-list {
+            list-style: none;
+            padding: 0 12px;
+            flex: 1;
+        }
+
+        .nav-item {
+            padding: 10px 16px;
+            border-radius: 8px;
+            margin-bottom: 2px;
+            cursor: pointer;
+            color: var(--text-secondary);
+            font-weight: 500;
+            font-size: 0.875rem;
+            transition: all 0.2s;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+
+        .nav-item:hover {
+            background-color: #F9FAFB;
+        }
+
+        .nav-item.active {
+            background-color: var(--primary-light);
+            color: var(--primary);
+        }
+
+        /* ===== Main Content ===== */
+        .main-content {
+            flex: 1;
+            display: flex;
+            flex-direction: column;
+            overflow: hidden;
+        }
+
+        .content-body {
+            flex: 1;
+            overflow-y: auto;
+            padding: 24px 32px;
+            padding-bottom: 120px;
+        }
+
+        /* ===== Filter + Actions Row ===== */
+        .filter-section {
+            background-color: var(--surface-color);
+            padding: 20px;
+            border-radius: 12px;
+            box-shadow: var(--shadow-sm);
+            margin-bottom: 20px;
+        }
+
+        .filter-row {
+            display: flex;
+            gap: 16px;
+            flex-wrap: wrap;
+            align-items: flex-end;
+        }
+
+        .filter-group {
+            display: flex;
+            flex-direction: column;
+            gap: 6px;
+        }
+
+        .filter-group label {
+            font-size: 0.8rem;
+            color: var(--text-secondary);
+            font-weight: 500;
+        }
+
+        .filter-control {
+            padding: 7px 12px;
+            border: 1px solid var(--border-color);
+            border-radius: 6px;
+            font-size: 0.875rem;
+            outline: none;
+            color: var(--text-primary);
+            background-color: var(--surface-color);
+        }
+
+        button.btn {
+            padding: 7px 16px;
+            border-radius: 6px;
+            font-size: 0.875rem;
+            font-weight: 500;
+            cursor: pointer;
+            transition: all 0.2s;
+            border: 1px solid transparent;
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            height: 34px;
+            gap: 4px;
+        }
+
+        button.btn-primary {
+            background-color: var(--primary);
+            color: white;
+        }
+
+        button.btn-primary:hover {
+            background-color: var(--primary-hover);
+        }
+
+        button.btn-outline {
+            border-color: var(--border-color);
+            background-color: white;
+            color: var(--text-secondary);
+        }
+
+        button.btn-outline:hover {
+            border-color: var(--text-tertiary);
+            color: var(--text-primary);
+        }
+
+        button.btn-sm {
+            height: 30px;
+            padding: 4px 12px;
+            font-size: 0.8rem;
+        }
+
+        /* ===== Table ===== */
+        .table-container {
+            background-color: var(--surface-color);
+            border-radius: 12px;
+            box-shadow: var(--shadow-sm);
+            overflow: hidden;
+        }
+
+        .table-toolbar {
+            padding: 14px 20px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            border-bottom: 1px solid var(--border-color);
+        }
+
+        .table-scroll-wrapper {
+            overflow-x: auto;
+        }
+
+        table {
+            width: 100%;
+            min-width: 1060px;
+            border-collapse: collapse;
+            text-align: left;
+            table-layout: fixed;
+        }
+
+        th {
+            background-color: #F9FAFB;
+            color: var(--text-secondary);
+            font-weight: 500;
+            font-size: 0.8rem;
+            padding: 10px 14px;
+            border-bottom: 1px solid var(--border-color);
+        }
+
+        td {
+            padding: 10px 14px;
+            border-bottom: 1px solid var(--border-color);
+            font-size: 0.875rem;
+            color: var(--text-primary);
+            vertical-align: middle;
+        }
+
+        tbody tr:hover {
+            background-color: #FAFBFC;
+        }
+
+        .col-id {
+            width: 70px;
+        }
+
+        .col-type {
+            width: 70px;
+        }
+
+        .col-stem {
+            /* flex */
+        }
+
+        .col-knowledge {
+            width: 130px;
+        }
+
+        .col-tags {
+            width: 120px;
+        }
+
+        .col-scope {
+            width: 80px;
+        }
+
+        .col-author {
+            width: 80px;
+        }
+
+        .col-actions {
+            width: 180px;
+        }
+
+        .stem-wrapper {
+            display: flex;
+            align-items: center;
+            gap: 6px;
+            width: 100%;
+        }
+
+        .stem-content {
+            white-space: nowrap;
+            overflow: hidden;
+            text-overflow: ellipsis;
+            display: block;
+            cursor: pointer;
+            color: var(--text-primary);
+            flex: 1;
+        }
+
+        .stem-richtext-hidden {
+            display: none;
+        }
+
+        .preview-icon {
+            color: #9CA3AF;
+            opacity: 0;
+            transition: opacity 0.2s;
+            cursor: pointer;
+            flex-shrink: 0;
+        }
+
+        tbody tr:hover .preview-icon {
+            opacity: 1;
+        }
+
+        .preview-icon:hover {
+            color: var(--primary);
+        }
+
+        .preview-icon.active {
+            opacity: 1;
+            color: var(--primary);
+        }
+
+        .badge {
+            padding: 2px 8px;
+            border-radius: 4px;
+            font-size: 0.7rem;
+            font-weight: 500;
+            display: inline-block;
+            margin-right: 3px;
+            margin-bottom: 2px;
+        }
+
+        .badge-blue {
+            background-color: #DBEAFE;
+            color: #1E40AF;
+        }
+
+        .badge-gray {
+            background-color: #F3F4F6;
+            color: #374151;
+        }
+
+        .badge-green {
+            background-color: #D1FAE5;
+            color: #065F46;
+        }
+
+        .actions {
+            display: flex;
+            gap: 8px;
+            flex-wrap: wrap;
+        }
+
+        .action-link {
+            color: var(--primary);
+            text-decoration: none;
+            font-size: 0.8rem;
+            cursor: pointer;
+            white-space: nowrap;
+        }
+
+        .action-link:hover {
+            text-decoration: underline;
+        }
+
+        .pagination {
+            display: flex;
+            align-items: center;
+            justify-content: flex-end;
+            padding: 14px 20px;
+            gap: 6px;
+            border-top: 1px solid var(--border-color);
+        }
+
+        /* ===== Floating Basket ===== */
+        .basket-dock {
+            position: fixed;
+            bottom: 32px;
+            right: 32px;
+            z-index: 50;
+            display: flex;
+            align-items: flex-end;
+            flex-direction: column;
+            gap: 12px;
+        }
+
+        .basket-button {
+            width: 56px;
+            height: 56px;
+            border-radius: 28px;
+            background-color: var(--primary);
+            color: white;
+            box-shadow: 0 4px 12px rgba(79, 70, 229, 0.4);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            cursor: pointer;
+            transition: transform 0.3s, box-shadow 0.3s;
+            position: relative;
+        }
+
+        .basket-button:hover {
+            transform: scale(1.05);
+            box-shadow: 0 6px 16px rgba(79, 70, 229, 0.5);
+        }
+
+        .basket-badge {
+            position: absolute;
+            top: -4px;
+            right: -4px;
+            background-color: var(--danger);
+            color: white;
+            font-size: 0.7rem;
+            font-weight: 600;
+            height: 20px;
+            min-width: 20px;
+            border-radius: 10px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            padding: 0 6px;
+            border: 2px solid var(--bg-color);
+        }
+
+        .basket-panel {
+            width: 360px;
+            background-color: var(--surface-color);
+            border-radius: 12px;
+            box-shadow: var(--shadow-lg);
+            border: 1px solid var(--border-color);
+            overflow: hidden;
+            display: flex;
+            flex-direction: column;
+            opacity: 0;
+            transform: translateY(20px) scale(0.95);
+            pointer-events: none;
+            transition: all 0.3s ease;
+            transform-origin: bottom right;
+        }
+
+        .basket-panel.open {
+            opacity: 1;
+            transform: translateY(0) scale(1);
+            pointer-events: auto;
+        }
+
+        .basket-header {
+            padding: 14px 20px;
+            border-bottom: 1px solid var(--border-color);
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            font-weight: 600;
+            font-size: 0.9rem;
+            background-color: #F9FAFB;
+        }
+
+        .basket-summary {
+            padding: 12px 20px;
+            background-color: #F9FAFB;
+            border-bottom: 1px solid var(--border-color);
+        }
+
+        .basket-summary-count {
+            font-size: 0.875rem;
+            font-weight: 600;
+            color: var(--text-primary);
+            margin-bottom: 6px;
+        }
+
+        .basket-type-tags {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 6px;
+        }
+
+        .basket-type-tag {
+            display: inline-flex;
+            align-items: center;
+            gap: 4px;
+            padding: 2px 10px;
+            border-radius: 999px;
+            font-size: 0.7rem;
+            font-weight: 500;
+            background-color: var(--primary-light);
+            color: var(--primary);
+        }
+
+        .basket-type-tag .type-num {
+            font-weight: 700;
+        }
+
+        .basket-list {
+            max-height: 240px;
+            overflow-y: auto;
+            padding: 4px 0;
+        }
+
+        .basket-item {
+            padding: 8px 20px;
+            font-size: 0.8rem;
+            border-bottom: 1px solid var(--border-color);
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+
+        .basket-item:last-child {
+            border-bottom: none;
+        }
+
+        .basket-item-type {
+            font-size: 0.7rem;
+            color: var(--text-tertiary);
+            flex-shrink: 0;
+        }
+
+        .basket-item-title {
+            color: var(--text-primary);
+            white-space: nowrap;
+            overflow: hidden;
+            text-overflow: ellipsis;
+            flex: 1;
+        }
+
+        .basket-item-remove {
+            color: var(--text-tertiary);
+            cursor: pointer;
+            flex-shrink: 0;
+        }
+
+        .basket-item-remove:hover {
+            color: var(--danger);
+        }
+
+        .basket-footer {
+            padding: 12px 20px;
+            border-top: 1px solid var(--border-color);
+            display: flex;
+            gap: 8px;
+        }
+
+        /* ===== Popover ===== */
+        .stem-popover {
+            position: fixed;
+            background: #FFFFFF;
+            color: var(--text-primary);
+            border: 1px solid var(--border-color);
+            padding: 16px;
+            border-radius: 8px;
+            font-size: 0.875rem;
+            line-height: 1.6;
+            width: 450px;
+            max-height: 350px;
+            overflow-y: auto;
+            z-index: 100;
+            box-shadow: var(--shadow-lg);
+            pointer-events: none;
+            opacity: 0;
+            transform: translateY(5px);
+            transition: opacity 0.2s, transform 0.2s;
+        }
+
+        .stem-popover.visible {
+            opacity: 1;
+            transform: translateY(0);
+            pointer-events: auto;
+        }
+
+        .stem-popover img {
+            max-width: 100%;
+            height: auto;
+            border-radius: 4px;
+            margin: 8px 0;
+        }
+
+        .stem-popover::after,
+        .stem-popover::before {
+            content: "";
+            position: absolute;
+            width: 0;
+            height: 0;
+            border-style: solid;
+        }
+
+        .stem-popover.top-arrow::before {
+            border-width: 0 8px 8px 8px;
+            border-color: transparent transparent var(--border-color) transparent;
+            top: -9px;
+            left: 20px;
+        }
+
+        .stem-popover.top-arrow::after {
+            border-width: 0 7px 7px 7px;
+            border-color: transparent transparent #FFFFFF transparent;
+            top: -7px;
+            left: 21px;
+        }
+
+        .stem-popover.bottom-arrow::before {
+            border-width: 8px 8px 0 8px;
+            border-color: var(--border-color) transparent transparent transparent;
+            bottom: -9px;
+            left: 20px;
+        }
+
+        .stem-popover.bottom-arrow::after {
+            border-width: 7px 7px 0 7px;
+            border-color: #FFFFFF transparent transparent transparent;
+            bottom: -7px;
+            left: 21px;
+        }
+
+        /* ===== Basket Detail Modal ===== */
+        .modal-overlay {
+            position: fixed;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background-color: rgba(0, 0, 0, 0.45);
+            z-index: 200;
+            display: none;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .modal-overlay.show {
+            display: flex;
+        }
+
+        .modal-box {
+            width: 720px;
+            max-width: 90vw;
+            max-height: 80vh;
+            background: var(--surface-color);
+            border-radius: 12px;
+            box-shadow: 0 20px 60px rgba(0, 0, 0, 0.15);
+            display: flex;
+            flex-direction: column;
+            overflow: hidden;
+            animation: modalIn 0.25s ease;
+        }
+
+        @keyframes modalIn {
+            from {
+                opacity: 0;
+                transform: translateY(30px) scale(0.97);
+            }
+
+            to {
+                opacity: 1;
+                transform: translateY(0) scale(1);
+            }
+        }
+
+        .modal-header {
+            padding: 20px 24px 0;
+            display: flex;
+            justify-content: space-between;
+            align-items: flex-start;
+        }
+
+        .modal-title {
+            font-size: 1.125rem;
+            font-weight: 700;
+        }
+
+        .modal-close {
+            width: 28px;
+            height: 28px;
+            border-radius: 6px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            cursor: pointer;
+            color: var(--text-tertiary);
+            transition: all 0.2s;
+        }
+
+        .modal-close:hover {
+            background-color: #F3F4F6;
+            color: var(--text-primary);
+        }
+
+        /* Basket tabs */
+        .basket-tabs {
+            display: flex;
+            gap: 0;
+            padding: 16px 24px 0;
+            border-bottom: 1px solid var(--border-color);
+            align-items: flex-end;
+        }
+
+        .basket-tab {
+            padding: 8px 20px;
+            font-size: 0.875rem;
+            font-weight: 500;
+            color: var(--text-secondary);
+            cursor: pointer;
+            border-bottom: 2px solid transparent;
+            transition: all 0.2s;
+            margin-bottom: -1px;
+        }
+
+        .basket-tab:hover {
+            color: var(--text-primary);
+        }
+
+        .basket-tab.active {
+            color: var(--primary);
+            border-bottom-color: var(--primary);
+            font-weight: 600;
+        }
+
+        .basket-tab-add {
+            padding: 6px 14px;
+            font-size: 0.8rem;
+            font-weight: 500;
+            color: var(--primary);
+            cursor: pointer;
+            margin-left: 8px;
+            border: 1px dashed var(--primary);
+            border-radius: 6px;
+            background: transparent;
+            transition: all 0.2s;
+            margin-bottom: 4px;
+        }
+
+        .basket-tab-add:hover {
+            background-color: var(--primary-light);
+        }
+
+        .modal-body {
+            flex: 1;
+            overflow-y: auto;
+            padding: 0;
+        }
+
+        .modal-table {
+            width: 100%;
+            border-collapse: collapse;
+        }
+
+        .modal-table th {
+            background-color: #F9FAFB;
+            font-size: 0.8rem;
+            font-weight: 500;
+            color: var(--text-secondary);
+            padding: 10px 24px;
+            border-bottom: 1px solid var(--border-color);
+            text-align: left;
+            position: sticky;
+            top: 0;
+            z-index: 1;
+        }
+
+        .modal-table td {
+            padding: 10px 24px;
+            border-bottom: 1px solid var(--border-color);
+            font-size: 0.875rem;
+            vertical-align: middle;
+        }
+
+        .modal-table tbody tr:hover {
+            background-color: #FAFBFC;
+        }
+
+        .modal-table .stem-cell {
+            white-space: nowrap;
+            overflow: hidden;
+            text-overflow: ellipsis;
+            max-width: 400px;
+            display: block;
+        }
+
+        .modal-footer {
+            padding: 16px 24px;
+            border-top: 1px solid var(--border-color);
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .modal-empty {
+            padding: 48px;
+            text-align: center;
+            color: var(--text-tertiary);
+            font-size: 0.875rem;
+        }
+    </style>
+</head>
+
+<body>
+
+    <!-- ===== Top Title Bar ===== -->
+    <header class="title-bar">
+        <div class="title-bar-left">
+            <div class="site-name">
+                <svg width="22" height="22" viewBox="0 0 24 24" fill="none">
+                    <path d="M12 2L2 7L12 12L22 7L12 2Z" fill="#4F46E5" />
+                    <path d="M2 17L12 22L22 17M2 12L12 17L22 12" stroke="#4F46E5" stroke-width="2"
+                        stroke-linecap="round" stroke-linejoin="round" />
+                </svg>
+                爱测评
+            </div>
+            <nav class="top-nav">
+                <a class="top-nav-item" href="#">首页</a>
+                <a class="top-nav-item active" href="#">测评管理</a>
+                <a class="top-nav-item" href="#">测评报告</a>
+            </nav>
+        </div>
+        <div class="title-bar-right">
+            <div class="avatar" title="个人信息">我</div>
+        </div>
+    </header>
+
+    <!-- ===== Body: Sidebar + Main ===== -->
+    <div class="layout-body">
+        <aside class="sidebar">
+            <div class="sidebar-title">测评管理</div>
+            <ul class="nav-list">
+                <li class="nav-item active">
+                    <svg width="18" height="18" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                            d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2m-3 7h3m-3 4h3m-6-4h.01M9 16h.01">
+                        </path>
+                    </svg>
+                    题目管理
+                </li>
+                <li class="nav-item">
+                    <svg width="18" height="18" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                            d="M12 6.253v13m0-13C10.832 5.477 9.246 5 7.5 5S4.168 5.477 3 6.253v13C4.168 18.477 5.754 18 7.5 18s3.332.477 4.5 1.253m0-13C13.168 5.477 14.754 5 16.5 5c1.747 0 3.332.477 4.5 1.253v13C19.832 18.477 18.247 18 16.5 18c-1.746 0-3.332.477-4.5 1.253">
+                        </path>
+                    </svg>
+                    试卷库
+                </li>
+                <li class="nav-item">
+                    <svg width="18" height="18" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                            d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"></path>
+                    </svg>
+                    考试任务
+                </li>
+            </ul>
+        </aside>
+
+        <main class="main-content">
+            <div class="content-body" id="scrollContainer">
+                <!-- Filter Section -->
+                <div class="filter-section">
+                    <div class="filter-row">
+                        <div class="filter-group" style="width: 200px;">
+                            <label>题干关键词</label>
+                            <input type="text" class="filter-control" placeholder="请输入...">
+                        </div>
+                        <div class="filter-group">
+                            <label>所属题库</label>
+                            <select class="filter-control" style="width: 140px;">
+                                <option>全部</option>
+                                <option>2024秋招真题库</option>
+                                <option>前端基础试题库</option>
+                            </select>
+                        </div>
+                        <div class="filter-group">
+                            <label>题型</label>
+                            <select class="filter-control" style="width: 100px;">
+                                <option>全部</option>
+                                <option>单选题</option>
+                                <option>多选题</option>
+                                <option>判断题</option>
+                                <option>编程题</option>
+                            </select>
+                        </div>
+                        <div class="filter-group" style="width: 140px;">
+                            <label>标签</label>
+                            <input type="text" class="filter-control" placeholder="如：高频">
+                        </div>
+                        <div class="filter-group">
+                            <label>难度</label>
+                            <select class="filter-control" style="width: 90px;">
+                                <option>全部</option>
+                                <option>简单</option>
+                                <option>中等</option>
+                                <option>困难</option>
+                            </select>
+                        </div>
+                        <div style="display: flex; gap: 8px; margin-left: auto;">
+                            <button class="btn btn-outline" style="width: 64px;">重置</button>
+                            <button class="btn btn-primary" style="width: 64px;">查询</button>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Table -->
+                <div class="table-container">
+                    <div class="table-toolbar">
+                        <div style="font-size: 0.875rem; color: var(--text-secondary);">
+                            共找到 <strong style="color: var(--text-primary);">86</strong> 道试题
+                        </div>
+                        <button class="btn btn-primary btn-sm" onclick="alert('新增试题（Demo）')">+ 新增试题</button>
+                    </div>
+                    <div class="table-scroll-wrapper">
+                        <table id="questionTable">
+                            <thead>
+                                <tr>
+                                    <th class="col-id">题目ID</th>
+                                    <th class="col-type">题型</th>
+                                    <th class="col-stem">题干</th>
+                                    <th class="col-knowledge">知识点</th>
+                                    <th class="col-tags">标签</th>
+                                    <th class="col-scope">可见范围</th>
+                                    <th class="col-author">出题人</th>
+                                    <th class="col-actions">操作</th>
+                                </tr>
+                            </thead>
+                            <tbody id="questionTbody"></tbody>
+                        </table>
+                    </div>
+                    <div class="pagination">
+                        <span style="font-size: 0.8rem;">1 - 10 条，共 86 条</span>
+                        <button class="btn btn-outline btn-sm" disabled>&lt;</button>
+                        <button class="btn btn-primary btn-sm">1</button>
+                        <button class="btn btn-outline btn-sm">2</button>
+                        <button class="btn btn-outline btn-sm">3</button>
+                        <button class="btn btn-outline btn-sm">&gt;</button>
+                    </div>
+                </div>
+            </div>
+        </main>
+    </div>
+
+    <!-- ===== Floating Basket Dock ===== -->
+    <div class="basket-dock">
+        <div class="basket-panel" id="basketPanel">
+            <div class="basket-header">
+                <span>试题篮</span>
+                <span style="color: var(--text-secondary); font-size: 0.8rem; cursor: pointer;"
+                    onclick="clearBasket()">清空</span>
+            </div>
+            <div class="basket-summary" id="basketSummary"></div>
+            <div class="basket-list" id="basketList"></div>
+            <div class="basket-footer">
+                <button class="btn btn-outline" style="flex: 1;" onclick="openBasketModal()">查看已选题目</button>
+                <button class="btn btn-primary" style="flex: 1;">生成试卷</button>
+            </div>
+        </div>
+        <div class="basket-button" id="basketToggleBtn">
+            <svg width="24" height="24" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                    d="M19 11H5m14 0a2 2 0 012 2v6a2 2 0 01-2 2H5a2 2 0 01-2-2v-6a2 2 0 012-2m14 0V9a2 2 0 00-2-2M5 11V9a2 2 0 002-2m0 0V5a2 2 0 012-2h6a2 2 0 012 2v2M7 7h10">
+                </path>
+            </svg>
+            <div class="basket-badge" id="basketCounter">0</div>
+        </div>
+    </div>
+
+    <!-- ===== Popover ===== -->
+    <div id="stemPopover" class="stem-popover">
+        <div id="stemPopoverContent"></div>
+    </div>
+
+    <!-- ===== Basket Detail Modal ===== -->
+    <div class="modal-overlay" id="basketModal">
+        <div class="modal-box">
+            <div class="modal-header">
+                <div class="modal-title">试题篮</div>
+                <div class="modal-close" onclick="closeBasketModal()">
+                    <svg width="18" height="18" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12">
+                        </path>
+                    </svg>
+                </div>
+            </div>
+
+            <!-- Multi-basket tabs -->
+            <div class="basket-tabs" id="basketTabs">
+                <!-- JS populated -->
+            </div>
+
+            <div class="modal-body" id="basketModalBody">
+                <!-- JS populated table -->
+            </div>
+
+            <div class="modal-footer">
+                <div style="font-size: 0.8rem; color: var(--text-secondary);" id="modalFooterInfo">已选 0 道题目</div>
+                <button class="btn btn-primary" onclick="alert('生成试卷（Demo）')">生成试卷</button>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        const CURRENT_USER = 'Kira';
+
+        // ===== Multi-basket data =====
+        let baskets = [
+            { id: 1, name: '默认试题篮', items: [] },
+            { id: 2, name: '期末考试', items: [] }
+        ];
+        let activeBasketId = 1;
+        let nextBasketId = 3;
+
+        const MOCK_DATA = [
+            { id: 10301, type: '单选题', stem_text: '下面关于 React 的 useState 的描述，错误的是？', stem_html: '<p>下面关于 React 的 <code>useState</code> 的描述，错误的是？</p><img src="https://images.unsplash.com/photo-1633356122544-f134324a6cee?ixlib=rb-4.0.3&auto=format&fit=crop&w=300&q=80" alt="react"><p>A. 返回一个 state 以及更新 state 的函数。</p><p>B. initialState 只会在组件首次渲染时被计算。</p>', knowledge: ['React Hooks', '状态管理'], tags: ['前端', '2024秋招'], scope: '公开', author: 'Kira' },
+            { id: 10302, type: '编程题', stem_text: '请实现一个 Vue 3 自定义指令 v-focus，在元素挂载后自动聚焦。', stem_html: '<p>请实现一个 Vue 3 自定义指令 <strong>v-focus</strong>，在元素挂载后自动对其执行 <code>focus()</code>。</p><pre style="background:#f4f4f4;padding:8px;border-radius:4px;"><code>const vFocus = {\n  mounted: (el) => el.focus()\n}</code></pre>', knowledge: ['Vue3', '自定义指令'], tags: ['核心', '必考'], scope: '公开', author: 'Admin' },
+            { id: 10303, type: '多选题', stem_text: '在产品设计阶段，常用的原型设计工具有哪些？', stem_html: '<p>在产品设计阶段，常用的原型设计工具有哪些？</p><ul><li>A. Axure RP</li><li>B. Figma</li><li>C. Sketch</li><li>D. Postman</li></ul>', knowledge: ['产品设计', '原型工具'], tags: ['基础'], scope: '团队内', author: 'Kira' },
+            { id: 10304, type: '简答题', stem_text: '说明 TCP 三次握手和四次挥手的具体过程及其意义。', stem_html: '<p>说明 TCP <strong>三次握手</strong>和<strong>四次挥手</strong>的具体过程及其意义。</p><img src="https://images.unsplash.com/photo-1544197150-b99a580bb7a8?ixlib=rb-4.0.3&auto=format&fit=crop&w=300&q=80" alt="network">', knowledge: ['计算机网络', 'TCP/IP'], tags: ['高频面试题'], scope: '私有', author: 'System' },
+            { id: 10305, type: '判断题', stem_text: '在 JavaScript 中，NaN === NaN 的结果是 true。', stem_html: '<p>在 JavaScript 中，<code>NaN === NaN</code> 的结果是 true。正确吗？</p>', knowledge: ['JS基础'], tags: ['易错'], scope: '公开', author: 'Admin' }
+        ];
+        for (let i = 0; i < 5; i++) MOCK_DATA.push({ ...MOCK_DATA[i], id: 10400 + i });
+
+        // ===== Helper: get active basket =====
+        function getActiveBasket() { return baskets.find(b => b.id === activeBasketId); }
+
+        function isInActiveBasket(qId) {
+            const b = getActiveBasket();
+            return b && b.items.includes(qId);
+        }
+
+        // ===== Render Table =====
+        const tbody = document.getElementById('questionTbody');
+
+        function renderTable() {
+            tbody.innerHTML = '';
+            MOCK_DATA.forEach((q, index) => {
+                let actionHtml = '';
+                if (isInActiveBasket(q.id)) {
+                    actionHtml += `<a class="action-link" style="color:var(--danger);" onclick="removeFromBasket(${q.id})">移出</a>`;
+                } else {
+                    actionHtml += `<a class="action-link" onclick="addToBasket(${q.id})">选题</a>`;
+                }
+                if (q.author === CURRENT_USER) {
+                    actionHtml += `<a class="action-link">编辑</a>`;
+                } else {
+                    actionHtml += `<a class="action-link" title="复制一道自己的题目并进入编辑">复制且编辑</a>`;
+                }
+                actionHtml += `<a class="action-link">详情</a>`;
+
+                const k_badges = q.knowledge.map(k => `<span class="badge badge-gray">${k}</span>`).join('');
+                const t_badges = q.tags.map(t => `<span class="badge badge-blue">${t}</span>`).join('');
+
+                const tr = document.createElement('tr');
+                tr.innerHTML = `
+                    <td class="col-id">${q.id}</td>
+                    <td class="col-type">${q.type}</td>
+                    <td class="col-stem">
+                        <div class="stem-wrapper">
+                            <span class="stem-content" onclick="clickPreview(${index}, this.parentElement)">${q.stem_text}</span>
+                            <div class="stem-richtext-hidden" id="rich-stem-${index}">${q.stem_html}</div>
+                            <svg class="preview-icon" id="preview-icon-${index}" width="16" height="16" fill="none" stroke="currentColor" viewBox="0 0 24 24" onclick="clickPreview(${index}, this.parentElement)">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z"></path>
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z"></path>
+                            </svg>
+                        </div>
+                    </td>
+                    <td class="col-knowledge">${k_badges}</td>
+                    <td class="col-tags">${t_badges}</td>
+                    <td class="col-scope"><span class="badge ${q.scope === '公开' ? 'badge-green' : 'badge-gray'}">${q.scope}</span></td>
+                    <td class="col-author">${q.author}</td>
+                    <td class="col-actions"><div class="actions">${actionHtml}</div></td>
+                `;
+                tbody.appendChild(tr);
+            });
+            updateBasketUI();
+        }
+
+        // ===== Popover =====
+        const popover = document.getElementById('stemPopover');
+        const popoverContent = document.getElementById('stemPopoverContent');
+        const scrollContainer = document.getElementById('scrollContainer');
+        let pinnedPopoverIndex = -1;
+        let activeIconEl = null;
+
+        function positionPopover(element) {
+            const rect = element.getBoundingClientRect();
+            popover.classList.remove('top-arrow', 'bottom-arrow');
+            let leftPos = rect.left;
+            if (leftPos + 450 > window.innerWidth) leftPos = window.innerWidth - 460;
+            if (rect.bottom + 250 > window.innerHeight) {
+                popover.classList.add('bottom-arrow');
+            } else {
+                popover.classList.add('top-arrow');
+            }
+            popover.style.left = leftPos + 'px';
+            popover.classList.add('visible');
+            requestAnimationFrame(() => {
+                popover.style.top = popover.classList.contains('bottom-arrow')
+                    ? (rect.top - popover.offsetHeight - 10) + 'px'
+                    : (rect.bottom + 10) + 'px';
+            });
+        }
+
+        function clickPreview(index, element) {
+            if (pinnedPopoverIndex === index) { closePopover(); return; }
+            if (activeIconEl) activeIconEl.classList.remove('active');
+            pinnedPopoverIndex = index;
+            popoverContent.innerHTML = document.getElementById(`rich-stem-${index}`).innerHTML;
+            const iconEl = document.getElementById(`preview-icon-${index}`);
+            if (iconEl) { iconEl.classList.add('active'); activeIconEl = iconEl; }
+            positionPopover(element);
+        }
+
+        function closePopover() {
+            pinnedPopoverIndex = -1;
+            popover.classList.remove('visible');
+            if (activeIconEl) { activeIconEl.classList.remove('active'); activeIconEl = null; }
+        }
+
+        document.addEventListener('click', (e) => {
+            if (pinnedPopoverIndex !== -1 && !popover.contains(e.target) && !e.target.closest('.stem-wrapper')) closePopover();
+        });
+        scrollContainer.addEventListener('scroll', () => { if (pinnedPopoverIndex !== -1) closePopover(); });
+
+        // ===== Basket Panel (small floating) =====
+        const basketPanel = document.getElementById('basketPanel');
+        const basketToggleBtn = document.getElementById('basketToggleBtn');
+        const basketCounter = document.getElementById('basketCounter');
+        const basketList = document.getElementById('basketList');
+        const basketSummary = document.getElementById('basketSummary');
+        let basketOpen = false;
+
+        basketToggleBtn.addEventListener('click', (e) => {
+            e.stopPropagation();
+            basketOpen = !basketOpen;
+            basketPanel.classList.toggle('open', basketOpen);
+        });
+        document.addEventListener('click', (e) => {
+            if (basketOpen && !basketToggleBtn.contains(e.target) && !basketPanel.contains(e.target)) {
+                basketOpen = false; basketPanel.classList.remove('open');
+            }
+        });
+
+        function addToBasket(qId) {
+            const b = getActiveBasket();
+            if (b && !b.items.includes(qId)) b.items.push(qId);
+            renderTable();
+        }
+
+        function removeFromBasket(qId) {
+            const b = getActiveBasket();
+            if (b) b.items = b.items.filter(id => id !== qId);
+            renderTable();
+        }
+
+        function clearBasket() {
+            const b = getActiveBasket();
+            if (b) b.items = [];
+            renderTable();
+        }
+
+        function updateBasketUI() {
+            const b = getActiveBasket();
+            const items = b ? b.items : [];
+            const selectedQs = items.map(id => MOCK_DATA.find(q => q.id === id)).filter(Boolean);
+            basketCounter.innerText = items.length;
+
+            if (selectedQs.length === 0) {
+                basketSummary.innerHTML = `<div class="basket-summary-count">已选 0 道题目</div>`;
+                basketList.innerHTML = `<div style="padding: 24px; text-align: center; color: var(--text-tertiary); font-size: 0.8rem;">试题篮为空，请从列表中选题</div>`;
+            } else {
+                const typeMap = {};
+                selectedQs.forEach(q => { typeMap[q.type] = (typeMap[q.type] || 0) + 1; });
+                const typeTags = Object.entries(typeMap).map(([t, c]) => `<span class="basket-type-tag">${t} <span class="type-num">${c}</span></span>`).join('');
+                basketSummary.innerHTML = `
+                    <div class="basket-summary-count">已选 <span style="color:var(--primary);font-size:1.1rem;">${selectedQs.length}</span> 道题目</div>
+                    <div class="basket-type-tags">${typeTags}</div>`;
+
+                basketList.innerHTML = '';
+                selectedQs.forEach(q => {
+                    const div = document.createElement('div');
+                    div.className = 'basket-item';
+                    div.innerHTML = `
+                        <span class="basket-item-type">[${q.type}]</span>
+                        <div class="basket-item-title">${q.stem_text}</div>
+                        <div class="basket-item-remove" onclick="removeFromBasket(${q.id})">
+                            <svg width="14" height="14" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"></path></svg>
+                        </div>`;
+                    basketList.appendChild(div);
+                });
+            }
+        }
+
+        // ===== Basket Detail Modal =====
+        const basketModal = document.getElementById('basketModal');
+        const basketTabs = document.getElementById('basketTabs');
+        const basketModalBody = document.getElementById('basketModalBody');
+        const modalFooterInfo = document.getElementById('modalFooterInfo');
+
+        function openBasketModal() {
+            // Close the small panel
+            basketOpen = false; basketPanel.classList.remove('open');
+            basketModal.classList.add('show');
+            renderBasketModal();
+        }
+
+        function closeBasketModal() {
+            basketModal.classList.remove('show');
+        }
+
+        // Close modal on overlay click
+        basketModal.addEventListener('click', (e) => {
+            if (e.target === basketModal) closeBasketModal();
+        });
+
+        function renderBasketModal() {
+            // Tabs
+            let tabsHtml = '';
+            baskets.forEach(b => {
+                tabsHtml += `<div class="basket-tab ${b.id === activeBasketId ? 'active' : ''}" onclick="switchBasket(${b.id})">${b.name}（${b.items.length}）</div>`;
+            });
+            tabsHtml += `<button class="basket-tab-add" onclick="addNewBasket()">+ 新增试题篮</button>`;
+            basketTabs.innerHTML = tabsHtml;
+
+            // Body
+            const b = getActiveBasket();
+            const items = b ? b.items : [];
+            const selectedQs = items.map(id => MOCK_DATA.find(q => q.id === id)).filter(Boolean);
+
+            if (selectedQs.length === 0) {
+                basketModalBody.innerHTML = `<div class="modal-empty">当前试题篮为空，请返回列表添加题目</div>`;
+            } else {
+                let rows = '';
+                selectedQs.forEach((q, i) => {
+                    rows += `<tr>
+                        <td style="width:60px; text-align:center;">${i + 1}</td>
+                        <td><span class="stem-cell">${q.stem_text}</span></td>
+                        <td style="width:80px;">${q.type}</td>
+                        <td style="width:60px;"><div class="basket-item-remove" style="display:flex;justify-content:center;" onclick="removeFromBasketModal(${q.id})">
+                            <svg width="14" height="14" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"></path></svg>
+                        </div></td>
+                    </tr>`;
+                });
+                basketModalBody.innerHTML = `<table class="modal-table">
+                    <thead><tr><th style="width:60px; text-align:center;">序号</th><th>题干</th><th style="width:80px;">题型</th><th style="width:60px;">操作</th></tr></thead>
+                    <tbody>${rows}</tbody>
+                </table>`;
+            }
+
+            modalFooterInfo.innerText = `已选 ${selectedQs.length} 道题目`;
+        }
+
+        function switchBasket(id) {
+            activeBasketId = id;
+            renderTable();
+            renderBasketModal();
+        }
+
+        function addNewBasket() {
+            const name = prompt('请输入新试题篮名称：', `试题篮 ${nextBasketId}`);
+            if (!name) return;
+            baskets.push({ id: nextBasketId++, name: name, items: [] });
+            renderBasketModal();
+        }
+
+        function removeFromBasketModal(qId) {
+            removeFromBasket(qId);
+            renderBasketModal();
+        }
+
+        // Init
+        renderTable();
+    </script>
+</body>
+
+</html>

@@ -1,0 +1,814 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>爱测评 - 试卷编辑列表</title>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+    <style>
+        :root {
+            --primary: #4F46E5;
+            --primary-hover: #4338CA;
+            --primary-light: #EEF2FF;
+            --bg-color: #F3F4F6;
+            --surface-color: #FFFFFF;
+            --text-primary: #111827;
+            --text-secondary: #4B5563;
+            --text-tertiary: #9CA3AF;
+            --border-color: #E5E7EB;
+            --danger: #EF4444;
+            --success: #10B981;
+            --shadow-sm: 0 1px 2px 0 rgba(0, 0, 0, 0.05);
+            --shadow-md: 0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -1px rgba(0, 0, 0, 0.06);
+            --shadow-lg: 0 10px 15px -3px rgba(0, 0, 0, 0.1), 0 4px 6px -2px rgba(0, 0, 0, 0.05);
+        }
+
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Inter', -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+            background-color: var(--bg-color);
+            color: var(--text-primary);
+            height: 100vh;
+            display: flex;
+            flex-direction: column;
+            overflow: hidden;
+        }
+
+        /* ===== Top Title Bar ===== */
+        .title-bar {
+            height: 56px;
+            background-color: var(--surface-color);
+            border-bottom: 1px solid var(--border-color);
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            padding: 0 32px;
+            z-index: 20;
+            flex-shrink: 0;
+        }
+
+        .title-bar-left {
+            display: flex;
+            align-items: center;
+            gap: 32px;
+        }
+
+        .site-name {
+            font-weight: 700;
+            font-size: 1.125rem;
+            color: var(--primary);
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .top-nav {
+            display: flex;
+            gap: 4px;
+        }
+
+        .top-nav-item {
+            padding: 8px 16px;
+            border-radius: 6px;
+            font-size: 0.875rem;
+            font-weight: 500;
+            color: var(--text-secondary);
+            cursor: pointer;
+            transition: all 0.2s;
+            text-decoration: none;
+        }
+
+        .top-nav-item:hover {
+            background-color: #F9FAFB;
+            color: var(--text-primary);
+        }
+
+        .top-nav-item.active {
+            background-color: var(--primary-light);
+            color: var(--primary);
+        }
+
+        .title-bar-right {
+            display: flex;
+            align-items: center;
+            gap: 16px;
+        }
+
+        .avatar {
+            width: 32px;
+            height: 32px;
+            border-radius: 16px;
+            background-color: var(--primary-light);
+            color: var(--primary);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 0.75rem;
+            font-weight: 600;
+            cursor: pointer;
+        }
+
+        /* ===== Layout Body ===== */
+        .layout-body {
+            flex: 1;
+            display: flex;
+            overflow: hidden;
+        }
+
+        .sidebar {
+            width: 220px;
+            background-color: var(--surface-color);
+            border-right: 1px solid var(--border-color);
+            display: flex;
+            flex-direction: column;
+            z-index: 10;
+        }
+
+        .sidebar-title {
+            padding: 20px 20px 12px;
+            font-size: 0.75rem;
+            font-weight: 600;
+            color: var(--text-tertiary);
+            text-transform: uppercase;
+            letter-spacing: 0.05em;
+        }
+
+        .nav-list {
+            list-style: none;
+            padding: 0 12px;
+            flex: 1;
+        }
+
+        .nav-item {
+            padding: 10px 16px;
+            border-radius: 8px;
+            margin-bottom: 2px;
+            cursor: pointer;
+            color: var(--text-secondary);
+            font-weight: 500;
+            font-size: 0.875rem;
+            transition: all 0.2s;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+
+        .nav-item:hover {
+            background-color: #F9FAFB;
+        }
+
+        .nav-item.active {
+            background-color: var(--primary-light);
+            color: var(--primary);
+        }
+
+        /* ===== Main Content ===== */
+        .main-content {
+            flex: 1;
+            display: flex;
+            flex-direction: column;
+            overflow: hidden;
+        }
+
+        .content-body {
+            flex: 1;
+            overflow-y: auto;
+            padding: 24px 32px 80px;
+        }
+
+        button.btn {
+            padding: 7px 16px;
+            border-radius: 6px;
+            font-size: 0.875rem;
+            font-weight: 500;
+            cursor: pointer;
+            transition: all 0.2s;
+            border: 1px solid transparent;
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            height: 34px;
+            gap: 6px;
+        }
+
+        button.btn-primary {
+            background-color: var(--primary);
+            color: white;
+        }
+
+        button.btn-primary:hover {
+            background-color: var(--primary-hover);
+        }
+
+        button.btn-outline {
+            border-color: var(--border-color);
+            background-color: white;
+            color: var(--text-secondary);
+        }
+
+        button.btn-outline:hover {
+            border-color: var(--text-tertiary);
+            color: var(--text-primary);
+        }
+
+        /* ===== Paper Header ===== */
+        .paper-header {
+            background: var(--surface-color);
+            border-radius: 12px;
+            padding: 24px;
+            box-shadow: var(--shadow-sm);
+            margin-bottom: 20px;
+        }
+
+        .paper-title-row {
+            display: flex;
+            justify-content: space-between;
+            align-items: flex-start;
+            margin-bottom: 16px;
+        }
+
+        .paper-name {
+            font-size: 1.25rem;
+            font-weight: 700;
+        }
+
+        .paper-meta {
+            display: flex;
+            gap: 24px;
+            flex-wrap: wrap;
+        }
+
+        .paper-meta-item {
+            font-size: 0.8rem;
+            color: var(--text-secondary);
+        }
+
+        .paper-meta-item span {
+            font-weight: 600;
+            color: var(--text-primary);
+        }
+
+        /* ===== Question Section ===== */
+        .section-card {
+            background: var(--surface-color);
+            border-radius: 12px;
+            box-shadow: var(--shadow-sm);
+            margin-bottom: 16px;
+            overflow: hidden;
+        }
+
+        .section-header {
+            padding: 16px 24px;
+            background-color: #F9FAFB;
+            border-bottom: 1px solid var(--border-color);
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .section-title {
+            font-weight: 600;
+            font-size: 0.95rem;
+        }
+
+        .section-score {
+            font-size: 0.8rem;
+            color: var(--text-secondary);
+        }
+
+        /* ===== Question Item with Hover Toolbar ===== */
+        .q-item {
+            position: relative;
+            padding: 24px;
+            border-bottom: 1px solid var(--border-color);
+            display: flex;
+            gap: 16px;
+            align-items: flex-start;
+            transition: all 0.2s;
+            background-color: var(--surface-color);
+        }
+
+        .q-item:last-child {
+            border-bottom: none;
+        }
+
+        .q-item:hover {
+            box-shadow: var(--shadow-md);
+            z-index: 5;
+            border-radius: 8px;
+            transform: translateY(-1px);
+        }
+
+        .q-number {
+            width: 28px;
+            height: 28px;
+            border-radius: 6px;
+            background-color: var(--primary-light);
+            color: var(--primary);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-weight: 600;
+            font-size: 0.8rem;
+            flex-shrink: 0;
+        }
+
+        .q-body {
+            flex: 1;
+            min-width: 0;
+            padding-bottom: 16px;
+        }
+
+        .q-stem {
+            font-size: 0.875rem;
+            color: var(--text-primary);
+            line-height: 1.6;
+            margin-bottom: 12px;
+        }
+
+        .q-info {
+            display: flex;
+            gap: 12px;
+            align-items: center;
+            flex-wrap: wrap;
+        }
+
+        .q-badge {
+            padding: 2px 8px;
+            border-radius: 4px;
+            font-size: 0.7rem;
+            font-weight: 500;
+        }
+
+        .q-badge-type {
+            background-color: #DBEAFE;
+            color: #1E40AF;
+        }
+
+        .q-badge-aigc {
+            background-color: #F3E8FF;
+            color: #6B21A8;
+            border: 1px solid #E9D5FF;
+        }
+
+        .q-score {
+            font-size: 0.8rem;
+            font-weight: 600;
+            color: var(--primary);
+        }
+
+        .q-attempts {
+            font-size: 0.75rem;
+            color: var(--warning);
+            font-weight: 500;
+            background: #FEF3C7;
+            padding: 2px 8px;
+            border-radius: 4px;
+        }
+
+        /* Hover Toolbar */
+        .q-toolbar {
+            position: absolute;
+            bottom: 0px;
+            left: 0;
+            right: 0;
+            padding: 10px 24px;
+            background: linear-gradient(to top, #F8FAFC 0%, rgba(248, 250, 252, 0.9) 100%);
+            border-top: 1px dashed var(--border-color);
+            display: flex;
+            gap: 16px;
+            align-items: center;
+            opacity: 0;
+            pointer-events: none;
+            transition: all 0.2s ease-in-out;
+            transform: translateY(10px);
+            border-bottom-left-radius: 8px;
+            border-bottom-right-radius: 8px;
+        }
+
+        .q-item:hover .q-toolbar {
+            opacity: 1;
+            pointer-events: auto;
+            transform: translateY(0);
+        }
+
+        .toolbar-btn {
+            background: none;
+            border: none;
+            font-size: 0.75rem;
+            font-weight: 500;
+            color: var(--text-secondary);
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            gap: 4px;
+            padding: 4px 6px;
+            border-radius: 4px;
+            transition: background-color 0.15s;
+        }
+
+        .toolbar-btn:hover {
+            background-color: #E2E8F0;
+            color: var(--text-primary);
+        }
+
+        .toolbar-btn.btn-delete:hover {
+            background-color: #FEE2E2;
+            color: var(--danger);
+        }
+
+        .toolbar-btn.btn-special {
+            color: var(--primary);
+            font-weight: 600;
+        }
+
+        .toolbar-btn.btn-special:hover {
+            background-color: var(--primary-light);
+        }
+
+        /* ===== Modal ===== */
+        .modal-overlay {
+            position: fixed;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background-color: rgba(0, 0, 0, 0.45);
+            z-index: 200;
+            display: none;
+            align-items: center;
+            justify-content: center;
+            backdrop-filter: blur(2px);
+        }
+
+        .modal-overlay.show {
+            display: flex;
+        }
+
+        .modal-box {
+            width: 440px;
+            background: var(--surface-color);
+            border-radius: 12px;
+            box-shadow: 0 20px 60px rgba(0, 0, 0, 0.15);
+            display: flex;
+            flex-direction: column;
+            overflow: hidden;
+            animation: modalIn 0.2s ease-out;
+        }
+
+        @keyframes modalIn {
+            from {
+                opacity: 0;
+                transform: translateY(20px) scale(0.98);
+            }
+
+            to {
+                opacity: 1;
+                transform: translateY(0) scale(1);
+            }
+        }
+
+        .modal-header {
+            padding: 16px 24px;
+            border-bottom: 1px solid var(--border-color);
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .modal-title {
+            font-size: 1rem;
+            font-weight: 600;
+        }
+
+        .modal-close {
+            background: none;
+            border: none;
+            font-size: 1.25rem;
+            color: var(--text-tertiary);
+            cursor: pointer;
+            line-height: 1;
+        }
+
+        .modal-close:hover {
+            color: var(--text-primary);
+        }
+
+        .modal-body {
+            padding: 24px;
+        }
+
+        .modal-footer {
+            padding: 16px 24px;
+            border-top: 1px solid var(--border-color);
+            display: flex;
+            justify-content: flex-end;
+            gap: 12px;
+            background-color: #F9FAFB;
+        }
+
+        .form-label {
+            display: block;
+            font-size: 0.875rem;
+            font-weight: 600;
+            margin-bottom: 8px;
+            color: var(--text-primary);
+        }
+
+        .form-desc {
+            font-size: 0.75rem;
+            color: var(--text-secondary);
+            margin-bottom: 16px;
+            line-height: 1.5;
+        }
+
+        .form-input {
+            width: 100%;
+            padding: 8px 12px;
+            border: 1px solid var(--border-color);
+            border-radius: 6px;
+            font-size: 0.875rem;
+            outline: none;
+            transition: border-color 0.2s;
+        }
+
+        .form-input:focus {
+            border-color: var(--primary);
+            box-shadow: 0 0 0 2px var(--primary-light);
+        }
+
+        .toast {
+            position: fixed;
+            top: 24px;
+            left: 50%;
+            transform: translateX(-50%);
+            background: var(--text-primary);
+            color: white;
+            padding: 10px 24px;
+            border-radius: 8px;
+            font-size: 0.875rem;
+            z-index: 300;
+            opacity: 0;
+            transition: opacity 0.3s;
+            pointer-events: none;
+        }
+
+        .toast.show {
+            opacity: 1;
+        }
+
+        /* Icons */
+        svg.icon {
+            width: 14px;
+            height: 14px;
+            stroke: currentColor;
+            stroke-width: 2;
+            stroke-linecap: round;
+            stroke-linejoin: round;
+            fill: none;
+        }
+    </style>
+</head>
+
+<body>
+
+    <header class="title-bar">
+        <div class="title-bar-left">
+            <div class="site-name">
+                <svg width="22" height="22" viewBox="0 0 24 24" fill="none">
+                    <path d="M12 2L2 7L12 12L22 7L12 2Z" fill="#4F46E5" />
+                    <path d="M2 17L12 22L22 17M2 12L12 17L22 12" stroke="#4F46E5" stroke-width="2"
+                        stroke-linecap="round" stroke-linejoin="round" />
+                </svg>
+                爱测评
+            </div>
+            <nav class="top-nav">
+                <a class="top-nav-item" href="#">首页</a>
+                <a class="top-nav-item active" href="#">测评管理</a>
+                <a class="top-nav-item" href="#">测评报告</a>
+            </nav>
+        </div>
+        <div class="title-bar-right">
+            <div class="avatar">我</div>
+        </div>
+    </header>
+
+    <div class="layout-body">
+        <aside class="sidebar">
+            <div class="sidebar-title">测评管理</div>
+            <ul class="nav-list">
+                <li class="nav-item"><svg width="18" height="18" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                            d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2">
+                        </path>
+                    </svg> 题目管理</li>
+                <li class="nav-item active"><svg width="18" height="18" fill="none" stroke="currentColor"
+                        viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                            d="M12 6.253v13m0-13C10.832 5.477 9.246 5 7.5 5S4.168 5.477 3 6.253v13C4.168 18.477 5.754 18 7.5 18s3.332.477 4.5 1.253m0-13C13.168 5.477 14.754 5 16.5 5c1.747 0 3.332.477 4.5 1.253v13C19.832 18.477 18.247 18 16.5 18c-1.746 0-3.332.477-4.5 1.253">
+                        </path>
+                    </svg> 试卷库</li>
+                <li class="nav-item"><svg width="18" height="18" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                            d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"></path>
+                    </svg> 考试任务</li>
+            </ul>
+        </aside>
+
+        <main class="main-content">
+            <div class="content-body">
+                <div class="paper-header">
+                    <div class="paper-title-row">
+                        <div class="paper-name">AIGC 综合实战能力评估卷</div>
+                        <div><button class="btn btn-primary">保存试卷</button></div>
+                    </div>
+                    <div class="paper-meta">
+                        <div class="paper-meta-item">总分：<span id="pTotalScore">100</span> 分</div>
+                        <div class="paper-meta-item">题目数量：<span>2</span> 道</div>
+                    </div>
+                </div>
+
+                <div id="paperSections"></div>
+            </div>
+        </main>
+    </div>
+
+    <!-- Set Attempts Limit Modal -->
+    <div class="modal-overlay" id="limitModal">
+        <div class="modal-box">
+            <div class="modal-header">
+                <div class="modal-title">设置答题次数</div>
+                <button class="modal-close" onclick="closeLimitModal()">&times;</button>
+            </div>
+            <div class="modal-body">
+                <label class="form-label">允许最大生成次数</label>
+                <p class="form-desc">
+                    针对文生文、文生图、文生视频等 AIGC 题型，您可以限制考生调用的额度。<br>
+                    当学生点击 "生成" 按钮的次数超过该限制后，将无法再修改内容并只能以此结果交卷。
+                </p>
+                <input type="number" id="inputLimit" class="form-input" min="1" placeholder="例如：5">
+            </div>
+            <div class="modal-footer">
+                <button class="btn btn-outline" onclick="closeLimitModal()">取消</button>
+                <button class="btn btn-primary" id="btnSaveLimit" onclick="saveLimit()">确定</button>
+            </div>
+        </div>
+    </div>
+
+    <div class="toast" id="toast"></div>
+
+    <script>
+        const MOCK_DATA = {
+            paperTotal: 100,
+            sections: [
+                {
+                    id: 's1',
+                    title: '一、单选题',
+                    questions: [
+                        { id: 101, type: '单选题', stem: '以下哪一个是自然语言处理框架？', score: 10, isAIGC: false, attemptsLimit: null }
+                    ]
+                },
+                {
+                    id: 's2',
+                    title: '二、AIGC 创作题',
+                    questions: [
+                        {
+                            id: 102, type: '文生图',
+                            stem: '请使用提示词生成一张"赛博朋克风格的未来城市中心，高楼林立，飞行器穿梭，雨夜，霓虹灯倒影"的图片。要求构图严谨，光影效果好。',
+                            score: 90, isAIGC: true, attemptsLimit: 3
+                        }
+                    ]
+                }
+            ]
+        };
+
+        let targetQ = null;
+
+        function renderPaper() {
+            const container = document.getElementById('paperSections');
+            container.innerHTML = '';
+            let pTotal = 0;
+
+            MOCK_DATA.sections.forEach((sec, sIdx) => {
+                let secTotal = sec.questions.reduce((sum, q) => sum + q.score, 0);
+                pTotal += secTotal;
+
+                const card = document.createElement('div');
+                card.className = 'section-card';
+
+                let qHtml = sec.questions.map((q, qIdx) => {
+                    const limitBadge = (q.isAIGC && q.attemptsLimit) ? `<span class="q-attempts">限制 ${q.attemptsLimit} 次生成</span>` : '';
+                    const typeClass = q.isAIGC ? 'q-badge-aigc' : 'q-badge-type';
+
+                    // Toolbar actions
+                    let aigcBtn = q.isAIGC ? `
+                        <button class="toolbar-btn btn-special" onclick="openLimitModal(${q.id})">
+                            <svg class="icon"><path d="M12 6V4m0 2a2 2 0 100 4m0-4a2 2 0 110 4m-6 8a2 2 0 100-4m0 4a2 2 0 110-4m0 4v2m0-6V4m6 6v10m6-2a2 2 0 100-4m0 4a2 2 0 110-4m0 4v2m0-6V4"></path></svg> 
+                            设置次数
+                        </button>
+                        <div style="width:1px; height:12px; background:#CBD5E1; margin:0 4px;"></div>
+                    ` : '';
+
+                    return `
+                    <div class="q-item">
+                        <div class="q-number">${qIdx + 1}</div>
+                        <div class="q-body">
+                            <div class="q-stem">${q.stem}</div>
+                            <div class="q-info">
+                                <span class="q-badge ${typeClass}">${q.type}</span>
+                                <span class="q-score">${q.score} 分</span>
+                                ${limitBadge}
+                            </div>
+                        </div>
+                        
+                        <!-- Hover Toolbar -->
+                        <div class="q-toolbar">
+                            <button class="toolbar-btn"><svg class="icon"><path d="M12 4v16m8-8H4"></path></svg> 上方添加分组</button>
+                            <button class="toolbar-btn"><svg class="icon"><path d="M9 7h6m0 10v-3m-3 3h.01M9 17h.01M9 14h.01M12 14h.01M15 11h.01M12 11h.01M9 11h.01M7 21h10a2 2 0 002-2V5a2 2 0 00-2-2H7a2 2 0 00-2 2v14a2 2 0 002 2z"></path></svg> 设置分值</button>
+                            <button class="toolbar-btn"><svg class="icon"><path d="M15 12a3 3 0 11-6 0 3 3 0 016 0z"></path><path d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z"></path></svg> 题目详情</button>
+                            <button class="toolbar-btn"><svg class="icon"><path d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15"></path></svg> 更换题目</button>
+                            
+                            <div style="flex:1"></div>
+                            
+                            ${aigcBtn}
+                            
+                            <button class="toolbar-btn"><svg class="icon"><path d="M5 10l7-7m0 0l7 7m-7-7v18"></path></svg> 上移</button>
+                            <button class="toolbar-btn"><svg class="icon"><path d="M19 14l-7 7m0 0l-7-7m7 7V3"></path></svg> 下移</button>
+                            <button class="toolbar-btn btn-delete"><svg class="icon"><path d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16"></path></svg> 删除</button>
+                        </div>
+                    </div>
+                `;
+                }).join('');
+
+                card.innerHTML = `
+                    <div class="section-header">
+                        <div class="section-title">${sec.title}</div>
+                        <div class="section-score">本大题总分 ${secTotal} 分</div>
+                    </div>
+                    ${qHtml}
+                `;
+                container.appendChild(card);
+            });
+
+            document.getElementById('pTotalScore').textContent = pTotal;
+        }
+
+        // ===== Modal Logic =====
+        const limitModal = document.getElementById('limitModal');
+        const inputLimit = document.getElementById('inputLimit');
+
+        function findQuestion(id) {
+            for (const sec of MOCK_DATA.sections) {
+                const q = sec.questions.find(q => q.id === id);
+                if (q) return q;
+            }
+            return null;
+        }
+
+        function openLimitModal(qId) {
+            targetQ = findQuestion(qId);
+            inputLimit.value = targetQ.attemptsLimit || '';
+            limitModal.classList.add('show');
+        }
+
+        function closeLimitModal() {
+            limitModal.classList.remove('show');
+            targetQ = null;
+        }
+
+        function saveLimit() {
+            const val = parseInt(inputLimit.value);
+            if (!isNaN(val) && val > 0) {
+                targetQ.attemptsLimit = val;
+                showToast(`已成功设置最大生成次数为 ${val} 次`);
+            } else if (inputLimit.value.trim() === '') {
+                targetQ.attemptsLimit = null; // Clear limit
+                showToast('已取消该题答题次数限制');
+            } else {
+                inputLimit.style.borderColor = 'var(--danger)';
+                return;
+            }
+
+            renderPaper();
+            closeLimitModal();
+        }
+
+        function showToast(msg) {
+            const el = document.getElementById('toast');
+            el.textContent = msg;
+            el.classList.add('show');
+            setTimeout(() => el.classList.remove('show'), 2000);
+        }
+
+        // Init
+        renderPaper();
+    </script>
+</body>
+
+</html>
