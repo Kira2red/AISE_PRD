@@ -1,0 +1,204 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>项目详情 - 组织后台中心</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+
+    <script>
+        tailwind.config = {
+            theme: {
+                extend: {
+                    fontFamily: { sans: ['Inter', 'sans-serif'] },
+                    colors: { brand: { 50: '#f0fdfa', 100: '#ccfbf1', 500: '#14b8a6', 600: '#0d9488', 700: '#0f766e' } },
+                    boxShadow: { 'card': '0 1px 3px 0 rgba(0, 0, 0, 0.1), 0 1px 2px 0 rgba(0, 0, 0, 0.06)' }
+                }
+            }
+        }
+    </script>
+    <style>
+        body {
+            background-color: #F8FAFC;
+        }
+
+        .custom-scroll::-webkit-scrollbar {
+            width: 6px;
+            height: 6px;
+        }
+
+        .custom-scroll::-webkit-scrollbar-track {
+            background: transparent;
+        }
+
+        .custom-scroll::-webkit-scrollbar-thumb {
+            background: #cbd5e1;
+            border-radius: 3px;
+        }
+
+        .nav-item.active {
+            background-color: #f0fdfa;
+            color: #0d9488;
+            font-weight: 600;
+        }
+
+        .nav-item.active::before {
+            content: '';
+            position: absolute;
+            left: 0;
+            top: 10%;
+            height: 80%;
+            width: 4px;
+            border-radius: 0 4px 4px 0;
+            background-color: #0d9488;
+        }
+    </style>
+</head>
+
+<body class="flex h-screen overflow-hidden text-slate-800 font-sans">
+
+    <!-- 侧边栏 -->
+    <aside class="w-64 bg-slate-900 text-slate-300 flex flex-col flex-shrink-0 z-20">
+        <div class="h-[72px] flex items-center px-6 border-b border-slate-800 bg-slate-950/50">
+            <div
+                class="w-8 h-8 bg-gradient-to-br from-brand-500 to-emerald-600 rounded flex items-center justify-center text-white font-bold text-lg mr-3 shadow-lg">
+                Y</div>
+            <div class="flex-1 min-w-0">
+                <h1 class="font-bold text-sm text-white truncate">猿编程教育科技</h1>
+                <p class="text-[10px] text-slate-500 font-mono truncate">ID: YPB2025</p>
+            </div>
+        </div>
+        <nav class="flex-1 overflow-y-auto py-6 space-y-1 custom-scroll px-3 cursor-pointer">
+            <div class="px-3 pb-2 text-[10px] font-bold text-slate-500 uppercase tracking-wider">业务数据中心</div>
+            <a href="03_学生列表.html"
+                class="nav-item flex items-center gap-3 px-3 py-2.5 rounded-lg text-slate-400 hover:bg-slate-800 hover:text-white transition relative group">
+                <i class="fa-solid fa-users w-5 text-center group-hover:text-brand-400 transition-colors"></i><span
+                    class="text-sm">本渠道学生</span>
+            </a>
+            <div class="px-3 pb-2 pt-6 text-[10px] font-bold text-slate-500 uppercase tracking-wider">项目协调</div>
+            <a href="07_项目管理.html"
+                class="nav-item active flex items-center gap-3 px-3 py-2.5 rounded-lg transition relative group">
+                <i class="fa-solid fa-folder-tree w-5 text-center text-brand-500"></i><span
+                    class="text-sm text-brand-700">项目管理</span>
+            </a>
+        </nav>
+        <div class="p-4 border-t border-slate-800">
+            <div class="flex items-center gap-3 hover:bg-slate-800 p-2 rounded-lg cursor-pointer">
+                <img src="https://api.dicebear.com/7.x/avataaars/svg?seed=AdminUser"
+                    class="w-8 h-8 rounded-full bg-slate-800 border border-slate-700">
+                <div class="flex-1 min-w-0">
+                    <p class="text-xs font-bold text-slate-200 truncate">admin_ypb2025</p>
+                    <p class="text-[10px] text-slate-500 truncate">管理员</p>
+                </div>
+            </div>
+        </div>
+    </aside>
+
+    <!-- 主内容区 -->
+    <main class="flex-1 flex flex-col min-w-0 bg-slate-50/50">
+        <header
+            class="h-[72px] bg-white border-b border-slate-200 flex items-center justify-between px-8 flex-shrink-0 z-10 sticky top-0 backdrop-blur-md bg-white/90">
+            <div class="flex items-center gap-3">
+                <button onclick="window.location.href='07_项目管理.html'"
+                    class="w-8 h-8 flex items-center justify-center rounded-lg border border-slate-200 text-slate-400 hover:bg-slate-50 hover:text-slate-600 transition">
+                    <i class="fa-solid fa-arrow-left text-sm"></i>
+                </button>
+                <div class="h-4 w-px bg-slate-200 mx-1"></div>
+                <h2 class="text-lg font-bold text-slate-800">项目详情</h2>
+            </div>
+            <div class="flex items-center gap-4">
+                <button onclick="window.location.href='07_项目管理.html'"
+                    class="px-4 py-2 text-sm font-semibold text-slate-600 hover:bg-slate-100 rounded-lg transition">取消</button>
+                <button
+                    class="bg-brand-600 hover:bg-brand-700 text-white px-6 py-2 rounded-lg text-sm font-semibold transition-colors shadow-sm">保存修改</button>
+            </div>
+        </header>
+
+        <div class="flex-1 overflow-y-auto p-8 custom-scroll">
+            <div class="max-w-4xl mx-auto">
+                <!-- 基本信息卡片 -->
+                <div class="bg-white rounded-xl shadow-card border border-slate-200 p-8 space-y-8">
+                    <div>
+                        <h3 class="text-base font-bold text-slate-900 border-l-4 border-brand-500 pl-3 mb-6">基本配置</h3>
+                        <div class="grid grid-cols-2 gap-6">
+                            <div class="space-y-2">
+                                <label class="text-xs font-bold text-slate-500 uppercase tracking-wider">项目名称</label>
+                                <input type="text" value="AISE AI教师集成"
+                                    class="w-full px-4 py-2.5 bg-slate-50 border border-slate-200 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-brand-500/20 focus:border-brand-500 transition-all">
+                            </div>
+                            <div class="space-y-2">
+                                <label class="text-xs font-bold text-slate-500 uppercase tracking-wider">版本号</label>
+                                <input type="text" value="v1.2.0"
+                                    class="w-full px-4 py-2.5 bg-slate-50 border border-slate-200 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-brand-500/20 focus:border-brand-500 transition-all">
+                            </div>
+                            <div class="space-y-2 col-span-2">
+                                <label class="text-xs font-bold text-slate-500 uppercase tracking-wider">项目内容</label>
+                                <textarea rows="4"
+                                    class="w-full px-4 py-2.5 bg-slate-50 border border-slate-200 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-brand-500/20 focus:border-brand-500 transition-all resize-none">对接大模型实现课堂自动点评功能，支持多语言适配，提升教学互动反馈质量。</textarea>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="pt-8 border-t border-slate-100">
+                        <h3 class="text-base font-bold text-slate-900 border-l-4 border-brand-500 pl-3 mb-6">发布计划</h3>
+                        <div class="grid grid-cols-2 gap-6">
+                            <div class="space-y-2">
+                                <label class="text-xs font-bold text-slate-500 uppercase tracking-wider">目标版本</label>
+                                <input type="text" value="v1.3.0"
+                                    class="w-full px-4 py-2.5 bg-slate-50 border border-slate-200 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-brand-500/20 focus:border-brand-500 transition-all">
+                            </div>
+                            <div class="space-y-2">
+                                <label class="text-xs font-bold text-slate-500 uppercase tracking-wider">状态</label>
+                                <select
+                                    class="w-full px-4 py-2.5 bg-slate-50 border border-slate-200 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-brand-500/20 focus:border-brand-500 transition-all">
+                                    <option selected>进行中</option>
+                                    <option>已完成</option>
+                                    <option>规划中</option>
+                                    <option>已挂起</option>
+                                </select>
+                            </div>
+                            <div class="space-y-2">
+                                <label class="text-xs font-bold text-slate-500 uppercase tracking-wider">优先级</label>
+                                <div class="flex items-center gap-4 p-2 bg-slate-50 border border-slate-200 rounded-lg">
+                                    <label
+                                        class="flex-1 flex items-center justify-center py-1.5 rounded-md cursor-pointer transition-all hover:bg-white text-xs font-bold">
+                                        <input type="radio" name="priority" value="low" class="sr-only"> 低
+                                    </label>
+                                    <label
+                                        class="flex-1 flex items-center justify-center py-1.5 rounded-md cursor-pointer transition-all bg-white shadow-sm ring-1 ring-slate-200 text-xs font-bold text-amber-600">
+                                        <input type="radio" name="priority" value="medium" class="sr-only" checked> 中
+                                    </label>
+                                    <label
+                                        class="flex-1 flex items-center justify-center py-1.5 rounded-md cursor-pointer transition-all hover:bg-white text-xs font-bold">
+                                        <input type="radio" name="priority" value="high" class="sr-only"> 高
+                                    </label>
+                                </div>
+                            </div>
+                            <div class="space-y-2">
+                                <label class="text-xs font-bold text-slate-500 uppercase tracking-wider">截止日期</label>
+                                <input type="date" value="2026-03-31"
+                                    class="w-full px-4 py-2.5 bg-slate-50 border border-slate-200 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-brand-500/20 focus:border-brand-500 transition-all">
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- 危险操作区域 -->
+                    <div class="pt-8 border-t border-slate-100 flex items-center justify-between">
+                        <div>
+                            <h4 class="text-sm font-bold text-slate-900">删除此项目</h4>
+                            <p class="text-xs text-slate-500">此操作不可撤销，项目下的所有关联任务也将被移除。</p>
+                        </div>
+                        <button
+                            class="px-4 py-2 border border-red-200 text-red-600 text-xs font-bold rounded-lg hover:bg-red-50 transition-colors">删除项目</button>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </main>
+
+</body>
+
+</html>

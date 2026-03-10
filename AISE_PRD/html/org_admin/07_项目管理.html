@@ -1,0 +1,243 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>项目管理 - 组织后台中心</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+
+    <script>
+        tailwind.config = {
+            theme: {
+                extend: {
+                    fontFamily: {
+                        sans: ['Inter', 'sans-serif'],
+                    },
+                    colors: {
+                        brand: { 50: '#f0fdfa', 100: '#ccfbf1', 500: '#14b8a6', 600: '#0d9488', 700: '#0f766e' },
+                    },
+                    boxShadow: { 'card': '0 1px 3px 0 rgba(0, 0, 0, 0.1), 0 1px 2px 0 rgba(0, 0, 0, 0.06)' }
+                }
+            }
+        }
+    </script>
+    <style>
+        body {
+            background-color: #F8FAFC;
+        }
+
+        .custom-scroll::-webkit-scrollbar {
+            width: 6px;
+            height: 6px;
+        }
+
+        .custom-scroll::-webkit-scrollbar-track {
+            background: transparent;
+        }
+
+        .custom-scroll::-webkit-scrollbar-thumb {
+            background: #cbd5e1;
+            border-radius: 3px;
+        }
+
+        .nav-item.active {
+            background-color: #f0fdfa;
+            color: #0d9488;
+            font-weight: 600;
+        }
+
+        .nav-item.active::before {
+            content: '';
+            position: absolute;
+            left: 0;
+            top: 10%;
+            height: 80%;
+            width: 4px;
+            border-radius: 0 4px 4px 0;
+            background-color: #0d9488;
+        }
+    </style>
+</head>
+
+<body class="flex h-screen overflow-hidden text-slate-800 font-sans">
+
+    <!-- 侧边栏 -->
+    <aside class="w-64 bg-slate-900 text-slate-300 flex flex-col flex-shrink-0 z-20">
+        <div class="h-[72px] flex items-center px-6 border-b border-slate-800 bg-slate-950/50">
+            <div
+                class="w-8 h-8 bg-gradient-to-br from-brand-500 to-emerald-600 rounded flex items-center justify-center text-white font-bold text-lg mr-3 shadow-lg">
+                Y</div>
+            <div class="flex-1 min-w-0">
+                <h1 class="font-bold text-sm text-white truncate">猿编程教育科技</h1>
+                <p class="text-[10px] text-slate-500 font-mono truncate">ID: YPB2025</p>
+            </div>
+        </div>
+        <nav class="flex-1 overflow-y-auto py-6 space-y-1 custom-scroll px-3 cursor-pointer">
+            <div class="px-3 pb-2 text-[10px] font-bold text-slate-500 uppercase tracking-wider">业务数据中心</div>
+            <a href="03_学生列表.html"
+                class="nav-item flex items-center gap-3 px-3 py-2.5 rounded-lg text-slate-400 hover:bg-slate-800 hover:text-white transition relative group">
+                <i class="fa-solid fa-users w-5 text-center group-hover:text-brand-400"></i><span
+                    class="text-sm">本渠道学生</span>
+            </a>
+            <a href="04_报名列表.html"
+                class="nav-item flex items-center gap-3 px-3 py-2.5 rounded-lg text-slate-400 hover:bg-slate-800 hover:text-white transition relative group">
+                <i class="fa-solid fa-clipboard-list w-5 text-center group-hover:text-brand-400"></i><span
+                    class="text-sm">成绩与进度查询</span>
+            </a>
+            <div class="px-3 pb-2 pt-6 text-[10px] font-bold text-slate-500 uppercase tracking-wider">项目协调</div>
+            <a href="07_项目管理.html"
+                class="nav-item active flex items-center gap-3 px-3 py-2.5 rounded-lg transition relative group">
+                <i class="fa-solid fa-folder-tree w-5 text-center text-brand-500"></i><span class="text-sm">项目管理</span>
+            </a>
+            <div class="px-3 pb-2 pt-6 text-[10px] font-bold text-slate-500 uppercase tracking-wider">系统与开发者</div>
+            <a href="05_密钥与Webhook.html"
+                class="nav-item flex items-center gap-3 px-3 py-2.5 rounded-lg text-slate-400 hover:bg-slate-800 hover:text-white transition relative group">
+                <i class="fa-solid fa-key w-5 text-center group-hover:text-brand-400"></i><span
+                    class="text-sm">配置与密钥</span>
+            </a>
+        </nav>
+        <div class="p-4 border-t border-slate-800">
+            <div class="flex items-center gap-3 hover:bg-slate-800 p-2 rounded-lg cursor-pointer">
+                <img src="https://api.dicebear.com/7.x/avataaars/svg?seed=AdminUser"
+                    class="w-8 h-8 rounded-full bg-slate-800 border border-slate-700">
+                <div class="flex-1 min-w-0">
+                    <p class="text-xs font-bold text-slate-200 truncate">admin_ypb2025</p>
+                    <p class="text-[10px] text-slate-500 truncate">管理员</p>
+                </div>
+            </div>
+        </div>
+    </aside>
+
+    <!-- 主内容区 -->
+    <main class="flex-1 flex flex-col min-w-0 bg-slate-50/50">
+        <header
+            class="h-[72px] bg-white border-b border-slate-200 flex items-center justify-between px-8 flex-shrink-0 z-10 sticky top-0 backdrop-blur-md bg-white/90">
+            <div class="flex items-center gap-4">
+                <h2 class="text-lg font-bold text-slate-800">项目管理</h2>
+                <span
+                    class="bg-blue-50 text-blue-600 text-xs px-2.5 py-1 rounded-full font-medium border border-blue-100 flex items-center gap-1.5">
+                    <span class="w-1.5 h-1.5 bg-blue-500 rounded-full"></span> 活跃项目: 12
+                </span>
+            </div>
+            <div class="flex items-center gap-4">
+                <button onclick="window.location.href='08_项目详情.html'"
+                    class="bg-brand-600 hover:bg-brand-700 text-white px-4 py-2 rounded-lg text-sm font-semibold transition-colors flex items-center gap-2 shadow-sm">
+                    <i class="fa-solid fa-plus text-xs"></i> 新建任务
+                </button>
+            </div>
+        </header>
+
+        <div class="flex-1 overflow-y-auto p-8 custom-scroll">
+            <div class="max-w-7xl mx-auto">
+                <!-- 筛选与搜索 -->
+                <div
+                    class="bg-white rounded-xl shadow-card border border-slate-200 p-4 mb-6 flex flex-wrap items-center justify-between gap-4">
+                    <div class="flex items-center gap-4">
+                        <div class="relative min-w-[240px]">
+                            <i
+                                class="fa-solid fa-magnifying-glass absolute left-3 top-1/2 -translate-y-1/2 text-slate-400 text-sm"></i>
+                            <input type="text" placeholder="搜索项目名称、版本号..."
+                                class="w-full pl-10 pr-4 py-2 bg-slate-50 border border-slate-200 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-brand-500/20 focus:border-brand-500 transition-all">
+                        </div>
+                        <select
+                            class="bg-slate-50 border border-slate-200 rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-brand-500/20">
+                            <option>全部状态</option>
+                            <option>进行中</option>
+                            <option>已完成</option>
+                            <option>规划中</option>
+                        </select>
+                    </div>
+                </div>
+
+                <!-- 项目列表表格 -->
+                <div class="bg-white rounded-xl shadow-card border border-slate-200 overflow-hidden">
+                    <table class="w-full text-left border-collapse">
+                        <thead>
+                            <tr class="bg-slate-50 border-b border-slate-200">
+                                <th class="px-6 py-4 text-xs font-bold text-slate-500 uppercase tracking-wider">项目名称
+                                </th>
+                                <th class="px-6 py-4 text-xs font-bold text-slate-500 uppercase tracking-wider">当前版本
+                                </th>
+                                <th class="px-6 py-4 text-xs font-bold text-slate-500 uppercase tracking-wider">项目内容
+                                </th>
+                                <th class="px-6 py-4 text-xs font-bold text-slate-500 uppercase tracking-wider">目标版本
+                                </th>
+                                <th class="px-6 py-4 text-xs font-bold text-slate-500 uppercase tracking-wider">状态</th>
+                                <th
+                                    class="px-6 py-4 text-xs font-bold text-slate-500 uppercase tracking-wider text-right">
+                                    操作</th>
+                            </tr>
+                        </thead>
+                        <tbody class="divide-y divide-slate-100">
+                            <tr class="hover:bg-slate-50/80 transition-colors">
+                                <td class="px-6 py-4">
+                                    <div class="font-semibold text-slate-900">AISE AI教师集成</div>
+                                    <div class="text-[10px] text-slate-400 font-mono">P-2026-0301</div>
+                                </td>
+                                <td class="px-6 py-4">
+                                    <span class="text-sm font-medium text-slate-600">v1.2.0</span>
+                                </td>
+                                <td class="px-6 py-4 max-w-xs">
+                                    <p class="text-sm text-slate-500 truncate">对接大模型实现课堂自动点评功能，支持多语言适配...</p>
+                                </td>
+                                <td class="px-6 py-4">
+                                    <span class="text-sm font-medium text-brand-600">v1.3.0</span>
+                                </td>
+                                <td class="px-6 py-4">
+                                    <span
+                                        class="inline-flex items-center gap-1.5 px-2 py-1 rounded-md bg-amber-50 text-amber-700 text-xs font-medium border border-amber-100">
+                                        <span class="w-1 h-1 bg-amber-500 rounded-full"></span> 进行中
+                                    </span>
+                                </td>
+                                <td class="px-6 py-4 text-right">
+                                    <button onclick="window.location.href='08_项目详情.html'"
+                                        class="text-brand-600 hover:text-brand-700 font-medium text-sm">编辑详情</button>
+                                </td>
+                            </tr>
+                            <tr class="hover:bg-slate-50/80 transition-colors">
+                                <td class="px-6 py-4">
+                                    <div class="font-semibold text-slate-900">组织后台统计面板</div>
+                                    <div class="text-[10px] text-slate-400 font-mono">P-2026-0305</div>
+                                </td>
+                                <td class="px-6 py-4">
+                                    <span class="text-sm font-medium text-slate-600">v0.9.0</span>
+                                </td>
+                                <td class="px-6 py-4 max-w-xs">
+                                    <p class="text-sm text-slate-500 truncate">新增数据可视化报表，支持学生参与度与成绩分布分析...</p>
+                                </td>
+                                <td class="px-6 py-4">
+                                    <span class="text-sm font-medium text-brand-600">v1.0.0</span>
+                                </td>
+                                <td class="px-6 py-4">
+                                    <span
+                                        class="inline-flex items-center gap-1.5 px-2 py-1 rounded-md bg-emerald-50 text-emerald-700 text-xs font-medium border border-emerald-100">
+                                        <span class="w-1 h-1 bg-emerald-500 rounded-full"></span> 规划中
+                                    </span>
+                                </td>
+                                <td class="px-6 py-4 text-right">
+                                    <button onclick="window.location.href='08_项目详情.html'"
+                                        class="text-brand-600 hover:text-brand-700 font-medium text-sm">编辑详情</button>
+                                </td>
+                            </tr>
+                        </tbody>
+                    </table>
+                    <div class="px-6 py-4 bg-slate-50/50 border-t border-slate-200 flex items-center justify-between">
+                        <span class="text-xs text-slate-500 font-medium">显示 2 个项目</span>
+                        <div class="flex gap-2">
+                            <button
+                                class="px-3 py-1 bg-white border border-slate-200 rounded text-xs text-slate-400 cursor-not-allowed">上一页</button>
+                            <button
+                                class="px-3 py-1 bg-white border border-slate-200 rounded text-xs text-slate-600 hover:bg-slate-50">下一页</button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </main>
+
+</body>
+
+</html>
