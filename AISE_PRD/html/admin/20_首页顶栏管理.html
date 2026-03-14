@@ -1,0 +1,317 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>首页顶栏配置 - 运营中心 - AISE 后台</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+
+    <script>
+        tailwind.config = {
+            theme: {
+                extend: {
+                    fontFamily: {
+                        sans: ['Inter', 'sans-serif'],
+                        mono: ['JetBrains Mono', 'monospace'],
+                    },
+                    colors: {
+                        brand: { 50: '#eff6ff', 100: '#dbeafe', 500: '#3b82f6', 600: '#2563eb', 700: '#1d4ed8' },
+                    },
+                    boxShadow: {
+                        'card': '0 1px 3px 0 rgba(0, 0, 0, 0.1), 0 1px 2px 0 rgba(0, 0, 0, 0.06)',
+                        'modal': '0 20px 25px -5px rgba(0, 0, 0, 0.1), 0 10px 10px -5px rgba(0, 0, 0, 0.04)',
+                    }
+                }
+            }
+        }
+    </script>
+    <style>
+        body { background-color: #F8FAFC; }
+        .hide-scroll::-webkit-scrollbar { display: none; }
+        
+        /* 侧边栏选中态 */
+        .nav-item.active::before {
+            content: ''; position: absolute; left: 0; top: 50%; transform: translateY(-50%);
+            width: 4px; height: 24px; background-color: #3b82f6; border-radius: 0 4px 4px 0;
+        }
+        tr.hover-row:hover td { background-color: #f8fafc; }
+        
+        /* 一级栏目行样式 */
+        tr.primary-row { background-color: #f1f5f9; }
+        tr.primary-row:hover td { background-color: #e2e8f0; }
+
+        /* Modal 动画 */
+        .modal-enter { opacity: 0; transform: scale(0.95); transition: all 0.2s ease-out; }
+        .modal-enter-active { opacity: 1; transform: scale(1); }
+    </style>
+</head>
+<body class="flex h-screen overflow-hidden text-slate-800 font-sans">
+
+    <aside class="w-64 bg-white border-r border-slate-200 flex flex-col flex-shrink-0 z-20">
+        <div class="h-16 flex items-center px-6 border-b border-slate-100">
+            <div class="w-8 h-8 bg-gradient-to-br from-brand-600 to-indigo-600 rounded-lg flex items-center justify-center text-white font-bold text-lg mr-3 shadow-sm">A</div>
+            <span class="font-bold text-lg text-slate-800 tracking-tight">AISE Admin</span>
+        </div>
+        <nav class="flex-1 overflow-y-auto py-4 space-y-1">
+            <div class="px-6 py-2 text-xs font-bold text-slate-400 uppercase tracking-wider">教务中心</div>
+            <a href="#" class="nav-item flex items-center gap-3 px-6 py-3 text-slate-500 hover:bg-slate-50 hover:text-brand-600 transition relative">
+                <i class="fa-solid fa-layer-group w-5 text-center"></i><span class="font-medium text-sm">题库管理</span>
+            </a>
+            <a href="#" class="nav-item flex items-center gap-3 px-6 py-3 text-slate-500 hover:bg-slate-50 hover:text-brand-600 transition relative">
+                <i class="fa-solid fa-graduation-cap w-5 text-center"></i><span class="font-medium text-sm">测评管理</span>
+            </a>
+            
+            <div class="px-6 py-2 mt-4 text-xs font-bold text-slate-400 uppercase tracking-wider">运营中心</div>
+            <a href="#" class="nav-item active flex items-center gap-3 px-6 py-3 text-brand-600 bg-brand-50 transition relative">
+                <i class="fa-solid fa-bars-staggered w-5 text-center"></i><span class="font-medium text-sm">首页顶栏配置</span>
+            </a>
+            <a href="#" class="nav-item flex items-center gap-3 px-6 py-3 text-slate-500 hover:bg-slate-50 hover:text-brand-600 transition relative">
+                <i class="fa-solid fa-image w-5 text-center"></i><span class="font-medium text-sm">Banner 配置</span>
+            </a>
+            <a href="#" class="nav-item flex items-center gap-3 px-6 py-3 text-slate-500 hover:bg-slate-50 hover:text-brand-600 transition relative">
+                <i class="fa-regular fa-newspaper w-5 text-center"></i><span class="font-medium text-sm">新闻资讯管理</span>
+            </a>
+        </nav>
+    </aside>
+
+    <main class="flex-1 flex flex-col min-w-0 bg-slate-50/50 relative">
+
+        <div id="view-list" class="flex flex-col h-full">
+            <header class="h-16 bg-white border-b border-slate-200 flex items-center justify-between px-8 flex-shrink-0 z-10">
+                <h1 class="text-xl font-bold text-slate-800">首页顶栏配置</h1>
+                <button onclick="openModal('primary', 'add')" class="bg-brand-600 hover:bg-brand-700 text-white text-sm font-medium px-5 py-2.5 rounded-lg shadow-sm transition flex items-center gap-2">
+                    <i class="fa-solid fa-plus"></i> 新增一级栏目
+                </button>
+            </header>
+
+            <div class="px-8 py-6">
+                <div class="bg-blue-50 border border-blue-100 rounded-lg p-4 mb-6 flex gap-3 text-sm text-blue-800">
+                    <i class="fa-solid fa-circle-info mt-0.5 text-blue-500"></i>
+                    <div>
+                        <p class="font-bold mb-1">导航配置说明</p>
+                        <p class="text-blue-600">在此处配置官网顶部的导航菜单。序号决定了前端展示的先后顺序。若新增或修改的序号与现有序号冲突，系统会自动触发仲裁逻辑，将后续栏目的序号依次顺延，确保不会出现重复的排序位置。</p>
+                    </div>
+                </div>
+
+                <div class="bg-white rounded-xl shadow-card border border-slate-200 overflow-hidden">
+                    <table class="w-full text-left border-collapse">
+                        <thead>
+                            <tr class="border-b border-slate-200 bg-white text-xs uppercase text-slate-500 font-bold">
+                                <th class="p-4 pl-8 w-1/3">栏目名称</th>
+                                <th class="p-4 w-24">层级</th>
+                                <th class="p-4 w-24">排序序号</th>
+                                <th class="p-4">跳转链接</th>
+                                <th class="p-4 text-right pr-8 w-56">操作</th>
+                            </tr>
+                        </thead>
+                        <tbody class="text-sm text-slate-700" id="nav-tbody">
+                            
+                            <tr class="primary-row transition border-b border-slate-200">
+                                <td class="p-4 pl-8 font-bold text-slate-800">
+                                    <i class="fa-solid fa-folder-open text-brand-500 mr-2"></i> 关于工程
+                                </td>
+                                <td class="p-4"><span class="bg-brand-100 text-brand-700 px-2 py-0.5 rounded text-xs font-bold">一级栏目</span></td>
+                                <td class="p-4 font-mono font-bold">1</td>
+                                <td class="p-4 text-slate-400 text-xs italic">- 下拉菜单，无直接跳转 -</td>
+                                <td class="p-4 text-right pr-8">
+                                    <div class="flex justify-end gap-2">
+                                        <button onclick="openModal('secondary', 'add', '关于工程')" class="text-xs text-brand-600 hover:text-brand-800 font-medium bg-brand-50 px-2 py-1.5 rounded transition">新增子栏目</button>
+                                        <div class="w-px h-4 bg-slate-300 mx-1 my-auto"></div>
+                                        <button onclick="openModal('primary', 'edit')" class="text-slate-400 hover:text-brand-600 px-2 py-1 rounded transition" title="编辑"><i class="fa-regular fa-pen-to-square"></i></button>
+                                        <button class="text-slate-400 hover:text-red-500 px-2 py-1 rounded transition" title="删除"><i class="fa-regular fa-trash-can"></i></button>
+                                    </div>
+                                </td>
+                            </tr>
+                            <tr class="hover-row transition border-b border-slate-100 group">
+                                <td class="p-4 pl-14 text-slate-600 relative">
+                                    <div class="absolute left-8 top-0 w-px h-full bg-slate-200"></div>
+                                    <div class="absolute left-8 top-1/2 w-4 h-px bg-slate-200"></div>
+                                    工程简介
+                                </td>
+                                <td class="p-4"><span class="bg-slate-100 text-slate-500 px-2 py-0.5 rounded text-xs">二级栏目</span></td>
+                                <td class="p-4 font-mono text-slate-500 text-xs">1</td>
+                                <td class="p-4 font-mono text-brand-600 text-xs truncate max-w-[200px]">/about/intro</td>
+                                <td class="p-4 text-right pr-8 opacity-0 group-hover:opacity-100 transition-opacity">
+                                    <button onclick="openModal('secondary', 'edit')" class="text-slate-400 hover:text-brand-600 px-2 py-1 rounded transition" title="编辑"><i class="fa-regular fa-pen-to-square"></i></button>
+                                    <button class="text-slate-400 hover:text-red-500 px-2 py-1 rounded transition" title="删除"><i class="fa-regular fa-trash-can"></i></button>
+                                </td>
+                            </tr>
+                            <tr class="hover-row transition border-b border-slate-200 group">
+                                <td class="p-4 pl-14 text-slate-600 relative">
+                                    <div class="absolute left-8 top-0 w-px h-1/2 bg-slate-200"></div>
+                                    <div class="absolute left-8 top-1/2 w-4 h-px bg-slate-200"></div>
+                                    组织架构
+                                </td>
+                                <td class="p-4"><span class="bg-slate-100 text-slate-500 px-2 py-0.5 rounded text-xs">二级栏目</span></td>
+                                <td class="p-4 font-mono text-slate-500 text-xs">2</td>
+                                <td class="p-4 font-mono text-brand-600 text-xs truncate max-w-[200px]">/about/structure</td>
+                                <td class="p-4 text-right pr-8 opacity-0 group-hover:opacity-100 transition-opacity">
+                                    <button onclick="openModal('secondary', 'edit')" class="text-slate-400 hover:text-brand-600 px-2 py-1 rounded transition" title="编辑"><i class="fa-regular fa-pen-to-square"></i></button>
+                                    <button class="text-slate-400 hover:text-red-500 px-2 py-1 rounded transition" title="删除"><i class="fa-regular fa-trash-can"></i></button>
+                                </td>
+                            </tr>
+
+                            <tr class="primary-row transition border-b border-slate-200">
+                                <td class="p-4 pl-8 font-bold text-slate-800">
+                                    <i class="fa-solid fa-folder-open text-brand-500 mr-2"></i> 学术研究
+                                </td>
+                                <td class="p-4"><span class="bg-brand-100 text-brand-700 px-2 py-0.5 rounded text-xs font-bold">一级栏目</span></td>
+                                <td class="p-4 font-mono font-bold">2</td>
+                                <td class="p-4 text-slate-400 text-xs italic">- 下拉菜单，无直接跳转 -</td>
+                                <td class="p-4 text-right pr-8">
+                                    <div class="flex justify-end gap-2">
+                                        <button onclick="openModal('secondary', 'add', '学术研究')" class="text-xs text-brand-600 hover:text-brand-800 font-medium bg-brand-50 px-2 py-1.5 rounded transition">新增子栏目</button>
+                                        <div class="w-px h-4 bg-slate-300 mx-1 my-auto"></div>
+                                        <button onclick="openModal('primary', 'edit')" class="text-slate-400 hover:text-brand-600 px-2 py-1 rounded transition" title="编辑"><i class="fa-regular fa-pen-to-square"></i></button>
+                                        <button class="text-slate-400 hover:text-red-500 px-2 py-1 rounded transition" title="删除"><i class="fa-regular fa-trash-can"></i></button>
+                                    </div>
+                                </td>
+                            </tr>
+                             <tr class="hover-row transition border-b border-slate-200 group">
+                                <td class="p-4 pl-14 text-slate-600 relative">
+                                    <div class="absolute left-8 top-0 w-px h-1/2 bg-slate-200"></div>
+                                    <div class="absolute left-8 top-1/2 w-4 h-px bg-slate-200"></div>
+                                    标准体系
+                                </td>
+                                <td class="p-4"><span class="bg-slate-100 text-slate-500 px-2 py-0.5 rounded text-xs">二级栏目</span></td>
+                                <td class="p-4 font-mono text-slate-500 text-xs">1</td>
+                                <td class="p-4 font-mono text-brand-600 text-xs truncate max-w-[200px]">/academic/standards</td>
+                                <td class="p-4 text-right pr-8 opacity-0 group-hover:opacity-100 transition-opacity">
+                                    <button onclick="openModal('secondary', 'edit')" class="text-slate-400 hover:text-brand-600 px-2 py-1 rounded transition" title="编辑"><i class="fa-regular fa-pen-to-square"></i></button>
+                                    <button class="text-slate-400 hover:text-red-500 px-2 py-1 rounded transition" title="删除"><i class="fa-regular fa-trash-can"></i></button>
+                                </td>
+                            </tr>
+
+                            <tr><td colspan="5" class="p-0 border-b-0"></td></tr>
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
+    </main>
+
+    <div id="nav-modal" class="fixed inset-0 z-50 hidden flex items-center justify-center">
+        <div class="absolute inset-0 bg-slate-900/40 backdrop-blur-sm" onclick="closeModal()"></div>
+        
+        <div id="modal-content" class="modal-enter bg-white rounded-xl shadow-modal w-full max-w-md relative z-10 flex flex-col">
+            <div class="flex items-center justify-between px-6 py-4 border-b border-slate-100">
+                <h3 class="text-lg font-bold text-slate-800" id="modal-title">新增一级栏目</h3>
+                <button onclick="closeModal()" class="text-slate-400 hover:text-slate-600 transition"><i class="fa-solid fa-xmark text-lg"></i></button>
+            </div>
+            
+            <div class="p-6 space-y-5">
+                <div id="parent-info" class="hidden bg-slate-50 px-3 py-2 rounded border border-slate-100 text-sm">
+                    <span class="text-slate-500">归属一级栏目：</span>
+                    <span class="font-bold text-slate-700" id="parent-name">关于工程</span>
+                </div>
+
+                <div>
+                    <label class="block text-sm font-bold text-slate-700 mb-1.5">栏目名称 <span class="text-red-500">*</span></label>
+                    <input type="text" placeholder="例如：学习资源" class="w-full px-3 py-2 rounded-lg border border-slate-200 text-sm focus:border-brand-500 focus:ring-1 focus:ring-brand-500/20 outline-none transition">
+                </div>
+
+                <div>
+                    <label class="block text-sm font-bold text-slate-700 mb-1.5">显示序号 <span class="text-red-500">*</span></label>
+                    <input type="number" min="1" placeholder="数字，如：1" class="w-full px-3 py-2 rounded-lg border border-slate-200 text-sm font-mono focus:border-brand-500 focus:ring-1 focus:ring-brand-500/20 outline-none transition">
+                    <p class="text-[11px] text-orange-500 mt-1.5 flex gap-1">
+                        <i class="fa-solid fa-circle-exclamation mt-0.5"></i> 若序号重复，系统将自动仲裁，将相同序号及后续栏目依次顺延。
+                    </p>
+                </div>
+
+                <div id="link-field" class="hidden">
+                    <label class="block text-sm font-bold text-slate-700 mb-1.5">跳转链接 <span class="text-red-500">*</span></label>
+                    <input type="text" placeholder="例如：/learning/courses 或 http://..." class="w-full px-3 py-2 rounded-lg border border-slate-200 text-sm font-mono focus:border-brand-500 focus:ring-1 focus:ring-brand-500/20 outline-none transition">
+                </div>
+            </div>
+
+            <div class="px-6 py-4 border-t border-slate-100 flex justify-end gap-3 bg-slate-50 rounded-b-xl">
+                <button onclick="closeModal()" class="px-4 py-2 text-sm font-medium text-slate-600 bg-white border border-slate-200 rounded-lg hover:bg-slate-50 transition">取消</button>
+                <button onclick="saveNav()" class="px-4 py-2 text-sm font-medium text-white bg-brand-600 rounded-lg hover:bg-brand-700 shadow-sm transition flex items-center gap-2" id="btn-save">
+                    保存配置
+                </button>
+            </div>
+        </div>
+    </div>
+
+    <div id="toast" class="fixed bottom-8 left-1/2 transform -translate-x-1/2 z-[60] pointer-events-none opacity-0 transition-all duration-300 translate-y-10">
+        <div class="bg-slate-900 text-white px-6 py-3 rounded-full shadow-2xl flex items-center gap-3">
+            <i class="fa-solid fa-circle-check text-green-400 text-lg"></i>
+            <span class="font-medium text-sm" id="toast-msg">保存成功</span>
+        </div>
+    </div>
+
+    <script>
+        const modal = document.getElementById('nav-modal');
+        const modalContent = document.getElementById('modal-content');
+        const titleEl = document.getElementById('modal-title');
+        const linkField = document.getElementById('link-field');
+        const parentInfo = document.getElementById('parent-info');
+        const parentName = document.getElementById('parent-name');
+
+        // 打开弹窗
+        function openModal(level, action, parent) {
+            // 设置标题
+            const actionText = action === 'add' ? '新增' : '修改';
+            const levelText = level === 'primary' ? '一级栏目' : '二级栏目';
+            titleEl.innerText = `${actionText}${levelText}`;
+
+            // 根据层级控制特定字段的显隐
+            if (level === 'secondary') {
+                linkField.classList.remove('hidden');
+                if (action === 'add' && parent) {
+                    parentInfo.classList.remove('hidden');
+                    parentName.innerText = parent;
+                } else {
+                    parentInfo.classList.add('hidden');
+                }
+            } else {
+                linkField.classList.add('hidden');
+                parentInfo.classList.add('hidden');
+            }
+
+            // 显示并播放动画
+            modal.classList.remove('hidden');
+            setTimeout(() => {
+                modalContent.classList.add('modal-enter-active');
+            }, 10);
+        }
+
+        // 关闭弹窗
+        function closeModal() {
+            modalContent.classList.remove('modal-enter-active');
+            setTimeout(() => {
+                modal.classList.add('hidden');
+                // 清空输入框内容 (实际开发中接入框架的数据双向绑定即可)
+                const inputs = modal.querySelectorAll('input');
+                inputs.forEach(input => input.value = '');
+            }, 200);
+        }
+
+        // 模拟保存操作
+        function saveNav() {
+            const btn = document.getElementById('btn-save');
+            const originalText = btn.innerHTML;
+            btn.disabled = true;
+            btn.innerHTML = '<i class="fa-solid fa-circle-notch fa-spin"></i> 保存中...';
+            
+            setTimeout(() => {
+                showToast('导航栏目配置已保存，序号已自动仲裁');
+                btn.disabled = false;
+                btn.innerHTML = originalText;
+                closeModal();
+            }, 800);
+        }
+
+        // Toast 提示
+        function showToast(msg) {
+            const toast = document.getElementById('toast');
+            document.getElementById('toast-msg').innerText = msg;
+            toast.classList.remove('opacity-0', 'translate-y-10');
+            setTimeout(() => toast.classList.add('opacity-0', 'translate-y-10'), 2500);
+        }
+    </script>
+</body>
+</html>
