@@ -1,0 +1,310 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>文章分类管理 - AICA 后台</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <script>
+        tailwind.config = {
+            theme: {
+                extend: {
+                    fontFamily: {
+                        sans: ['Inter', 'sans-serif'],
+                        mono: ['JetBrains Mono', 'monospace'],
+                    },
+                    colors: {
+                        brand: { 50: '#eff6ff', 100: '#dbeafe', 500: '#3b82f6', 600: '#2563eb', 700: '#1d4ed8' },
+                    },
+                    boxShadow: {
+                        'card': '0 1px 3px 0 rgba(0, 0, 0, 0.1), 0 1px 2px 0 rgba(0, 0, 0, 0.06)',
+                    }
+                }
+            }
+        }
+    </script>
+    <style>
+        body { background-color: #F8FAFC; }
+        .nav-item.active::before {
+            content: ''; position: absolute; left: 0; top: 50%; transform: translateY(-50%);
+            width: 4px; height: 24px; background-color: #3b82f6; border-radius: 0 4px 4px 0;
+        }
+        tr.hover-row:hover td { background-color: #f8fafc; }
+    </style>
+</head>
+<body class="flex h-screen overflow-hidden text-slate-800 font-sans">
+
+    <aside class="w-64 bg-white border-r border-slate-200 flex flex-col flex-shrink-0 z-20">
+        <div class="h-16 flex items-center px-6 border-b border-slate-100">
+            <div class="w-8 h-8 bg-gradient-to-br from-brand-600 to-indigo-600 rounded-lg flex items-center justify-center text-white font-bold text-lg mr-3 shadow-sm">A</div>
+            <span class="font-bold text-lg text-slate-800 tracking-tight">AICA Admin</span>
+        </div>
+        <nav class="flex-1 overflow-y-auto py-4 space-y-1">
+            <a href="#" class="nav-item flex items-center gap-3 px-6 py-3 text-slate-500 hover:bg-slate-50 hover:text-brand-600 transition relative">
+                <i class="fa-solid fa-layer-group w-5 text-center"></i><span class="font-medium text-sm">题库管理</span>
+            </a>
+            <a href="#" class="nav-item flex items-center gap-3 px-6 py-3 text-slate-500 hover:bg-slate-50 hover:text-brand-600 transition relative">
+                <i class="fa-solid fa-file-lines w-5 text-center"></i><span class="font-medium text-sm">试卷管理</span>
+            </a>
+            <a href="#" class="nav-item flex items-center gap-3 px-6 py-3 text-slate-500 hover:bg-slate-50 hover:text-brand-600 transition relative">
+                <i class="fa-solid fa-graduation-cap w-5 text-center"></i><span class="font-medium text-sm">测评管理</span>
+            </a>
+            <div class="px-6 py-2 mt-4 text-xs font-bold text-slate-400 uppercase tracking-wider">考务与用户</div>
+            <a href="#" class="nav-item flex items-center gap-3 px-6 py-3 text-slate-500 hover:bg-slate-50 hover:text-brand-600 transition relative">
+                <i class="fa-solid fa-users w-5 text-center"></i><span class="font-medium text-sm">考生管理</span>
+            </a>
+            <a href="#" class="nav-item flex items-center gap-3 px-6 py-3 text-slate-500 hover:bg-slate-50 hover:text-brand-600 transition relative">
+                <i class="fa-solid fa-clipboard-check w-5 text-center"></i><span class="font-medium text-sm">报名管理</span>
+            </a>
+            <a href="18_新闻管理.html" class="nav-item flex items-center gap-3 px-6 py-3 text-slate-500 hover:bg-slate-50 hover:text-brand-600 transition relative">
+                <i class="fa-regular fa-newspaper w-5 text-center"></i><span class="font-medium text-sm">新闻管理</span>
+            </a>
+            <a href="#" class="nav-item active flex items-center gap-3 px-6 py-3 text-brand-600 bg-brand-50 transition relative">
+                <i class="fa-solid fa-tags w-5 text-center"></i><span class="font-medium text-sm">文章分类管理</span>
+            </a>
+        </nav>
+    </aside>
+
+    <main class="flex-1 flex flex-col min-w-0 bg-slate-50/50 relative">
+
+        <header class="h-16 bg-white border-b border-slate-200 flex items-center justify-between px-8 flex-shrink-0 z-10">
+            <h1 class="text-xl font-bold text-slate-800">文章分类管理</h1>
+            <button onclick="openModal()" class="bg-brand-600 hover:bg-brand-700 text-white text-sm font-medium px-5 py-2.5 rounded-lg shadow-sm transition flex items-center gap-2">
+                <i class="fa-solid fa-plus"></i> 新建分类
+            </button>
+        </header>
+
+        <div class="flex-1 overflow-y-auto px-8 py-6">
+            <div class="bg-white rounded-xl shadow-card border border-slate-200 overflow-hidden">
+                <table class="w-full text-left border-collapse">
+                    <thead>
+                        <tr class="border-b border-slate-100 bg-slate-50 text-xs uppercase text-slate-500 font-bold">
+                            <th class="p-4 pl-6">分类名称</th>
+                            <th class="p-4 w-32 text-center">文章数</th>
+                            <th class="p-4 w-48">分类页面 URL</th>
+                            <th class="p-4 w-36 text-center">新闻中心固定展示</th>
+                            <th class="p-4 w-32">创建时间</th>
+                            <th class="p-4 text-right pr-6 w-40">操作</th>
+                        </tr>
+                    </thead>
+                    <tbody class="text-sm text-slate-700 divide-y divide-slate-100" id="category-tbody">
+
+                        <tr class="hover-row transition group" data-slug="policy">
+                            <td class="p-4 pl-6"><span class="font-semibold text-slate-800">政策法规</span></td>
+                            <td class="p-4 text-center font-mono text-slate-500 text-xs">12</td>
+                            <td class="p-4"><span class="text-xs text-slate-400 font-mono truncate block max-w-[180px]">/news/category/policy</span></td>
+                            <td class="p-4 text-center"><label class="relative inline-flex items-center cursor-pointer"><input type="checkbox" checked class="sr-only peer" onchange="togglePinned(this)"><div class="w-9 h-5 bg-slate-200 rounded-full peer peer-checked:bg-brand-600 after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:border after:rounded-full after:h-4 after:w-4 after:transition-all peer-checked:after:translate-x-full"></div></label></td>
+                            <td class="p-4 text-xs text-slate-500 font-mono">2025-01-10</td>
+                            <td class="p-4 text-right pr-6">
+                                <div class="flex justify-end gap-1">
+                                    <button onclick="copyUrl('policy')" class="text-slate-400 hover:text-brand-600 px-2 py-1 rounded hover:bg-slate-100 transition" title="复制 URL"><i class="fa-regular fa-copy"></i></button>
+                                    <button onclick="viewCategory('policy')" class="text-slate-400 hover:text-brand-600 px-2 py-1 rounded hover:bg-slate-100 transition" title="查看分类页"><i class="fa-solid fa-arrow-up-right-from-square"></i></button>
+                                    <div class="w-px h-4 bg-slate-200 mx-1 my-auto"></div>
+                                    <button onclick="editCategory(this)" class="text-slate-400 hover:text-brand-600 px-2 py-1 rounded hover:bg-slate-100 transition" title="编辑"><i class="fa-regular fa-pen-to-square"></i></button>
+                                    <button onclick="deleteCategory(this)" class="text-slate-400 hover:text-red-500 px-2 py-1 rounded hover:bg-slate-100 transition" title="删除"><i class="fa-regular fa-trash-can"></i></button>
+                                </div>
+                            </td>
+                        </tr>
+
+                        <tr class="hover-row transition group" data-slug="notice">
+                            <td class="p-4 pl-6"><span class="font-semibold text-slate-800">通知公告</span></td>
+                            <td class="p-4 text-center font-mono text-slate-500 text-xs">8</td>
+                            <td class="p-4"><span class="text-xs text-slate-400 font-mono truncate block max-w-[180px]">/news/category/notice</span></td>
+                            <td class="p-4 text-center"><label class="relative inline-flex items-center cursor-pointer"><input type="checkbox" checked class="sr-only peer" onchange="togglePinned(this)"><div class="w-9 h-5 bg-slate-200 rounded-full peer peer-checked:bg-brand-600 after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:border after:rounded-full after:h-4 after:w-4 after:transition-all peer-checked:after:translate-x-full"></div></label></td>
+                            <td class="p-4 text-xs text-slate-500 font-mono">2025-01-10</td>
+                            <td class="p-4 text-right pr-6">
+                                <div class="flex justify-end gap-1">
+                                    <button onclick="copyUrl('notice')" class="text-slate-400 hover:text-brand-600 px-2 py-1 rounded hover:bg-slate-100 transition" title="复制 URL"><i class="fa-regular fa-copy"></i></button>
+                                    <button onclick="viewCategory('notice')" class="text-slate-400 hover:text-brand-600 px-2 py-1 rounded hover:bg-slate-100 transition" title="查看分类页"><i class="fa-solid fa-arrow-up-right-from-square"></i></button>
+                                    <div class="w-px h-4 bg-slate-200 mx-1 my-auto"></div>
+                                    <button onclick="editCategory(this)" class="text-slate-400 hover:text-brand-600 px-2 py-1 rounded hover:bg-slate-100 transition" title="编辑"><i class="fa-regular fa-pen-to-square"></i></button>
+                                    <button onclick="deleteCategory(this)" class="text-slate-400 hover:text-red-500 px-2 py-1 rounded hover:bg-slate-100 transition" title="删除"><i class="fa-regular fa-trash-can"></i></button>
+                                </div>
+                            </td>
+                        </tr>
+
+                        <tr class="hover-row transition group" data-slug="industry">
+                            <td class="p-4 pl-6"><span class="font-semibold text-slate-800">行业动态</span></td>
+                            <td class="p-4 text-center font-mono text-slate-500 text-xs">5</td>
+                            <td class="p-4"><span class="text-xs text-slate-400 font-mono truncate block max-w-[180px]">/news/category/industry</span></td>
+                            <td class="p-4 text-center"><label class="relative inline-flex items-center cursor-pointer"><input type="checkbox" class="sr-only peer" onchange="togglePinned(this)"><div class="w-9 h-5 bg-slate-200 rounded-full peer peer-checked:bg-brand-600 after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:border after:rounded-full after:h-4 after:w-4 after:transition-all peer-checked:after:translate-x-full"></div></label></td>
+                            <td class="p-4 text-xs text-slate-500 font-mono">2025-01-10</td>
+                            <td class="p-4 text-right pr-6">
+                                <div class="flex justify-end gap-1">
+                                    <button onclick="copyUrl('industry')" class="text-slate-400 hover:text-brand-600 px-2 py-1 rounded hover:bg-slate-100 transition" title="复制 URL"><i class="fa-regular fa-copy"></i></button>
+                                    <button onclick="viewCategory('industry')" class="text-slate-400 hover:text-brand-600 px-2 py-1 rounded hover:bg-slate-100 transition" title="查看分类页"><i class="fa-solid fa-arrow-up-right-from-square"></i></button>
+                                    <div class="w-px h-4 bg-slate-200 mx-1 my-auto"></div>
+                                    <button onclick="editCategory(this)" class="text-slate-400 hover:text-brand-600 px-2 py-1 rounded hover:bg-slate-100 transition" title="编辑"><i class="fa-regular fa-pen-to-square"></i></button>
+                                    <button onclick="deleteCategory(this)" class="text-slate-400 hover:text-red-500 px-2 py-1 rounded hover:bg-slate-100 transition" title="删除"><i class="fa-regular fa-trash-can"></i></button>
+                                </div>
+                            </td>
+                        </tr>
+
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </main>
+
+    <!-- 新建/编辑分类 Modal -->
+    <div id="modal" class="hidden fixed inset-0 z-50 flex items-center justify-center">
+        <div class="absolute inset-0 bg-black/30 backdrop-blur-sm" onclick="closeModal()"></div>
+        <div class="relative bg-white rounded-2xl shadow-2xl w-full max-w-md mx-4 p-6">
+            <div class="flex items-center justify-between mb-6">
+                <h2 class="text-lg font-bold text-slate-800" id="modal-title">新建文章分类</h2>
+                <button onclick="closeModal()" class="w-8 h-8 rounded-full hover:bg-slate-100 flex items-center justify-center text-slate-400 transition">
+                    <i class="fa-solid fa-xmark"></i>
+                </button>
+            </div>
+            <div class="space-y-4">
+                <div>
+                    <label class="block text-xs font-bold text-slate-500 uppercase mb-1.5">分类名称 <span class="text-red-500">*</span></label>
+                    <input type="text" id="input-name" placeholder="例如：媒体报道" class="w-full px-3 py-2.5 rounded-lg border border-slate-200 text-sm focus:border-brand-500 focus:ring-1 outline-none transition" autofocus>
+                </div>
+                <div class="flex items-start gap-3 p-3 rounded-lg bg-slate-50 border border-slate-100">
+                    <input type="checkbox" id="input-pinned" class="mt-0.5 w-4 h-4 rounded border-slate-300 text-brand-600 cursor-pointer accent-brand-600">
+                    <div>
+                        <label for="input-pinned" class="text-sm font-medium text-slate-700 cursor-pointer">新闻中心固定展示</label>
+                        <p class="text-xs text-slate-400 mt-0.5">勾选后该分类将作为 Tab 显示在首页新闻中心；不勾选则为独立列表页，可将 URL 配置到其他入口</p>
+                    </div>
+                </div>
+                <div class="pt-2 flex justify-end gap-3">
+                    <button onclick="closeModal()" class="px-4 py-2 text-sm text-slate-500 hover:text-slate-700 border border-slate-200 rounded-lg hover:bg-slate-50 transition">取消</button>
+                    <button id="modal-confirm-btn" onclick="confirmModal()" class="px-5 py-2 text-sm font-medium bg-brand-600 hover:bg-brand-700 text-white rounded-lg shadow-sm transition">创建</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- URL 复制提示 Toast -->
+    <div id="toast" class="fixed bottom-8 left-1/2 transform -translate-x-1/2 z-50 pointer-events-none opacity-0 transition-all duration-300 translate-y-4">
+        <div class="bg-slate-900 text-white px-6 py-3 rounded-full shadow-2xl flex items-center gap-3">
+            <i class="fa-solid fa-circle-check text-green-400 text-lg"></i>
+            <span class="font-medium text-sm" id="toast-msg">已复制</span>
+        </div>
+    </div>
+
+    <script>
+        let editingRow = null;
+
+        function openModal() {
+            editingRow = null;
+            document.getElementById('modal-title').textContent = '新建文章分类';
+            document.getElementById('modal-confirm-btn').textContent = '创建';
+            document.getElementById('input-name').value = '';
+            document.getElementById('input-pinned').checked = false;
+            document.getElementById('modal').classList.remove('hidden');
+            setTimeout(() => document.getElementById('input-name').focus(), 50);
+        }
+
+        function editCategory(btn) {
+            editingRow = btn.closest('tr');
+            const name = editingRow.querySelector('span.font-semibold').textContent;
+            const pinned = editingRow.querySelector('input[type=checkbox]').checked;
+            document.getElementById('modal-title').textContent = '编辑文章分类';
+            document.getElementById('modal-confirm-btn').textContent = '保存';
+            document.getElementById('input-name').value = name;
+            document.getElementById('input-pinned').checked = pinned;
+            document.getElementById('modal').classList.remove('hidden');
+            setTimeout(() => document.getElementById('input-name').focus(), 50);
+        }
+
+        function closeModal() {
+            document.getElementById('modal').classList.add('hidden');
+            editingRow = null;
+        }
+
+        function slugify(name) {
+            const map = { '政策': 'policy', '法规': 'regulation', '通知': 'notice', '公告': 'announcement', '行业': 'industry', '动态': 'news', '媒体': 'media', '报道': 'report' };
+            for (const key in map) { if (name.includes(key)) return map[key]; }
+            return 'category-' + Date.now();
+        }
+
+        function confirmModal() {
+            const name = document.getElementById('input-name').value.trim();
+            if (!name) {
+                document.getElementById('input-name').classList.add('border-red-400');
+                return;
+            }
+            const pinned = document.getElementById('input-pinned').checked;
+
+            if (editingRow) {
+                // 编辑模式：更新行数据
+                editingRow.querySelector('span.font-semibold').textContent = name;
+                editingRow.querySelector('input[type=checkbox]').checked = pinned;
+                closeModal();
+                showToast('分类「' + name + '」已更新');
+            } else {
+                // 新建模式
+                const slug = slugify(name);
+                const url = '/news/category/' + slug;
+                const today = new Date().toISOString().slice(0, 10);
+                const tbody = document.getElementById('category-tbody');
+                const tr = document.createElement('tr');
+                tr.className = 'hover-row transition group';
+                tr.dataset.slug = slug;
+                tr.innerHTML = `
+                    <td class="p-4 pl-6"><span class="font-semibold text-slate-800">${name}</span></td>
+                    <td class="p-4 text-center font-mono text-slate-500 text-xs">0</td>
+                    <td class="p-4"><span class="text-xs text-slate-400 font-mono truncate block max-w-[180px]">${url}</span></td>
+                    <td class="p-4 text-center"><label class="relative inline-flex items-center cursor-pointer"><input type="checkbox" ${pinned ? 'checked' : ''} class="sr-only peer" onchange="togglePinned(this)"><div class="w-9 h-5 bg-slate-200 rounded-full peer peer-checked:bg-brand-600 after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:border after:rounded-full after:h-4 after:w-4 after:transition-all peer-checked:after:translate-x-full"></div></label></td>
+                    <td class="p-4 text-xs text-slate-500 font-mono">${today}</td>
+                    <td class="p-4 text-right pr-6">
+                        <div class="flex justify-end gap-1">
+                            <button onclick="copyUrl('${slug}')" class="text-slate-400 hover:text-brand-600 px-2 py-1 rounded hover:bg-slate-100 transition" title="复制 URL"><i class="fa-regular fa-copy"></i></button>
+                            <button onclick="viewCategory('${slug}')" class="text-slate-400 hover:text-brand-600 px-2 py-1 rounded hover:bg-slate-100 transition" title="查看分类页"><i class="fa-solid fa-arrow-up-right-from-square"></i></button>
+                            <div class="w-px h-4 bg-slate-200 mx-1 my-auto"></div>
+                            <button onclick="editCategory(this)" class="text-slate-400 hover:text-brand-600 px-2 py-1 rounded hover:bg-slate-100 transition" title="编辑"><i class="fa-regular fa-pen-to-square"></i></button>
+                            <button onclick="deleteCategory(this)" class="text-slate-400 hover:text-red-500 px-2 py-1 rounded hover:bg-slate-100 transition" title="删除"><i class="fa-regular fa-trash-can"></i></button>
+                        </div>
+                    </td>`;
+                tbody.appendChild(tr);
+                closeModal();
+                showToast('分类「' + name + '」已创建');
+            }
+        }
+
+        function togglePinned(checkbox) {
+            const name = checkbox.closest('tr').querySelector('span.font-semibold').textContent;
+            showToast(checkbox.checked ? '「' + name + '」已加入新闻中心展示' : '「' + name + '」已从新闻中心移除');
+        }
+
+        function copyUrl(slug) {
+            const url = window.location.origin + '/news/category/' + slug;
+            navigator.clipboard.writeText(url).catch(() => {});
+            showToast('URL 已复制到剪贴板');
+        }
+
+        function viewCategory(slug) {
+            window.open('../user/07_新闻分类_列表.html?category=' + slug, '_blank');
+        }
+
+        function deleteCategory(btn) {
+            const row = btn.closest('tr');
+            row.style.transition = 'opacity 0.3s';
+            row.style.opacity = '0';
+            setTimeout(() => row.remove(), 300);
+            showToast('分类已删除');
+        }
+
+        function showToast(msg) {
+            const toast = document.getElementById('toast');
+            document.getElementById('toast-msg').innerText = msg;
+            toast.classList.remove('opacity-0', 'translate-y-4');
+            setTimeout(() => toast.classList.add('opacity-0', 'translate-y-4'), 2000);
+        }
+
+        document.getElementById('input-name').addEventListener('input', function() {
+            this.classList.remove('border-red-400');
+        });
+
+        document.addEventListener('keydown', function(e) {
+            if (e.key === 'Escape') closeModal();
+            if (e.key === 'Enter' && !document.getElementById('modal').classList.contains('hidden')) confirmModal();
+        });
+    </script>
+</body>
+</html>
