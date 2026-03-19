@@ -312,6 +312,18 @@
             background-color: #FAFBFC;
         }
 
+        .col-check {
+            width: 40px;
+            text-align: center;
+        }
+
+        .col-check input[type="checkbox"] {
+            width: 15px;
+            height: 15px;
+            cursor: pointer;
+            accent-color: var(--primary);
+        }
+
         .col-id {
             width: 70px;
         }
@@ -971,6 +983,7 @@
                         <table id="questionTable">
                             <thead>
                                 <tr>
+                                    <th class="col-check"><input type="checkbox" id="selectAll" title="全选"></th>
                                     <th class="col-id">题目ID</th>
                                     <th class="col-type">题型</th>
                                     <th class="col-stem">题干</th>
@@ -1090,12 +1103,8 @@
         function renderTable() {
             tbody.innerHTML = '';
             MOCK_DATA.forEach((q, index) => {
+                const checked = isInActiveBasket(q.id) ? 'checked' : '';
                 let actionHtml = '';
-                if (isInActiveBasket(q.id)) {
-                    actionHtml += `<a class="action-link" style="color:var(--danger);" onclick="removeFromBasket(${q.id})">移出</a>`;
-                } else {
-                    actionHtml += `<a class="action-link" onclick="addToBasket(${q.id})">选题</a>`;
-                }
                 if (q.author === CURRENT_USER) {
                     actionHtml += `<a class="action-link">编辑</a>`;
                 } else {
@@ -1108,6 +1117,7 @@
 
                 const tr = document.createElement('tr');
                 tr.innerHTML = `
+                    <td class="col-check"><input type="checkbox" class="row-check" data-id="${q.id}" ${checked} onchange="onRowCheck(this)"></td>
                     <td class="col-id">${q.id}</td>
                     <td class="col-type">${q.type}</td>
                     <td class="col-stem">
@@ -1128,8 +1138,40 @@
                 `;
                 tbody.appendChild(tr);
             });
+            syncSelectAllCheckbox();
             updateBasketUI();
         }
+
+        function onRowCheck(checkbox) {
+            const qId = parseInt(checkbox.dataset.id);
+            if (checkbox.checked) {
+                addToBasket(qId);
+            } else {
+                removeFromBasket(qId);
+            }
+            syncSelectAllCheckbox();
+        }
+
+        function syncSelectAllCheckbox() {
+            const allChecks = document.querySelectorAll('.row-check');
+            const selectAll = document.getElementById('selectAll');
+            if (!selectAll || allChecks.length === 0) return;
+            const checkedCount = document.querySelectorAll('.row-check:checked').length;
+            selectAll.checked = checkedCount === allChecks.length;
+            selectAll.indeterminate = checkedCount > 0 && checkedCount < allChecks.length;
+        }
+
+        document.addEventListener('change', (e) => {
+            if (e.target.id === 'selectAll') {
+                const checked = e.target.checked;
+                document.querySelectorAll('.row-check').forEach(cb => {
+                    const qId = parseInt(cb.dataset.id);
+                    cb.checked = checked;
+                    if (checked && !isInActiveBasket(qId)) addToBasket(qId);
+                    else if (!checked && isInActiveBasket(qId)) removeFromBasket(qId);
+                });
+            }
+        });
 
         // ===== Popover =====
         const popover = document.getElementById('stemPopover');
@@ -1200,13 +1242,13 @@
         function addToBasket(qId) {
             const b = getActiveBasket();
             if (b && !b.items.includes(qId)) b.items.push(qId);
-            renderTable();
+            updateBasketUI();
         }
 
         function removeFromBasket(qId) {
             const b = getActiveBasket();
             if (b) b.items = b.items.filter(id => id !== qId);
-            renderTable();
+            updateBasketUI();
         }
 
         function clearBasket() {
