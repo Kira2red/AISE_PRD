@@ -1,0 +1,409 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>考试详情 - 测评管理</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <style>
+        body { background-color: #EFF4FA; font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif; }
+        .hide-scroll::-webkit-scrollbar { display: none; }
+        
+        /* 弹窗动画 */
+        .modal-enter { animation: modalIn 0.2s cubic-bezier(0.16, 1, 0.3, 1) forwards; }
+        @keyframes modalIn { from { transform: scale(0.95); opacity: 0; } to { transform: scale(1); opacity: 1; } }
+    </style>
+</head>
+<body class="text-slate-800 min-h-screen flex flex-col">
+
+    <!-- 顶部导航栏 -->
+    <header class="bg-white shadow-sm flex items-center justify-between px-8 py-3 shrink-0 z-10 relative">
+        <div class="flex items-center space-x-2">
+            <span class="text-[#f26522] font-bold text-2xl tracking-tighter">Ai</span>
+            <span class="text-xl font-bold bg-clip-text text-transparent bg-gradient-to-r from-orange-500 to-red-500">爱测评</span>
+            <span class="text-red-500 border border-red-500 rounded text-[10px] px-0.5 ml-1 leading-tight">机构版</span>
+        </div>
+        
+        <nav class="flex space-x-12 text-[15px] text-gray-600 font-medium absolute left-1/2 transform -translate-x-1/2">
+            <a href="#" class="hover:text-blue-600">首页</a>
+            <a href="#" class="text-blue-600 font-bold border-b-2 border-blue-600 pb-4 -mb-4">测评管理</a>
+            <a href="#" class="hover:text-blue-600">测评报告</a>
+        </nav>
+
+        <div class="flex items-center space-x-2 cursor-pointer">
+            <div class="w-8 h-8 rounded-full bg-slate-800 flex items-center justify-center overflow-hidden">
+                <img src="https://api.dicebear.com/7.x/bottts/svg?seed=teacher1" class="w-full h-full object-cover">
+            </div>
+            <span class="text-sm font-medium">教师1</span>
+            <svg class="w-4 h-4 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7"></path></svg>
+        </div>
+    </header>
+
+    <!-- 面包屑与筛选栏 -->
+    <div class="max-w-[1500px] w-full mx-auto px-6 mt-6">
+        <div class="bg-white rounded-t-xl px-6 py-4 flex items-center justify-between border-b border-slate-100">
+            <div class="flex items-center font-bold text-slate-800 text-lg">
+                <button class="text-slate-400 hover:text-slate-600 mr-2 flex items-center font-normal text-sm transition">
+                    <svg class="w-4 h-4 mr-1" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 19l-7-7 7-7"></path></svg>
+                    返回
+                </button>
+                <div class="w-px h-4 bg-slate-300 mx-3"></div>
+                考试详情
+            </div>
+
+            <div class="flex items-center gap-4 text-sm text-slate-600">
+                <div class="flex items-center">
+                    <span class="mr-2">学生姓名:</span>
+                    <input type="text" placeholder="请输入学生姓名" class="border border-slate-200 rounded px-3 py-1.5 outline-none focus:border-blue-500 w-40">
+                </div>
+                <div class="flex items-center">
+                    <span class="mr-2">摄像头状态:</span>
+                    <select class="border border-slate-200 rounded px-3 py-1.5 outline-none focus:border-blue-500 w-32 bg-white">
+                        <option>全部</option>
+                    </select>
+                </div>
+                <div class="flex items-center">
+                    <span class="mr-2">录屏监控状态:</span>
+                    <select class="border border-slate-200 rounded px-3 py-1.5 outline-none focus:border-blue-500 w-32 bg-white">
+                        <option>全部</option>
+                    </select>
+                </div>
+                <button class="bg-blue-600 hover:bg-blue-700 text-white px-5 py-1.5 text-sm rounded shadow-sm transition">查询</button>
+                <button class="bg-white border border-slate-200 hover:bg-slate-50 text-slate-600 px-5 py-1.5 text-sm rounded transition">重置</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- 主体双栏布局 -->
+    <main class="max-w-[1500px] w-full mx-auto px-6 pb-12 flex items-start gap-6 pt-6 flex-1">
+        
+        <!-- 左侧菜单与详情 -->
+        <aside class="w-72 shrink-0 space-y-4">
+            
+            <div class="bg-white rounded-xl shadow-sm p-6 text-sm text-slate-600 leading-loose">
+                <h2 class="text-base font-bold text-slate-900 mb-4">编程题样式测试</h2>
+                <div class="space-y-1">
+                    <div class="flex"><span class="w-20 text-slate-400">考试名称:</span> <span class="flex-1 font-medium text-slate-700">编程题样式测试</span></div>
+                    <div class="flex"><span class="w-20 text-slate-400">试卷名称:</span> <span class="flex-1">Kira2026编程题test</span></div>
+                    <div class="flex"><span class="w-20 text-slate-400">试卷ID:</span> <span class="flex-1 select-all">PAPER20250310000002</span></div>
+                    <div class="flex"><span class="w-20 text-slate-400">考试时长:</span> <span class="flex-1">120 分钟</span></div>
+                    <div class="flex"><span class="w-20 text-slate-400">考试总分:</span> <span class="flex-1">50 分</span></div>
+                    <div class="flex"><span class="w-20 text-slate-400">考试时间:</span> <span class="flex-1 text-xs">2026-01-03 18:51</span></div>
+                    <div class="flex"><span class="w-20 text-slate-400">考试描述:</span> <span class="flex-1">123</span></div>
+                </div>
+                <div class="mt-8 text-right">
+                    <button class="border border-slate-200 text-slate-600 px-4 py-1.5 rounded text-sm hover:bg-slate-50 transition">复制考试链接</button>
+                </div>
+            </div>
+
+            <nav class="bg-white rounded-xl shadow-sm overflow-hidden flex flex-col py-2">
+                <a href="#" class="px-6 py-4 flex items-center gap-3 text-blue-600 bg-blue-50/50 border-l-4 border-blue-600 font-medium">
+                    <svg class="w-5 h-5" fill="currentColor" viewBox="0 0 20 20"><path fill-rule="evenodd" d="M4 4a2 2 0 012-2h4.586A2 2 0 0112 2.586L15.414 6A2 2 0 0116 7.414V16a2 2 0 01-2 2H6a2 2 0 01-2-2V4zm2 6a1 1 0 011-1h6a1 1 0 110 2H7a1 1 0 01-1-1zm1 3a1 1 0 100 2h6a1 1 0 100-2H7z" clip-rule="evenodd"></path></svg>
+                    测评详情
+                </a>
+                <a href="#" class="px-6 py-4 flex items-center gap-3 text-slate-600 hover:bg-slate-50 transition border-l-4 border-transparent">
+                    <svg class="w-5 h-5 text-slate-400" fill="currentColor" viewBox="0 0 20 20"><path d="M2 11a1 1 0 011-1h2a1 1 0 011 1v5a1 1 0 01-1 1H3a1 1 0 01-1-1v-5zM8 7a1 1 0 011-1h2a1 1 0 011 1v9a1 1 0 01-1 1H9a1 1 0 01-1-1V7zM14 4a1 1 0 011-1h2a1 1 0 011 1v12a1 1 0 01-1 1h-2a1 1 0 01-1-1V4z"></path></svg>
+                    数据分析
+                </a>
+                <a href="#" class="px-6 py-4 flex items-center gap-3 text-slate-600 hover:bg-slate-50 transition border-l-4 border-transparent">
+                    <svg class="w-5 h-5 text-slate-400" fill="currentColor" viewBox="0 0 20 20"><path fill-rule="evenodd" d="M5 4a3 3 0 00-3 3v6a3 3 0 003 3h10a3 3 0 003-3V7a3 3 0 00-3-3H5zm-1 9v-1h5v2H5a1 1 0 01-1-1zm7 1h4a1 1 0 001-1v-1h-5v2zm0-4h5V8h-5v2zM9 8H4v2h5V8z" clip-rule="evenodd"></path></svg>
+                    批改数据
+                </a>
+                <a href="#" class="px-6 py-4 flex items-center gap-3 text-slate-600 hover:bg-slate-50 transition border-l-4 border-transparent">
+                    <svg class="w-5 h-5 text-slate-400" fill="currentColor" viewBox="0 0 20 20"><path d="M9 2a1 1 0 000 2h2a1 1 0 100-2H9z"></path><path fill-rule="evenodd" d="M4 5a2 2 0 012-2 3 3 0 003 3h2a3 3 0 003-3 2 2 0 012 2v11a2 2 0 01-2 2H6a2 2 0 01-2-2V5zm3 4a1 1 0 000 2h.01a1 1 0 100-2H7zm3 0a1 1 0 000 2h3a1 1 0 100-2h-3zm-3 4a1 1 0 100 2h.01a1 1 0 100-2H7zm3 0a1 1 0 100 2h3a1 1 0 100-2h-3z" clip-rule="evenodd"></path></svg>
+                    题目详情
+                </a>
+            </nav>
+        </aside>
+
+        <!-- 卡片网格 -->
+        <section class="flex-1 min-w-0 flex flex-col h-full relative">
+            <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-4 flex-1 content-start">
+                
+                <!-- 卡片 1 -->
+                <div class="bg-white rounded-xl shadow-sm border border-slate-100 flex flex-col p-3.5 relative hover:shadow-md transition">
+                    <div class="flex gap-3 mb-3">
+                        <div class="w-12 h-12 rounded overflow-hidden shrink-0 bg-blue-50 border border-blue-100 p-1">
+                            <img src="https://api.dicebear.com/7.x/adventurer-neutral/svg?seed=kiratest25000572" class="w-full h-full object-contain">
+                        </div>
+                        <div class="flex-1 min-w-0 flex flex-col">
+                            <div class="flex items-start justify-between gap-1 mb-1.5">
+                                <h3 class="font-bold text-slate-800 text-sm truncate" title="kiratest25000572">kiratest25000572</h3>
+                                <div class="bg-green-50 text-green-500 border border-green-200 text-[10px] px-1 py-0.5 rounded flex items-center shrink-0">
+                                    <div class="w-1.5 h-1.5 rounded-full bg-green-500 mr-1"></div>考试完成
+                                </div>
+                            </div>
+                            <div class="grid grid-cols-[55px_1fr] gap-x-2 gap-y-0.5 text-[11px] text-slate-600">
+                                <span class="text-slate-400">开始时间</span> <span class="font-mono tabular-nums text-right">2026-01-04 18:53</span>
+                                <span class="text-slate-400">交卷时间</span> <span class="font-mono tabular-nums text-right">2026-01-04 21:00</span>
+                                <span class="text-slate-400">考试成绩</span> <span class="font-mono text-right">0/50</span>
+                                <span class="text-slate-400">切屏次数</span> <span class="font-mono text-right text-red-500 font-bold">2</span>
+                            </div>
+                        </div>
+                    </div>
+                    <!-- 底部操作按钮：换行自适应排列 -->
+                    <div class="flex gap-1.5 flex-wrap text-blue-500 mt-auto pt-3 border-t border-slate-50">
+                        <button class="flex-1 min-w-[30%] border border-blue-200 bg-blue-50/30 hover:bg-blue-50 hover:border-blue-300 py-1.5 rounded text-[10px] font-medium transition cursor-pointer">查看检录</button>
+                        <button class="flex-1 min-w-[30%] border border-blue-200 bg-blue-50/30 hover:bg-blue-50 hover:border-blue-300 py-1.5 rounded text-[10px] font-medium transition cursor-pointer">查看录屏</button>
+                        <button class="flex-1 min-w-[30%] border border-blue-200 bg-blue-50/30 hover:bg-blue-50 hover:border-blue-300 py-1.5 rounded text-[10px] font-medium transition cursor-pointer">查看录像</button>
+                        <button class="flex-1 min-w-[45%] border border-blue-200 bg-blue-50/30 hover:bg-blue-50 hover:border-blue-300 py-1.5 rounded text-[10px] font-medium transition cursor-pointer">查看试卷</button>
+                        <button onclick="openLogModal('kiratest25000572')" class="flex-1 min-w-[45%] border border-blue-200 bg-blue-50/30 hover:bg-blue-50 hover:border-blue-300 py-1.5 rounded text-[10px] font-bold text-blue-600 transition cursor-pointer flex items-center justify-center gap-1"><svg class="w-3 h-3" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"></path></svg> 查看日志</button>
+                    </div>
+                </div>
+
+                <!-- 卡片 2 -->
+                <div class="bg-white rounded-xl shadow-sm border border-slate-100 flex flex-col p-3.5 relative hover:shadow-md transition">
+                    <div class="flex gap-3 mb-3">
+                        <div class="w-12 h-12 rounded overflow-hidden shrink-0 bg-blue-50 border border-blue-100 p-1">
+                            <img src="https://api.dicebear.com/7.x/adventurer-neutral/svg?seed=kiratest25000573" class="w-full h-full object-contain">
+                        </div>
+                        <div class="flex-1 min-w-0 flex flex-col">
+                            <div class="flex items-start justify-between gap-1 mb-1.5">
+                                <h3 class="font-bold text-slate-800 text-sm truncate">kiratest25000573</h3>
+                                <div class="bg-green-50 text-green-500 border border-green-200 text-[10px] px-1 py-0.5 rounded flex items-center shrink-0">
+                                    <div class="w-1.5 h-1.5 rounded-full bg-green-500 mr-1"></div>考试完成
+                                </div>
+                            </div>
+                            <div class="grid grid-cols-[55px_1fr] gap-x-2 gap-y-0.5 text-[11px] text-slate-600">
+                                <span class="text-slate-400">开始时间</span> <span class="font-mono tabular-nums text-right">2026-01-05 10:54</span>
+                                <span class="text-slate-400">交卷时间</span> <span class="font-mono tabular-nums text-right">2026-01-05 13:00</span>
+                                <span class="text-slate-400">考试成绩</span> <span class="font-mono text-right">0/50</span>
+                                <span class="text-slate-400">切屏次数</span> <span class="font-mono text-right">0</span>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="flex gap-1.5 flex-wrap text-blue-500 mt-auto pt-3 border-t border-slate-50">
+                        <button class="flex-1 min-w-[30%] border border-blue-200 bg-blue-50/30 hover:bg-blue-50 hover:border-blue-300 py-1.5 rounded text-[10px] font-medium transition cursor-pointer">查看检录</button>
+                        <button class="flex-1 min-w-[30%] border border-blue-200 bg-blue-50/30 hover:bg-blue-50 hover:border-blue-300 py-1.5 rounded text-[10px] font-medium transition cursor-pointer">查看录屏</button>
+                        <button class="flex-1 min-w-[30%] border border-blue-200 bg-blue-50/30 hover:bg-blue-50 hover:border-blue-300 py-1.5 rounded text-[10px] font-medium transition cursor-pointer">查看录像</button>
+                        <button class="flex-1 min-w-[45%] border border-blue-200 bg-blue-50/30 hover:bg-blue-50 hover:border-blue-300 py-1.5 rounded text-[10px] font-medium transition cursor-pointer">查看试卷</button>
+                        <button onclick="openLogModal('kiratest25000573')" class="flex-1 min-w-[45%] border border-blue-200 bg-blue-50/30 hover:bg-blue-50 hover:border-blue-300 py-1.5 rounded text-[10px] font-bold text-blue-600 transition cursor-pointer flex items-center justify-center gap-1"><svg class="w-3 h-3" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"></path></svg> 查看日志</button>
+                    </div>
+                </div>
+
+                <!-- 卡片 3 - 未开始 -->
+                <div class="bg-white rounded-xl shadow-sm border border-slate-100 flex flex-col p-3.5 relative opacity-60">
+                    <div class="flex gap-3 mb-3">
+                        <div class="w-12 h-12 rounded overflow-hidden shrink-0 bg-slate-100 border border-slate-200 p-1 grayscale">
+                            <img src="https://api.dicebear.com/7.x/adventurer-neutral/svg?seed=kiratest25000574" class="w-full h-full object-contain">
+                        </div>
+                        <div class="flex-1 min-w-0 flex flex-col">
+                            <div class="flex items-start justify-between gap-1 mb-1.5">
+                                <h3 class="font-bold text-slate-800 text-sm truncate">kiratest25000574</h3>
+                                <div class="bg-red-50 text-red-500 border border-red-200 text-[10px] px-1 py-0.5 rounded flex items-center shrink-0">
+                                    <div class="w-1.5 h-1.5 rounded-full bg-red-500 mr-1"></div>未开始
+                                </div>
+                            </div>
+                            <div class="grid grid-cols-[55px_1fr] gap-x-2 gap-y-0.5 text-[11px] text-slate-400">
+                                <span class="text-slate-400">开始时间</span> <span class="text-right">-</span>
+                                <span class="text-slate-400">交卷时间</span> <span class="text-right">-</span>
+                                <span class="text-slate-400">考试成绩</span> <span class="text-right">-</span>
+                                <span class="text-slate-400">切屏次数</span> <span class="text-right">-</span>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="flex gap-1.5 flex-wrap text-slate-400 mt-auto pt-3 border-t border-slate-50">
+                        <button disabled class="flex-1 min-w-[30%] border border-slate-100 bg-slate-50 py-1.5 rounded text-[10px] font-medium cursor-not-allowed">查看检录</button>
+                        <button disabled class="flex-1 min-w-[30%] border border-slate-100 bg-slate-50 py-1.5 rounded text-[10px] font-medium cursor-not-allowed">查看录屏</button>
+                        <button disabled class="flex-1 min-w-[30%] border border-slate-100 bg-slate-50 py-1.5 rounded text-[10px] font-medium cursor-not-allowed">查看录像</button>
+                        <button disabled class="flex-1 min-w-[45%] border border-slate-100 bg-slate-50 py-1.5 rounded text-[10px] font-medium cursor-not-allowed">查看试卷</button>
+                        <button disabled class="flex-1 min-w-[45%] border border-slate-100 bg-slate-50 py-1.5 rounded text-[10px] font-medium cursor-not-allowed flex items-center justify-center gap-1"><svg class="w-3 h-3" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"></path></svg> 查看日志</button>
+                    </div>
+                </div>
+
+                <!-- 卡片 4 - 未开始 -->
+                <div class="bg-white rounded-xl shadow-sm border border-slate-100 flex flex-col p-3.5 relative opacity-60">
+                    <div class="flex gap-3 mb-3">
+                        <div class="w-12 h-12 rounded overflow-hidden shrink-0 bg-slate-100 border border-slate-200 p-1 grayscale">
+                            <img src="https://api.dicebear.com/7.x/adventurer-neutral/svg?seed=kiratest25000575" class="w-full h-full object-contain">
+                        </div>
+                        <div class="flex-1 min-w-0 flex flex-col">
+                            <div class="flex items-start justify-between gap-1 mb-1.5">
+                                <h3 class="font-bold text-slate-800 text-sm truncate">kiratest25000575</h3>
+                                <div class="bg-red-50 text-red-500 border border-red-200 text-[10px] px-1 py-0.5 rounded flex items-center shrink-0">
+                                    <div class="w-1.5 h-1.5 rounded-full bg-red-500 mr-1"></div>未开始
+                                </div>
+                            </div>
+                            <div class="grid grid-cols-[55px_1fr] gap-x-2 gap-y-0.5 text-[11px] text-slate-400">
+                                <span class="text-slate-400">开始时间</span> <span class="text-right">-</span>
+                                <span class="text-slate-400">交卷时间</span> <span class="text-right">-</span>
+                                <span class="text-slate-400">考试成绩</span> <span class="text-right">-</span>
+                                <span class="text-slate-400">切屏次数</span> <span class="text-right">-</span>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="flex gap-1.5 flex-wrap text-slate-400 mt-auto pt-3 border-t border-slate-50">
+                        <button disabled class="flex-1 min-w-[30%] border border-slate-100 bg-slate-50 py-1.5 rounded text-[10px] font-medium cursor-not-allowed">查看检录</button>
+                        <button disabled class="flex-1 min-w-[30%] border border-slate-100 bg-slate-50 py-1.5 rounded text-[10px] font-medium cursor-not-allowed">查看录屏</button>
+                        <button disabled class="flex-1 min-w-[30%] border border-slate-100 bg-slate-50 py-1.5 rounded text-[10px] font-medium cursor-not-allowed">查看录像</button>
+                        <button disabled class="flex-1 min-w-[45%] border border-slate-100 bg-slate-50 py-1.5 rounded text-[10px] font-medium cursor-not-allowed">查看试卷</button>
+                        <button disabled class="flex-1 min-w-[45%] border border-slate-100 bg-slate-50 py-1.5 rounded text-[10px] font-medium cursor-not-allowed flex items-center justify-center gap-1"><svg class="w-3 h-3" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"></path></svg> 查看日志</button>
+                    </div>
+                </div>
+
+            </div>
+
+            <!-- 分页区 -->
+            <div class="mt-8 flex justify-end items-center text-sm text-slate-600">
+                <span class="mr-4">共 5 条</span>
+                <div class="flex items-center">
+                    <button class="w-8 h-8 flex items-center justify-center border border-slate-200 bg-white text-slate-400 rounded-l hover:bg-slate-50"><svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 19l-7-7 7-7"></path></svg></button>
+                    <button class="w-8 h-8 flex items-center justify-center border-y border-slate-200 bg-blue-50 text-blue-600 border-x border-x-blue-300 font-bold">1</button>
+                    <button class="w-8 h-8 flex items-center justify-center border border-slate-200 bg-white text-slate-400 rounded-r hover:bg-slate-50"><svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7"></path></svg></button>
+                </div>
+                <div class="ml-4 border border-slate-200 rounded px-2 py-1 bg-white cursor-pointer select-none">12 条/页 <svg class="w-3 h-3 inline pb-0.5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path d="M19 9l-7 7-7-7"></path></svg></div>
+                <div class="ml-4 flex items-center">
+                    跳至 <input type="text" class="w-10 h-7 border border-slate-200 rounded mx-2 text-center outline-none focus:border-blue-500"> 页
+                </div>
+            </div>
+        </section>
+
+    </main>
+
+    <!-- 弹窗：查看日志 -->
+    <div id="log-modal" class="fixed inset-0 z-50 hidden flex items-center justify-center">
+        <!-- 半透明遮罩层 -->
+        <div class="absolute inset-0 bg-slate-900/40 backdrop-blur-[2px]" onclick="closeLogModal()"></div>
+        
+        <!-- 弹窗主体 -->
+        <div class="relative w-full max-w-5xl bg-white rounded-xl shadow-2xl overflow-hidden modal-enter mx-4 flex flex-col max-h-[85vh]">
+            
+            <!-- 弹窗 Header -->
+            <div class="px-6 py-4 border-b border-slate-100 flex items-center justify-between bg-slate-50/80">
+                <div class="flex items-center gap-2">
+                    <svg class="w-5 h-5 text-blue-500" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"></path></svg>
+                    <h3 class="text-base font-bold text-slate-800"><span id="log-modal-student-name">kiratest</span> - 考生行为日志</h3>
+                </div>
+                
+                <div class="flex items-center gap-4">
+                    <button class="bg-blue-50 hover:bg-blue-100 text-blue-600 border border-blue-200 text-xs font-bold px-4 py-1.5 rounded transition flex items-center gap-1.5" onclick="downloadLog()">
+                        <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-4l-4 4m0 0l-4-4m4 4V4"></path></svg>
+                        导出日志
+                    </button>
+                    <div class="w-px h-4 bg-slate-300"></div>
+                    <button class="text-slate-400 hover:text-slate-700 transition px-1" onclick="closeLogModal()">
+                        <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"></path></svg>
+                    </button>
+                </div>
+            </div>
+
+            <!-- 数据表格区域 -->
+            <div class="flex-1 overflow-y-auto px-6 py-4 custom-scroll">
+                <table class="w-full text-left text-sm whitespace-nowrap">
+                    <colgroup>
+                        <col class="w-48">
+                        <col class="w-64">
+                        <col class="w-auto">
+                    </colgroup>
+                    <thead class="bg-slate-50 sticky top-0 z-10 shadow-sm">
+                        <tr>
+                            <th class="px-4 py-3 font-bold text-slate-600 border-b border-slate-200 rounded-tl">时间 (Time)</th>
+                            <th class="px-4 py-3 font-bold text-slate-600 border-b border-slate-200">描述 (Description)</th>
+                            <th class="px-4 py-3 font-bold text-slate-600 border-b border-slate-200 rounded-tr">原始日志 / Payload (Raw Log)</th>
+                        </tr>
+                    </thead>
+                    <tbody class="divide-y divide-slate-100 text-slate-600">
+                        <tr class="hover:bg-blue-50/50 transition relative group">
+                            <td class="px-4 py-3 font-mono text-xs text-slate-500">2026-01-04 18:53:20</td>
+                            <td class="px-4 py-3 font-medium text-slate-800">请求进入考场</td>
+                            <td class="px-4 py-3">
+                                <div class="font-mono text-[11px] text-slate-400 truncate max-w-md" title='{"event":"ENTER_EXAM","clientVersion":"1.0.4","os":"Windows 10","deviceId":"A1-B2-C3-D4"}'>
+                                    {"event":"ENTER_EXAM","clientVersion":"1.0.4","os":"Windows 10","deviceId":"A1-B2-C3-D4"}
+                                </div>
+                            </td>
+                        </tr>
+                        <tr class="hover:bg-blue-50/50 transition">
+                            <td class="px-4 py-3 font-mono text-xs text-slate-500">2026-01-04 18:53:25</td>
+                            <td class="px-4 py-3 font-medium text-slate-800">完成考前设备检测</td>
+                            <td class="px-4 py-3">
+                                <div class="font-mono text-[11px] text-slate-400 truncate max-w-md">
+                                    {"event":"DEVICE_CHECK_PASS","cam":true,"mic":true,"rtc":24,"netDelay":12}
+                                </div>
+                            </td>
+                        </tr>
+                        <tr class="hover:bg-blue-50/50 transition">
+                            <td class="px-4 py-3 font-mono text-xs text-slate-500">2026-01-04 18:53:36</td>
+                            <td class="px-4 py-3 font-medium text-slate-800"><span class="w-1.5 h-1.5 inline-block bg-blue-500 rounded-full mr-1.5"></span>系统开始下发试卷</td>
+                            <td class="px-4 py-3">
+                                <div class="font-mono text-[11px] text-slate-400 truncate max-w-md">
+                                    {"event":"FETCH_PAPER","paperId":"PAPER20250310000002","status":"SUCCESS","duration":105}
+                                </div>
+                            </td>
+                        </tr>
+                        <tr class="hover:bg-red-50 transition bg-red-50/30">
+                            <td class="px-4 py-3 font-mono text-xs text-red-500">2026-01-04 19:22:15</td>
+                            <td class="px-4 py-3 font-bold text-red-600"><span class="w-1.5 h-1.5 inline-block bg-red-500 rounded-full mr-1.5 animate-pulse"></span>触发切屏警告 (1/2)</td>
+                            <td class="px-4 py-3 relative">
+                                <div class="font-mono text-[11px] text-red-400 truncate max-w-md">
+                                    {"event":"BLUR_WINDOW","reason":"focusLoss","duration_ms":3500,"active_window":"Chrome"}
+                                </div>
+                            </td>
+                        </tr>
+                        <tr class="hover:bg-blue-50/50 transition">
+                            <td class="px-4 py-3 font-mono text-xs text-slate-500">2026-01-04 20:10:45</td>
+                            <td class="px-4 py-3 font-medium text-slate-800">自动缓存作答记录</td>
+                            <td class="px-4 py-3">
+                                <div class="font-mono text-[11px] text-slate-400 truncate max-w-md">
+                                    {"event":"AUTO_SAVE","questionsAnswered":15,"total":50,"byteSize":2048}
+                                </div>
+                            </td>
+                        </tr>
+                        <tr class="hover:bg-red-50 transition bg-red-50/30">
+                            <td class="px-4 py-3 font-mono text-xs text-red-500">2026-01-04 20:30:10</td>
+                            <td class="px-4 py-3 font-bold text-red-600"><span class="w-1.5 h-1.5 inline-block bg-red-500 rounded-full mr-1.5 animate-pulse"></span>触发切屏警告 (2/2)</td>
+                            <td class="px-4 py-3 relative">
+                                <div class="font-mono text-[11px] text-red-400 truncate max-w-md">
+                                    {"event":"BLUR_WINDOW","reason":"focusLoss","duration_ms":12000,"active_window":"WeChat"}
+                                </div>
+                            </td>
+                        </tr>
+                        <tr class="hover:bg-blue-50/50 transition">
+                            <td class="px-4 py-3 font-mono text-xs text-slate-500">2026-01-04 21:00:00</td>
+                            <td class="px-4 py-3 font-medium pl-3 text-blue-600 font-bold border-l-2 border-blue-500">主动发起交卷请求</td>
+                            <td class="px-4 py-3">
+                                <div class="font-mono text-[11px] text-slate-400 truncate max-w-md" title='{"event":"SUBMIT_EXAM","method":"manual_click","syncState":"synced","lastPing":12}'>
+                                    {"event":"SUBMIT_EXAM","method":"manual_click","syncState":"synced","lastPing":12}
+                                </div>
+                            </td>
+                        </tr>
+                        <tr class="hover:bg-green-50 transition bg-green-50/30">
+                            <td class="px-4 py-3 font-mono text-xs text-green-600">2026-01-04 21:00:02</td>
+                            <td class="px-4 py-3 font-bold text-green-700">交卷成功，确认场次结束</td>
+                            <td class="px-4 py-3">
+                                <div class="font-mono text-[11px] text-green-600/80 truncate max-w-md">
+                                    {"event":"SUBMIT_SUCCESS","serverAck":true,"costMs":1850,"scoreStatus":"PENDING"}
+                                </div>
+                            </td>
+                        </tr>
+                    </tbody>
+                </table>
+            </div>
+
+            <div class="px-6 py-3 border-t border-slate-100 bg-slate-50 text-xs text-slate-400 flex justify-between">
+                <span>该列表最多展示近 500 条实时日志，可导出以查阅完整长包。</span>
+                <span>当前共记录 8 条日志</span>
+            </div>
+
+        </div>
+    </div>
+
+    <script>
+        function openLogModal(studentName) {
+            document.getElementById('log-modal-student-name').innerText = studentName;
+            document.getElementById('log-modal').classList.remove('hidden');
+            document.body.style.overflow = 'hidden'; // 阻止底层滚动
+        }
+
+        function closeLogModal() {
+            document.getElementById('log-modal').classList.add('hidden');
+            document.body.style.overflow = '';
+        }
+
+        function downloadLog() {
+            // 模拟下载流程
+            const modalTitle = document.getElementById('log-modal-student-name').innerText;
+            alert(`已开始下载：考试日志_场次20220310_${modalTitle}_20260404.csv`);
+        }
+    </script>
+</body>
+</html>

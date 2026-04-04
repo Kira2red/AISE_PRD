@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>新闻管理 - AICA 后台</title>
+    <title>新闻管理 - AISE 后台</title>
     <script src="https://cdn.tailwindcss.com"></script>
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
     <link href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
@@ -59,7 +59,7 @@
     <aside class="w-64 bg-white border-r border-slate-200 flex flex-col flex-shrink-0 z-20">
         <div class="h-16 flex items-center px-6 border-b border-slate-100">
             <div class="w-8 h-8 bg-gradient-to-br from-brand-600 to-indigo-600 rounded-lg flex items-center justify-center text-white font-bold text-lg mr-3 shadow-sm">A</div>
-            <span class="font-bold text-lg text-slate-800 tracking-tight">AICA Admin</span>
+            <span class="font-bold text-lg text-slate-800 tracking-tight">AISE Admin</span>
         </div>
         <nav class="flex-1 overflow-y-auto py-4 space-y-1">
             <a href="#" class="nav-item flex items-center gap-3 px-6 py-3 text-slate-500 hover:bg-slate-50 hover:text-brand-600 transition relative">
@@ -105,7 +105,7 @@
                     <div class="flex items-center gap-3">
                         <select class="px-3 py-2 rounded-lg border border-slate-200 text-sm text-slate-600 bg-white outline-none hover:border-slate-300 cursor-pointer min-w-[160px]">
                             <option value="">全部组织</option>
-                            <option value="aica" selected>AICA 专项组织</option>
+                            <option value="aica" selected>AISE 专项组织</option>
                             <option value="yb">猿编程</option>
                         </select>
                         
@@ -146,7 +146,7 @@
                                 </td>
                                 <td class="p-4">
                                     <span class="inline-flex items-center gap-1.5 px-2 py-1 rounded text-xs font-bold bg-indigo-50 text-indigo-700 border border-indigo-100">
-                                        <i class="fa-solid fa-building-columns"></i> AICA 专项
+                                        <i class="fa-solid fa-building-columns"></i> AISE 专项
                                     </span>
                                 </td>
                                 <td class="p-4"><span class="bg-slate-100 text-slate-500 px-2 py-0.5 rounded text-xs">政策</span></td>
@@ -171,12 +171,12 @@
                                     </div>
                                 </td>
                                 <td class="p-4">
-                                    <p class="font-bold text-slate-800 mb-1 line-clamp-1 group-hover:text-brand-600 transition cursor-pointer" onclick="switchView('editor', 'edit')">2025年度 AICA 赛事常见问题解答 (FAQ)</p>
+                                    <p class="font-bold text-slate-800 mb-1 line-clamp-1 group-hover:text-brand-600 transition cursor-pointer" onclick="switchView('editor', 'edit')">2025年度 AISE 赛事常见问题解答 (FAQ)</p>
                                     <p class="text-xs text-slate-400 line-clamp-1">汇总了近期考生咨询较多...</p>
                                 </td>
                                 <td class="p-4">
                                     <span class="inline-flex items-center gap-1.5 px-2 py-1 rounded text-xs font-bold bg-indigo-50 text-indigo-700 border border-indigo-100">
-                                        <i class="fa-solid fa-building-columns"></i> AICA 专项
+                                        <i class="fa-solid fa-building-columns"></i> AISE 专项
                                     </span>
                                 </td>
                                 <td class="p-4"><span class="bg-slate-100 text-slate-500 px-2 py-0.5 rounded text-xs">公告</span></td>
@@ -282,7 +282,7 @@
                                 <div>
                                     <label class="block text-xs font-bold text-slate-500 uppercase mb-1.5">发布组织</label>
                                     <select class="w-full px-3 py-2.5 rounded-lg border border-indigo-200 bg-indigo-50/50 text-sm focus:border-indigo-500 focus:ring-1 outline-none font-medium text-indigo-900">
-                                        <option value="aica" selected>AICA 专项组织</option>
+                                        <option value="aica" selected>AISE 专项组织</option>
                                         <option value="other">其他组织</option>
                                     </select>
                                 </div>
@@ -317,7 +317,7 @@
                                 </div>
                                 <div>
                                     <label class="block text-xs font-bold text-slate-500 uppercase mb-1.5">作者</label>
-                                    <input type="text" class="w-full px-3 py-2 rounded-lg border border-slate-200 text-sm bg-white focus:border-brand-500 outline-none" value="AICA 组委会">
+                                    <input type="text" class="w-full px-3 py-2 rounded-lg border border-slate-200 text-sm bg-white focus:border-brand-500 outline-none" value="AISE 组委会">
                                 </div>
                                 <div class="pt-4 border-t border-slate-100 flex items-center justify-between">
                                     <span class="text-sm text-slate-700">设为置顶</span>
@@ -365,7 +365,7 @@
             btn.disabled = true;
             btn.innerHTML = '<i class="fa-solid fa-circle-notch fa-spin"></i> 发布中...';
             setTimeout(() => {
-                showToast('文章已发布至 [AICA 专项组织]');
+                showToast('文章已发布至 [AISE 专项组织]');
                 btn.disabled = false;
                 btn.innerHTML = originalHTML;
                 setTimeout(() => switchView('list'), 1500);

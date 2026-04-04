@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>个人中心 - AICA</title>
+    <title>个人中心 - AISE</title>
     <script src="https://cdn.tailwindcss.com"></script>
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
@@ -56,7 +56,7 @@
             <div class="flex justify-between items-center h-16 sm:h-20">
                 <div class="flex items-center gap-3 cursor-pointer" onclick="window.location.href='#'">
                     <div class="w-9 h-9 bg-gradient-to-br from-brand-600 to-indigo-600 rounded-lg flex items-center justify-center text-white font-bold text-lg shadow-md">A</div>
-                    <span class="font-bold text-lg tracking-tight text-slate-900">AICA</span>
+                    <span class="font-bold text-lg tracking-tight text-slate-900">AISE</span>
                 </div>
                 <div class="hidden md:flex items-center space-x-8">
                     <a href="#" class="text-slate-500 hover:text-brand-600 font-medium text-sm transition">首页</a>
@@ -221,15 +221,21 @@
                             </div>
                         </div>
 
-                        <div class="flex flex-col-reverse sm:flex-row justify-end gap-4 pt-4 border-t border-slate-50 mt-8">
+                        <div class="flex flex-col-reverse sm:flex-row justify-end gap-4 pt-4 border-t border-slate-50 mt-8 relative">
                             
                             <button type="button" id="btn-add-student-bottom" onclick="openModal()" class="w-full sm:w-auto px-6 py-3.5 rounded-xl border border-slate-200 text-slate-600 font-bold text-sm hover:bg-slate-50 hover:text-brand-600 transition flex items-center justify-center gap-2">
                                 <i class="fa-solid fa-plus"></i> 关联新考生
                             </button>
 
-                            <button type="submit" id="save-btn" class="w-full sm:w-auto bg-slate-900 text-white px-10 py-3.5 rounded-xl font-bold shadow-lg hover:bg-brand-600 transition-all duration-300 flex items-center justify-center gap-2">
-                                <i class="fa-regular fa-floppy-disk"></i> 保存修改
-                            </button>
+                            <div class="relative w-full sm:w-auto flex flex-col justify-center">
+                                <button type="submit" id="save-btn" class="w-full sm:w-auto bg-slate-900 text-white px-10 py-3.5 rounded-xl font-bold shadow-lg hover:bg-brand-600 transition-all duration-300 flex items-center justify-center gap-2">
+                                    <i class="fa-regular fa-floppy-disk"></i> 保存修改
+                                </button>
+                                <!-- 脱离文档流悬浮于底部的状态文案，确保不引起任何布局抖动 -->
+                                <div id="audit-status-text" class="absolute -bottom-6 left-0 right-0 hidden flex justify-center">
+                                    <span class="text-xs text-amber-500 font-medium flex items-center gap-1.5"><i class="fa-solid fa-clock-rotate-left"></i> 正在审核中</span>
+                                </div>
+                            </div>
                         </div>
                     </form>
                 </div>
@@ -380,21 +386,28 @@
 
         function saveProfile() {
             const btn = document.getElementById('save-btn');
+            const auditText = document.getElementById('audit-status-text');
             const originalHtml = btn.innerHTML;
             
             btn.disabled = true;
-            btn.innerHTML = '<i class="fa-solid fa-spinner fa-spin"></i> 正在核验身份信息...';
+            btn.innerHTML = '<i class="fa-solid fa-spinner fa-spin"></i> 数据提交中...';
             
             setTimeout(() => {
-                btn.innerHTML = '<i class="fa-solid fa-check"></i> 核验通过并保存';
-                btn.className = "w-full sm:w-auto bg-green-500 text-white px-10 py-3.5 rounded-xl font-bold shadow-lg flex items-center justify-center gap-2";
+                btn.innerHTML = '<i class="fa-solid fa-check"></i> 提交成功';
+                btn.className = "w-full sm:w-auto bg-green-500 text-white px-8 py-3.5 rounded-xl font-bold shadow-lg flex items-center justify-center gap-2";
                 
                 setTimeout(() => {
                     btn.disabled = false;
                     btn.innerHTML = originalHtml;
-                    btn.className = "w-full sm:w-auto bg-slate-900 text-white px-10 py-3.5 rounded-xl font-bold shadow-lg hover:bg-brand-600 transition-all duration-300 flex items-center justify-center gap-2";
-                }, 2000);
-            }, 1500);
+                    // 保存后置灰按钮，并显示审核中文案
+                    btn.className = "w-full sm:w-auto bg-slate-300 cursor-not-allowed text-white px-8 py-3.5 rounded-xl font-bold shadow-none flex items-center justify-center gap-2";
+                    btn.disabled = true; 
+                    if(auditText) {
+                        auditText.classList.remove('hidden');
+                        auditText.classList.add('modal-enter');
+                    }
+                }, 1500);
+            }, 1000);
         }
     </script>
 </body>
