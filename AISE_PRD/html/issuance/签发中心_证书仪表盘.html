@@ -1,0 +1,491 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>签发中心 - 电子证书签发管理</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <script>
+        tailwind.config = {
+            theme: {
+                extend: {
+                    fontFamily: { sans: ['Inter', 'sans-serif'], mono: ['JetBrains Mono', 'monospace'] },
+                    colors: {
+                        primary: { 50: '#e8f0fe', 100: '#c5d9fc', 500: '#3370ff', 600: '#2860d8', 700: '#1e4db7' },
+                    },
+                    boxShadow: { 'card': '0 1px 3px 0 rgba(0,0,0,0.06)' }
+                }
+            }
+        }
+    </script>
+    <style>
+        body { background-color: #F5F6F7; color: #1F2329; }
+        .custom-scroll::-webkit-scrollbar { width: 5px; }
+        .custom-scroll::-webkit-scrollbar-track { background: transparent; }
+        .custom-scroll::-webkit-scrollbar-thumb { background-color: #d0d3d6; border-radius: 4px; }
+        tr.hover-row:hover td { background-color: #f5f6f7; }
+
+        .toggle-lg { position: relative; display: inline-block; width: 48px; height: 24px; flex-shrink: 0; }
+        .toggle-lg input { opacity: 0; width: 0; height: 0; }
+        .toggle-lg .slider { position: absolute; cursor: pointer; top: 0; left: 0; right: 0; bottom: 0; background-color: #c5cad3; transition: .2s; border-radius: 24px; }
+        .toggle-lg .slider:before { position: absolute; content: ""; height: 18px; width: 18px; left: 3px; bottom: 3px; background-color: white; transition: .2s; border-radius: 50%; }
+        .toggle-lg input:checked + .slider { background-color: #00B578; }
+        .toggle-lg input:checked + .slider:before { transform: translateX(24px); }
+
+        /* Multi-select input */
+        .multi-select-wrap { position: relative; }
+        .multi-select-input { min-height: 34px; display: flex; flex-wrap: wrap; align-items: center; gap: 4px; padding: 3px 6px; border: 1px solid #d0d3d6; border-radius: 8px; background: white; cursor: text; transition: border-color .15s; }
+        .multi-select-input:focus-within { border-color: #3370ff; box-shadow: 0 0 0 2px rgba(51,112,255,0.1); }
+        .multi-select-input .tag { display: inline-flex; align-items: center; gap: 3px; padding: 2px 6px; background: #e8f0fe; color: #2860d8; border-radius: 4px; font-size: 12px; white-space: nowrap; }
+        .multi-select-input .tag .remove { cursor: pointer; opacity: 0.6; font-size: 11px; }
+        .multi-select-input .tag .remove:hover { opacity: 1; }
+        .multi-select-input input { border: none; outline: none; flex: 1; min-width: 100px; font-size: 13px; padding: 2px 0; }
+        .multi-select-dropdown { position: absolute; top: 100%; left: 0; right: 0; margin-top: 4px; background: white; border: 1px solid #d0d3d6; border-radius: 8px; box-shadow: 0 4px 16px rgba(0,0,0,0.1); max-height: 220px; overflow-y: auto; z-index: 30; display: none; }
+        .multi-select-dropdown.show { display: block; }
+        .multi-select-dropdown .option { padding: 8px 12px; font-size: 13px; cursor: pointer; display: flex; align-items: center; justify-content: space-between; }
+        .multi-select-dropdown .option:hover { background: #f5f6f7; }
+        .multi-select-dropdown .option.selected { background: #e8f0fe; color: #2860d8; font-weight: 600; }
+        .multi-select-dropdown .option.selected::after { content: '\f00c'; font-family: 'Font Awesome 6 Free'; font-weight: 900; font-size: 11px; }
+        .multi-select-dropdown .empty { padding: 12px; text-align: center; color: #8f959e; font-size: 12px; }
+    </style>
+</head>
+<body class="flex flex-col h-screen overflow-hidden font-sans">
+
+    <!-- 顶栏 -->
+    <header class="h-13 bg-[#1F2329] flex items-center justify-between px-6 flex-shrink-0 z-20">
+        <div class="flex items-center gap-3">
+            <svg width="22" height="22" viewBox="0 0 24 24" fill="none"><rect width="24" height="24" rx="5" fill="#3370ff"/><path d="M7 12.5l3 3 7-7" stroke="white" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"/></svg>
+            <span class="font-semibold text-[15px] text-white tracking-tight">签发中心</span>
+            <span class="text-[11px] text-white/45 bg-white/8 px-2 py-0.5 rounded">中国软件行业协会</span>
+        </div>
+        <div class="flex items-center gap-4">
+            <span class="text-xs text-white/50 flex items-center gap-1.5">
+                <span class="w-1.5 h-1.5 rounded-full bg-[#00B578]"></span> 运行正常
+            </span>
+            <div class="flex items-center gap-2 text-xs text-white/70">
+                <div class="w-7 h-7 rounded-full bg-white/12 flex items-center justify-center text-white font-semibold text-xs">管</div>
+                <span>软协管理员</span>
+            </div>
+            <button class="text-white/40 hover:text-white/80 text-sm transition"><i class="fa-solid fa-right-from-bracket"></i></button>
+        </div>
+    </header>
+
+    <!-- 签发开关 + 统计 -->
+    <div class="bg-white border-b border-[#E5E6EB] px-6 py-3 flex-shrink-0">
+        <div class="flex items-center gap-5">
+            <div class="flex items-center gap-3 pr-5 border-r border-[#E5E6EB]">
+                <label class="toggle-lg">
+                    <input type="checkbox" id="global-toggle" checked onchange="toggleIssuance()">
+                    <span class="slider"></span>
+                </label>
+                <div>
+                    <p class="text-sm font-semibold text-[#1F2329]" id="toggle-label">签发运行中</p>
+                    <p class="text-[11px] text-[#8F959E]" id="toggle-sub">所有考试正常签发</p>
+                </div>
+            </div>
+            <div class="flex items-center gap-5">
+                <div class="text-center min-w-[72px]">
+                    <p class="text-[26px] font-bold text-[#1F2329] font-mono tracking-tight">3,564</p>
+                    <p class="text-[11px] text-[#8F959E]">总计</p>
+                </div>
+                <div class="text-center min-w-[72px]">
+                    <p class="text-[26px] font-bold text-[#FF7D00] font-mono tracking-tight">1,248</p>
+                    <p class="text-[11px] text-[#FF7D00] flex items-center justify-center gap-1"><span class="w-1.5 h-1.5 rounded-full bg-[#FF7D00] inline-block"></span>待签发</p>
+                </div>
+                <div class="text-center min-w-[72px]">
+                    <p class="text-[26px] font-bold text-[#3370ff] font-mono tracking-tight">86</p>
+                    <p class="text-[11px] text-[#3370ff] flex items-center justify-center gap-1"><span class="w-1.5 h-1.5 rounded-full bg-[#3370ff] inline-block animate-pulse"></span>签发中</p>
+                </div>
+                <div class="text-center min-w-[72px]">
+                    <p class="text-[26px] font-bold text-[#00B578] font-mono tracking-tight">2,140</p>
+                    <p class="text-[11px] text-[#00B578] flex items-center justify-center gap-1"><span class="w-1.5 h-1.5 rounded-full bg-[#00B578] inline-block"></span>已签发</p>
+                </div>
+                <div class="text-center min-w-[72px]">
+                    <p class="text-[26px] font-bold text-[#F54A45] font-mono tracking-tight">90</p>
+                    <p class="text-[11px] text-[#F54A45] flex items-center justify-center gap-1"><span class="w-1.5 h-1.5 rounded-full bg-[#F54A45] inline-block"></span>失败</p>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- 筛选栏 -->
+    <div class="px-6 py-3 flex-shrink-0">
+        <div class="flex items-center gap-3">
+            <div class="relative w-52">
+                <i class="fa-solid fa-magnifying-glass absolute left-3 top-1/2 -translate-y-1/2 text-[#8F959E] text-xs"></i>
+                <input type="text" placeholder="搜索姓名 / 证书编号" class="w-full pl-8 pr-3 py-1.5 rounded-lg border border-[#d0d3d6] text-[13px] focus:border-primary-500 focus:ring-2 focus:ring-primary-50 outline-none transition bg-white">
+            </div>
+
+            <!-- 测评多选输入 -->
+            <div class="multi-select-wrap w-80" id="exam-ms-wrap">
+                <div class="multi-select-input" onclick="document.getElementById('exam-ms-input').focus()">
+                    <span class="text-[#8F959E] text-[13px]" id="exam-ms-placeholder" style="padding:2px 0;">选择测评（支持多选）</span>
+                    <input type="text" id="exam-ms-input" placeholder="" autocomplete="off"
+                        onfocus="toggleExamDropdown(true)"
+                        oninput="filterExamOptions()"
+                        onkeydown="handleExamKeydown(event)">
+                </div>
+                <div class="multi-select-dropdown" id="exam-ms-dropdown">
+                    <div class="option" data-value="py1" onclick="toggleExamTag('py1','Python 一级等级测评', this)">Python 一级等级测评</div>
+                    <div class="option" data-value="py2" onclick="toggleExamTag('py2','Python 二级等级测评', this)">Python 二级等级测评</div>
+                    <div class="option" data-value="aigc" onclick="toggleExamTag('aigc','AIGC 应用能力二级测评', this)">AIGC 应用能力二级测评</div>
+                    <div class="option" data-value="aigc3" onclick="toggleExamTag('aigc3','AIGC 应用能力三级测评', this)">AIGC 应用能力三级测评</div>
+                    <div class="option" data-value="cpp" onclick="toggleExamTag('cpp','C++ 算法设计三级测评', this)">C++ 算法设计三级测评</div>
+                    <div class="option" data-value="info" onclick="toggleExamTag('info','信息学奥林匹克竞赛', this)">信息学奥林匹克竞赛</div>
+                    <div class="option" data-value="codecat" onclick="toggleExamTag('codecat','编程猫北京 2026夏季综合测评', this)">编程猫北京 2026夏季综合测评</div>
+                    <div class="option" data-value="tctm" onclick="toggleExamTag('tctm','童程童美 2026春季 Scratch 预备测评', this)">童程童美 2026春季 Scratch 预备测评</div>
+                </div>
+            </div>
+
+            <select class="px-3 py-1.5 rounded-lg border border-[#d0d3d6] text-[13px] text-[#646A73] bg-white outline-none focus:border-primary-500 cursor-pointer">
+                <option value="">所有签发状态</option>
+                <option value="pending">待签发</option>
+                <option value="processing">签发中</option>
+                <option value="issued">已签发</option>
+                <option value="failed">签发失败</option>
+            </select>
+
+            <select class="px-3 py-1.5 rounded-lg border border-[#d0d3d6] text-[13px] text-[#646A73] bg-white outline-none focus:border-primary-500 cursor-pointer">
+                <option value="">所有测评类型</option>
+                <option value="aise">AISE 测评</option>
+                <option value="pre">预备测</option>
+            </select>
+
+            <div class="flex-1"></div>
+
+            <button class="text-[13px] font-medium text-[#646A73] hover:text-[#F54A45] border border-[#d0d3d6] hover:border-[#F54A45] bg-white px-3 py-1.5 rounded-lg transition flex items-center gap-1.5" onclick="batchReissue()">
+                <i class="fa-solid fa-rotate text-xs"></i> 批量重签失败
+            </button>
+        </div>
+    </div>
+
+    <!-- 数据表格 -->
+    <div class="flex-1 overflow-hidden px-6 pb-6">
+        <div class="bg-white rounded-lg border border-[#E5E6EB] h-full flex flex-col shadow-card">
+            <div class="flex-1 overflow-auto custom-scroll">
+                <table class="w-full text-left border-collapse">
+                    <thead class="sticky top-0 z-10">
+                        <tr class="border-b border-[#E5E6EB] bg-[#FAFAFB] text-[12px] text-[#8F959E] font-medium">
+                            <th class="p-3 pl-4 w-10"><input type="checkbox" class="accent-primary-600 w-3.5 h-3.5 rounded"></th>
+                            <th class="p-3 font-normal">姓名</th>
+                            <th class="p-3 font-normal">测评名称</th>
+                            <th class="p-3 font-normal">测评类型</th>
+                            <th class="p-3 font-normal text-right">成绩</th>
+                            <th class="p-3 font-normal">等级</th>
+                            <th class="p-3 font-normal">证书编号</th>
+                            <th class="p-3 font-normal">签发状态</th>
+                            <th class="p-3 font-normal">签发时间</th>
+                            <th class="p-3 font-normal text-right pr-4">操作</th>
+                        </tr>
+                    </thead>
+                    <tbody class="text-[13px] text-[#1F2329] divide-y divide-[#E5E6EB]">
+
+                        <!-- 已签发 -->
+                        <tr class="hover-row transition group">
+                            <td class="p-3 pl-4"><input type="checkbox" class="accent-primary-600 w-3.5 h-3.5 rounded"></td>
+                            <td class="p-3 font-semibold whitespace-nowrap">张小明</td>
+                            <td class="p-3 text-[#646A73] whitespace-nowrap">Python 一级等级测评</td>
+                            <td class="p-3"><span class="text-[11px] bg-[#e8f0fe] text-primary-600 px-1.5 py-0.5 rounded">AISE</span></td>
+                            <td class="p-3 text-right font-mono font-semibold">92</td>
+                            <td class="p-3"><span class="text-[11px] font-medium bg-[#e8f0fe] text-primary-600 px-1.5 py-0.5 rounded">优秀</span></td>
+                            <td class="p-3 font-mono text-[12px] text-[#646A73]">AISE-2026-000001</td>
+                            <td class="p-3">
+                                <span class="inline-flex items-center gap-1 px-2 py-0.5 rounded text-[12px] font-medium text-[#00B578] bg-[#e6f9f2]">
+                                    <i class="fa-solid fa-circle-check text-[10px]"></i> 已签发
+                                </span>
+                            </td>
+                            <td class="p-3 text-[#8F959E] whitespace-nowrap text-[12px]">2026-05-12 14:32</td>
+                            <td class="p-3 text-right pr-4 whitespace-nowrap">
+                                <div class="flex items-center justify-end gap-1.5">
+                                    <button class="text-[12px] text-[#646A73] hover:text-primary-600 hover:bg-[#e8f0fe] px-2 py-1 rounded transition">查看</button>
+                                    <button class="text-[12px] text-[#646A73] hover:text-primary-600 hover:bg-[#e8f0fe] px-2 py-1 rounded transition"><i class="fa-solid fa-download"></i></button>
+                                    <button class="text-[12px] text-[#8F959E] hover:text-[#646A73] hover:bg-[#f5f6f7] px-2 py-1 rounded transition"><i class="fa-solid fa-rotate"></i></button>
+                                </div>
+                            </td>
+                        </tr>
+
+                        <!-- 待签发 -->
+                        <tr class="hover-row transition group">
+                            <td class="p-3 pl-4"><input type="checkbox" class="accent-primary-600 w-3.5 h-3.5 rounded"></td>
+                            <td class="p-3 font-semibold whitespace-nowrap">李小红</td>
+                            <td class="p-3 text-[#646A73] whitespace-nowrap">Python 一级等级测评</td>
+                            <td class="p-3"><span class="text-[11px] bg-[#e8f0fe] text-primary-600 px-1.5 py-0.5 rounded">AISE</span></td>
+                            <td class="p-3 text-right font-mono font-semibold">85</td>
+                            <td class="p-3"><span class="text-[11px] font-medium bg-[#e8f0fe] text-primary-600 px-1.5 py-0.5 rounded">良好</span></td>
+                            <td class="p-3 font-mono text-[12px] text-[#C5CAD3]">--</td>
+                            <td class="p-3">
+                                <span class="inline-flex items-center gap-1 px-2 py-0.5 rounded text-[12px] font-medium text-[#FF7D00] bg-[#fff3e6]">
+                                    <i class="fa-regular fa-clock text-[10px]"></i> 待签发
+                                </span>
+                            </td>
+                            <td class="p-3 text-[#C5CAD3] whitespace-nowrap text-[12px]">--</td>
+                            <td class="p-3 text-right pr-4 whitespace-nowrap">
+                                <button class="text-[12px] text-white bg-primary-600 hover:bg-primary-700 px-4 py-1.5 rounded font-medium transition">立即签发</button>
+                            </td>
+                        </tr>
+
+                        <!-- 签发中 -->
+                        <tr class="hover-row transition group">
+                            <td class="p-3 pl-4"><input type="checkbox" class="accent-primary-600 w-3.5 h-3.5 rounded"></td>
+                            <td class="p-3 font-semibold whitespace-nowrap">王大力</td>
+                            <td class="p-3 text-[#646A73] whitespace-nowrap">信息学奥林匹克竞赛</td>
+                            <td class="p-3"><span class="text-[11px] bg-[#fff3e6] text-[#FF7D00] px-1.5 py-0.5 rounded">预备测</span></td>
+                            <td class="p-3 text-right font-mono font-semibold">97</td>
+                            <td class="p-3"><span class="text-[11px] font-medium bg-[#e8f0fe] text-primary-600 px-1.5 py-0.5 rounded">一等奖</span></td>
+                            <td class="p-3 font-mono text-[12px] text-[#646A73]">AISE-2026-000043</td>
+                            <td class="p-3">
+                                <span class="inline-flex items-center gap-1 px-2 py-0.5 rounded text-[12px] font-medium text-primary-600 bg-[#e8f0fe]">
+                                    <i class="fa-solid fa-spinner fa-spin text-[10px]"></i> 签发中
+                                </span>
+                            </td>
+                            <td class="p-3 text-[#8F959E] whitespace-nowrap text-[12px]">进行中...</td>
+                            <td class="p-3 text-right pr-4 whitespace-nowrap">
+                                <span class="text-[12px] text-[#C5CAD3] px-2 py-1.5">等待完成</span>
+                            </td>
+                        </tr>
+
+                        <!-- 签发失败 -->
+                        <tr class="hover-row transition group bg-[#fef5f5]">
+                            <td class="p-3 pl-4"><input type="checkbox" class="accent-primary-600 w-3.5 h-3.5 rounded"></td>
+                            <td class="p-3 font-semibold whitespace-nowrap">赵小梅</td>
+                            <td class="p-3 text-[#646A73] whitespace-nowrap">AIGC 应用能力二级测评</td>
+                            <td class="p-3"><span class="text-[11px] bg-[#e8f0fe] text-primary-600 px-1.5 py-0.5 rounded">AISE</span></td>
+                            <td class="p-3 text-right font-mono font-semibold">88</td>
+                            <td class="p-3"><span class="text-[11px] font-medium bg-[#e8f0fe] text-primary-600 px-1.5 py-0.5 rounded">良好</span></td>
+                            <td class="p-3 font-mono text-[12px] text-[#646A73]">AISE-2026-000128</td>
+                            <td class="p-3">
+                                <span class="inline-flex items-center gap-1 px-2 py-0.5 rounded text-[12px] font-medium text-[#F54A45] bg-[#feeae8]">
+                                    <i class="fa-solid fa-circle-exclamation text-[10px]"></i> 签发失败
+                                </span>
+                            </td>
+                            <td class="p-3 text-[#8F959E] whitespace-nowrap text-[12px]">2026-05-12 10:15</td>
+                            <td class="p-3 text-right pr-4 whitespace-nowrap">
+                                <div class="flex items-center justify-end gap-1.5">
+                                    <button class="text-[12px] text-[#F54A45] hover:text-[#F54A45] bg-[#feeae8] hover:bg-[#fdd9d7] border border-[#fcccca] px-2 py-1 rounded transition" title="失败原因：电子签章 API 连接超时">
+                                        <i class="fa-solid fa-circle-info mr-0.5"></i>原因
+                                    </button>
+                                    <button class="text-[12px] text-white bg-primary-600 hover:bg-primary-700 px-4 py-1.5 rounded font-medium transition">重签</button>
+                                </div>
+                            </td>
+                        </tr>
+
+                        <!-- 已签发 - 预备测 -->
+                        <tr class="hover-row transition group">
+                            <td class="p-3 pl-4"><input type="checkbox" class="accent-primary-600 w-3.5 h-3.5 rounded"></td>
+                            <td class="p-3 font-semibold whitespace-nowrap">陈小明</td>
+                            <td class="p-3 text-[#646A73] whitespace-nowrap">编程猫北京 2026夏季综合测评</td>
+                            <td class="p-3"><span class="text-[11px] bg-[#fff3e6] text-[#FF7D00] px-1.5 py-0.5 rounded">预备测</span></td>
+                            <td class="p-3 text-right font-mono font-semibold">9.5</td>
+                            <td class="p-3"><span class="text-[11px] font-medium bg-[#e8f0fe] text-primary-600 px-1.5 py-0.5 rounded">优秀</span></td>
+                            <td class="p-3 font-mono text-[12px] text-[#646A73]">AISE-2026-000256</td>
+                            <td class="p-3">
+                                <span class="inline-flex items-center gap-1 px-2 py-0.5 rounded text-[12px] font-medium text-[#00B578] bg-[#e6f9f2]">
+                                    <i class="fa-solid fa-circle-check text-[10px]"></i> 已签发
+                                </span>
+                            </td>
+                            <td class="p-3 text-[#8F959E] whitespace-nowrap text-[12px]">2026-05-11 16:08</td>
+                            <td class="p-3 text-right pr-4 whitespace-nowrap">
+                                <div class="flex items-center justify-end gap-1.5">
+                                    <button class="text-[12px] text-[#646A73] hover:text-primary-600 hover:bg-[#e8f0fe] px-2 py-1 rounded transition">查看</button>
+                                    <button class="text-[12px] text-[#646A73] hover:text-primary-600 hover:bg-[#e8f0fe] px-2 py-1 rounded transition"><i class="fa-solid fa-download"></i></button>
+                                    <button class="text-[12px] text-[#8F959E] hover:text-[#646A73] hover:bg-[#f5f6f7] px-2 py-1 rounded transition"><i class="fa-solid fa-rotate"></i></button>
+                                </div>
+                            </td>
+                        </tr>
+
+                        <!-- 待签发 -->
+                        <tr class="hover-row transition group">
+                            <td class="p-3 pl-4"><input type="checkbox" class="accent-primary-600 w-3.5 h-3.5 rounded"></td>
+                            <td class="p-3 font-semibold whitespace-nowrap">周小芳</td>
+                            <td class="p-3 text-[#646A73] whitespace-nowrap">C++ 算法设计三级测评</td>
+                            <td class="p-3"><span class="text-[11px] bg-[#e8f0fe] text-primary-600 px-1.5 py-0.5 rounded">AISE</span></td>
+                            <td class="p-3 text-right font-mono font-semibold">78</td>
+                            <td class="p-3"><span class="text-[11px] font-medium bg-[#f5f6f7] text-[#646A73] px-1.5 py-0.5 rounded">合格</span></td>
+                            <td class="p-3 font-mono text-[12px] text-[#C5CAD3]">--</td>
+                            <td class="p-3">
+                                <span class="inline-flex items-center gap-1 px-2 py-0.5 rounded text-[12px] font-medium text-[#FF7D00] bg-[#fff3e6]">
+                                    <i class="fa-regular fa-clock text-[10px]"></i> 待签发
+                                </span>
+                            </td>
+                            <td class="p-3 text-[#C5CAD3] whitespace-nowrap text-[12px]">--</td>
+                            <td class="p-3 text-right pr-4 whitespace-nowrap">
+                                <button class="text-[12px] text-white bg-primary-600 hover:bg-primary-700 px-4 py-1.5 rounded font-medium transition">立即签发</button>
+                            </td>
+                        </tr>
+
+                        <!-- 已签发 -->
+                        <tr class="hover-row transition group">
+                            <td class="p-3 pl-4"><input type="checkbox" class="accent-primary-600 w-3.5 h-3.5 rounded"></td>
+                            <td class="p-3 font-semibold whitespace-nowrap">吴小华</td>
+                            <td class="p-3 text-[#646A73] whitespace-nowrap">Python 一级等级测评</td>
+                            <td class="p-3"><span class="text-[11px] bg-[#e8f0fe] text-primary-600 px-1.5 py-0.5 rounded">AISE</span></td>
+                            <td class="p-3 text-right font-mono font-semibold">95</td>
+                            <td class="p-3"><span class="text-[11px] font-medium bg-[#e8f0fe] text-primary-600 px-1.5 py-0.5 rounded">优秀</span></td>
+                            <td class="p-3 font-mono text-[12px] text-[#646A73]">AISE-2026-000002</td>
+                            <td class="p-3">
+                                <span class="inline-flex items-center gap-1 px-2 py-0.5 rounded text-[12px] font-medium text-[#00B578] bg-[#e6f9f2]">
+                                    <i class="fa-solid fa-circle-check text-[10px]"></i> 已签发
+                                </span>
+                            </td>
+                            <td class="p-3 text-[#8F959E] whitespace-nowrap text-[12px]">2026-05-12 14:35</td>
+                            <td class="p-3 text-right pr-4 whitespace-nowrap">
+                                <div class="flex items-center justify-end gap-1.5">
+                                    <button class="text-[12px] text-[#646A73] hover:text-primary-600 hover:bg-[#e8f0fe] px-2 py-1 rounded transition">查看</button>
+                                    <button class="text-[12px] text-[#646A73] hover:text-primary-600 hover:bg-[#e8f0fe] px-2 py-1 rounded transition"><i class="fa-solid fa-download"></i></button>
+                                    <button class="text-[12px] text-[#8F959E] hover:text-[#646A73] hover:bg-[#f5f6f7] px-2 py-1 rounded transition"><i class="fa-solid fa-rotate"></i></button>
+                                </div>
+                            </td>
+                        </tr>
+
+                    </tbody>
+                </table>
+            </div>
+
+            <!-- 分页 -->
+            <div class="p-3 border-t border-[#E5E6EB] flex items-center justify-between text-[12px] text-[#8F959E] bg-white rounded-b-lg">
+                <div class="flex items-center gap-2">
+                    <span>每页显示</span>
+                    <select class="border border-[#d0d3d6] rounded px-2 py-1 bg-white focus:border-primary-500 outline-none cursor-pointer text-[12px]">
+                        <option value="20">20 条</option>
+                        <option value="50">50 条</option>
+                        <option value="100">100 条</option>
+                    </select>
+                    <span>共 3,564 条记录</span>
+                </div>
+                <div class="flex gap-1">
+                    <button class="px-2 py-1 border border-[#d0d3d6] rounded hover:bg-[#f5f6f7] disabled:opacity-40 transition text-[12px]" disabled>上一页</button>
+                    <button class="px-2 py-1 bg-primary-50 text-primary-600 font-semibold border border-primary-100 rounded transition text-[12px]">1</button>
+                    <button class="px-2 py-1 border border-[#d0d3d6] rounded hover:bg-[#f5f6f7] transition text-[12px]">2</button>
+                    <button class="px-2 py-1 border border-[#d0d3d6] rounded hover:bg-[#f5f6f7] transition text-[12px]">3</button>
+                    <span class="px-2 py-1 text-[12px]">...</span>
+                    <button class="px-2 py-1 border border-[#d0d3d6] rounded hover:bg-[#f5f6f7] transition text-[12px]">179</button>
+                    <button class="px-2 py-1 border border-[#d0d3d6] rounded hover:bg-[#f5f6f7] transition text-[12px]">下一页</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // ==== 签发开关 ====
+        function toggleIssuance() {
+            const checked = document.getElementById('global-toggle').checked;
+            const label = document.getElementById('toggle-label');
+            const sub = document.getElementById('toggle-sub');
+            if (!checked) {
+                if (!confirm('确认停止签发？\n\n停止后所有考试将不再生成新证书，正在签发中的任务将继续完成。')) {
+                    document.getElementById('global-toggle').checked = true;
+                    return;
+                }
+                label.innerText = '签发已停止';
+                label.style.color = '#F54A45';
+                sub.innerText = '所有考试暂停签发新证书';
+            } else {
+                label.innerText = '签发运行中';
+                label.style.color = '#1F2329';
+                sub.innerText = '所有考试正常签发';
+            }
+        }
+
+        // ==== 测评多选 ====
+        const selectedExams = new Map();
+
+        function toggleExamDropdown(show) {
+            const dd = document.getElementById('exam-ms-dropdown');
+            if (show) { dd.classList.add('show'); filterExamOptions(); }
+            else setTimeout(() => dd.classList.remove('show'), 150);
+        }
+
+        function toggleExamTag(value, label, optionEl) {
+            if (selectedExams.has(value)) {
+                selectedExams.delete(value);
+                optionEl.classList.remove('selected');
+                removeTag(value);
+            } else {
+                selectedExams.set(value, label);
+                optionEl.classList.add('selected');
+                addTag(value, label);
+            }
+            updatePlaceholder();
+            document.getElementById('exam-ms-input').value = '';
+            document.getElementById('exam-ms-input').focus();
+        }
+
+        function addTag(value, label) {
+            const wrap = document.getElementById('exam-ms-wrap').querySelector('.multi-select-input');
+            const input = document.getElementById('exam-ms-input');
+            const tag = document.createElement('span');
+            tag.className = 'tag';
+            tag.id = 'tag-' + value;
+            tag.innerHTML = `${label} <span class="remove" onclick="event.stopPropagation();removeTag('${value}');selectedExams.delete('${value}');updatePlaceholder();document.querySelector('[data-value=\\'${value}\\']')?.classList.remove('selected');">&times;</span>`;
+            wrap.insertBefore(tag, input);
+        }
+
+        function removeTag(value) {
+            const tag = document.getElementById('tag-' + value);
+            if (tag) tag.remove();
+        }
+
+        function updatePlaceholder() {
+            const ph = document.getElementById('exam-ms-placeholder');
+            ph.style.display = selectedExams.size === 0 ? 'inline' : 'none';
+        }
+
+        function filterExamOptions() {
+            const query = document.getElementById('exam-ms-input').value.toLowerCase();
+            const options = document.querySelectorAll('#exam-ms-dropdown .option');
+            let hasVisible = false;
+            options.forEach(opt => {
+                const text = opt.textContent.toLowerCase();
+                const match = text.includes(query);
+                opt.style.display = match ? 'flex' : 'none';
+                if (match) hasVisible = true;
+            });
+            const empty = document.getElementById('exam-ms-dropdown').querySelector('.empty');
+            if (!hasVisible) {
+                if (!empty) {
+                    const e = document.createElement('div');
+                    e.className = 'empty';
+                    e.textContent = '无匹配的测评';
+                    document.getElementById('exam-ms-dropdown').appendChild(e);
+                }
+            } else if (empty) {
+                empty.remove();
+            }
+        }
+
+        function handleExamKeydown(e) {
+            if (e.key === 'Escape') {
+                toggleExamDropdown(false);
+                document.getElementById('exam-ms-input').blur();
+            }
+        }
+
+        // 点击外部关闭
+        document.addEventListener('click', function(e) {
+            if (!document.getElementById('exam-ms-wrap').contains(e.target)) {
+                document.getElementById('exam-ms-dropdown').classList.remove('show');
+            }
+        });
+
+        // ==== 批量重签 ====
+        function batchReissue() {
+            const checked = document.querySelectorAll('tbody input[type="checkbox"]:checked');
+            const failedCount = document.querySelectorAll('tr.bg-\\[\\#fef5f5\\] input[type="checkbox"]:checked').length;
+            if (checked.length === 0) {
+                alert('请先勾选需要操作的证书记录');
+                return;
+            }
+            if (failedCount === 0) {
+                alert('所选记录中没有签发失败的证书，无需重签。');
+                return;
+            }
+            if (!confirm(`确认批量重签 ${failedCount} 条失败的证书？`)) return;
+            alert(`已提交 ${failedCount} 条重签任务。`);
+        }
+    </script>
+
+</body>
+</html>

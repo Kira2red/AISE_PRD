@@ -1,0 +1,130 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>签发中心登录 - 电子证书签发管理</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <script>
+        tailwind.config = {
+            theme: {
+                extend: {
+                    fontFamily: { sans: ['Inter', 'sans-serif'] },
+                    colors: { primary: { 50: '#e8f0fe', 500: '#3370ff', 600: '#2860d8', 700: '#1e4db7' } },
+                    animation: { 'fade-in-up': 'fadeInUp 0.5s ease-out forwards' },
+                    keyframes: { fadeInUp: { '0%': { opacity: '0', transform: 'translateY(20px)' }, '100%': { opacity: '1', transform: 'translateY(0)' } } }
+                }
+            }
+        }
+    </script>
+    <style>
+        body { font-family: 'Inter', sans-serif; background-color: #F5F6F7; }
+    </style>
+</head>
+<body class="h-screen w-full flex overflow-hidden">
+
+    <!-- 左侧品牌区 -->
+    <div class="hidden lg:flex w-1/2 bg-[#1F2329] relative flex-col justify-between p-16 text-white overflow-hidden">
+        <div class="absolute inset-0 bg-gradient-to-br from-[#1F2329] via-[#252A33] to-[#1a2d5c]"></div>
+        <div class="absolute inset-0 opacity-[0.03]" style="background-image: radial-gradient(circle, rgba(255,255,255,0.3) 1px, transparent 1px); background-size: 28px 28px;"></div>
+
+        <div class="relative z-10 flex items-center gap-3">
+            <svg width="36" height="36" viewBox="0 0 24 24" fill="none"><rect width="24" height="24" rx="6" fill="#3370ff"/><path d="M7 12l3 3 7-7" stroke="white" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"/></svg>
+            <span class="font-semibold text-xl tracking-tight">签发中心</span>
+        </div>
+
+        <div class="relative z-10 max-w-md">
+            <h2 class="text-[32px] font-bold mb-5 leading-tight tracking-tight">电子证书<br>统一签发管理</h2>
+            <p class="text-white/45 text-sm leading-relaxed">
+                面向中国软件行业协会（软协），集中管控所有测评活动的证书生成、电子签章与签发状态。
+            </p>
+            <div class="mt-8 flex items-center gap-5 text-xs text-white/35">
+                <span class="flex items-center gap-1.5"><span class="w-1 h-1 rounded-full bg-primary-500"></span>批量签发</span>
+                <span class="flex items-center gap-1.5"><span class="w-1 h-1 rounded-full bg-[#00B578]"></span>电子签章</span>
+                <span class="flex items-center gap-1.5"><span class="w-1 h-1 rounded-full bg-[#FF7D00]"></span>证书验签</span>
+            </div>
+        </div>
+
+        <div class="relative z-10 text-xs text-white/25">
+            © 2026 中国软件行业协会 · AISE Talent Engineering
+        </div>
+    </div>
+
+    <!-- 右侧登录表单 -->
+    <div class="w-full lg:w-1/2 flex flex-col justify-center items-center p-8 bg-white">
+
+        <div class="w-full max-w-sm animate-fade-in-up">
+            <div class="lg:hidden flex items-center justify-center gap-2 mb-8">
+                <svg width="28" height="28" viewBox="0 0 24 24" fill="none"><rect width="24" height="24" rx="6" fill="#3370ff"/><path d="M7 12l3 3 7-7" stroke="white" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg>
+                <span class="font-semibold text-lg text-[#1F2329]">签发中心</span>
+            </div>
+
+            <div class="mb-8">
+                <h1 class="text-xl font-bold text-[#1F2329]">登录签发中心</h1>
+                <p class="text-[#8F959E] text-sm mt-1.5">请使用软协授权的管理员账号</p>
+            </div>
+
+            <form onsubmit="event.preventDefault(); handleLogin();" class="space-y-5">
+
+                <div>
+                    <label class="block text-xs font-medium text-[#646A73] mb-1.5">管理员账号</label>
+                    <div class="relative">
+                        <div class="absolute inset-y-0 left-0 pl-3.5 flex items-center pointer-events-none">
+                            <i class="fa-regular fa-user text-[#8F959E] text-sm"></i>
+                        </div>
+                        <input type="text" id="username" class="w-full pl-10 pr-4 py-2.5 rounded-lg border border-[#d0d3d6] text-[#1F2329] text-sm focus:border-primary-500 focus:ring-2 focus:ring-primary-50 outline-none transition bg-white" placeholder="请输入管理员账号" required>
+                    </div>
+                </div>
+
+                <div>
+                    <label class="block text-xs font-medium text-[#646A73] mb-1.5">密码</label>
+                    <div class="relative">
+                        <div class="absolute inset-y-0 left-0 pl-3.5 flex items-center pointer-events-none">
+                            <i class="fa-solid fa-lock text-[#8F959E] text-sm"></i>
+                        </div>
+                        <input type="password" id="password" class="w-full pl-10 pr-11 py-2.5 rounded-lg border border-[#d0d3d6] text-[#1F2329] text-sm focus:border-primary-500 focus:ring-2 focus:ring-primary-50 outline-none transition bg-white" placeholder="请输入密码" required>
+                        <button type="button" onclick="togglePassword()" class="absolute inset-y-0 right-0 pr-3.5 flex items-center text-[#8F959E] hover:text-[#646A73] cursor-pointer transition outline-none">
+                            <i class="fa-regular fa-eye text-sm" id="eye-icon"></i>
+                        </button>
+                    </div>
+                </div>
+
+                <button type="submit" id="login-btn" class="w-full bg-primary-600 hover:bg-primary-700 text-white font-medium py-2.5 rounded-lg transition-all flex items-center justify-center gap-2 text-sm">
+                    <span>登录</span>
+                </button>
+
+            </form>
+
+            <div class="mt-8 text-center">
+                <p class="text-xs text-[#8F959E]">
+                    仅限授权人员访问 · 中国软件行业协会
+                </p>
+            </div>
+        </div>
+    </div>
+
+    <div id="toast" class="fixed top-6 left-1/2 -translate-x-1/2 bg-[#feeae8] text-[#F54A45] px-6 py-2.5 rounded-lg shadow-lg border border-[#fcccca] text-sm font-medium transition-all duration-300 -translate-y-20 opacity-0 flex items-center gap-2 z-50">
+        <i class="fa-solid fa-circle-exclamation"></i> <span id="toast-msg">账号或密码错误</span>
+    </div>
+
+    <script>
+        function togglePassword() {
+            const input = document.getElementById('password');
+            const icon = document.getElementById('eye-icon');
+            if (input.type === 'password') { input.type = 'text'; icon.classList.replace('fa-eye','fa-eye-slash'); }
+            else { input.type = 'password'; icon.classList.replace('fa-eye-slash','fa-eye'); }
+        }
+
+        function handleLogin() {
+            const btn = document.getElementById('login-btn');
+            btn.disabled = true;
+            btn.innerHTML = '<i class="fa-solid fa-circle-notch fa-spin"></i> 验证中...';
+            btn.classList.add('opacity-70');
+            setTimeout(() => { window.location.href = '签发中心_证书仪表盘.html'; }, 800);
+        }
+    </script>
+
+</body>
+</html>

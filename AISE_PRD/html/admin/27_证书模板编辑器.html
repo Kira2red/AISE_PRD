@@ -1,0 +1,858 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>证书模板编辑器 - AISE 后台</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <script>
+        tailwind.config = {
+            theme: {
+                extend: {
+                    fontFamily: { sans: ['Inter', 'sans-serif'], mono: ['JetBrains Mono', 'monospace'] },
+                    colors: { brand: { 50: '#eff6ff', 100: '#dbeafe', 500: '#3b82f6', 600: '#2563eb', 700: '#1d4ed8' } },
+                    boxShadow: { 'card': '0 1px 3px 0 rgba(0, 0, 0, 0.1), 0 1px 2px 0 rgba(0, 0, 0, 0.06)' }
+                }
+            }
+        }
+    </script>
+    <style>
+        body { background-color: #F8FAFC; }
+        .custom-scroll::-webkit-scrollbar { width: 5px; }
+        .custom-scroll::-webkit-scrollbar-track { background: transparent; }
+        .custom-scroll::-webkit-scrollbar-thumb { background-color: #cbd5e1; border-radius: 4px; }
+
+        /* Canvas */
+        #canvas { position: relative; background-color: #fff; background-image: radial-gradient(circle, #e2e8f0 1px, transparent 1px); background-size: 16px 16px; overflow: hidden; transition: box-shadow 0.2s; }
+        #canvas.drag-over { box-shadow: 0 0 0 3px #3b82f6; }
+        #canvas.has-bg { background-image: none; background-size: cover; background-position: center; }
+
+        /* Canvas Element */
+        .canvas-element { position: absolute; cursor: move; user-select: none; min-width: 20px; min-height: 14px; }
+        .canvas-element.selected { outline: 2px solid #3b82f6; outline-offset: 2px; z-index: 10; }
+        .canvas-element:hover { outline: 1px dashed #94a3b8; outline-offset: 1px; }
+        .canvas-element.dragging { opacity: 0.7; z-index: 20; }
+        .canvas-element .resize-handle { position: absolute; right: -4px; bottom: -4px; width: 10px; height: 10px; background: #3b82f6; border: 2px solid white; border-radius: 2px; cursor: se-resize; display: none; }
+        .canvas-element.selected .resize-handle { display: block; }
+        .canvas-element.is-seal { cursor: default; }
+        .canvas-element.is-seal.locked { outline: none !important; }
+        .canvas-element.is-seal.locked:hover { outline: none !important; }
+
+        /* Radar Chart */
+        .canvas-element.is-radar { cursor: move; }
+        .radar-svg { display: block; }
+        .radar-svg .axis { stroke: #cbd5e1; stroke-width: 1; }
+        .radar-svg .axis-label { font-size: 8px; fill: #64748b; text-anchor: middle; }
+        .radar-svg .polygon-shape { stroke: #3b82f6; stroke-width: 1.5; fill: rgba(59,130,246,0.12); }
+        .radar-svg .polygon-dot { fill: #3b82f6; }
+
+        /* Field list draggable */
+        .field-item { cursor: grab; transition: all 0.15s; }
+        .field-item:active { cursor: grabbing; }
+        .field-item.dragging-source { opacity: 0.4; }
+
+        /* Guides */
+        .guide-line { position: absolute; background: #ef4444; z-index: 30; pointer-events: none; }
+        .guide-h { height: 1px; left: 0; right: 0; }
+        .guide-v { width: 1px; top: 0; bottom: 0; }
+    </style>
+</head>
+<body class="flex flex-col h-screen overflow-hidden text-slate-800 font-sans">
+
+    <!-- 顶部工具栏 -->
+    <div class="h-14 bg-white border-b border-slate-200 flex items-center justify-between px-6 flex-shrink-0 z-20 shadow-sm">
+        <div class="flex items-center gap-4">
+            <a href="26_证书模板管理.html" class="flex items-center gap-2 text-slate-500 hover:text-brand-600 text-sm font-medium transition">
+                <i class="fa-solid fa-arrow-left"></i> 返回
+            </a>
+            <div class="h-5 w-px bg-slate-200"></div>
+            <input type="text" id="template-name" value="未命名模板" class="font-bold text-sm text-slate-800 border border-transparent hover:border-slate-200 focus:border-brand-500 rounded px-2 py-1 outline-none transition bg-transparent w-48">
+        </div>
+
+        <div class="flex items-center gap-2">
+            <div class="flex items-center gap-3 mr-3 px-3 py-1.5 bg-slate-50 rounded-lg border border-slate-200 text-xs">
+                <div class="flex items-center gap-1.5">
+                    <label class="text-slate-400">宽</label>
+                    <input type="number" id="canvas-w" value="210" min="50" max="1000" class="w-16 text-center border border-slate-200 rounded px-1 py-0.5 text-slate-700 font-mono text-xs focus:border-brand-500 outline-none">
+                </div>
+                <span class="text-slate-300">×</span>
+                <div class="flex items-center gap-1.5">
+                    <label class="text-slate-400">高</label>
+                    <input type="number" id="canvas-h" value="297" min="50" max="1000" class="w-16 text-center border border-slate-200 rounded px-1 py-0.5 text-slate-700 font-mono text-xs focus:border-brand-500 outline-none">
+                </div>
+                <span class="text-slate-400">mm</span>
+                <button onclick="applyCanvasSize()" class="text-brand-600 hover:text-brand-700 font-bold text-[10px]">应用</button>
+            </div>
+
+            <div class="h-5 w-px bg-slate-200"></div>
+
+            <label class="flex items-center gap-1.5 text-xs text-slate-500 cursor-pointer hover:text-slate-700">
+                <input type="checkbox" id="toggle-snap" checked class="accent-brand-600 w-3.5 h-3.5"> 对齐参考线
+            </label>
+
+            <button onclick="togglePreview()" id="btn-preview" class="text-xs font-medium text-slate-600 hover:text-brand-600 border border-slate-200 hover:border-brand-300 bg-white px-3 py-1.5 rounded-lg transition flex items-center gap-1.5">
+                <i class="fa-solid fa-eye"></i> 预览
+            </button>
+            <button onclick="saveTemplate()" class="text-xs font-bold text-white bg-brand-600 hover:bg-brand-700 px-5 py-1.5 rounded-lg shadow-sm transition flex items-center gap-1.5">
+                <i class="fa-solid fa-floppy-disk"></i> 保存
+            </button>
+        </div>
+    </div>
+
+    <div class="flex flex-1 overflow-hidden">
+
+        <!-- 左侧：字段面板 -->
+        <aside class="w-56 bg-white border-r border-slate-200 flex flex-col flex-shrink-0 custom-scroll overflow-y-auto">
+            <div class="p-4 border-b border-slate-100">
+                <h3 class="text-xs font-bold text-slate-400 uppercase tracking-wider mb-3">证书字段</h3>
+                <div class="space-y-1.5" id="field-list">
+                    <div class="field-item flex items-center gap-2 px-3 py-2 rounded-lg border border-slate-200 bg-white hover:border-brand-300 hover:bg-brand-50 text-sm transition" draggable="true" data-field="name" data-label="姓名">
+                        <i class="fa-regular fa-user text-brand-500 w-4"></i>
+                        <span>姓名</span>
+                        <span class="ml-auto text-[10px] text-slate-300 font-mono">{{name}}</span>
+                    </div>
+                    <div class="field-item flex items-center gap-2 px-3 py-2 rounded-lg border border-slate-200 bg-white hover:border-brand-300 hover:bg-brand-50 text-sm transition" draggable="true" data-field="exam_title" data-label="测评名称">
+                        <i class="fa-solid fa-book-open text-purple-500 w-4"></i>
+                        <span>测评名称</span>
+                        <span class="ml-auto text-[10px] text-slate-300 font-mono">{{exam}}</span>
+                    </div>
+                    <div class="field-item flex items-center gap-2 px-3 py-2 rounded-lg border border-slate-200 bg-white hover:border-brand-300 hover:bg-brand-50 text-sm transition" draggable="true" data-field="total_score" data-label="成绩">
+                        <i class="fa-solid fa-star text-amber-500 w-4"></i>
+                        <span>成绩</span>
+                        <span class="ml-auto text-[10px] text-slate-300 font-mono">{{score}}</span>
+                    </div>
+                    <div class="field-item flex items-center gap-2 px-3 py-2 rounded-lg border border-slate-200 bg-white hover:border-brand-300 hover:bg-brand-50 text-sm transition" draggable="true" data-field="grade" data-label="等级">
+                        <i class="fa-solid fa-medal text-emerald-500 w-4"></i>
+                        <span>等级</span>
+                        <span class="ml-auto text-[10px] text-slate-300 font-mono">{{grade}}</span>
+                    </div>
+                    <div class="field-item flex items-center gap-2 px-3 py-2 rounded-lg border border-slate-200 bg-white hover:border-brand-300 hover:bg-brand-50 text-sm transition" draggable="true" data-field="cert_no" data-label="证书编号">
+                        <i class="fa-solid fa-hashtag text-slate-500 w-4"></i>
+                        <span>证书编号</span>
+                        <span class="ml-auto text-[10px] text-slate-300 font-mono">{{no}}</span>
+                    </div>
+                    <div class="field-item flex items-center gap-2 px-3 py-2 rounded-lg border border-slate-200 bg-white hover:border-brand-300 hover:bg-brand-50 text-sm transition" draggable="true" data-field="issue_date" data-label="签发日期">
+                        <i class="fa-regular fa-calendar text-rose-500 w-4"></i>
+                        <span>签发日期</span>
+                        <span class="ml-auto text-[10px] text-slate-300 font-mono">{{date}}</span>
+                    </div>
+                </div>
+            </div>
+
+            <div class="p-4 border-b border-slate-100">
+                <h3 class="text-xs font-bold text-slate-400 uppercase tracking-wider mb-3">特殊元素</h3>
+                <div class="space-y-1.5">
+                    <div class="field-item flex items-center gap-2 px-3 py-2 rounded-lg border border-slate-200 bg-white hover:border-red-300 hover:bg-red-50 text-sm transition" draggable="true" data-field="seal" data-label="电子章" data-type="seal">
+                        <i class="fa-solid fa-stamp text-red-500 w-4"></i>
+                        <span>电子章占位</span>
+                        <span class="ml-auto text-[10px] text-slate-300 font-mono">{{seal}}</span>
+                    </div>
+                    <div class="field-item flex items-center gap-2 px-3 py-2 rounded-lg border border-slate-200 bg-white hover:border-purple-300 hover:bg-purple-50 text-sm transition" draggable="true" data-field="radar" data-label="雷达图" data-type="radar">
+                        <i class="fa-solid fa-chart-pie text-purple-500 w-4"></i>
+                        <span>雷达图</span>
+                        <span class="ml-auto text-[10px] text-slate-300 font-mono">{{radar}}</span>
+                    </div>
+                </div>
+            </div>
+
+            <div class="p-4">
+                <h3 class="text-xs font-bold text-slate-400 uppercase tracking-wider mb-3">底图</h3>
+                <div class="space-y-2">
+                    <label class="flex flex-col items-center gap-2 p-4 border-2 border-dashed border-slate-200 hover:border-brand-400 rounded-lg cursor-pointer transition text-center" id="bg-upload-zone">
+                        <i class="fa-solid fa-cloud-arrow-up text-2xl text-slate-300"></i>
+                        <span class="text-xs text-slate-400">上传底图</span>
+                        <span class="text-[10px] text-slate-300">PNG / JPG</span>
+                        <input type="file" accept="image/*" id="bg-upload" class="hidden" onchange="uploadBackground(event)">
+                    </label>
+                    <button id="btn-remove-bg" class="w-full text-xs text-slate-400 hover:text-red-500 py-1.5 rounded transition hidden" onclick="removeBackground()">
+                        <i class="fa-solid fa-trash-can mr-1"></i>移除底图
+                    </button>
+                </div>
+            </div>
+        </aside>
+
+        <!-- 中间：画布 -->
+        <main class="flex-1 flex items-start justify-center p-6 bg-slate-100 overflow-auto custom-scroll relative" id="canvas-wrapper" onclick="deselectAll(event)">
+            <div id="canvas" style="width: 280px; height: 396px;" class="shadow-lg rounded-sm flex-shrink-0"
+                ondragover="handleDragOver(event)"
+                ondragleave="handleDragLeave(event)"
+                ondrop="handleDrop(event)">
+                <!-- 参考线层 -->
+                <div id="guide-h" class="guide-line guide-h hidden" style="top: 50%;"></div>
+                <div id="guide-v" class="guide-line guide-v hidden" style="left: 50%;"></div>
+                <!-- 元素动态插入此处 -->
+            </div>
+        </main>
+
+        <!-- 右侧：属性面板 -->
+        <aside class="w-64 bg-white border-l border-slate-200 flex flex-col flex-shrink-0 custom-scroll overflow-y-auto" id="props-panel">
+            <div class="p-4 border-b border-slate-100" id="props-default">
+                <h3 class="text-xs font-bold text-slate-400 uppercase tracking-wider mb-4">属性</h3>
+                <p class="text-xs text-slate-400 text-center py-8">点击画布上的元素<br>查看和编辑属性</p>
+            </div>
+            <div class="p-4 border-b border-slate-100 hidden" id="props-content">
+                <div class="flex items-center justify-between mb-4">
+                    <h3 class="text-xs font-bold text-slate-400 uppercase tracking-wider">元素属性</h3>
+                    <button onclick="deleteSelected()" class="text-xs text-slate-400 hover:text-red-500 transition"><i class="fa-solid fa-trash-can"></i></button>
+                </div>
+
+                <div class="space-y-3">
+                    <div>
+                        <label class="block text-[10px] font-bold text-slate-400 uppercase mb-1">绑定字段</label>
+                        <select id="prop-field" class="w-full px-2 py-1.5 text-xs border border-slate-200 rounded focus:border-brand-500 outline-none" onchange="updateProp('fieldKey', this.value)">
+                            <option value="name">姓名</option>
+                            <option value="exam_title">测评名称</option>
+                            <option value="total_score">成绩</option>
+                            <option value="grade">等级</option>
+                            <option value="cert_no">证书编号</option>
+                            <option value="issue_date">签发日期</option>
+                        </select>
+                    </div>
+
+                    <div class="grid grid-cols-2 gap-2">
+                        <div>
+                            <label class="block text-[10px] font-bold text-slate-400 uppercase mb-1">X (mm)</label>
+                            <input type="number" id="prop-x" class="w-full px-2 py-1.5 text-xs border border-slate-200 rounded font-mono focus:border-brand-500 outline-none" onchange="updateProp('x', this.value)">
+                        </div>
+                        <div>
+                            <label class="block text-[10px] font-bold text-slate-400 uppercase mb-1">Y (mm)</label>
+                            <input type="number" id="prop-y" class="w-full px-2 py-1.5 text-xs border border-slate-200 rounded font-mono focus:border-brand-500 outline-none" onchange="updateProp('y', this.value)">
+                        </div>
+                    </div>
+
+                    <div id="prop-text-style" class="space-y-3">
+                        <div>
+                            <label class="block text-[10px] font-bold text-slate-400 uppercase mb-1">字体</label>
+                            <select id="prop-font" class="w-full px-2 py-1.5 text-xs border border-slate-200 rounded focus:border-brand-500 outline-none" onchange="updateStyle('fontFamily', this.value)">
+                                <option value="SimSun">宋体</option>
+                                <option value="SimHei">黑体</option>
+                                <option value="KaiTi">楷体</option>
+                                <option value="Microsoft YaHei">微软雅黑</option>
+                                <option value="sans-serif">系统默认</option>
+                            </select>
+                        </div>
+                        <div class="grid grid-cols-2 gap-2">
+                            <div>
+                                <label class="block text-[10px] font-bold text-slate-400 uppercase mb-1">字号</label>
+                                <input type="number" id="prop-fontsize" value="14" min="6" max="72" class="w-full px-2 py-1.5 text-xs border border-slate-200 rounded font-mono focus:border-brand-500 outline-none" onchange="updateStyle('fontSize', this.value)">
+                            </div>
+                            <div>
+                                <label class="block text-[10px] font-bold text-slate-400 uppercase mb-1">颜色</label>
+                                <div class="flex items-center gap-1.5">
+                                    <input type="color" id="prop-color" value="#000000" class="w-7 h-7 border-0 rounded cursor-pointer p-0" onchange="updateStyle('color', this.value)">
+                                    <input type="text" id="prop-color-hex" value="#000000" class="flex-1 w-full px-1.5 py-1.5 text-[10px] border border-slate-200 rounded font-mono focus:border-brand-500 outline-none" onchange="updateStyle('color', this.value); document.getElementById('prop-color').value=this.value;">
+                                </div>
+                            </div>
+                        </div>
+                        <div class="flex items-center gap-3">
+                            <label class="flex items-center gap-1 text-xs cursor-pointer">
+                                <input type="checkbox" id="prop-bold" class="accent-brand-600 w-3.5 h-3.5" onchange="updateStyle('bold', this.checked)"> <span class="text-slate-600">粗体</span>
+                            </label>
+                            <label class="flex items-center gap-1 text-xs cursor-pointer">
+                                <input type="checkbox" id="prop-italic" class="accent-brand-600 w-3.5 h-3.5" onchange="updateStyle('italic', this.checked)"> <span class="text-slate-600">斜体</span>
+                            </label>
+                        </div>
+                        <div>
+                            <label class="block text-[10px] font-bold text-slate-400 uppercase mb-1">对齐</label>
+                            <div class="flex gap-1">
+                                <button class="flex-1 py-1 text-xs border border-slate-200 rounded hover:bg-slate-50 align-btn" data-align="left" onclick="setAlign('left', this)"><i class="fa-solid fa-align-left"></i></button>
+                                <button class="flex-1 py-1 text-xs border border-slate-200 rounded hover:bg-slate-50 align-btn" data-align="center" onclick="setAlign('center', this)"><i class="fa-solid fa-align-center"></i></button>
+                                <button class="flex-1 py-1 text-xs border border-slate-200 rounded hover:bg-slate-50 align-btn" data-align="right" onclick="setAlign('right', this)"><i class="fa-solid fa-align-right"></i></button>
+                            </div>
+                        </div>
+                        <div>
+                            <label class="block text-[10px] font-bold text-slate-400 uppercase mb-1">最大宽度 (mm)</label>
+                            <input type="number" id="prop-maxwidth" value="120" min="10" class="w-full px-2 py-1.5 text-xs border border-slate-200 rounded font-mono focus:border-brand-500 outline-none" onchange="updateStyle('maxWidth', this.value)">
+                        </div>
+                    </div>
+
+                    <div id="prop-seal-lock" class="hidden">
+                        <label class="flex items-center gap-2 text-xs cursor-pointer">
+                            <input type="checkbox" id="prop-locked" class="accent-brand-600 w-3.5 h-3.5" onchange="toggleSealLock(this.checked)">
+                            <span class="text-slate-600">锁定位置（禁止拖动）</span>
+                        </label>
+                    </div>
+
+                    <div id="prop-radar-style" class="hidden space-y-3">
+                        <div>
+                            <label class="block text-[10px] font-bold text-slate-400 uppercase mb-1">维度数量</label>
+                            <select id="prop-radar-dimensions" class="w-full px-2 py-1.5 text-xs border border-slate-200 rounded focus:border-brand-500 outline-none" onchange="changeRadarDimensions(parseInt(this.value))">
+                                <option value="3">3 个维度</option>
+                                <option value="4">4 个维度</option>
+                                <option value="5">5 个维度</option>
+                                <option value="6">6 个维度</option>
+                                <option value="7">7 个维度</option>
+                                <option value="8">8 个维度</option>
+                            </select>
+                        </div>
+                        <div>
+                            <label class="block text-[10px] font-bold text-slate-400 uppercase mb-1">维度名称（每行一个）</label>
+                            <textarea id="prop-radar-names" rows="4" class="w-full px-2 py-1.5 text-xs border border-slate-200 rounded font-mono focus:border-brand-500 outline-none resize-none" onchange="updateRadarNames(this.value)"></textarea>
+                        </div>
+                        <div>
+                            <label class="block text-[10px] font-bold text-slate-400 uppercase mb-1">线条颜色</label>
+                            <input type="color" id="prop-radar-color" value="#3b82f6" class="w-full h-8 border border-slate-200 rounded cursor-pointer p-0.5" onchange="updateRadarStyle('color', this.value);renderElement(getSelectedEl());selectElement(selectedId);">
+                        </div>
+                        <label class="flex items-center gap-2 text-xs cursor-pointer">
+                            <input type="checkbox" id="prop-radar-locked" class="accent-brand-600 w-3.5 h-3.5" onchange="toggleRadarLock(this.checked)">
+                            <span class="text-slate-600">锁定位置（禁止拖动）</span>
+                        </label>
+                    </div>
+                </div>
+            </div>
+        </aside>
+    </div>
+
+    <!-- 预览弹窗 -->
+    <div id="preview-modal" class="fixed inset-0 z-50 hidden">
+        <div class="absolute inset-0 bg-slate-900/70 backdrop-blur-sm" onclick="togglePreview()"></div>
+        <div class="absolute inset-0 flex items-center justify-center p-8">
+            <div class="bg-white rounded-xl shadow-2xl overflow-hidden flex flex-col max-w-3xl w-full max-h-[90vh]">
+                <div class="bg-slate-800 text-white px-5 py-3 flex justify-between items-center">
+                    <span class="font-bold text-sm"><i class="fa-solid fa-eye mr-2"></i>证书预览</span>
+                    <button onclick="togglePreview()" class="text-slate-400 hover:text-white"><i class="fa-solid fa-xmark text-lg"></i></button>
+                </div>
+                <div class="flex-1 overflow-auto p-8 bg-slate-200 flex justify-center">
+                    <div id="preview-canvas" class="bg-white shadow-lg flex-shrink-0 relative"></div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // ============ 数据模型 ============
+        const template = {
+            canvasWidth: 210,
+            canvasHeight: 297,
+            background: null,
+            elements: []
+        };
+
+        const DISPLAY_WIDTH = 280; // 画布显示固定宽度
+        let selectedId = null;
+        let isDragging = false;
+        let dragStartX, dragStartY, elemStartX, elemStartY;
+
+        function getScale() {
+            return DISPLAY_WIDTH / template.canvasWidth;
+        }
+
+        function mmToPx(mm) { return mm * getScale(); }
+        function pxToMm(px) { return px / getScale(); }
+
+        // ============ 画布渲染 ============
+        function updateCanvasSize() {
+            const scale = getScale();
+            const h = scale * template.canvasHeight;
+            const canvas = document.getElementById('canvas');
+            canvas.style.width = DISPLAY_WIDTH + 'px';
+            canvas.style.height = h + 'px';
+            if (template.background) {
+                canvas.classList.add('has-bg');
+                canvas.style.backgroundImage = `url(${template.background})`;
+            }
+        }
+
+        function applyCanvasSize() {
+            template.canvasWidth = parseInt(document.getElementById('canvas-w').value) || 210;
+            template.canvasHeight = parseInt(document.getElementById('canvas-h').value) || 297;
+            updateCanvasSize();
+            renderAllElements();
+        }
+
+        function uploadBackground(e) {
+            const file = e.target.files[0];
+            if (!file) return;
+            const reader = new FileReader();
+            reader.onload = function(ev) {
+                template.background = ev.target.result;
+                document.getElementById('canvas').classList.add('has-bg');
+                document.getElementById('canvas').style.backgroundImage = `url(${template.background})`;
+                document.getElementById('btn-remove-bg').classList.remove('hidden');
+                document.getElementById('bg-upload-zone').querySelector('span').innerText = file.name;
+            };
+            reader.readAsDataURL(file);
+        }
+
+        function removeBackground() {
+            template.background = null;
+            const canvas = document.getElementById('canvas');
+            canvas.classList.remove('has-bg');
+            canvas.style.backgroundImage = '';
+            document.getElementById('btn-remove-bg').classList.add('hidden');
+            document.getElementById('bg-upload-zone').querySelector('span').innerText = '上传底图';
+            document.getElementById('bg-upload').value = '';
+        }
+
+        // ============ 元素操作 ============
+        let elemCounter = 0;
+
+        function createElement(fieldKey, label, type, xMm, yMm) {
+            const id = 'elem_' + (++elemCounter);
+            let defaultStyle;
+            if (type === 'seal') {
+                defaultStyle = { width: 60, height: 60 };
+            } else if (type === 'radar') {
+                defaultStyle = { width: 80, height: 80, dimensions: 4, dimensionNames: ['认知', '应用', '创新', '责任'], color: '#3b82f6', fillOpacity: 0.12 };
+            } else {
+                defaultStyle = { fontFamily: 'SimSun', fontSize: 14, color: '#000000', bold: false, italic: false, align: 'center', maxWidth: 120, lineHeight: 1.5 };
+            }
+            const el = {
+                id, type: type || 'text', fieldKey: label || fieldKey,
+                x: Math.round(xMm), y: Math.round(yMm),
+                style: defaultStyle
+            };
+            if (type === 'seal') el.locked = false;
+            if (type === 'radar') el.locked = false;
+            template.elements.push(el);
+            renderElement(el);
+            selectElement(id);
+            return el;
+        }
+
+        function renderElement(el) {
+            const existing = document.querySelector(`[data-elem-id="${el.id}"]`);
+            if (existing) existing.remove();
+
+            const div = document.createElement('div');
+            div.className = 'canvas-element' + (el.type === 'seal' ? ' is-seal' : '');
+            div.dataset.elemId = el.id;
+            div.style.left = mmToPx(el.x) + 'px';
+            div.style.top = mmToPx(el.y) + 'px';
+
+            if (el.type === 'seal') {
+                const w = mmToPx(el.style.width);
+                const h = mmToPx(el.style.height);
+                div.style.width = w + 'px';
+                div.style.height = h + 'px';
+                div.innerHTML = `<div style="width:100%;height:100%;border:2px dashed #ef4444;border-radius:50%;display:flex;align-items:center;justify-content:center;background:rgba(239,68,68,0.05);"><span style="font-size:${Math.max(10,w/6)}px;color:#ef4444;font-weight:700;">公章</span></div>`;
+                if (el.locked) div.classList.add('locked');
+            } else if (el.type === 'radar') {
+                const w = mmToPx(el.style.width);
+                const h = mmToPx(el.style.height);
+                div.style.width = w + 'px';
+                div.style.height = h + 'px';
+                div.classList.add('is-radar');
+                div.innerHTML = renderRadarSVG(el.style, w, h);
+            } else {
+                const s = el.style;
+                div.innerHTML = `<span style="display:block;font-family:${s.fontFamily};font-size:${s.fontSize}px;color:${s.color};font-weight:${s.bold?700:400};font-style:${s.italic?'italic':'normal'};text-align:${s.align};max-width:${mmToPx(s.maxWidth)}px;line-height:${s.lineHeight};word-break:break-all;">{{${el.fieldKey}}}</span>`;
+                const rh = document.createElement('div');
+                rh.className = 'resize-handle';
+                rh.addEventListener('mousedown', (e) => startResize(e, el));
+                div.appendChild(rh);
+            }
+
+            div.addEventListener('mousedown', (e) => startDrag(e, el));
+            div.addEventListener('click', (e) => { e.stopPropagation(); selectElement(el.id); });
+
+            document.getElementById('canvas').appendChild(div);
+        }
+
+        function renderAllElements() {
+            template.elements.forEach(el => renderElement(el));
+        }
+
+        function renderRadarSVG(style, w, h) {
+            const dims = style.dimensions || 4;
+            const cx = w / 2, cy = h / 2, r = Math.min(w, h) / 2 - 12;
+            const color = style.color || '#3b82f6';
+            const labels = style.dimensionNames || ['认知', '应用', '创新', '责任', '维度5', '维度6', '维度7', '维度8'];
+            let html = `<svg class="radar-svg" width="${w}" height="${h}" viewBox="0 0 ${w} ${h}" xmlns="http://www.w3.org/2000/svg">`;
+            // Background grid - concentric polygons
+            for (let lvl = 1; lvl <= 3; lvl++) {
+                const pts = [];
+                for (let i = 0; i < dims; i++) {
+                    const angle = (Math.PI * 2 * i) / dims - Math.PI / 2;
+                    const rr = (r * lvl) / 3;
+                    pts.push(`${(cx + rr * Math.cos(angle)).toFixed(1)},${(cy + rr * Math.sin(angle)).toFixed(1)}`);
+                }
+                html += `<polygon points="${pts.join(' ')}" fill="none" stroke="#e2e8f0" stroke-width="1"/>`;
+            }
+            // Axes
+            for (let i = 0; i < dims; i++) {
+                const angle = (Math.PI * 2 * i) / dims - Math.PI / 2;
+                const tx = cx + r * Math.cos(angle);
+                const ty = cy + r * Math.sin(angle);
+                html += `<line x1="${cx}" y1="${cy}" x2="${tx}" y2="${ty}" class="axis"/>`;
+                // Label
+                const lx = cx + (r + 10) * Math.cos(angle);
+                const ly = cy + (r + 10) * Math.sin(angle) + 3;
+                html += `<text x="${lx}" y="${ly}" class="axis-label">${labels[i] || ''}</text>`;
+            }
+            // Sample data polygon (fake values for design-time preview)
+            const sampleVals = [0.8, 0.95, 0.7, 0.85, 0.6, 0.75, 0.9, 0.65];
+            const dpts = [];
+            for (let i = 0; i < dims; i++) {
+                const angle = (Math.PI * 2 * i) / dims - Math.PI / 2;
+                const rr = r * (sampleVals[i] || 0.5);
+                dpts.push(`${(cx + rr * Math.cos(angle)).toFixed(1)},${(cy + rr * Math.sin(angle)).toFixed(1)}`);
+            }
+            html += `<polygon points="${dpts.join(' ')}" fill="${color}" fill-opacity="${style.fillOpacity || 0.12}" stroke="${color}" stroke-width="1.5"/>`;
+            // Dots at vertices
+            for (let i = 0; i < dims; i++) {
+                const angle = (Math.PI * 2 * i) / dims - Math.PI / 2;
+                const rr = r * (sampleVals[i] || 0.5);
+                html += `<circle cx="${(cx + rr * Math.cos(angle)).toFixed(1)}" cy="${(cy + rr * Math.sin(angle)).toFixed(1)}" r="3" fill="${color}"/>`;
+            }
+            html += '</svg>';
+            return html;
+        }
+
+        function removeElement(id) {
+            template.elements = template.elements.filter(e => e.id !== id);
+            const dom = document.querySelector(`[data-elem-id="${id}"]`);
+            if (dom) dom.remove();
+            if (selectedId === id) { selectedId = null; showDefaultProps(); }
+        }
+
+        function deleteSelected() {
+            if (!selectedId) return;
+            const el = template.elements.find(e => e.id === selectedId);
+            if (!el) return;
+            const label = el.type === 'seal' ? '电子章占位' : (el.type === 'radar' ? '雷达图' : (el.fieldKey || '元素'));
+            if (!confirm(`确认删除「${label}」？`)) return;
+            removeElement(selectedId);
+        }
+
+        // ============ 拖拽逻辑 ============
+        // 从字段列表拖入画布
+        document.querySelectorAll('.field-item').forEach(item => {
+            item.addEventListener('dragstart', (e) => {
+                e.dataTransfer.setData('text/plain', JSON.stringify({
+                    field: item.dataset.field,
+                    label: item.dataset.label,
+                    type: item.dataset.type || 'text'
+                }));
+                item.classList.add('dragging-source');
+                setTimeout(() => item.classList.remove('dragging-source'), 0);
+            });
+            item.addEventListener('dragend', (e) => {
+                item.classList.remove('dragging-source');
+            });
+        });
+
+        function handleDragOver(e) {
+            e.preventDefault();
+            document.getElementById('canvas').classList.add('drag-over');
+        }
+
+        function handleDragLeave(e) {
+            document.getElementById('canvas').classList.remove('drag-over');
+        }
+
+        function handleDrop(e) {
+            e.preventDefault();
+            document.getElementById('canvas').classList.remove('drag-over');
+            const data = JSON.parse(e.dataTransfer.getData('text/plain'));
+            const rect = document.getElementById('canvas').getBoundingClientRect();
+            const xMm = Math.round(pxToMm(e.clientX - rect.left));
+            const yMm = Math.round(pxToMm(e.clientY - rect.top));
+            createElement(data.field, data.label, data.type, Math.max(0, xMm), Math.max(0, yMm));
+        }
+
+        // 画布内元素拖拽
+        function startDrag(e, el) {
+            if ((el.type === 'seal' && el.locked) || (el.type === 'radar' && el.locked)) return;
+            e.stopPropagation();
+            e.preventDefault();
+            isDragging = true;
+            selectedId = el.id;
+            const dom = document.querySelector(`[data-elem-id="${el.id}"]`);
+            dom.classList.add('dragging');
+            dragStartX = e.clientX;
+            dragStartY = e.clientY;
+            elemStartX = el.x;
+            elemStartY = el.y;
+
+            function onMove(ev) {
+                if (!isDragging) return;
+                const dx = pxToMm(ev.clientX - dragStartX);
+                const dy = pxToMm(ev.clientY - dragStartY);
+                let nx = elemStartX + dx;
+                let ny = elemStartY + dy;
+
+                // 吸附参考线
+                if (document.getElementById('toggle-snap').checked) {
+                    const snapDist = 3;
+                    const cx = template.canvasWidth / 2;
+                    const cy = template.canvasHeight / 2;
+                    const gw = document.getElementById('guide-v');
+                    const gh = document.getElementById('guide-h');
+
+                    if (Math.abs(nx - cx) < snapDist) { nx = cx; gw.classList.remove('hidden'); gw.style.left = mmToPx(cx) + 'px'; }
+                    else gw.classList.add('hidden');
+
+                    if (Math.abs(ny - cy) < snapDist) { ny = cy; gh.classList.remove('hidden'); gh.style.top = mmToPx(cy) + 'px'; }
+                    else gh.classList.add('hidden');
+                }
+
+                el.x = Math.max(0, Math.min(template.canvasWidth - 10, Math.round(nx)));
+                el.y = Math.max(0, Math.min(template.canvasHeight - 10, Math.round(ny)));
+                dom.style.left = mmToPx(el.x) + 'px';
+                dom.style.top = mmToPx(el.y) + 'px';
+                updatePropsPanel();
+            }
+
+            function onUp() {
+                isDragging = false;
+                dom.classList.remove('dragging');
+                document.getElementById('guide-h').classList.add('hidden');
+                document.getElementById('guide-v').classList.add('hidden');
+                document.removeEventListener('mousemove', onMove);
+                document.removeEventListener('mouseup', onUp);
+            }
+
+            document.addEventListener('mousemove', onMove);
+            document.addEventListener('mouseup', onUp);
+        }
+
+        // 调整元素宽度
+        function startResize(e, el) {
+            e.stopPropagation();
+            e.preventDefault();
+            const startX = e.clientX;
+            const startW = el.style.maxWidth || 120;
+
+            function onMove(ev) {
+                const dx = pxToMm(ev.clientX - startX);
+                const newW = Math.max(20, Math.round(startW + dx));
+                el.style.maxWidth = newW;
+                document.querySelector(`[data-elem-id="${el.id}"] span`).style.maxWidth = mmToPx(newW) + 'px';
+                document.getElementById('prop-maxwidth').value = newW;
+            }
+
+            function onUp() {
+                document.removeEventListener('mousemove', onMove);
+                document.removeEventListener('mouseup', onUp);
+            }
+
+            document.addEventListener('mousemove', onMove);
+            document.addEventListener('mouseup', onUp);
+        }
+
+        // ============ 选中与属性面板 ============
+        function selectElement(id) {
+            document.querySelectorAll('.canvas-element.selected').forEach(d => d.classList.remove('selected'));
+            const dom = document.querySelector(`[data-elem-id="${id}"]`);
+            if (dom) dom.classList.add('selected');
+            selectedId = id;
+            showElementProps();
+        }
+
+        function deselectAll(e) {
+            if (e.target === document.getElementById('canvas-wrapper') || e.target.closest('#canvas') === null) {
+                document.querySelectorAll('.canvas-element.selected').forEach(d => d.classList.remove('selected'));
+                selectedId = null;
+                showDefaultProps();
+            }
+        }
+
+        function showDefaultProps() {
+            document.getElementById('props-default').classList.remove('hidden');
+            document.getElementById('props-content').classList.add('hidden');
+        }
+
+        function showElementProps() {
+            document.getElementById('props-default').classList.add('hidden');
+            document.getElementById('props-content').classList.remove('hidden');
+            updatePropsPanel();
+        }
+
+        function updatePropsPanel() {
+            const el = template.elements.find(e => e.id === selectedId);
+            if (!el) return;
+
+            document.getElementById('prop-x').value = el.x;
+            document.getElementById('prop-y').value = el.y;
+
+            if (el.type === 'seal') {
+                document.getElementById('prop-text-style').classList.add('hidden');
+                document.getElementById('prop-radar-style').classList.add('hidden');
+                document.getElementById('prop-seal-lock').classList.remove('hidden');
+                document.getElementById('prop-field').parentElement.classList.add('hidden');
+                document.getElementById('prop-locked').checked = el.locked || false;
+            } else if (el.type === 'radar') {
+                document.getElementById('prop-text-style').classList.add('hidden');
+                document.getElementById('prop-seal-lock').classList.add('hidden');
+                document.getElementById('prop-radar-style').classList.remove('hidden');
+                document.getElementById('prop-field').parentElement.classList.add('hidden');
+                document.getElementById('prop-radar-dimensions').value = el.style.dimensions || 4;
+                document.getElementById('prop-radar-names').value = (el.style.dimensionNames || []).join('\n');
+                document.getElementById('prop-radar-color').value = el.style.color || '#3b82f6';
+                document.getElementById('prop-radar-locked').checked = el.locked || false;
+            } else {
+                document.getElementById('prop-text-style').classList.remove('hidden');
+                document.getElementById('prop-seal-lock').classList.add('hidden');
+                document.getElementById('prop-radar-style').classList.add('hidden');
+                document.getElementById('prop-field').parentElement.classList.remove('hidden');
+                document.getElementById('prop-field').value = el.fieldKey;
+                document.getElementById('prop-font').value = el.style.fontFamily;
+                document.getElementById('prop-fontsize').value = el.style.fontSize;
+                document.getElementById('prop-color').value = el.style.color;
+                document.getElementById('prop-color-hex').value = el.style.color;
+                document.getElementById('prop-bold').checked = el.style.bold;
+                document.getElementById('prop-italic').checked = el.style.italic;
+                document.getElementById('prop-maxwidth').value = el.style.maxWidth;
+
+                document.querySelectorAll('.align-btn').forEach(b => {
+                    b.classList.toggle('bg-brand-50', b.dataset.align === el.style.align);
+                    b.classList.toggle('text-brand-600', b.dataset.align === el.style.align);
+                    b.classList.toggle('border-brand-300', b.dataset.align === el.style.align);
+                });
+            }
+        }
+
+        function updateProp(key, value) {
+            const el = template.elements.find(e => e.id === selectedId);
+            if (!el) return;
+            el[key] = isNaN(value) ? value : parseInt(value);
+            renderElement(el);
+            selectElement(selectedId);
+        }
+
+        function updateStyle(key, value) {
+            const el = template.elements.find(e => e.id === selectedId);
+            if (!el) return;
+            if (key === 'bold' || key === 'italic') el.style[key] = value;
+            else if (key === 'fontSize' || key === 'maxWidth') el.style[key] = parseInt(value) || value;
+            else el.style[key] = value;
+            if (key === 'color') document.getElementById('prop-color-hex').value = value;
+            renderElement(el);
+            selectElement(selectedId);
+        }
+
+        function setAlign(align, btn) {
+            document.querySelectorAll('.align-btn').forEach(b => {
+                b.classList.remove('bg-brand-50', 'text-brand-600', 'border-brand-300');
+            });
+            btn.classList.add('bg-brand-50', 'text-brand-600', 'border-brand-300');
+            updateStyle('align', align);
+        }
+
+        function toggleSealLock(locked) {
+            const el = template.elements.find(e => e.id === selectedId);
+            if (!el || el.type !== 'seal') return;
+            el.locked = locked;
+            const dom = document.querySelector(`[data-elem-id="${el.id}"]`);
+            if (locked) dom.classList.add('locked');
+            else dom.classList.remove('locked');
+        }
+
+        function toggleRadarLock(locked) {
+            const el = template.elements.find(e => e.id === selectedId);
+            if (!el || el.type !== 'radar') return;
+            el.locked = locked;
+        }
+
+        function updateRadarStyle(key, value) {
+            const el = template.elements.find(e => e.id === selectedId);
+            if (!el || el.type !== 'radar') return;
+            el.style[key] = value;
+        }
+
+        function getSelectedEl() {
+            return template.elements.find(e => e.id === selectedId);
+        }
+
+        function changeRadarDimensions(newDims) {
+            const el = getSelectedEl();
+            if (!el || el.type !== 'radar') return;
+            const oldNames = el.style.dimensionNames || [];
+            const newNames = [];
+            for (let i = 0; i < newDims; i++) {
+                newNames.push(oldNames[i] || ['认知', '应用', '创新', '责任', '维度5', '维度6', '维度7', '维度8'][i] || '');
+            }
+            el.style.dimensions = newDims;
+            el.style.dimensionNames = newNames;
+            document.getElementById('prop-radar-names').value = newNames.join('\n');
+            renderElement(el);
+            selectElement(selectedId);
+        }
+
+        function updateRadarNames(value) {
+            const el = getSelectedEl();
+            if (!el || el.type !== 'radar') return;
+            const names = value.split('\n').map(s => s.trim()).filter(s => s);
+            el.style.dimensionNames = names;
+            renderElement(el);
+            selectElement(selectedId);
+        }
+
+        // ============ 预览 ============
+        function togglePreview() {
+            const modal = document.getElementById('preview-modal');
+            if (modal.classList.contains('hidden')) {
+                renderPreview();
+                modal.classList.remove('hidden');
+            } else {
+                modal.classList.add('hidden');
+            }
+        }
+
+        function renderPreview() {
+            const pc = document.getElementById('preview-canvas');
+            const maxW = 500;
+            const scale = maxW / template.canvasWidth;
+            pc.style.width = maxW + 'px';
+            pc.style.height = (scale * template.canvasHeight) + 'px';
+            pc.style.background = template.background ? `url(${template.background}) center/cover` : '#fff';
+            pc.innerHTML = '';
+            const sample = { name: '张小明', exam_title: 'Python 一级等级测评', total_score: '92', grade: '优秀', cert_no: 'AISE-2026-000001', issue_date: '2026-05-12' };
+
+            template.elements.forEach(el => {
+                const div = document.createElement('div');
+                div.style.position = 'absolute';
+                div.style.left = (scale * el.x) + 'px';
+                div.style.top = (scale * el.y) + 'px';
+                if (el.type === 'seal') {
+                    div.style.width = (scale * el.style.width) + 'px';
+                    div.style.height = (scale * el.style.height) + 'px';
+                    div.innerHTML = `<div style="width:100%;height:100%;border:2px solid #dc2626;border-radius:50%;display:flex;align-items:center;justify-content:center;color:#dc2626;font-weight:700;font-size:${Math.max(10, scale*el.style.width/6)}px;">公章</div>`;
+                } else if (el.type === 'radar') {
+                    const rw = scale * el.style.width;
+                    const rh = scale * el.style.height;
+                    div.style.width = rw + 'px';
+                    div.style.height = rh + 'px';
+                    div.innerHTML = renderRadarSVG(el.style, rw, rh);
+                } else {
+                    const s = el.style;
+                    div.innerHTML = `<span style="display:block;font-family:${s.fontFamily};font-size:${scale*s.fontSize}px;color:${s.color};font-weight:${s.bold?700:400};font-style:${s.italic?'italic':'normal'};text-align:${s.align};max-width:${scale*s.maxWidth}px;line-height:${s.lineHeight};word-break:break-all;">${sample[el.fieldKey] || '{{' + el.fieldKey + '}}'}</span>`;
+                }
+                pc.appendChild(div);
+            });
+        }
+
+        // ============ 保存 ============
+        function saveTemplate() {
+            const name = document.getElementById('template-name').value || '未命名模板';
+            const data = { ...template, name, updatedAt: new Date().toISOString() };
+            console.log('保存模板:', JSON.stringify(data, null, 2));
+            alert(`模板「${name}」保存成功！\n\n数据已输出到控制台。`);
+        }
+
+        // ============ 键盘操作 ============
+        document.addEventListener('keydown', (e) => {
+            if (e.key === 'Delete' || e.key === 'Backspace') {
+                if (selectedId && document.activeElement === document.body) {
+                    deleteSelected();
+                }
+            }
+        });
+
+        // ============ 初始化 ============
+        updateCanvasSize();
+        // 默认添加两个示例元素
+        createElement('name', '姓名', 'text', 50, 80);
+        createElement('exam_title', '测评名称', 'text', 50, 110);
+        createElement('grade', '等级', 'text', 50, 230);
+        createElement('seal', '电子章', 'seal', 145, 210);
+        selectElement(null);
+        showDefaultProps();
+    </script>
+
+</body>
+</html>

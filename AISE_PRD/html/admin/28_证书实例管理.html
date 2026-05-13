@@ -1,0 +1,778 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>证书实例管理 - AISE 后台</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <script>
+        tailwind.config = {
+            theme: {
+                extend: {
+                    fontFamily: { sans: ['Inter', 'sans-serif'], mono: ['JetBrains Mono', 'monospace'] },
+                    colors: { brand: { 50: '#eff6ff', 100: '#dbeafe', 500: '#3b82f6', 600: '#2563eb', 700: '#1d4ed8' } },
+                    boxShadow: { 'card': '0 1px 3px 0 rgba(0, 0, 0, 0.1), 0 1px 2px 0 rgba(0, 0, 0, 0.06)' }
+                }
+            }
+        }
+    </script>
+    <style>
+        body { background-color: #F8FAFC; }
+        .nav-item.active::before {
+            content: ''; position: absolute; left: 0; top: 50%; transform: translateY(-50%);
+            width: 4px; height: 24px; background-color: #3b82f6; border-radius: 0 4px 4px 0;
+        }
+        tr.hover-row:hover td { background-color: #f8fafc; }
+        .custom-scroll::-webkit-scrollbar { width: 5px; }
+        .custom-scroll::-webkit-scrollbar-track { background: transparent; }
+        .custom-scroll::-webkit-scrollbar-thumb { background-color: #cbd5e1; border-radius: 4px; }
+
+        /* Modal */
+        .modal-backdrop { position: fixed; inset: 0; background: rgba(15,23,42,0.5); z-index: 49; opacity: 0; pointer-events: none; transition: opacity 0.25s; }
+        .modal-backdrop.open { opacity: 1; pointer-events: auto; }
+        .modal { position: fixed; top: 50%; left: 50%; transform: translate(-50%, -50%) scale(0.95); width: 95vw; max-width: 1100px; height: 90vh; background: white; border-radius: 16px; box-shadow: 0 25px 50px rgba(0,0,0,0.2); z-index: 50; opacity: 0; pointer-events: none; transition: all 0.25s cubic-bezier(0.16, 1, 0.3, 1); display: flex; flex-direction: column; }
+        .modal.open { opacity: 1; pointer-events: auto; transform: translate(-50%, -50%) scale(1); }
+
+        /* Step indicator */
+        .step-dot { width: 28px; height: 28px; border-radius: 50%; display: flex; align-items: center; justify-content: center; font-size: 12px; font-weight: 700; border: 2px solid #cbd5e1; color: #94a3b8; background: white; }
+        .step-dot.active { border-color: #3b82f6; color: #3b82f6; background: #eff6ff; }
+        .step-dot.done { background: #3b82f6; border-color: #3b82f6; color: white; }
+        .step-line { flex: 1; height: 2px; background: #e2e8f0; margin: 0 8px; }
+        .step-line.done { background: #3b82f6; }
+
+        /* Mapping table */
+        .mapping-row { transition: background 0.15s; }
+        .mapping-row:hover { background: #f1f5f9; }
+        .mapping-row.unmapped { opacity: 0.5; }
+
+        /* Exam Tab */
+        .exam-tab-btn.active { background: white; color: #2563eb; box-shadow: 0 1px 2px rgba(0,0,0,0.06); }
+        .exam-tab-btn:not(.active) { color: #64748b; }
+    </style>
+</head>
+<body class="flex h-screen overflow-hidden text-slate-800 font-sans">
+
+    <aside class="w-64 bg-white border-r border-slate-200 flex flex-col flex-shrink-0 z-20">
+        <div class="h-16 flex items-center px-6 border-b border-slate-100">
+            <div class="w-8 h-8 bg-gradient-to-br from-brand-600 to-indigo-600 rounded-lg flex items-center justify-center text-white font-bold text-lg mr-3 shadow-sm">A</div>
+            <span class="font-bold text-lg text-slate-800 tracking-tight">AISE Admin</span>
+        </div>
+        <nav class="flex-1 overflow-y-auto py-4 space-y-1">
+            <a href="#" class="nav-item flex items-center gap-3 px-6 py-3 text-slate-500 hover:bg-slate-50 hover:text-brand-600 transition relative">
+                <i class="fa-solid fa-graduation-cap w-5 text-center"></i><span class="font-medium text-sm">测评管理</span>
+            </a>
+            <div class="px-6 py-2 mt-4 text-xs font-bold text-slate-400 uppercase tracking-wider">证书管理</div>
+            <a href="#" class="nav-item flex items-center gap-3 px-6 py-3 text-slate-500 hover:bg-slate-50 hover:text-brand-600 transition relative">
+                <i class="fa-solid fa-certificate w-5 text-center"></i><span class="font-medium text-sm">活动证书管理</span>
+            </a>
+            <a href="#" class="nav-item flex items-center gap-3 px-6 py-3 text-slate-500 hover:bg-slate-50 hover:text-brand-600 transition relative">
+                <i class="fa-solid fa-user-graduate w-5 text-center"></i><span class="font-medium text-sm">学生证书管理</span>
+            </a>
+            <a href="#" class="nav-item flex items-center gap-3 px-6 py-3 text-slate-500 hover:bg-slate-50 hover:text-brand-600 transition relative">
+                <i class="fa-solid fa-palette w-5 text-center"></i><span class="font-medium text-sm">证书模板管理</span>
+            </a>
+            <a href="#" class="nav-item active flex items-center gap-3 px-6 py-3 text-brand-600 bg-brand-50 transition relative">
+                <i class="fa-solid fa-link w-5 text-center"></i><span class="font-medium text-sm">证书实例管理</span>
+            </a>
+            <div class="px-6 py-2 mt-4 text-xs font-bold text-slate-400 uppercase tracking-wider">考务与用户</div>
+            <a href="#" class="nav-item flex items-center gap-3 px-6 py-3 text-slate-500 hover:bg-slate-50 hover:text-brand-600 transition relative">
+                <i class="fa-solid fa-users w-5 text-center"></i><span class="font-medium text-sm">考生管理</span>
+            </a>
+        </nav>
+    </aside>
+
+    <main class="flex-1 flex flex-col min-w-0 bg-slate-50/50 relative">
+
+        <header class="h-16 bg-white border-b border-slate-200 flex items-center justify-between px-8 flex-shrink-0 z-10">
+            <div class="flex items-center gap-3">
+                <h1 class="text-xl font-bold text-slate-800">证书实例管理</h1>
+                <span class="text-xs text-slate-400 bg-slate-100 px-2 py-0.5 rounded font-mono" id="instance-count">共 5 个实例</span>
+            </div>
+            <div class="flex items-center gap-2 text-xs text-slate-500 bg-blue-50 px-3 py-1.5 rounded-lg border border-blue-100">
+                <i class="fa-solid fa-shield-halved text-brand-600"></i>
+                <span>管理员：Admin</span>
+            </div>
+        </header>
+
+        <div class="px-8 py-5">
+            <div class="flex items-center justify-between gap-4">
+                <div class="flex items-center gap-3">
+                    <div class="relative w-56">
+                        <i class="fa-solid fa-magnifying-glass absolute left-3 top-1/2 transform -translate-y-1/2 text-slate-400 text-sm"></i>
+                        <input type="text" placeholder="搜索测评名称..." class="w-full pl-9 pr-4 py-2 rounded-lg border border-slate-200 text-sm focus:border-brand-500 outline-none transition bg-white">
+                    </div>
+                    <select class="px-3 py-2 rounded-lg border border-slate-200 text-sm text-slate-600 bg-white outline-none hover:border-slate-300 cursor-pointer">
+                        <option value="">所有测评类型</option>
+                        <option value="aise">AISE 测评（网页/API）</option>
+                        <option value="pre">预备测（外部测评）</option>
+                    </select>
+                </div>
+                <button onclick="openModal('create')" class="bg-brand-600 hover:bg-brand-700 text-white text-sm font-bold px-5 py-2.5 rounded-lg shadow-md transition flex items-center gap-2 flex-shrink-0">
+                    <i class="fa-solid fa-plus"></i> 新建证书实例
+                </button>
+            </div>
+        </div>
+
+        <div class="flex-1 overflow-y-auto px-8 pb-8 custom-scroll">
+            <div class="bg-white rounded-xl shadow-card border border-slate-200 overflow-hidden">
+                <table class="w-full text-left border-collapse">
+                    <thead>
+                        <tr class="border-b border-slate-100 bg-slate-50 text-xs uppercase text-slate-500 font-bold">
+                            <th class="p-4 pl-6">测评名称 / ID</th>
+                            <th class="p-4">测评类型</th>
+                            <th class="p-4">绑定模板</th>
+                            <th class="p-4">参测人数</th>
+                            <th class="p-4">已签发</th>
+                            <th class="p-4">创建时间</th>
+                            <th class="p-4">状态</th>
+                            <th class="p-4 text-right pr-6">操作</th>
+                        </tr>
+                    </thead>
+                    <tbody class="text-sm text-slate-700 divide-y divide-slate-100">
+
+                        <tr class="hover-row transition group">
+                            <td class="p-4 pl-6">
+                                <p class="font-bold text-slate-800">2026春季 Python 一级等级测评</p>
+                                <p class="text-xs text-slate-400 font-mono mt-0.5">ID: EX-2026-001</p>
+                            </td>
+                            <td class="p-4">
+                                <span class="inline-flex items-center gap-1 px-2 py-0.5 rounded text-xs font-bold bg-blue-50 text-blue-700 border border-blue-100">
+                                    <i class="fa-solid fa-globe text-[10px]"></i> AISE 测评
+                                </span>
+                            </td>
+                            <td class="p-4">
+                                <span class="text-xs font-medium text-slate-700">等级测评证书（默认模板）</span>
+                            </td>
+                            <td class="p-4 font-mono text-slate-600">1,240</td>
+                            <td class="p-4">
+                                <div class="flex items-center gap-2">
+                                    <span class="font-mono font-bold text-brand-600">856</span>
+                                    <div class="w-16 h-1.5 bg-slate-100 rounded-full overflow-hidden">
+                                        <div class="h-full bg-brand-500 rounded-full" style="width: 69%"></div>
+                                    </div>
+                                </div>
+                            </td>
+                            <td class="p-4 text-xs text-slate-500">2026-04-20</td>
+                            <td class="p-4">
+                                <span class="inline-flex items-center gap-1 px-2 py-0.5 rounded text-xs font-bold bg-green-50 text-green-700 border border-green-100">
+                                    <i class="fa-solid fa-circle-check text-[10px]"></i> 启用
+                                </span>
+                            </td>
+                            <td class="p-4 text-right pr-6">
+                                <div class="flex items-center justify-end gap-1.5">
+                                    <button class="text-xs text-slate-500 hover:text-brand-600 bg-slate-50 hover:bg-brand-50 border border-slate-200 px-3 py-1.5 rounded transition" onclick="openModal('edit', 'EX-2026-001')">编辑</button>
+                                    <button class="text-xs text-slate-500 hover:text-green-600 bg-slate-50 hover:bg-green-50 border border-slate-200 px-3 py-1.5 rounded transition" onclick="toggleInstance(this, 'disable')">禁用</button>
+                                </div>
+                            </td>
+                        </tr>
+
+                        <tr class="hover-row transition group">
+                            <td class="p-4 pl-6">
+                                <p class="font-bold text-slate-800">2026夏季 AIGC 应用能力二级测评</p>
+                                <p class="text-xs text-slate-400 font-mono mt-0.5">ID: EX-2026-002</p>
+                            </td>
+                            <td class="p-4">
+                                <span class="inline-flex items-center gap-1 px-2 py-0.5 rounded text-xs font-bold bg-blue-50 text-blue-700 border border-blue-100">
+                                    <i class="fa-solid fa-globe text-[10px]"></i> AISE 测评
+                                </span>
+                            </td>
+                            <td class="p-4">
+                                <span class="text-xs font-medium text-slate-700">AIGC 应用能力认证证书</span>
+                            </td>
+                            <td class="p-4 font-mono text-slate-600">856</td>
+                            <td class="p-4">
+                                <div class="flex items-center gap-2">
+                                    <span class="font-mono font-bold text-brand-600">856</span>
+                                    <div class="w-16 h-1.5 bg-slate-100 rounded-full overflow-hidden">
+                                        <div class="h-full bg-green-500 rounded-full" style="width: 100%"></div>
+                                    </div>
+                                </div>
+                            </td>
+                            <td class="p-4 text-xs text-slate-500">2026-04-28</td>
+                            <td class="p-4">
+                                <span class="inline-flex items-center gap-1 px-2 py-0.5 rounded text-xs font-bold bg-green-50 text-green-700 border border-green-100">
+                                    <i class="fa-solid fa-circle-check text-[10px]"></i> 启用
+                                </span>
+                            </td>
+                            <td class="p-4 text-right pr-6">
+                                <div class="flex items-center justify-end gap-1.5">
+                                    <button class="text-xs text-slate-500 hover:text-brand-600 bg-slate-50 hover:bg-brand-50 border border-slate-200 px-3 py-1.5 rounded transition" onclick="openModal('edit', 'EX-2026-002')">编辑</button>
+                                    <button class="text-xs text-slate-500 hover:text-green-600 bg-slate-50 hover:bg-green-50 border border-slate-200 px-3 py-1.5 rounded transition" onclick="toggleInstance(this, 'disable')">禁用</button>
+                                </div>
+                            </td>
+                        </tr>
+
+                        <tr class="hover-row transition group">
+                            <td class="p-4 pl-6">
+                                <p class="font-bold text-slate-800">2026年中学信息学奥林匹克竞赛</p>
+                                <p class="text-xs text-slate-400 font-mono mt-0.5">ID: EX-2026-003</p>
+                            </td>
+                            <td class="p-4">
+                                <span class="inline-flex items-center gap-1 px-2 py-0.5 rounded text-xs font-bold bg-purple-50 text-purple-700 border border-purple-100">
+                                    <i class="fa-solid fa-building-columns text-[10px]"></i> 预备测
+                                </span>
+                            </td>
+                            <td class="p-4">
+                                <span class="text-xs font-medium text-slate-700">信息学奥赛一等奖证书</span>
+                            </td>
+                            <td class="p-4 font-mono text-slate-600">628</td>
+                            <td class="p-4">
+                                <div class="flex items-center gap-2">
+                                    <span class="font-mono font-bold text-brand-600">412</span>
+                                    <div class="w-16 h-1.5 bg-slate-100 rounded-full overflow-hidden">
+                                        <div class="h-full bg-brand-500 rounded-full" style="width: 65%"></div>
+                                    </div>
+                                </div>
+                            </td>
+                            <td class="p-4 text-xs text-slate-500">2026-05-01</td>
+                            <td class="p-4">
+                                <span class="inline-flex items-center gap-1 px-2 py-0.5 rounded text-xs font-bold bg-green-50 text-green-700 border border-green-100">
+                                    <i class="fa-solid fa-circle-check text-[10px]"></i> 启用
+                                </span>
+                            </td>
+                            <td class="p-4 text-right pr-6">
+                                <div class="flex items-center justify-end gap-1.5">
+                                    <button class="text-xs text-slate-500 hover:text-brand-600 bg-slate-50 hover:bg-brand-50 border border-slate-200 px-3 py-1.5 rounded transition" onclick="openModal('edit', 'EX-2026-003')">编辑</button>
+                                    <button class="text-xs text-slate-500 hover:text-green-600 bg-slate-50 hover:bg-green-50 border border-slate-200 px-3 py-1.5 rounded transition" onclick="toggleInstance(this, 'disable')">禁用</button>
+                                </div>
+                            </td>
+                        </tr>
+
+                        <tr class="hover-row transition group">
+                            <td class="p-4 pl-6">
+                                <p class="font-bold text-slate-800">编程猫合作校 2026春季预备测评</p>
+                                <p class="text-xs text-slate-400 font-mono mt-0.5">ID: EX-2026-004</p>
+                            </td>
+                            <td class="p-4">
+                                <span class="inline-flex items-center gap-1 px-2 py-0.5 rounded text-xs font-bold bg-purple-50 text-purple-700 border border-purple-100">
+                                    <i class="fa-solid fa-building-columns text-[10px]"></i> 预备测
+                                </span>
+                            </td>
+                            <td class="p-4">
+                                <span class="text-xs font-medium text-slate-700">预备测评参与证明</span>
+                            </td>
+                            <td class="p-4 font-mono text-slate-600">320</td>
+                            <td class="p-4">
+                                <div class="flex items-center gap-2">
+                                    <span class="font-mono font-bold text-brand-600">200</span>
+                                    <div class="w-16 h-1.5 bg-slate-100 rounded-full overflow-hidden">
+                                        <div class="h-full bg-brand-500 rounded-full" style="width: 62%"></div>
+                                    </div>
+                                </div>
+                            </td>
+                            <td class="p-4 text-xs text-slate-500">2026-04-10</td>
+                            <td class="p-4">
+                                <span class="inline-flex items-center gap-1 px-2 py-0.5 rounded text-xs font-bold bg-slate-100 text-slate-500 border border-slate-200">
+                                    <i class="fa-solid fa-circle-pause text-[10px]"></i> 已禁用
+                                </span>
+                            </td>
+                            <td class="p-4 text-right pr-6">
+                                <div class="flex items-center justify-end gap-1.5">
+                                    <button class="text-xs text-slate-500 hover:text-brand-600 bg-slate-50 hover:bg-brand-50 border border-slate-200 px-3 py-1.5 rounded transition" onclick="openModal('edit', 'EX-2026-004')">编辑</button>
+                                    <button class="text-xs text-slate-500 hover:text-green-600 bg-slate-50 hover:bg-green-50 border border-slate-200 px-3 py-1.5 rounded transition" onclick="toggleInstance(this, 'enable')">启用</button>
+                                </div>
+                            </td>
+                        </tr>
+
+                        <tr class="hover-row transition group">
+                            <td class="p-4 pl-6">
+                                <p class="font-bold text-slate-800">C++ 算法设计三级测评</p>
+                                <p class="text-xs text-slate-400 font-mono mt-0.5">ID: EX-2026-005</p>
+                            </td>
+                            <td class="p-4">
+                                <span class="inline-flex items-center gap-1 px-2 py-0.5 rounded text-xs font-bold bg-blue-50 text-blue-700 border border-blue-100">
+                                    <i class="fa-solid fa-globe text-[10px]"></i> AISE 测评
+                                </span>
+                            </td>
+                            <td class="p-4">
+                                <span class="text-xs font-medium text-slate-500">未绑定模板</span>
+                            </td>
+                            <td class="p-4 font-mono text-slate-600">520</td>
+                            <td class="p-4">
+                                <span class="text-xs text-slate-400">-</span>
+                            </td>
+                            <td class="p-4 text-xs text-slate-500">2026-05-10</td>
+                            <td class="p-4">
+                                <span class="inline-flex items-center gap-1 px-2 py-0.5 rounded text-xs font-bold bg-amber-50 text-amber-700 border border-amber-100">
+                                    <i class="fa-solid fa-triangle-exclamation text-[10px]"></i> 未配置
+                                </span>
+                            </td>
+                            <td class="p-4 text-right pr-6">
+                                <div class="flex items-center justify-end gap-1.5">
+                                    <button class="text-xs text-slate-500 hover:text-brand-600 bg-slate-50 hover:bg-brand-50 border border-slate-200 px-3 py-1.5 rounded transition" onclick="openModal('edit', 'EX-2026-005')">配置</button>
+                                </div>
+                            </td>
+                        </tr>
+
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </main>
+
+    <!-- Modal Backdrop -->
+    <div class="modal-backdrop" id="modal-backdrop" onclick="closeModal()"></div>
+
+    <!-- Modal -->
+    <div class="modal" id="modal">
+        <div class="flex items-center justify-between px-8 py-4 border-b border-slate-200 flex-shrink-0">
+            <h3 class="font-bold text-lg text-slate-800" id="modal-title">新建证书实例</h3>
+            <button onclick="closeModal()" class="text-slate-400 hover:text-slate-600 transition"><i class="fa-solid fa-xmark text-lg"></i></button>
+        </div>
+
+        <!-- Step Indicator -->
+        <div class="flex items-center justify-center px-6 py-4 border-b border-slate-100 flex-shrink-0">
+            <div class="step-dot done" id="step-dot-1">1</div>
+            <div class="step-line done" id="step-line-1"></div>
+            <div class="step-dot active" id="step-dot-2">2</div>
+            <div class="step-line" id="step-line-2"></div>
+            <div class="step-dot" id="step-dot-3">3</div>
+        </div>
+
+        <!-- Step Content -->
+        <div class="flex-1 overflow-y-auto custom-scroll p-6" id="step-content">
+
+            <!-- Step 1: 选择测评 -->
+            <div id="step-1">
+                <div class="flex items-center gap-1 bg-slate-100 p-1 rounded-lg mb-5 w-fit">
+                    <button class="px-4 py-1.5 rounded-md text-xs font-bold transition exam-tab-btn active" data-tab="aise" onclick="switchExamTab('aise')">AISE 测评</button>
+                    <button class="px-4 py-1.5 rounded-md text-xs font-bold transition exam-tab-btn" data-tab="pre" onclick="switchExamTab('pre')">预备测</button>
+                </div>
+
+                <!-- AISE 测评 Tab -->
+                <div id="tab-aise">
+                    <h4 class="text-sm font-bold text-slate-800 mb-3">选择已有 AISE 测评活动</h4>
+                    <div class="relative mb-3">
+                        <i class="fa-solid fa-magnifying-glass absolute left-3 top-3 text-slate-400 text-sm"></i>
+                        <input type="text" placeholder="搜索测评名称或 ID..." class="w-full pl-9 pr-4 py-2.5 rounded-lg border border-slate-200 text-sm focus:border-brand-500 outline-none bg-white">
+                    </div>
+                    <div class="space-y-2">
+                        <label class="flex items-start gap-3 p-3 rounded-lg border border-slate-200 cursor-pointer hover:border-brand-300 hover:bg-brand-50/30 transition exam-radio" onclick="selectExam('aise-exam-1', '2026春季 Python 一级等级测评', 'aise', this)">
+                            <input type="radio" name="exam" class="mt-0.5 accent-brand-600">
+                            <div class="flex-1">
+                                <p class="font-bold text-sm text-slate-800">2026春季 Python 一级等级测评</p>
+                                <p class="text-xs text-slate-400 font-mono">EX-2026-001</p>
+                                <div class="flex items-center gap-2 mt-1">
+                                    <span class="text-[10px] bg-blue-50 text-blue-600 px-1.5 py-0.5 rounded">AISE 测评</span>
+                                    <span class="text-[10px] text-slate-400">1,240 人参测 · 2026-04-15</span>
+                                </div>
+                            </div>
+                        </label>
+                        <label class="flex items-start gap-3 p-3 rounded-lg border border-slate-200 cursor-pointer hover:border-brand-300 hover:bg-brand-50/30 transition exam-radio" onclick="selectExam('aise-exam-2', 'C++ 算法设计三级测评', 'aise', this)">
+                            <input type="radio" name="exam" class="mt-0.5 accent-brand-600">
+                            <div class="flex-1">
+                                <p class="font-bold text-sm text-slate-800">C++ 算法设计三级测评</p>
+                                <p class="text-xs text-slate-400 font-mono">EX-2026-005</p>
+                                <div class="flex items-center gap-2 mt-1">
+                                    <span class="text-[10px] bg-blue-50 text-blue-600 px-1.5 py-0.5 rounded">AISE 测评</span>
+                                    <span class="text-[10px] text-slate-400">520 人参测 · 2026-05-10</span>
+                                </div>
+                            </div>
+                        </label>
+                        <label class="flex items-start gap-3 p-3 rounded-lg border border-slate-200 cursor-pointer hover:border-brand-300 hover:bg-brand-50/30 transition exam-radio" onclick="selectExam('aise-exam-3', '2026秋季 AIGC 三级测评', 'aise', this)">
+                            <input type="radio" name="exam" class="mt-0.5 accent-brand-600">
+                            <div class="flex-1">
+                                <p class="font-bold text-sm text-slate-800">2026秋季 AIGC 三级测评</p>
+                                <p class="text-xs text-slate-400 font-mono">EX-2026-006</p>
+                                <div class="flex items-center gap-2 mt-1">
+                                    <span class="text-[10px] bg-blue-50 text-blue-600 px-1.5 py-0.5 rounded">AISE 测评</span>
+                                    <span class="text-[10px] text-slate-400">890 人参测 · 2026-09-01</span>
+                                </div>
+                            </div>
+                        </label>
+                        <label class="flex items-start gap-3 p-3 rounded-lg border border-slate-200 cursor-pointer hover:border-brand-300 hover:bg-brand-50/30 transition exam-radio" onclick="selectExam('aise-exam-4', '2026春季 Python 二级等级测评', 'aise', this)">
+                            <input type="radio" name="exam" class="mt-0.5 accent-brand-600">
+                            <div class="flex-1">
+                                <p class="font-bold text-sm text-slate-800">2026春季 Python 二级等级测评</p>
+                                <p class="text-xs text-slate-400 font-mono">EX-2026-008</p>
+                                <div class="flex items-center gap-2 mt-1">
+                                    <span class="text-[10px] bg-blue-50 text-blue-600 px-1.5 py-0.5 rounded">AISE 测评</span>
+                                    <span class="text-[10px] text-slate-400">980 人参测 · 2026-04-18</span>
+                                </div>
+                            </div>
+                        </label>
+                    </div>
+                </div>
+
+                <!-- 预备测 Tab -->
+                <div id="tab-pre" class="hidden">
+                    <h4 class="text-sm font-bold text-slate-800 mb-1">创建预备测信息</h4>
+                    <p class="text-xs text-slate-400 mb-4">预备测数据来自合作方系统，需手动填写测评基本信息。</p>
+                    <div class="bg-white rounded-xl border border-slate-200 p-5 space-y-4">
+                        <div class="grid grid-cols-2 gap-4">
+                            <div>
+                                <label class="block text-xs font-bold text-slate-500 uppercase mb-1.5">测评名称 <span class="text-red-400">*</span></label>
+                                <input type="text" id="pre-name" placeholder="如：2026年中学信息学奥林匹克竞赛" class="w-full px-3 py-2 rounded-lg border border-slate-200 text-sm focus:border-brand-500 outline-none bg-white">
+                            </div>
+                            <div>
+                                <label class="block text-xs font-bold text-slate-500 uppercase mb-1.5">合作方 <span class="text-red-400">*</span></label>
+                                <input type="text" id="pre-partner" placeholder="如：编程猫北京中心" class="w-full px-3 py-2 rounded-lg border border-slate-200 text-sm focus:border-brand-500 outline-none bg-white">
+                            </div>
+                        </div>
+                        <div class="grid grid-cols-2 gap-4">
+                            <div>
+                                <label class="block text-xs font-bold text-slate-500 uppercase mb-1.5">测评日期</label>
+                                <input type="date" id="pre-date" class="w-full px-3 py-2 rounded-lg border border-slate-200 text-sm focus:border-brand-500 outline-none bg-white">
+                            </div>
+                            <div>
+                                <label class="block text-xs font-bold text-slate-500 uppercase mb-1.5">证书落款日期</label>
+                                <input type="date" id="pre-cert-date" class="w-full px-3 py-2 rounded-lg border border-slate-200 text-sm focus:border-brand-500 outline-none bg-white">
+                            </div>
+                        </div>
+                        <div>
+                            <label class="block text-xs font-bold text-slate-500 uppercase mb-1.5">备注说明</label>
+                            <textarea id="pre-desc" rows="2" placeholder="可选，补充说明测评背景..." class="w-full px-3 py-2 rounded-lg border border-slate-200 text-sm focus:border-brand-500 outline-none bg-white resize-none"></textarea>
+                        </div>
+                        <div class="flex items-center justify-between pt-2 border-t border-slate-100">
+                            <button onclick="clearPreForm()" class="text-xs text-slate-400 hover:text-red-500 transition">
+                                <i class="fa-solid fa-rotate-left mr-1"></i>清空重填
+                            </button>
+                            <button id="btn-confirm-pre" onclick="confirmPreExam()" class="bg-brand-600 hover:bg-brand-700 text-white text-xs font-bold px-5 py-2 rounded-lg shadow-sm transition flex items-center gap-1.5">
+                                <i class="fa-solid fa-check"></i>确认预备测信息
+                            </button>
+                        </div>
+                    </div>
+                    <div id="pre-confirmed-badge" class="hidden mt-4 flex items-center gap-2 p-3 bg-purple-50 border border-purple-200 rounded-lg">
+                        <i class="fa-solid fa-circle-check text-purple-600"></i>
+                        <span class="text-sm font-bold text-purple-800" id="pre-confirmed-name"></span>
+                        <span class="text-xs text-purple-500">已确认</span>
+                        <button onclick="clearPreExam()" class="ml-auto text-xs text-purple-400 hover:text-red-500"><i class="fa-solid fa-xmark"></i></button>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Step 2: 选择模板 -->
+            <div id="step-2" class="hidden">
+                <h4 class="text-sm font-bold text-slate-800 mb-1">选择证书模板</h4>
+                <p class="text-xs text-slate-400 mb-4">仅显示已启用的模板</p>
+                <div class="grid grid-cols-3 gap-3">
+                    <label class="flex flex-col items-center gap-2 p-3 rounded-lg border border-slate-200 cursor-pointer hover:border-brand-300 hover:bg-brand-50/30 transition template-radio" onclick="selectTemplate('tpl-1', '等级测评证书（默认模板）', this)">
+                        <input type="radio" name="template" class="accent-brand-600 sr-only">
+                        <div class="w-full aspect-[1.414/1] bg-gradient-to-br from-slate-50 to-slate-100 border border-slate-200 rounded flex items-center justify-center text-[10px] text-slate-400">A4 竖版 210×297</div>
+                        <span class="text-xs font-bold text-slate-700">等级测评证书（默认模板）</span>
+                    </label>
+                    <label class="flex flex-col items-center gap-2 p-3 rounded-lg border border-slate-200 cursor-pointer hover:border-brand-300 hover:bg-brand-50/30 transition template-radio" onclick="selectTemplate('tpl-2', 'AIGC 应用能力认证证书', this)">
+                        <input type="radio" name="template" class="accent-brand-600 sr-only">
+                        <div class="w-full aspect-[1.414/1] bg-gradient-to-br from-emerald-50 to-teal-100 border border-emerald-200 rounded flex items-center justify-center text-[10px] text-emerald-400">200 × 260mm</div>
+                        <span class="text-xs font-bold text-slate-700">AIGC 应用能力认证证书</span>
+                    </label>
+                    <label class="flex flex-col items-center gap-2 p-3 rounded-lg border border-slate-200 cursor-pointer hover:border-brand-300 hover:bg-brand-50/30 transition template-radio" onclick="selectTemplate('tpl-3', '信息学奥赛一等奖证书', this)">
+                        <input type="radio" name="template" class="accent-brand-600 sr-only">
+                        <div class="w-full aspect-[1.414/1] bg-gradient-to-br from-indigo-50 to-blue-100 border border-indigo-200 rounded flex items-center justify-center text-[10px] text-indigo-400">A4 横版 297×210</div>
+                        <span class="text-xs font-bold text-slate-700">信息学奥赛一等奖证书</span>
+                    </label>
+                    <label class="flex flex-col items-center gap-2 p-3 rounded-lg border border-slate-200 cursor-pointer hover:border-brand-300 hover:bg-brand-50/30 transition template-radio" onclick="selectTemplate('tpl-4', '预备测评参与证明', this)">
+                        <input type="radio" name="template" class="accent-brand-600 sr-only">
+                        <div class="w-full aspect-[1.414/1] bg-gradient-to-br from-amber-50 to-orange-100 border border-amber-200 rounded flex items-center justify-center text-[10px] text-amber-400">A4 竖版 210×297</div>
+                        <span class="text-xs font-bold text-slate-700">预备测评参与证明</span>
+                    </label>
+                </div>
+            </div>
+
+            <!-- Step 3: 字段映射配置 -->
+            <div id="step-3" class="hidden">
+                <div id="step-3-aise">
+                    <h4 class="text-sm font-bold text-slate-800 mb-1">字段映射（AISE 测评）</h4>
+                    <p class="text-xs text-slate-400 mb-4">系统自动从 AISE 考试记录中提取数据，无需手动映射。</p>
+                    <table class="w-full text-left border-collapse rounded-lg overflow-hidden border border-slate-200">
+                        <thead>
+                            <tr class="bg-slate-50 text-xs uppercase text-slate-500 font-bold">
+                                <th class="p-3 pl-4">证书字段</th>
+                                <th class="p-3">数据来源</th>
+                                <th class="p-3">映射路径</th>
+                            </tr>
+                        </thead>
+                        <tbody class="text-xs text-slate-600 divide-y divide-slate-100">
+                            <tr><td class="p-3 pl-4 font-medium">姓名</td><td class="p-3">AISE 用户信息</td><td class="p-3 font-mono text-slate-400">user.profile.name</td></tr>
+                            <tr><td class="p-3 pl-4 font-medium">测评名称</td><td class="p-3">AISE 考试记录</td><td class="p-3 font-mono text-slate-400">exam.title</td></tr>
+                            <tr><td class="p-3 pl-4 font-medium">成绩</td><td class="p-3">AISE 考试记录</td><td class="p-3 font-mono text-slate-400">exam.totalScore</td></tr>
+                            <tr><td class="p-3 pl-4 font-medium">等级</td><td class="p-3">证书分数线规则</td><td class="p-3 font-mono text-slate-400">cert.grade</td></tr>
+                            <tr><td class="p-3 pl-4 font-medium">证书编号</td><td class="p-3">系统自动生成</td><td class="p-3 font-mono text-slate-400">system.certNo</td></tr>
+                            <tr><td class="p-3 pl-4 font-medium">签发日期</td><td class="p-3">系统自动生成</td><td class="p-3 font-mono text-slate-400">system.issueDate</td></tr>
+                        </tbody>
+                    </table>
+                </div>
+
+                <div id="step-3-pre" class="hidden">
+                    <h4 class="text-sm font-bold text-slate-800 mb-1">字段映射（预备测）</h4>
+                    <p class="text-xs text-slate-400 mb-2">系统已根据 JSON 结构自动识别匹配，可手动调整。</p>
+
+                    <!-- JSON 预览 -->
+                    <div class="mb-4 bg-slate-800 text-green-400 text-xs font-mono p-4 rounded-lg overflow-x-auto">
+                        <pre>{
+  "userName": "张三",
+  "userNo": "111111",
+  "userSkills": [
+    { "key": "cognition", "title": "认知层",
+      "userScore": 9.75, "maxScore": 10 },
+    { "key": "application", "title": "应用层",
+      "userScore": 9.75, "maxScore": 10 },
+    ...
+  ]
+}</pre>
+                    </div>
+
+                    <table class="w-full text-left border-collapse rounded-lg overflow-hidden border border-slate-200 mb-4">
+                        <thead>
+                            <tr class="bg-slate-50 text-xs uppercase text-slate-500 font-bold">
+                                <th class="p-3 pl-4 w-1/4">证书字段</th>
+                                <th class="p-3 w-2/5">JSON 路径匹配</th>
+                                <th class="p-3">匹配状态</th>
+                            </tr>
+                        </thead>
+                        <tbody class="text-xs text-slate-600 divide-y divide-slate-100" id="mapping-table">
+                            <tr class="mapping-row">
+                                <td class="p-3 pl-4 font-medium">姓名</td>
+                                <td class="p-3">
+                                    <select class="w-full px-2 py-1.5 rounded border border-slate-200 text-xs focus:border-brand-500 outline-none">
+                                        <option value="userName" selected>userName</option>
+                                        <option value="userNo">userNo</option>
+                                        <option value="userSkills[0].userScore">userSkills[0].userScore (认知层)</option>
+                                        <option value="userSkills[1].userScore">userSkills[1].userScore (应用层)</option>
+                                        <option value="__manual__">手动输入...</option>
+                                    </select>
+                                </td>
+                                <td class="p-3"><span class="text-[10px] font-bold text-green-600 bg-green-50 px-1.5 py-0.5 rounded">✓ 已匹配</span></td>
+                            </tr>
+                            <tr class="mapping-row">
+                                <td class="p-3 pl-4 font-medium">测评名称</td>
+                                <td class="p-3">
+                                    <select class="w-full px-2 py-1.5 rounded border border-slate-200 text-xs focus:border-brand-500 outline-none">
+                                        <option value="__not_found__" selected>-- 未在 JSON 中找到 --</option>
+                                        <option value="userName">userName</option>
+                                        <option value="userNo">userNo</option>
+                                    </select>
+                                </td>
+                                <td class="p-3"><span class="text-[10px] font-bold text-amber-600 bg-amber-50 px-1.5 py-0.5 rounded">! 待手动映射</span></td>
+                            </tr>
+                            <tr class="mapping-row">
+                                <td class="p-3 pl-4 font-medium">成绩</td>
+                                <td class="p-3">
+                                    <select class="w-full px-2 py-1.5 rounded border border-slate-200 text-xs focus:border-brand-500 outline-none">
+                                        <option value="userSkills[0].userScore" selected>userSkills[0].userScore (认知层)</option>
+                                        <option value="userSkills[1].userScore">userSkills[1].userScore (应用层)</option>
+                                        <option value="userSkills[2].userScore">userSkills[2].userScore (创新层)</option>
+                                        <option value="userSkills[3].userScore">userSkills[3].userScore (责任层)</option>
+                                        <option value="__manual__">手动输入...</option>
+                                    </select>
+                                </td>
+                                <td class="p-3"><span class="text-[10px] font-bold text-green-600 bg-green-50 px-1.5 py-0.5 rounded">✓ 已匹配</span></td>
+                            </tr>
+                            <tr class="mapping-row">
+                                <td class="p-3 pl-4 font-medium">等级</td>
+                                <td class="p-3">
+                                    <select class="w-full px-2 py-1.5 rounded border border-slate-200 text-xs focus:border-brand-500 outline-none">
+                                        <option value="__not_found__" selected>-- 未在 JSON 中找到 --</option>
+                                        <option value="userName">userName</option>
+                                        <option value="__manual__">手动输入...</option>
+                                    </select>
+                                </td>
+                                <td class="p-3"><span class="text-[10px] font-bold text-amber-600 bg-amber-50 px-1.5 py-0.5 rounded">! 待手动映射</span></td>
+                            </tr>
+                        </tbody>
+                    </table>
+
+                    <div class="bg-amber-50 border border-amber-100 rounded-lg p-3 text-xs text-amber-700">
+                        <i class="fa-solid fa-circle-info mr-1"></i> 未匹配的 JSON 字段将保留在 `evaluation_data` 中，可用于雷达图等扩展元素渲染。
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Drawer Footer -->
+        <div class="flex items-center justify-between px-6 py-4 border-t border-slate-200 flex-shrink-0 bg-slate-50">
+            <button onclick="closeModal()" class="text-sm text-slate-500 hover:text-slate-700 px-4 py-2 rounded-lg hover:bg-slate-100 transition">取消</button>
+            <div class="flex items-center gap-2">
+                <button id="btn-prev" class="text-sm text-slate-500 hover:text-brand-600 px-4 py-2 rounded-lg hover:bg-slate-100 transition hidden" onclick="prevStep()">
+                    <i class="fa-solid fa-arrow-left mr-1"></i>上一步
+                </button>
+                <button id="btn-next" class="text-sm font-bold text-white bg-brand-600 hover:bg-brand-700 px-6 py-2 rounded-lg shadow-sm transition" onclick="nextStep()">
+                    下一步 <i class="fa-solid fa-arrow-right ml-1"></i>
+                </button>
+                <button id="btn-save" class="text-sm font-bold text-white bg-brand-600 hover:bg-brand-700 px-6 py-2 rounded-lg shadow-sm transition hidden" onclick="saveInstance()">
+                    <i class="fa-solid fa-floppy-disk mr-1"></i>保存
+                </button>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        let currentStep = 1;
+        let selectedExamType = null;
+        let preExamData = null;
+
+        function switchExamTab(tab) {
+            document.querySelectorAll('.exam-tab-btn').forEach(b => {
+                b.classList.toggle('bg-white', b.dataset.tab === tab);
+                b.classList.toggle('text-brand-600', b.dataset.tab === tab);
+                b.classList.toggle('shadow-sm', b.dataset.tab === tab);
+                b.classList.toggle('text-slate-500', b.dataset.tab !== tab);
+            });
+            document.getElementById('tab-aise').classList.toggle('hidden', tab !== 'aise');
+            document.getElementById('tab-pre').classList.toggle('hidden', tab !== 'pre');
+            // 清除选中
+            document.querySelectorAll('.exam-radio').forEach(e => {
+                e.classList.remove('border-brand-500', 'bg-brand-50/50');
+                if (e.querySelector('input')) e.querySelector('input').checked = false;
+            });
+            selectedExamType = tab;
+        }
+
+        function confirmPreExam() {
+            const name = document.getElementById('pre-name').value.trim();
+            const partner = document.getElementById('pre-partner').value.trim();
+            if (!name) { alert('请输入测评名称'); return; }
+            if (!partner) { alert('请输入合作方名称'); return; }
+            preExamData = {
+                name,
+                partner,
+                date: document.getElementById('pre-date').value,
+                certDate: document.getElementById('pre-cert-date').value,
+                desc: document.getElementById('pre-desc').value.trim()
+            };
+            document.getElementById('pre-confirmed-badge').classList.remove('hidden');
+            document.getElementById('pre-confirmed-name').textContent = name + ' · ' + partner;
+            selectedExamType = 'pre';
+        }
+
+        function clearPreExam() {
+            preExamData = null;
+            selectedExamType = null;
+            document.getElementById('pre-confirmed-badge').classList.add('hidden');
+            clearPreForm();
+        }
+
+        function clearPreForm() {
+            document.getElementById('pre-name').value = '';
+            document.getElementById('pre-partner').value = '';
+            document.getElementById('pre-date').value = '';
+            document.getElementById('pre-cert-date').value = '';
+            document.getElementById('pre-desc').value = '';
+            if (preExamData) clearPreExam();
+        }
+
+        function openModal(mode, examId) {
+            document.getElementById('modal').classList.add('open');
+            document.getElementById('modal-backdrop').classList.add('open');
+            if (mode === 'create') {
+                document.getElementById('modal-title').innerText = '新建证书实例';
+                currentStep = 1;
+                selectedExamType = null;
+            } else {
+                document.getElementById('modal-title').innerText = '编辑证书实例 - ' + (examId || '');
+                currentStep = 1;
+                selectedExamType = 'aise';
+            }
+            goToStep(1);
+            updateButtons();
+        }
+
+        function closeModal() {
+            document.getElementById('modal').classList.remove('open');
+            document.getElementById('modal-backdrop').classList.remove('open');
+        }
+
+        function selectExam(id, name, type, el) {
+            document.querySelectorAll('.exam-radio').forEach(e => {
+                e.classList.remove('border-brand-500', 'bg-brand-50/50');
+                e.querySelector('input').checked = false;
+            });
+            el.classList.add('border-brand-500', 'bg-brand-50/50');
+            el.querySelector('input').checked = true;
+            selectedExamType = type;
+        }
+
+        function selectTemplate(id, name, el) {
+            document.querySelectorAll('.template-radio').forEach(e => {
+                e.classList.remove('border-brand-500', 'bg-brand-50/50');
+                e.querySelector('input').checked = false;
+            });
+            el.classList.add('border-brand-500', 'bg-brand-50/50');
+            el.querySelector('input').checked = true;
+        }
+
+        function goToStep(n) {
+            currentStep = n;
+            document.getElementById('step-1').classList.toggle('hidden', n !== 1);
+            document.getElementById('step-2').classList.toggle('hidden', n !== 2);
+            document.getElementById('step-3').classList.toggle('hidden', n !== 3);
+
+            if (n === 3) {
+                if (selectedExamType === 'pre') {
+                    document.getElementById('step-3-aise').classList.add('hidden');
+                    document.getElementById('step-3-pre').classList.remove('hidden');
+                } else {
+                    document.getElementById('step-3-aise').classList.remove('hidden');
+                    document.getElementById('step-3-pre').classList.add('hidden');
+                }
+            }
+
+            for (let i = 1; i <= 3; i++) {
+                const dot = document.getElementById('step-dot-' + i);
+                dot.classList.remove('active', 'done');
+                if (i < n) dot.classList.add('done');
+                else if (i === n) dot.classList.add('active');
+            }
+            for (let i = 1; i <= 2; i++) {
+                document.getElementById('step-line-' + i).classList.toggle('done', i < n);
+            }
+
+            updateButtons();
+        }
+
+        function nextStep() {
+            if (currentStep === 1) {
+                if (selectedExamType === 'pre') {
+                    if (!preExamData) { alert('请先填写并确认预备测信息'); return; }
+                } else if (selectedExamType !== 'aise') {
+                    alert('请先选择一个测评活动或切换到预备测填写信息');
+                    return;
+                } else {
+                    const checked = document.querySelector('.exam-radio.border-brand-500');
+                    if (!checked) { alert('请先选择一个测评活动'); return; }
+                }
+            }
+            if (currentStep < 3) goToStep(currentStep + 1);
+        }
+
+        function prevStep() {
+            if (currentStep > 1) goToStep(currentStep - 1);
+        }
+
+        function updateButtons() {
+            document.getElementById('btn-prev').classList.toggle('hidden', currentStep === 1);
+            document.getElementById('btn-next').classList.toggle('hidden', currentStep === 3);
+            document.getElementById('btn-save').classList.toggle('hidden', currentStep !== 3);
+        }
+
+        function saveInstance() {
+            alert('证书实例保存成功！');
+            closeModal();
+        }
+
+        function toggleInstance(btn, action) {
+            const row = btn.closest('tr');
+            const name = row.querySelector('.font-bold').innerText;
+            if (action === 'disable') {
+                if (!confirm(`确认禁用「${name}」的证书实例？禁用后该测评将不再生成新证书，已有证书不受影响。`)) return;
+                btn.innerText = '启用';
+                btn.setAttribute('onclick', "toggleInstance(this, 'enable')");
+                const statusCell = row.querySelector('td:nth-last-child(2) span');
+                statusCell.className = 'inline-flex items-center gap-1 px-2 py-0.5 rounded text-xs font-bold bg-slate-100 text-slate-500 border border-slate-200';
+                statusCell.innerHTML = '<i class="fa-solid fa-circle-pause text-[10px]"></i> 已禁用';
+            } else {
+                if (!confirm(`确认启用「${name}」的证书实例？`)) return;
+                btn.innerText = '禁用';
+                btn.setAttribute('onclick', "toggleInstance(this, 'disable')");
+                const statusCell = row.querySelector('td:nth-last-child(2) span');
+                statusCell.className = 'inline-flex items-center gap-1 px-2 py-0.5 rounded text-xs font-bold bg-green-50 text-green-700 border border-green-100';
+                statusCell.innerHTML = '<i class="fa-solid fa-circle-check text-[10px]"></i> 启用';
+            }
+        }
+    </script>
+
+</body>
+</html>

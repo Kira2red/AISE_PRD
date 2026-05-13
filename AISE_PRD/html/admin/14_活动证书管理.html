@@ -72,6 +72,11 @@
                     <option value="making">制作中</option>
                     <option value="sent">已寄送</option>
                 </select>
+                <select class="px-3 py-2 rounded-lg border border-slate-200 text-sm text-slate-600 bg-white outline-none hover:border-slate-300 cursor-pointer">
+                    <option value="">所有电子证书</option>
+                    <option value="configured">已配置</option>
+                    <option value="unconfigured">未配置</option>
+                </select>
                 <button class="bg-brand-600 hover:bg-brand-700 text-white text-sm font-medium px-5 py-2 rounded-lg shadow-sm transition ml-auto">
                     <i class="fa-solid fa-filter mr-1"></i> 筛选
                 </button>
@@ -88,6 +93,7 @@
                             <th class="p-4">开始时间</th>
                             <th class="p-4">批改情况</th>
                             <th class="p-4">证书状态</th>
+                            <th class="p-4">电子证书</th>
                             <th class="p-4 text-right pr-6">操作</th>
                         </tr>
                     </thead>
@@ -115,6 +121,11 @@
                                     <i class="fa-solid fa-pen-nib text-[10px]"></i> 批改中
                                 </span>
                             </td>
+                            <td class="p-4">
+                                <span class="inline-flex items-center gap-1.5 px-2 py-0.5 rounded text-xs font-bold bg-green-50 text-green-700 border border-green-100">
+                                    <i class="fa-solid fa-circle-check text-[10px]"></i> 已配置
+                                </span>
+                            </td>
                             <td class="p-4 text-right pr-6">
                                 <div class="flex items-center justify-end gap-2">
                                     <a href="#" class="text-slate-600 hover:text-brand-600 text-xs font-bold border border-slate-200 bg-white hover:bg-slate-50 px-3 py-1.5 rounded transition inline-flex items-center gap-1">
@@ -122,6 +133,9 @@
                                     </a>
                                     <a href="certificate-detail.html" target="_blank" class="text-brand-600 hover:text-brand-700 text-xs font-bold border border-brand-200 bg-brand-50 hover:bg-brand-100 px-3 py-1.5 rounded transition inline-flex items-center gap-1">
                                         <i class="fa-solid fa-gear"></i> 管理证书
+                                    </a>
+                                    <a href="28_证书实例管理.html" class="text-brand-600 hover:text-brand-700 text-xs font-bold border border-brand-200 bg-brand-50 hover:bg-brand-100 px-3 py-1.5 rounded transition inline-flex items-center gap-1">
+                                        <i class="fa-solid fa-file-certificate"></i> 电子证书
                                     </a>
                                 </div>
                             </td>
@@ -149,6 +163,11 @@
                                     <i class="fa-solid fa-bullhorn text-[10px]"></i> 公示中
                                 </span>
                             </td>
+                            <td class="p-4">
+                                <span class="inline-flex items-center gap-1.5 px-2 py-0.5 rounded text-xs font-bold bg-amber-50 text-amber-700 border border-amber-100">
+                                    <i class="fa-solid fa-circle-exclamation text-[10px]"></i> 未配置
+                                </span>
+                            </td>
                             <td class="p-4 text-right pr-6">
                                 <div class="flex items-center justify-end gap-2">
                                     <a href="#" class="text-slate-600 hover:text-brand-600 text-xs font-bold border border-slate-200 bg-white hover:bg-slate-50 px-3 py-1.5 rounded transition inline-flex items-center gap-1">
@@ -156,6 +175,51 @@
                                     </a>
                                     <a href="certificate-detail.html" target="_blank" class="text-brand-600 hover:text-brand-700 text-xs font-bold border border-brand-200 bg-brand-50 hover:bg-brand-100 px-3 py-1.5 rounded transition inline-flex items-center gap-1">
                                         <i class="fa-solid fa-gear"></i> 管理证书
+                                    </a>
+                                    <a href="28_证书实例管理.html" class="text-amber-600 hover:text-amber-700 text-xs font-bold border border-amber-200 bg-amber-50 hover:bg-amber-100 px-3 py-1.5 rounded transition inline-flex items-center gap-1">
+                                        <i class="fa-solid fa-file-certificate"></i> 配置电子证书
+                                    </a>
+                                </div>
+                            </td>
+                        </tr>
+
+                        <tr class="hover-row transition group">
+                            <td class="p-4 pl-6">
+                                <p class="font-bold text-slate-800">2026春季 C++ 算法设计三级测评</p>
+                                <p class="text-xs text-slate-400 font-mono mt-0.5">ID: 1003</p>
+                            </td>
+                            <td class="p-4 font-mono text-slate-600">520</td>
+                            <td class="p-4 text-slate-500 text-xs">2026-04-15 10:00</td>
+                            <td class="p-4">
+                                <div class="flex items-center gap-2">
+                                    <span class="font-mono font-bold text-brand-600">480</span>
+                                    <span class="text-slate-300">/</span>
+                                    <span class="font-mono text-slate-500">520</span>
+                                </div>
+                                <div class="w-24 h-1 bg-slate-100 rounded-full mt-1.5 overflow-hidden">
+                                    <div class="h-full bg-brand-500 rounded-full" style="width: 92%"></div>
+                                </div>
+                            </td>
+                            <td class="p-4">
+                                <span class="inline-flex items-center gap-1.5 px-2 py-0.5 rounded text-xs font-bold bg-green-50 text-green-700 border border-green-100">
+                                    <i class="fa-solid fa-truck-fast text-[10px]"></i> 已寄送
+                                </span>
+                            </td>
+                            <td class="p-4">
+                                <span class="inline-flex items-center gap-1.5 px-2 py-0.5 rounded text-xs font-bold bg-green-50 text-green-700 border border-green-100">
+                                    <i class="fa-solid fa-circle-check text-[10px]"></i> 已配置
+                                </span>
+                            </td>
+                            <td class="p-4 text-right pr-6">
+                                <div class="flex items-center justify-end gap-2">
+                                    <a href="#" class="text-slate-600 hover:text-brand-600 text-xs font-bold border border-slate-200 bg-white hover:bg-slate-50 px-3 py-1.5 rounded transition inline-flex items-center gap-1">
+                                        <i class="fa-solid fa-user-graduate"></i> 查看考生证书
+                                    </a>
+                                    <a href="certificate-detail.html" target="_blank" class="text-brand-600 hover:text-brand-700 text-xs font-bold border border-brand-200 bg-brand-50 hover:bg-brand-100 px-3 py-1.5 rounded transition inline-flex items-center gap-1">
+                                        <i class="fa-solid fa-gear"></i> 管理证书
+                                    </a>
+                                    <a href="28_证书实例管理.html" class="text-brand-600 hover:text-brand-700 text-xs font-bold border border-brand-200 bg-brand-50 hover:bg-brand-100 px-3 py-1.5 rounded transition inline-flex items-center gap-1">
+                                        <i class="fa-solid fa-file-certificate"></i> 电子证书
                                     </a>
                                 </div>
                             </td>

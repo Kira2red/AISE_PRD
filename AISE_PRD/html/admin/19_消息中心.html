@@ -68,12 +68,18 @@
 
         <div class="px-8 py-6">
             <div class="flex items-center gap-6 border-b border-slate-200">
-                <button class="pb-3 border-b-2 border-brand-600 text-brand-600 font-bold text-sm">导出记录</button>
-                <button class="pb-3 border-b-2 border-transparent text-slate-500 hover:text-slate-700 font-medium text-sm transition">系统通知</button>
+                <button class="pb-3 border-b-2 border-brand-600 text-brand-600 font-bold text-sm tab-btn" data-tab="export" onclick="switchTab('export')">导出记录</button>
+                <button class="pb-3 border-b-2 border-transparent text-slate-500 hover:text-slate-700 font-medium text-sm transition tab-btn relative" data-tab="notify" onclick="switchTab('notify')">
+                    系统通知
+                    <span class="absolute -top-0.5 -right-2.5 w-4 h-4 rounded-full bg-red-500 text-white text-[10px] font-bold flex items-center justify-center">2</span>
+                </button>
             </div>
         </div>
 
         <div class="flex-1 overflow-y-auto px-8 pb-8 custom-scroll">
+
+            <!-- Tab: 导出记录 -->
+            <div id="tab-export">
             <div class="bg-white rounded-xl shadow-card border border-slate-200 overflow-hidden">
                 <table class="w-full text-left border-collapse">
                     <thead>
@@ -243,20 +249,106 @@
             <div class="mt-6 flex justify-center">
                 <button class="text-xs text-slate-400 hover:text-brand-600 transition">加载更多历史记录 <i class="fa-solid fa-chevron-down ml-1"></i></button>
             </div>
+            </div>
+
+            <!-- Tab: 系统通知 -->
+            <div id="tab-notify" class="hidden">
+                <div class="space-y-3">
+
+                    <div class="bg-white rounded-xl shadow-card border border-slate-200 p-5 flex items-start gap-4 hover:shadow-md transition">
+                        <div class="w-9 h-9 rounded-full bg-green-50 text-green-600 flex items-center justify-center flex-shrink-0 mt-0.5">
+                            <i class="fa-solid fa-play"></i>
+                        </div>
+                        <div class="flex-1 min-w-0">
+                            <div class="flex items-center gap-2 mb-1">
+                                <span class="inline-flex items-center gap-1 px-2 py-0.5 rounded text-[10px] font-bold bg-green-50 text-green-700 border border-green-100">签发启动</span>
+                                <span class="text-[10px] text-slate-300">·</span>
+                                <span class="text-[10px] text-slate-400 font-mono">2026-05-12 09:00:05</span>
+                            </div>
+                            <p class="text-sm font-bold text-slate-800">电子证书签发已启动</p>
+                            <p class="text-xs text-slate-400 mt-1">操作用户：软协管理员 · 签发中心<br>全局签发开关已开启，所有测评恢复证书签发。</p>
+                        </div>
+                        <button class="text-xs text-slate-300 hover:text-slate-500 flex-shrink-0 mt-0.5" title="标为已读"><i class="fa-solid fa-check"></i></button>
+                    </div>
+
+                    <div class="bg-white rounded-xl shadow-card border border-slate-200 p-5 flex items-start gap-4 hover:shadow-md transition bg-amber-50/30">
+                        <div class="w-9 h-9 rounded-full bg-red-50 text-red-500 flex items-center justify-center flex-shrink-0 mt-0.5">
+                            <i class="fa-solid fa-pause"></i>
+                        </div>
+                        <div class="flex-1 min-w-0">
+                            <div class="flex items-center gap-2 mb-1">
+                                <span class="inline-flex items-center gap-1 px-2 py-0.5 rounded text-[10px] font-bold bg-red-50 text-red-700 border border-red-100">签发停止</span>
+                                <span class="text-[10px] text-slate-300">·</span>
+                                <span class="text-[10px] text-red-400 font-mono">未读</span>
+                            </div>
+                            <p class="text-sm font-bold text-slate-800">电子证书签发已停止</p>
+                            <p class="text-xs text-slate-400 mt-1">操作用户：软协管理员 · 签发中心<br>全局签发开关已关闭，所有测评暂停签发新证书。已入队的任务将继续完成。</p>
+                        </div>
+                        <button class="text-xs text-slate-300 hover:text-blue-500 flex-shrink-0 mt-0.5" title="标为已读"><i class="fa-solid fa-check"></i></button>
+                    </div>
+
+                    <div class="bg-white rounded-xl shadow-card border border-slate-200 p-5 flex items-start gap-4 hover:shadow-md transition">
+                        <div class="w-9 h-9 rounded-full bg-green-50 text-green-600 flex items-center justify-center flex-shrink-0 mt-0.5">
+                            <i class="fa-solid fa-play"></i>
+                        </div>
+                        <div class="flex-1 min-w-0">
+                            <div class="flex items-center gap-2 mb-1">
+                                <span class="inline-flex items-center gap-1 px-2 py-0.5 rounded text-[10px] font-bold bg-green-50 text-green-700 border border-green-100">签发启动</span>
+                                <span class="text-[10px] text-slate-300">·</span>
+                                <span class="text-[10px] text-slate-400 font-mono">2026-05-11 14:20:18</span>
+                            </div>
+                            <p class="text-sm font-bold text-slate-800">电子证书签发已启动</p>
+                            <p class="text-xs text-slate-400 mt-1">操作用户：软协管理员 · 签发中心<br>全局签发开关已开启，所有测评恢复证书签发。</p>
+                        </div>
+                        <button class="text-xs text-slate-300 hover:text-slate-500 flex-shrink-0 mt-0.5" title="标为已读"><i class="fa-solid fa-check"></i></button>
+                    </div>
+
+                    <div class="bg-white rounded-xl shadow-card border border-slate-200 p-5 flex items-start gap-4 hover:shadow-md transition">
+                        <div class="w-9 h-9 rounded-full bg-red-50 text-red-500 flex items-center justify-center flex-shrink-0 mt-0.5">
+                            <i class="fa-solid fa-pause"></i>
+                        </div>
+                        <div class="flex-1 min-w-0">
+                            <div class="flex items-center gap-2 mb-1">
+                                <span class="inline-flex items-center gap-1 px-2 py-0.5 rounded text-[10px] font-bold bg-red-50 text-red-700 border border-red-100">签发停止</span>
+                                <span class="text-[10px] text-slate-300">·</span>
+                                <span class="text-[10px] text-slate-400 font-mono">2026-05-10 18:05:33</span>
+                            </div>
+                            <p class="text-sm font-bold text-slate-800">电子证书签发已停止</p>
+                            <p class="text-xs text-slate-400 mt-1">操作用户：软协管理员 · 签发中心<br>全局签发开关已关闭，所有测评暂停签发新证书。</p>
+                        </div>
+                        <button class="text-xs text-slate-300 hover:text-slate-500 flex-shrink-0 mt-0.5" title="标为已读"><i class="fa-solid fa-check"></i></button>
+                    </div>
+
+                </div>
+
+                <div class="mt-6 flex justify-center">
+                    <button class="text-xs text-slate-400 hover:text-brand-600 transition">加载更多 <i class="fa-solid fa-chevron-down ml-1"></i></button>
+                </div>
+            </div>
         </div>
 
     </main>
 
     <script>
+        function switchTab(tab) {
+            document.querySelectorAll('.tab-btn').forEach(btn => {
+                const isActive = btn.dataset.tab === tab;
+                btn.classList.toggle('border-brand-600', isActive);
+                btn.classList.toggle('text-brand-600', isActive);
+                btn.classList.toggle('font-bold', isActive);
+                btn.classList.toggle('border-transparent', !isActive);
+                btn.classList.toggle('text-slate-500', !isActive);
+                btn.classList.toggle('font-medium', !isActive);
+            });
+            document.getElementById('tab-export').classList.toggle('hidden', tab !== 'export');
+            document.getElementById('tab-notify').classList.toggle('hidden', tab !== 'notify');
+        }
+
         function downloadFile(fileName) {
-            // 模拟下载
             const link = document.createElement("a");
-            link.setAttribute("href", "#"); // 实际应为文件URL
+            link.setAttribute("href", "#");
             link.setAttribute("download", fileName);
             alert(`正在开始下载文件：${fileName}`);
-            // document.body.appendChild(link);
-            // link.click();
-            // document.body.removeChild(link);
         }
     </script>
 </body>

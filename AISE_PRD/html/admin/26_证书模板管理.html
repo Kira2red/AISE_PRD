@@ -1,0 +1,457 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>证书模板管理 - AISE 后台</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <script>
+        tailwind.config = {
+            theme: {
+                extend: {
+                    fontFamily: { sans: ['Inter', 'sans-serif'], mono: ['JetBrains Mono', 'monospace'] },
+                    colors: { brand: { 50: '#eff6ff', 100: '#dbeafe', 500: '#3b82f6', 600: '#2563eb', 700: '#1d4ed8' } },
+                    boxShadow: { 'card': '0 1px 3px 0 rgba(0, 0, 0, 0.1), 0 1px 2px 0 rgba(0, 0, 0, 0.06)' }
+                }
+            }
+        }
+    </script>
+    <style>
+        body { background-color: #F8FAFC; }
+        .nav-item.active::before {
+            content: ''; position: absolute; left: 0; top: 50%; transform: translateY(-50%);
+            width: 4px; height: 24px; background-color: #3b82f6; border-radius: 0 4px 4px 0;
+        }
+        .template-card { break-inside: avoid; }
+        .template-card:hover .card-overlay { opacity: 1; }
+        .template-card.disabled { opacity: 0.55; }
+        .template-card.disabled:hover { opacity: 0.75; }
+        .custom-scroll::-webkit-scrollbar { width: 6px; }
+        .custom-scroll::-webkit-scrollbar-track { background: transparent; }
+        .custom-scroll::-webkit-scrollbar-thumb { background-color: #cbd5e1; border-radius: 4px; }
+        /* Toggle Switch */
+        .toggle-switch { position: relative; display: inline-block; width: 34px; height: 20px; }
+        .toggle-switch input { opacity: 0; width: 0; height: 0; }
+        .toggle-slider { position: absolute; cursor: pointer; top: 0; left: 0; right: 0; bottom: 0; background-color: #cbd5e1; transition: .2s; border-radius: 20px; }
+        .toggle-slider:before { position: absolute; content: ""; height: 14px; width: 14px; left: 3px; bottom: 3px; background-color: white; transition: .2s; border-radius: 50%; }
+        input:checked + .toggle-slider { background-color: #22c55e; }
+        input:checked + .toggle-slider:before { transform: translateX(14px); }
+    </style>
+</head>
+<body class="flex h-screen overflow-hidden text-slate-800 font-sans">
+
+    <aside class="w-64 bg-white border-r border-slate-200 flex flex-col flex-shrink-0 z-20">
+        <div class="h-16 flex items-center px-6 border-b border-slate-100">
+            <div class="w-8 h-8 bg-gradient-to-br from-brand-600 to-indigo-600 rounded-lg flex items-center justify-center text-white font-bold text-lg mr-3 shadow-sm">A</div>
+            <span class="font-bold text-lg text-slate-800 tracking-tight">AISE Admin</span>
+        </div>
+        <nav class="flex-1 overflow-y-auto py-4 space-y-1">
+            <a href="#" class="nav-item flex items-center gap-3 px-6 py-3 text-slate-500 hover:bg-slate-50 hover:text-brand-600 transition relative">
+                <i class="fa-solid fa-graduation-cap w-5 text-center"></i><span class="font-medium text-sm">测评管理</span>
+            </a>
+            <div class="px-6 py-2 mt-4 text-xs font-bold text-slate-400 uppercase tracking-wider">证书管理</div>
+            <a href="#" class="nav-item flex items-center gap-3 px-6 py-3 text-slate-500 hover:bg-slate-50 hover:text-brand-600 transition relative">
+                <i class="fa-solid fa-certificate w-5 text-center"></i><span class="font-medium text-sm">活动证书管理</span>
+            </a>
+            <a href="#" class="nav-item flex items-center gap-3 px-6 py-3 text-slate-500 hover:bg-slate-50 hover:text-brand-600 transition relative">
+                <i class="fa-solid fa-user-graduate w-5 text-center"></i><span class="font-medium text-sm">学生证书管理</span>
+            </a>
+            <a href="#" class="nav-item active flex items-center gap-3 px-6 py-3 text-brand-600 bg-brand-50 transition relative">
+                <i class="fa-solid fa-palette w-5 text-center"></i><span class="font-medium text-sm">证书模板管理</span>
+            </a>
+            <a href="#" class="nav-item flex items-center gap-3 px-6 py-3 text-slate-500 hover:bg-slate-50 hover:text-brand-600 transition relative">
+                <i class="fa-solid fa-link w-5 text-center"></i><span class="font-medium text-sm">证书实例管理</span>
+            </a>
+            <div class="px-6 py-2 mt-4 text-xs font-bold text-slate-400 uppercase tracking-wider">考务与用户</div>
+            <a href="#" class="nav-item flex items-center gap-3 px-6 py-3 text-slate-500 hover:bg-slate-50 hover:text-brand-600 transition relative">
+                <i class="fa-solid fa-users w-5 text-center"></i><span class="font-medium text-sm">考生管理</span>
+            </a>
+        </nav>
+    </aside>
+
+    <main class="flex-1 flex flex-col min-w-0 bg-slate-50/50 relative">
+
+        <header class="h-16 bg-white border-b border-slate-200 flex items-center justify-between px-8 flex-shrink-0 z-10">
+            <div class="flex items-center gap-3">
+                <h1 class="text-xl font-bold text-slate-800">证书模板管理</h1>
+                <span class="text-xs text-slate-400 bg-slate-100 px-2 py-0.5 rounded font-mono" id="tpl-count">共 6 个模板</span>
+            </div>
+            <div class="flex items-center gap-2 text-xs text-slate-500 bg-blue-50 px-3 py-1.5 rounded-lg border border-blue-100">
+                <i class="fa-solid fa-shield-halved text-brand-600"></i>
+                <span>管理员：Admin</span>
+            </div>
+        </header>
+
+        <div class="px-8 py-6">
+            <div class="flex items-center justify-between gap-4">
+                <div class="flex items-center gap-3">
+                    <div class="relative w-64">
+                        <i class="fa-solid fa-magnifying-glass absolute left-3 top-1/2 transform -translate-y-1/2 text-slate-400 text-sm"></i>
+                        <input type="text" placeholder="搜索模板名称..." class="w-full pl-9 pr-4 py-2 rounded-lg border border-slate-200 text-sm focus:border-brand-500 outline-none transition bg-white">
+                    </div>
+                    <select class="px-3 py-2 rounded-lg border border-slate-200 text-sm text-slate-600 bg-white outline-none hover:border-slate-300 cursor-pointer">
+                        <option value="">所有启用状态</option>
+                        <option value="enabled">已启用</option>
+                        <option value="disabled">已禁用</option>
+                    </select>
+                </div>
+                <button onclick="window.location.href='27_证书模板编辑器.html'" class="bg-brand-600 hover:bg-brand-700 text-white text-sm font-bold px-5 py-2.5 rounded-lg shadow-md transition flex items-center gap-2 flex-shrink-0">
+                    <i class="fa-solid fa-plus"></i> 新建模板
+                </button>
+            </div>
+        </div>
+
+        <div class="flex-1 overflow-y-auto px-8 pb-8 custom-scroll">
+            <!-- 已启用模板 -->
+            <div class="mb-2">
+                <p class="text-xs font-bold text-slate-400 uppercase tracking-wider px-1">已启用 <span class="font-mono text-slate-300" id="enabled-count">4</span></p>
+            </div>
+            <div class="columns-1 md:columns-2 lg:columns-3 xl:columns-4 gap-5 space-y-5" id="enabled-grid">
+
+                <!-- 模板卡片 1 - A4 竖版 210×297 -->
+                <div class="template-card bg-white rounded-xl shadow-card border border-slate-200 overflow-hidden hover:shadow-md hover:border-brand-200 transition group cursor-pointer relative" data-status="enabled">
+                    <div class="relative w-full overflow-hidden bg-slate-100 p-3 flex items-center justify-center" onclick="window.location.href='27_证书模板编辑器.html'">
+                        <div style="padding-bottom: 141.4%" class="relative w-full">
+                            <div class="absolute inset-0 bg-white shadow-sm border border-slate-200 flex items-center justify-center">
+                                <div class="absolute inset-3 border-2 border-amber-400/30 rounded"></div>
+                                <div class="text-center">
+                                    <p class="font-serif text-base font-bold text-slate-800">等级测评证书</p>
+                                    <p class="text-[8px] text-slate-400 mt-1">CERTIFICATE</p>
+                                    <div class="w-16 h-px bg-slate-300 mx-auto my-1"></div>
+                                    <p class="text-[10px] text-slate-400 italic">考生姓名</p>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="card-overlay absolute inset-0 bg-brand-600/10 flex items-center justify-center opacity-0 transition z-10">
+                            <span class="bg-white text-brand-600 text-xs font-bold px-3 py-1.5 rounded-lg shadow-md">点击编辑</span>
+                        </div>
+                    </div>
+                    <div class="p-4 border-t border-slate-100">
+                        <div class="flex items-start justify-between gap-2">
+                            <div class="flex-1 min-w-0">
+                                <div class="flex items-center gap-2">
+                                    <h3 class="font-bold text-sm text-slate-800 truncate">等级测评证书（默认模板）</h3>
+                                    <span class="inline-flex items-center gap-1 px-1.5 py-0.5 rounded text-[10px] font-bold bg-green-50 text-green-700 border border-green-100 flex-shrink-0">
+                                        <i class="fa-solid fa-circle text-[4px]"></i> 启用
+                                    </span>
+                                </div>
+                                <p class="text-[11px] text-slate-400 mt-1">210 × 297mm · 更新于 2026-04-20</p>
+                            </div>
+                        </div>
+                        <div class="flex items-center gap-1 mt-3 pt-3 border-t border-slate-50">
+                            <button class="flex-1 text-xs font-medium text-slate-500 hover:text-brand-600 hover:bg-brand-50 py-1.5 rounded transition" onclick="window.location.href='27_证书模板编辑器.html'">
+                                <i class="fa-solid fa-pen-to-square mr-1"></i>编辑
+                            </button>
+                            <span class="w-px h-4 bg-slate-200"></span>
+                            <button class="flex-1 text-xs font-medium text-slate-500 hover:text-green-600 hover:bg-green-50 py-1.5 rounded transition" onclick="copyTemplate(event, this)">
+                                <i class="fa-regular fa-copy mr-1"></i>复制
+                            </button>
+                            <span class="w-px h-4 bg-slate-200"></span>
+                            <button class="flex-1 text-xs font-medium text-slate-500 hover:text-orange-600 hover:bg-orange-50 py-1.5 rounded transition" onclick="toggleTemplate(event, this)" data-action="disable">
+                                <i class="fa-solid fa-toggle-off mr-1"></i>禁用
+                            </button>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- 模板卡片 2 - A4 横版 297×210 -->
+                <div class="template-card bg-white rounded-xl shadow-card border border-slate-200 overflow-hidden hover:shadow-md hover:border-brand-200 transition group cursor-pointer relative" data-status="enabled">
+                    <div class="relative w-full overflow-hidden bg-slate-100 p-3 flex items-center justify-center" onclick="window.location.href='27_证书模板编辑器.html'">
+                        <div style="padding-bottom: 70.7%" class="relative w-full">
+                            <div class="absolute inset-0 bg-gradient-to-br from-indigo-50 to-blue-100 shadow-sm border border-indigo-200 flex items-center justify-center">
+                                <div class="text-center">
+                                    <p class="text-sm font-bold text-indigo-800 tracking-wider">信息学奥赛</p>
+                                    <p class="text-[8px] text-indigo-400 mt-1">INFORMATICS OLYMPIAD</p>
+                                    <div class="w-10 h-0.5 bg-indigo-400 mx-auto my-1.5"></div>
+                                    <p class="text-[10px] text-indigo-400">一等奖</p>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="card-overlay absolute inset-0 bg-brand-600/10 flex items-center justify-center opacity-0 transition z-10">
+                            <span class="bg-white text-brand-600 text-xs font-bold px-3 py-1.5 rounded-lg shadow-md">点击编辑</span>
+                        </div>
+                    </div>
+                    <div class="p-4 border-t border-slate-100">
+                        <div class="flex items-start justify-between gap-2">
+                            <div class="flex-1 min-w-0">
+                                <div class="flex items-center gap-2">
+                                    <h3 class="font-bold text-sm text-slate-800 truncate">信息学奥赛一等奖证书</h3>
+                                    <span class="inline-flex items-center gap-1 px-1.5 py-0.5 rounded text-[10px] font-bold bg-green-50 text-green-700 border border-green-100 flex-shrink-0">
+                                        <i class="fa-solid fa-circle text-[4px]"></i> 启用
+                                    </span>
+                                </div>
+                                <p class="text-[11px] text-slate-400 mt-1">297 × 210mm · 更新于 2026-05-01</p>
+                            </div>
+                        </div>
+                        <div class="flex items-center gap-1 mt-3 pt-3 border-t border-slate-50">
+                            <button class="flex-1 text-xs font-medium text-slate-500 hover:text-brand-600 hover:bg-brand-50 py-1.5 rounded transition" onclick="window.location.href='27_证书模板编辑器.html'">
+                                <i class="fa-solid fa-pen-to-square mr-1"></i>编辑
+                            </button>
+                            <span class="w-px h-4 bg-slate-200"></span>
+                            <button class="flex-1 text-xs font-medium text-slate-500 hover:text-green-600 hover:bg-green-50 py-1.5 rounded transition" onclick="copyTemplate(event, this)">
+                                <i class="fa-regular fa-copy mr-1"></i>复制
+                            </button>
+                            <span class="w-px h-4 bg-slate-200"></span>
+                            <button class="flex-1 text-xs font-medium text-slate-500 hover:text-orange-600 hover:bg-orange-50 py-1.5 rounded transition" onclick="toggleTemplate(event, this)" data-action="disable">
+                                <i class="fa-solid fa-toggle-off mr-1"></i>禁用
+                            </button>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- 模板卡片 3 - 自定义尺寸 200×260 -->
+                <div class="template-card bg-white rounded-xl shadow-card border border-slate-200 overflow-hidden hover:shadow-md hover:border-brand-200 transition group cursor-pointer relative" data-status="enabled">
+                    <div class="relative w-full overflow-hidden bg-slate-100 p-3 flex items-center justify-center" onclick="window.location.href='27_证书模板编辑器.html'">
+                        <div style="padding-bottom: 130%" class="relative w-full">
+                            <div class="absolute inset-0 bg-gradient-to-br from-emerald-50 to-teal-100 shadow-sm border border-emerald-200 flex items-center justify-center">
+                                <div class="text-center">
+                                    <p class="text-sm font-bold text-emerald-800">AIGC 应用能力</p>
+                                    <p class="text-[8px] text-emerald-400 mt-1">AIGC COMPETENCY</p>
+                                    <div class="w-10 h-0.5 bg-emerald-400 mx-auto my-1.5"></div>
+                                    <p class="text-[10px] text-emerald-400">证书</p>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="card-overlay absolute inset-0 bg-brand-600/10 flex items-center justify-center opacity-0 transition z-10">
+                            <span class="bg-white text-brand-600 text-xs font-bold px-3 py-1.5 rounded-lg shadow-md">点击编辑</span>
+                        </div>
+                    </div>
+                    <div class="p-4 border-t border-slate-100">
+                        <div class="flex items-start justify-between gap-2">
+                            <div class="flex-1 min-w-0">
+                                <div class="flex items-center gap-2">
+                                    <h3 class="font-bold text-sm text-slate-800 truncate">AIGC 应用能力认证证书</h3>
+                                    <span class="inline-flex items-center gap-1 px-1.5 py-0.5 rounded text-[10px] font-bold bg-green-50 text-green-700 border border-green-100 flex-shrink-0">
+                                        <i class="fa-solid fa-circle text-[4px]"></i> 启用
+                                    </span>
+                                </div>
+                                <p class="text-[11px] text-slate-400 mt-1">200 × 260mm · 更新于 2026-04-28</p>
+                            </div>
+                        </div>
+                        <div class="flex items-center gap-1 mt-3 pt-3 border-t border-slate-50">
+                            <button class="flex-1 text-xs font-medium text-slate-500 hover:text-brand-600 hover:bg-brand-50 py-1.5 rounded transition" onclick="window.location.href='27_证书模板编辑器.html'">
+                                <i class="fa-solid fa-pen-to-square mr-1"></i>编辑
+                            </button>
+                            <span class="w-px h-4 bg-slate-200"></span>
+                            <button class="flex-1 text-xs font-medium text-slate-500 hover:text-green-600 hover:bg-green-50 py-1.5 rounded transition" onclick="copyTemplate(event, this)">
+                                <i class="fa-regular fa-copy mr-1"></i>复制
+                            </button>
+                            <span class="w-px h-4 bg-slate-200"></span>
+                            <button class="flex-1 text-xs font-medium text-slate-500 hover:text-orange-600 hover:bg-orange-50 py-1.5 rounded transition" onclick="toggleTemplate(event, this)" data-action="disable">
+                                <i class="fa-solid fa-toggle-off mr-1"></i>禁用
+                            </button>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- 模板卡片 4 - A4 竖版 210×297 -->
+                <div class="template-card bg-white rounded-xl shadow-card border border-slate-200 overflow-hidden hover:shadow-md hover:border-brand-200 transition group cursor-pointer relative" data-status="enabled">
+                    <div class="relative w-full overflow-hidden bg-slate-100 p-3 flex items-center justify-center" onclick="window.location.href='27_证书模板编辑器.html'">
+                        <div style="padding-bottom: 141.4%" class="relative w-full">
+                            <div class="absolute inset-0 bg-gradient-to-br from-purple-50 to-violet-100 shadow-sm border border-purple-200 flex items-center justify-center">
+                                <div class="text-center">
+                                    <p class="text-sm font-bold text-purple-800">Python 编程</p>
+                                    <p class="text-[8px] text-purple-400 mt-1">PYTHON PROGRAMMING</p>
+                                    <div class="w-10 h-0.5 bg-purple-400 mx-auto my-1.5"></div>
+                                    <p class="text-[10px] text-purple-400">等级认证</p>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="card-overlay absolute inset-0 bg-brand-600/10 flex items-center justify-center opacity-0 transition z-10">
+                            <span class="bg-white text-brand-600 text-xs font-bold px-3 py-1.5 rounded-lg shadow-md">点击编辑</span>
+                        </div>
+                    </div>
+                    <div class="p-4 border-t border-slate-100">
+                        <div class="flex items-start justify-between gap-2">
+                            <div class="flex-1 min-w-0">
+                                <div class="flex items-center gap-2">
+                                    <h3 class="font-bold text-sm text-slate-800 truncate">Python 编程等级认证证书</h3>
+                                    <span class="inline-flex items-center gap-1 px-1.5 py-0.5 rounded text-[10px] font-bold bg-green-50 text-green-700 border border-green-100 flex-shrink-0">
+                                        <i class="fa-solid fa-circle text-[4px]"></i> 启用
+                                    </span>
+                                </div>
+                                <p class="text-[11px] text-slate-400 mt-1">210 × 297mm · 更新于 2026-03-15</p>
+                            </div>
+                        </div>
+                        <div class="flex items-center gap-1 mt-3 pt-3 border-t border-slate-50">
+                            <button class="flex-1 text-xs font-medium text-slate-500 hover:text-brand-600 hover:bg-brand-50 py-1.5 rounded transition" onclick="window.location.href='27_证书模板编辑器.html'">
+                                <i class="fa-solid fa-pen-to-square mr-1"></i>编辑
+                            </button>
+                            <span class="w-px h-4 bg-slate-200"></span>
+                            <button class="flex-1 text-xs font-medium text-slate-500 hover:text-green-600 hover:bg-green-50 py-1.5 rounded transition" onclick="copyTemplate(event, this)">
+                                <i class="fa-regular fa-copy mr-1"></i>复制
+                            </button>
+                            <span class="w-px h-4 bg-slate-200"></span>
+                            <button class="flex-1 text-xs font-medium text-slate-500 hover:text-orange-600 hover:bg-orange-50 py-1.5 rounded transition" onclick="toggleTemplate(event, this)" data-action="disable">
+                                <i class="fa-solid fa-toggle-off mr-1"></i>禁用
+                            </button>
+                        </div>
+                    </div>
+                </div>
+
+            </div>
+
+            <!-- 已禁用模板 -->
+            <div class="mt-6 mb-2">
+                <p class="text-xs font-bold text-slate-400 uppercase tracking-wider px-1">已禁用 <span class="font-mono text-slate-300" id="disabled-count">2</span></p>
+            </div>
+            <div class="columns-1 md:columns-2 lg:columns-3 xl:columns-4 gap-5 space-y-5" id="disabled-grid">
+
+                <!-- 模板卡片 5 - 已禁用 -->
+                <div class="template-card disabled bg-white rounded-xl shadow-card border border-slate-200 overflow-hidden hover:border-slate-300 transition group cursor-pointer relative" data-status="disabled">
+                    <div class="relative w-full overflow-hidden bg-slate-100 p-3 flex items-center justify-center" onclick="window.location.href='27_证书模板编辑器.html'">
+                        <div style="padding-bottom: 70.7%" class="relative w-full">
+                            <div class="absolute inset-0 bg-gradient-to-br from-rose-50 to-red-100 shadow-sm border border-rose-200 flex items-center justify-center">
+                                <div class="text-center">
+                                    <p class="text-sm font-bold text-rose-800">C++ 算法设计</p>
+                                    <p class="text-[8px] text-rose-400 mt-1">ALGORITHM DESIGN</p>
+                                    <div class="w-10 h-0.5 bg-rose-400 mx-auto my-1.5"></div>
+                                    <p class="text-[10px] text-rose-400">认证证书</p>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="p-4 border-t border-slate-100">
+                        <div class="flex items-start justify-between gap-2">
+                            <div class="flex-1 min-w-0">
+                                <div class="flex items-center gap-2">
+                                    <h3 class="font-bold text-sm text-slate-500 truncate">C++ 算法设计认证证书</h3>
+                                    <span class="inline-flex items-center gap-1 px-1.5 py-0.5 rounded text-[10px] font-bold bg-slate-100 text-slate-500 border border-slate-200 flex-shrink-0">
+                                        <i class="fa-solid fa-circle text-[4px]"></i> 已禁用
+                                    </span>
+                                </div>
+                                <p class="text-[11px] text-slate-400 mt-1">297 × 210mm · 更新于 2026-05-05</p>
+                            </div>
+                        </div>
+                        <div class="flex items-center gap-1 mt-3 pt-3 border-t border-slate-50">
+                            <button class="flex-1 text-xs font-medium text-slate-400 hover:text-brand-600 hover:bg-brand-50 py-1.5 rounded transition" onclick="window.location.href='27_证书模板编辑器.html'">
+                                <i class="fa-solid fa-pen-to-square mr-1"></i>编辑
+                            </button>
+                            <span class="w-px h-4 bg-slate-200"></span>
+                            <button class="flex-1 text-xs font-medium text-slate-400 hover:text-green-600 hover:bg-green-50 py-1.5 rounded transition" onclick="copyTemplate(event, this)">
+                                <i class="fa-regular fa-copy mr-1"></i>复制
+                            </button>
+                            <span class="w-px h-4 bg-slate-200"></span>
+                            <button class="flex-1 text-xs font-medium text-slate-500 hover:text-green-600 hover:bg-green-50 py-1.5 rounded transition" onclick="toggleTemplate(event, this)" data-action="enable">
+                                <i class="fa-solid fa-toggle-on mr-1"></i>启用
+                            </button>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- 模板卡片 6 - 已禁用 -->
+                <div class="template-card disabled bg-white rounded-xl shadow-card border border-slate-200 overflow-hidden hover:border-slate-300 transition group cursor-pointer relative" data-status="disabled">
+                    <div class="relative w-full overflow-hidden bg-slate-100 p-3 flex items-center justify-center" onclick="window.location.href='27_证书模板编辑器.html'">
+                        <div style="padding-bottom: 141.4%" class="relative w-full">
+                            <div class="absolute inset-0 bg-gradient-to-br from-amber-50 to-orange-100 shadow-sm border border-amber-200 flex items-center justify-center">
+                                <div class="text-center">
+                                    <p class="text-sm font-bold text-amber-800">预备测评证书</p>
+                                    <p class="text-[8px] text-amber-400 mt-1">PRE-EVALUATION</p>
+                                    <div class="w-10 h-0.5 bg-amber-400 mx-auto my-1.5"></div>
+                                    <p class="text-[10px] text-amber-400">参与证明</p>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="p-4 border-t border-slate-100">
+                        <div class="flex items-start justify-between gap-2">
+                            <div class="flex-1 min-w-0">
+                                <div class="flex items-center gap-2">
+                                    <h3 class="font-bold text-sm text-slate-500 truncate">预备测评参与证明</h3>
+                                    <span class="inline-flex items-center gap-1 px-1.5 py-0.5 rounded text-[10px] font-bold bg-slate-100 text-slate-500 border border-slate-200 flex-shrink-0">
+                                        <i class="fa-solid fa-circle text-[4px]"></i> 已禁用
+                                    </span>
+                                </div>
+                                <p class="text-[11px] text-slate-400 mt-1">210 × 297mm · 更新于 2026-04-10</p>
+                            </div>
+                        </div>
+                        <div class="flex items-center gap-1 mt-3 pt-3 border-t border-slate-50">
+                            <button class="flex-1 text-xs font-medium text-slate-400 hover:text-brand-600 hover:bg-brand-50 py-1.5 rounded transition" onclick="window.location.href='27_证书模板编辑器.html'">
+                                <i class="fa-solid fa-pen-to-square mr-1"></i>编辑
+                            </button>
+                            <span class="w-px h-4 bg-slate-200"></span>
+                            <button class="flex-1 text-xs font-medium text-slate-400 hover:text-green-600 hover:bg-green-50 py-1.5 rounded transition" onclick="copyTemplate(event, this)">
+                                <i class="fa-regular fa-copy mr-1"></i>复制
+                            </button>
+                            <span class="w-px h-4 bg-slate-200"></span>
+                            <button class="flex-1 text-xs font-medium text-slate-500 hover:text-green-600 hover:bg-green-50 py-1.5 rounded transition" onclick="toggleTemplate(event, this)" data-action="enable">
+                                <i class="fa-solid fa-toggle-on mr-1"></i>启用
+                            </button>
+                        </div>
+                    </div>
+                </div>
+
+            </div>
+        </div>
+    </main>
+
+    <script>
+        function copyTemplate(e, btn) {
+            e.stopPropagation();
+            const card = btn.closest('.template-card');
+            const name = card.querySelector('h3').innerText;
+            if (confirm(`确认复制模板「${name}」？复制后将生成一份完全相同的副本。`)) {
+                alert('模板复制成功！');
+            }
+        }
+
+        function toggleTemplate(e, btn) {
+            e.stopPropagation();
+            const card = btn.closest('.template-card');
+            const name = card.querySelector('h3').innerText;
+            const action = btn.dataset.action; // 'enable' or 'disable'
+
+            if (action === 'disable') {
+                if (!confirm(`确认禁用模板「${name}」？\n\n禁用后该模板将不可用于新建证书实例，已有证书不受影响。`)) return;
+                card.classList.add('disabled');
+                card.dataset.status = 'disabled';
+                // 更新状态标签
+                const badge = card.querySelector('.inline-flex');
+                badge.className = 'inline-flex items-center gap-1 px-1.5 py-0.5 rounded text-[10px] font-bold bg-slate-100 text-slate-500 border border-slate-200 flex-shrink-0';
+                badge.innerHTML = '<i class="fa-solid fa-circle text-[4px]"></i> 已禁用';
+                // 名称变灰
+                card.querySelector('h3').classList.add('text-slate-500');
+                card.querySelector('h3').classList.remove('text-slate-800');
+                // 所有按钮变灰
+                card.querySelectorAll('button').forEach(b => b.classList.add('text-slate-400'));
+                // 更新切换按钮
+                btn.innerHTML = '<i class="fa-solid fa-toggle-on mr-1"></i>启用';
+                btn.dataset.action = 'enable';
+                btn.classList.remove('hover:text-orange-600', 'hover:bg-orange-50');
+                btn.classList.add('hover:text-green-600', 'hover:bg-green-50');
+                // 移动到禁用区
+                document.getElementById('disabled-grid').appendChild(card);
+            } else {
+                if (!confirm(`确认启用模板「${name}」？启用后将恢复可用于新建证书实例。`)) return;
+                card.classList.remove('disabled');
+                card.dataset.status = 'enabled';
+                const badge = card.querySelector('.inline-flex');
+                badge.className = 'inline-flex items-center gap-1 px-1.5 py-0.5 rounded text-[10px] font-bold bg-green-50 text-green-700 border border-green-100 flex-shrink-0';
+                badge.innerHTML = '<i class="fa-solid fa-circle text-[4px]"></i> 启用';
+                card.querySelector('h3').classList.remove('text-slate-500');
+                card.querySelector('h3').classList.add('text-slate-800');
+                card.querySelectorAll('button').forEach(b => b.classList.remove('text-slate-400'));
+                btn.innerHTML = '<i class="fa-solid fa-toggle-off mr-1"></i>禁用';
+                btn.dataset.action = 'disable';
+                btn.classList.add('hover:text-orange-600', 'hover:bg-orange-50');
+                btn.classList.remove('hover:text-green-600', 'hover:bg-green-50');
+                document.getElementById('enabled-grid').appendChild(card);
+            }
+
+            updateCounts();
+        }
+
+        function updateCounts() {
+            const enabled = document.querySelectorAll('#enabled-grid .template-card').length;
+            const disabled = document.querySelectorAll('#disabled-grid .template-card').length;
+            document.getElementById('enabled-count').innerText = enabled;
+            document.getElementById('disabled-count').innerText = disabled;
+            document.getElementById('tpl-count').innerText = `共 ${enabled + disabled} 个模板`;
+        }
+    </script>
+
+</body>
+</html>
