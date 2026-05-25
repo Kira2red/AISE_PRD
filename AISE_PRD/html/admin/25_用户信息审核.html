@@ -81,17 +81,30 @@
 
             <div class="px-8 py-6">
                 <div class="bg-white rounded-xl shadow-card border border-slate-100 p-4 flex flex-wrap gap-4 items-center">
-                    <div class="relative w-80">
+                    <div class="relative w-64">
                         <i class="fa-solid fa-magnifying-glass absolute left-3 top-1/2 transform -translate-y-1/2 text-slate-400 text-sm"></i>
                         <input type="text" placeholder="输入姓名 / 手机号 / 身份证号..." class="w-full pl-9 pr-4 py-2 rounded-lg border border-slate-200 text-sm focus:border-brand-500 outline-none transition">
                     </div>
+                    <input type="text" placeholder="渠道来源（如猿编程）" class="w-40 px-3 py-2 rounded-lg border border-slate-200 text-sm focus:border-brand-500 outline-none transition">
+                    <input type="text" placeholder="考场 / 测评场次" class="w-44 px-3 py-2 rounded-lg border border-slate-200 text-sm focus:border-brand-500 outline-none transition">
+                    <select class="px-3 py-2 rounded-lg border border-slate-200 text-sm text-slate-600 bg-white outline-none hover:border-slate-300 cursor-pointer">
+                        <option value="">审核类型</option>
+                        <option value="identity">身份信息</option>
+                        <option value="photo">照片审核</option>
+                    </select>
                     <select class="px-3 py-2 rounded-lg border border-slate-200 text-sm text-slate-600 bg-white outline-none hover:border-slate-300 cursor-pointer">
                         <option value="">审核状态</option>
                         <option value="pending" selected>待审核</option>
                         <option value="approved">已通过</option>
                         <option value="rejected">已驳回</option>
                     </select>
-                    <button class="ml-auto bg-brand-600 hover:bg-brand-700 text-white text-sm font-medium px-5 py-2 rounded-lg shadow-sm transition">查询</button>
+                    <div class="flex-1"></div>
+                    <button id="btn-batch-approve" class="hidden bg-green-600 hover:bg-green-700 text-white text-xs font-bold px-4 py-2 rounded-lg shadow-sm transition flex items-center gap-1.5" onclick="batchAction('approve')">
+                        <i class="fa-solid fa-check"></i> 批量通过
+                    </button>
+                    <button id="btn-batch-reject" class="hidden bg-red-50 hover:bg-red-100 text-red-600 border border-red-200 text-xs font-bold px-4 py-2 rounded-lg transition flex items-center gap-1.5" onclick="batchAction('reject')">
+                        <i class="fa-solid fa-xmark"></i> 批量驳回
+                    </button>
                 </div>
             </div>
 
@@ -100,51 +113,91 @@
                     <table class="w-full text-left border-collapse">
                         <thead>
                             <tr class="border-b border-slate-100 bg-slate-50 text-xs uppercase text-slate-500 font-bold">
-                                <th class="p-4 pl-6">考生姓名</th>
+                                <th class="p-4 pl-6 w-10"><input type="checkbox" class="accent-brand-600 w-3.5 h-3.5 rounded" onclick="toggleAllCheckboxes(this)"></th>
+                                <th class="p-4">考生姓名</th>
+                                <th class="p-4">照片</th>
+                                <th class="p-4">审核类型</th>
                                 <th class="p-4">证件类型</th>
                                 <th class="p-4">证件号</th>
                                 <th class="p-4">手机号</th>
-                                <th class="p-4">监护人姓名</th>
-                                <th class="p-4">监护人手机号</th>
+                                <th class="p-4">渠道</th>
                                 <th class="p-4">提交时间</th>
                                 <th class="p-4 text-right pr-6">操作</th>
                             </tr>
                         </thead>
                         <tbody class="text-sm text-slate-700 divide-y divide-slate-100">
-                            <!-- 数据行 1 -->
+                            <!-- 数据行 1：身份信息 -->
                             <tr class="hover-row transition">
-                                <td class="p-4 pl-6">
+                                <td class="p-4 pl-6"><input type="checkbox" class="row-checkbox accent-brand-600 w-3.5 h-3.5 rounded" onchange="updateBatchButtons()"></td>
+                                <td class="p-4">
                                     <div class="flex items-center gap-3">
                                         <div class="w-8 h-8 rounded-full bg-blue-100 flex items-center justify-center text-blue-600 font-bold border border-blue-200 text-xs">张三</div>
                                         <span class="font-bold text-slate-800">张三</span>
                                     </div>
                                 </td>
+                                <td class="p-4">
+                                    <div class="w-10 h-10 rounded-lg bg-slate-200 overflow-hidden border border-slate-200 flex-shrink-0">
+                                        <img src="https://api.dicebear.com/7.x/avataaars/svg?seed=ZhangSan" class="w-full h-full object-cover">
+                                    </div>
+                                </td>
+                                <td class="p-4"><span class="text-[10px] bg-blue-50 text-blue-600 px-1.5 py-0.5 rounded">身份信息</span></td>
                                 <td class="p-4 text-slate-600">中国居民身份证</td>
                                 <td class="p-4 font-mono text-slate-600">11010120150101****</td>
                                 <td class="p-4 font-mono">13800138000</td>
-                                <td class="p-4 text-slate-600">李四</td>
-                                <td class="p-4 font-mono text-slate-600">13900139000</td>
-                                <td class="p-4 text-slate-500 text-xs text-mono">2026-04-04 10:23:45</td>
+                                <td class="p-4"><span class="text-xs bg-blue-50 text-brand-600 px-1.5 py-0.5 rounded">猿编程</span></td>
+                                <td class="p-4 text-slate-500 text-xs text-mono">2026-04-04 10:23</td>
                                 <td class="p-4 text-right pr-6">
                                     <button onclick="openUserDetail()" class="text-brand-600 hover:text-brand-700 font-medium text-xs bg-blue-50 hover:bg-blue-100 px-4 py-1.5 rounded border border-blue-100 transition shadow-sm">
                                         审核 <i class="fa-solid fa-chevron-right ml-1 text-[10px]"></i>
                                     </button>
                                 </td>
                             </tr>
-                             <!-- 数据行 2 -->
+                            <!-- 数据行 2：照片审核 -->
                             <tr class="hover-row transition">
-                                <td class="p-4 pl-6">
+                                <td class="p-4 pl-6"><input type="checkbox" class="row-checkbox accent-brand-600 w-3.5 h-3.5 rounded" onchange="updateBatchButtons()"></td>
+                                <td class="p-4">
                                     <div class="flex items-center gap-3">
-                                        <div class="w-8 h-8 rounded-full bg-pink-100 flex items-center justify-center text-pink-600 font-bold border border-pink-200 text-xs">林佳</div>
-                                        <span class="font-bold text-slate-800">林佳艺</span>
+                                        <div class="w-8 h-8 rounded-full bg-amber-100 flex items-center justify-center text-amber-600 font-bold border border-amber-200 text-xs">李</div>
+                                        <span class="font-bold text-slate-800">李小四</span>
                                     </div>
                                 </td>
-                                <td class="p-4 text-slate-600">中国居民身份证</td>
-                                <td class="p-4 font-mono text-slate-600">31010120160202****</td>
-                                <td class="p-4 font-mono">13700137000</td>
-                                <td class="p-4 text-slate-600">林强</td>
-                                <td class="p-4 font-mono text-slate-600">13600136000</td>
-                                <td class="p-4 text-slate-500 text-xs text-mono">2026-04-03 15:44:12</td>
+                                <td class="p-4">
+                                    <div class="w-10 h-10 rounded-lg bg-slate-200 overflow-hidden border border-amber-200 flex-shrink-0">
+                                        <img src="https://api.dicebear.com/7.x/avataaars/svg?seed=LiXiaosi" class="w-full h-full object-cover">
+                                    </div>
+                                </td>
+                                <td class="p-4"><span class="text-[10px] bg-purple-50 text-purple-600 px-1.5 py-0.5 rounded">照片审核</span></td>
+                                <td class="p-4 text-slate-400">—</td>
+                                <td class="p-4 text-slate-400">—</td>
+                                <td class="p-4 font-mono text-slate-400">—</td>
+                                <td class="p-4"><span class="text-xs text-slate-400">C端自招</span></td>
+                                <td class="p-4 text-slate-500 text-xs text-mono">2026-04-03 15:44</td>
+                                <td class="p-4 text-right pr-6">
+                                    <button onclick="openUserDetail()" class="text-brand-600 hover:text-brand-700 font-medium text-xs bg-blue-50 hover:bg-blue-100 px-4 py-1.5 rounded border border-blue-100 transition shadow-sm">
+                                        审核 <i class="fa-solid fa-chevron-right ml-1 text-[10px]"></i>
+                                    </button>
+                                </td>
+                            </tr>
+                            <!-- 数据行 3：照片审核 -->
+                            <tr class="hover-row transition">
+                                <td class="p-4 pl-6"><input type="checkbox" class="row-checkbox accent-brand-600 w-3.5 h-3.5 rounded" onchange="updateBatchButtons()"></td>
+                                <td class="p-4">
+                                    <div class="flex items-center gap-3">
+                                        <div class="w-8 h-8 rounded-full bg-purple-100 flex items-center justify-center text-purple-600 font-bold border border-purple-200 text-xs">王</div>
+                                        <span class="font-bold text-slate-800">王五</span>
+                                    </div>
+                                </td>
+                                <td class="p-4">
+                                    <div class="w-10 h-10 rounded-lg bg-slate-200 overflow-hidden border border-red-200 flex-shrink-0">
+                                        <img src="https://api.dicebear.com/7.x/avataaars/svg?seed=WangWuFail" class="w-full h-full object-cover opacity-50">
+                                    </div>
+                                </td>
+                                <td class="p-4"><span class="text-[10px] bg-purple-50 text-purple-600 px-1.5 py-0.5 rounded">照片审核</span></td>
+                                <td class="p-4 text-slate-400">—</td>
+                                <td class="p-4 text-slate-400">—</td>
+                                <td class="p-4 font-mono text-slate-400">—</td>
+                                <td class="p-4"><span class="text-xs bg-blue-50 text-brand-600 px-1.5 py-0.5 rounded">编程猫</span></td>
+                                <td class="p-4 text-slate-500 text-xs text-mono">2026-04-02 09:12</td>
                                 <td class="p-4 text-right pr-6">
                                     <button onclick="openUserDetail()" class="text-brand-600 hover:text-brand-700 font-medium text-xs bg-blue-50 hover:bg-blue-100 px-4 py-1.5 rounded border border-blue-100 transition shadow-sm">
                                         审核 <i class="fa-solid fa-chevron-right ml-1 text-[10px]"></i>
@@ -353,6 +406,31 @@
             setTimeout(() => {
                 toast.classList.add('opacity-0', 'translate-y-10');
             }, 2500);
+        }
+
+        // 复选框与批量操作
+        function toggleAllCheckboxes(el) {
+            document.querySelectorAll('.row-checkbox').forEach(cb => {
+                cb.checked = el.checked;
+            });
+            updateBatchButtons();
+        }
+
+        function updateBatchButtons() {
+            const checked = document.querySelectorAll('.row-checkbox:checked').length;
+            document.getElementById('btn-batch-approve').classList.toggle('hidden', checked === 0);
+            document.getElementById('btn-batch-reject').classList.toggle('hidden', checked === 0);
+        }
+
+        function batchAction(action) {
+            const checked = document.querySelectorAll('.row-checkbox:checked');
+            if (checked.length === 0) return;
+            const label = action === 'approve' ? '通过' : '驳回';
+            if (!confirm(`确认批量${label} ${checked.length} 条审核？`)) return;
+            toastMsg.innerText = action === 'approve' ? `已批量通过 ${checked.length} 条审核` : `已批量驳回 ${checked.length} 条审核`;
+            showToast();
+            checked.forEach(cb => cb.checked = false);
+            updateBatchButtons();
         }
     </script>
 </body>

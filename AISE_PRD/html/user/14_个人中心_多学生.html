@@ -103,9 +103,21 @@
                 
                 <div class="mb-6 flex justify-between items-end">
                     <div>
-                        <h1 class="text-2xl font-bold text-slate-900">家庭档案管理</h1>
+                        <h1 class="text-2xl font-bold text-slate-900" id="page-title">家庭档案管理</h1>
                         <p class="text-sm text-slate-500 mt-1">管理您关联的考生档案信息。</p>
                     </div>
+                </div>
+
+                <!-- 照片审核状态卡片 -->
+                <div id="photo-review-card" class="bg-amber-50 border border-amber-200 rounded-xl p-4 mb-6 flex items-start gap-4">
+                    <div class="w-10 h-10 rounded-full bg-amber-100 flex items-center justify-center flex-shrink-0 mt-0.5" id="photo-review-icon">
+                        <i class="fa-solid fa-camera-retro text-amber-600"></i>
+                    </div>
+                    <div class="flex-1">
+                        <p class="font-bold text-amber-800 text-sm" id="photo-review-title">张三的证件照正在审核中</p>
+                        <p class="text-xs text-amber-600 mt-1" id="photo-review-desc">请耐心等待，审核结果将通过消息通知您。</p>
+                    </div>
+                    <button onclick="cyclePhotoStatus()" class="text-[10px] text-slate-400 hover:text-brand-600 bg-white/80 border border-slate-200 px-2 py-1 rounded flex-shrink-0 transition" title="Demo: 切换审核状态">切换</button>
                 </div>
 
                 <div class="bg-white rounded-2xl shadow-card border border-slate-100 overflow-hidden relative">
@@ -284,6 +296,29 @@
     </div>
 
     <script>
+        // 照片审核状态切换（Demo 专用）
+        const photoStates = [
+            { cardBg: 'bg-amber-50 border-amber-200', iconBg: 'bg-amber-100', iconEl: '<i class="fa-solid fa-camera-retro text-amber-600"></i>', title: '的证件照正在审核中', desc: '请耐心等待，审核结果将通过消息通知您。', titleC: 'text-amber-800', descC: 'text-amber-600' },
+            { cardBg: 'bg-green-50 border-green-200', iconBg: 'bg-green-100', iconEl: '<i class="fa-solid fa-check text-green-600"></i>', title: '的证件照已通过审核', desc: '', titleC: 'text-green-800', descC: 'text-green-600' },
+            { cardBg: 'bg-red-50 border-red-200', iconBg: 'bg-red-100', iconEl: '<i class="fa-solid fa-circle-exclamation text-red-500"></i>', title: '的证件照未通过审核', desc: '原因：非人像照片。请重新上传。', titleC: 'text-red-800', descC: 'text-red-600' }
+        ];
+        let photoIdx = 0;
+        function cyclePhotoStatus() {
+            photoIdx = (photoIdx + 1) % photoStates.length;
+            const s = photoStates[photoIdx];
+            const card = document.getElementById('photo-review-card');
+            const name = document.getElementById('form-name').value || '当前考生';
+            card.className = s.cardBg + ' rounded-xl p-4 mb-6 flex items-start gap-4';
+            document.getElementById('photo-review-icon').className = 'w-10 h-10 rounded-full ' + s.iconBg + ' flex items-center justify-center flex-shrink-0 mt-0.5';
+            document.getElementById('photo-review-icon').innerHTML = s.iconEl;
+            document.getElementById('photo-review-title').className = 'font-bold text-sm ' + s.titleC;
+            document.getElementById('photo-review-title').innerText = name + s.title;
+            document.getElementById('photo-review-desc').className = 'text-xs mt-1 ' + s.descC;
+            document.getElementById('photo-review-desc').innerText = s.desc;
+            if (!s.desc) document.getElementById('photo-review-desc').classList.add('hidden');
+            else document.getElementById('photo-review-desc').classList.remove('hidden');
+        }
+
         // 模拟数据状态
         let isMultipleMode = false;
         const students = [

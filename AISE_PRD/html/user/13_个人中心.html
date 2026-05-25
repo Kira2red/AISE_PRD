@@ -118,6 +118,18 @@
                     <p class="text-sm text-slate-500 mt-1">请确保您的个人信息真实有效，这将直接影响考试报名与证书发放。</p>
                 </div>
 
+                <!-- 照片审核状态卡片 -->
+                <div id="photo-review-card" class="bg-amber-50 border border-amber-200 rounded-xl p-4 mb-6 flex items-start gap-4">
+                    <div class="w-10 h-10 rounded-full bg-amber-100 flex items-center justify-center flex-shrink-0 mt-0.5" id="photo-review-icon">
+                        <i class="fa-solid fa-camera-retro text-amber-600"></i>
+                    </div>
+                    <div class="flex-1">
+                        <p class="font-bold text-amber-800 text-sm" id="photo-review-title">您的证件照正在审核中</p>
+                        <p class="text-xs text-amber-600 mt-1" id="photo-review-desc">请耐心等待，审核结果将通过消息通知您。审核通过后即可用于准考证与证书。</p>
+                    </div>
+                    <button onclick="cyclePhotoStatus()" class="text-[10px] text-slate-400 hover:text-brand-600 bg-white/80 border border-slate-200 px-2 py-1 rounded flex-shrink-0 transition" title="Demo: 切换审核状态">切换状态</button>
+                </div>
+
                 <div class="bg-white rounded-2xl shadow-card border border-slate-100 overflow-hidden">
                     
                     <form id="profile-form" class="p-6 sm:p-10" onsubmit="event.preventDefault(); saveProfile();">
@@ -219,6 +231,56 @@
     </footer>
 
     <script>
+        // 照片审核状态切换（Demo 专用）
+        const photoStates = [
+            {
+                status: 'pending',
+                cardBg: 'bg-amber-50 border-amber-200',
+                iconBg: 'bg-amber-100',
+                iconEl: '<i class="fa-solid fa-camera-retro text-amber-600"></i>',
+                title: '您的证件照正在审核中',
+                desc: '请耐心等待，审核结果将通过消息通知您。审核通过后即可用于准考证与证书。',
+                titleColor: 'text-amber-800',
+                descColor: 'text-amber-600'
+            },
+            {
+                status: 'passed',
+                cardBg: 'bg-green-50 border-green-200',
+                iconBg: 'bg-green-100',
+                iconEl: '<i class="fa-solid fa-check text-green-600"></i>',
+                title: '您的证件照已通过审核',
+                desc: '',
+                titleColor: 'text-green-800',
+                descColor: 'text-green-600'
+            },
+            {
+                status: 'failed',
+                cardBg: 'bg-red-50 border-red-200',
+                iconBg: 'bg-red-100',
+                iconEl: '<i class="fa-solid fa-circle-exclamation text-red-500"></i>',
+                title: '您的证件照未通过审核',
+                desc: '原因：非人像照片。请重新上传符合要求的正面免冠证件照。',
+                titleColor: 'text-red-800',
+                descColor: 'text-red-600'
+            }
+        ];
+        let photoStateIdx = 0;
+
+        function cyclePhotoStatus() {
+            photoStateIdx = (photoStateIdx + 1) % photoStates.length;
+            const s = photoStates[photoStateIdx];
+            const card = document.getElementById('photo-review-card');
+            card.className = s.cardBg + ' rounded-xl p-4 mb-6 flex items-start gap-4';
+            document.getElementById('photo-review-icon').className = 'w-10 h-10 rounded-full ' + s.iconBg + ' flex items-center justify-center flex-shrink-0 mt-0.5';
+            document.getElementById('photo-review-icon').innerHTML = s.iconEl;
+            document.getElementById('photo-review-title').className = 'font-bold text-sm ' + s.titleColor;
+            document.getElementById('photo-review-title').innerText = s.title;
+            document.getElementById('photo-review-desc').className = 'text-xs mt-1 ' + s.descColor;
+            document.getElementById('photo-review-desc').innerText = s.desc;
+            if (!s.desc) document.getElementById('photo-review-desc').classList.add('hidden');
+            else document.getElementById('photo-review-desc').classList.remove('hidden');
+        }
+
         // 头像预览
         function previewFile() {
             const preview = document.getElementById('avatar-preview');
