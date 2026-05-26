@@ -146,18 +146,20 @@
                 <select
                     class="px-3 py-2 rounded-lg border border-slate-200 text-sm text-slate-600 bg-white outline-none hover:border-slate-300 cursor-pointer">
                     <option value="">支付状态</option>
-                    <option value="paid">已支付</option>
                     <option value="unpaid">待支付</option>
-                    <option value="admin">后台录入</option>
+                    <option value="paid">支付成功</option>
+                    <option value="closed">已关闭</option>
+                    <option value="refunding">退款处理中</option>
+                    <option value="refunded">已退款</option>
+                    <option value="refund_failed">退款失败</option>
                 </select>
 
-                <!-- 新增：支付方式筛选 -->
                 <select
                     class="px-3 py-2 rounded-lg border border-slate-200 text-sm text-slate-600 bg-white outline-none hover:border-slate-300 cursor-pointer">
                     <option value="">支付方式</option>
                     <option value="wechat">微信支付</option>
-                    <option value="org_post">机构后付</option>
-                    <option value="free">平台免单</option>
+                    <option value="alipay">支付宝</option>
+                    <option value="admin">后台直接开通</option>
                 </select>
 
                 <select
@@ -191,7 +193,7 @@
                     </thead>
                     <tbody class="text-sm text-slate-700 divide-y divide-slate-100">
 
-                        <tr class="hover-row transition cursor-pointer" onclick="openDrawer()">
+                        <tr class="hover-row transition cursor-pointer" onclick="openDrawer('ORD-20250520-001')">
                             <td class="p-4 pl-6">
                                 <p class="font-bold text-slate-800">2025春季 Python 一级</p>
                                 <p class="text-xs text-slate-400 font-mono mt-0.5">ORD-20250520-001</p>
@@ -216,7 +218,7 @@
                             <td class="p-4">
                                 <span
                                     class="inline-flex items-center gap-1.5 px-2 py-0.5 rounded text-xs font-bold bg-green-50 text-green-700">
-                                    <i class="fa-solid fa-circle-check"></i> 已支付
+                                    <i class="fa-solid fa-circle-check"></i> 支付成功
                                 </span>
                             </td>
                             <td class="p-4 text-xs text-slate-500">05-20 10:23</td>
@@ -225,7 +227,7 @@
                             </td>
                         </tr>
 
-                        <tr class="hover-row transition cursor-pointer" onclick="openDrawer()">
+                        <tr class="hover-row transition cursor-pointer" onclick="openDrawer('ORD-20250520-089')">
                             <td class="p-4 pl-6">
                                 <p class="font-bold text-slate-800">2025夏季 AIGC 二级</p>
                                 <p class="text-xs text-slate-400 font-mono mt-0.5">ORD-20250520-089</p>
@@ -245,12 +247,12 @@
                             <td class="p-4 font-mono font-medium text-slate-400">¥ 0.00</td>
                             <td class="p-4">
                                 <span class="bg-slate-100 text-slate-600 px-2 py-0.5 rounded text-[11px]"><i
-                                        class="fa-solid fa-gift text-brand-500 mr-1"></i>平台免单</span>
+                                        class="fa-solid fa-user-shield text-brand-500 mr-1"></i>后台直接开通</span>
                             </td>
                             <td class="p-4">
                                 <span
-                                    class="inline-flex items-center gap-1.5 px-2 py-0.5 rounded text-xs font-bold bg-slate-100 text-slate-600 border border-slate-200">
-                                    <i class="fa-solid fa-user-shield"></i> 后台录入
+                                    class="inline-flex items-center gap-1.5 px-2 py-0.5 rounded text-xs font-bold bg-green-50 text-green-700">
+                                    <i class="fa-solid fa-circle-check"></i> 支付成功
                                 </span>
                             </td>
                             <td class="p-4 text-xs text-slate-500">05-21 09:15</td>
@@ -259,7 +261,7 @@
                             </td>
                         </tr>
 
-                        <tr class="hover-row transition cursor-pointer" onclick="openDrawer()">
+                        <tr class="hover-row transition cursor-pointer" onclick="openDrawer('ORD-20250522-102')">
                             <td class="p-4 pl-6">
                                 <p class="font-bold text-slate-800">2025春季 Python 一级</p>
                                 <p class="text-xs text-slate-400 font-mono mt-0.5">ORD-20250522-102</p>
@@ -281,7 +283,7 @@
                             <td class="p-4">
                                 <span
                                     class="bg-indigo-50 text-indigo-700 px-2 py-0.5 rounded text-[11px] border border-indigo-100"><i
-                                        class="fa-solid fa-building-user text-indigo-500 mr-1"></i>机构后付</span>
+                                        class="fa-brands fa-alipay text-blue-500 mr-1"></i>支付宝</span>
                             </td>
                             <td class="p-4">
                                 <span
@@ -290,6 +292,40 @@
                                 </span>
                             </td>
                             <td class="p-4 text-xs text-slate-500">05-22 14:30</td>
+                            <td class="p-4 text-right pr-6 relative z-10">
+                                <button class="text-brand-600 hover:text-brand-800 font-medium text-xs">详情</button>
+                            </td>
+                        </tr>
+
+                        <tr class="hover-row transition cursor-pointer bg-slate-50/50" onclick="openDrawer('ORD-20250519-045')">
+                            <td class="p-4 pl-6">
+                                <p class="font-bold text-slate-800">2025春季 Python 一级</p>
+                                <p class="text-xs text-slate-400 font-mono mt-0.5">ORD-20250519-045</p>
+                            </td>
+                            <td class="p-4">
+                                <div class="flex items-center gap-2">
+                                    <div
+                                        class="w-6 h-6 rounded-full bg-teal-100 text-teal-600 flex items-center justify-center text-xs font-bold">
+                                        赵</div>
+                                    <span>赵六</span>
+                                </div>
+                                <p class="text-xs text-slate-400 mt-0.5 font-mono">13700001111</p>
+                            </td>
+                            <td class="p-4">
+                                <span class="text-slate-400 text-xs">C端自招</span>
+                            </td>
+                            <td class="p-4 font-mono font-medium text-slate-400 line-through">¥ 199.00</td>
+                            <td class="p-4">
+                                <span class="bg-slate-100 text-slate-600 px-2 py-0.5 rounded text-[11px]"><i
+                                        class="fa-brands fa-weixin text-green-500 mr-1"></i>微信支付</span>
+                            </td>
+                            <td class="p-4">
+                                <span
+                                    class="inline-flex items-center gap-1.5 px-2 py-0.5 rounded text-xs font-bold bg-slate-100 text-slate-500 border border-slate-200">
+                                    <i class="fa-solid fa-rotate-left"></i> 已退款
+                                </span>
+                            </td>
+                            <td class="p-4 text-xs text-slate-500">05-19 16:30</td>
                             <td class="p-4 text-right pr-6 relative z-10">
                                 <button class="text-brand-600 hover:text-brand-800 font-medium text-xs">详情</button>
                             </td>
@@ -315,92 +351,87 @@
             </button>
         </div>
 
-        <div class="flex-1 overflow-y-auto p-6 custom-scroll">
-
-            <div class="bg-green-50 border border-green-100 rounded-xl p-4 mb-6 flex items-center justify-between">
-                <div class="flex items-center gap-3">
-                    <div
-                        class="w-10 h-10 rounded-full bg-green-100 flex items-center justify-center text-green-600 text-xl">
-                        <i class="fa-solid fa-check"></i>
-                    </div>
-                    <div>
-                        <p class="font-bold text-green-800 text-sm">已支付报名</p>
-                        <p class="text-xs text-green-600">微信支付 | 2025-05-20 10:23:45</p>
-                    </div>
-                </div>
-                <p class="font-mono font-bold text-lg text-green-700">¥199.00</p>
-            </div>
-
-            <div class="space-y-6">
-                <div>
-                    <h4 class="text-xs font-bold text-slate-400 uppercase mb-3 border-b border-slate-100 pb-1">报考信息</h4>
-                    <div class="space-y-3 text-sm">
-                        <div class="flex justify-between">
-                            <span class="text-slate-500">订单编号</span>
-                            <span class="font-mono text-slate-800 select-all">ORD-20250520-001</span>
-                        </div>
-                        <div class="flex justify-between">
-                            <span class="text-slate-500">测评名称</span>
-                            <span class="text-slate-800 font-medium">2025春季 Python 一级等级测评</span>
-                        </div>
-                        <div class="flex justify-between">
-                            <span class="text-slate-500">渠道来源</span>
-                            <span class="bg-blue-50 text-brand-600 text-xs px-2 py-0.5 rounded">猿编程 (YPB2025)</span>
-                        </div>
-                    </div>
-                </div>
-
-                <div>
-                    <h4 class="text-xs font-bold text-slate-400 uppercase mb-3 border-b border-slate-100 pb-1">考生信息</h4>
-                    <div class="flex items-center gap-3 mb-3">
-                        <img src="https://api.dicebear.com/7.x/avataaars/svg?seed=ZhangSan"
-                            class="w-10 h-10 rounded-full bg-slate-100">
-                        <div>
-                            <p class="font-bold text-slate-800">张三 <span
-                                    class="text-xs font-normal text-slate-400 ml-1">(ID: 20258899)</span></p>
-                            <p class="text-xs text-slate-500">身份证: 11010120150101****</p>
-                        </div>
-                    </div>
-                    <div class="space-y-3 text-sm">
-                        <div class="flex justify-between">
-                            <span class="text-slate-500">联系电话</span>
-                            <span class="font-mono text-slate-800">13800138000</span>
-                        </div>
-                        <div class="flex justify-between">
-                            <span class="text-slate-500">监护人</span>
-                            <span class="text-slate-800">李四</span>
-                        </div>
-                    </div>
-                </div>
-
-                <div>
-                    <h4 class="text-xs font-bold text-slate-400 uppercase mb-3 border-b border-slate-100 pb-1">操作日志</h4>
-                    <div class="text-xs space-y-3 border-l border-slate-200 ml-1 pl-4">
-                        <div class="relative">
-                            <div class="absolute -left-[21px] top-1 w-2.5 h-2.5 rounded-full bg-slate-300"></div>
-                            <p class="text-slate-800">生成准考证</p>
-                            <p class="text-slate-400">2025-05-20 10:24:00</p>
-                        </div>
-                        <div class="relative">
-                            <div class="absolute -left-[21px] top-1 w-2.5 h-2.5 rounded-full bg-green-500"></div>
-                            <p class="text-slate-800">支付成功</p>
-                            <p class="text-slate-400">2025-05-20 10:23:45</p>
-                        </div>
-                        <div class="relative">
-                            <div class="absolute -left-[21px] top-1 w-2.5 h-2.5 rounded-full bg-slate-300"></div>
-                            <p class="text-slate-800">创建订单</p>
-                            <p class="text-slate-400">2025-05-20 10:20:12</p>
-                        </div>
-                    </div>
-                </div>
-            </div>
+        <div id="drawer-body" class="flex-1 overflow-y-auto p-6 custom-scroll">
+            <!-- JS renders content here -->
         </div>
 
-        <div class="p-6 border-t border-slate-100 bg-slate-50 flex justify-end gap-3">
-            <button
-                class="px-4 py-2 text-sm text-red-600 hover:bg-red-50 rounded-lg transition border border-transparent hover:border-red-100">取消/退款</button>
-            <button
-                class="px-4 py-2 bg-white border border-slate-200 text-slate-700 text-sm font-medium rounded-lg hover:bg-slate-50 transition">下载凭证</button>
+        <div id="drawer-footer" class="p-6 border-t border-slate-100 bg-slate-50 flex justify-end gap-3">
+            <!-- JS renders buttons here -->
+        </div>
+    </div>
+
+    <!-- Refund Confirmation Modal -->
+    <div id="modal-refund"
+        class="fixed inset-0 z-[60] hidden flex items-center justify-center bg-slate-900/50 backdrop-blur-sm opacity-0 transition-opacity">
+        <div id="modal-refund-content"
+            class="bg-white rounded-2xl shadow-xl w-[520px] p-0 transform scale-95 transition-transform overflow-hidden">
+            <div class="px-6 py-5 border-b border-slate-100 bg-red-50/30">
+                <div class="flex items-center gap-3">
+                    <div
+                        class="w-9 h-9 rounded-full bg-red-100 flex items-center justify-center text-red-500 flex-shrink-0">
+                        <i class="fa-solid fa-triangle-exclamation"></i>
+                    </div>
+                    <h3 class="font-bold text-lg text-slate-800">确认退款</h3>
+                </div>
+            </div>
+
+            <div class="p-6 space-y-5" id="refund-modal-body">
+                <p class="text-center">
+                    <span class="text-sm text-slate-500">退款金额</span><br>
+                    <span class="text-3xl font-bold font-mono text-red-600" id="refund-amount-display">¥0.00</span>
+                </p>
+
+                <div class="bg-slate-50 rounded-xl p-4 space-y-2.5 text-sm">
+                    <div class="flex justify-between">
+                        <span class="text-slate-500">订单编号</span>
+                        <span class="font-mono text-slate-800" id="refund-order-id">—</span>
+                    </div>
+                    <div class="flex justify-between">
+                        <span class="text-slate-500">支付方式</span>
+                        <span class="text-slate-800" id="refund-method">—</span>
+                    </div>
+                    <div class="flex justify-between">
+                        <span class="text-slate-500">考　生</span>
+                        <span class="text-slate-800" id="refund-student">—</span>
+                    </div>
+                    <div class="flex justify-between">
+                        <span class="text-slate-500">测评名称</span>
+                        <span class="text-slate-800 text-right max-w-[260px]" id="refund-exam">—</span>
+                    </div>
+                </div>
+
+                <div>
+                    <p class="text-sm font-medium text-slate-700 mb-3">退款后联动操作（可选）：</p>
+                    <label
+                        class="flex items-center gap-2.5 mb-2.5 cursor-pointer hover:bg-slate-50 rounded-lg p-2 -mx-2 transition">
+                        <input type="checkbox" id="refund-revoke-exam"
+                            class="w-4 h-4 rounded border-slate-300 text-brand-600 focus:ring-brand-500">
+                        <span class="text-sm text-slate-700">撤销考试资格（将该考生从本场次移除）</span>
+                    </label>
+                    <label
+                        class="flex items-center gap-2.5 cursor-pointer hover:bg-slate-50 rounded-lg p-2 -mx-2 transition">
+                        <input type="checkbox" id="refund-revoke-cert"
+                            class="w-4 h-4 rounded border-slate-300 text-brand-600 focus:ring-brand-500">
+                        <span class="text-sm text-slate-700">撤销电子证书（使已签发的电子证书失效）</span>
+                    </label>
+                </div>
+
+                <div>
+                    <label class="block text-sm font-medium text-slate-700 mb-1.5">备注（选填）：</label>
+                    <textarea id="refund-note" rows="2"
+                        class="w-full px-3 py-2.5 rounded-lg border border-slate-200 text-sm resize-none focus:border-brand-500 focus:ring-1 focus:ring-brand-500 outline-none transition"
+                        placeholder="输入退款原因..."></textarea>
+                </div>
+            </div>
+
+            <div class="p-6 pt-0 flex justify-end gap-3">
+                <button onclick="closeRefundModal()"
+                    class="px-5 py-2.5 text-sm text-slate-600 hover:bg-slate-50 rounded-lg transition border border-slate-200">取消</button>
+                <button onclick="confirmRefund()"
+                    class="px-5 py-2.5 bg-red-600 hover:bg-red-700 text-white text-sm font-bold rounded-lg transition shadow-sm">
+                    确认退款
+                </button>
+            </div>
         </div>
     </div>
 
@@ -510,19 +541,465 @@
     </div>
 
     <script>
-        // Drawer Logic
-        function openDrawer() {
-            document.getElementById('drawer-overlay').classList.remove('hidden');
-            document.getElementById('drawer').classList.add('drawer-active');
-        }
-        function closeDrawer() {
-            document.getElementById('drawer').classList.remove('drawer-active');
-            setTimeout(() => {
-                document.getElementById('drawer-overlay').classList.add('hidden');
-            }, 300); // wait for transition
+        // ========== Order Data Store ==========
+        const orders = {
+            'ORD-20250520-001': {
+                orderId: 'ORD-20250520-001',
+                exam: '2025春季 Python 一级等级测评',
+                studentName: '张三',
+                studentPhone: '13800138000',
+                studentId: '20258899',
+                studentIdCard: '11010120150101****',
+                studentAvatar: 'https://api.dicebear.com/7.x/avataaars/svg?seed=ZhangSan',
+                studentInitial: '',
+                guardian: '李四',
+                amount: '199.00',
+                paymentMethod: 'wechat',
+                paymentMethodLabel: '微信支付',
+                paymentMethodIcon: 'fa-brands fa-weixin text-green-500',
+                paymentTime: '2025-05-20 10:23:45',
+                channel: '猿编程',
+                channelCode: 'YPB2025',
+                examStartTime: '2026-07-15T09:00:00',
+                merchantTxId: 'MCH-20250520102345',
+                status: 'paid',
+                refundAmount: null,
+                refundTime: null,
+                refundOperator: null,
+                log: [
+                    { action: '生成准考证', time: '2025-05-20 10:24:00', actor: '系统', type: 'info' },
+                    { action: '支付成功', time: '2025-05-20 10:23:45', actor: '系统', type: 'success' },
+                    { action: '创建订单', time: '2025-05-20 10:20:12', actor: '系统', type: 'info' }
+                ]
+            },
+            'ORD-20250520-089': {
+                orderId: 'ORD-20250520-089',
+                exam: '2025夏季 AIGC 应用能力二级',
+                studentName: '李小四',
+                studentPhone: '13912345678',
+                studentId: '20258901',
+                studentIdCard: '31010120160301****',
+                studentAvatar: '',
+                studentInitial: '李',
+                guardian: '李大明',
+                amount: '0.00',
+                paymentMethod: 'admin',
+                paymentMethodLabel: '后台直接开通',
+                paymentMethodIcon: 'fa-solid fa-user-shield text-brand-500',
+                paymentTime: '2025-05-21 09:15:00',
+                channel: 'C端自招',
+                channelCode: '',
+                examStartTime: '2025-07-01T09:00:00',
+                merchantTxId: null,
+                status: 'paid',
+                refundAmount: null,
+                refundTime: null,
+                refundOperator: null,
+                log: [
+                    { action: '后台直接开通', time: '2025-05-21 09:15:00', actor: '管理员B', type: 'info' },
+                    { action: '创建订单', time: '2025-05-21 09:14:30', actor: '管理员B', type: 'info' }
+                ]
+            },
+            'ORD-20250522-102': {
+                orderId: 'ORD-20250522-102',
+                exam: '2025春季 Python 一级等级测评',
+                studentName: '王五',
+                studentPhone: '15000000000',
+                studentId: '20258905',
+                studentIdCard: '44010120150202****',
+                studentAvatar: '',
+                studentInitial: '王',
+                guardian: '王建国',
+                amount: '199.00',
+                paymentMethod: 'alipay',
+                paymentMethodLabel: '支付宝',
+                paymentMethodIcon: 'fa-brands fa-alipay text-blue-500',
+                paymentTime: null,
+                channel: '猿编程',
+                channelCode: 'CB888',
+                examStartTime: '2026-07-01T09:00:00',
+                merchantTxId: null,
+                status: 'unpaid',
+                refundAmount: null,
+                refundTime: null,
+                refundOperator: null,
+                log: [
+                    { action: '创建订单', time: '2025-05-22 14:30:00', actor: '系统', type: 'info' }
+                ]
+            },
+            'ORD-20250519-045': {
+                orderId: 'ORD-20250519-045',
+                exam: '2025春季 Python 一级等级测评',
+                studentName: '赵六',
+                studentPhone: '13700001111',
+                studentId: '20258850',
+                studentIdCard: '51010120150303****',
+                studentAvatar: '',
+                studentInitial: '赵',
+                guardian: '赵志明',
+                amount: '199.00',
+                paymentMethod: 'wechat',
+                paymentMethodLabel: '微信支付',
+                paymentMethodIcon: 'fa-brands fa-weixin text-green-500',
+                paymentTime: '2025-05-15 14:20:00',
+                channel: 'C端自招',
+                channelCode: '',
+                examStartTime: '2025-06-15T09:00:00',
+                merchantTxId: 'MCH-20250515142000',
+                status: 'refunded',
+                refundAmount: '199.00',
+                refundTime: '2025-05-19 16:30:22',
+                refundOperator: '管理员A',
+                log: [
+                    { action: '已退款', time: '2025-05-19 16:30:22', actor: '管理员A', type: 'refund' },
+                    { action: '退款处理中', time: '2025-05-19 16:30:00', actor: '管理员A', type: 'info' },
+                    { action: '管理员发起退款', time: '2025-05-19 16:29:00', actor: '管理员A', type: 'info' },
+                    { action: '支付成功', time: '2025-05-15 14:20:05', actor: '系统', type: 'success' },
+                    { action: '创建订单', time: '2025-05-15 14:19:30', actor: '系统', type: 'info' }
+                ]
+            }
+        };
+
+        let currentOrderId = null;
+
+        // ========== Copy Utility ==========
+        function copyToClipboard(text) {
+            if (!text) return;
+            navigator.clipboard.writeText(text).catch(() => {});
         }
 
-        // Modal Logic
+        // ========== Drawer Logic ==========
+        function openDrawer(orderId) {
+            currentOrderId = orderId;
+            const data = orders[orderId];
+            if (!data) return;
+
+            renderDrawerContent(data);
+            renderDrawerFooter(data);
+
+            var overlay = document.getElementById('drawer-overlay');
+            var drawer = document.getElementById('drawer');
+            overlay.classList.remove('hidden');
+            void drawer.offsetWidth; // force reflow
+            drawer.classList.remove('translate-x-full');
+            drawer.classList.add('drawer-active');
+        }
+
+        function closeDrawer() {
+            var drawer = document.getElementById('drawer');
+            drawer.classList.remove('drawer-active');
+            drawer.classList.add('translate-x-full');
+            setTimeout(function() {
+                document.getElementById('drawer-overlay').classList.add('hidden');
+                currentOrderId = null;
+            }, 300);
+        }
+
+        function renderDrawerContent(data) {
+            const body = document.getElementById('drawer-body');
+            let html = '';
+            html += renderStatusCard(data);
+            html += renderMerchantTxId(data);
+            html += renderExamInfo(data);
+            html += renderStudentInfo(data);
+            if (data.status === 'refunded' || data.status === 'refund_failed') {
+                html += renderRefundInfo(data);
+            }
+            html += renderOperationLog(data);
+            body.innerHTML = html;
+        }
+
+        function renderStatusCard(data) {
+            switch (data.status) {
+                case 'paid':
+                    return `<div class="bg-green-50 border border-green-100 rounded-xl p-4 mb-6 flex items-center justify-between">
+                        <div class="flex items-center gap-3">
+                            <div class="w-10 h-10 rounded-full bg-green-100 flex items-center justify-center text-green-600 text-xl"><i class="fa-solid fa-check"></i></div>
+                            <div><p class="font-bold text-green-800 text-sm">支付成功</p><p class="text-xs text-green-600">${data.paymentMethodLabel}${data.paymentTime ? ' | ' + data.paymentTime : ''}</p></div>
+                        </div>
+                        <p class="font-mono font-bold text-lg text-green-700">¥${data.amount}</p>
+                    </div>`;
+                case 'refunding':
+                    return `<div class="bg-blue-50 border border-blue-100 rounded-xl p-4 mb-6">
+                        <div class="flex items-center gap-3">
+                            <div class="w-10 h-10 rounded-full bg-blue-100 flex items-center justify-center text-blue-600 text-xl"><i class="fa-solid fa-spinner fa-spin"></i></div>
+                            <div><p class="font-bold text-blue-800 text-sm">退款处理中</p><p class="text-xs text-blue-600">预计1-3个工作日到账</p></div>
+                        </div>
+                    </div>`;
+                case 'refunded':
+                    return `<div class="bg-slate-100 border border-slate-200 rounded-xl p-4 mb-6 flex items-center justify-between">
+                        <div class="flex items-center gap-3">
+                            <div class="w-10 h-10 rounded-full bg-slate-200 flex items-center justify-center text-slate-500 text-xl"><i class="fa-solid fa-check-circle"></i></div>
+                            <div><p class="font-bold text-slate-600 text-sm">已原路退回</p><p class="text-xs text-slate-500">${data.paymentMethodLabel}${data.refundTime ? ' | ' + data.refundTime : ''}</p></div>
+                        </div>
+                        <p class="font-mono font-bold text-lg text-slate-500">¥${data.refundAmount || data.amount}</p>
+                    </div>`;
+                case 'refund_failed':
+                    return `<div class="bg-red-50 border border-red-100 rounded-xl p-4 mb-6">
+                        <div class="flex items-center justify-between">
+                            <div class="flex items-center gap-3">
+                                <div class="w-10 h-10 rounded-full bg-red-100 flex items-center justify-center text-red-500 text-xl"><i class="fa-solid fa-circle-exclamation"></i></div>
+                                <div><p class="font-bold text-red-700 text-sm">退款失败</p><p class="text-xs text-red-500">退款失败，请重试</p></div>
+                            </div>
+                            <button onclick="retryRefund()" class="px-3 py-1.5 bg-red-600 hover:bg-red-700 text-white text-xs font-medium rounded-lg transition">重试退款</button>
+                        </div>
+                    </div>`;
+                case 'unpaid':
+                    return `<div class="bg-amber-50 border border-amber-100 rounded-xl p-4 mb-6 flex items-center justify-between">
+                        <div class="flex items-center gap-3">
+                            <div class="w-10 h-10 rounded-full bg-amber-100 flex items-center justify-center text-amber-600 text-xl"><i class="fa-regular fa-clock"></i></div>
+                            <div><p class="font-bold text-amber-800 text-sm">待支付</p><p class="text-xs text-amber-600">${data.paymentMethodLabel}</p></div>
+                        </div>
+                        <p class="font-mono font-bold text-lg text-amber-700">¥${data.amount}</p>
+                    </div>`;
+                case 'closed':
+                    return `<div class="bg-slate-100 border border-slate-200 rounded-xl p-4 mb-6 flex items-center justify-between">
+                        <div class="flex items-center gap-3">
+                            <div class="w-10 h-10 rounded-full bg-slate-200 flex items-center justify-center text-slate-500 text-xl"><i class="fa-solid fa-ban"></i></div>
+                            <div><p class="font-bold text-slate-600 text-sm">已关闭</p><p class="text-xs text-slate-500">订单已关闭</p></div>
+                        </div>
+                        <p class="font-mono font-bold text-lg text-slate-500">¥${data.amount}</p>
+                    </div>`;
+                default:
+                    return '';
+            }
+        }
+
+        function renderMerchantTxId(data) {
+            if (!data.merchantTxId) {
+                return `<div class="mb-6">
+                    <h4 class="text-xs font-bold text-slate-400 uppercase mb-3 border-b border-slate-100 pb-1">商户交易编号</h4>
+                    <p class="text-sm text-slate-400">—</p>
+                </div>`;
+            }
+            return `<div class="mb-6">
+                <h4 class="text-xs font-bold text-slate-400 uppercase mb-3 border-b border-slate-100 pb-1">商户交易编号</h4>
+                <div class="flex items-center gap-2">
+                    <a href="#29" class="font-mono text-sm text-brand-600 hover:underline cursor-pointer">${data.merchantTxId}</a>
+                    <button onclick="copyToClipboard('${data.merchantTxId}');event.stopPropagation()" class="text-slate-400 hover:text-brand-600 transition" title="复制">
+                        <i class="fa-regular fa-copy text-xs"></i>
+                    </button>
+                </div>
+            </div>`;
+        }
+
+        function renderExamInfo(data) {
+            const channelDisplay = data.channelCode ? `${data.channel} (${data.channelCode})` : data.channel;
+            return `<div class="mb-6">
+                <h4 class="text-xs font-bold text-slate-400 uppercase mb-3 border-b border-slate-100 pb-1">报考信息</h4>
+                <div class="space-y-3 text-sm">
+                    <div class="flex justify-between">
+                        <span class="text-slate-500">订单编号</span>
+                        <span class="font-mono text-slate-800 select-all">${data.orderId}</span>
+                    </div>
+                    <div class="flex justify-between">
+                        <span class="text-slate-500">测评名称</span>
+                        <span class="text-slate-800 font-medium text-right max-w-[280px]">${data.exam}</span>
+                    </div>
+                    <div class="flex justify-between">
+                        <span class="text-slate-500">渠道来源</span>
+                        <span class="${data.channelCode ? 'bg-blue-50 text-brand-600' : ''} text-xs px-2 py-0.5 rounded">${channelDisplay}</span>
+                    </div>
+                </div>
+            </div>`;
+        }
+
+        function renderStudentInfo(data) {
+            let avatarHTML;
+            if (data.studentAvatar) {
+                avatarHTML = `<img src="${data.studentAvatar}" class="w-10 h-10 rounded-full bg-slate-100">`;
+            } else {
+                avatarHTML = `<div class="w-10 h-10 rounded-full bg-purple-100 text-purple-600 flex items-center justify-center text-sm font-bold">${data.studentInitial}</div>`;
+            }
+            return `<div class="mb-6">
+                <h4 class="text-xs font-bold text-slate-400 uppercase mb-3 border-b border-slate-100 pb-1">考生信息</h4>
+                <div class="flex items-center gap-3 mb-3">
+                    ${avatarHTML}
+                    <div>
+                        <p class="font-bold text-slate-800">${data.studentName} <span class="text-xs font-normal text-slate-400 ml-1">(ID: ${data.studentId})</span></p>
+                        <p class="text-xs text-slate-500">身份证: ${data.studentIdCard}</p>
+                    </div>
+                </div>
+                <div class="space-y-3 text-sm">
+                    <div class="flex justify-between">
+                        <span class="text-slate-500">联系电话</span>
+                        <span class="font-mono text-slate-800">${data.studentPhone}</span>
+                    </div>
+                    <div class="flex justify-between">
+                        <span class="text-slate-500">监护人</span>
+                        <span class="text-slate-800">${data.guardian}</span>
+                    </div>
+                </div>
+            </div>`;
+        }
+
+        function renderRefundInfo(data) {
+            return `<div class="mb-6">
+                <h4 class="text-xs font-bold text-slate-400 uppercase mb-3 border-b border-slate-100 pb-1">退款信息</h4>
+                <div class="space-y-3 text-sm">
+                    <div class="flex justify-between">
+                        <span class="text-slate-500">退款金额</span>
+                        <span class="font-mono text-slate-800 font-medium">¥${data.refundAmount || data.amount}</span>
+                    </div>
+                    <div class="flex justify-between">
+                        <span class="text-slate-500">退款时间</span>
+                        <span class="text-slate-800">${data.refundTime || '—'}</span>
+                    </div>
+                    <div class="flex justify-between">
+                        <span class="text-slate-500">操作人</span>
+                        <span class="text-slate-800">${data.refundOperator || '—'}</span>
+                    </div>
+                </div>
+            </div>`;
+        }
+
+        function renderOperationLog(data) {
+            let html = `<div>
+                <h4 class="text-xs font-bold text-slate-400 uppercase mb-3 border-b border-slate-100 pb-1">操作日志</h4>
+                <div class="text-xs space-y-3 border-l border-slate-200 ml-1 pl-4">`;
+
+            data.log.forEach(entry => {
+                let dotColor = 'bg-slate-300', actionColor = 'text-slate-800';
+                if (entry.type === 'success') { dotColor = 'bg-green-500'; actionColor = 'text-green-700'; }
+                else if (entry.type === 'refund') { dotColor = 'bg-red-400'; actionColor = 'text-red-600'; }
+                html += `<div class="relative">
+                    <div class="absolute -left-[21px] top-1 w-2.5 h-2.5 rounded-full ${dotColor}"></div>
+                    <p class="${actionColor}">${entry.action}</p>
+                    <p class="text-slate-400">${entry.time} · ${entry.actor}</p>
+                </div>`;
+            });
+
+            html += `</div></div>`;
+            return html;
+        }
+
+        function renderDrawerFooter(data) {
+            const footer = document.getElementById('drawer-footer');
+            const isPhase3 = new Date() >= new Date(data.examStartTime);
+            let html = '';
+
+            switch (data.status) {
+                case 'paid':
+                    if (isPhase3) {
+                        html += `<button disabled class="px-4 py-2 text-sm text-slate-400 bg-slate-100 rounded-lg cursor-not-allowed border border-slate-200">
+                            <i class="fa-solid fa-lock mr-1"></i>考试已开始，不可退款
+                        </button>`;
+                    } else if (parseFloat(data.amount) > 0) {
+                        html += `<button onclick="openRefundModal()" class="px-4 py-2 text-sm text-red-600 hover:bg-red-50 rounded-lg transition border border-red-200">
+                            <i class="fa-solid fa-rotate-left mr-1"></i>退款
+                        </button>`;
+                    } else {
+                        html += `<button disabled class="px-4 py-2 text-sm text-slate-400 bg-slate-100 rounded-lg cursor-not-allowed border border-slate-200">
+                            <i class="fa-solid fa-lock mr-1"></i>退款（¥0订单）
+                        </button>`;
+                    }
+                    html += `<button class="px-4 py-2 bg-white border border-slate-200 text-slate-700 text-sm font-medium rounded-lg hover:bg-slate-50 transition">
+                        <i class="fa-solid fa-download mr-1"></i>下载凭证
+                    </button>`;
+                    break;
+                case 'refunding':
+                    html += `<button class="px-4 py-2 bg-white border border-slate-200 text-slate-700 text-sm font-medium rounded-lg hover:bg-slate-50 transition">
+                        <i class="fa-solid fa-download mr-1"></i>下载凭证
+                    </button>`;
+                    break;
+                case 'refunded':
+                    html += `<button class="px-4 py-2 bg-white border border-slate-200 text-slate-700 text-sm font-medium rounded-lg hover:bg-slate-50 transition">
+                        <i class="fa-solid fa-download mr-1"></i>下载凭证
+                    </button>`;
+                    break;
+                case 'refund_failed':
+                    html += `<button onclick="retryRefund()" class="px-4 py-2 text-sm text-white bg-red-600 hover:bg-red-700 rounded-lg transition font-medium">
+                        <i class="fa-solid fa-rotate-right mr-1"></i>重试退款
+                    </button>`;
+                    html += `<button class="px-4 py-2 bg-white border border-slate-200 text-slate-700 text-sm font-medium rounded-lg hover:bg-slate-50 transition">
+                        <i class="fa-solid fa-download mr-1"></i>下载凭证
+                    </button>`;
+                    break;
+                default:
+                    html += `<button class="px-4 py-2 bg-white border border-slate-200 text-slate-700 text-sm font-medium rounded-lg hover:bg-slate-50 transition">
+                        <i class="fa-solid fa-download mr-1"></i>下载凭证
+                    </button>`;
+            }
+
+            footer.innerHTML = html;
+        }
+
+        // ========== Refund Modal Logic ==========
+        const refundModal = document.getElementById('modal-refund');
+        const refundModalContent = document.getElementById('modal-refund-content');
+
+        function openRefundModal() {
+            if (!currentOrderId) return;
+            const data = orders[currentOrderId];
+
+            document.getElementById('refund-amount-display').innerText = '¥' + data.amount;
+            document.getElementById('refund-order-id').innerText = data.orderId;
+            document.getElementById('refund-method').innerText = data.paymentMethodLabel;
+            document.getElementById('refund-student').innerText = data.studentName + ' (' + data.studentPhone + ')';
+            document.getElementById('refund-exam').innerText = data.exam;
+            document.getElementById('refund-note').value = '';
+            document.getElementById('refund-revoke-exam').checked = false;
+            document.getElementById('refund-revoke-cert').checked = false;
+
+            refundModal.classList.remove('hidden');
+            setTimeout(() => {
+                refundModal.classList.remove('opacity-0');
+                refundModalContent.classList.add('modal-enter');
+            }, 10);
+        }
+
+        function closeRefundModal() {
+            refundModal.classList.add('opacity-0');
+            setTimeout(() => {
+                refundModal.classList.add('hidden');
+                refundModalContent.classList.remove('modal-enter');
+            }, 200);
+        }
+
+        function confirmRefund() {
+            if (!currentOrderId) return;
+            const data = orders[currentOrderId];
+
+            const revokeExam = document.getElementById('refund-revoke-exam').checked;
+            const revokeCert = document.getElementById('refund-revoke-cert').checked;
+
+            let logAction = '管理员发起退款';
+            const extras = [];
+            if (revokeExam) extras.push('撤销考试资格');
+            if (revokeCert) extras.push('撤销电子证书');
+            if (extras.length) logAction += '（' + extras.join(' + ') + '）';
+
+            closeRefundModal();
+
+            data.status = 'refunding';
+            data.log.unshift({
+                action: logAction,
+                time: new Date().toISOString().replace('T', ' ').substring(0, 19),
+                actor: '当前管理员',
+                type: 'info'
+            });
+
+            renderDrawerContent(data);
+            renderDrawerFooter(data);
+        }
+
+        function retryRefund() {
+            if (!currentOrderId) return;
+            const data = orders[currentOrderId];
+
+            data.status = 'refunding';
+            data.log.unshift({
+                action: '管理员重试退款',
+                time: new Date().toISOString().replace('T', ' ').substring(0, 19),
+                actor: '当前管理员',
+                type: 'info'
+            });
+
+            renderDrawerContent(data);
+            renderDrawerFooter(data);
+        }
+
+        // ========== Proxy Modal Logic (Preserved) ==========
         const modal = document.getElementById('modal-proxy');
         const modalContent = document.getElementById('modal-proxy-content');
 
@@ -542,7 +1019,7 @@
             }, 200);
         }
 
-        // User Search Simulation
+        // ========== User Search Simulation (Preserved) ==========
         function showUserDropdown() {
             const val = document.getElementById('user-search').value;
             const dropdown = document.getElementById('user-dropdown');
@@ -567,6 +1044,15 @@
             document.getElementById('user-search').value = '';
             document.getElementById('user-search').focus();
         }
+
+        // ========== Global Escape Key ==========
+        document.addEventListener('keydown', function(e) {
+            if (e.key === 'Escape') {
+                closeDrawer();
+                closeRefundModal();
+                closeProxyModal();
+            }
+        });
     </script>
 </body>
 
