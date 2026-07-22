@@ -1,0 +1,175 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>我的报名 - AISE</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script>
+        tailwind.config = {
+            theme: {
+                extend: {
+                    fontFamily: { sans: ['Inter', 'sans-serif'] },
+                    colors: {
+                        brand: { 50: '#eff6ff', 100: '#dbeafe', 500: '#3b82f6', 600: '#2563eb', 700: '#1d4ed8' },
+                    },
+                    boxShadow: { 'card': '0 1px 3px 0 rgba(0,0,0,0.1), 0 1px 2px 0 rgba(0,0,0,0.06)' }
+                }
+            }
+        }
+    </script>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <style>
+        body { background-color: #F1F5F9; font-family: 'Inter', sans-serif; -webkit-font-smoothing: antialiased; }
+        .status-tab { transition: all 0.2s ease; }
+        .card-item { transition: all 0.2s ease; }
+    </style>
+</head>
+<body class="min-h-screen">
+
+    <!-- 顶部导航 -->
+    <header class="bg-white border-b border-slate-200 sticky top-0 z-20">
+        <div class="max-w-5xl mx-auto px-4 sm:px-6 h-16 flex items-center justify-between">
+            <div class="flex items-center gap-3">
+                <a href="25_提交成功_等待审核.html" class="text-slate-400 hover:text-slate-600 transition">
+                    <i class="fa-solid fa-chevron-left text-sm"></i>
+                </a>
+                <div class="w-8 h-8 bg-gradient-to-br from-brand-600 to-indigo-600 rounded-lg flex items-center justify-center text-white font-bold text-sm shadow-sm">A</div>
+                <span class="font-bold text-lg text-slate-800">AISE</span>
+            </div>
+            <span class="text-sm font-medium text-slate-500">我的报名</span>
+        </div>
+    </header>
+
+    <main class="max-w-5xl mx-auto px-4 sm:px-6 py-6">
+
+        <h1 class="text-2xl font-bold text-slate-900 mb-1">我的报名</h1>
+        <p class="text-sm text-slate-500 mb-6">查看和管理您的报名申请</p>
+
+        <!-- Tab 筛选 -->
+        <div class="flex gap-2 mb-6 border-b border-slate-200 pb-0" id="tab-bar">
+            <button class="status-tab px-5 py-2.5 text-sm font-semibold text-brand-600 border-b-2 border-brand-600 -mb-px" data-tab="all" onclick="switchTab('all')">全部</button>
+            <button class="status-tab px-5 py-2.5 text-sm font-medium text-slate-500 hover:text-slate-700 border-b-2 border-transparent -mb-px" data-tab="pending" onclick="switchTab('pending')">审核中</button>
+            <button class="status-tab px-5 py-2.5 text-sm font-medium text-slate-500 hover:text-slate-700 border-b-2 border-transparent -mb-px" data-tab="approved" onclick="switchTab('approved')">已通过</button>
+            <button class="status-tab px-5 py-2.5 text-sm font-medium text-slate-500 hover:text-slate-700 border-b-2 border-transparent -mb-px" data-tab="rejected" onclick="switchTab('rejected')">未通过</button>
+        </div>
+
+        <!-- 报名卡片列表 -->
+        <div class="space-y-3" id="card-list">
+
+            <!-- 卡片 1: 审核中 -->
+            <div class="card-item bg-white rounded-xl border border-slate-200 shadow-sm p-5" data-status="pending">
+                <div class="flex items-start justify-between">
+                    <div class="flex items-start gap-3 min-w-0">
+                        <div class="w-10 h-10 rounded-lg bg-blue-50 text-brand-600 flex items-center justify-center flex-shrink-0 mt-0.5">
+                            <i class="fa-solid fa-graduation-cap text-lg"></i>
+                        </div>
+                        <div class="min-w-0">
+                            <h3 class="font-semibold text-slate-900 text-base">元创S营</h3>
+                            <p class="text-xs text-slate-400 mt-0.5">常规申报 · 2026-06-02 14:30</p>
+                            <p class="text-xs text-slate-300 mt-0.5 font-mono">编号：YC20260602001</p>
+                        </div>
+                    </div>
+                    <span class="flex-shrink-0 inline-flex items-center justify-center w-20 h-7 rounded-full bg-slate-100 text-slate-500 text-xs font-medium">审核中</span>
+                </div>
+                <div class="mt-4 pt-3 border-t border-slate-100 flex items-center justify-between">
+                    <span class="text-xs text-slate-400">等待运营人员审核</span>
+                    <div></div>
+                </div>
+            </div>
+
+            <!-- 卡片 2: 已通过 -->
+            <div class="card-item bg-white rounded-xl border border-slate-200 shadow-sm p-5" data-status="approved">
+                <div class="flex items-start justify-between">
+                    <div class="flex items-start gap-3 min-w-0">
+                        <div class="w-10 h-10 rounded-lg bg-blue-50 text-brand-600 flex items-center justify-center flex-shrink-0 mt-0.5">
+                            <i class="fa-solid fa-graduation-cap text-lg"></i>
+                        </div>
+                        <div class="min-w-0">
+                            <h3 class="font-semibold text-slate-900 text-base">元创S营</h3>
+                            <p class="text-xs text-slate-400 mt-0.5">人才库通道 · 2026-06-01 09:15</p>
+                            <p class="text-xs text-slate-300 mt-0.5 font-mono">编号：YC20260601003</p>
+                        </div>
+                    </div>
+                    <span class="flex-shrink-0 inline-flex items-center justify-center w-20 h-7 rounded-full bg-green-50 text-green-600 text-xs font-medium">已通过</span>
+                </div>
+                <div class="mt-4 pt-3 border-t border-slate-100 flex items-center justify-end">
+                    <button onclick="window.location.href='22_测评_答题页.html'" class="px-4 py-2 bg-brand-600 text-white text-xs font-semibold rounded-lg hover:bg-brand-700 transition min-h-[36px]">
+                        进入考场 <i class="fa-solid fa-arrow-right ml-1 text-[10px]"></i>
+                    </button>
+                </div>
+            </div>
+
+            <!-- 卡片 3: 未通过（原因直接展示在卡片下方） -->
+            <div class="card-item bg-white rounded-xl border border-slate-200 shadow-sm p-5" data-status="rejected">
+                <div class="flex items-start justify-between">
+                    <div class="flex items-start gap-3 min-w-0">
+                        <div class="w-10 h-10 rounded-lg bg-blue-50 text-brand-600 flex items-center justify-center flex-shrink-0 mt-0.5">
+                            <i class="fa-solid fa-graduation-cap text-lg"></i>
+                        </div>
+                        <div class="min-w-0">
+                            <h3 class="font-semibold text-slate-900 text-base">元创S营</h3>
+                            <p class="text-xs text-slate-400 mt-0.5">常规申报 · 2026-05-28 16:45</p>
+                            <p class="text-xs text-slate-300 mt-0.5 font-mono">编号：YC20260528007</p>
+                        </div>
+                    </div>
+                    <span class="flex-shrink-0 inline-flex items-center justify-center w-20 h-7 rounded-full bg-red-50 text-red-500 text-xs font-medium">未通过</span>
+                </div>
+                <div class="mt-4 pt-3 border-t border-slate-100 space-y-3">
+                    <p class="text-sm text-slate-500 leading-relaxed"><span class="text-slate-700 font-medium">驳回原因：</span>提交的身份证件信息与报名表填写内容不一致，请核对后重新提交。</p>
+                    <div class="flex justify-end">
+                        <button onclick="window.location.href='09_考试报名_填写信息_定制报名.html'" class="px-4 py-2 bg-brand-600 text-white text-xs font-semibold rounded-lg hover:bg-brand-700 transition min-h-[36px]">
+                            重新提交 <i class="fa-solid fa-rotate-right ml-1 text-[10px]"></i>
+                        </button>
+                    </div>
+                </div>
+            </div>
+
+            <!-- 卡片 4: 审核中（第二条） -->
+            <div class="card-item bg-white rounded-xl border border-slate-200 shadow-sm p-5" data-status="pending">
+                <div class="flex items-start justify-between">
+                    <div class="flex items-start gap-3 min-w-0">
+                        <div class="w-10 h-10 rounded-lg bg-blue-50 text-brand-600 flex items-center justify-center flex-shrink-0 mt-0.5">
+                            <i class="fa-solid fa-graduation-cap text-lg"></i>
+                        </div>
+                        <div class="min-w-0">
+                            <h3 class="font-semibold text-slate-900 text-base">元创S营</h3>
+                            <p class="text-xs text-slate-400 mt-0.5">专家推荐 · 2026-06-02 10:00</p>
+                            <p class="text-xs text-slate-300 mt-0.5 font-mono">编号：YC20260602005</p>
+                        </div>
+                    </div>
+                    <span class="flex-shrink-0 inline-flex items-center justify-center w-20 h-7 rounded-full bg-slate-100 text-slate-500 text-xs font-medium">审核中</span>
+                </div>
+                <div class="mt-4 pt-3 border-t border-slate-100 flex items-center justify-between">
+                    <span class="text-xs text-slate-400">等待运营人员审核</span>
+                    <div></div>
+                </div>
+            </div>
+
+        </div>
+
+    </main>
+
+    <script>
+        function switchTab(tab) {
+            document.querySelectorAll('.status-tab').forEach(function(btn) {
+                btn.classList.remove('text-brand-600', 'border-brand-600', 'font-semibold');
+                btn.classList.add('text-slate-500', 'border-transparent', 'font-medium');
+            });
+            var active = document.querySelector('[data-tab="' + tab + '"]');
+            if (active) {
+                active.classList.remove('text-slate-500', 'border-transparent', 'font-medium');
+                active.classList.add('text-brand-600', 'border-brand-600', 'font-semibold');
+            }
+            document.querySelectorAll('.card-item').forEach(function(card) {
+                if (tab === 'all') {
+                    card.style.display = '';
+                } else {
+                    card.style.display = card.getAttribute('data-status') === tab ? '' : 'none';
+                }
+            });
+        }
+    </script>
+</body>
+</html>

@@ -1,0 +1,282 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>用户详情 - 人工智能人才资源库后台</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <style>
+        :root {
+            --primary: #5037cd;
+            --bg: #F5F6FA; --white: #fff;
+            --text: #1F2937; --gray: #6B7280; --border: #E5E7EB;
+            --green: #10B981; --orange: #F59E0B; --red: #EF4444;
+        }
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, "PingFang SC", "Hiragino Sans GB", "Microsoft YaHei", sans-serif;
+            background: var(--bg); color: var(--text); min-height: 100vh;
+        }
+        .topbar {
+            background: var(--white); border-bottom: 1px solid var(--border);
+            padding: 0 24px; height: 56px; display: flex; align-items: center; justify-content: space-between;
+        }
+        .topbar .brand { font-size: 16px; font-weight: 700; color: var(--primary); letter-spacing: 1px; }
+
+        .main { max-width: 960px; margin: 0 auto; padding: 24px 20px; }
+        .back-link { display: inline-flex; align-items: center; gap: 6px; color: var(--gray); text-decoration: none; font-size: 14px; margin-bottom: 16px; }
+        .back-link:hover { color: var(--primary); }
+        .page-title { font-size: 20px; font-weight: 700; margin-bottom: 20px; display: flex; align-items: center; gap: 12px; }
+
+        .btn {
+            padding: 7px 16px; border-radius: 8px; font-size: 12px; font-weight: 600;
+            border: none; cursor: pointer; transition: all 0.15s; font-family: inherit;
+        }
+        .btn-approve { background: var(--green); color: white; }
+        .btn-approve:hover { background: #059669; }
+        .btn-reject { background: var(--red); color: white; }
+        .btn-reject:hover { background: #DC2626; }
+        .btn-save { background: var(--primary); color: white; }
+        .btn-save:hover { background: #4430b0; }
+
+        .card {
+            background: var(--white); border-radius: 10px; border: 1px solid var(--border);
+            padding: 20px 24px; margin-bottom: 14px;
+        }
+        .card h3 { font-size: 15px; font-weight: 700; margin-bottom: 14px; color: var(--primary); display: flex; align-items: center; gap: 8px; }
+
+        .form-grid {
+            display: grid; grid-template-columns: 1fr 1fr; gap: 12px 20px;
+        }
+        .form-group label { display: block; font-size: 12px; font-weight: 600; color: var(--gray); margin-bottom: 4px; }
+        .form-group input, .form-group select {
+            width: 100%; padding: 8px 12px; border: 1px solid var(--border); border-radius: 8px;
+            font-size: 14px; outline: none; font-family: inherit; color: var(--text);
+            background: #FAFAFA;
+        }
+        .form-group input:focus, .form-group select:focus { border-color: var(--primary); background: white; }
+
+        .record-row { display: flex; justify-content: space-between; padding: 8px 0; border-bottom: 1px dashed var(--border); font-size: 14px; }
+        .record-row:last-child { border-bottom: none; }
+        .record-row .date { color: var(--gray); font-size: 13px; }
+
+        /* 条目审核 */
+        .review-item {
+            display: flex; align-items: flex-start; justify-content: space-between;
+            padding: 12px 16px; background: #F9FAFB; border-radius: 8px;
+            margin-bottom: 8px; gap: 12px; flex-wrap: wrap; border-left: 3px solid var(--border);
+            transition: border-color 0.2s;
+        }
+        .review-item:last-child { margin-bottom: 0; }
+        .review-item.pending { border-left-color: var(--orange); }
+        .review-item.approved { border-left-color: var(--green); }
+        .review-item.rejected { border-left-color: var(--red); }
+        .review-item-body { flex: 1; min-width: 200px; }
+        .review-item-fields { display: flex; gap: 16px; flex-wrap: wrap; margin-bottom: 4px; }
+        .review-item-field { font-size: 13px; color: var(--text); }
+        .review-item-field .f-label { font-size: 11px; color: var(--gray); margin-right: 4px; }
+        .review-item-field .f-value { font-weight: 500; }
+        .review-item-file {
+            display: inline-flex; align-items: center; gap: 4px;
+            font-size: 12px; color: var(--primary); background: #F0EDFF;
+            padding: 2px 10px; border-radius: 12px; cursor: pointer;
+        }
+        .review-item-file:hover { text-decoration: underline; }
+        .review-item-actions {
+            display: flex; align-items: center; gap: 8px; flex-shrink: 0;
+        }
+        .review-item-status {
+            font-size: 11px; font-weight: 600; padding: 3px 10px; border-radius: 12px; white-space: nowrap;
+        }
+        .status-pending { background: #FEF3C7; color: #B45309; }
+        .status-approved { background: #D1FAE5; color: #065F46; }
+        .status-rejected { background: #FEE2E2; color: #991B1B; }
+
+        .section-empty {
+            font-size: 13px; color: #aaa; text-align: center; padding: 20px 0;
+        }
+
+        @media (max-width: 768px) {
+            .form-grid { grid-template-columns: 1fr; }
+            .main { padding: 16px 12px; }
+            .review-item { flex-direction: column; }
+            .review-item-actions { width: 100%; justify-content: flex-end; }
+        }
+    </style>
+</head>
+<body>
+
+<div class="topbar">
+    <div class="brand"><i class="fa-solid fa-database"></i> 人工智能人才资源库 · 后台管理</div>
+    <span style="font-size:13px;color:var(--gray)">管理员</span>
+</div>
+
+<div class="main">
+    <a href="admin.html" class="back-link"><i class="fa-solid fa-arrow-left"></i> 返回用户列表</a>
+
+    <div class="page-title">
+        用户详情
+        <span style="font-size:13px;color:var(--gray);font-weight:400">ID: U001</span>
+    </div>
+
+    <!-- 基本信息 -->
+    <div class="card">
+        <h3><i class="fa-regular fa-address-card"></i> 基本信息</h3>
+        <div class="form-grid">
+            <div class="form-group"><label>姓名</label><input type="text" value="张三" id="edit-name"></div>
+            <div class="form-group"><label>性别</label><select id="edit-gender"><option selected>男</option><option>女</option></select></div>
+            <div class="form-group"><label>出生年月</label><input type="text" value="2014年5月25日" id="edit-birth"></div>
+            <div class="form-group"><label>籍贯</label><input type="text" value="北京市海淀区" id="edit-hometown"></div>
+            <div class="form-group"><label>证件号</label><input type="text" value="440305********0011" id="edit-idno" readonly style="color:#888"></div>
+            <div class="form-group"><label>入库时间</label><input type="text" value="2026年2月15日" id="edit-join" readonly style="color:#888"></div>
+        </div>
+        <div style="margin-top:14px">
+            <button class="btn btn-save" onclick="saveBasic()"><i class="fa-solid fa-floppy-disk"></i> 保存基本信息</button>
+        </div>
+    </div>
+
+    <!-- AISE测评记录 -->
+    <div class="card">
+        <h3><i class="fa-solid fa-chart-line"></i> AISE测评记录（只读同步）</h3>
+        <div class="record-row"><span>智能工具实操——程序设计四级</span><span class="date">2025-03-15</span></div>
+        <div class="record-row"><span>智能工具实操——程序设计五级</span><span class="date">2025-06-20</span></div>
+        <div class="record-row"><span>智能工具实操——程序设计六级</span><span class="date">2025-09-10</span></div>
+        <div class="record-row"><span>智能工具实操——程序设计七级</span><span class="date">2025-12-05</span></div>
+        <div class="record-row"><span>智能工具实操——生成式人工智能一级</span><span class="date">2026-01-18</span></div>
+    </div>
+
+    <!-- 社会实践 -->
+    <div class="card">
+        <h3><i class="fa-solid fa-folder-open"></i> 社会实践与人才培养记录</h3>
+        <div id="review-practice"></div>
+    </div>
+
+    <!-- 专利和软著 -->
+    <div class="card">
+        <h3><i class="fa-solid fa-file-lines"></i> 专利和软著</h3>
+        <div id="review-patent"></div>
+    </div>
+
+    <!-- 其他荣誉 -->
+    <div class="card">
+        <h3><i class="fa-solid fa-trophy"></i> 其他荣誉记录</h3>
+        <div id="review-honor"></div>
+    </div>
+</div>
+
+<script>
+// === 模拟审核数据（含结构化字段） ===
+var reviewData = {
+    practice: [
+        { id: 1, fields: { name: 'XXX高校营地', time: '2025年8月', honor: '合格结业' }, file: '社会实践证明_高校营地.pdf', status: 'approved' },
+        { id: 2, fields: { name: 'XXX联赛', time: '2025年10月', honor: '成绩优秀' }, file: '联赛证书.jpg', status: 'approved' },
+        { id: 3, fields: { name: '2026年暑期AI实训营', time: '2026年7月', honor: '优秀学员' }, file: '实训营证书.pdf', status: 'pending' }
+    ],
+    patent: [
+        { id: 4, fields: { name: '一种基于AI的图像识别装置' }, file: '专利证书1.pdf', status: 'approved' },
+        { id: 5, fields: { name: '智能语音助手软件 V1.0' }, file: '软著证书2.pdf', status: 'pending' }
+    ],
+    honor: [
+        { id: 6, fields: { name: '全国青少年AI创新大赛一等奖', time: '2025年' }, file: '荣誉证书.jpg', status: 'approved' },
+        { id: 7, fields: { name: '校级三好学生', time: '2026年' }, file: null, status: 'pending' }
+    ]
+};
+
+var FIELD_LABELS = {
+    practice: { name: '活动名称', time: '时间', honor: '获得荣誉' },
+    patent: { name: '专利/软著名称' },
+    honor: { name: '获得荣誉', time: '时间' }
+};
+
+var statusLabels = { pending: '待审核', approved: '已通过', rejected: '已驳回' };
+var statusClass = { pending: 'status-pending', approved: 'status-approved', rejected: 'status-rejected' };
+
+function renderReviewSection(type) {
+    var container = document.getElementById('review-' + type);
+    var items = reviewData[type];
+    container.innerHTML = '';
+
+    if (!items || items.length === 0) {
+        container.innerHTML = '<div class="section-empty">暂无提交</div>';
+        return;
+    }
+
+    items.forEach(function(item) {
+        var div = document.createElement('div');
+        div.className = 'review-item ' + item.status;
+        div.id = 'review-item-' + type + '-' + item.id;
+
+        var body = document.createElement('div');
+        body.className = 'review-item-body';
+
+        // 结构化字段展示
+        var fieldsWrap = document.createElement('div');
+        fieldsWrap.className = 'review-item-fields';
+
+        var labels = FIELD_LABELS[type];
+        Object.keys(labels).forEach(function(k) {
+            var field = document.createElement('span');
+            field.className = 'review-item-field';
+            field.innerHTML = '<span class="f-label">' + labels[k] + '：</span><span class="f-value">' + (item.fields[k] || '—') + '</span>';
+            fieldsWrap.appendChild(field);
+        });
+        body.appendChild(fieldsWrap);
+
+        if (item.file) {
+            var fileEl = document.createElement('span');
+            fileEl.className = 'review-item-file';
+            fileEl.innerHTML = '<i class="fa-regular fa-file"></i> ' + item.file;
+            body.appendChild(fileEl);
+        }
+
+        div.appendChild(body);
+
+        var actions = document.createElement('div');
+        actions.className = 'review-item-actions';
+
+        if (item.status === 'pending') {
+            var btnApprove = document.createElement('button');
+            btnApprove.className = 'btn btn-approve';
+            btnApprove.innerHTML = '<i class="fa-solid fa-check"></i> 通过';
+            btnApprove.onclick = function() { reviewItem(type, item.id, 'approved'); };
+            actions.appendChild(btnApprove);
+
+            var btnReject = document.createElement('button');
+            btnReject.className = 'btn btn-reject';
+            btnReject.innerHTML = '<i class="fa-solid fa-xmark"></i> 驳回';
+            btnReject.onclick = function() { reviewItem(type, item.id, 'rejected'); };
+            actions.appendChild(btnReject);
+        } else {
+            var badge = document.createElement('span');
+            badge.className = 'review-item-status ' + statusClass[item.status];
+            badge.textContent = statusLabels[item.status];
+            actions.appendChild(badge);
+        }
+
+        div.appendChild(actions);
+        container.appendChild(div);
+    });
+}
+
+function reviewItem(type, id, newStatus) {
+    var item = reviewData[type].find(function(e) { return e.id === id; });
+    if (!item) return;
+    item.status = newStatus;
+    renderReviewSection(type);
+    var labels = FIELD_LABELS[type];
+    var summary = Object.keys(labels).map(function(k) { return item.fields[k]; }).filter(Boolean).join('，');
+    alert('已' + statusLabels[newStatus] + '：' + summary);
+}
+
+function saveBasic() {
+    var name = document.getElementById('edit-name').value;
+    alert('基本信息已保存：' + name);
+}
+
+// 初始化
+['practice','patent','honor'].forEach(function(type) {
+    renderReviewSection(type);
+});
+</script>
+</body>
+</html>

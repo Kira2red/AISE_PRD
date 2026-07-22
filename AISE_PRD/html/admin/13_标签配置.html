@@ -36,7 +36,7 @@
             width: 4px; height: 24px; background-color: #3b82f6; border-radius: 0 4px 4px 0;
         }
         tr.hover-row:hover td { background-color: #f8fafc; }
-        
+
         /* Modal Animation */
         .modal-enter { animation: modalFadeIn 0.2s ease-out forwards; }
         @keyframes modalFadeIn { from { opacity: 0; transform: scale(0.95); } to { opacity: 1; transform: scale(1); } }
@@ -65,6 +65,25 @@
             <a href="#" class="nav-item active flex items-center gap-3 px-6 py-3 text-brand-600 bg-brand-50 transition relative">
                 <i class="fa-solid fa-tags w-5 text-center"></i><span class="font-medium text-sm">标签配置</span>
             </a>
+            <a href="#" class="nav-item flex items-center gap-3 px-6 py-3 text-slate-500 hover:bg-slate-50 hover:text-brand-600 transition relative">
+                <i class="fa-solid fa-grid-2 w-5 text-center"></i><span class="font-medium text-sm">测评组管理</span>
+            </a>
+            <div class="px-6 py-2 mt-4 text-xs font-bold text-slate-400 uppercase tracking-wider">证书管理</div>
+            <a href="#" class="nav-item flex items-center gap-3 px-6 py-3 text-slate-500 hover:bg-slate-50 hover:text-brand-600 transition relative">
+                <i class="fa-solid fa-certificate w-5 text-center"></i><span class="font-medium text-sm">活动证书管理</span>
+            </a>
+            <a href="#" class="nav-item flex items-center gap-3 px-6 py-3 text-slate-500 hover:bg-slate-50 hover:text-brand-600 transition relative">
+                <i class="fa-solid fa-user-graduate w-5 text-center"></i><span class="font-medium text-sm">学生证书管理</span>
+            </a>
+            <a href="#" class="nav-item flex items-center gap-3 px-6 py-3 text-slate-500 hover:bg-slate-50 hover:text-brand-600 transition relative">
+                <i class="fa-solid fa-file-certificate w-5 text-center"></i><span class="font-medium text-sm">证书模版管理</span>
+            </a>
+            <a href="#" class="nav-item flex items-center gap-3 px-6 py-3 text-slate-500 hover:bg-slate-50 hover:text-brand-600 transition relative">
+                <i class="fa-solid fa-list-check w-5 text-center"></i><span class="font-medium text-sm">证书实例管理</span>
+            </a>
+            <a href="#" class="nav-item flex items-center gap-3 px-6 py-3 text-slate-500 hover:bg-slate-50 hover:text-brand-600 transition relative">
+                <i class="fa-solid fa-pen-to-square w-5 text-center"></i><span class="font-medium text-sm">证书属性管理</span>
+            </a>
             <div class="px-6 py-2 mt-4 text-xs font-bold text-slate-400 uppercase tracking-wider">考务与用户</div>
             <a href="#" class="nav-item flex items-center gap-3 px-6 py-3 text-slate-500 hover:bg-slate-50 hover:text-brand-600 transition relative">
                 <i class="fa-solid fa-users w-5 text-center"></i><span class="font-medium text-sm">考生管理</span>
@@ -83,7 +102,8 @@
         </header>
 
         <div class="flex flex-1 overflow-hidden">
-            
+
+            <!-- 左侧：属性列表 -->
             <div class="w-72 bg-white border-r border-slate-200 flex flex-col flex-shrink-0">
                 <div class="p-4 border-b border-slate-100 flex justify-between items-center bg-slate-50/50">
                     <span class="text-xs font-bold text-slate-500 uppercase tracking-wider">属性列表</span>
@@ -91,77 +111,16 @@
                         <i class="fa-solid fa-plus"></i> 新增属性
                     </button>
                 </div>
-                <div class="flex-1 overflow-y-auto p-3 space-y-1">
-                    <div class="group flex items-center justify-between px-3 py-2.5 rounded-lg bg-brand-50 text-brand-700 cursor-pointer border border-brand-100 shadow-sm">
-                        <div class="flex items-center gap-2 overflow-hidden">
-                            <i class="fa-solid fa-folder-open text-brand-500 text-sm"></i>
-                            <span class="font-bold text-sm truncate">所属模块</span>
-                        </div>
-                        <div class="flex items-center gap-2">
-                            <span class="text-xs bg-white/60 px-1.5 py-0.5 rounded text-brand-600 font-mono">3</span>
-                            <button onclick="openAttrModal('所属模块')" class="w-6 h-6 flex items-center justify-center rounded hover:bg-brand-200 text-brand-400 hover:text-brand-600 transition" title="编辑属性">
-                                <i class="fa-solid fa-pen text-xs"></i>
-                            </button>
-                        </div>
-                    </div>
-
-                    <div class="group flex items-center justify-between px-3 py-2.5 rounded-lg hover:bg-slate-50 text-slate-600 cursor-pointer border border-transparent hover:border-slate-100 transition">
-                        <div class="flex items-center gap-2 overflow-hidden">
-                            <i class="fa-regular fa-folder text-slate-400 text-sm group-hover:text-slate-500"></i>
-                            <span class="font-medium text-sm truncate">难度等级</span>
-                        </div>
-                        <div class="flex items-center gap-2">
-                            <span class="text-xs bg-slate-100 px-1.5 py-0.5 rounded text-slate-400 font-mono">5</span>
-                            <button class="w-6 h-6 flex items-center justify-center rounded hover:bg-slate-200 text-slate-300 hover:text-slate-600 opacity-0 group-hover:opacity-100 transition" title="编辑属性">
-                                <i class="fa-solid fa-pen text-xs"></i>
-                            </button>
-                        </div>
-                    </div>
-
-                    <div class="group flex items-center justify-between px-3 py-2.5 rounded-lg hover:bg-slate-50 text-slate-600 cursor-pointer border border-transparent hover:border-slate-100 transition">
-                        <div class="flex items-center gap-2 overflow-hidden">
-                            <i class="fa-regular fa-folder text-slate-400 text-sm group-hover:text-slate-500"></i>
-                            <span class="font-medium text-sm truncate">年份</span>
-                        </div>
-                        <div class="flex items-center gap-2">
-                            <span class="text-xs bg-slate-100 px-1.5 py-0.5 rounded text-slate-400 font-mono">2</span>
-                            <button class="w-6 h-6 flex items-center justify-center rounded hover:bg-slate-200 text-slate-300 hover:text-slate-600 opacity-0 group-hover:opacity-100 transition" title="编辑属性">
-                                <i class="fa-solid fa-pen text-xs"></i>
-                            </button>
-                        </div>
-                    </div>
-
-                    <div class="mt-4 pt-4 border-t border-slate-100">
-                        <div class="group flex items-center justify-between px-3 py-2.5 rounded-lg hover:bg-slate-50 text-slate-600 cursor-pointer border border-transparent hover:border-slate-100 transition">
-                            <div class="flex items-center gap-2 overflow-hidden">
-                                <i class="fa-solid fa-tag text-slate-400 text-sm group-hover:text-slate-500"></i>
-                                <span class="font-medium text-sm truncate">通用标签 / 无属性</span>
-                            </div>
-                            <span class="text-xs bg-slate-100 px-1.5 py-0.5 rounded text-slate-400 font-mono">12</span>
-                        </div>
-                    </div>
+                <div class="flex-1 overflow-y-auto p-3 space-y-1" id="attr-list">
+                    <!-- 由 JS 动态渲染 -->
                 </div>
             </div>
 
+            <!-- 右侧：标签列表 -->
             <div class="flex-1 flex flex-col bg-slate-50/30 overflow-hidden">
-                
-                <div class="px-8 py-6 border-b border-slate-200 bg-white flex justify-between items-center">
-                    <div>
-                        <div class="flex items-center gap-3">
-                            <h2 class="text-lg font-bold text-slate-800">所属模块</h2>
-                            <span class="px-2 py-0.5 rounded bg-green-50 text-green-700 border border-green-200 text-xs font-bold">启用中</span>
-                            <span class="px-2 py-0.5 rounded bg-slate-100 text-slate-500 border border-slate-200 text-xs">多选模式</span>
-                        </div>
-                        <p class="text-xs text-slate-400 mt-1">用于标记测评所属的技术领域，如 Python, C++, AIGC 等。</p>
-                    </div>
-                    <div class="flex gap-3">
-                        <button onclick="openMergeModal()" class="px-4 py-2 bg-white border border-slate-200 hover:bg-slate-50 text-slate-600 text-sm font-medium rounded-lg shadow-sm transition flex items-center gap-2">
-                            <i class="fa-solid fa-code-merge"></i> 合并标签
-                        </button>
-                        <button onclick="openTagModal()" class="px-4 py-2 bg-brand-600 hover:bg-brand-700 text-white text-sm font-bold rounded-lg shadow-md transition flex items-center gap-2">
-                            <i class="fa-solid fa-plus"></i> 新增标签
-                        </button>
-                    </div>
+
+                <div class="px-8 py-6 border-b border-slate-200 bg-white flex justify-between items-center" id="tag-header">
+                    <!-- 由 JS 动态渲染 -->
                 </div>
 
                 <div class="flex-1 overflow-y-auto p-8">
@@ -170,55 +129,14 @@
                             <thead>
                                 <tr class="border-b border-slate-100 bg-slate-50 text-xs uppercase text-slate-500 font-bold">
                                     <th class="p-4 pl-6 w-16">#</th>
-                                    <th class="p-4 w-1/3">标签名称</th>
+                                    <th class="p-4 w-1/4">标签名称</th>
                                     <th class="p-4">预览样式</th>
                                     <th class="p-4">引用次数</th>
                                     <th class="p-4 text-right pr-6">操作</th>
                                 </tr>
                             </thead>
-                            <tbody class="text-sm text-slate-700 divide-y divide-slate-100">
-                                <tr class="hover-row transition">
-                                    <td class="p-4 pl-6 text-slate-400 font-mono">1</td>
-                                    <td class="p-4 font-bold">Python</td>
-                                    <td class="p-4">
-                                        <span class="inline-flex items-center px-2.5 py-0.5 rounded text-xs font-bold bg-blue-50 text-blue-700 border border-blue-200">
-                                            Python
-                                        </span>
-                                    </td>
-                                    <td class="p-4 font-mono text-slate-500">1,240</td>
-                                    <td class="p-4 text-right pr-6">
-                                        <button onclick="openTagModal('Python', 'blue')" class="text-slate-400 hover:text-brand-600 text-xs font-bold mr-3 transition">编辑</button>
-                                        <button class="text-slate-400 hover:text-red-500 text-xs font-bold transition">删除</button>
-                                    </td>
-                                </tr>
-                                <tr class="hover-row transition">
-                                    <td class="p-4 pl-6 text-slate-400 font-mono">2</td>
-                                    <td class="p-4 font-bold">图形化编程</td>
-                                    <td class="p-4">
-                                        <span class="inline-flex items-center px-2.5 py-0.5 rounded text-xs font-bold bg-orange-50 text-orange-700 border border-orange-200">
-                                            图形化编程
-                                        </span>
-                                    </td>
-                                    <td class="p-4 font-mono text-slate-500">856</td>
-                                    <td class="p-4 text-right pr-6">
-                                        <button onclick="openTagModal('图形化编程', 'orange')" class="text-slate-400 hover:text-brand-600 text-xs font-bold mr-3 transition">编辑</button>
-                                        <button class="text-slate-400 hover:text-red-500 text-xs font-bold transition">删除</button>
-                                    </td>
-                                </tr>
-                                <tr class="hover-row transition">
-                                    <td class="p-4 pl-6 text-slate-400 font-mono">3</td>
-                                    <td class="p-4 font-bold">AIGC</td>
-                                    <td class="p-4">
-                                        <span class="inline-flex items-center px-2.5 py-0.5 rounded text-xs font-bold bg-purple-50 text-purple-700 border border-purple-200">
-                                            AIGC
-                                        </span>
-                                    </td>
-                                    <td class="p-4 font-mono text-slate-500">320</td>
-                                    <td class="p-4 text-right pr-6">
-                                        <button onclick="openTagModal('AIGC', 'purple')" class="text-slate-400 hover:text-brand-600 text-xs font-bold mr-3 transition">编辑</button>
-                                        <button class="text-slate-400 hover:text-red-500 text-xs font-bold transition">删除</button>
-                                    </td>
-                                </tr>
+                            <tbody class="text-sm text-slate-700 divide-y divide-slate-100" id="tag-tbody">
+                                <!-- 由 JS 动态渲染 -->
                             </tbody>
                         </table>
                     </div>
@@ -227,6 +145,7 @@
         </div>
     </main>
 
+    <!-- ==================== 弹窗：新增/编辑属性 ==================== -->
     <div id="modal-attr" class="fixed inset-0 z-50 hidden flex items-center justify-center bg-slate-900/50 backdrop-blur-sm transition-opacity opacity-0">
         <div class="bg-white rounded-2xl shadow-xl w-[480px] p-6 transform scale-95 transition-transform" id="modal-attr-content">
             <div class="flex justify-between items-center mb-6">
@@ -273,6 +192,7 @@
         </div>
     </div>
 
+    <!-- ==================== 弹窗：新增/编辑标签 ==================== -->
     <div id="modal-tag" class="fixed inset-0 z-50 hidden flex items-center justify-center bg-slate-900/50 backdrop-blur-sm transition-opacity opacity-0">
         <div class="bg-white rounded-2xl shadow-xl w-[480px] p-6 transform scale-95 transition-transform" id="modal-tag-content">
             <div class="flex justify-between items-center mb-6">
@@ -282,7 +202,7 @@
             <div class="space-y-5">
                 <div>
                     <label class="block text-xs font-bold text-slate-500 uppercase mb-2">归属属性</label>
-                    <input type="text" value="所属模块" disabled class="w-full px-4 py-2.5 rounded-lg border border-slate-200 bg-slate-50 text-slate-500 text-sm font-medium">
+                    <input type="text" id="tag-attr-name" disabled class="w-full px-4 py-2.5 rounded-lg border border-slate-200 bg-slate-50 text-slate-500 text-sm font-medium">
                 </div>
                 <div>
                     <label class="block text-xs font-bold text-slate-500 uppercase mb-2">标签名称 <span class="text-red-500">*</span></label>
@@ -290,7 +210,7 @@
                 </div>
                 <div>
                     <label class="block text-xs font-bold text-slate-500 uppercase mb-2">显示颜色</label>
-                    <div class="flex gap-3 flex-wrap">
+                    <div class="flex gap-3 flex-wrap" id="color-picker">
                         <label class="cursor-pointer relative">
                             <input type="radio" name="tag-color" value="blue" class="sr-only color-radio" checked>
                             <div class="w-8 h-8 rounded-full bg-blue-100 border border-blue-300 hover:ring-2 ring-blue-400 transition flex items-center justify-center text-blue-600 text-xs font-bold">A</div>
@@ -325,6 +245,7 @@
         </div>
     </div>
 
+    <!-- ==================== 弹窗：合并标签 ==================== -->
     <div id="modal-merge" class="fixed inset-0 z-50 hidden flex items-center justify-center bg-slate-900/50 backdrop-blur-sm transition-opacity opacity-0">
         <div class="bg-white rounded-2xl shadow-xl w-[500px] p-6 transform scale-95 transition-transform" id="modal-merge-content">
             <div class="flex justify-between items-center mb-6">
@@ -339,7 +260,7 @@
                 </div>
                 <button onclick="closeModal('modal-merge')" class="text-slate-400 hover:text-slate-600"><i class="fa-solid fa-xmark"></i></button>
             </div>
-            
+
             <div class="space-y-6 relative">
                 <div class="bg-slate-50 p-4 rounded-lg border border-slate-100">
                     <label class="block text-xs font-bold text-slate-500 uppercase mb-2">源标签 (将被删除)</label>
@@ -372,7 +293,400 @@
         </div>
     </div>
 
+    <!-- ==================== 弹窗：关联子标签（新增） ==================== -->
+    <div id="modal-assoc" class="fixed inset-0 z-50 hidden flex items-center justify-center bg-slate-900/50 backdrop-blur-sm transition-opacity opacity-0">
+        <div class="bg-white rounded-2xl shadow-xl w-[800px] max-h-[85vh] flex flex-col p-6 transform scale-95 transition-transform" id="modal-assoc-content">
+            <div class="flex justify-between items-center mb-4 flex-shrink-0">
+                <div>
+                    <h3 class="font-bold text-slate-800 text-lg" id="assoc-title">标签关联管理</h3>
+                    <p class="text-xs text-slate-400 mt-1" id="assoc-subtitle"></p>
+                </div>
+                <button onclick="closeModal('modal-assoc')" class="text-slate-400 hover:text-slate-600"><i class="fa-solid fa-xmark"></i></button>
+            </div>
+
+            <!-- 所有属性分组展示 -->
+            <div id="assoc-all-attrs" class="flex-1 overflow-y-auto space-y-5 pr-1">
+                <!-- 由 JS 动态渲染 -->
+            </div>
+
+            <!-- 已有关联汇总 -->
+            <div id="assoc-summary" class="flex-shrink-0 bg-brand-50 border border-brand-100 rounded-lg p-3 mt-4">
+                <p class="text-xs font-bold text-brand-700 mb-2 flex items-center gap-1">
+                    <i class="fa-solid fa-link"></i> 当前已关联的子标签（保存后生效）
+                </p>
+                <div id="assoc-summary-tags" class="flex flex-wrap gap-2 min-h-[28px]">
+                    <span class="text-xs text-brand-400">暂无关联</span>
+                </div>
+            </div>
+
+            <div class="mt-4 pt-3 border-t border-slate-100 flex justify-end gap-3 flex-shrink-0">
+                <p class="text-xs text-slate-400 mr-auto self-center" id="assoc-hint">勾选或取消勾选标签，点击「保存关联」生效</p>
+                <button onclick="closeModal('modal-assoc')" class="px-4 py-2 text-sm text-slate-600 hover:bg-slate-50 rounded-lg transition">取消</button>
+                <button onclick="saveAssociation()" class="px-6 py-2 bg-brand-600 text-white text-sm font-bold rounded-lg hover:bg-brand-700 transition shadow-sm">保存关联</button>
+            </div>
+        </div>
+    </div>
+
     <script>
+        // ==================== 数据层 ====================
+
+        // 属性数据
+        const attributes = [
+            { id: 'attr1', name: '所属模块', tagCount: 2, mode: 'multi', enabled: true, desc: '用于标记测评所属的技术领域，如 Python, C++, AIGC 等。' },
+            { id: 'attr2', name: '难度等级', tagCount: 0, mode: 'single', enabled: true, desc: '用于标记测评难度。' },
+            { id: 'attr3', name: '年份', tagCount: 0, mode: 'single', enabled: true, desc: '用于标记测评年份。' },
+            { id: 'attr4', name: '参测模块', tagCount: 4, mode: 'single', enabled: true, desc: '用于标记测评的参测模块信息。' },
+            { id: 'attr5', name: '参测等级', tagCount: 11, mode: 'multi', enabled: true, desc: '用于标记测评的参测等级信息。' },
+            { id: 'attr6', name: '编程语言', tagCount: 3, mode: 'multi', enabled: true, desc: '用于标记测评涉及的编程语言。' },
+            { id: 'attr7', name: '证书模板', tagCount: 3, mode: 'single', enabled: true, desc: '用于标记测评关联的证书模板。' },
+        ];
+
+        // 标签数据
+        const tags = {
+            attr1: [
+                { id: 't1', name: 'Python', color: 'blue', count: 1240 },
+                { id: 't2', name: 'AIGC', color: 'purple', count: 320 },
+            ],
+            attr2: [],
+            attr3: [],
+            attr4: [
+                { id: 't3', name: '创新实践评定', color: 'purple', count: 0 },
+                { id: 't4', name: '技术融合应用', color: 'orange', count: 0 },
+                { id: 't5', name: '智能工具实操', color: 'green', count: 0 },
+                { id: 't6', name: '青年编程', color: 'blue', count: 0 },
+            ],
+            attr5: [
+                { id: 't7', name: '一级', color: 'blue', count: 0 },
+                { id: 't8', name: '二级', color: 'green', count: 0 },
+                { id: 't9', name: '三级', color: 'orange', count: 0 },
+                { id: 't10', name: '四级', color: 'purple', count: 0 },
+                { id: 't11', name: '五级', color: 'red', count: 0 },
+                { id: 't12', name: '六级', color: 'slate', count: 0 },
+                { id: 't13', name: '七级', color: 'blue', count: 0 },
+                { id: 't14', name: '八级', color: 'green', count: 0 },
+                { id: 't15', name: '九级', color: 'orange', count: 0 },
+                { id: 't16', name: '十级', color: 'purple', count: 0 },
+                { id: 't17', name: '十一级', color: 'red', count: 0 },
+            ],
+            attr6: [
+                { id: 't18', name: 'Python', color: 'blue', count: 0 },
+                { id: 't19', name: 'C++', color: 'green', count: 0 },
+                { id: 't20', name: 'Scratch', color: 'orange', count: 0 },
+            ],
+            attr7: [
+                { id: 't21', name: '标准证书模板', color: 'blue', count: 0 },
+                { id: 't22', name: '高级证书模板', color: 'purple', count: 0 },
+                { id: 't23', name: '专项证书模板', color: 'green', count: 0 },
+            ],
+        };
+
+        // 标签关联数据：{ 父标签id: [子标签id列表] }
+        const associations = {
+            t5: ['t7', 't8', 't9'],    // 智能工具实操 → 一级、二级、三级
+            t6: ['t7', 't8', 't10'],    // 青年编程 → 一级、二级、四级
+        };
+
+        // 当前选中的属性 ID
+        let currentAttrId = 'attr4';
+
+        // 关联弹窗上下文
+        let assocParentTagId = null;
+        let assocParentAttrId = null;
+
+        // ==================== 渲染层 ====================
+
+        // 颜色 class 映射
+        const colorClasses = {
+            blue:   'bg-blue-50 text-blue-700 border-blue-200',
+            green:  'bg-green-50 text-green-700 border-green-200',
+            orange: 'bg-orange-50 text-orange-700 border-orange-200',
+            purple: 'bg-purple-50 text-purple-700 border-purple-200',
+            red:    'bg-red-50 text-red-700 border-red-200',
+            slate:  'bg-slate-100 text-slate-600 border-slate-200',
+        };
+
+        function tagColorClass(color) {
+            return colorClasses[color] || colorClasses.blue;
+        }
+
+        function renderAttrList() {
+            const container = document.getElementById('attr-list');
+            container.innerHTML = attributes.map(a => {
+                const isActive = a.id === currentAttrId;
+                const baseClass = isActive
+                    ? 'bg-brand-50 text-brand-700 border-brand-100 shadow-sm'
+                    : 'hover:bg-slate-50 text-slate-600 border-transparent hover:border-slate-100';
+                const folderIcon = isActive
+                    ? '<i class="fa-solid fa-folder-open text-brand-500 text-sm"></i>'
+                    : '<i class="fa-regular fa-folder text-slate-400 text-sm group-hover:text-slate-500"></i>';
+                return `
+                <div class="group flex items-center justify-between px-3 py-2.5 rounded-lg cursor-pointer border transition ${baseClass}"
+                     onclick="selectAttr('${a.id}')">
+                    <div class="flex items-center gap-2 overflow-hidden">
+                        ${folderIcon}
+                        <span class="${isActive ? 'font-bold' : 'font-medium'} text-sm truncate">${a.name}</span>
+                    </div>
+                    <div class="flex items-center gap-2">
+                        <span class="text-xs ${isActive ? 'bg-white/60 text-brand-600' : 'bg-slate-100 text-slate-400'} px-1.5 py-0.5 rounded font-mono">${a.tagCount}</span>
+                        <button onclick="event.stopPropagation(); openAttrModal('${a.id}')"
+                            class="w-6 h-6 flex items-center justify-center rounded hover:bg-brand-200 text-brand-400 hover:text-brand-600 ${isActive ? '' : 'opacity-0 group-hover:opacity-100'} transition" title="编辑属性">
+                            <i class="fa-solid fa-pen text-xs"></i>
+                        </button>
+                        ${isActive ? '<button onclick="event.stopPropagation(); deleteAttr(\'' + a.id + '\')" class="w-6 h-6 flex items-center justify-center rounded hover:bg-red-100 text-slate-400 hover:text-red-500 transition" title="删除属性"><i class="fa-solid fa-trash-can text-xs"></i></button>' : ''}
+                    </div>
+                </div>`;
+            }).join('');
+        }
+
+        function selectAttr(attrId) {
+            currentAttrId = attrId;
+            renderAttrList();
+            renderTagHeader();
+            renderTagTable();
+        }
+
+        function renderTagHeader() {
+            const attr = attributes.find(a => a.id === currentAttrId);
+            if (!attr) return;
+            const modeLabel = attr.mode === 'multi' ? '多选模式' : '单选模式';
+            document.getElementById('tag-header').innerHTML = `
+                <div>
+                    <div class="flex items-center gap-3">
+                        <h2 class="text-lg font-bold text-slate-800">${attr.name}</h2>
+                        <span class="px-2 py-0.5 rounded bg-green-50 text-green-700 border border-green-200 text-xs font-bold">启用中</span>
+                        <span class="px-2 py-0.5 rounded bg-slate-100 text-slate-500 border border-slate-200 text-xs">${modeLabel}</span>
+                    </div>
+                    <p class="text-xs text-slate-400 mt-1">${attr.desc}</p>
+                </div>
+                <div class="flex gap-3">
+                    <button onclick="openMergeModal()" class="px-4 py-2 bg-white border border-slate-200 hover:bg-slate-50 text-slate-600 text-sm font-medium rounded-lg shadow-sm transition flex items-center gap-2">
+                        <i class="fa-solid fa-code-merge"></i> 合并标签
+                    </button>
+                    <button onclick="openTagModal()" class="px-4 py-2 bg-brand-600 hover:bg-brand-700 text-white text-sm font-bold rounded-lg shadow-md transition flex items-center gap-2">
+                        <i class="fa-solid fa-plus"></i> 新增标签
+                    </button>
+                </div>`;
+        }
+
+        function renderTagTable() {
+            const tbody = document.getElementById('tag-tbody');
+            const tagList = tags[currentAttrId] || [];
+            tbody.innerHTML = tagList.map((t, i) => {
+                // 计算该标签已关联的子标签数
+                const childIds = associations[t.id] || [];
+                const childCount = childIds.length;
+                return `
+                <tr class="hover-row transition">
+                    <td class="p-4 pl-6 text-slate-400 font-mono">${i + 1}</td>
+                    <td class="p-4 font-bold">${t.name}</td>
+                    <td class="p-4">
+                        <span class="inline-flex items-center px-2.5 py-0.5 rounded text-xs font-bold border ${tagColorClass(t.color)}">
+                            ${t.name}
+                        </span>
+                    </td>
+                    <td class="p-4 font-mono text-slate-500">${t.count.toLocaleString()}</td>
+                    <td class="p-4 text-right pr-6">
+                        <button onclick="openTagModal('${t.id}')" class="text-slate-400 hover:text-brand-600 text-xs font-bold mr-3 transition">编辑</button>
+                        <button onclick="openAssocModal('${t.id}')" class="text-slate-400 hover:text-indigo-600 text-xs font-bold mr-3 transition">关联子标签</button>
+                        <button onclick="deleteTag('${t.id}')" class="text-slate-400 hover:text-red-500 text-xs font-bold transition">删除</button>
+                    </td>
+                </tr>`;
+            }).join('');
+        }
+
+        function deleteTag(tagId) {
+            const children = associations[tagId] || [];
+            if (children.length > 0) {
+                alert('该标签已关联了 ' + children.length + ' 个子标签，请先在「关联子标签」中解除关联后再删除。');
+                return;
+            }
+            // 检查是否被其他标签关联为子标签
+            const parents = Object.entries(associations).filter(([pid, cids]) => cids.includes(tagId));
+            if (parents.length > 0) {
+                alert('该标签已被 ' + parents.length + ' 个标签关联为子标签，请先解除关联后再删除。');
+                return;
+            }
+            if (confirm('确定删除标签？此操作不可撤销。')) {
+                // 模拟删除
+                const tagList = tags[currentAttrId];
+                const idx = tagList.findIndex(t => t.id === tagId);
+                if (idx >= 0) tagList.splice(idx, 1);
+                const attr = attributes.find(a => a.id === currentAttrId);
+                attr.tagCount = tagList.length;
+                renderAttrList();
+                renderTagTable();
+            }
+        }
+
+        function deleteAttr(attrId) {
+            // 检查该属性下的标签是否有被关联的
+            const tagList = tags[attrId] || [];
+            const hasChildAssoc = tagList.some(t => Object.values(associations).some(cids => cids.includes(t.id)));
+            if (hasChildAssoc) {
+                alert('该属性下有标签被其他属性的标签关联为子标签，请先解除关联后再删除属性。');
+                return;
+            }
+            if (confirm('确定删除属性「' + (attributes.find(a=>a.id===attrId)?.name||'') + '」？该属性下的所有标签将被删除。')) {
+                const idx = attributes.findIndex(a => a.id === attrId);
+                if (idx >= 0) attributes.splice(idx, 1);
+                delete tags[attrId];
+                delete associations[attrId];
+                currentAttrId = attributes[0]?.id || '';
+                renderAttrList();
+                renderTagHeader();
+                renderTagTable();
+            }
+        }
+
+        // ==================== 关联子标签弹窗（新增核心逻辑） ====================
+
+        function openAssocModal(tagId) {
+            assocParentTagId = tagId;
+            // 找到该标签所属属性
+            let parentAttrId = null;
+            for (const [aid, tagList] of Object.entries(tags)) {
+                if (tagList.some(t => t.id === tagId)) {
+                    parentAttrId = aid;
+                    break;
+                }
+            }
+            assocParentAttrId = parentAttrId;
+
+            const tag = Object.values(tags).flat().find(t => t.id === tagId);
+            const attr = attributes.find(a => a.id === parentAttrId);
+            document.getElementById('assoc-title').innerText = '标签关联管理 —— ' + (tag?.name || '');
+            document.getElementById('assoc-subtitle').innerText = '所属属性：' + (attr?.name || '') + ' | 为当前标签关联其他属性下的标签作为子标签';
+
+            // 渲染所有属性分组
+            renderAssocAllAttrs();
+            updateAssocSummary();
+
+            openModal('modal-assoc', 'modal-assoc-content');
+        }
+
+        function renderAssocAllAttrs() {
+            const container = document.getElementById('assoc-all-attrs');
+            const currentAssoc = associations[assocParentTagId] || [];
+
+            // 排除当前标签所属属性、排除无标签的属性
+            const otherAttrs = attributes.filter(a => a.id !== assocParentAttrId);
+
+            if (otherAttrs.length === 0) {
+                container.innerHTML = '<p class="text-xs text-slate-400 py-8 text-center">没有其他属性可供关联</p>';
+                return;
+            }
+
+            container.innerHTML = otherAttrs.map(attr => {
+                const tagList = tags[attr.id] || [];
+                const hasTags = tagList.length > 0;
+
+                if (!hasTags) {
+                    return `
+                    <div class="opacity-50">
+                        <div class="flex items-center gap-2 mb-2 pb-2 border-b border-slate-100">
+                            <i class="fa-regular fa-folder text-slate-300 text-sm"></i>
+                            <span class="text-sm font-medium text-slate-400">${attr.name}</span>
+                            <span class="text-xs text-slate-300 ml-1">（0个标签，无可用关联）</span>
+                        </div>
+                    </div>`;
+                }
+
+                const checkedCount = tagList.filter(t => currentAssoc.includes(t.id)).length;
+                const tagsHtml = tagList.map(t => {
+                    const checked = currentAssoc.includes(t.id) ? 'checked' : '';
+                    return `
+                    <label class="flex items-center gap-2 px-2 py-1.5 rounded-lg hover:bg-white cursor-pointer transition border border-transparent hover:border-slate-200">
+                        <input type="checkbox" value="${t.id}" ${checked} class="w-4 h-4 rounded border-slate-300 text-brand-600 focus:ring-brand-500 assoc-checkbox" onchange="updateAssocSummary()">
+                        <span class="inline-flex items-center px-2 py-0.5 rounded text-xs font-bold border ${tagColorClass(t.color)}">${t.name}</span>
+                    </label>`;
+                }).join('');
+
+                return `
+                <div>
+                    <div class="flex items-center gap-2 mb-2 pb-2 border-b border-slate-100">
+                        <i class="fa-solid fa-folder-open text-brand-500 text-sm"></i>
+                        <span class="text-sm font-bold text-slate-700">${attr.name}</span>
+                        <span class="text-xs text-slate-400">（${tagList.length}个标签${checkedCount > 0 ? '，已关联' + checkedCount + '个' : ''}）</span>
+                    </div>
+                    <div class="flex flex-wrap gap-2 pl-2">
+                        ${tagsHtml}
+                    </div>
+                </div>`;
+            }).join('');
+        }
+
+        function updateAssocSummary() {
+            const summaryTags = document.getElementById('assoc-summary-tags');
+            // 从当前弹窗所有 checkbox 收集勾选的
+            const checkboxes = document.querySelectorAll('.assoc-checkbox');
+            const selectedIds = [];
+            checkboxes.forEach(cb => { if (cb.checked) selectedIds.push(cb.value); });
+
+            if (selectedIds.length === 0) {
+                summaryTags.innerHTML = '<span class="text-xs text-brand-400">暂无关联</span>';
+                return;
+            }
+
+            const allSelected = [...new Set(selectedIds)];
+
+            summaryTags.innerHTML = allSelected.map(tid => {
+                const t = Object.values(tags).flat().find(tg => tg.id === tid);
+                if (!t) return '';
+                const attrEntry = Object.entries(tags).find(([aid, tl]) => tl.some(tg => tg.id === tid));
+                const attrName = attributes.find(a => a.id === attrEntry?.[0])?.name || '未知属性';
+                return `<span class="inline-flex items-center gap-1 px-2 py-1 rounded text-xs font-bold border ${tagColorClass(t.color)} cursor-pointer hover:opacity-80 transition group" onclick="removeAssocTag('${tid}')" title="点击取消关联">
+                    ${t.name}
+                    <span class="text-[10px] opacity-60">(${attrName})</span>
+                    <i class="fa-solid fa-xmark text-[10px] ml-0.5 opacity-40 group-hover:opacity-100 transition"></i>
+                </span>`;
+            }).join('');
+        }
+
+        function removeAssocTag(tagId) {
+            // 找到对应的 checkbox 并取消勾选
+            const cb = document.querySelector(`.assoc-checkbox[value="${tagId}"]`);
+            if (cb) {
+                cb.checked = false;
+                updateAssocSummary();
+            }
+        }
+
+        function saveAssociation() {
+            const checkboxes = document.querySelectorAll('.assoc-checkbox');
+            const selectedIds = [];
+            checkboxes.forEach(cb => { if (cb.checked) selectedIds.push(cb.value); });
+
+            if (selectedIds.length === 0) {
+                delete associations[assocParentTagId];
+            } else {
+                associations[assocParentTagId] = selectedIds;
+            }
+
+            closeModal('modal-assoc');
+            renderTagTable();
+
+            const tag = Object.values(tags).flat().find(t => t.id === assocParentTagId);
+            showToast('「' + (tag?.name || '') + '」的关联已更新（共 ' + selectedIds.length + ' 个子标签）');
+        }
+
+        // Toast 提示
+        function showToast(msg) {
+            let container = document.getElementById('toast-container');
+            if (!container) {
+                container = document.createElement('div');
+                container.id = 'toast-container';
+                container.className = 'fixed bottom-6 right-6 z-[100] flex flex-col gap-2';
+                document.body.appendChild(container);
+            }
+            const el = document.createElement('div');
+            el.className = 'bg-slate-800 text-white text-sm px-4 py-3 rounded-xl shadow-lg flex items-center gap-2 modal-enter';
+            el.innerHTML = '<i class="fa-solid fa-circle-check text-green-400"></i> ' + msg;
+            container.appendChild(el);
+            setTimeout(() => { el.remove(); }, 3000);
+        }
+
+        // ==================== 弹窗通用 ====================
+
         function openModal(id, contentId) {
             const modal = document.getElementById(id);
             const content = document.getElementById(contentId);
@@ -387,13 +701,13 @@
             setTimeout(() => { modal.classList.add('hidden'); content.classList.remove('modal-enter'); }, 200);
         }
 
-        // Specific Openers
-        function openAttrModal(name) {
+        function openAttrModal(attrId) {
             const title = document.getElementById('modal-attr-title');
             const input = document.getElementById('attr-name');
-            if (name) {
+            if (attrId) {
+                const attr = attributes.find(a => a.id === attrId);
                 title.innerText = '编辑属性';
-                input.value = name;
+                input.value = attr ? attr.name : '';
             } else {
                 title.innerText = '新增标签属性';
                 input.value = '';
@@ -401,13 +715,17 @@
             openModal('modal-attr', 'modal-attr-content');
         }
 
-        function openTagModal(name, color) {
+        function openTagModal(tagId) {
             const title = document.getElementById('modal-tag-title');
             const input = document.getElementById('tag-name');
-            if (name) {
+            const attrInput = document.getElementById('tag-attr-name');
+            const attr = attributes.find(a => a.id === currentAttrId);
+            attrInput.value = attr ? attr.name : '';
+
+            if (tagId) {
                 title.innerText = '编辑标签';
-                input.value = name;
-                // Simplified: Select color radio logic would go here
+                const tag = Object.values(tags).flat().find(t => t.id === tagId);
+                input.value = tag ? tag.name : '';
             } else {
                 title.innerText = '新增标签';
                 input.value = '';
@@ -418,6 +736,15 @@
         function openMergeModal() {
             openModal('modal-merge', 'modal-merge-content');
         }
+
+        // ==================== 初始化 ====================
+
+        renderAttrList();
+        renderTagHeader();
+        renderTagTable();
+
+        // 默认选中参测模块
+        selectAttr('attr4');
     </script>
 </body>
 </html>

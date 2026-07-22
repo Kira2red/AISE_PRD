@@ -1,0 +1,1141 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>交易数据统计 - AISE 后台</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.0/dist/chart.umd.min.js"></script>
+
+    <script>
+        tailwind.config = {
+            theme: {
+                extend: {
+                    fontFamily: {
+                        sans: ['Inter', 'sans-serif'],
+                        mono: ['JetBrains Mono', 'monospace'],
+                    },
+                    colors: {
+                        brand: { 50: '#eff6ff', 100: '#dbeafe', 500: '#3b82f6', 600: '#2563eb', 700: '#1d4ed8' },
+                    },
+                    boxShadow: {
+                        'card': '0 1px 3px 0 rgba(0, 0, 0, 0.1), 0 1px 2px 0 rgba(0, 0, 0, 0.06)',
+                        'drawer': '-10px 0 30px -10px rgba(0, 0, 0, 0.1)',
+                    }
+                }
+            }
+        }
+    </script>
+    <style>
+        body {
+            background-color: #F8FAFC;
+        }
+
+        .nav-item.active::before {
+            content: '';
+            position: absolute;
+            left: 0;
+            top: 50%;
+            transform: translateY(-50%);
+            width: 4px;
+            height: 24px;
+            background-color: #3b82f6;
+            border-radius: 0 4px 4px 0;
+        }
+
+        .tab-btn.active {
+            color: #2563eb;
+            border-bottom-color: #2563eb;
+        }
+    </style>
+</head>
+
+<body class="flex h-screen overflow-hidden text-slate-800 font-sans">
+
+    <!-- Sidebar -->
+    <aside class="w-64 bg-white border-r border-slate-200 flex flex-col flex-shrink-0 z-20">
+        <div class="h-16 flex items-center px-6 border-b border-slate-100">
+            <div class="w-8 h-8 bg-gradient-to-br from-brand-600 to-indigo-600 rounded-lg flex items-center justify-center text-white font-bold text-lg mr-3 shadow-sm">A</div>
+            <span class="font-bold text-lg text-slate-800 tracking-tight">AISE Admin</span>
+        </div>
+        <nav class="flex-1 overflow-y-auto py-4 space-y-1">
+            <!-- 教务中心 -->
+            <a href="#" class="nav-item flex items-center gap-3 px-6 py-3 text-slate-500 hover:bg-slate-50 hover:text-brand-600 transition relative">
+                <i class="fa-solid fa-layer-group w-5 text-center"></i><span class="font-medium text-sm">题库管理</span>
+            </a>
+            <a href="#" class="nav-item flex items-center gap-3 px-6 py-3 text-slate-500 hover:bg-slate-50 hover:text-brand-600 transition relative">
+                <i class="fa-solid fa-file-lines w-5 text-center"></i><span class="font-medium text-sm">试卷管理</span>
+            </a>
+            <a href="#" class="nav-item flex items-center gap-3 px-6 py-3 text-slate-500 hover:bg-slate-50 hover:text-brand-600 transition relative">
+                <i class="fa-solid fa-graduation-cap w-5 text-center"></i><span class="font-medium text-sm">测评管理</span>
+            </a>
+            <!-- 考务与用户 -->
+            <div class="px-6 py-2 mt-2 text-xs font-bold text-slate-400 uppercase tracking-wider">考务与用户</div>
+            <a href="#" class="nav-item flex items-center gap-3 px-6 py-3 text-slate-500 hover:bg-slate-50 hover:text-brand-600 transition relative">
+                <i class="fa-solid fa-users w-5 text-center"></i><span class="font-medium text-sm">考生管理</span>
+            </a>
+            <a href="#" class="nav-item flex items-center gap-3 px-6 py-3 text-slate-500 hover:bg-slate-50 hover:text-brand-600 transition relative">
+                <i class="fa-solid fa-clipboard-check w-5 text-center"></i><span class="font-medium text-sm">报名管理</span>
+            </a>
+            <!-- 对账管理 -->
+            <div class="px-6 py-2 mt-2 text-xs font-bold text-slate-400 uppercase tracking-wider">对账管理</div>
+            <a href="#" class="nav-item flex items-center gap-3 px-6 py-3 text-slate-500 hover:bg-slate-50 hover:text-brand-600 transition relative">
+                <i class="fa-solid fa-receipt w-5 text-center"></i><span class="font-medium text-sm">交易流水</span>
+            </a>
+            <a href="#" class="nav-item active flex items-center gap-3 px-6 py-3 text-brand-600 bg-brand-50 transition relative">
+                <i class="fa-solid fa-chart-pie w-5 text-center"></i><span class="font-medium text-sm">交易数据统计</span>
+            </a>
+        </nav>
+    </aside>
+
+    <!-- Main Content -->
+    <main class="flex-1 flex flex-col min-w-0 bg-slate-50/50 overflow-y-auto">
+
+        <!-- Header -->
+        <header class="h-16 bg-white border-b border-slate-200 flex items-center justify-between px-8 flex-shrink-0 z-10 sticky top-0">
+            <div class="flex items-center gap-3">
+                <h1 class="text-xl font-bold text-slate-800">交易数据统计</h1>
+                <span class="text-xs text-slate-400 bg-slate-100 px-2 py-0.5 rounded font-mono">对账管理</span>
+            </div>
+            <button class="bg-white border border-slate-200 hover:bg-slate-50 text-slate-700 text-sm font-medium px-5 py-2.5 rounded-lg shadow-sm transition flex items-center gap-2">
+                <i class="fa-solid fa-file-export"></i> 导出 Excel
+            </button>
+        </header>
+
+        <!-- Filter Bar -->
+        <div class="px-8 pt-6">
+            <div class="bg-white rounded-xl shadow-card border border-slate-200 p-5 space-y-3">
+                <div class="flex flex-wrap gap-3 items-center">
+                    <!-- Time range -->
+                    <span class="text-xs text-slate-400 font-medium whitespace-nowrap">时间范围</span>
+                    <input type="date" value="2025-05-01" class="px-3 py-2 rounded-lg border border-slate-200 text-sm focus:border-brand-500 outline-none transition w-36">
+                    <span class="text-slate-300 text-xs">—</span>
+                    <input type="date" value="2025-05-26" class="px-3 py-2 rounded-lg border border-slate-200 text-sm focus:border-brand-500 outline-none transition w-36">
+                    <div class="flex gap-1 ml-1">
+                        <button class="quick-date px-2.5 py-1.5 rounded-md text-xs font-medium bg-brand-50 text-brand-600 border border-brand-100 hover:bg-brand-100 transition" data-period="this-month">本月</button>
+                        <button class="quick-date px-2.5 py-1.5 rounded-md text-xs font-medium bg-slate-50 text-slate-500 border border-slate-200 hover:bg-slate-100 transition" data-period="last-month">上月</button>
+                        <button class="quick-date px-2.5 py-1.5 rounded-md text-xs font-medium bg-slate-50 text-slate-500 border border-slate-200 hover:bg-slate-100 transition" data-period="last-30">近30天</button>
+                    </div>
+
+                    <div class="w-px h-6 bg-slate-200 mx-1"></div>
+
+                    <!-- Payment channel multi-select -->
+                    <span class="text-xs text-slate-400 font-medium whitespace-nowrap">支付方式</span>
+                    <div class="relative" id="payment-dropdown-wrapper">
+                        <button id="payment-dropdown-btn" onclick="toggleDropdown('payment-dropdown')" class="px-3 py-2 rounded-lg border border-slate-200 text-sm text-slate-600 bg-white outline-none hover:border-slate-300 transition flex items-center gap-2 min-w-[150px]">
+                            <span id="payment-dropdown-text">全部支付方式</span>
+                            <i class="fa-solid fa-chevron-down text-[10px] text-slate-400 ml-auto"></i>
+                        </button>
+                        <div id="payment-dropdown" class="absolute top-full mt-1 left-0 bg-white border border-slate-200 rounded-lg shadow-lg z-30 w-48 hidden">
+                            <label class="flex items-center gap-2 px-3 py-2 hover:bg-slate-50 cursor-pointer text-sm">
+                                <input type="checkbox" value="wechat" class="pm-checkbox rounded border-slate-300 text-brand-600 focus:ring-brand-500" checked>
+                                <i class="fa-brands fa-weixin text-green-500 w-4 text-center"></i> 微信支付
+                            </label>
+                            <label class="flex items-center gap-2 px-3 py-2 hover:bg-slate-50 cursor-pointer text-sm">
+                                <input type="checkbox" value="alipay" class="pm-checkbox rounded border-slate-300 text-brand-600 focus:ring-brand-500" checked>
+                                <i class="fa-brands fa-alipay text-blue-500 w-4 text-center"></i> 支付宝
+                            </label>
+                            <label class="flex items-center gap-2 px-3 py-2 hover:bg-slate-50 cursor-pointer text-sm">
+                                <input type="checkbox" value="admin" class="pm-checkbox rounded border-slate-300 text-brand-600 focus:ring-brand-500" checked>
+                                <i class="fa-solid fa-user-shield text-slate-400 w-4 text-center"></i> 后台直接开通
+                            </label>
+                        </div>
+                    </div>
+
+                    <div class="w-px h-6 bg-slate-200 mx-1"></div>
+
+                    <!-- Channel filter -->
+                    <span class="text-xs text-slate-400 font-medium whitespace-nowrap">渠道</span>
+                    <div class="relative" id="channel-filter-wrapper">
+                        <button id="channel-filter-btn" onclick="toggleDropdown('channel-filter-dropdown')" class="px-3 py-2 rounded-lg border border-slate-200 text-sm text-slate-600 bg-white outline-none hover:border-slate-300 transition flex items-center gap-2 min-w-[160px]">
+                            <span id="channel-filter-text">全部渠道</span>
+                            <i class="fa-solid fa-chevron-down text-[10px] text-slate-400 ml-auto"></i>
+                        </button>
+                        <div id="channel-filter-dropdown" class="absolute top-full mt-1 left-0 bg-white border border-slate-200 rounded-lg shadow-lg z-30 w-56 hidden">
+                            <label class="flex items-center gap-2 px-3 py-2 hover:bg-slate-50 cursor-pointer text-sm">
+                                <input type="checkbox" value="SELF2025" class="ch-checkbox rounded border-slate-300 text-brand-600 focus:ring-brand-500" checked>
+                                <span class="text-xs text-slate-500">C端自招 </span><span class="text-[10px] text-slate-400 font-mono">SELF2025</span>
+                            </label>
+                            <label class="flex items-center gap-2 px-3 py-2 hover:bg-slate-50 cursor-pointer text-sm">
+                                <input type="checkbox" value="YPB2025" class="ch-checkbox rounded border-slate-300 text-brand-600 focus:ring-brand-500" checked>
+                                <span class="text-xs text-slate-500">猿编程教育科技 </span><span class="text-[10px] text-slate-400 font-mono">YPB2025</span>
+                            </label>
+                            <label class="flex items-center gap-2 px-3 py-2 hover:bg-slate-50 cursor-pointer text-sm">
+                                <input type="checkbox" value="XES2025" class="ch-checkbox rounded border-slate-300 text-brand-600 focus:ring-brand-500" checked>
+                                <span class="text-xs text-slate-500">学而思编程 </span><span class="text-[10px] text-slate-400 font-mono">XES2025</span>
+                            </label>
+                            <label class="flex items-center gap-2 px-3 py-2 hover:bg-slate-50 cursor-pointer text-sm">
+                                <input type="checkbox" value="ADMIN" class="ch-checkbox rounded border-slate-300 text-brand-600 focus:ring-brand-500" checked>
+                                <span class="text-xs text-slate-500">后台直接开通 </span><span class="text-[10px] text-slate-400 font-mono">ADMIN</span>
+                            </label>
+                            <label class="flex items-center gap-2 px-3 py-2 hover:bg-slate-50 cursor-pointer text-sm">
+                                <input type="checkbox" value="OTHER" class="ch-checkbox rounded border-slate-300 text-brand-600 focus:ring-brand-500" checked>
+                                <span class="text-xs text-slate-500">其他渠道 </span><span class="text-[10px] text-slate-400 font-mono">OTHER</span>
+                            </label>
+                        </div>
+                    </div>
+
+                    <div class="w-px h-6 bg-slate-200 mx-1"></div>
+
+                    <!-- Exam select with search -->
+                    <div class="flex items-center gap-2">
+                        <span class="text-xs text-slate-400 font-medium whitespace-nowrap">测评</span>
+                        <div class="relative" id="exam-dropdown-wrapper">
+                        <button id="exam-dropdown-btn" onclick="toggleDropdown('exam-dropdown')" class="px-3 py-2 rounded-lg border border-slate-200 text-sm text-slate-600 bg-white outline-none hover:border-slate-300 transition flex items-center gap-2 min-w-[180px]">
+                            <span id="exam-dropdown-text">全部测评</span>
+                            <i class="fa-solid fa-chevron-down text-[10px] text-slate-400 ml-auto"></i>
+                        </button>
+                        <div id="exam-dropdown" class="absolute top-full mt-1 left-0 bg-white border border-slate-200 rounded-lg shadow-lg z-30 w-64 hidden">
+                            <div class="p-2 border-b border-slate-100">
+                                <input type="text" placeholder="搜索测评名称..." oninput="filterExamOptions(this.value)" class="w-full px-3 py-1.5 rounded-md border border-slate-200 text-xs focus:border-brand-500 outline-none">
+                            </div>
+                            <div class="max-h-48 overflow-y-auto" id="exam-options-list">
+                                <label class="flex items-center gap-2 px-3 py-2 hover:bg-slate-50 cursor-pointer text-sm exam-option">
+                                    <input type="checkbox" value="exam-025" class="exam-checkbox rounded border-slate-300 text-brand-600 focus:ring-brand-500" checked>
+                                    2025春季 Python 一级
+                                </label>
+                                <label class="flex items-center gap-2 px-3 py-2 hover:bg-slate-50 cursor-pointer text-sm exam-option">
+                                    <input type="checkbox" value="exam-048" class="exam-checkbox rounded border-slate-300 text-brand-600 focus:ring-brand-500" checked>
+                                    2025夏季 AIGC 二级
+                                </label>
+                                <label class="flex items-center gap-2 px-3 py-2 hover:bg-slate-50 cursor-pointer text-sm exam-option">
+                                    <input type="checkbox" value="exam-031" class="exam-checkbox rounded border-slate-300 text-brand-600 focus:ring-brand-500" checked>
+                                    2025春季 Scratch 三级
+                                </label>
+                                <label class="flex items-center gap-2 px-3 py-2 hover:bg-slate-50 cursor-pointer text-sm exam-option">
+                                    <input type="checkbox" value="exam-055" class="exam-checkbox rounded border-slate-300 text-brand-600 focus:ring-brand-500" checked>
+                                    2025秋季 C++ 一级
+                                </label>
+                            </div>
+                        </div>
+                    </div>
+                    </div>
+
+                    <!-- Actions -->
+                    <button class="bg-brand-600 hover:bg-brand-700 text-white text-sm font-medium px-5 py-2 rounded-lg shadow-sm transition flex items-center gap-2 ml-2">
+                        <i class="fa-solid fa-magnifying-glass"></i> 查询
+                    </button>
+                    <button onclick="resetFilters()" class="text-sm text-slate-400 hover:text-slate-600 transition flex items-center gap-1 ml-1">
+                        <i class="fa-solid fa-rotate-right"></i> 重置
+                    </button>
+                </div>
+            </div>
+        </div>
+
+        <!-- Overview Cards -->
+        <div class="px-8 pt-6">
+            <div class="grid grid-cols-5 gap-4">
+                <!-- 总收款 -->
+                <div class="bg-white rounded-xl shadow-card border border-slate-200 p-5">
+                    <p class="text-xs text-slate-400 font-medium mb-2">总收款</p>
+                    <p class="text-[28px] font-bold font-mono text-slate-800 leading-none mb-2">¥128,500.00</p>
+                    <p class="text-xs text-slate-400">筛选时间内所有支付成功金额合计</p>
+                </div>
+                <!-- 实收金额 - highlighted -->
+                <div class="bg-brand-50 rounded-xl shadow-card border border-brand-100 p-5 summary-card-blue">
+                    <p class="text-xs text-slate-500 font-medium mb-2">实收金额</p>
+                    <p class="text-[28px] font-bold font-mono text-brand-600 leading-none mb-2">¥115,200.00</p>
+                    <p class="text-xs text-slate-500">总收款 − 已退款金额</p>
+                </div>
+                <!-- 总报名人次 -->
+                <div class="bg-white rounded-xl shadow-card border border-slate-200 p-5">
+                    <p class="text-xs text-slate-400 font-medium mb-2">总报名人次</p>
+                    <p class="text-[28px] font-bold font-mono text-slate-800 leading-none mb-2">1,230 <span class="text-sm font-normal text-slate-500">人次</span></p>
+                    <p class="text-xs text-slate-400">筛选时间内所有报名人次</p>
+                </div>
+                <!-- 有效报名人次 -->
+                <div class="bg-white rounded-xl shadow-card border border-slate-200 p-5">
+                    <p class="text-xs text-slate-400 font-medium mb-2">有效报名人次</p>
+                    <p class="text-[28px] font-bold font-mono text-slate-800 leading-none mb-2">1,087 <span class="text-sm font-normal text-slate-500">人次</span></p>
+                    <p class="text-xs text-slate-400">剔除已退款人次</p>
+                </div>
+                <!-- 退款笔数 -->
+                <div class="bg-white rounded-xl shadow-card border border-slate-200 p-5">
+                    <p class="text-xs text-slate-400 font-medium mb-2">退款笔数</p>
+                    <p class="text-[28px] font-bold font-mono text-slate-800 leading-none mb-2">143 <span class="text-sm font-normal text-slate-500">笔</span></p>
+                    <p class="text-xs"><span class="text-red-500 font-mono font-medium">¥13,300.00</span> <span class="text-slate-400">筛选时间内退款统计</span></p>
+                </div>
+            </div>
+        </div>
+
+        <!-- Charts: 2x2 Grid -->
+        <div class="px-8 pt-6">
+            <div class="grid grid-cols-2 gap-5">
+                <!-- Chart 1: 报名趋势 Line -->
+                <div class="bg-white rounded-xl shadow-card border border-slate-200 p-5">
+                    <h3 class="text-sm font-bold text-slate-700 mb-4">报名趋势</h3>
+                    <div class="relative" style="height: 280px;">
+                        <canvas id="chart-trend"></canvas>
+                    </div>
+                </div>
+
+                <!-- Chart 2: 渠道实收分布 Doughnut -->
+                <div class="bg-white rounded-xl shadow-card border border-slate-200 p-5">
+                    <h3 class="text-sm font-bold text-slate-700 mb-4">渠道实收分布</h3>
+                    <div class="relative flex items-center justify-center" style="height: 280px;">
+                        <canvas id="chart-channel"></canvas>
+                        <div class="absolute flex flex-col items-center pointer-events-none" style="top: 50%; left: 50%; transform: translate(-50%, -60%);">
+                            <span class="text-[10px] text-slate-400">实收总额</span>
+                            <span class="text-sm font-bold font-mono text-slate-800">¥115,200.00</span>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Chart 3: 支付方式趋势 Stacked Bar -->
+                <div class="bg-white rounded-xl shadow-card border border-slate-200 p-5">
+                    <h3 class="text-sm font-bold text-slate-700 mb-4">支付方式趋势</h3>
+                    <div class="relative" style="height: 280px;">
+                        <canvas id="chart-payment-trend"></canvas>
+                    </div>
+                </div>
+
+                <!-- Chart 4: 退款趋势 Bar + Line -->
+                <div class="bg-white rounded-xl shadow-card border border-slate-200 p-5">
+                    <h3 class="text-sm font-bold text-slate-700 mb-4">退款趋势</h3>
+                    <div class="relative" style="height: 280px;">
+                        <canvas id="chart-refund-trend"></canvas>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Detail Tables with Tabs -->
+        <div class="px-8 py-6">
+            <div class="bg-white rounded-xl shadow-card border border-slate-200 overflow-hidden">
+                <!-- Tab Bar -->
+                <div class="flex border-b border-slate-100">
+                    <button class="tab-btn active px-6 py-3 text-sm font-bold text-brand-600 border-b-2 border-brand-600 transition" data-tab="channel" onclick="switchTab('channel')">按渠道</button>
+                    <button class="tab-btn px-6 py-3 text-sm font-medium text-slate-500 border-b-2 border-transparent hover:text-slate-700 transition" data-tab="exam" onclick="switchTab('exam')">按测评</button>
+                    <button class="tab-btn px-6 py-3 text-sm font-medium text-slate-500 border-b-2 border-transparent hover:text-slate-700 transition" data-tab="date" onclick="switchTab('date')">按日期</button>
+                </div>
+
+                <!-- Tab: 按渠道 (default) -->
+                <div id="tab-channel" class="tab-content">
+                    <div class="overflow-x-auto min-w-[900px]">
+                        <table class="w-full text-left border-collapse">
+                            <thead>
+                                <tr class="border-b border-slate-100 bg-slate-50 text-xs uppercase text-slate-500 font-bold">
+                                    <th class="p-4 pl-6 w-8"></th>
+                                    <th class="p-4 whitespace-nowrap">渠道名称</th>
+                                    <th class="p-4 whitespace-nowrap">报名人次</th>
+                                    <th class="p-4 whitespace-nowrap">支付成功金额</th>
+                                    <th class="p-4 whitespace-nowrap">退款人次</th>
+                                    <th class="p-4 whitespace-nowrap">退款金额</th>
+                                    <th class="p-4 whitespace-nowrap">实收金额</th>
+                                    <th class="p-4 whitespace-nowrap">退款率</th>
+                                </tr>
+                            </thead>
+                            <tbody class="text-sm text-slate-700 divide-y divide-slate-100">
+                                <!-- C端自招 -->
+                                <tr class="hover:bg-slate-50 transition cursor-pointer channel-row" data-channel="SELF2025" onclick="toggleAccordion('accordion-self')">
+                                    <td class="p-4 pl-6">
+                                        <i id="icon-self" class="fa-solid fa-chevron-right text-xs text-slate-400 transition-transform duration-200 rotate-90"></i>
+                                    </td>
+                                    <td class="p-4 font-medium">
+                                        <p>C端自招</p>
+                                        <p class="text-[10px] text-slate-400 font-mono">SELF2025</p>
+                                    </td>
+                                    <td class="p-4 font-mono">400</td>
+                                    <td class="p-4 font-mono font-semibold">¥52,000.00</td>
+                                    <td class="p-4 font-mono">55</td>
+                                    <td class="p-4 font-mono text-red-500">¥5,500.00</td>
+                                    <td class="p-4 font-mono font-semibold text-brand-600">¥46,500.00</td>
+                                    <td class="p-4 font-mono">13.8%</td>
+                                </tr>
+                                <tr id="accordion-self" class="bg-brand-50/50">
+                                    <td colspan="8" class="p-0">
+                                        <div class="px-10 py-3 border-b border-brand-100">
+                                            <p class="text-xs font-bold text-slate-500 uppercase mb-2">退款明细</p>
+                                            <table class="w-full text-xs">
+                                                <thead>
+                                                    <tr class="text-slate-400 font-medium border-b border-brand-100/50">
+                                                        <th class="py-1.5 pr-4 text-left">退款时间</th>
+                                                        <th class="py-1.5 pr-4 text-left">用户名</th>
+                                                        <th class="py-1.5 pr-4 text-left">商户交易编号</th>
+                                                        <th class="py-1.5 pr-4 text-left">退款金额</th>
+                                                        <th class="py-1.5 text-left">测评名称</th>
+                                                    </tr>
+                                                </thead>
+                                                <tbody class="text-slate-600">
+                                                    <tr>
+                                                        <td class="py-1.5 pr-4 font-mono">05-19 16:30</td>
+                                                        <td class="py-1.5 pr-4">张三</td>
+                                                        <td class="py-1.5 pr-4 font-mono text-[11px]">TXN20250519163022001</td>
+                                                        <td class="py-1.5 pr-4 font-mono text-red-500">¥199.00</td>
+                                                        <td class="py-1.5">2025春季 Python 一级</td>
+                                                    </tr>
+                                                    <tr>
+                                                        <td class="py-1.5 pr-4 font-mono">05-22 09:15</td>
+                                                        <td class="py-1.5 pr-4">李小四</td>
+                                                        <td class="py-1.5 pr-4 font-mono text-[11px]">TXN20250522091508008</td>
+                                                        <td class="py-1.5 pr-4 font-mono text-red-500">¥299.00</td>
+                                                        <td class="py-1.5">2025夏季 AIGC 二级</td>
+                                                    </tr>
+                                                    <tr>
+                                                        <td class="py-1.5 pr-4 font-mono">05-25 14:02</td>
+                                                        <td class="py-1.5 pr-4">赵六</td>
+                                                        <td class="py-1.5 pr-4 font-mono text-[11px]">TXN20250525140233005</td>
+                                                        <td class="py-1.5 pr-4 font-mono text-red-500">¥199.00</td>
+                                                        <td class="py-1.5">2025春季 Scratch 三级</td>
+                                                    </tr>
+                                                </tbody>
+                                            </table>
+                                        </div>
+                                    </td>
+                                </tr>
+
+                                <!-- 猿编程教育科技 -->
+                                <tr class="hover:bg-slate-50 transition cursor-pointer channel-row" data-channel="YPB2025" onclick="toggleAccordion('accordion-ypb')">
+                                    <td class="p-4 pl-6">
+                                        <i id="icon-ypb" class="fa-solid fa-chevron-right text-xs text-slate-400 transition-transform duration-200"></i>
+                                    </td>
+                                    <td class="p-4 font-medium">
+                                        <p>猿编程教育科技</p>
+                                        <p class="text-[10px] text-slate-400 font-mono">YPB2025</p>
+                                    </td>
+                                    <td class="p-4 font-mono">350</td>
+                                    <td class="p-4 font-mono font-semibold">¥45,000.00</td>
+                                    <td class="p-4 font-mono">42</td>
+                                    <td class="p-4 font-mono text-red-500">¥3,800.00</td>
+                                    <td class="p-4 font-mono font-semibold text-brand-600">¥41,200.00</td>
+                                    <td class="p-4 font-mono">12.0%</td>
+                                </tr>
+                                <tr id="accordion-ypb" class="hidden bg-brand-50/50">
+                                    <td colspan="8" class="p-0">
+                                        <div class="px-10 py-3 border-b border-brand-100">
+                                            <p class="text-xs font-bold text-slate-500 uppercase mb-2">退款明细</p>
+                                            <table class="w-full text-xs">
+                                                <thead>
+                                                    <tr class="text-slate-400 font-medium border-b border-brand-100/50">
+                                                        <th class="py-1.5 pr-4 text-left">退款时间</th>
+                                                        <th class="py-1.5 pr-4 text-left">用户名</th>
+                                                        <th class="py-1.5 pr-4 text-left">商户交易编号</th>
+                                                        <th class="py-1.5 pr-4 text-left">退款金额</th>
+                                                        <th class="py-1.5 text-left">测评名称</th>
+                                                    </tr>
+                                                </thead>
+                                                <tbody class="text-slate-600">
+                                                    <tr>
+                                                        <td class="py-1.5 pr-4 font-mono">05-18 11:20</td>
+                                                        <td class="py-1.5 pr-4">王五</td>
+                                                        <td class="py-1.5 pr-4 font-mono text-[11px]">TXN20250518112045012</td>
+                                                        <td class="py-1.5 pr-4 font-mono text-red-500">¥199.00</td>
+                                                        <td class="py-1.5">2025春季 Scratch 三级</td>
+                                                    </tr>
+                                                    <tr>
+                                                        <td class="py-1.5 pr-4 font-mono">05-21 15:40</td>
+                                                        <td class="py-1.5 pr-4">孙七</td>
+                                                        <td class="py-1.5 pr-4 font-mono text-[11px]">TXN20250521154012055</td>
+                                                        <td class="py-1.5 pr-4 font-mono text-red-500">¥299.00</td>
+                                                        <td class="py-1.5">2025春季 Python 一级</td>
+                                                    </tr>
+                                                </tbody>
+                                            </table>
+                                        </div>
+                                    </td>
+                                </tr>
+
+                                <!-- 学而思编程 -->
+                                <tr class="hover:bg-slate-50 transition cursor-pointer channel-row" data-channel="XES2025" onclick="toggleAccordion('accordion-xes')">
+                                    <td class="p-4 pl-6">
+                                        <i id="icon-xes" class="fa-solid fa-chevron-right text-xs text-slate-400 transition-transform duration-200"></i>
+                                    </td>
+                                    <td class="p-4 font-medium">
+                                        <p>学而思编程</p>
+                                        <p class="text-[10px] text-slate-400 font-mono">XES2025</p>
+                                    </td>
+                                    <td class="p-4 font-mono">280</td>
+                                    <td class="p-4 font-mono font-semibold">¥30,500.00</td>
+                                    <td class="p-4 font-mono">32</td>
+                                    <td class="p-4 font-mono text-red-500">¥3,200.00</td>
+                                    <td class="p-4 font-mono font-semibold text-brand-600">¥27,300.00</td>
+                                    <td class="p-4 font-mono">11.4%</td>
+                                </tr>
+                                <tr id="accordion-xes" class="hidden bg-brand-50/50">
+                                    <td colspan="8" class="p-0">
+                                        <div class="px-10 py-3 border-b border-brand-100">
+                                            <p class="text-xs font-bold text-slate-500 uppercase mb-2">退款明细</p>
+                                            <table class="w-full text-xs">
+                                                <thead>
+                                                    <tr class="text-slate-400 font-medium border-b border-brand-100/50">
+                                                        <th class="py-1.5 pr-4 text-left">退款时间</th>
+                                                        <th class="py-1.5 pr-4 text-left">用户名</th>
+                                                        <th class="py-1.5 pr-4 text-left">商户交易编号</th>
+                                                        <th class="py-1.5 pr-4 text-left">退款金额</th>
+                                                        <th class="py-1.5 text-left">测评名称</th>
+                                                    </tr>
+                                                </thead>
+                                                <tbody class="text-slate-600">
+                                                    <tr>
+                                                        <td class="py-1.5 pr-4 font-mono">05-17 09:30</td>
+                                                        <td class="py-1.5 pr-4">周八</td>
+                                                        <td class="py-1.5 pr-4 font-mono text-[11px]">TXN20250517093012022</td>
+                                                        <td class="py-1.5 pr-4 font-mono text-red-500">¥199.00</td>
+                                                        <td class="py-1.5">2025秋季 C++ 一级</td>
+                                                    </tr>
+                                                    <tr>
+                                                        <td class="py-1.5 pr-4 font-mono">05-24 14:15</td>
+                                                        <td class="py-1.5 pr-4">吴九</td>
+                                                        <td class="py-1.5 pr-4 font-mono text-[11px]">TXN20250524141512060</td>
+                                                        <td class="py-1.5 pr-4 font-mono text-red-500">¥299.00</td>
+                                                        <td class="py-1.5">2025夏季 AIGC 二级</td>
+                                                    </tr>
+                                                </tbody>
+                                            </table>
+                                        </div>
+                                    </td>
+                                </tr>
+
+                                <!-- 后台直接开通 -->
+                                <tr class="hover:bg-slate-50 transition cursor-pointer channel-row" data-channel="ADMIN" onclick="toggleAccordion('accordion-admin')">
+                                    <td class="p-4 pl-6">
+                                        <i id="icon-admin-ch" class="fa-solid fa-chevron-right text-xs text-slate-400 transition-transform duration-200"></i>
+                                    </td>
+                                    <td class="p-4 font-medium">
+                                        <p>后台直接开通</p>
+                                        <p class="text-[10px] text-slate-400 font-mono">ADMIN</p>
+                                    </td>
+                                    <td class="p-4 font-mono">180</td>
+                                    <td class="p-4 font-mono font-semibold">¥500.00</td>
+                                    <td class="p-4 font-mono">5</td>
+                                    <td class="p-4 font-mono text-red-500">¥500.00</td>
+                                    <td class="p-4 font-mono font-semibold text-brand-600">¥0.00</td>
+                                    <td class="p-4 font-mono">2.8%</td>
+                                </tr>
+                                <tr id="accordion-admin-ch" class="hidden bg-brand-50/50">
+                                    <td colspan="8" class="p-0">
+                                        <div class="px-10 py-3 border-b border-brand-100">
+                                            <p class="text-xs font-bold text-slate-500 uppercase mb-2">退款明细</p>
+                                            <table class="w-full text-xs">
+                                                <thead>
+                                                    <tr class="text-slate-400 font-medium border-b border-brand-100/50">
+                                                        <th class="py-1.5 pr-4 text-left">退款时间</th>
+                                                        <th class="py-1.5 pr-4 text-left">用户名</th>
+                                                        <th class="py-1.5 pr-4 text-left">商户交易编号</th>
+                                                        <th class="py-1.5 pr-4 text-left">退款金额</th>
+                                                        <th class="py-1.5 text-left">测评名称</th>
+                                                    </tr>
+                                                </thead>
+                                                <tbody class="text-slate-600">
+                                                    <tr>
+                                                        <td class="py-1.5 pr-4 font-mono">05-16 10:20</td>
+                                                        <td class="py-1.5 pr-4">郑十</td>
+                                                        <td class="py-1.5 pr-4 font-mono text-[11px]">TXN20250516102045030</td>
+                                                        <td class="py-1.5 pr-4 font-mono text-red-500">¥100.00</td>
+                                                        <td class="py-1.5">2025夏季 AIGC 二级</td>
+                                                    </tr>
+                                                    <tr>
+                                                        <td class="py-1.5 pr-4 font-mono">05-23 12:50</td>
+                                                        <td class="py-1.5 pr-4">冯十一</td>
+                                                        <td class="py-1.5 pr-4 font-mono text-[11px]">TXN20250523125018041</td>
+                                                        <td class="py-1.5 pr-4 font-mono text-red-500">¥100.00</td>
+                                                        <td class="py-1.5">2025春季 Scratch 三级</td>
+                                                    </tr>
+                                                </tbody>
+                                            </table>
+                                        </div>
+                                    </td>
+                                </tr>
+
+                                <!-- 其他渠道 -->
+                                <tr class="hover:bg-slate-50 transition cursor-pointer channel-row" data-channel="OTHER" onclick="toggleAccordion('accordion-other')">
+                                    <td class="p-4 pl-6">
+                                        <i id="icon-other" class="fa-solid fa-chevron-right text-xs text-slate-400 transition-transform duration-200"></i>
+                                    </td>
+                                    <td class="p-4 font-medium">
+                                        <p>其他渠道</p>
+                                        <p class="text-[10px] text-slate-400 font-mono">OTHER</p>
+                                    </td>
+                                    <td class="p-4 font-mono">20</td>
+                                    <td class="p-4 font-mono font-semibold">¥500.00</td>
+                                    <td class="p-4 font-mono">9</td>
+                                    <td class="p-4 font-mono text-red-500">¥300.00</td>
+                                    <td class="p-4 font-mono font-semibold text-brand-600">¥200.00</td>
+                                    <td class="p-4 font-mono">45.0%</td>
+                                </tr>
+                                <tr id="accordion-other" class="hidden bg-brand-50/50">
+                                    <td colspan="8" class="p-0">
+                                        <div class="px-10 py-3 border-b border-brand-100">
+                                            <p class="text-xs font-bold text-slate-500 uppercase mb-2">退款明细</p>
+                                            <table class="w-full text-xs">
+                                                <thead>
+                                                    <tr class="text-slate-400 font-medium border-b border-brand-100/50">
+                                                        <th class="py-1.5 pr-4 text-left">退款时间</th>
+                                                        <th class="py-1.5 pr-4 text-left">用户名</th>
+                                                        <th class="py-1.5 pr-4 text-left">商户交易编号</th>
+                                                        <th class="py-1.5 pr-4 text-left">退款金额</th>
+                                                        <th class="py-1.5 text-left">测评名称</th>
+                                                    </tr>
+                                                </thead>
+                                                <tbody class="text-slate-600">
+                                                    <tr>
+                                                        <td class="py-1.5 pr-4 font-mono">05-15 08:00</td>
+                                                        <td class="py-1.5 pr-4">陈十二</td>
+                                                        <td class="py-1.5 pr-4 font-mono text-[11px]">TXN20250515080012001</td>
+                                                        <td class="py-1.5 pr-4 font-mono text-red-500">¥100.00</td>
+                                                        <td class="py-1.5">2025春季 Python 一级</td>
+                                                    </tr>
+                                                </tbody>
+                                            </table>
+                                        </div>
+                                    </td>
+                                </tr>
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+
+                <!-- Tab: 按测评 -->
+                <div id="tab-exam" class="tab-content hidden">
+                    <div class="overflow-x-auto min-w-[900px]">
+                        <table class="w-full text-left border-collapse">
+                            <thead>
+                                <tr class="border-b border-slate-100 bg-slate-50 text-xs uppercase text-slate-500 font-bold">
+                                    <th class="p-4 pl-6 whitespace-nowrap">测评名称</th>
+                                    <th class="p-4 whitespace-nowrap">报名人次</th>
+                                    <th class="p-4 whitespace-nowrap">支付成功金额</th>
+                                    <th class="p-4 whitespace-nowrap">退款人次</th>
+                                    <th class="p-4 whitespace-nowrap">退款金额</th>
+                                    <th class="p-4 whitespace-nowrap">实收金额</th>
+                                    <th class="p-4 whitespace-nowrap">退款率</th>
+                                </tr>
+                            </thead>
+                            <tbody class="text-sm text-slate-700 divide-y divide-slate-100">
+                                <tr class="hover:bg-slate-50 transition">
+                                    <td class="p-4 pl-6">
+                                        <p class="font-medium text-slate-800">2025春季 Python 一级</p>
+                                        <p class="text-xs text-slate-400 font-mono">EXAM-025</p>
+                                    </td>
+                                    <td class="p-4 font-mono">380</td>
+                                    <td class="p-4 font-mono font-semibold">¥38,000.00</td>
+                                    <td class="p-4 font-mono">45</td>
+                                    <td class="p-4 font-mono text-red-500">¥4,500.00</td>
+                                    <td class="p-4 font-mono font-semibold text-brand-600">¥33,500.00</td>
+                                    <td class="p-4 font-mono">11.8%</td>
+                                </tr>
+                                <tr class="hover:bg-slate-50 transition">
+                                    <td class="p-4 pl-6">
+                                        <p class="font-medium text-slate-800">2025夏季 AIGC 二级</p>
+                                        <p class="text-xs text-slate-400 font-mono">EXAM-048</p>
+                                    </td>
+                                    <td class="p-4 font-mono">450</td>
+                                    <td class="p-4 font-mono font-semibold">¥44,500.00</td>
+                                    <td class="p-4 font-mono">52</td>
+                                    <td class="p-4 font-mono text-red-500">¥5,200.00</td>
+                                    <td class="p-4 font-mono font-semibold text-brand-600">¥39,300.00</td>
+                                    <td class="p-4 font-mono">11.6%</td>
+                                </tr>
+                                <tr class="hover:bg-slate-50 transition">
+                                    <td class="p-4 pl-6">
+                                        <p class="font-medium text-slate-800">2025春季 Scratch 三级</p>
+                                        <p class="text-xs text-slate-400 font-mono">EXAM-031</p>
+                                    </td>
+                                    <td class="p-4 font-mono">260</td>
+                                    <td class="p-4 font-mono font-semibold">¥27,000.00</td>
+                                    <td class="p-4 font-mono">28</td>
+                                    <td class="p-4 font-mono text-red-500">¥2,100.00</td>
+                                    <td class="p-4 font-mono font-semibold text-brand-600">¥24,900.00</td>
+                                    <td class="p-4 font-mono">10.8%</td>
+                                </tr>
+                                <tr class="hover:bg-slate-50 transition">
+                                    <td class="p-4 pl-6">
+                                        <p class="font-medium text-slate-800">2025秋季 C++ 一级</p>
+                                        <p class="text-xs text-slate-400 font-mono">EXAM-055</p>
+                                    </td>
+                                    <td class="p-4 font-mono">140</td>
+                                    <td class="p-4 font-mono font-semibold">¥19,000.00</td>
+                                    <td class="p-4 font-mono">18</td>
+                                    <td class="p-4 font-mono text-red-500">¥1,500.00</td>
+                                    <td class="p-4 font-mono font-semibold text-brand-600">¥17,500.00</td>
+                                    <td class="p-4 font-mono">12.9%</td>
+                                </tr>
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+
+                <!-- Tab: 按日期 -->
+                <div id="tab-date" class="tab-content hidden">
+                    <div class="overflow-x-auto min-w-[700px]">
+                        <table class="w-full text-left border-collapse">
+                            <thead>
+                                <tr class="border-b border-slate-100 bg-slate-50 text-xs uppercase text-slate-500 font-bold">
+                                    <th class="p-4 pl-6 whitespace-nowrap">日期</th>
+                                    <th class="p-4 whitespace-nowrap">报名人次</th>
+                                    <th class="p-4 whitespace-nowrap">支付成功金额</th>
+                                    <th class="p-4 whitespace-nowrap">退款人次</th>
+                                    <th class="p-4 whitespace-nowrap">退款金额</th>
+                                    <th class="p-4 whitespace-nowrap">实收金额</th>
+                                </tr>
+                            </thead>
+                            <tbody class="text-sm text-slate-700 divide-y divide-slate-100">
+                                <tr class="hover:bg-slate-50 transition">
+                                    <td class="p-4 pl-6 font-medium">第1周 (05-01 ~ 05-07)</td>
+                                    <td class="p-4 font-mono">290</td>
+                                    <td class="p-4 font-mono font-semibold">¥30,500.00</td>
+                                    <td class="p-4 font-mono">38</td>
+                                    <td class="p-4 font-mono text-red-500">¥3,200.00</td>
+                                    <td class="p-4 font-mono font-semibold text-brand-600">¥27,300.00</td>
+                                </tr>
+                                <tr class="hover:bg-slate-50 transition">
+                                    <td class="p-4 pl-6 font-medium">第2周 (05-08 ~ 05-14)</td>
+                                    <td class="p-4 font-mono">320</td>
+                                    <td class="p-4 font-mono font-semibold">¥33,800.00</td>
+                                    <td class="p-4 font-mono">42</td>
+                                    <td class="p-4 font-mono text-red-500">¥3,800.00</td>
+                                    <td class="p-4 font-mono font-semibold text-brand-600">¥30,000.00</td>
+                                </tr>
+                                <tr class="hover:bg-slate-50 transition">
+                                    <td class="p-4 pl-6 font-medium">第3周 (05-15 ~ 05-21)</td>
+                                    <td class="p-4 font-mono">350</td>
+                                    <td class="p-4 font-mono font-semibold">¥37,200.00</td>
+                                    <td class="p-4 font-mono">35</td>
+                                    <td class="p-4 font-mono text-red-500">¥3,500.00</td>
+                                    <td class="p-4 font-mono font-semibold text-brand-600">¥33,700.00</td>
+                                </tr>
+                                <tr class="hover:bg-slate-50 transition">
+                                    <td class="p-4 pl-6 font-medium">第4周 (05-22 ~ 05-26)</td>
+                                    <td class="p-4 font-mono">270</td>
+                                    <td class="p-4 font-mono font-semibold">¥27,000.00</td>
+                                    <td class="p-4 font-mono">28</td>
+                                    <td class="p-4 font-mono text-red-500">¥2,800.00</td>
+                                    <td class="p-4 font-mono font-semibold text-brand-600">¥24,200.00</td>
+                                </tr>
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Pagination -->
+            <div class="flex items-center justify-between mt-4 px-1">
+                <div class="text-xs text-slate-400">
+                    显示 <span class="font-medium text-slate-600">1-4</span> 条，共 <span class="font-medium text-slate-600">4</span> 条记录
+                </div>
+                <div class="flex items-center gap-1">
+                    <button class="w-8 h-8 rounded-lg border border-slate-200 flex items-center justify-center text-slate-300 cursor-not-allowed text-xs">
+                        <i class="fa-solid fa-chevron-left"></i>
+                    </button>
+                    <button class="w-8 h-8 rounded-lg bg-brand-600 text-white text-xs font-medium shadow-sm">1</button>
+                    <button class="w-8 h-8 rounded-lg border border-slate-200 hover:bg-slate-50 flex items-center justify-center text-slate-500 text-xs transition">
+                        <i class="fa-solid fa-chevron-right"></i>
+                    </button>
+                </div>
+            </div>
+        </div>
+    </main>
+
+    <script>
+        // ===== Dropdown Toggle =====
+        function toggleDropdown(id) {
+            var dd = document.getElementById(id);
+            var allDD = document.querySelectorAll('#payment-dropdown, #channel-filter-dropdown, #exam-dropdown');
+            allDD.forEach(function(d) {
+                if (d.id !== id) d.classList.add('hidden');
+            });
+            dd.classList.toggle('hidden');
+        }
+
+        // Close dropdowns on outside click
+        document.addEventListener('click', function(e) {
+            if (!e.target.closest('#payment-dropdown-wrapper') && !e.target.closest('#channel-filter-wrapper') && !e.target.closest('#exam-dropdown-wrapper')) {
+                document.getElementById('payment-dropdown').classList.add('hidden');
+                document.getElementById('channel-filter-dropdown').classList.add('hidden');
+                document.getElementById('exam-dropdown').classList.add('hidden');
+            }
+        });
+
+        // ===== Exam Search Filter =====
+        function filterExamOptions(query) {
+            var options = document.querySelectorAll('.exam-option');
+            var lq = query.toLowerCase();
+            options.forEach(function(opt) {
+                var text = opt.textContent.toLowerCase().trim();
+                opt.style.display = text.includes(lq) ? 'flex' : 'none';
+            });
+        }
+
+        // ===== Quick Date Buttons =====
+        document.querySelectorAll('.quick-date').forEach(function(btn) {
+            btn.addEventListener('click', function() {
+                document.querySelectorAll('.quick-date').forEach(function(b) {
+                    b.classList.remove('bg-brand-50', 'text-brand-600', 'border-brand-100');
+                    b.classList.add('bg-slate-50', 'text-slate-500', 'border-slate-200');
+                });
+                this.classList.remove('bg-slate-50', 'text-slate-500', 'border-slate-200');
+                this.classList.add('bg-brand-50', 'text-brand-600', 'border-brand-100');
+            });
+        });
+
+        // ===== Reset Filters =====
+        function resetFilters() {
+            // Reset checkboxes
+            document.querySelectorAll('.pm-checkbox, .ch-checkbox, .exam-checkbox').forEach(function(cb) { cb.checked = true; });
+            // Reset quick date buttons
+            document.querySelectorAll('.quick-date').forEach(function(b) {
+                b.classList.remove('bg-brand-50', 'text-brand-600', 'border-brand-100');
+                b.classList.add('bg-slate-50', 'text-slate-500', 'border-slate-200');
+            });
+            document.querySelector('.quick-date[data-period="this-month"]').classList.remove('bg-slate-50', 'text-slate-500', 'border-slate-200');
+            document.querySelector('.quick-date[data-period="this-month"]').classList.add('bg-brand-50', 'text-brand-600', 'border-brand-100');
+        }
+
+        // ===== Tab Switching =====
+        function switchTab(tabName) {
+            // Update tab buttons
+            document.querySelectorAll('.tab-btn').forEach(function(btn) {
+                btn.classList.remove('active', 'text-brand-600', 'border-brand-600', 'font-bold');
+                btn.classList.add('text-slate-500', 'border-transparent', 'font-medium');
+            });
+            var activeBtn = document.querySelector('.tab-btn[data-tab="' + tabName + '"]');
+            activeBtn.classList.remove('text-slate-500', 'border-transparent', 'font-medium');
+            activeBtn.classList.add('active', 'text-brand-600', 'border-brand-600', 'font-bold');
+
+            // Show/hide tab content
+            document.querySelectorAll('.tab-content').forEach(function(tc) { tc.classList.add('hidden'); });
+            document.getElementById('tab-' + tabName).classList.remove('hidden');
+
+            // Update pagination text based on tab
+            var countEl = document.querySelector('.text-xs.text-slate-400 span:last-child');
+            var showEl = document.querySelector('.text-xs.text-slate-400 span:first-of-type');
+            if (tabName === 'channel') { showEl.textContent = '1-4'; countEl.textContent = '4'; }
+            else if (tabName === 'exam') { showEl.textContent = '1-4'; countEl.textContent = '4'; }
+            else { showEl.textContent = '1-4'; countEl.textContent = '4'; }
+        }
+
+        // ===== Accordion Toggle =====
+        function toggleAccordion(id) {
+            var row = document.getElementById(id);
+            if (!row) return;
+            var isHidden = row.classList.contains('hidden');
+
+            // Close all accordions first
+            document.querySelectorAll('[id^="accordion-"]').forEach(function(acc) {
+                if (acc.id !== id) acc.classList.add('hidden');
+            });
+            document.querySelectorAll('[id^="icon-"]').forEach(function(icon) {
+                if (icon.id !== 'icon-' + id.replace('accordion-', '')) {
+                    icon.classList.remove('fa-chevron-down');
+                    icon.classList.add('fa-chevron-right');
+                }
+            });
+
+            // Toggle target
+            if (isHidden) {
+                row.classList.remove('hidden');
+                var iconId = 'icon-' + id.replace('accordion-', '');
+                var icon = document.getElementById(iconId);
+                if (icon) {
+                    icon.classList.remove('fa-chevron-right');
+                    icon.classList.add('fa-chevron-down');
+                }
+                // Highlight parent row
+                var parentRow = row.previousElementSibling;
+                if (parentRow) parentRow.classList.add('bg-brand-50');
+            } else {
+                row.classList.add('hidden');
+                var iconId = 'icon-' + id.replace('accordion-', '');
+                var icon = document.getElementById(iconId);
+                if (icon) {
+                    icon.classList.remove('fa-chevron-down');
+                    icon.classList.add('fa-chevron-right');
+                }
+                var parentRow = row.previousElementSibling;
+                if (parentRow) parentRow.classList.remove('bg-brand-50');
+            }
+        }
+
+        // ===== Chart.js Rendering =====
+        document.addEventListener('DOMContentLoaded', function() {
+            // Common font
+            Chart.defaults.font.family = 'Inter, sans-serif';
+            Chart.defaults.font.size = 11;
+            Chart.defaults.color = '#94A3B8';
+
+            // --- Chart 1: 报名趋势 (Area Line + Line) ---
+            var days = [];
+            for (var i = 1; i <= 26; i++) { days.push('5/' + i); }
+            var registrationData = [30, 32, 35, 37, 40, 42, 45, 46, 42, 44, 47, 49, 52, 50, 48, 50, 53, 55, 52, 55, 57, 60, 58, 55, 50, 46];
+            var amountData = [3200, 3400, 3700, 3900, 4200, 4400, 4700, 4800, 4400, 4600, 4900, 5100, 5400, 5200, 5000, 5200, 5500, 5700, 5400, 5700, 5900, 6200, 6000, 5700, 5300, 4900];
+
+            var ctx1 = document.getElementById('chart-trend').getContext('2d');
+            new Chart(ctx1, {
+                type: 'line',
+                data: {
+                    labels: days,
+                    datasets: [{
+                        label: '报名人次',
+                        data: registrationData,
+                        borderColor: '#2563EB',
+                        backgroundColor: 'rgba(37, 99, 235, 0.12)',
+                        fill: true,
+                        tension: 0.35,
+                        pointRadius: 2,
+                        pointHoverRadius: 5,
+                        borderWidth: 2,
+                        yAxisID: 'y'
+                    }, {
+                        label: '交易金额',
+                        data: amountData,
+                        borderColor: '#F59E0B',
+                        backgroundColor: 'rgba(245, 158, 11, 0.08)',
+                        fill: true,
+                        tension: 0.35,
+                        pointRadius: 2,
+                        pointHoverRadius: 5,
+                        borderWidth: 2,
+                        yAxisID: 'y1'
+                    }]
+                },
+                options: {
+                    responsive: true,
+                    maintainAspectRatio: false,
+                    interaction: { mode: 'index', intersect: false },
+                    plugins: {
+                        legend: {
+                            position: 'top',
+                            align: 'end',
+                            labels: { usePointStyle: true, padding: 20, boxWidth: 8 }
+                        },
+                        tooltip: {
+                            backgroundColor: '#1E293B',
+                            titleFont: { size: 12 },
+                            bodyFont: { size: 11 },
+                            padding: 10,
+                            cornerRadius: 8
+                        }
+                    },
+                    scales: {
+                        x: { grid: { display: false }, ticks: { maxTicksLimit: 10, maxRotation: 0 } },
+                        y: {
+                            type: 'linear',
+                            position: 'left',
+                            title: { display: true, text: '人次' },
+                            grid: { color: '#F1F5F9' },
+                            beginAtZero: false,
+                            min: 20
+                        },
+                        y1: {
+                            type: 'linear',
+                            position: 'right',
+                            title: { display: true, text: '金额 (¥)' },
+                            grid: { drawOnChartArea: false },
+                            beginAtZero: false,
+                            min: 2000
+                        }
+                    }
+                }
+            });
+
+            // --- Chart 2: 渠道分布 (Doughnut) ---
+            var ctx2 = document.getElementById('chart-channel').getContext('2d');
+            new Chart(ctx2, {
+                type: 'doughnut',
+                data: {
+                    labels: ['C端自招', '猿编程教育科技', '学而思编程', '后台直接开通', '其他'],
+                    datasets: [{
+                        data: [46500, 41200, 27300, 0, 200],
+                        backgroundColor: ['#6366F1', '#F59E0B', '#06B6D4', '#94A3B8', '#10B981'],
+                        borderColor: '#FFFFFF',
+                        borderWidth: 2,
+                        hoverBorderWidth: 3
+                    }]
+                },
+                options: {
+                    responsive: true,
+                    maintainAspectRatio: false,
+                    cutout: '68%',
+                    plugins: {
+                        legend: {
+                            position: 'bottom',
+                            labels: {
+                                usePointStyle: true,
+                                padding: 16,
+                                boxWidth: 8,
+                                font: { size: 11 },
+                                generateLabels: function(chart) {
+                                    var data = chart.data;
+                                    return data.labels.map(function(label, i) {
+                                        var value = data.datasets[0].data[i];
+                                        var total = data.datasets[0].data.reduce(function(a, b) { return a + b; }, 0);
+                                        var pct = ((value / total) * 100).toFixed(1);
+                                        return {
+                                            text: label + '  ' + pct + '%',
+                                            fillStyle: data.datasets[0].backgroundColor[i],
+                                            strokeStyle: data.datasets[0].backgroundColor[i],
+                                            lineWidth: 0,
+                                            hidden: false,
+                                            index: i,
+                                            pointStyle: 'circle',
+                                            rotation: 0
+                                        };
+                                    });
+                                }
+                            }
+                        },
+                        tooltip: {
+                            backgroundColor: '#1E293B',
+                            callbacks: {
+                                label: function(ctx) {
+                                    var val = ctx.parsed;
+                                    var total = ctx.dataset.data.reduce(function(a, b) { return a + b; }, 0);
+                                    var pct = ((val / total) * 100).toFixed(1);
+                                    return ' ¥' + val.toLocaleString() + ' (' + pct + '%)';
+                                }
+                            },
+                            padding: 10,
+                            cornerRadius: 8
+                        }
+                    }
+                }
+            });
+
+            // --- Chart 3: 支付方式趋势 (Stacked Bar) ---
+            var ctx3 = document.getElementById('chart-payment-trend').getContext('2d');
+            new Chart(ctx3, {
+                type: 'bar',
+                data: {
+                    labels: ['第1周', '第2周', '第3周', '第4周'],
+                    datasets: [
+                        {
+                            label: '微信支付',
+                            data: [19175, 20175, 23875, 15925],
+                            backgroundColor: '#07C160',
+                            borderRadius: 4,
+                            borderSkipped: false
+                        },
+                        {
+                            label: '支付宝',
+                            data: [11200, 13500, 13200, 10950],
+                            backgroundColor: '#1677FF',
+                            borderRadius: 4,
+                            borderSkipped: false
+                        },
+                        {
+                            label: '后台直接开通',
+                            data: [125, 125, 125, 125],
+                            backgroundColor: '#94A3B8',
+                            borderRadius: 4,
+                            borderSkipped: false
+                        }
+                    ]
+                },
+                options: {
+                    responsive: true,
+                    maintainAspectRatio: false,
+                    plugins: {
+                        legend: {
+                            position: 'top',
+                            align: 'end',
+                            labels: { usePointStyle: true, padding: 16, boxWidth: 8 }
+                        },
+                        tooltip: {
+                            backgroundColor: '#1E293B',
+                            padding: 10,
+                            cornerRadius: 8,
+                            callbacks: {
+                                label: function(ctx) {
+                                    return ctx.dataset.label + ': ¥' + ctx.parsed.y.toLocaleString();
+                                }
+                            }
+                        }
+                    },
+                    scales: {
+                        x: {
+                            stacked: true,
+                            grid: { display: false }
+                        },
+                        y: {
+                            stacked: true,
+                            title: { display: true, text: '金额 (¥)' },
+                            grid: { color: '#F1F5F9' },
+                            ticks: { callback: function(v) { return '¥' + (v / 1000).toFixed(0) + 'k'; } }
+                        }
+                    }
+                }
+            });
+
+            // --- Chart 4: 退款趋势 (Bar + Line) ---
+            var refundCountData = [5, 7, 4, 6, 8, 3, 5, 8, 6, 4, 7, 5, 8, 3, 6, 4, 7, 5, 6, 7, 4, 6, 5, 6, 3, 5];
+            var refundAmountData = [500, 700, 400, 600, 800, 300, 500, 900, 600, 400, 700, 500, 800, 300, 600, 400, 700, 500, 600, 800, 400, 600, 500, 700, 300, 600];
+
+            var ctx4 = document.getElementById('chart-refund-trend').getContext('2d');
+            new Chart(ctx4, {
+                type: 'bar',
+                data: {
+                    labels: days,
+                    datasets: [
+                        {
+                            label: '退款笔数',
+                            data: refundCountData,
+                            backgroundColor: '#FCA5A5',
+                            borderRadius: 3,
+                            borderSkipped: false,
+                            yAxisID: 'y',
+                            order: 1
+                        },
+                        {
+                            label: '退款金额',
+                            data: refundAmountData,
+                            type: 'line',
+                            borderColor: '#EF4444',
+                            backgroundColor: 'rgba(239, 68, 68, 0.08)',
+                            fill: true,
+                            tension: 0.35,
+                            pointRadius: 2,
+                            pointHoverRadius: 5,
+                            borderWidth: 2,
+                            yAxisID: 'y1',
+                            order: 0
+                        }
+                    ]
+                },
+                options: {
+                    responsive: true,
+                    maintainAspectRatio: false,
+                    interaction: { mode: 'index', intersect: false },
+                    plugins: {
+                        legend: {
+                            position: 'top',
+                            align: 'end',
+                            labels: { usePointStyle: true, padding: 20, boxWidth: 8 }
+                        },
+                        tooltip: {
+                            backgroundColor: '#1E293B',
+                            padding: 10,
+                            cornerRadius: 8
+                        }
+                    },
+                    scales: {
+                        x: { grid: { display: false }, ticks: { maxTicksLimit: 10, maxRotation: 0 } },
+                        y: {
+                            type: 'linear',
+                            position: 'left',
+                            title: { display: true, text: '笔数' },
+                            grid: { color: '#F1F5F9' },
+                            beginAtZero: true,
+                            max: 12
+                        },
+                        y1: {
+                            type: 'linear',
+                            position: 'right',
+                            title: { display: true, text: '金额 (¥)' },
+                            grid: { drawOnChartArea: false },
+                            beginAtZero: false,
+                            min: 100
+                        }
+                    }
+                }
+            });
+
+            // Default: expand wechat refund details
+            toggleAccordion('accordion-self');
+        });
+    </script>
+</body>
+
+</html>

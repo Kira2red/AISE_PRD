@@ -163,7 +163,7 @@
                         </a>
                         <a href="#"
                             class="flex-shrink-0 px-4 py-3 rounded-lg bg-brand-50 text-brand-600 font-bold text-sm flex items-center gap-3 shadow-sm border border-brand-100 md:border-transparent">
-                            <i class="fa-solid fa-ticket w-5 text-center"></i> 我的准考证
+                            <i class="fa-solid fa-ticket w-5 text-center"></i> 我的活动
                         </a>
                         <a href="#"
                             class="flex-shrink-0 px-4 py-3 rounded-lg text-slate-600 hover:bg-slate-50 hover:text-slate-900 font-medium text-sm flex items-center gap-3 transition">
@@ -175,7 +175,7 @@
 
             <div class="flex-1 min-w-0">
                 <div class="mb-6">
-                    <h1 class="text-2xl font-bold text-slate-900">我的准考证</h1>
+                    <h1 class="text-2xl font-bold text-slate-900">我的活动</h1>
                     <p class="text-sm text-slate-500 mt-1">查看准考证信息，或在规定时间内进入考场。</p>
                 </div>
 
@@ -206,12 +206,18 @@
                                         考试时间：2025-05-20 14:00-16:00
                                     </span>
                                 </div>
+                                <div class="flex items-center gap-2 mt-1.5">
+                                    <span class="inline-flex items-center gap-1 px-2 py-0.5 rounded text-[10px] font-bold bg-brand-50 text-brand-700 border border-brand-100">
+                                        <i class="fa-solid fa-door-open text-[9px]"></i> 下午场 14:00-15:30
+                                    </span>
+                                    <span class="text-[10px] text-slate-400">时长90分钟 / 交卷限制15分钟</span>
+                                </div>
                             </div>
                         </div>
 
                         <div
                             class="flex items-center gap-2 w-full md:w-auto mt-2 md:mt-0 border-t md:border-t-0 border-slate-50 pt-4 md:pt-0">
-                            <button onclick="openTicketModal('Python 程序设计', '2025春季一级等级测评')"
+                            <button onclick="openTicketModal('Python 程序设计', null, '下午场 14:00-15:30', '2026-01-14 18:02', 90, 15)"
                                 class="flex-1 md:flex-none px-4 py-2.5 border border-slate-200 rounded-lg text-sm font-medium text-slate-600 hover:border-slate-400 hover:text-slate-900 transition bg-white whitespace-nowrap">
                                 查看准考证
                             </button>
@@ -333,118 +339,74 @@
         <div class="absolute inset-0 bg-slate-900/60 backdrop-blur-sm transition-opacity" onclick="closeTicketModal()">
         </div>
 
-        <div class="absolute inset-0 flex items-center justify-center p-4">
-            <div class="bg-white w-full max-w-2xl rounded-2xl shadow-2xl overflow-hidden transform transition-all scale-95 opacity-0"
+        <div class="absolute inset-0 flex items-center justify-center p-4 sm:p-8">
+            <div class="bg-white w-full max-w-3xl rounded-2xl shadow-ticket overflow-hidden transform transition-all scale-95 opacity-0"
                 id="modal-card">
 
-                <div class="bg-slate-900 text-white p-6 flex justify-between items-center relative overflow-hidden">
-                    <div class="relative z-10 flex items-center gap-3">
-                        <div
-                            class="w-10 h-10 bg-white/10 border border-white/20 rounded-lg flex items-center justify-center font-bold">
-                            A</div>
-                        <div>
-                            <h2 class="font-bold text-lg">准考证</h2>
-                            <p class="text-xs text-slate-400 uppercase tracking-wider">Admission Ticket</p>
-                        </div>
+                <div class="bg-slate-900 text-white px-6 py-3 flex justify-between items-center">
+                    <div class="flex items-center gap-2">
+                        <div class="w-7 h-7 bg-blue-500 rounded flex items-center justify-center text-white font-bold text-xs">A</div>
+                        <span class="font-bold text-sm">AISE 官方准考证</span>
                     </div>
-                    <button onclick="closeTicketModal()"
-                        class="relative z-10 w-8 h-8 rounded-full bg-white/10 hover:bg-white/20 flex items-center justify-center transition text-white">
-                        <i class="fa-solid fa-xmark"></i>
-                    </button>
-                    <div
-                        class="absolute -right-10 -top-10 w-32 h-32 bg-brand-600 rounded-full mix-blend-overlay opacity-50 blur-2xl">
+                    <button onclick="closeTicketModal()" class="w-7 h-7 rounded-full bg-white/10 hover:bg-white/20 flex items-center justify-center transition text-white"><i class="fa-solid fa-xmark"></i></button>
+                </div>
+
+                <div class="bg-gradient-to-r from-purple-700 to-indigo-700 text-white text-center py-3 text-sm font-bold">
+                    2026 年度青少年人工智能应用创新能力测评准考证
+                </div>
+
+                <div class="p-6">
+                    <table class="w-full text-sm border-collapse">
+                        <tr>
+                            <td class="py-2 pr-4 w-24 text-slate-400 text-xs">姓名</td>
+                            <td class="py-2 font-bold" id="modal-student-name">张二红</td>
+                            <td class="py-2 pl-4 w-24 text-slate-400 text-xs">证件号码</td>
+                            <td class="py-2 font-mono font-bold" id="modal-student-id">371325202509090012</td>
+                            <td rowspan="3" class="pl-6 w-20"><img src="https://api.dicebear.com/7.x/avataaars/svg?seed=ZhangErHong" class="w-20 h-28 rounded border object-cover bg-slate-100"></td>
+                        </tr>
+                        <tr><td class="py-2 text-slate-400 text-xs">准考证号</td><td class="py-2 font-mono font-bold" id="modal-ticket-no">EXM2026011798000001</td><td class="py-2 pl-4 text-slate-400 text-xs">测评项目</td><td class="py-2 font-bold text-brand-600" id="modal-project-name">新题型测试</td></tr>
+                        <tr><td class="py-2 text-slate-400 text-xs">测评日期</td><td class="py-2 font-mono" id="modal-exam-time">2026-01-14 18:02:30</td><td class="py-2 pl-4 text-slate-400 text-xs">时长限制</td><td class="py-2 font-bold" id="modal-duration">90 分钟</td></tr>
+                        <tr id="modal-room-row">
+                            <td class="py-2 text-slate-400 text-xs">考场</td>
+                            <td class="py-2 font-bold" id="modal-room-name">下午场 14:00-15:30</td>
+                            <td class="py-2 pl-4 text-slate-400 text-xs">交卷限制</td>
+                            <td class="py-2" id="modal-submit-limit">15 分钟</td>
+                        </tr>
+                    </table>
+
+                    <div class="mt-5 p-4 bg-slate-50 rounded-lg border border-slate-100 text-xs text-slate-500 leading-relaxed">
+                        <p class="font-bold text-slate-700 mb-2">考生须知</p>
+                        <p>1. 完成报名后学生需提前下载并打印准考证，考前 30 分钟完成答题系统的环境监测与检录。</p>
+                        <p>2. 参评期间，考生不允许离开摄像头拍摄区域，指导教师或家长不允许出现在摄像头拍摄区域内。</p>
+                        <p>3. 参评期间，如非必要，考生不允许离开答题系统，监考系统将自动记录跳出答题系统页面次数。</p>
+                        <p>4. 如无法进行答题系统的环境监测，请联系官网人工客服。</p>
                     </div>
                 </div>
 
-                <div class="p-8 relative bg-ticket-pattern bg-slate-50">
-                    <div
-                        class="absolute inset-0 flex items-center justify-center opacity-[0.03] pointer-events-none overflow-hidden">
-                        <span class="text-[150px] font-bold rotate-[-30deg] whitespace-nowrap">AISE</span>
-                    </div>
-
-                    <div class="bg-white border border-slate-200 rounded-xl p-6 shadow-sm relative z-10">
-                        <div class="flex flex-col-reverse sm:flex-row gap-8">
-
-                            <div class="flex-1 space-y-5">
-                                <div>
-                                    <p class="text-xs text-slate-400 uppercase font-bold mb-1">报考项目</p>
-                                    <p class="text-lg font-bold text-slate-900" id="modal-project-name">Python 程序设计</p>
-                                </div>
-
-                                <div>
-                                    <p class="text-xs text-slate-400 uppercase font-bold mb-1">测评名称</p>
-                                    <div class="inline-block bg-blue-50 text-brand-600 border border-blue-100 px-3 py-1 rounded-md text-sm font-bold"
-                                        id="modal-exam-name">
-                                        2025春季一级等级测评
-                                    </div>
-                                </div>
-
-                                <div class="grid grid-cols-2 gap-4 border-t border-dashed border-slate-100 pt-4">
-                                    <div>
-                                        <p class="text-xs text-slate-400 uppercase font-bold mb-1">考生姓名</p>
-                                        <p class="text-sm font-semibold text-slate-800">张三</p>
-                                    </div>
-                                    <div>
-                                        <p class="text-xs text-slate-400 uppercase font-bold mb-1">身份证号</p>
-                                        <p class="text-sm font-mono font-semibold text-slate-800 tracking-wide">
-                                            11010120150101****</p>
-                                    </div>
-                                </div>
-
-                                <div class="bg-slate-50 border border-slate-200 rounded-lg p-3 mt-2">
-                                    <p class="text-xs text-slate-500 uppercase font-bold mb-1">测评时间</p>
-                                    <p class="text-sm font-bold text-slate-800">2025年05月20日 14:00 - 16:00</p>
-                                </div>
-                            </div>
-
-                            <div class="flex-shrink-0 mx-auto sm:mx-0">
-                                <div
-                                    class="w-28 h-36 bg-slate-200 rounded-lg border-2 border-slate-300 overflow-hidden relative">
-                                    <img src="https://api.dicebear.com/7.x/avataaars/svg?seed=ZhangSan"
-                                        class="w-full h-full object-cover">
-                                    <div
-                                        class="absolute -bottom-4 -right-4 w-20 h-20 border-4 border-red-500/30 rounded-full flex items-center justify-center rotate-[-25deg]">
-                                        <span class="text-[10px] text-red-500/50 font-bold">AISE CERTIFIED</span>
-                                    </div>
-                                </div>
-                                <p class="text-center text-[10px] text-slate-400 mt-2">考生照片</p>
-                            </div>
-                        </div>
-
-                        <div class="mt-6 pt-6 border-t border-dashed border-slate-200 flex justify-between items-end">
-                            <div>
-                                <p class="text-xs text-slate-400">准考证号</p>
-                                <p class="font-mono text-base font-bold text-slate-900">TK-20250520-0089</p>
-                            </div>
-                            <div
-                                class="h-8 w-32 bg-[url('https://upload.wikimedia.org/wikipedia/commons/thumb/d/d0/Code_39_200.svg/1200px-Code_39_200.svg.png')] bg-contain bg-no-repeat bg-right opacity-60">
-                            </div>
-                        </div>
-                    </div>
-                </div>
-
-                <div class="bg-slate-50 p-4 flex justify-end gap-3 border-t border-slate-200">
-                    <button
-                        class="px-4 py-2 text-sm font-medium text-slate-600 hover:bg-slate-200 rounded-lg transition flex items-center gap-2">
-                        <i class="fa-solid fa-download"></i> 下载 PDF
-                    </button>
-                    <button onclick="window.print()"
-                        class="px-6 py-2 text-sm font-bold bg-slate-900 text-white rounded-lg hover:bg-brand-600 transition shadow-lg flex items-center gap-2">
-                        <i class="fa-solid fa-print"></i> 打印
-                    </button>
+                <div class="bg-slate-50 px-6 py-3 flex justify-end gap-3 border-t border-slate-200">
+                    <button class="px-4 py-2 text-sm font-medium text-slate-600 bg-white border border-slate-200 hover:bg-slate-100 rounded-lg transition flex items-center gap-1.5"><i class="fa-solid fa-image"></i> 下载图片</button>
+                    <button class="px-4 py-2 text-sm font-medium text-slate-600 bg-white border border-slate-200 hover:bg-slate-100 rounded-lg transition flex items-center gap-1.5"><i class="fa-solid fa-download"></i> 下载 PDF</button>
+                    <button onclick="window.print()" class="px-6 py-2 text-sm font-bold bg-slate-900 text-white rounded-lg hover:bg-brand-600 transition shadow-lg flex items-center gap-1.5"><i class="fa-solid fa-print"></i> 打印</button>
                 </div>
             </div>
         </div>
     </div>
 
     <script>
-        function openTicketModal(projectName, examName) {
+        function openTicketModal(projectName, examName, roomName, examTime, duration, submitLimit) {
             const modal = document.getElementById('ticket-modal');
             const card = document.getElementById('modal-card');
 
-            // 动态设置模态框数据
             if (projectName) document.getElementById('modal-project-name').innerText = projectName;
-            if (examName) document.getElementById('modal-exam-name').innerText = examName;
+            if (examTime) document.getElementById('modal-exam-time').innerText = examTime;
+            if (duration) document.getElementById('modal-duration').innerText = duration + ' 分钟';
+            if (roomName) {
+                document.getElementById('modal-room-row').style.display = '';
+                document.getElementById('modal-room-name').innerText = roomName;
+                document.getElementById('modal-submit-limit').innerText = (submitLimit||15) + ' 分钟';
+            } else {
+                document.getElementById('modal-room-row').style.display = 'none';
+            }
 
             modal.classList.remove('hidden');
             modal.classList.add('modal-enter');

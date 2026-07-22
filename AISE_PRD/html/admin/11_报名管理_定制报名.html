@@ -1,0 +1,701 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>报名管理 - AISE 后台</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+
+    <script>
+        tailwind.config = {
+            theme: {
+                extend: {
+                    fontFamily: {
+                        sans: ['Inter', 'sans-serif'],
+                        mono: ['JetBrains Mono', 'monospace'],
+                    },
+                    colors: {
+                        brand: { 50: '#eff6ff', 100: '#dbeafe', 500: '#3b82f6', 600: '#2563eb', 700: '#1d4ed8' },
+                    },
+                    boxShadow: {
+                        'card': '0 1px 3px 0 rgba(0, 0, 0, 0.1), 0 1px 2px 0 rgba(0, 0, 0, 0.06)',
+                        'drawer': '-10px 0 30px -10px rgba(0, 0, 0, 0.1)',
+                    }
+                }
+            }
+        }
+    </script>
+    <style>
+        body {
+            background-color: #F8FAFC;
+        }
+
+        .hide-scroll::-webkit-scrollbar {
+            display: none;
+        }
+
+        .nav-item.active::before {
+            content: '';
+            position: absolute;
+            left: 0;
+            top: 50%;
+            transform: translateY(-50%);
+            width: 4px;
+            height: 24px;
+            background-color: #3b82f6;
+            border-radius: 0 4px 4px 0;
+        }
+
+        tr.hover-row:hover td {
+            background-color: #f8fafc;
+        }
+
+        /* Modal Animation */
+        .modal-enter {
+            animation: modalScaleIn 0.2s cubic-bezier(0.16, 1, 0.3, 1) forwards;
+        }
+
+        @keyframes modalScaleIn {
+            from { transform: scale(0.95); opacity: 0; }
+            to { transform: scale(1); opacity: 1; }
+        }
+
+        /* Toast */
+        .toast-enter {
+            animation: toastSlideIn 0.3s cubic-bezier(0.16, 1, 0.3, 1) forwards;
+        }
+        .toast-exit {
+            animation: toastSlideOut 0.3s ease-in forwards;
+        }
+        @keyframes toastSlideIn {
+            from { transform: translateX(100%); opacity: 0; }
+            to { transform: translateX(0); opacity: 1; }
+        }
+        @keyframes toastSlideOut {
+            from { transform: translateX(0); opacity: 1; }
+            to { transform: translateX(100%); opacity: 0; }
+        }
+    </style>
+</head>
+
+<body class="flex h-screen overflow-hidden text-slate-800 font-sans">
+
+    <aside class="w-64 bg-white border-r border-slate-200 flex flex-col flex-shrink-0 z-20">
+        <div class="h-16 flex items-center px-6 border-b border-slate-100">
+            <div
+                class="w-8 h-8 bg-gradient-to-br from-brand-600 to-indigo-600 rounded-lg flex items-center justify-center text-white font-bold text-lg mr-3 shadow-sm">
+                A</div>
+            <span class="font-bold text-lg text-slate-800 tracking-tight">AISE Admin</span>
+        </div>
+        <nav class="flex-1 overflow-y-auto py-4 space-y-1">
+            <a href="#"
+                class="nav-item flex items-center gap-3 px-6 py-3 text-slate-500 hover:bg-slate-50 hover:text-brand-600 transition relative">
+                <i class="fa-solid fa-layer-group w-5 text-center"></i><span class="font-medium text-sm">题库管理</span>
+            </a>
+            <a href="#"
+                class="nav-item flex items-center gap-3 px-6 py-3 text-slate-500 hover:bg-slate-50 hover:text-brand-600 transition relative">
+                <i class="fa-solid fa-file-lines w-5 text-center"></i><span class="font-medium text-sm">试卷管理</span>
+            </a>
+            <a href="#"
+                class="nav-item flex items-center gap-3 px-6 py-3 text-slate-500 hover:bg-slate-50 hover:text-brand-600 transition relative">
+                <i class="fa-solid fa-graduation-cap w-5 text-center"></i><span class="font-medium text-sm">测评管理</span>
+            </a>
+            <div class="px-6 py-2 mt-4 text-xs font-bold text-slate-400 uppercase tracking-wider">考务与用户</div>
+            <a href="#"
+                class="nav-item flex items-center gap-3 px-6 py-3 text-slate-500 hover:bg-slate-50 hover:text-brand-600 transition relative">
+                <i class="fa-solid fa-users w-5 text-center"></i><span class="font-medium text-sm">考生管理</span>
+            </a>
+            <a href="#"
+                class="nav-item active flex items-center gap-3 px-6 py-3 text-brand-600 bg-brand-50 transition relative">
+                <i class="fa-solid fa-clipboard-check w-5 text-center"></i><span class="font-medium text-sm">报名管理</span>
+            </a>
+        </nav>
+    </aside>
+
+    <main class="flex-1 flex flex-col min-w-0 bg-slate-50/50 relative">
+
+        <header
+            class="h-16 bg-white border-b border-slate-200 flex items-center justify-between px-8 flex-shrink-0 z-10">
+            <h1 class="text-xl font-bold text-slate-800">报名记录管理</h1>
+        </header>
+
+        <div class="px-8 py-6">
+            <div class="bg-white rounded-xl shadow-card border border-slate-100 p-4 flex flex-wrap gap-4 items-center">
+                <div class="relative w-72">
+                    <i class="fa-solid fa-magnifying-glass absolute left-3 top-1/2 transform -translate-y-1/2 text-slate-400 text-sm"></i>
+                    <input type="text" placeholder="搜索报名编号 / 姓名 / 身份证号..."
+                        class="w-full pl-9 pr-4 py-2 rounded-lg border border-slate-200 text-sm focus:border-brand-500 outline-none transition">
+                </div>
+
+                <!-- 报名类型筛选 -->
+                <select id="filter-type" onchange="filterByType()"
+                    class="px-3 py-2 rounded-lg border border-slate-200 text-sm text-slate-600 bg-white outline-none hover:border-slate-300 cursor-pointer">
+                    <option value="all">全部</option>
+                    <option value="exam">测评报名</option>
+                    <option value="custom" selected>定制报名</option>
+                </select>
+
+                <select id="filter-status" onchange="filterByType()"
+                    class="px-3 py-2 rounded-lg border border-slate-200 text-sm text-slate-600 bg-white outline-none hover:border-slate-300 cursor-pointer">
+                    <option value="all">审核状态</option>
+                    <option value="pending">待审核</option>
+                    <option value="approved">通过</option>
+                    <option value="rejected">驳回</option>
+                </select>
+
+                <button
+                    class="ml-auto bg-white border border-slate-200 hover:bg-slate-50 text-slate-700 text-sm font-medium px-4 py-2 rounded-lg shadow-sm transition flex items-center gap-2">
+                    <i class="fa-solid fa-file-export"></i> 导出
+                </button>
+            </div>
+        </div>
+
+        <div class="flex-1 overflow-y-auto px-8 pb-8 custom-scroll">
+            <div class="bg-white rounded-xl shadow-card border border-slate-200 overflow-hidden">
+                <table class="w-full text-left border-collapse">
+                    <thead>
+                        <tr class="border-b border-slate-100 bg-slate-50 text-xs uppercase text-slate-500 font-bold">
+                            <th class="p-4 pl-6">报名编号</th>
+                            <th class="p-4">姓名</th>
+                            <th class="p-4">身份证号</th>
+                            <th class="p-4">联系方式</th>
+                            <th class="p-4">报名通道</th>
+                            <th class="p-4">提交时间</th>
+                            <th class="p-4">审核状态</th>
+                            <th class="p-4 text-right pr-6">操作</th>
+                        </tr>
+                    </thead>
+                    <tbody id="table-body" class="text-sm text-slate-700 divide-y divide-slate-100">
+                        <!-- JS 渲染 -->
+                    </tbody>
+                </table>
+            </div>
+        </div>
+
+    </main>
+
+    <!-- 查看详情弹窗 -->
+    <div id="detail-modal"
+        class="fixed inset-0 z-[60] hidden flex items-center justify-center bg-slate-900/50 backdrop-blur-sm opacity-0 transition-opacity">
+        <div id="detail-modal-content"
+            class="bg-white rounded-2xl shadow-xl w-[520px] p-0 transform scale-95 transition-transform overflow-hidden">
+            <div class="px-6 py-5 border-b border-slate-100 bg-slate-50">
+                <div class="flex items-center justify-between">
+                    <div class="flex items-center gap-3">
+                        <div
+                            class="w-9 h-9 rounded-full bg-brand-100 flex items-center justify-center text-brand-600 flex-shrink-0">
+                            <i class="fa-solid fa-file-lines"></i>
+                        </div>
+                        <h3 class="font-bold text-lg text-slate-800">报名信息详情</h3>
+                    </div>
+                    <button onclick="closeDetailModal()"
+                        class="w-8 h-8 rounded-full hover:bg-slate-100 flex items-center justify-center text-slate-500 transition">
+                        <i class="fa-solid fa-xmark"></i>
+                    </button>
+                </div>
+            </div>
+
+            <div class="p-6 space-y-5" id="detail-modal-body">
+                <!-- JS 渲染 -->
+            </div>
+
+            <div class="p-6 pt-0 flex justify-end gap-3" id="detail-modal-footer">
+                <button onclick="closeDetailModal()"
+                    class="px-5 py-2.5 text-sm text-slate-600 hover:bg-slate-50 rounded-lg transition border border-slate-200">关闭</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- 审核通过确认弹窗 -->
+    <div id="approve-modal"
+        class="fixed inset-0 z-[60] hidden flex items-center justify-center bg-slate-900/50 backdrop-blur-sm opacity-0 transition-opacity">
+        <div id="approve-modal-content"
+            class="bg-white rounded-2xl shadow-xl w-[440px] p-0 transform scale-95 transition-transform overflow-hidden">
+            <div class="px-6 py-5 border-b border-slate-100 bg-green-50/30">
+                <div class="flex items-center gap-3">
+                    <div class="w-9 h-9 rounded-full bg-green-100 flex items-center justify-center text-green-600 flex-shrink-0">
+                        <i class="fa-solid fa-check-circle"></i>
+                    </div>
+                    <h3 class="font-bold text-lg text-slate-800">确认审核通过</h3>
+                </div>
+            </div>
+            <div class="p-6">
+                <p class="text-sm text-slate-600">确认将 <span id="approve-name" class="font-bold text-slate-800">—</span> 的报名审核通过吗？审核通过后考生将获得考试资格。</p>
+            </div>
+            <div class="p-6 pt-0 flex justify-end gap-3">
+                <button onclick="closeApproveModal()"
+                    class="px-5 py-2.5 text-sm text-slate-600 hover:bg-slate-50 rounded-lg transition border border-slate-200">取消</button>
+                <button onclick="confirmApprove()"
+                    class="px-5 py-2.5 bg-green-600 hover:bg-green-700 text-white text-sm font-bold rounded-lg transition shadow-sm">
+                    确认通过
+                </button>
+            </div>
+        </div>
+    </div>
+
+    <!-- 驳回弹窗（含驳回原因输入） -->
+    <div id="reject-modal"
+        class="fixed inset-0 z-[60] hidden flex items-center justify-center bg-slate-900/50 backdrop-blur-sm opacity-0 transition-opacity">
+        <div id="reject-modal-content"
+            class="bg-white rounded-2xl shadow-xl w-[520px] p-0 transform scale-95 transition-transform overflow-hidden">
+            <div class="px-6 py-5 border-b border-slate-100 bg-red-50/30">
+                <div class="flex items-center gap-3">
+                    <div class="w-9 h-9 rounded-full bg-red-100 flex items-center justify-center text-red-500 flex-shrink-0">
+                        <i class="fa-solid fa-circle-exclamation"></i>
+                    </div>
+                    <h3 class="font-bold text-lg text-slate-800">驳回报名</h3>
+                </div>
+            </div>
+            <div class="p-6 space-y-4">
+                <p class="text-sm text-slate-600">驳回 <span id="reject-name" class="font-bold text-slate-800">—</span> 的报名申请。</p>
+                <div>
+                    <label class="block text-sm font-medium text-slate-700 mb-1.5">驳回原因 <span class="text-red-500">*</span></label>
+                    <textarea id="reject-reason" rows="3"
+                        class="w-full px-3 py-2.5 rounded-lg border border-slate-200 text-sm resize-none focus:border-brand-500 focus:ring-1 focus:ring-brand-500 outline-none transition"
+                        placeholder="请填写驳回原因，该原因将展示给考生..."></textarea>
+                </div>
+            </div>
+            <div class="p-6 pt-0 flex justify-end gap-3">
+                <button onclick="closeRejectModal()"
+                    class="px-5 py-2.5 text-sm text-slate-600 hover:bg-slate-50 rounded-lg transition border border-slate-200">取消</button>
+                <button onclick="confirmReject()"
+                    class="px-5 py-2.5 bg-red-600 hover:bg-red-700 text-white text-sm font-bold rounded-lg transition shadow-sm">
+                    确认驳回
+                </button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Toast 提示 -->
+    <div id="toast" class="fixed top-6 right-6 z-[70] hidden">
+        <div class="bg-white border border-slate-200 rounded-xl shadow-xl px-5 py-4 flex items-center gap-3 min-w-[300px]">
+            <div id="toast-icon" class="w-8 h-8 rounded-full bg-green-100 flex items-center justify-center text-green-600 text-sm">
+                <i class="fa-solid fa-check"></i>
+            </div>
+            <div>
+                <p id="toast-title" class="font-bold text-sm text-slate-800">操作成功</p>
+                <p id="toast-message" class="text-xs text-slate-500">状态已更新</p>
+            </div>
+            <button onclick="closeToast()" class="ml-auto text-slate-400 hover:text-slate-600">
+                <i class="fa-solid fa-xmark"></i>
+            </button>
+        </div>
+    </div>
+
+    <script>
+        // ========== 模拟数据 ==========
+        const registrations = [
+            {
+                id: 'CZ-20250601-001',
+                name: '张三',
+                idCard: '11010120150101****',
+                phone: '13800138000',
+                channel: '常规申报',
+                submitTime: '2025-06-01 10:23',
+                status: 'pending',
+                gender: '男',
+                email: 'zhangsan@example.com',
+                guardian: '李四',
+                guardianPhone: '13900139000',
+                project: '元创S营 2025 夏季营',
+                rejectReason: ''
+            },
+            {
+                id: 'CZ-20250601-002',
+                name: '李小四',
+                idCard: '31010120160301****',
+                phone: '13912345678',
+                channel: '人才库',
+                submitTime: '2025-06-01 11:45',
+                status: 'approved',
+                gender: '女',
+                email: 'lixiaosi@example.com',
+                guardian: '李大明',
+                guardianPhone: '13700137000',
+                project: '元创S营 2025 夏季营',
+                rejectReason: ''
+            },
+            {
+                id: 'CZ-20250602-003',
+                name: '王五',
+                idCard: '44010120150202****',
+                phone: '15000000000',
+                channel: '专家推荐',
+                submitTime: '2025-06-02 09:15',
+                status: 'rejected',
+                gender: '男',
+                email: 'wangwu@example.com',
+                guardian: '王建国',
+                guardianPhone: '15800158000',
+                project: '元创S营 2025 春季营',
+                rejectReason: '请提供有效的监护人联系方式，当前填写的电话号码为空号。'
+            },
+            {
+                id: 'CZ-20250602-004',
+                name: '赵六',
+                idCard: '51010120150303****',
+                phone: '13700001111',
+                channel: '常规申报',
+                submitTime: '2025-06-02 14:30',
+                status: 'pending',
+                gender: '男',
+                email: 'zhaoliu@example.com',
+                guardian: '赵志明',
+                guardianPhone: '13600136000',
+                project: '元创S营 2025 夏季营',
+                rejectReason: ''
+            },
+            {
+                id: 'CZ-20250603-005',
+                name: '孙七',
+                idCard: '32010120160404****',
+                phone: '18600186000',
+                channel: '人才库',
+                submitTime: '2025-06-03 08:00',
+                status: 'approved',
+                gender: '女',
+                email: 'sunqi@example.com',
+                guardian: '孙大海',
+                guardianPhone: '18500185000',
+                project: '元创S营 AI 特训营',
+                rejectReason: ''
+            }
+        ];
+
+        let currentRecordId = null;
+        let currentAction = null; // 'approve' or 'reject'
+
+        // ========== 状态标签渲染 ==========
+        function getStatusBadge(status) {
+            if (status === 'pending') {
+                return `<span class="inline-flex items-center justify-center w-20 h-7 rounded-full bg-slate-100 text-slate-500 text-xs font-medium">待审核</span>`;
+            } else if (status === 'approved') {
+                return `<span class="inline-flex items-center justify-center w-20 h-7 rounded-full bg-green-50 text-green-600 text-xs font-medium">通过</span>`;
+            } else if (status === 'rejected') {
+                return `<span class="inline-flex items-center justify-center w-20 h-7 rounded-full bg-red-50 text-red-500 text-xs font-medium">驳回</span>`;
+            }
+            return '';
+        }
+
+        // ========== 渲染表格 ==========
+        function renderTable(data) {
+            const tbody = document.getElementById('table-body');
+            let html = '';
+            data.forEach(rec => {
+                html += `<tr class="hover-row transition">
+                    <td class="p-4 pl-6">
+                        <p class="font-mono text-xs font-bold text-slate-800">${rec.id}</p>
+                    </td>
+                    <td class="p-4">
+                        <div class="flex items-center gap-2">
+                            <div class="w-7 h-7 rounded-full bg-brand-100 text-brand-600 flex items-center justify-center text-xs font-bold">${rec.name[0]}</div>
+                            <span>${rec.name}</span>
+                        </div>
+                    </td>
+                    <td class="p-4 font-mono text-xs text-slate-500">${rec.idCard}</td>
+                    <td class="p-4 font-mono text-xs">${rec.phone}</td>
+                    <td class="p-4">
+                        <span class="bg-blue-50 text-brand-600 border border-blue-100 text-[10px] px-2 py-0.5 rounded font-bold">${rec.channel}</span>
+                    </td>
+                    <td class="p-4 text-xs text-slate-500">${rec.submitTime}</td>
+                    <td class="p-4" id="status-cell-${rec.id}">${getStatusBadge(rec.status)}</td>
+                    <td class="p-4 text-right pr-6 relative z-10" id="action-cell-${rec.id}">
+                        ${renderActionButtons(rec)}
+                    </td>
+                </tr>`;
+            });
+            tbody.innerHTML = html;
+        }
+
+        function renderActionButtons(rec) {
+            if (rec.status === 'approved') {
+                return `<span class="text-xs text-slate-400 italic">已通过</span>`;
+            }
+            if (rec.status === 'rejected') {
+                return `<span class="text-xs text-slate-400 italic">已驳回</span>`;
+            }
+            // pending state
+            return `
+                <div class="flex items-center justify-end gap-2">
+                    <button onclick="openDetailModal('${rec.id}')" class="inline-flex items-center px-3 py-1.5 text-xs font-medium text-brand-600 bg-brand-50 border border-brand-100 rounded-md hover:bg-brand-100 transition min-h-[32px]">查看详情</button>
+                    <button onclick="openApproveModal('${rec.id}')" class="inline-flex items-center px-3 py-1.5 text-xs font-medium text-green-700 bg-green-50 border border-green-200 rounded-md hover:bg-green-100 transition min-h-[32px]"><i class="fa-solid fa-check mr-1 text-[10px]"></i>通过</button>
+                    <button onclick="openRejectModal('${rec.id}')" class="inline-flex items-center px-3 py-1.5 text-xs font-medium text-red-600 bg-red-50 border border-red-200 rounded-md hover:bg-red-100 transition min-h-[32px]"><i class="fa-solid fa-xmark mr-1 text-[10px]"></i>驳回</button>
+                </div>
+            `;
+        }
+
+        // ========== 筛选逻辑 ==========
+        function filterByType() {
+            const typeFilter = document.getElementById('filter-type').value;
+            const statusFilter = document.getElementById('filter-status').value;
+
+            let filtered = [...registrations];
+
+            if (typeFilter === 'exam') {
+                // 模拟：无测评报名数据时显示空状态
+                filtered = [];
+            } else if (typeFilter === 'custom') {
+                // 定制报名 - 所有数据
+                filtered = [...registrations];
+            }
+            // all - 全部数据
+
+            if (statusFilter !== 'all' && filtered.length > 0) {
+                filtered = filtered.filter(r => r.status === statusFilter);
+            }
+
+            if (filtered.length === 0) {
+                document.getElementById('table-body').innerHTML = `
+                    <tr><td colspan="8" class="p-12 text-center">
+                        <div class="text-slate-400">
+                            <i class="fa-solid fa-inbox text-3xl mb-2 block"></i>
+                            <p class="text-sm">暂无报名记录</p>
+                        </div>
+                    </td></tr>`;
+            } else {
+                renderTable(filtered);
+            }
+        }
+
+        // ========== 查看详情 ==========
+        function openDetailModal(id) {
+            currentRecordId = id;
+            const rec = registrations.find(r => r.id === id);
+            if (!rec) return;
+
+            const body = document.getElementById('detail-modal-body');
+            body.innerHTML = `
+                <div class="bg-brand-50 border border-brand-100 rounded-xl p-4">
+                    <p class="text-sm font-bold text-brand-800">${rec.project}</p>
+                    <p class="text-xs text-brand-600 mt-1 font-mono">${rec.id}</p>
+                </div>
+
+                <div class="grid grid-cols-2 gap-4 border-t border-slate-100 pt-4">
+                    <div>
+                        <p class="text-xs text-slate-400 uppercase font-bold mb-1">考生姓名</p>
+                        <p class="text-sm font-semibold text-slate-800">${rec.name}</p>
+                    </div>
+                    <div>
+                        <p class="text-xs text-slate-400 uppercase font-bold mb-1">性别</p>
+                        <p class="text-sm text-slate-800">${rec.gender}</p>
+                    </div>
+                    <div class="col-span-2">
+                        <p class="text-xs text-slate-400 uppercase font-bold mb-1">身份证号</p>
+                        <p class="text-sm font-mono text-slate-800">${rec.idCard}</p>
+                    </div>
+                    <div>
+                        <p class="text-xs text-slate-400 uppercase font-bold mb-1">电子邮箱</p>
+                        <p class="text-sm text-slate-800">${rec.email}</p>
+                    </div>
+                    <div>
+                        <p class="text-xs text-slate-400 uppercase font-bold mb-1">联系方式</p>
+                        <p class="text-sm font-mono text-slate-800">${rec.phone}</p>
+                    </div>
+                    <div>
+                        <p class="text-xs text-slate-400 uppercase font-bold mb-1">监护人姓名</p>
+                        <p class="text-sm text-slate-800">${rec.guardian}</p>
+                    </div>
+                    <div>
+                        <p class="text-xs text-slate-400 uppercase font-bold mb-1">监护人电话</p>
+                        <p class="text-sm font-mono text-slate-800">${rec.guardianPhone}</p>
+                    </div>
+                </div>
+
+                <div class="border-t border-slate-100 pt-4">
+                    <div class="flex justify-between text-sm">
+                        <span class="text-slate-500">报名通道</span>
+                        <span class="bg-blue-50 text-brand-600 border border-blue-100 text-xs px-2 py-0.5 rounded font-bold">${rec.channel}</span>
+                    </div>
+                    <div class="flex justify-between text-sm mt-3">
+                        <span class="text-slate-500">提交时间</span>
+                        <span class="text-slate-800">${rec.submitTime}</span>
+                    </div>
+                    <div class="flex justify-between text-sm mt-3 items-center">
+                        <span class="text-slate-500">审核状态</span>
+                        <span>${getStatusBadge(rec.status)}</span>
+                    </div>
+                    ${rec.status === 'rejected' && rec.rejectReason ? `
+                    <div class="mt-4 bg-red-50 border border-red-100 rounded-lg p-3">
+                        <p class="text-xs font-bold text-red-600 mb-1">驳回原因</p>
+                        <p class="text-sm text-red-700">${rec.rejectReason}</p>
+                    </div>` : ''}
+                </div>
+            `;
+
+            // Footer buttons based on status
+            const footer = document.getElementById('detail-modal-footer');
+            if (rec.status === 'pending') {
+                footer.innerHTML = `
+                    <button onclick="closeDetailModal()" class="px-5 py-2.5 text-sm text-slate-600 hover:bg-slate-50 rounded-lg transition border border-slate-200">关闭</button>
+                    <button onclick="closeDetailModal();openApproveModal('${rec.id}')" class="px-5 py-2.5 bg-green-600 hover:bg-green-700 text-white text-sm font-bold rounded-lg transition shadow-sm">通过</button>
+                    <button onclick="closeDetailModal();openRejectModal('${rec.id}')" class="px-5 py-2.5 bg-red-600 hover:bg-red-700 text-white text-sm font-bold rounded-lg transition shadow-sm">驳回</button>
+                `;
+            } else {
+                footer.innerHTML = `
+                    <button onclick="closeDetailModal()" class="px-5 py-2.5 text-sm text-slate-600 hover:bg-slate-50 rounded-lg transition border border-slate-200">关闭</button>
+                `;
+            }
+
+            const modal = document.getElementById('detail-modal');
+            const content = document.getElementById('detail-modal-content');
+            modal.classList.remove('hidden');
+            setTimeout(() => {
+                modal.classList.remove('opacity-0');
+                content.classList.add('modal-enter');
+            }, 10);
+        }
+
+        function closeDetailModal() {
+            const modal = document.getElementById('detail-modal');
+            const content = document.getElementById('detail-modal-content');
+            modal.classList.add('opacity-0');
+            content.classList.remove('modal-enter');
+            setTimeout(() => {
+                modal.classList.add('hidden');
+            }, 200);
+        }
+
+        // ========== 通过弹窗 ==========
+        function openApproveModal(id) {
+            currentRecordId = id;
+            currentAction = 'approve';
+            const rec = registrations.find(r => r.id === id);
+            if (!rec) return;
+            document.getElementById('approve-name').innerText = rec.name;
+
+            const modal = document.getElementById('approve-modal');
+            const content = document.getElementById('approve-modal-content');
+            modal.classList.remove('hidden');
+            setTimeout(() => {
+                modal.classList.remove('opacity-0');
+                content.classList.add('modal-enter');
+            }, 10);
+        }
+
+        function closeApproveModal() {
+            const modal = document.getElementById('approve-modal');
+            const content = document.getElementById('approve-modal-content');
+            modal.classList.add('opacity-0');
+            content.classList.remove('modal-enter');
+            setTimeout(() => {
+                modal.classList.add('hidden');
+                currentAction = null;
+            }, 200);
+        }
+
+        function confirmApprove() {
+            const rec = registrations.find(r => r.id === currentRecordId);
+            if (!rec) return;
+            rec.status = 'approved';
+            closeApproveModal();
+            closeDetailModal();
+            refreshUI();
+            showToast('审核通过', `${rec.name} 的报名已审核通过`);
+        }
+
+        // ========== 驳回弹窗 ==========
+        function openRejectModal(id) {
+            currentRecordId = id;
+            currentAction = 'reject';
+            const rec = registrations.find(r => r.id === id);
+            if (!rec) return;
+            document.getElementById('reject-name').innerText = rec.name;
+            document.getElementById('reject-reason').value = '';
+
+            const modal = document.getElementById('reject-modal');
+            const content = document.getElementById('reject-modal-content');
+            modal.classList.remove('hidden');
+            setTimeout(() => {
+                modal.classList.remove('opacity-0');
+                content.classList.add('modal-enter');
+            }, 10);
+        }
+
+        function closeRejectModal() {
+            const modal = document.getElementById('reject-modal');
+            const content = document.getElementById('reject-modal-content');
+            modal.classList.add('opacity-0');
+            content.classList.remove('modal-enter');
+            setTimeout(() => {
+                modal.classList.add('hidden');
+                currentAction = null;
+            }, 200);
+        }
+
+        function confirmReject() {
+            const reason = document.getElementById('reject-reason').value.trim();
+            if (!reason) {
+                alert('请填写驳回原因');
+                return;
+            }
+            const rec = registrations.find(r => r.id === currentRecordId);
+            if (!rec) return;
+            rec.status = 'rejected';
+            rec.rejectReason = reason;
+            closeRejectModal();
+            closeDetailModal();
+            refreshUI();
+            showToast('驳回成功', `${rec.name} 的报名已被驳回：${reason}`);
+        }
+
+        // ========== Toast ==========
+        function showToast(title, message) {
+            const toast = document.getElementById('toast');
+            document.getElementById('toast-title').innerText = title;
+            document.getElementById('toast-message').innerText = message;
+
+            // 可选: 根据类型切换图标
+            const icon = document.getElementById('toast-icon');
+            if (title.includes('驳回')) {
+                icon.className = 'w-8 h-8 rounded-full bg-red-100 flex items-center justify-center text-red-600 text-sm';
+                icon.innerHTML = '<i class="fa-solid fa-circle-xmark"></i>';
+            } else {
+                icon.className = 'w-8 h-8 rounded-full bg-green-100 flex items-center justify-center text-green-600 text-sm';
+                icon.innerHTML = '<i class="fa-solid fa-check"></i>';
+            }
+
+            toast.classList.remove('hidden', 'toast-exit');
+            toast.classList.add('toast-enter');
+
+            setTimeout(() => {
+                closeToast();
+            }, 3000);
+        }
+
+        function closeToast() {
+            const toast = document.getElementById('toast');
+            toast.classList.remove('toast-enter');
+            toast.classList.add('toast-exit');
+            setTimeout(() => {
+                toast.classList.add('hidden');
+                toast.classList.remove('toast-exit');
+            }, 300);
+        }
+
+        // ========== 刷新UI ==========
+        function refreshUI() {
+            filterByType();
+        }
+
+        // ========== 初始化 ==========
+        document.addEventListener('DOMContentLoaded', function() {
+            filterByType();
+        });
+
+        // ========== Escape 键 ==========
+        document.addEventListener('keydown', function(e) {
+            if (e.key === 'Escape') {
+                closeDetailModal();
+                closeApproveModal();
+                closeRejectModal();
+                closeToast();
+            }
+        });
+    </script>
+</body>
+
+</html>

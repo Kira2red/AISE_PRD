@@ -1,0 +1,242 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>用户管理 - 人工智能人才资源库后台</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <style>
+        :root {
+            --primary: #5037cd;
+            --bg: #F5F6FA;
+            --white: #fff;
+            --text: #1F2937;
+            --gray: #6B7280;
+            --border: #E5E7EB;
+            --green: #10B981;
+            --orange: #F59E0B;
+            --red: #EF4444;
+        }
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, "PingFang SC", "Hiragino Sans GB", "Microsoft YaHei", sans-serif;
+            background: var(--bg); color: var(--text); min-height: 100vh;
+        }
+
+        /* 顶栏 */
+        .topbar {
+            background: var(--white);
+            border-bottom: 1px solid var(--border);
+            padding: 0 24px; height: 56px;
+            display: flex; align-items: center; justify-content: space-between;
+        }
+        .topbar .brand { font-size: 16px; font-weight: 700; color: var(--primary); letter-spacing: 1px; }
+        .topbar .brand i { margin-right: 8px; }
+
+        /* 主布局 */
+        .layout { display: flex; min-height: calc(100vh - 56px); }
+        .sidebar {
+            width: 200px; background: var(--white); border-right: 1px solid var(--border);
+            padding: 16px 0; flex-shrink: 0;
+        }
+        .sidebar a {
+            display: flex; align-items: center; gap: 10px;
+            padding: 12px 24px; font-size: 14px; color: var(--gray);
+            text-decoration: none; transition: all 0.15s;
+        }
+        .sidebar a:hover { background: #F5F3FF; color: var(--primary); }
+        .sidebar a.active { background: #F5F3FF; color: var(--primary); font-weight: 600;
+            border-right: 3px solid var(--primary); }
+
+        .main {
+            flex: 1; padding: 24px; overflow-x: auto;
+        }
+        .page-title { font-size: 20px; font-weight: 700; margin-bottom: 20px; }
+
+        /* 筛选栏 */
+        .filters {
+            background: var(--white); border-radius: 10px; padding: 16px 20px;
+            margin-bottom: 16px; border: 1px solid var(--border);
+            display: flex; gap: 12px; align-items: center; flex-wrap: wrap;
+        }
+        .filters input, .filters select {
+            padding: 8px 14px; border: 1px solid var(--border); border-radius: 8px;
+            font-size: 13px; outline: none; font-family: inherit;
+        }
+        .filters input:focus, .filters select:focus { border-color: var(--primary); }
+        .filters input { width: 200px; }
+        .btn {
+            padding: 8px 18px; border-radius: 8px; font-size: 13px; font-weight: 600;
+            border: none; cursor: pointer; transition: all 0.15s; font-family: inherit;
+        }
+        .btn-primary { background: var(--primary); color: white; }
+        .btn-primary:hover { background: #4430b0; }
+        .btn-outline { background: white; color: var(--primary); border: 1px solid var(--primary); }
+
+        /* 表格 */
+        .table-card {
+            background: var(--white); border-radius: 10px; border: 1px solid var(--border);
+            overflow: hidden;
+        }
+        table { width: 100%; border-collapse: collapse; font-size: 14px; }
+        th {
+            background: #FAFAFA; padding: 12px 16px; text-align: left;
+            font-weight: 600; color: var(--gray); font-size: 12px;
+            text-transform: uppercase; letter-spacing: 0.5px; border-bottom: 1px solid var(--border);
+        }
+        td { padding: 12px 16px; border-bottom: 1px solid var(--border); }
+        tr:last-child td { border-bottom: none; }
+        tr:hover td { background: #FAFAFE; }
+        .status {
+            display: inline-block; padding: 3px 10px; border-radius: 20px;
+            font-size: 12px; font-weight: 600;
+        }
+        .status-pending { background: #FEF3C7; color: #92400E; }
+        .status-approved { background: #D1FAE5; color: #065F46; }
+        .status-rejected { background: #FEE2E2; color: #991B1B; }
+        .action-link {
+            color: var(--primary); text-decoration: none; font-weight: 600; font-size: 13px;
+        }
+        .action-link:hover { text-decoration: underline; }
+
+        /* 分页 */
+        .pagination {
+            display: flex; align-items: center; justify-content: flex-end;
+            gap: 8px; padding: 16px 20px;
+        }
+        .pagination span { font-size: 13px; color: var(--gray); }
+        .pagination button {
+            padding: 6px 12px; border: 1px solid var(--border); border-radius: 6px;
+            background: white; cursor: pointer; font-size: 13px; color: var(--text);
+        }
+        .pagination button:hover { border-color: var(--primary); color: var(--primary); }
+        .pagination button.active { background: var(--primary); color: white; border-color: var(--primary); }
+
+        @media (max-width: 768px) {
+            .sidebar { display: none; }
+            .main { padding: 16px; }
+            .filters input { width: 100%; }
+            table { font-size: 12px; }
+            th, td { padding: 8px 10px; }
+        }
+    </style>
+</head>
+<body>
+
+<div class="topbar">
+    <div class="brand"><i class="fa-solid fa-database"></i> 人工智能人才资源库 · 后台管理</div>
+    <span style="font-size:13px;color:var(--gray)">管理员</span>
+</div>
+
+<div class="layout">
+    <nav class="sidebar">
+        <a href="admin.html" class="active"><i class="fa-solid fa-users"></i> 用户管理</a>
+        <a href="#"><i class="fa-solid fa-file-circle-check"></i> 审核队列</a>
+        <a href="#"><i class="fa-solid fa-chart-bar"></i> 数据统计</a>
+    </nav>
+
+    <div class="main">
+        <div class="page-title">用户管理</div>
+
+        <!-- 筛选栏 -->
+        <div class="filters">
+            <input type="text" id="searchInput" placeholder="搜索姓名 / 证件号" oninput="filterTable()">
+            <select id="statusFilter" onchange="filterTable()">
+                <option value="all">全部状态</option>
+                <option value="pending">待审核</option>
+                <option value="approved">已通过</option>
+                <option value="rejected">已驳回</option>
+            </select>
+            <button class="btn btn-primary" onclick="filterTable()"><i class="fa-solid fa-magnifying-glass"></i> 搜索</button>
+        </div>
+
+        <!-- 用户表格 -->
+        <div class="table-card">
+            <table>
+                <thead>
+                    <tr>
+                        <th>姓名</th>
+                        <th>证件号</th>
+                        <th>性别</th>
+                        <th>出生年月</th>
+                        <th>入库时间</th>
+                        <th>AISE关联</th>
+                        <th>审核状态</th>
+                        <th>操作</th>
+                    </tr>
+                </thead>
+                <tbody id="userTableBody"></tbody>
+            </table>
+            <div class="pagination">
+                <span id="pageInfo">共 0 条</span>
+                <button onclick="prevPage()">上一页</button>
+                <button onclick="nextPage()">下一页</button>
+            </div>
+        </div>
+    </div>
+</div>
+
+<script>
+// 模拟用户数据
+var users = [
+    { id: 'U001', name: '张三', idNo: '440305********0011', gender: '男', birth: '2014-05-25',
+      joinDate: '2026-02-15', aiseLinked: true, status: 'approved' },
+    { id: 'U002', name: '李四', idNo: '440305********0022', gender: '女', birth: '2013-08-12',
+      joinDate: '2026-03-01', aiseLinked: true, status: 'approved' },
+    { id: 'U003', name: '王五', idNo: '440305********0033', gender: '男', birth: '2015-01-20',
+      joinDate: '2026-04-10', aiseLinked: false, status: 'pending' },
+    { id: 'U004', name: '赵六', idNo: '440305********0044', gender: '女', birth: '2014-11-30',
+      joinDate: '2026-05-05', aiseLinked: true, status: 'pending' },
+    { id: 'U005', name: '孙七', idNo: 'H600800****', gender: '男', birth: '2013-06-18',
+      joinDate: '2026-05-20', aiseLinked: false, status: 'rejected' },
+    { id: 'U006', name: '周八', idNo: '440305********0066', gender: '女', birth: '2015-03-08',
+      joinDate: '2026-06-01', aiseLinked: true, status: 'pending' },
+    { id: 'U007', name: '吴九', idNo: '440305********0077', gender: '男', birth: '2014-09-14',
+      joinDate: '2026-06-10', aiseLinked: true, status: 'pending' },
+    { id: 'U008', name: '郑十', idNo: '440305********0088', gender: '女', birth: '2013-12-25',
+      joinDate: '2026-06-12', aiseLinked: false, status: 'approved' },
+];
+var filteredUsers = users.slice();
+var page = 0, pageSize = 6;
+
+var statusMap = { pending: '待审核', approved: '已通过', rejected: '已驳回' };
+var statusClassMap = { pending: 'status-pending', approved: 'status-approved', rejected: 'status-rejected' };
+
+function renderTable() {
+    var tbody = document.getElementById('userTableBody');
+    var start = page * pageSize;
+    var slice = filteredUsers.slice(start, start + pageSize);
+    tbody.innerHTML = slice.map(function(u) {
+        return '<tr>' +
+            '<td><strong>' + u.name + '</strong></td>' +
+            '<td style="font-family:monospace;font-size:13px">' + u.idNo + '</td>' +
+            '<td>' + u.gender + '</td>' +
+            '<td>' + u.birth + '</td>' +
+            '<td>' + u.joinDate + '</td>' +
+            '<td>' + (u.aiseLinked ? '<span style="color:#10B981">✓ 已关联</span>' : '<span style="color:#F59E0B">未关联</span>') + '</td>' +
+            '<td><span class="status ' + statusClassMap[u.status] + '">' + statusMap[u.status] + '</span></td>' +
+            '<td><a class="action-link" href="admin_detail.html?id=' + u.id + '">查看详情 →</a></td>' +
+            '</tr>';
+    }).join('');
+    document.getElementById('pageInfo').textContent =
+        '共 ' + filteredUsers.length + ' 条，第 ' + (start + 1) + '-' + Math.min(start + pageSize, filteredUsers.length) + ' 条';
+}
+
+function filterTable() {
+    var q = document.getElementById('searchInput').value.toLowerCase();
+    var st = document.getElementById('statusFilter').value;
+    filteredUsers = users.filter(function(u) {
+        var match = (u.name + u.idNo).toLowerCase().indexOf(q) >= 0;
+        if (st !== 'all') match = match && u.status === st;
+        return match;
+    });
+    page = 0;
+    renderTable();
+}
+function prevPage() { if (page > 0) { page--; renderTable(); } }
+function nextPage() { if ((page + 1) * pageSize < filteredUsers.length) { page++; renderTable(); } }
+
+renderTable();
+</script>
+</body>
+</html>

@@ -1,0 +1,607 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>元创S营报名 - AISE</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+
+    <script>
+        tailwind.config = {
+            theme: {
+                extend: {
+                    fontFamily: {
+                        sans: ['Inter', 'sans-serif'],
+                    },
+                    colors: {
+                        brand: {
+                            50: '#eff6ff',
+                            100: '#dbeafe',
+                            200: '#bfdbfe',
+                            500: '#3b82f6',
+                            600: '#2563eb',
+                            700: '#1d4ed8',
+                        },
+                    },
+                    boxShadow: {
+                        'card': '0 20px 40px -10px rgba(0, 0, 0, 0.1)',
+                    },
+                    animation: {
+                        'fade-in': 'fadeIn 0.3s ease-out',
+                        'slide-up': 'slideUp 0.3s ease-out',
+                    },
+                    keyframes: {
+                        fadeIn: { '0%': { opacity: '0' }, '100%': { opacity: '1' } },
+                        slideUp: { '0%': { opacity: '0', transform: 'translateY(12px)' }, '100%': { opacity: '1', transform: 'translateY(0)' } },
+                    },
+                }
+            }
+        }
+    </script>
+    <style>
+        body { background-color: #F1F5F9; -webkit-font-smoothing: antialiased; }
+        
+        /* 文件上传拖拽区 */
+        .upload-zone {
+            transition: all 0.2s ease;
+            cursor: pointer;
+        }
+        .upload-zone:hover { border-color: #93c5fd; background-color: #f8faff; }
+        .upload-zone.drag-over { border-color: #3b82f6; background-color: #eff6ff; }
+        
+        /* 上传文件列表项 */
+        .file-item {
+            transition: all 0.2s ease;
+        }
+        .file-item:hover { background-color: #f8fafc; }
+        
+        /* 错误震动 */
+        .shake { animation: shake 0.5s cubic-bezier(.36,.07,.19,.97) both; }
+        @keyframes shake { 10%, 90% { transform: translate3d(-1px, 0, 0); } 20%, 80% { transform: translate3d(2px, 0, 0); } 30%, 50%, 70% { transform: translate3d(-4px, 0, 0); } 40%, 60% { transform: translate3d(4px, 0, 0); } }
+        
+        /* 成功提交页动画 */
+        .success-check {
+            animation: popIn 0.5s cubic-bezier(0.175, 0.885, 0.32, 1.275) forwards;
+            transform: scale(0);
+        }
+        @keyframes popIn {
+            0% { transform: scale(0); opacity: 0; }
+            60% { transform: scale(1.2); opacity: 1; }
+            100% { transform: scale(1); opacity: 1; }
+        }
+
+        input[type="file"] { display: none; }
+    </style>
+</head>
+<body class="min-h-screen flex flex-col">
+
+    <!-- Header -->
+    <header class="bg-white border-b border-slate-200 h-16 flex items-center justify-center sticky top-0 z-40">
+        <div class="max-w-5xl w-full px-4 flex justify-between items-center">
+            <div class="flex items-center gap-2 text-slate-900 font-bold text-lg">
+                <div class="w-8 h-8 bg-gradient-to-br from-brand-600 to-indigo-600 rounded flex items-center justify-center text-white text-xs">A</div>
+                AISE <span class="text-slate-400 font-normal text-sm hidden sm:inline">| 元创S营报名</span>
+            </div>
+            <a href="#" class="text-sm text-slate-500 hover:text-slate-800 font-medium">返回首页</a>
+        </div>
+    </header>
+
+    <main class="flex-grow flex items-start justify-center p-4 sm:p-8">
+        <div class="max-w-4xl w-full">
+
+            <!-- Step Indicator -->
+            <div class="mb-8">
+                <div class="flex items-center justify-between relative">
+                    <div class="absolute left-0 top-1/2 transform -translate-y-1/2 w-full h-1 bg-slate-200 -z-10"></div>
+                    
+                    <div class="step-item flex flex-col items-center gap-2 bg-[#F1F5F9]">
+                        <div id="step-indicator-1" class="w-8 h-8 rounded-full bg-brand-600 text-white flex items-center justify-center font-bold text-sm ring-4 ring-[#F1F5F9]">1</div>
+                        <span class="text-xs font-medium text-brand-600 hidden sm:block">报名须知</span>
+                    </div>
+                    <div class="step-item flex flex-col items-center gap-2">
+                        <div id="step-indicator-2" class="w-8 h-8 rounded-full bg-slate-300 text-white flex items-center justify-center font-bold text-sm ring-4 ring-[#F1F5F9]">2</div>
+                        <span class="text-xs font-medium text-slate-400 hidden sm:block">填写信息</span>
+                    </div>
+                    <div class="step-item flex flex-col items-center gap-2">
+                        <div id="step-indicator-3" class="w-8 h-8 rounded-full bg-slate-300 text-white flex items-center justify-center font-bold text-sm ring-4 ring-[#F1F5F9]">3</div>
+                        <span class="text-xs font-medium text-slate-400 hidden sm:block">确认信息</span>
+                    </div>
+                    <div class="step-item flex flex-col items-center gap-2">
+                        <div id="step-indicator-4" class="w-8 h-8 rounded-full bg-slate-300 text-white flex items-center justify-center font-bold text-sm ring-4 ring-[#F1F5F9]">4</div>
+                        <span class="text-xs font-medium text-slate-400 hidden sm:block">提交审核</span>
+                    </div>
+                </div>
+            </div>
+
+            <div class="bg-white rounded-2xl shadow-card overflow-hidden border border-slate-100 min-h-[500px] relative">
+
+                <!-- ====== Step 1: 报名须知 ====== -->
+                <div id="step-content-1" class="p-6 sm:p-10">
+                    <h2 class="text-2xl font-bold text-slate-900 mb-6">元创S营报名须知</h2>
+                    <div class="bg-slate-50 p-6 rounded-xl border border-slate-200 h-80 overflow-y-auto text-sm text-slate-600 leading-relaxed mb-6">
+                        <p class="mb-4 font-bold text-slate-800">欢迎参加元创S营。</p>
+                        <p class="mb-4">元创S营是AISE与企业合作体系下的线下训练营项目，面向青少年考生群体。报名审核通过后，您将获得统一笔试资格。</p>
+                        <p class="mb-4">一、考生应保证填写的报名信息及上传材料真实、准确。因信息填写错误或材料造假导致的审核不通过等后果，由考生本人承担。</p>
+                        <p class="mb-4">二、本次报名需提交以下材料：学生个人简历（必传）、个人相关作品（必传）、导师推荐信（非必传）。请提前准备好相关文件。</p>
+                        <p class="mb-4">三、报名提交后将进入审核流程。审核结果将通过AISE站内消息通知您，请在个人中心留意通知。</p>
+                        <p class="mb-4">四、审核通过后，您将获得笔试资格。笔试相关信息将在审核通过通知中说明。</p>
+                        <p>五、AISE将严格保护您的个人隐私信息，相关数据仅用于报名管理、审核及相关服务。</p>
+                    </div>
+                    <div class="flex items-center mb-8">
+                        <input id="agreement-check" type="checkbox" class="w-5 h-5 rounded border-slate-300 text-brand-600 focus:ring-brand-500 cursor-pointer">
+                        <label for="agreement-check" class="ml-2 text-sm text-slate-700 cursor-pointer select-none">我已完整阅读并同意《报名须知》及《用户隐私协议》</label>
+                    </div>
+                    <div class="flex justify-end">
+                        <button onclick="goToStep(2)" class="bg-slate-900 text-white px-8 py-3 rounded-xl font-semibold shadow-lg hover:bg-brand-600 transition disabled:opacity-50 disabled:cursor-not-allowed" id="btn-step-1" disabled>下一步</button>
+                    </div>
+                </div>
+
+                <!-- ====== Step 2: 填写信息 ====== -->
+                <div id="step-content-2" class="p-6 sm:p-10 hidden">
+                    <h2 class="text-xl font-bold text-slate-900 mb-2 flex items-center gap-2">
+                        <span class="w-1 h-6 bg-brand-600 rounded-full"></span> 基础信息填写
+                    </h2>
+
+                    <form id="info-form" class="grid grid-cols-1 md:grid-cols-2 gap-6 mb-8">
+                        
+                        <!-- 渠道信息区（固定） -->
+                        <div class="md:col-span-2 bg-slate-50 p-5 rounded-xl border border-slate-200 grid grid-cols-1 md:grid-cols-2 gap-6 relative overflow-hidden">
+                            <div class="absolute top-0 left-0 w-1 h-full bg-brand-500"></div>
+                            
+                            <div class="md:col-span-2">
+                                <label class="block text-xs font-bold text-slate-500 uppercase mb-1.5">渠道识别码</label>
+                                <input type="text" value="YUANC2025" disabled class="w-full px-4 py-2.5 rounded-lg border border-slate-200 bg-slate-100 text-slate-500 text-sm font-mono cursor-not-allowed">
+                            </div>
+
+                            <div>
+                                <label class="block text-xs font-bold text-slate-500 uppercase mb-1.5">所属机构/学校</label>
+                                <input type="text" value="中国软件行业协会" disabled class="w-full px-4 py-2.5 rounded-lg border border-slate-200 bg-slate-100 text-slate-500 text-sm cursor-not-allowed">
+                            </div>
+
+                            <div>
+                                <label class="block text-xs font-bold text-slate-500 uppercase mb-1.5">报名项目</label>
+                                <input type="text" value="元创S营" disabled class="w-full px-4 py-2.5 rounded-lg border border-slate-200 bg-slate-100 text-slate-500 text-sm cursor-not-allowed">
+                            </div>
+                        </div>
+
+                        <div>
+                            <label class="block text-xs font-bold text-slate-600 uppercase mb-1.5">考生姓名 <span class="text-red-500">*</span></label>
+                            <input type="text" id="input-name" value="张三" class="w-full px-4 py-2.5 rounded-lg border border-slate-200 focus:border-slate-800 outline-none text-sm">
+                        </div>
+                        <div>
+                            <label class="block text-xs font-bold text-slate-600 uppercase mb-1.5">身份证号 <span class="text-red-500">*</span></label>
+                            <input type="text" id="input-id" value="110101201501011234" class="w-full px-4 py-2.5 rounded-lg border border-slate-200 focus:border-slate-800 outline-none text-sm font-mono">
+                        </div>
+                        <div>
+                            <label class="block text-xs font-bold text-slate-600 uppercase mb-1.5">性别 <span class="text-red-500">*</span></label>
+                            <select id="input-gender" class="w-full px-4 py-2.5 rounded-lg border border-slate-200 focus:border-slate-800 outline-none text-sm bg-white">
+                                <option value="男" selected>男</option>
+                                <option value="女">女</option>
+                            </select>
+                        </div>
+                        <div>
+                            <label class="block text-xs font-bold text-slate-600 uppercase mb-1.5">电子邮箱</label>
+                            <input type="email" id="input-email" value="zhangsan@example.com" class="w-full px-4 py-2.5 rounded-lg border border-slate-200 focus:border-slate-800 outline-none text-sm">
+                        </div>
+
+                        <!-- 证件照上传 -->
+                        <div class="md:col-span-2">
+                            <label class="block text-xs font-bold text-slate-600 uppercase mb-1.5">1寸免冠照片 <span class="text-red-500">*</span></label>
+                            <div class="flex items-start gap-4">
+                                <div class="w-24 h-32 bg-slate-50 rounded-lg border-2 border-dashed border-slate-300 flex flex-col items-center justify-center text-slate-400 hover:border-brand-500 hover:text-brand-500 cursor-pointer transition relative overflow-hidden group">
+                                    <input type="file" id="input-photo" accept="image/jpeg,image/png" class="absolute inset-0 opacity-0 cursor-pointer" onchange="previewPhoto(this)">
+                                    <i class="fa-solid fa-plus text-xl mb-1 group-hover:scale-110 transition"></i>
+                                    <span class="text-[10px]">上传照片</span>
+                                    <img id="photo-preview" class="absolute inset-0 w-full h-full object-cover hidden">
+                                </div>
+                                <div class="text-xs text-slate-400 pt-2 leading-relaxed">
+                                    请上传本人近期1寸免冠证件照。<br>支持 JPG/PNG 格式，文件大小不超过 2MB。
+                                </div>
+                            </div>
+                        </div>
+
+                        <div class="md:col-span-2 border-t border-slate-100 my-2"></div>
+                        
+                        <div><label class="block text-xs font-bold text-slate-600 uppercase mb-1.5">监护人姓名 <span class="text-red-500">*</span></label><input type="text" id="input-parent" value="李四" class="w-full px-4 py-2.5 rounded-lg border border-slate-200 focus:border-slate-800 outline-none text-sm"></div>
+                        <div><label class="block text-xs font-bold text-slate-600 uppercase mb-1.5">监护人电话 <span class="text-red-500">*</span></label><input type="tel" id="input-phone" value="13800138000" class="w-full px-4 py-2.5 rounded-lg border border-slate-200 focus:border-slate-800 outline-none text-sm font-mono"></div>
+                        <div><label class="block text-xs font-bold text-slate-600 uppercase mb-1.5">所在省市 <span class="text-red-500">*</span></label><input type="text" id="input-city" value="北京市 海淀区" class="w-full px-4 py-2.5 rounded-lg border border-slate-200 focus:border-slate-800 outline-none text-sm"></div>
+                        <div><label class="block text-xs font-bold text-slate-600 uppercase mb-1.5">详细寄送地址 <span class="text-red-500">*</span></label><input type="text" id="input-address" value="中关村软件园一号楼A座" class="w-full px-4 py-2.5 rounded-lg border border-slate-200 focus:border-slate-800 outline-none text-sm"></div>
+                    </form>
+
+                    <!-- 附件上传区 -->
+                    <div class="mb-6">
+                        <h3 class="text-sm font-bold text-slate-700 mb-4 flex items-center gap-2">
+                            <span class="w-1 h-4 bg-amber-500 rounded-full"></span> 附件上传
+                        </h3>
+
+                        <!-- ① 学生个人简历 -->
+                        <div class="mb-4 p-4 bg-white border border-slate-200 rounded-xl">
+                            <div class="flex items-start justify-between mb-3">
+                                <div>
+                                    <span class="text-sm font-semibold text-slate-800">① 学生个人简历</span>
+                                    <span class="ml-2 text-xs font-medium text-red-500 bg-red-50 px-2 py-0.5 rounded">必传</span>
+                                </div>
+                                <a href="#" class="text-xs text-brand-600 hover:text-brand-700 font-medium flex items-center gap-1" onclick="event.preventDefault(); alert('简历模板下载（功能开发中）')">
+                                    <i class="fa-solid fa-download"></i> 下载简历模板
+                                </a>
+                            </div>
+                            <p class="text-xs text-slate-400 mb-3">支持 Word / PDF 格式，仅限 1 个文件，大小不超过 5MB</p>
+                            <div id="resume-upload-zone" class="upload-zone border-2 border-dashed border-slate-200 rounded-lg p-4 text-center text-slate-400" 
+                                 onclick="document.getElementById('input-resume').click()"
+                                 ondragover="dragOver(event, 'resume')" ondragleave="dragLeave(event, 'resume')" ondrop="dropFile(event, 'resume')">
+                                <input type="file" id="input-resume" accept=".doc,.docx,.pdf" onchange="handleFileSelect(this, 'resume')">
+                                <i class="fa-solid fa-cloud-arrow-up text-2xl mb-1"></i>
+                                <p class="text-xs">点击上传或拖拽文件到此处</p>
+                            </div>
+                            <div id="resume-file-list" class="mt-2 space-y-1"></div>
+                        </div>
+
+                        <!-- ② 个人相关作品 -->
+                        <div class="mb-4 p-4 bg-white border border-slate-200 rounded-xl">
+                            <div class="mb-3">
+                                <span class="text-sm font-semibold text-slate-800">② 个人相关作品</span>
+                                <span class="ml-2 text-xs font-medium text-red-500 bg-red-50 px-2 py-0.5 rounded">必传</span>
+                            </div>
+                            <p class="text-xs text-slate-400 mb-3">包含不限于智能硬件、智能设计、生成式人工智能等创新应用作品。请将文件打包为压缩包（以"作品名称+姓名"命名），最多 5 个文件，总大小不超过 50MB</p>
+                            <div id="works-upload-zone" class="upload-zone border-2 border-dashed border-slate-200 rounded-lg p-4 text-center text-slate-400"
+                                 onclick="document.getElementById('input-works').click()"
+                                 ondragover="dragOver(event, 'works')" ondragleave="dragLeave(event, 'works')" ondrop="dropFile(event, 'works')">
+                                <input type="file" id="input-works" accept=".zip,.rar,.7z" multiple onchange="handleFileSelect(this, 'works')">
+                                <i class="fa-solid fa-cloud-arrow-up text-2xl mb-1"></i>
+                                <p class="text-xs">点击上传或拖拽文件到此处</p>
+                            </div>
+                            <div id="works-file-list" class="mt-2 space-y-1"></div>
+                        </div>
+
+                        <!-- ③ 导师推荐信 -->
+                        <div class="p-4 bg-white border border-slate-200 rounded-xl">
+                            <div class="mb-3">
+                                <span class="text-sm font-semibold text-slate-800">③ 导师推荐信</span>
+                                <span class="ml-2 text-xs font-medium text-slate-400 bg-slate-100 px-2 py-0.5 rounded">非必传</span>
+                            </div>
+                            <p class="text-xs text-slate-400 mb-3">支持 PDF 格式，仅限 1 个文件，大小不超过 5MB</p>
+                            <div id="letter-upload-zone" class="upload-zone border-2 border-dashed border-slate-200 rounded-lg p-4 text-center text-slate-400"
+                                 onclick="document.getElementById('input-letter').click()"
+                                 ondragover="dragOver(event, 'letter')" ondragleave="dragLeave(event, 'letter')" ondrop="dropFile(event, 'letter')">
+                                <input type="file" id="input-letter" accept=".pdf" onchange="handleFileSelect(this, 'letter')">
+                                <i class="fa-solid fa-cloud-arrow-up text-2xl mb-1"></i>
+                                <p class="text-xs">点击上传或拖拽文件到此处</p>
+                            </div>
+                            <div id="letter-file-list" class="mt-2 space-y-1"></div>
+                        </div>
+                    </div>
+
+                    <div class="flex justify-between pt-4 border-t border-slate-100">
+                        <button onclick="goToStep(1)" class="text-slate-500 px-6 py-3 rounded-xl font-medium hover:bg-slate-50 transition">上一步</button>
+                        <button onclick="goToStep(3)" class="bg-slate-900 text-white px-8 py-3 rounded-xl font-semibold shadow-lg hover:bg-brand-600 transition">确认信息</button>
+                    </div>
+                </div>
+
+                <!-- ====== Step 3: 确认信息 ====== -->
+                <div id="step-content-3" class="p-6 sm:p-10 hidden">
+                    <h2 class="text-xl font-bold text-slate-900 mb-6 flex items-center gap-2"><span class="w-1 h-6 bg-brand-600 rounded-full"></span> 请核对报名信息</h2>
+                    
+                    <!-- 基础信息 -->
+                    <div class="bg-slate-50 rounded-2xl border border-slate-200 p-6 sm:p-8 mb-6">
+                        <h4 class="text-xs font-bold text-slate-400 uppercase mb-4">基础信息</h4>
+                        <dl class="grid grid-cols-1 sm:grid-cols-2 gap-x-4 gap-y-4 text-sm">
+                            <div class="sm:col-span-2 border-b border-slate-200 pb-3 mb-1">
+                                <dt class="text-slate-400 text-xs mb-1">报名项目</dt>
+                                <dd class="font-bold text-brand-700 text-lg">元创S营</dd>
+                            </div>
+                            <div><dt class="text-slate-400 text-xs mb-1">渠道/机构</dt><dd class="font-medium text-slate-800">中国软件行业协会</dd></div>
+                            <div><dt class="text-slate-400 text-xs mb-1">考生姓名</dt><dd class="font-medium text-slate-800" id="view-name">--</dd></div>
+                            <div><dt class="text-slate-400 text-xs mb-1">身份证号</dt><dd class="font-medium text-slate-800 font-mono" id="view-id">--</dd></div>
+                            <div><dt class="text-slate-400 text-xs mb-1">性别</dt><dd class="font-medium text-slate-800" id="view-gender">--</dd></div>
+                            <div><dt class="text-slate-400 text-xs mb-1">电子邮箱</dt><dd class="font-medium text-slate-800" id="view-email">--</dd></div>
+                            <div><dt class="text-slate-400 text-xs mb-1">监护人</dt><dd class="font-medium text-slate-800" id="view-parent">--</dd></div>
+                            <div><dt class="text-slate-400 text-xs mb-1">监护人电话</dt><dd class="font-medium text-slate-800" id="view-phone">--</dd></div>
+                            <div class="sm:col-span-2 pt-1"><dt class="text-slate-400 text-xs mb-1">寄送地址</dt><dd class="font-medium text-slate-800" id="view-address">--</dd></div>
+                        </dl>
+                    </div>
+
+                    <!-- 上传文件摘要 -->
+                    <div class="bg-slate-50 rounded-2xl border border-slate-200 p-6 sm:p-8 mb-6">
+                        <h4 class="text-xs font-bold text-slate-400 uppercase mb-4">上传文件</h4>
+                        <div class="space-y-3 text-sm">
+                            <div class="flex justify-between">
+                                <span class="text-slate-500">① 学生个人简历</span>
+                                <span class="font-medium text-slate-800" id="view-resume">未上传</span>
+                            </div>
+                            <div class="flex justify-between">
+                                <span class="text-slate-500">② 个人相关作品</span>
+                                <span class="font-medium text-slate-800" id="view-works">未上传</span>
+                            </div>
+                            <div class="flex justify-between">
+                                <span class="text-slate-500">③ 导师推荐信</span>
+                                <span class="font-medium text-slate-800" id="view-letter">未上传</span>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="flex justify-between pt-4">
+                        <button onclick="goToStep(2)" class="text-slate-500 px-6 py-3 rounded-xl font-medium hover:bg-slate-50 transition">返回修改</button>
+                        <button onclick="goToStep(4)" class="bg-slate-900 text-white px-8 py-3 rounded-xl font-semibold shadow-lg hover:bg-brand-600 transition">确认并提交</button>
+                    </div>
+                </div>
+
+                <!-- ====== Step 4: 提交审核 ====== -->
+                <div id="step-content-4" class="p-6 sm:p-10 hidden">
+                    <div class="text-center py-8">
+                        <div class="flex flex-col items-center gap-4 mb-8">
+                            <div class="w-16 h-16 rounded-full bg-brand-50 text-brand-600 flex items-center justify-center text-2xl success-check">
+                                <i class="fa-solid fa-paper-plane"></i>
+                            </div>
+                            <h2 class="text-2xl font-bold text-slate-900">确认提交报名申请</h2>
+                            <p class="text-slate-500 text-sm max-w-md leading-relaxed">
+                                提交后您的报名信息将进入审核流程。审核结果将通过AISE站内消息通知您，请留意个人中心的消息提醒。
+                            </p>
+                        </div>
+
+                        <div class="flex flex-col sm:flex-row gap-3 justify-center">
+                            <button onclick="goToStep(3)" class="touch-target px-6 py-2.5 rounded-xl text-sm font-medium text-slate-600 bg-slate-100 hover:bg-slate-200 transition flex items-center justify-center gap-2">
+                                <i class="fa-solid fa-arrow-left"></i> 返回修改
+                            </button>
+                            <button onclick="handleSubmit()" id="btn-submit" class="touch-target px-8 py-2.5 rounded-xl text-sm font-semibold text-white bg-brand-600 hover:bg-brand-700 transition shadow-lg shadow-brand-500/25 flex items-center justify-center gap-2">
+                                确认提交 <i class="fa-solid fa-check"></i>
+                            </button>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- ====== 提交成功页 ====== -->
+                <div id="step-content-success" class="p-6 sm:p-10 hidden">
+                    <div class="text-center py-8">
+                        <div class="w-20 h-20 mx-auto mb-6 rounded-full bg-green-50 text-green-500 flex items-center justify-center text-3xl success-check">
+                            <i class="fa-solid fa-check"></i>
+                        </div>
+                        <h2 class="text-2xl font-bold text-slate-900 mb-3">报名信息已提交</h2>
+                        <p class="text-slate-500 text-sm max-w-md mx-auto leading-relaxed mb-8">
+                            请耐心等待审核。审核结果将通过消息通知您。
+                        </p>
+                        <div class="flex flex-col sm:flex-row gap-3 justify-center">
+                            <button onclick="alert('返回首页（模拟跳转）')" class="touch-target px-6 py-2.5 rounded-xl text-sm font-medium text-slate-600 bg-slate-100 hover:bg-slate-200 transition flex items-center justify-center gap-2">
+                                <i class="fa-solid fa-house"></i> 返回首页
+                            </button>
+                            <button onclick="alert('跳转至我的报名（模拟跳转）')" class="touch-target px-6 py-2.5 rounded-xl text-sm font-semibold text-white bg-slate-900 hover:bg-brand-600 transition shadow-lg flex items-center justify-center gap-2">
+                                查看我的报名 <i class="fa-solid fa-arrow-right text-xs"></i>
+                            </button>
+                        </div>
+                    </div>
+                </div>
+
+            </div>
+        </div>
+    </main>
+
+    <script>
+        // ====== File upload state ======
+        const fileState = {
+            resume: [],
+            works: [],
+            letter: []
+        };
+
+        // ====== Step control ======
+        const checkbox = document.getElementById('agreement-check');
+        const nextBtn1 = document.getElementById('btn-step-1');
+        checkbox.addEventListener('change', (e) => { nextBtn1.disabled = !e.target.checked; });
+
+        let currentStep = 1;
+        function goToStep(step) {
+            if (step === 3) {
+                // Validate required form fields
+                const name = document.getElementById('input-name').value.trim();
+                const id = document.getElementById('input-id').value.trim();
+                if (!name || !id) {
+                    alert('请填写考生姓名和身份证号');
+                    return;
+                }
+                // Validate required uploads
+                if (fileState.resume.length === 0) {
+                    alert('请上传学生个人简历');
+                    return;
+                }
+                if (fileState.works.length === 0) {
+                    alert('请上传个人相关作品');
+                    return;
+                }
+                syncDataToReview();
+            }
+
+            if (step === 4) {
+                // Step 4 is the submit confirmation page, show it directly
+                document.getElementById(`step-content-${currentStep}`).classList.add('hidden');
+                updateStepperUI(4);
+                document.getElementById('step-content-4').classList.remove('hidden');
+                currentStep = 4;
+                window.scrollTo({ top: 0, behavior: 'smooth' });
+                return;
+            }
+
+            document.getElementById(`step-content-${currentStep}`).classList.add('hidden');
+            updateStepperUI(step);
+            document.getElementById(`step-content-${step}`).classList.remove('hidden');
+            currentStep = step;
+            window.scrollTo({ top: 0, behavior: 'smooth' });
+        }
+
+        function updateStepperUI(targetStep) {
+            for (let i = 1; i <= 4; i++) {
+                const indicator = document.getElementById(`step-indicator-${i}`);
+                if (i < targetStep) {
+                    indicator.className = "w-8 h-8 rounded-full bg-green-500 text-white flex items-center justify-center font-bold text-sm ring-4 ring-[#F1F5F9] transition-colors";
+                    indicator.innerHTML = '<i class="fa-solid fa-check"></i>';
+                } else if (i === targetStep) {
+                    indicator.className = "w-8 h-8 rounded-full bg-brand-600 text-white flex items-center justify-center font-bold text-sm ring-4 ring-blue-100 transition-colors shadow-lg shadow-brand-500/30";
+                    indicator.innerHTML = i;
+                } else {
+                    indicator.className = "w-8 h-8 rounded-full bg-slate-200 text-slate-500 flex items-center justify-center font-bold text-sm ring-4 ring-[#F1F5F9] transition-colors";
+                    indicator.innerHTML = i;
+                }
+            }
+        }
+
+        // ====== Photo preview ======
+        function previewPhoto(input) {
+            if (input.files && input.files[0]) {
+                const reader = new FileReader();
+                reader.onload = function(e) {
+                    const img = document.getElementById('photo-preview');
+                    img.src = e.target.result;
+                    img.classList.remove('hidden');
+                }
+                reader.readAsDataURL(input.files[0]);
+            }
+        }
+
+        // ====== File upload handling ======
+        function dragOver(e, type) {
+            e.preventDefault();
+            document.getElementById(`${type}-upload-zone`).classList.add('drag-over');
+        }
+        function dragLeave(e, type) {
+            document.getElementById(`${type}-upload-zone`).classList.remove('drag-over');
+        }
+        function dropFile(e, type) {
+            e.preventDefault();
+            document.getElementById(`${type}-upload-zone`).classList.remove('drag-over');
+            const files = e.dataTransfer.files;
+            processFiles(type, files);
+        }
+
+        function handleFileSelect(input, type) {
+            const files = input.files;
+            processFiles(type, files);
+            input.value = ''; // Reset so re-selecting same file works
+        }
+
+        function processFiles(type, files) {
+            const maxSize = type === 'works' ? 50 : 5; // MB
+            const maxCount = type === 'works' ? 5 : 1;
+            
+            let totalSize = 0;
+            const validFiles = [];
+            
+            for (let i = 0; i < files.length; i++) {
+                const fileSizeMB = files[i].size / (1024 * 1024);
+                totalSize += fileSizeMB;
+            }
+
+            // For works, check total size (simplified — checks individual + warns on total)
+            if (type === 'works') {
+                if (fileState.works.length + files.length > maxCount) {
+                    alert(`作品最多上传 ${maxCount} 个文件`);
+                    return;
+                }
+                const existingSize = fileState.works.reduce((sum, f) => sum + f.size, 0);
+                let newTotal = existingSize;
+                for (let i = 0; i < files.length; i++) {
+                    newTotal += files[i].size;
+                }
+                if (newTotal > maxSize * 1024 * 1024) {
+                    alert(`作品总大小不能超过 ${maxSize}MB`);
+                    return;
+                }
+                fileState.works = [...fileState.works, ...Array.from(files)];
+            } else {
+                // Single file types
+                if (files.length > maxCount) {
+                    alert(`最多上传 ${maxCount} 个文件`);
+                    return;
+                }
+                const file = files[0];
+                if (file.size > maxSize * 1024 * 1024) {
+                    alert(`文件大小不能超过 ${maxSize}MB`);
+                    return;
+                }
+                fileState[type] = [file];
+            }
+
+            renderFileList(type);
+        }
+
+        function removeFile(type, index) {
+            fileState[type].splice(index, 1);
+            renderFileList(type);
+        }
+
+        function renderFileList(type) {
+            const listEl = document.getElementById(`${type}-file-list`);
+            const files = fileState[type];
+            
+            if (files.length === 0) {
+                listEl.innerHTML = '';
+                return;
+            }
+
+            listEl.innerHTML = files.map((f, i) => {
+                const sizeMB = (f.size / (1024 * 1024)).toFixed(1);
+                return `
+                    <div class="file-item flex items-center justify-between bg-slate-50 rounded-lg px-3 py-2 text-sm animate-fade-in">
+                        <div class="flex items-center gap-2 min-w-0">
+                            <i class="fa-solid fa-file text-brand-500 text-xs flex-shrink-0"></i>
+                            <span class="text-slate-700 truncate">${f.name}</span>
+                            <span class="text-xs text-slate-400 flex-shrink-0">${sizeMB}MB</span>
+                        </div>
+                        <button onclick="removeFile('${type}', ${i})" class="text-slate-400 hover:text-red-500 transition flex-shrink-0 p-1">
+                            <i class="fa-solid fa-xmark"></i>
+                        </button>
+                    </div>
+                `;
+            }).join('');
+        }
+
+        // ====== Sync data to review ======
+        function syncDataToReview() {
+            document.getElementById('view-name').innerText = document.getElementById('input-name').value;
+            document.getElementById('view-id').innerText = document.getElementById('input-id').value;
+            document.getElementById('view-gender').innerText = document.getElementById('input-gender').value;
+            document.getElementById('view-email').innerText = document.getElementById('input-email').value || '未填写';
+            document.getElementById('view-parent').innerText = document.getElementById('input-parent').value;
+            document.getElementById('view-phone').innerText = document.getElementById('input-phone').value;
+            document.getElementById('view-address').innerText = 
+                `${document.getElementById('input-city').value} ${document.getElementById('input-address').value}`;
+
+            // File summary
+            document.getElementById('view-resume').innerText = 
+                fileState.resume.length > 0 ? `${fileState.resume[0].name} (${(fileState.resume[0].size / 1024 / 1024).toFixed(1)}MB)` : '未上传';
+            document.getElementById('view-works').innerText = 
+                fileState.works.length > 0 ? `${fileState.works.length} 个文件` : '未上传';
+            document.getElementById('view-letter').innerText = 
+                fileState.letter.length > 0 ? `${fileState.letter[0].name} (${(fileState.letter[0].size / 1024 / 1024).toFixed(1)}MB)` : '未上传（非必传）';
+        }
+
+        // ====== Submit ======
+        function handleSubmit() {
+            const btn = document.getElementById('btn-submit');
+            const originalHtml = btn.innerHTML;
+            btn.disabled = true;
+            btn.innerHTML = '<i class="fa-solid fa-circle-notch fa-spin"></i> 正在提交...';
+
+            // Simulate submission
+            setTimeout(() => {
+                document.getElementById('step-content-4').classList.add('hidden');
+                // Update all stepper indicators to done
+                for (let i = 1; i <= 4; i++) {
+                    const indicator = document.getElementById(`step-indicator-${i}`);
+                    indicator.className = "w-8 h-8 rounded-full bg-green-500 text-white flex items-center justify-center font-bold text-sm ring-4 ring-[#F1F5F9] transition-colors";
+                    indicator.innerHTML = '<i class="fa-solid fa-check"></i>';
+                }
+                document.getElementById('step-content-success').classList.remove('hidden');
+                currentStep = 5; // success state
+                window.scrollTo({ top: 0, behavior: 'smooth' });
+            }, 1500);
+        }
+
+        // ====== Initialize ======
+        window.onload = function() {
+            // Step 1 is shown by default
+            currentStep = 1;
+        };
+    </script>
+
+</body>
+</html>
