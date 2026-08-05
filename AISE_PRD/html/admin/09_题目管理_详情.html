@@ -128,6 +128,45 @@
                     <h2 class="text-sm font-bold text-slate-900 border-l-4 border-brand-500 pl-3 mb-6">基础属性</h2>
                     
                     <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+                        <div class="md:col-span-2">
+                            <label class="block text-xs font-bold text-slate-500 uppercase mb-2">题目编号</label>
+                            <div class="flex items-center h-[42px]">
+                                <span class="text-sm text-slate-300" id="question-number">保存后自动生成</span>
+                            </div>
+                        </div>
+
+                        <div class="md:col-span-2">
+                            <label class="block text-xs font-bold text-slate-500 uppercase mb-2">所属题库</label>
+                            <div class="flex gap-6 items-center h-[42px]">
+                                <label class="flex items-center gap-2 cursor-pointer">
+                                    <input type="checkbox" value="default" class="题库-checkbox w-4 h-4 rounded border-slate-300 text-brand-600 focus:ring-brand-500" onchange="on题库Change()">
+                                    <span class="text-sm text-slate-700">默认题库</span>
+                                </label>
+                                <label class="flex items-center gap-2 cursor-pointer">
+                                    <input type="checkbox" value="my" class="题库-checkbox w-4 h-4 rounded border-slate-300 text-brand-600 focus:ring-brand-500" onchange="on题库Change()">
+                                    <span class="text-sm text-slate-700">我的题库</span>
+                                </label>
+                                <label class="flex items-center gap-2 cursor-pointer">
+                                    <input type="checkbox" value="aise" class="题库-checkbox w-4 h-4 rounded border-slate-300 text-brand-600 focus:ring-brand-500" onchange="on题库Change()">
+                                    <span class="text-sm text-slate-700">AISE 题库</span>
+                                </label>
+                            </div>
+                        </div>
+
+                        <div class="md:col-span-2" id="aise-level-section" style="display:none;">
+                            <label class="block text-xs font-bold text-slate-500 uppercase mb-2">AISE 级别</label>
+                            <div class="flex flex-wrap gap-3 items-center">
+                                <label class="flex items-center gap-1.5 cursor-pointer"><input type="radio" name="aise-level" value="1" class="text-brand-600 focus:ring-brand-500"><span class="text-sm text-slate-700">一级</span></label>
+                                <label class="flex items-center gap-1.5 cursor-pointer"><input type="radio" name="aise-level" value="2" class="text-brand-600 focus:ring-brand-500"><span class="text-sm text-slate-700">二级</span></label>
+                                <label class="flex items-center gap-1.5 cursor-pointer"><input type="radio" name="aise-level" value="3" class="text-brand-600 focus:ring-brand-500"><span class="text-sm text-slate-700">三级</span></label>
+                                <label class="flex items-center gap-1.5 cursor-pointer"><input type="radio" name="aise-level" value="4" class="text-brand-600 focus:ring-brand-500"><span class="text-sm text-slate-700">四级</span></label>
+                                <label class="flex items-center gap-1.5 cursor-pointer"><input type="radio" name="aise-level" value="5" class="text-brand-600 focus:ring-brand-500"><span class="text-sm text-slate-700">五级</span></label>
+                                <label class="flex items-center gap-1.5 cursor-pointer"><input type="radio" name="aise-level" value="6" class="text-brand-600 focus:ring-brand-500"><span class="text-sm text-slate-700">六级</span></label>
+                                <label class="flex items-center gap-1.5 cursor-pointer"><input type="radio" name="aise-level" value="7" class="text-brand-600 focus:ring-brand-500"><span class="text-sm text-slate-700">七级</span></label>
+                                <label class="flex items-center gap-1.5 cursor-pointer"><input type="radio" name="aise-level" value="8" class="text-brand-600 focus:ring-brand-500"><span class="text-sm text-slate-700">八级</span></label>
+                            </div>
+                        </div>
+
                         <div>
                             <label class="block text-xs font-bold text-slate-500 uppercase mb-2">题目类型</label>
                             <div class="relative">
@@ -171,6 +210,11 @@
                                 <input type="text" placeholder="输入标签按回车添加..." class="flex-1 outline-none text-sm bg-transparent min-w-[120px]">
                             </div>
                         </div>
+
+                        <div class="md:col-span-2">
+                            <label class="block text-xs font-bold text-slate-500 uppercase mb-2">题目标题</label>
+                            <input type="text" id="question-title" class="w-full px-4 py-2.5 rounded-lg border border-slate-200 text-sm focus:border-brand-500 focus:ring-1 focus:ring-brand-500 outline-none transition" placeholder="例如：1.程序输出判断">
+                        </div>
                     </div>
                 </div>
 
@@ -195,7 +239,7 @@
                     </div>
                 </div>
 
-                <div class="bg-white rounded-xl shadow-card border border-slate-100 p-6">
+                <div class="bg-white rounded-xl shadow-card border border-slate-100 p-6" id="options-card">
                     <div class="flex justify-between items-center mb-6">
                         <h2 class="text-sm font-bold text-slate-900 border-l-4 border-brand-500 pl-3">选项设置</h2>
                         <span class="text-xs text-slate-400"><i class="fa-solid fa-circle-info mr-1"></i>勾选左侧圆圈设置为正确答案</span>
@@ -261,6 +305,33 @@
                     </div>
                 </div>
 
+                <div class="bg-white rounded-xl shadow-card border border-slate-100 p-6" id="reference-answer-card" style="display:none;">
+                    <h2 class="text-sm font-bold text-slate-900 border-l-4 border-brand-500 pl-3 mb-4">参考答案</h2>
+                    <div class="space-y-4">
+                        <div>
+                            <label class="block text-xs font-bold text-slate-500 uppercase mb-2">参考答案文件</label>
+                            <div class="border-2 border-dashed border-slate-300 rounded-lg p-6 text-center hover:border-brand-400 transition cursor-pointer" id="upload-zone" onclick="document.getElementById('ref-answer-file').click()">
+                                <input type="file" id="ref-answer-file" accept=".py,.java,.cpp,.js,.c,.go,.ts" class="hidden" onchange="onFileSelected(event)">
+                                <i class="fa-solid fa-cloud-arrow-up text-3xl text-slate-300 mb-2 block"></i>
+                                <p class="text-sm text-slate-500 mb-1">点击或拖拽上传参考答案</p>
+                                <p class="text-xs text-slate-400">支持 .py / .java / .cpp / .js / .c / .go / .ts</p>
+                                <div id="file-info" class="mt-3 hidden">
+                                    <span class="inline-flex items-center gap-2 bg-green-50 text-green-700 text-xs font-medium px-3 py-1.5 rounded-lg">
+                                        <i class="fa-solid fa-file-code"></i>
+                                        <span id="file-name"></span>
+                                        <span class="text-green-400">|</span>
+                                        <span id="file-size"></span>
+                                    </span>
+                                </div>
+                            </div>
+                        </div>
+                        <div>
+                            <label class="block text-xs font-bold text-slate-500 uppercase mb-2">参考答案预览（报告中将展示前 5 行）</label>
+                            <pre class="bg-slate-800 text-slate-200 p-4 rounded-lg text-xs font-mono overflow-x-auto max-h-40" id="ref-answer-preview">上传文件后将在此显示前 5 行内容</pre>
+                        </div>
+                    </div>
+                </div>
+
                 <div class="bg-white rounded-xl shadow-card border border-slate-100 p-6">
                     <h2 class="text-sm font-bold text-slate-900 border-l-4 border-brand-500 pl-3 mb-4">答案解析</h2>
                     
@@ -282,8 +353,43 @@
 
     <script>
         const typeSelect = document.getElementById('question-type-select');
-        // 这里仅做演示：实际开发中需根据 value 隐藏/显示 #options-container
-        // 比如选了“实操题”，则隐藏选项卡片，显示“参考代码”卡片
+        
+        // 题目类型切换：实操编程题显示参考答案卡片，其他题型显示选项卡片
+        function onTypeChange() {
+            const isCode = typeSelect.value === 'code';
+            document.getElementById('options-card').style.display = isCode ? 'none' : 'block';
+            document.getElementById('reference-answer-card').style.display = isCode ? 'block' : 'none';
+        }
+        typeSelect.addEventListener('change', onTypeChange);
+        onTypeChange();
+
+        // 所属题库切换：勾选AISE题库时显示级别选择
+        function on题库Change() {
+            const aiseChecked = document.querySelector('.题库-checkbox[value="aise"]').checked;
+            document.getElementById('aise-level-section').style.display = aiseChecked ? 'block' : 'none';
+        }
+
+        // 参考答案文件上传
+        function onFileSelected(event) {
+            const file = event.target.files[0];
+            if (!file) return;
+            document.getElementById('file-name').textContent = file.name;
+            document.getElementById('file-size').textContent = formatFileSize(file.size);
+            document.getElementById('file-info').classList.remove('hidden');
+            
+            const reader = new FileReader();
+            reader.onload = function(e) {
+                const lines = e.target.result.split('\n').slice(0, 5);
+                document.getElementById('ref-answer-preview').textContent = lines.join('\n') + (lines.length >= 5 ? '\n...' : '');
+            };
+            reader.readAsText(file);
+        }
+
+        function formatFileSize(bytes) {
+            if (bytes < 1024) return bytes + ' B';
+            if (bytes < 1024 * 1024) return (bytes / 1024).toFixed(1) + ' KB';
+            return (bytes / (1024 * 1024)).toFixed(1) + ' MB';
+        }
     </script>
 </body>
 </html>

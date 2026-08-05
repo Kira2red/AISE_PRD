@@ -116,7 +116,7 @@
             <div class="bg-white rounded-xl shadow-card border border-slate-100 p-4 flex flex-wrap gap-4 items-center">
                 <div class="relative w-64">
                     <i class="fa-solid fa-magnifying-glass absolute left-3 top-1/2 transform -translate-y-1/2 text-slate-400 text-sm"></i>
-                    <input type="text" placeholder="搜索题干关键词..." class="w-full pl-9 pr-4 py-2 rounded-lg border border-slate-200 text-sm focus:border-brand-500 focus:ring-1 focus:ring-brand-500 outline-none transition">
+                    <input type="text" placeholder="搜索标题或题干关键词..." class="w-full pl-9 pr-4 py-2 rounded-lg border border-slate-200 text-sm focus:border-brand-500 focus:ring-1 focus:ring-brand-500 outline-none transition">
                 </div>
                 
                 <select class="px-3 py-2 rounded-lg border border-slate-200 text-sm text-slate-600 focus:border-brand-500 outline-none bg-white cursor-pointer hover:border-slate-300">
@@ -127,6 +127,25 @@
                 <select class="px-3 py-2 rounded-lg border border-slate-200 text-sm text-slate-600 focus:border-brand-500 outline-none bg-white cursor-pointer hover:border-slate-300">
                     <option value="">全部题型</option>
                     <option value="single">单选题</option>
+                </select>
+
+                <select class="px-3 py-2 rounded-lg border border-slate-200 text-sm text-slate-600 focus:border-brand-500 outline-none bg-white cursor-pointer hover:border-slate-300">
+                    <option value="">全部题库</option>
+                    <option value="default">默认题库</option>
+                    <option value="my">我的题库</option>
+                    <option value="aise">AISE 题库</option>
+                </select>
+
+                <select class="px-3 py-2 rounded-lg border border-slate-200 text-sm text-slate-600 focus:border-brand-500 outline-none bg-white cursor-pointer hover:border-slate-300">
+                    <option value="">全部级别</option>
+                    <option value="1">一级</option>
+                    <option value="2">二级</option>
+                    <option value="3">三级</option>
+                    <option value="4">四级</option>
+                    <option value="5">五级</option>
+                    <option value="6">六级</option>
+                    <option value="7">七级</option>
+                    <option value="8">八级</option>
                 </select>
 
                 <div class="w-px h-6 bg-slate-200 mx-2"></div>
@@ -159,7 +178,8 @@
                     <div class="flex-1 min-w-0">
                         <div class="flex items-center gap-3 mb-3">
                             <span class="bg-blue-50 text-brand-600 text-xs font-bold px-2 py-0.5 rounded border border-blue-100">单选题</span>
-                            <span class="text-xs text-slate-400">ID: 10086</span>
+                            <span class="text-xs text-slate-400">DF-10086</span>
+                            <span class="bg-slate-100 text-slate-500 text-[10px] font-medium px-1.5 py-0.5 rounded ml-2">默认</span>
                             <span class="text-xs text-slate-400 ml-auto">创建时间: 2025-05-20</span>
                         </div>
                         
@@ -191,7 +211,8 @@
                     <div class="flex-1 min-w-0">
                         <div class="flex items-center gap-3 mb-3">
                             <span class="bg-purple-50 text-purple-600 text-xs font-bold px-2 py-0.5 rounded border border-purple-100">多选题</span>
-                            <span class="text-xs text-slate-400">ID: 10087</span>
+                            <span class="text-xs text-slate-400">A3-0087</span>
+                            <span class="bg-amber-50 text-amber-700 text-[10px] font-medium px-1.5 py-0.5 rounded ml-2">AISE·三级</span>
                         </div>
                         <div class="text-sm text-slate-800 font-medium mb-4 leading-relaxed">
                             <p>下列关于人工智能的说法中，正确的有哪些？</p>
@@ -216,7 +237,8 @@
                     <div class="flex-1 min-w-0">
                         <div class="flex items-center gap-3 mb-3">
                             <span class="bg-indigo-50 text-indigo-600 text-xs font-bold px-2 py-0.5 rounded border border-indigo-100">实操题</span>
-                            <span class="text-xs text-slate-400">ID: 10099</span>
+                            <span class="text-xs text-slate-400">MY-1001-10099</span>
+                            <span class="bg-blue-50 text-blue-600 text-[10px] font-medium px-1.5 py-0.5 rounded ml-2">我的</span>
                         </div>
                         <div class="text-sm text-slate-800 font-medium mb-4 leading-relaxed">
                             <p>请编写一个 Python 程序，实现斐波那契数列的前 20 项输出。</p>

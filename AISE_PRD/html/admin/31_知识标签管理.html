@@ -1,0 +1,576 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>知识标签管理 - AISE 后台</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <script>
+        tailwind.config = {
+            theme: {
+                extend: {
+                    fontFamily: { sans: ['Inter', 'sans-serif'] },
+                    colors: { brand: { 50: '#eff6ff', 100: '#dbeafe', 500: '#3b82f6', 600: '#2563eb', 700: '#1d4ed8' } },
+                    boxShadow: { 'card': '0 1px 3px 0 rgba(0, 0, 0, 0.1), 0 1px 2px 0 rgba(0, 0, 0, 0.06)' }
+                }
+            }
+        }
+    </script>
+    <style>
+        body { background-color: #F8FAFC; }
+        .nav-item.active::before { content: ''; position: absolute; left: 0; top: 50%; transform: translateY(-50%); width: 4px; height: 24px; background-color: #3b82f6; border-radius: 0 4px 4px 0; }
+        .tree-item { cursor: pointer; user-select: none; transition: background 0.15s; }
+        .tree-item:hover { background: #f8fafc; }
+        .tree-item.selected { background: #eff6ff; color: #2563eb; font-weight: 600; }
+        .tree-item.selected::before { content: ''; position: absolute; left: 0; top: 0; bottom: 0; width: 3px; background: #3b82f6; border-radius: 0 2px 2px 0; }
+        .modal-enter { animation: modalIn 0.2s ease-out forwards; }
+        @keyframes modalIn { from { opacity: 0; transform: scale(0.95); } to { opacity: 1; transform: scale(1); } }
+        .tag-chip { display: inline-flex; align-items: center; gap: 4px; padding: 2px 10px; border-radius: 12px; font-size: 12px; background: #eff6ff; color: #3b82f6; border: 1px solid #bfdbfe; }
+    </style>
+</head>
+<body class="flex h-screen overflow-hidden text-slate-800 font-sans">
+
+    <!-- Sidebar -->
+    <aside class="w-64 bg-white border-r border-slate-200 flex flex-col flex-shrink-0 z-20">
+        <div class="h-16 flex items-center px-6 border-b border-slate-100">
+            <div class="w-8 h-8 bg-gradient-to-br from-brand-600 to-indigo-600 rounded-lg flex items-center justify-center text-white font-bold text-lg mr-3 shadow-sm">A</div>
+            <span class="font-bold text-lg text-slate-800 tracking-tight">AISE Admin</span>
+        </div>
+        <nav class="flex-1 overflow-y-auto py-4 space-y-1">
+            <a href="#" class="nav-item flex items-center gap-3 px-6 py-3 text-slate-500 hover:bg-slate-50 hover:text-brand-600 transition relative"><i class="fa-solid fa-layer-group w-5 text-center"></i><span class="font-medium text-sm">题库管理</span></a>
+            <a href="#" class="nav-item flex items-center gap-3 px-6 py-3 text-slate-500 hover:bg-slate-50 hover:text-brand-600 transition relative"><i class="fa-solid fa-file-lines w-5 text-center"></i><span class="font-medium text-sm">试卷管理</span></a>
+            <a href="#" class="nav-item flex items-center gap-3 px-6 py-3 text-slate-500 hover:bg-slate-50 hover:text-brand-600 transition relative"><i class="fa-solid fa-graduation-cap w-5 text-center"></i><span class="font-medium text-sm">测评管理</span></a>
+            <a href="#" class="nav-item flex items-center gap-3 px-6 py-3 text-slate-500 hover:bg-slate-50 hover:text-brand-600 transition relative"><i class="fa-solid fa-tags w-5 text-center"></i><span class="font-medium text-sm">标签配置</span></a>
+            <a href="#" class="nav-item active flex items-center gap-3 px-6 py-3 text-brand-600 bg-brand-50 transition relative"><i class="fa-solid fa-brain w-5 text-center"></i><span class="font-medium text-sm">知识标签</span></a>
+            <a href="#" class="nav-item flex items-center gap-3 px-6 py-3 text-slate-500 hover:bg-slate-50 hover:text-brand-600 transition relative"><i class="fa-solid fa-grid-2 w-5 text-center"></i><span class="font-medium text-sm">测评组管理</span></a>
+            <div class="px-6 py-2 mt-4 text-xs font-bold text-slate-400 uppercase tracking-wider">证书管理</div>
+            <a href="#" class="nav-item flex items-center gap-3 px-6 py-3 text-slate-500 hover:bg-slate-50 hover:text-brand-600 transition relative"><i class="fa-solid fa-certificate w-5 text-center"></i><span class="font-medium text-sm">活动证书管理</span></a>
+            <a href="#" class="nav-item flex items-center gap-3 px-6 py-3 text-slate-500 hover:bg-slate-50 hover:text-brand-600 transition relative"><i class="fa-solid fa-user-graduate w-5 text-center"></i><span class="font-medium text-sm">学生证书管理</span></a>
+            <div class="px-6 py-2 mt-4 text-xs font-bold text-slate-400 uppercase tracking-wider">考务与用户</div>
+            <a href="#" class="nav-item flex items-center gap-3 px-6 py-3 text-slate-500 hover:bg-slate-50 hover:text-brand-600 transition relative"><i class="fa-solid fa-users w-5 text-center"></i><span class="font-medium text-sm">考生管理</span></a>
+        </nav>
+    </aside>
+
+    <!-- Main -->
+    <main class="flex-1 flex flex-col min-w-0 bg-slate-50/50 relative">
+        <header class="h-16 bg-white border-b border-slate-200 flex items-center justify-between px-8 flex-shrink-0 z-10">
+            <h1 class="text-xl font-bold text-slate-800">知识标签管理</h1>
+            <div class="flex items-center gap-3">
+                <button onclick="openModal('level')" class="text-xs flex items-center gap-1 text-brand-600 hover:text-brand-700 font-medium bg-brand-50 px-3 py-1.5 rounded-lg hover:bg-brand-100 transition">
+                    <i class="fa-solid fa-plus"></i> 新增级别
+                </button>
+                <span class="text-xs text-slate-400">|</span>
+                <button onclick="openModal('module')" class="text-xs flex items-center gap-1 text-brand-600 hover:text-brand-700 font-medium bg-brand-50 px-3 py-1.5 rounded-lg hover:bg-brand-100 transition">
+                    <i class="fa-solid fa-plus"></i> 新增模块
+                </button>
+            </div>
+        </header>
+
+        <div class="flex flex-1 overflow-hidden">
+            <!-- Left Panel: Tree -->
+            <div class="w-80 bg-white border-r border-slate-200 flex flex-col flex-shrink-0">
+                <div class="p-4 border-b border-slate-100">
+                    <input type="text" placeholder="搜索级别、模块或知识点..." class="w-full text-xs px-3 py-2 rounded-lg border border-slate-200 focus:border-brand-500 focus:ring-1 focus:ring-brand-100 outline-none bg-slate-50" oninput="filterTree(this.value)">
+                </div>
+                <div class="flex-1 overflow-y-auto p-2" id="tree-container">
+                    <!-- JS rendered -->
+                </div>
+            </div>
+
+            <!-- Right Panel: Tags Table -->
+            <div class="flex-1 flex flex-col bg-slate-50/30 overflow-hidden">
+                <div class="px-8 py-4 border-b border-slate-200 bg-white flex justify-between items-center" id="detail-header">
+                    <div class="flex items-center gap-3">
+                        <div class="w-8 h-8 rounded-lg bg-brand-50 flex items-center justify-center text-brand-600"><i class="fa-solid fa-tags"></i></div>
+                        <div>
+                            <p class="font-bold text-sm text-slate-800" id="detail-title">请从左侧选择一个知识点</p>
+                            <p class="text-xs text-slate-400" id="detail-sub"></p>
+                        </div>
+                    </div>
+                    <button onclick="openModal('tag')" id="btn-add-tag" class="text-xs flex items-center gap-1 text-white bg-brand-600 hover:bg-brand-700 px-3 py-2 rounded-lg font-medium transition shadow-sm hidden">
+                        <i class="fa-solid fa-plus"></i> 新增三级标签
+                    </button>
+                </div>
+                <div class="flex-1 overflow-y-auto p-8" id="tag-table-container">
+                    <div class="text-center text-slate-400 py-20">
+                        <i class="fa-solid fa-hand-pointer text-4xl mb-4 block opacity-50"></i>
+                        <p class="text-sm">在左侧树形结构中点击一个「二级知识点」</p>
+                        <p class="text-xs mt-1">即可查看和管理关联的三级标签</p>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </main>
+
+    <!-- ====== Modal: Add/Edit ====== -->
+    <div id="modal-overlay" class="fixed inset-0 z-50 hidden flex items-center justify-center bg-slate-900/50 backdrop-blur-sm">
+        <div class="bg-white rounded-2xl shadow-xl w-[480px] p-6 modal-enter" id="modal-box">
+            <div class="flex justify-between items-center mb-5">
+                <h3 class="text-lg font-bold text-slate-800" id="modal-title">新增级别</h3>
+                <button onclick="closeModal()" class="w-8 h-8 rounded-lg hover:bg-slate-100 flex items-center justify-center text-slate-400 hover:text-slate-600 transition"><i class="fa-solid fa-xmark"></i></button>
+            </div>
+            <form onsubmit="event.preventDefault(); handleSubmit();">
+                <div class="space-y-4" id="modal-fields">
+                    <!-- dynamic -->
+                </div>
+                <div class="flex justify-end gap-3 mt-6 pt-4 border-t border-slate-100">
+                    <button type="button" onclick="closeModal()" class="px-4 py-2 text-sm font-medium text-slate-600 bg-slate-100 hover:bg-slate-200 rounded-lg transition">取消</button>
+                    <button type="submit" class="px-4 py-2 text-sm font-medium text-white bg-brand-600 hover:bg-brand-700 rounded-lg shadow-sm transition">确认</button>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <!-- Delete Confirm Modal -->
+    <div id="confirm-overlay" class="fixed inset-0 z-50 hidden flex items-center justify-center bg-slate-900/50 backdrop-blur-sm">
+        <div class="bg-white rounded-2xl shadow-xl w-[400px] p-6 modal-enter">
+            <div class="text-center">
+                <div class="w-12 h-12 mx-auto mb-4 rounded-full bg-red-50 flex items-center justify-center"><i class="fa-solid fa-triangle-exclamation text-red-500 text-xl"></i></div>
+                <h3 class="text-lg font-bold text-slate-800 mb-2">确认删除</h3>
+                <p class="text-sm text-slate-500 mb-2" id="confirm-msg">确定要删除此项吗？</p>
+                <p class="text-xs text-red-500" id="confirm-warn"></p>
+            </div>
+            <div class="flex justify-center gap-3 mt-6">
+                <button onclick="closeConfirm()" class="px-6 py-2 text-sm font-medium text-slate-600 bg-slate-100 hover:bg-slate-200 rounded-lg transition">取消</button>
+                <button onclick="confirmDelete()" class="px-6 py-2 text-sm font-medium text-white bg-red-500 hover:bg-red-600 rounded-lg transition">删除</button>
+            </div>
+        </div>
+    </div>
+
+<script>
+// ============ Data Store ============
+const DATA = {
+    levels: [
+        {
+            id: 'l1', name: '程序设计一级', modules: [
+                {
+                    id: 'm1-1', name: '基础操作', points: [
+                        { id: 'p1-1-1', name: '鼠标点击', tags: ['单击', '双击'] },
+                        { id: 'p1-1-2', name: '界面认识', tags: ['工具栏', '画布'] },
+                    ]
+                },
+                {
+                    id: 'm1-2', name: '顺序执行', points: [
+                        { id: 'p1-2-1', name: '移动积木', tags: ['向前移动', '转向'] },
+                    ]
+                }
+            ]
+        },
+        {
+            id: 'l4', name: '程序设计四级', modules: [
+                {
+                    id: 'm4-1', name: 'Python运算', points: [
+                        { id: 'p4-1-1', name: '比较运算', tags: ['>', '<', '=='] },
+                        { id: 'p4-1-2', name: '布尔值', tags: ['True', 'False'] },
+                        { id: 'p4-1-3', name: '算术运算', tags: ['+', '-'] },
+                    ]
+                },
+                {
+                    id: 'm4-2', name: '流程控制', points: [
+                        { id: 'p4-2-1', name: '条件分支', tags: ['单分支if', '双分支if...else...'] },
+                        { id: 'p4-2-2', name: '循环', tags: ['while循环'] },
+                        { id: 'p4-2-3', name: 'IPO编程', tags: ['IPO编程'] },
+                    ]
+                },
+                {
+                    id: 'm4-3', name: '编程基础', points: [
+                        { id: 'p4-3-1', name: '变量', tags: ['变量命名规则', '变量赋值'] },
+                        { id: 'p4-3-2', name: '数据类型转换', tags: ['int()'] },
+                        { id: 'p4-3-3', name: '数据类型', tags: ['整数', '字符串'] },
+                        { id: 'p4-3-4', name: 'input()语句', tags: ['input()语句'] },
+                        { id: 'p4-3-5', name: 'print()语句', tags: ['print()输出字符串', 'print()输出算式', 'print()输出数字'] },
+                    ]
+                },
+                {
+                    id: 'm4-4', name: '常用标准库', points: [
+                        { id: 'p4-4-1', name: '模块导入', tags: ['random'] },
+                    ]
+                }
+            ]
+        },
+        {
+            id: 'l7', name: '程序设计七级', modules: [
+                {
+                    id: 'm7-1', name: '算法与数据结构', points: [
+                        { id: 'p7-1-1', name: '排序算法', tags: ['冒泡排序', '选择排序'] },
+                        { id: 'p7-1-2', name: '查找算法', tags: ['二分查找'] },
+                    ]
+                }
+            ]
+        }
+    ]
+};
+
+let selectedPointId = null;
+let modalContext = { type: '', levelId: '', moduleId: '', pointId: '', tagName: '' };
+let deleteTarget = null;
+
+// ============ Tree Rendering ============
+function renderTree(filter = '') {
+    const container = document.getElementById('tree-container');
+    let html = '';
+
+    DATA.levels.forEach(level => {
+        const lvMatch = !filter || level.name.includes(filter) || level.modules.some(m => m.name.includes(filter) || m.points.some(p => p.name.includes(filter) || p.tags.some(t => t.includes(filter))));
+        if (filter && !lvMatch) return;
+
+        html += '<div class="mb-2">';
+        // Level row
+        html += '<div class="tree-item flex items-center gap-2 px-3 py-2 rounded-lg text-sm font-semibold text-slate-700 relative" onclick="toggleLevel(this)" data-level-id="' + level.id + '">';
+        html += '<i class="fa-solid fa-chevron-down text-xs text-slate-400 transition-transform w-4 text-center level-arrow"></i>';
+        html += '<i class="fa-solid fa-layer-group text-brand-500 text-xs w-4 text-center"></i>';
+        html += '<span>' + escapeHtml(level.name) + '</span>';
+        html += '<span class="ml-auto text-xs text-slate-400">' + level.modules.length + '模块</span>';
+        html += '<button onclick="event.stopPropagation(); openModal(\'module\', \'' + level.id + '\')" class="ml-1 w-6 h-6 rounded flex items-center justify-center hover:bg-brand-50 text-slate-400 hover:text-brand-600 transition"><i class="fa-solid fa-plus text-[10px]"></i></button>';
+        html += '</div>';
+
+        // Modules
+        html += '<div class="ml-4 level-children" data-level="' + level.id + '">';
+        level.modules.forEach(mod => {
+            const modMatch = !filter || mod.name.includes(filter) || mod.points.some(p => p.name.includes(filter) || p.tags.some(t => t.includes(filter)));
+            if (filter && !modMatch) return;
+
+            html += '<div class="tree-item flex items-center gap-2 px-3 py-2 rounded-lg text-sm text-slate-600 relative" onclick="toggleModule(this)" data-module-id="' + mod.id + '" data-level-id="' + level.id + '">';
+            html += '<i class="fa-solid fa-chevron-right text-xs text-slate-400 transition-transform w-4 text-center module-arrow"></i>';
+            html += '<i class="fa-regular fa-folder text-amber-500 text-xs w-4 text-center"></i>';
+            html += '<span>' + escapeHtml(mod.name) + '</span>';
+            html += '<span class="ml-auto text-xs text-slate-400">' + mod.points.length + '知识点</span>';
+            html += '<button onclick="event.stopPropagation(); openModal(\'point\', \'' + level.id + '\', \'' + mod.id + '\')" class="ml-1 w-6 h-6 rounded flex items-center justify-center hover:bg-brand-50 text-slate-400 hover:text-brand-600 transition"><i class="fa-solid fa-plus text-[10px]"></i></button>';
+            html += '</div>';
+
+            // Points
+            html += '<div class="ml-6 module-children hidden" data-module="' + mod.id + '">';
+            mod.points.forEach(pt => {
+                const ptMatch = !filter || pt.name.includes(filter) || pt.tags.some(t => t.includes(filter));
+                if (filter && !ptMatch) return;
+
+                const isSelected = selectedPointId === pt.id;
+                html += '<div class="tree-item flex items-center gap-2 px-3 py-1.5 rounded-lg text-sm relative ' + (isSelected ? 'selected' : 'text-slate-500') + '" onclick="selectPoint(\'' + pt.id + '\', \'' + level.id + '\', \'' + mod.id + '\')">';
+                html += '<i class="fa-solid fa-circle text-[6px] w-4 text-center ' + (isSelected ? 'text-brand-500' : 'text-slate-300') + '"></i>';
+                html += '<span>' + escapeHtml(pt.name) + '</span>';
+                html += '<span class="ml-auto text-xs text-slate-400">' + pt.tags.length + '标签</span>';
+                html += '</div>';
+            });
+            html += '</div>';
+        });
+        html += '</div></div>';
+    });
+
+    if (!html) {
+        html = '<div class="text-center text-slate-400 py-10 text-sm">无匹配结果</div>';
+    }
+    container.innerHTML = html;
+}
+
+// ============ Tree Interactions ============
+function toggleLevel(el) {
+    const arrow = el.querySelector('.level-arrow');
+    const children = el.nextElementSibling;
+    if (children && children.classList.contains('level-children')) {
+        const hidden = children.classList.toggle('hidden');
+        arrow.classList.toggle('fa-chevron-down', !hidden);
+        arrow.classList.toggle('fa-chevron-right', hidden);
+    }
+}
+
+function toggleModule(el) {
+    const arrow = el.querySelector('.module-arrow');
+    const children = el.nextElementSibling;
+    if (children && children.classList.contains('module-children')) {
+        const hidden = children.classList.toggle('hidden');
+        arrow.classList.toggle('fa-chevron-right', hidden);
+        arrow.classList.toggle('fa-chevron-down', !hidden);
+    }
+}
+
+function selectPoint(pointId, levelId, moduleId) {
+    selectedPointId = pointId;
+
+    // Update tree selection
+    document.querySelectorAll('.tree-item').forEach(el => el.classList.remove('selected'));
+    const el = document.querySelector('[onclick*="' + pointId + '"]');
+    if (el) el.classList.add('selected');
+
+    // Render tag table
+    const level = DATA.levels.find(l => l.id === levelId);
+    const module = level?.modules.find(m => m.id === moduleId);
+    const point = module?.points.find(p => p.id === pointId);
+
+    if (point) {
+        document.getElementById('detail-title').textContent = point.name;
+        document.getElementById('detail-sub').textContent = level.name + ' > ' + module.name;
+        document.getElementById('btn-add-tag').classList.remove('hidden');
+        renderTagTable(point, levelId, moduleId);
+    }
+}
+
+function renderTagTable(point, levelId, moduleId) {
+    const container = document.getElementById('tag-table-container');
+    if (!point.tags.length) {
+        container.innerHTML = '<div class="text-center text-slate-400 py-20"><p class="text-sm">暂无三级标签</p><p class="text-xs mt-1">点击右上角「新增三级标签」添加</p></div>';
+        return;
+    }
+
+    let html = '<div class="bg-white rounded-xl shadow-card border border-slate-200 overflow-hidden"><table class="w-full text-left border-collapse">';
+    html += '<thead><tr class="border-b border-slate-100 bg-slate-50 text-xs uppercase text-slate-500 font-bold">';
+    html += '<th class="p-4 pl-6 w-16">#</th><th class="p-4">标签名称</th><th class="p-4">预览样式</th><th class="p-4 text-right pr-6">操作</th></tr></thead>';
+    html += '<tbody class="text-sm text-slate-700 divide-y divide-slate-100">';
+
+    point.tags.forEach((tag, i) => {
+        html += '<tr class="hover:bg-slate-50">';
+        html += '<td class="p-4 pl-6 text-slate-400">' + (i + 1) + '</td>';
+        html += '<td class="p-4 font-medium">' + escapeHtml(tag) + '</td>';
+        html += '<td class="p-4"><span class="tag-chip">' + escapeHtml(tag) + '</span></td>';
+        html += '<td class="p-4 text-right pr-6">';
+        html += '<button onclick="openModal(\'tag\', \'' + levelId + '\', \'' + moduleId + '\', \'' + point.id + '\', \'' + escapeAttr(tag) + '\')" class="text-xs text-brand-600 hover:text-brand-700 font-medium mr-3">编辑</button>';
+        html += '<button onclick="openDeleteConfirm(\'tag\', \'' + levelId + '\', \'' + moduleId + '\', \'' + point.id + '\', \'' + escapeAttr(tag) + '\')" class="text-xs text-red-400 hover:text-red-600 font-medium">删除</button>';
+        html += '</td></tr>';
+    });
+
+    html += '</tbody></table></div>';
+    container.innerHTML = html;
+}
+
+// ============ Modal ============
+function openModal(type, levelId, moduleId, pointId, tagName) {
+    modalContext = { type, levelId: levelId || '', moduleId: moduleId || '', pointId: pointId || '', tagName: tagName || '' };
+    const overlay = document.getElementById('modal-overlay');
+    const title = document.getElementById('modal-title');
+    const fields = document.getElementById('modal-fields');
+    const isEdit = !!tagName;
+
+    const titles = { level: isEdit ? '编辑级别' : '新增级别', module: isEdit ? '编辑模块' : '新增模块', point: isEdit ? '编辑知识点' : '新增知识点', tag: isEdit ? '编辑三级标签' : '新增三级标签' };
+    title.textContent = titles[type] || '';
+
+    let fieldHtml = '';
+
+    if (type === 'level') {
+        fieldHtml = '<div><label class="block text-xs font-bold text-slate-500 mb-1.5">级别名称</label><input type="text" id="field-name" class="w-full px-3 py-2.5 rounded-lg border border-slate-200 focus:border-brand-500 outline-none text-sm" placeholder="如：程序设计四级" value=""></div>';
+    } else if (type === 'module') {
+        fieldHtml = '<div class="mb-4"><label class="block text-xs font-bold text-slate-500 mb-1.5">所属级别</label><select id="field-level" class="w-full px-3 py-2.5 rounded-lg border border-slate-200 focus:border-brand-500 outline-none text-sm">';
+        DATA.levels.forEach(l => { fieldHtml += '<option value="' + l.id + '"' + (l.id === levelId ? ' selected' : '') + '>' + l.name + '</option>'; });
+        fieldHtml += '</select></div>';
+        fieldHtml += '<div><label class="block text-xs font-bold text-slate-500 mb-1.5">模块名称</label><input type="text" id="field-name" class="w-full px-3 py-2.5 rounded-lg border border-slate-200 focus:border-brand-500 outline-none text-sm" placeholder="如：Python运算"></div>';
+    } else if (type === 'point') {
+        fieldHtml = '<div class="mb-4"><label class="block text-xs font-bold text-slate-500 mb-1.5">所属级别</label><select id="field-level" class="w-full px-3 py-2.5 rounded-lg border border-slate-200 focus:border-brand-500 outline-none text-sm">';
+        DATA.levels.forEach(l => { fieldHtml += '<option value="' + l.id + '"' + (l.id === levelId ? ' selected' : '') + '>' + l.name + '</option>'; });
+        fieldHtml += '</select></div>';
+        fieldHtml += '<div class="mb-4"><label class="block text-xs font-bold text-slate-500 mb-1.5">所属模块</label><select id="field-module" class="w-full px-3 py-2.5 rounded-lg border border-slate-200 focus:border-brand-500 outline-none text-sm"></select></div>';
+        fieldHtml += '<div><label class="block text-xs font-bold text-slate-500 mb-1.5">知识点名称</label><input type="text" id="field-name" class="w-full px-3 py-2.5 rounded-lg border border-slate-200 focus:border-brand-500 outline-none text-sm" placeholder="如：比较运算"></div>';
+    } else if (type === 'tag') {
+        const pathInfo = getPathInfo(levelId, moduleId, pointId);
+        fieldHtml = '<div class="bg-slate-50 rounded-lg px-3 py-2 mb-4 text-xs text-slate-500">路径：' + pathInfo + '</div>';
+        fieldHtml += '<div><label class="block text-xs font-bold text-slate-500 mb-1.5">标签名称</label><input type="text" id="field-name" class="w-full px-3 py-2.5 rounded-lg border border-slate-200 focus:border-brand-500 outline-none text-sm" placeholder="如：冒泡排序" value="' + escapeAttr(tagName) + '"></div>';
+    }
+
+    fields.innerHTML = fieldHtml;
+    overlay.classList.remove('hidden');
+
+    // Populate module dropdown if point modal
+    if (type === 'point') {
+        setTimeout(() => {
+            updateModuleDropdown(levelId, moduleId);
+            const levelSelect = document.getElementById('field-level');
+            if (levelSelect) levelSelect.onchange = () => updateModuleDropdown(levelSelect.value);
+        }, 50);
+    }
+}
+
+function updateModuleDropdown(levelId, selectedModuleId) {
+    const sel = document.getElementById('field-module');
+    if (!sel) return;
+    sel.innerHTML = '';
+    const level = DATA.levels.find(l => l.id === levelId);
+    if (level) {
+        level.modules.forEach(m => {
+            sel.innerHTML += '<option value="' + m.id + '"' + (m.id === selectedModuleId ? ' selected' : '') + '>' + m.name + '</option>';
+        });
+    }
+}
+
+function getPathInfo(levelId, moduleId, pointId) {
+    const level = DATA.levels.find(l => l.id === levelId);
+    const mod = level?.modules.find(m => m.id === moduleId);
+    const pt = mod?.points.find(p => p.id === pointId);
+    return [level?.name, mod?.name, pt?.name].filter(Boolean).join(' > ');
+}
+
+function closeModal() {
+    document.getElementById('modal-overlay').classList.add('hidden');
+}
+
+function handleSubmit() {
+    const { type, levelId, moduleId, pointId, tagName } = modalContext;
+    const nameEl = document.getElementById('field-name');
+    const name = nameEl?.value?.trim();
+    if (!name) return;
+
+    if (type === 'level') {
+        if (tagName) {
+            // Edit level name
+            const level = DATA.levels.find(l => l.id === levelId);
+            if (level) level.name = name;
+        } else {
+            // Add level
+            const id = 'l' + Date.now();
+            DATA.levels.push({ id, name, modules: [] });
+        }
+    } else if (type === 'module') {
+        const selLevelId = document.getElementById('field-level')?.value || levelId;
+        const level = DATA.levels.find(l => l.id === selLevelId);
+        if (level) {
+            if (tagName) {
+                const mod = level.modules.find(m => m.id === moduleId);
+                if (mod) mod.name = name;
+            } else {
+                const id = 'm' + Date.now();
+                level.modules.push({ id, name, points: [] });
+            }
+        }
+    } else if (type === 'point') {
+        const selLevelId = document.getElementById('field-level')?.value;
+        const selModuleId = document.getElementById('field-module')?.value;
+        const level = DATA.levels.find(l => l.id === selLevelId);
+        const mod = level?.modules.find(m => m.id === selModuleId);
+        if (mod) {
+            if (tagName) {
+                const pt = mod.points.find(p => p.id === pointId);
+                if (pt) pt.name = name;
+            } else {
+                const id = 'p' + Date.now();
+                mod.points.push({ id, name, tags: [] });
+            }
+        }
+    } else if (type === 'tag') {
+        if (!pointId) return;
+        const level = DATA.levels.find(l => l.id === levelId);
+        const mod = level?.modules.find(m => m.id === moduleId);
+        const pt = mod?.points.find(p => p.id === pointId);
+        if (pt) {
+            if (tagName) {
+                // Edit tag
+                const idx = pt.tags.indexOf(tagName);
+                if (idx >= 0) pt.tags[idx] = name;
+            } else {
+                // Add tag - check uniqueness across all points
+                if (isTagDuplicate(name)) {
+                    alert('标签名称「' + name + '」已存在于其他知识点下，请使用不同的名称。');
+                    return;
+                }
+                pt.tags.push(name);
+            }
+        }
+    }
+
+    closeModal();
+    renderTree();
+    if (selectedPointId) {
+        // Re-select and refresh table
+        const pt = findPointById(selectedPointId);
+        if (pt) {
+            renderTagTable(pt.point, pt.levelId, pt.moduleId);
+        } else {
+            // Point was deleted
+            selectedPointId = null;
+            resetDetailPanel();
+        }
+    }
+}
+
+function isTagDuplicate(name, excludePointId = '') {
+    for (const level of DATA.levels) {
+        for (const mod of level.modules) {
+            for (const pt of mod.points) {
+                if (pt.id === excludePointId) continue;
+                if (pt.tags.includes(name)) return true;
+            }
+        }
+    }
+    return false;
+}
+
+function findPointById(pointId) {
+    for (const level of DATA.levels) {
+        for (const mod of level.modules) {
+            for (const pt of mod.points) {
+                if (pt.id === pointId) return { point: pt, levelId: level.id, moduleId: mod.id };
+            }
+        }
+    }
+    return null;
+}
+
+function resetDetailPanel() {
+    document.getElementById('detail-title').textContent = '请从左侧选择一个知识点';
+    document.getElementById('detail-sub').textContent = '';
+    document.getElementById('btn-add-tag').classList.add('hidden');
+    document.getElementById('tag-table-container').innerHTML = '<div class="text-center text-slate-400 py-20"><i class="fa-solid fa-hand-pointer text-4xl mb-4 block opacity-50"></i><p class="text-sm">在左侧树形结构中点击一个「二级知识点」</p><p class="text-xs mt-1">即可查看和管理关联的三级标签</p></div>';
+}
+
+// ============ Delete ============
+function openDeleteConfirm(type, levelId, moduleId, pointId, tagName) {
+    deleteTarget = { type, levelId, moduleId, pointId, tagName };
+    const msgs = {
+        level:    { msg: '删除级别「' + (DATA.levels.find(l => l.id === levelId)?.name || '') + '」？', warn: '该级别下的所有模块、知识点和标签将被一并删除。' },
+        module:   { msg: '删除模块？', warn: '该模块下的所有知识点和标签将被一并删除。' },
+        point:    { msg: '删除知识点？', warn: '该知识点下的所有三级标签将被一并删除。' },
+        tag:      { msg: '删除标签「' + tagName + '」？', warn: '仅删除该标签，不影响其他数据。' },
+    };
+    const m = msgs[type] || { msg: '确认删除？', warn: '' };
+    document.getElementById('confirm-msg').textContent = m.msg;
+    document.getElementById('confirm-warn').textContent = m.warn;
+    document.getElementById('confirm-overlay').classList.remove('hidden');
+}
+
+function closeConfirm() {
+    document.getElementById('confirm-overlay').classList.add('hidden');
+    deleteTarget = null;
+}
+
+function confirmDelete() {
+    if (!deleteTarget) return;
+    const { type, levelId, moduleId, pointId, tagName } = deleteTarget;
+
+    if (type === 'level') {
+        DATA.levels = DATA.levels.filter(l => l.id !== levelId);
+        if (selectedPointId && findPointById(selectedPointId)) { /* still exists */ } else { selectedPointId = null; resetDetailPanel(); }
+    } else if (type === 'module') {
+        const level = DATA.levels.find(l => l.id === levelId);
+        if (level) level.modules = level.modules.filter(m => m.id !== moduleId);
+        if (selectedPointId && !findPointById(selectedPointId)) { selectedPointId = null; resetDetailPanel(); }
+    } else if (type === 'point') {
+        const level = DATA.levels.find(l => l.id === levelId);
+        const mod = level?.modules.find(m => m.id === moduleId);
+        if (mod) mod.points = mod.points.filter(p => p.id !== pointId);
+        if (selectedPointId === pointId) { selectedPointId = null; resetDetailPanel(); }
+    } else if (type === 'tag') {
+        const level = DATA.levels.find(l => l.id === levelId);
+        const mod = level?.modules.find(m => m.id === moduleId);
+        const pt = mod?.points.find(p => p.id === pointId);
+        if (pt) pt.tags = pt.tags.filter(t => t !== tagName);
+        if (selectedPointId === pointId) {
+            const refreshed = findPointById(pointId);
+            if (refreshed) renderTagTable(refreshed.point, levelId, moduleId);
+        }
+    }
+
+    closeConfirm();
+    renderTree();
+}
+
+// ============ Filter ============
+function filterTree(query) {
+    renderTree(query);
+}
+
+// ============ Utils ============
+function escapeHtml(s) { const d = document.createElement('div'); d.textContent = s; return d.innerHTML; }
+function escapeAttr(s) { return s.replace(/&/g, '&amp;').replace(/"/g, '&quot;').replace(/</g, '&lt;').replace(/>/g, '&gt;').replace(/'/g, '&#39;'); }
+
+// Init
+renderTree();
+</script>
+</body>
+</html>

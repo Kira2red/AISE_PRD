@@ -1,0 +1,159 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>微信支付 - AISE 测评报名</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <script>
+        tailwind.config = {
+            theme: {
+                extend: {
+                    fontFamily: { sans: ['Inter', 'sans-serif'] },
+                }
+            }
+        }
+    </script>
+    <style>
+        body { background-color: #F1F5F9; -webkit-font-smoothing: antialiased; }
+    </style>
+</head>
+<body class="min-h-screen flex items-center justify-center p-4">
+    <div class="w-full max-w-[480px] bg-white rounded-2xl shadow-lg border border-slate-100 overflow-hidden">
+
+        <!-- ===== 状态1: 订单摘要 + 支付按钮 ===== -->
+        <div id="view-pay" class="p-6 sm:p-8">
+            <div class="text-center mb-6">
+                <div class="w-12 h-12 rounded-full bg-[#09BB07]/10 text-[#09BB07] flex items-center justify-center mx-auto mb-3">
+                    <i class="fa-brands fa-weixin text-2xl"></i>
+                </div>
+                <h1 class="text-lg font-bold text-slate-900">确认支付</h1>
+            </div>
+
+            <!-- 订单摘要 -->
+            <div class="bg-slate-50 rounded-xl p-4 mb-6">
+                <div class="flex justify-between items-center pb-3 border-b border-slate-200 mb-3">
+                    <span class="text-sm text-slate-500">测评项目</span>
+                    <span class="text-sm font-medium text-slate-800">2025春季 Python 程序设计（一级）</span>
+                </div>
+                <div class="flex justify-between items-center pb-3 border-b border-slate-200 mb-3">
+                    <span class="text-sm text-slate-500">考生</span>
+                    <span class="text-sm font-medium text-slate-800">张三</span>
+                </div>
+                <div class="flex justify-between items-center pb-3 border-b border-slate-200 mb-3">
+                    <span class="text-sm text-slate-500">订单编号</span>
+                    <span class="text-sm font-medium text-slate-400 font-mono">2026••••8899</span>
+                </div>
+                <div class="flex justify-between items-center">
+                    <span class="text-sm text-slate-500">报名费用</span>
+                    <span class="text-lg font-bold text-slate-900">¥199.00</span>
+                </div>
+            </div>
+
+            <!-- 支付按钮 (Demo: 模拟JSAPI调起) -->
+            <button onclick="simulatePay()" id="btn-pay" class="w-full bg-[#09BB07] hover:bg-[#07a006] text-white py-3.5 rounded-xl font-semibold text-base transition flex items-center justify-center gap-2 shadow-md">
+                立即支付
+            </button>
+            <p class="text-center text-xs text-slate-300 mt-3">Demo 模式：模拟 JSAPI 支付调起</p>
+
+            <!-- 取消返回 -->
+            <div class="text-center mt-4">
+                <button onclick="showCancel()" class="text-sm text-slate-400 hover:text-slate-600 transition">取消支付</button>
+            </div>
+        </div>
+
+        <!-- ===== 状态2: 支付中 ===== -->
+        <div id="view-loading" class="p-6 sm:p-8 text-center hidden">
+            <div class="w-12 h-12 rounded-full bg-amber-50 text-amber-600 flex items-center justify-center mx-auto mb-4">
+                <svg class="animate-spin w-6 h-6" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
+                    <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle>
+                    <path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4z"></path>
+                </svg>
+            </div>
+            <p class="text-sm font-medium text-slate-700 mb-1">支付处理中...</p>
+            <p class="text-xs text-slate-400">请稍候，正在调起微信支付</p>
+        </div>
+
+        <!-- ===== 状态3: 支付成功 ===== -->
+        <div id="view-success" class="p-6 sm:p-8 text-center hidden">
+            <div class="w-14 h-14 rounded-full bg-green-50 text-green-600 flex items-center justify-center mx-auto mb-4">
+                <i class="fa-solid fa-circle-check text-3xl"></i>
+            </div>
+            <h2 class="text-xl font-bold text-slate-900 mb-1">支付成功</h2>
+            <p class="text-sm text-slate-500 mb-6">您已成功支付 <span class="font-semibold text-slate-800">¥199.00</span></p>
+
+            <div class="bg-slate-50 border border-slate-200 rounded-xl p-4 mb-4">
+                <p class="text-xs text-slate-400 mb-1">PC 端报名页面将自动跳转至报名成功页</p>
+                <p class="text-xs text-slate-300">后续通知将通过公众号发送</p>
+            </div>
+
+            <button onclick="closePage()" class="w-full bg-slate-900 text-white py-3 rounded-xl font-semibold text-base hover:bg-slate-800 transition">
+                完成
+            </button>
+        </div>
+
+        <!-- ===== 状态4: 支付失败 ===== -->
+        <div id="view-fail" class="p-6 sm:p-8 text-center hidden">
+            <div class="w-14 h-14 rounded-full bg-red-50 text-red-500 flex items-center justify-center mx-auto mb-4">
+                <i class="fa-solid fa-circle-exclamation text-3xl"></i>
+            </div>
+            <h2 class="text-xl font-bold text-slate-900 mb-1">支付失败</h2>
+            <p class="text-sm text-slate-500 mb-6">支付未完成，请重试</p>
+
+            <button onclick="retryPay()" class="w-full bg-[#09BB07] hover:bg-[#07a006] text-white py-3 rounded-xl font-semibold text-base transition mb-3 shadow-md">
+                <i class="fa-solid fa-rotate mr-1"></i>重新支付
+            </button>
+            <button onclick="closePage()" class="w-full bg-white border border-slate-200 text-slate-600 py-3 rounded-xl font-medium text-base hover:bg-slate-50 transition">
+                返回
+            </button>
+        </div>
+
+        <!-- ===== 状态5: 取消确认 ===== -->
+        <div id="view-cancel" class="p-6 sm:p-8 text-center hidden">
+            <div class="w-14 h-14 rounded-full bg-slate-100 text-slate-400 flex items-center justify-center mx-auto mb-4">
+                <i class="fa-solid fa-question text-3xl"></i>
+            </div>
+            <h2 class="text-xl font-bold text-slate-900 mb-2">确认取消支付？</h2>
+            <p class="text-sm text-slate-500 mb-6">取消后需从公众号消息重新进入支付</p>
+
+            <button onclick="closePage()" class="w-full bg-red-500 hover:bg-red-600 text-white py-3 rounded-xl font-semibold text-base transition mb-3">
+                确认取消
+            </button>
+            <button onclick="backToPay()" class="w-full bg-white border border-slate-200 text-slate-600 py-3 rounded-xl font-medium text-base hover:bg-slate-50 transition">
+                继续支付
+            </button>
+        </div>
+    </div>
+
+    <!-- PC 端提示（手机微信内隐藏） -->
+    <div class="hidden sm:block fixed bottom-0 left-0 right-0 p-4 text-center text-xs text-slate-300 bg-slate-50/80 backdrop-blur">
+        此页面实际在微信内打开，PC 端仅供 Demo 预览
+    </div>
+
+    <script>
+        function showView(id) {
+            ['view-pay', 'view-loading', 'view-success', 'view-fail', 'view-cancel'].forEach(v => {
+                document.getElementById(v).classList.add('hidden');
+            });
+            document.getElementById(id).classList.remove('hidden');
+        }
+
+        function simulatePay() {
+            showView('view-loading');
+            // Demo: 1.5 秒后支付成功
+            setTimeout(() => {
+                showView('view-success');
+            }, 1500);
+        }
+
+        function showCancel() { showView('view-cancel'); }
+        function backToPay() { showView('view-pay'); }
+        function retryPay() { simulatePay(); }
+        function closePage() {
+            alert('实际环境中将关闭微信 H5 页面，PC 端轮询检测到支付成功后自动跳转至报名成功页。');
+        }
+    </script>
+</body>
+</html>

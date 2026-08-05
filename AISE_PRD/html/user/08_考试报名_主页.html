@@ -265,31 +265,59 @@
                 </div>
 
                 <div id="step-content-4" class="p-6 sm:p-10 hidden">
-                    <div class="text-center mb-8">
+                    <div class="text-center mb-6">
                         <p class="text-slate-500 text-sm mb-2">需支付考试费用</p>
                         <h2 class="text-4xl font-bold text-slate-900">¥ 199.00</h2>
                     </div>
-                    <div class="grid grid-cols-1 sm:grid-cols-2 gap-4 mb-8 max-w-lg mx-auto">
-                        <div class="payment-card selected cursor-pointer rounded-xl border border-slate-200 p-4 flex items-center gap-4 transition-all" onclick="selectPayment(this)">
-                            <div class="w-10 h-10 rounded-full bg-[#09BB07] text-white flex items-center justify-center text-xl"><i class="fa-brands fa-weixin"></i></div>
-                            <div><p class="font-bold text-slate-800">微信支付</p><p class="text-xs text-slate-400">推荐使用</p></div>
-                            <div class="ml-auto text-brand-600 check-icon"><i class="fa-solid fa-circle-check"></i></div>
+
+                    <!-- 公众号二维码 + 三种状态区域 -->
+                    <div class="flex flex-col items-center justify-center mb-6">
+                        
+                        <!-- 状态1: 等待关注 — 展示公众号二维码 -->
+                        <div id="state-awaiting-follow" class="flex flex-col items-center">
+                            <div class="w-44 h-44 sm:w-48 sm:h-48 bg-white p-3 border border-slate-200 rounded-xl shadow-sm mb-3 relative">
+                                <canvas id="qr-canvas" class="w-full h-full" width="180" height="180"></canvas>
+                                <div id="qr-overlay" class="absolute inset-0 bg-white/80 rounded-xl flex items-center justify-center hidden">
+                                    <p class="text-xs text-slate-500">会话已过期</p>
+                                </div>
+                            </div>
                         </div>
-                        <div class="payment-card cursor-pointer rounded-xl border border-slate-200 p-4 flex items-center gap-4 transition-all hover:bg-slate-50" onclick="selectPayment(this)">
-                            <div class="w-10 h-10 rounded-full bg-[#1677FF] text-white flex items-center justify-center text-xl"><i class="fa-brands fa-alipay"></i></div>
-                            <div><p class="font-bold text-slate-800">支付宝</p><p class="text-xs text-slate-400">安全快捷</p></div>
-                            <div class="ml-auto text-slate-200 check-icon hidden"><i class="fa-solid fa-circle-check"></i></div>
+
+                        <!-- 状态2: 已关注 — 绿色对勾 -->
+                        <div id="state-following" class="hidden w-44 h-44 sm:w-48 sm:h-48 bg-blue-50 border-2 border-blue-200 rounded-xl shadow-sm mb-3 flex flex-col items-center justify-center">
+                            <i class="fa-solid fa-circle-check text-blue-500 text-4xl mb-2"></i>
+                            <p class="text-sm font-medium text-blue-700">已关注</p>
                         </div>
-                    </div>
-                    <div class="flex flex-col items-center justify-center mb-8">
-                        <div class="w-40 h-40 bg-white p-2 border border-slate-100 rounded-lg shadow-sm mb-3">
-                            <img src="https://api.qrserver.com/v1/create-qr-code/?size=150x150&data=PaymentDemo" alt="QR" class="w-full h-full opacity-80">
+
+                        <!-- 状态3: 支付成功 — 绿色对勾 -->
+                        <div id="state-paid" class="hidden w-44 h-44 sm:w-48 sm:h-48 bg-green-50 border-2 border-green-200 rounded-xl shadow-sm mb-3 flex flex-col items-center justify-center">
+                            <i class="fa-solid fa-circle-check text-green-500 text-4xl mb-2"></i>
+                            <p class="text-sm font-medium text-green-700">支付成功</p>
                         </div>
-                        <p class="text-xs text-slate-400">请使用手机扫码支付</p>
+
+                        <!-- 状态提示文字 -->
+                        <p class="text-lg font-bold text-slate-800 mb-1" id="status-text"><span class="inline-flex items-center gap-2 bg-[#F0FFF4] border-2 border-[#09BB07]/30 rounded-xl px-5 py-2.5 shadow-sm"><i class="fa-brands fa-weixin text-[#09BB07] text-2xl"></i>请使用<strong class="text-[#09BB07]">微信</strong>扫码关注公众号</span></p>
+                        <p class="text-xs text-slate-300" id="qr-timer"></p>
+                        <p class="text-xs" id="qr-expiry"><span class="text-slate-400">请在 </span><span class="font-mono text-slate-500" id="qr-expiry-time">15分00秒</span><span class="text-slate-400"> 内关注公众号并完成支付</span></p>
+                        
+                        <!-- 会话标识 -->
+                        <p class="text-xs text-slate-300 mt-1">本次支付关联会话：<span class="font-mono" id="session-id-display">--</span></p>
                     </div>
-                    <div class="flex justify-center pt-4">
-                        <button onclick="finishPayment()" class="w-full sm:w-auto bg-premium-gradient text-white px-12 py-3.5 rounded-xl font-semibold shadow-btn-premium hover:scale-105 transition">我已完成支付</button>
+
+                    <!-- 操作区 -->
+                    <div class="max-w-sm mx-auto" id="action-area">
+                        <button id="btn-cancel-payment" onclick="cancelPayment()" class="w-full bg-white border border-slate-200 text-slate-500 font-medium py-2.5 px-6 rounded-xl hover:bg-slate-50 hover:border-slate-300 transition active:scale-[0.98]">
+                            取消支付
+                        </button>
+                        <button onclick="refreshSession()" id="btn-refresh-session" class="hidden w-full bg-white border border-amber-300 text-amber-600 font-medium py-2.5 px-6 rounded-xl hover:bg-amber-50 transition active:scale-[0.98] mt-3">
+                            <i class="fa-solid fa-rotate mr-1"></i>重新获取
+                        </button>
+                        <button onclick="retryPolling()" id="btn-retry-polling" class="hidden w-full bg-white border border-amber-300 text-amber-600 font-medium py-2.5 px-6 rounded-xl hover:bg-amber-50 transition active:scale-[0.98] mt-3">
+                            <i class="fa-solid fa-rotate mr-1"></i>重新检测
+                        </button>
+                        <p id="netwarn-msg" class="hidden text-xs text-amber-500 text-center mt-2">网络连接异常，状态检测已暂停</p>
                     </div>
+
                 </div>
 
             </div>
@@ -383,6 +411,8 @@
             // 隐藏当前
             if(currentStep === 'room') document.getElementById('step-content-room').classList.add('hidden');
             else document.getElementById('step-content-'+currentStep).classList.add('hidden');
+            // 离开支付步骤时停止轮询
+            if (typeof currentStep === 'number' && currentStep === 4) stopPolling();
             
             // 更新步骤UI
             updateStepperUI(step);
@@ -396,6 +426,8 @@
                 document.getElementById('step-content-'+step).classList.remove('hidden');
             }
             currentStep = step;
+            // 进入支付步骤时自动启动二维码和轮询
+            if (step === 4) finishPayment();
             window.scrollTo({ top: 0, behavior: 'smooth' });
         }
 
@@ -665,18 +697,255 @@
         }
 
         function selectPayment(card) {
-            document.querySelectorAll('.payment-card').forEach(c => {
-                c.classList.remove('selected', 'bg-eff6ff', 'border-brand-600');
-                c.querySelector('.check-icon').classList.add('hidden', 'text-slate-200');
-                c.querySelector('.check-icon').classList.remove('text-brand-600');
-            });
-            card.classList.add('selected');
-            const icon = card.querySelector('.check-icon');
-            icon.classList.remove('hidden', 'text-slate-200');
-            icon.classList.add('text-brand-600');
+            // 仅微信支付，无需切换
         }
 
-        function finishPayment() { window.location.href = "registration-success.html"; }
+        // ===== 公众号二维码 + 三状态轮询 =====
+        let qrTimerId = null;
+        let pollingTimerId = null;
+        let qrSecondsLeft = 30;
+        let qrExpiryLeft = 900; // 15分钟
+        let qrExpiryTimerId = null;
+        let qrToken = '';        // 会话标识
+        let currentPaymentState = 'awaiting_follow'; // awaiting_follow | following | paid | expired
+        let pollFailCount = 0;
+        let refreshSessionCount = 0; // 重新获取次数上限
+
+        function generateToken() {
+            return 'AISE-SESS-' + Date.now().toString(36).toUpperCase() + '-' + Math.random().toString(36).substring(2, 8).toUpperCase();
+        }
+
+        function drawQR(token) {
+            const canvas = document.getElementById('qr-canvas');
+            if (!canvas) return;
+            const ctx = canvas.getContext('2d');
+            const size = canvas.width;
+            ctx.fillStyle = '#ffffff';
+            ctx.fillRect(0, 0, size, size);
+
+            const cellSize = 4;
+            const margin = 16;
+            const gridCols = Math.floor((size - margin * 2) / cellSize);
+            const gridRows = gridCols;
+
+            let hash = 0;
+            for (let i = 0; i < token.length; i++) {
+                hash = ((hash << 5) - hash) + token.charCodeAt(i);
+                hash |= 0;
+            }
+
+            const seed = Math.abs(hash);
+            function pseudoRandom(x, y) {
+                const v = (seed + x * 374761393 + y * 668265263) % 4294967296;
+                return (v & 0x7fffffff) / 0x7fffffff;
+            }
+
+            ctx.fillStyle = '#1e293b';
+            for (let row = 0; row < gridRows; row++) {
+                for (let col = 0; col < gridCols; col++) {
+                    const inFinder = (row < 7 && col < 7) || (row < 7 && col > gridCols - 8) || (row > gridRows - 8 && col < 7);
+                    if (inFinder) {
+                        const innerR = row % 7, innerC = col % 7;
+                        if (innerR === 0 || innerR === 6 || innerC === 0 || innerC === 6) {
+                            ctx.fillRect(margin + col * cellSize, margin + row * cellSize, cellSize, cellSize);
+                            continue;
+                        }
+                        if (innerR >= 2 && innerR <= 4 && innerC >= 2 && innerC <= 4) {
+                            ctx.fillRect(margin + col * cellSize, margin + row * cellSize, cellSize, cellSize);
+                            continue;
+                        }
+                    }
+                    const r = pseudoRandom(row, col);
+                    if (r > 0.52) {
+                        ctx.fillRect(margin + col * cellSize, margin + row * cellSize, cellSize, cellSize);
+                    }
+                }
+            }
+        }
+
+        // 显示指定状态
+        function setPaymentStateUI(state) {
+            document.getElementById('state-awaiting-follow').classList.toggle('hidden', state !== 'awaiting_follow');
+            document.getElementById('state-following').classList.toggle('hidden', state !== 'following');
+            document.getElementById('state-paid').classList.toggle('hidden', state !== 'paid');
+
+            switch(state) {
+                case 'awaiting_follow':
+                    document.getElementById('status-text').className = 'text-lg font-bold text-slate-800 mb-1';
+                    document.getElementById('status-text').innerHTML = '<span class="inline-flex items-center gap-2 bg-[#F0FFF4] border-2 border-[#09BB07]/30 rounded-xl px-5 py-2.5 shadow-sm"><i class="fa-brands fa-weixin text-[#09BB07] text-2xl"></i>请使用<strong class="text-[#09BB07]">微信</strong>扫码关注公众号</span>';
+                    break;
+                case 'following':
+                    document.getElementById('status-text').className = 'text-sm font-medium text-blue-600 mb-1 flex items-center justify-center gap-1';
+                    document.getElementById('status-text').innerHTML = '<i class="fa-solid fa-circle-check text-blue-500"></i>已关注公众号，请在微信内查收支付消息并完成支付';
+                    break;
+                case 'paid':
+                    document.getElementById('status-text').textContent = '';
+                    break;
+                case 'expired':
+                    document.getElementById('status-text').className = 'text-sm font-medium text-red-500 mb-1 flex items-center justify-center gap-1';
+                    document.getElementById('status-text').innerHTML = '<i class="fa-solid fa-circle-exclamation text-red-400"></i>支付会话已过期';
+                    break;
+            }
+        }
+
+        // 模拟服务端状态查询
+        function mockServerStatus(elapsedSeconds) {
+            if (elapsedSeconds >= 30) return 'paid';
+            if (elapsedSeconds >= 8) return 'following';
+            return 'awaiting_follow';
+        }
+
+        function startQRSession(token) {
+            qrToken = token;
+            qrSecondsLeft = 30;
+            currentPaymentState = 'awaiting_follow';
+            pollFailCount = 0;
+            document.getElementById('session-id-display').textContent = token;
+            drawQR(token);
+            
+            // 重置UI
+            document.getElementById('qr-overlay').classList.add('hidden');
+            document.getElementById('btn-refresh-session').classList.add('hidden');
+            document.getElementById('btn-retry-polling').classList.add('hidden');
+            document.getElementById('netwarn-msg').classList.add('hidden');
+            setPaymentStateUI('awaiting_follow');
+            document.getElementById('qr-timer').textContent = qrSecondsLeft + ' 秒后自动刷新';
+            document.getElementById('qr-timer').classList.remove('text-red-400');
+            document.getElementById('qr-timer').classList.add('text-slate-300');
+
+            // QR刷新倒计时
+            if (qrTimerId) clearInterval(qrTimerId);
+            qrTimerId = setInterval(() => {
+                qrSecondsLeft--;
+                document.getElementById('qr-timer').textContent = qrSecondsLeft + ' 秒后自动刷新';
+                if (qrSecondsLeft <= 10) {
+                    document.getElementById('qr-timer').classList.remove('text-slate-300');
+                    document.getElementById('qr-timer').classList.add('text-red-400');
+                }
+                if (qrSecondsLeft <= 0) {
+                    clearInterval(qrTimerId);
+                    qrTimerId = null;
+                    // 自动刷新二维码（公众号带参二维码每30秒刷新，但不会"过期"）
+                    const newToken = generateToken();
+                    startQRSession(newToken);
+                }
+            }, 1000);
+
+            // 15分钟会话过期倒计时
+            startExpiryCountdown();
+        }
+
+        function updateExpiryDisplay() {
+            const min = Math.floor(qrExpiryLeft / 60);
+            const sec = qrExpiryLeft % 60;
+            const el = document.getElementById('qr-expiry-time');
+            el.textContent = min + '分' + String(sec).padStart(2, '0') + '秒';
+            if (qrExpiryLeft <= 60) {
+                el.className = 'font-mono text-red-500';
+            } else if (qrExpiryLeft <= 300) {
+                el.className = 'font-mono text-amber-500';
+            } else {
+                el.className = 'font-mono text-slate-500';
+            }
+        }
+
+        function startExpiryCountdown() {
+            qrExpiryLeft = 900;
+            updateExpiryDisplay();
+            if (qrExpiryTimerId) clearInterval(qrExpiryTimerId);
+            qrExpiryTimerId = setInterval(() => {
+                qrExpiryLeft--;
+                updateExpiryDisplay();
+                if (qrExpiryLeft <= 0) {
+                    clearInterval(qrExpiryTimerId);
+                    qrExpiryTimerId = null;
+                    onSessionExpired();
+                }
+            }, 1000);
+        }
+
+        function onSessionExpired() {
+            currentPaymentState = 'expired';
+            document.getElementById('qr-overlay').classList.remove('hidden');
+            document.getElementById('btn-refresh-session').classList.remove('hidden');
+            document.getElementById('qr-timer').textContent = '已过期';
+            document.getElementById('qr-timer').classList.add('text-red-400');
+            setPaymentStateUI('expired');
+            if (qrTimerId) { clearInterval(qrTimerId); qrTimerId = null; }
+            if (pollingTimerId) { clearInterval(pollingTimerId); pollingTimerId = null; }
+        }
+
+        function refreshSession() {
+            if (refreshSessionCount >= 3) {
+                // 第4次：提示已达上限
+                document.getElementById('btn-refresh-session').textContent = '已达上限';
+                document.getElementById('btn-refresh-session').disabled = true;
+                document.getElementById('status-text').textContent = '支付请求已达上限，请重新报名';
+                return;
+            }
+            refreshSessionCount++;
+            const newToken = generateToken();
+            startQRSession(newToken);
+            startPolling();
+        }
+
+        function startPolling() {
+            if (pollingTimerId) clearInterval(pollingTimerId);
+            const startTime = Date.now();
+            pollFailCount = 0;
+
+            pollingTimerId = setInterval(() => {
+                // 模拟失败计数：极少数情况触发网络异常
+                const elapsedSec = Math.floor((Date.now() - startTime) / 1000);
+                const simulatedStatus = mockServerStatus(elapsedSec);
+
+                if (simulatedStatus !== currentPaymentState) {
+                    pollFailCount = 0;
+                    currentPaymentState = simulatedStatus;
+                    
+                    if (currentPaymentState === 'following') {
+                        setPaymentStateUI('following');
+                    } else if (currentPaymentState === 'paid') {
+                        setPaymentStateUI('paid');
+                        document.getElementById('btn-cancel-payment').classList.add('hidden');
+                        if (pollingTimerId) { clearInterval(pollingTimerId); pollingTimerId = null; }
+                        if (qrExpiryTimerId) { clearInterval(qrExpiryTimerId); qrExpiryTimerId = null; }
+                        setTimeout(() => {
+                            window.location.href = '28_报名成功.html';
+                        }, 1500);
+                    }
+                }
+            }, 3000); // 3秒轮询
+        }
+
+        function cancelPayment() {
+            if (!confirm('确定要取消本次支付吗？')) return;
+            stopPolling();
+            if (qrTimerId) clearInterval(qrTimerId);
+            if (qrExpiryTimerId) clearInterval(qrExpiryTimerId);
+            refreshSessionCount = 0;
+            goToStep(3);
+        }
+
+        function retryPolling() {
+            document.getElementById('netwarn-msg').classList.add('hidden');
+            document.getElementById('btn-retry-polling').classList.add('hidden');
+            pollFailCount = 0;
+            startPolling();
+        }
+
+        function stopPolling() {
+            if (pollingTimerId) { clearInterval(pollingTimerId); pollingTimerId = null; }
+            if (qrTimerId) { clearInterval(qrTimerId); qrTimerId = null; }
+            if (qrExpiryTimerId) { clearInterval(qrExpiryTimerId); qrExpiryTimerId = null; }
+        }
+
+        function finishPayment() {
+            refreshSessionCount = 0;
+            const token = generateToken();
+            startQRSession(token);
+            startPolling();
+        }
         
         // 确保初始化（DOM已就绪，因为脚本在body末尾）
         initIdentityCode();

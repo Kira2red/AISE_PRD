@@ -1,0 +1,461 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>考级报告 - AISE</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <script>
+        tailwind.config = {
+            theme: {
+                extend: {
+                    fontFamily: { sans: ['Inter', 'sans-serif'] },
+                    colors: {
+                        brand: { 50: '#eff6ff', 100: '#dbeafe', 500: '#3b82f6', 600: '#2563eb', 700: '#1d4ed8' },
+                        amber: { 400: '#fbbf24', 500: '#f59e0b' },
+                        green: { 500: '#22c55e', 600: '#16a34a' },
+                        red: { 400: '#f87171', 500: '#ef4444' },
+                    }
+                }
+            }
+        }
+    </script>
+    <style>
+        body { background: #F8FAFC; -webkit-font-smoothing: antialiased; }
+        .report-container { max-width: 480px; margin: 0 auto; min-height: 100vh; }
+        .level-btn { transition: all 0.15s; }
+        .level-btn.active { background: #2563eb; color: white; font-weight: 700; }
+        .section-card { opacity: 0; transform: translateY(16px); animation: slideUp 0.5s ease-out forwards; }
+        .section-card:nth-child(1) { animation-delay: 0.05s; }
+        .section-card:nth-child(2) { animation-delay: 0.1s; }
+        .section-card:nth-child(3) { animation-delay: 0.15s; }
+        .section-card:nth-child(4) { animation-delay: 0.2s; }
+        .section-card:nth-child(5) { animation-delay: 0.25s; }
+        @keyframes slideUp { to { opacity: 1; transform: translateY(0); } }
+        .marker-pulse { animation: markerPulse 2s ease-in-out infinite; }
+        @keyframes markerPulse { 0%,100%{transform:translateY(0)} 50%{transform:translateY(-6px)} }
+        .tag-need-improve { background: #fef2f2; color: #dc2626; border: 1px solid #fecaca; }
+        .tag-stable { background: #f0fdf4; color: #16a34a; border: 1px solid #bbf7d0; }
+        .tag-mastery { display: inline-block; padding: 2px 8px; border-radius: 4px; font-size: 11px; font-weight: 600; }
+    </style>
+</head>
+<body>
+<div class="report-container bg-white shadow-sm">
+
+    <!-- Top Nav -->
+    <header class="sticky top-0 z-30 bg-white/95 backdrop-blur border-b border-slate-100 px-4 h-14 flex items-center justify-between">
+        <button onclick="history.back()" class="flex items-center gap-1 text-slate-500 hover:text-brand-600 text-sm font-medium"><i class="fa-solid fa-chevron-left text-xs"></i> 返回</button>
+        <div class="flex items-center gap-2">
+            <div class="w-7 h-7 bg-gradient-to-br from-brand-600 to-indigo-600 rounded-lg flex items-center justify-center text-white font-bold text-xs">A</div>
+            <span class="font-bold text-sm text-slate-800">AISE</span>
+        </div>
+        <div class="w-12"></div>
+    </header>
+
+    <!-- Exam Type Toggle -->
+    <div class="px-4 pt-3 pb-2">
+        <div class="flex bg-slate-100 rounded-lg p-1 gap-1">
+            <button onclick="switchExamType('kaoji')" id="btn-kaoji" class="flex-1 py-2 rounded-md text-sm font-semibold transition bg-white text-brand-700 shadow-sm">考级</button>
+            <button onclick="switchExamType('mokao')" id="btn-mokao" class="flex-1 py-2 rounded-md text-sm font-semibold transition text-slate-500">模考</button>
+        </div>
+    </div>
+
+    <!-- Level Buttons -->
+    <div class="px-4 pb-3">
+        <div class="grid grid-cols-4 gap-1.5" id="level-buttons">
+            <!-- JS rendered -->
+        </div>
+    </div>
+
+    <!-- ============ §1 顶部信息 ============ -->
+    <section class="section-card px-5 pt-3 pb-5 border-b border-slate-100">
+        <div class="flex items-start justify-between mb-3">
+            <div>
+                <p class="text-xs text-slate-400 mb-1" id="exam-info">程序设计四级 · 考级 · 2026年6月</p>
+                <h1 class="text-xl font-bold text-slate-900" id="student-name">张三</h1>
+            </div>
+            <div class="text-right">
+                <span id="badge-pass" class="inline-flex items-center gap-1 px-3 py-1.5 rounded-full text-sm font-bold bg-green-50 text-green-600 border border-green-200"><i class="fa-solid fa-circle-check text-xs"></i> 通过</span>
+                <span id="badge-fail" class="inline-flex items-center gap-1 px-3 py-1.5 rounded-full text-sm font-bold bg-red-50 text-red-500 border border-red-200 hidden"><i class="fa-solid fa-circle-xmark text-xs"></i> 未通过</span>
+                <span id="badge-mokao" class="inline-flex items-center gap-1 px-3 py-1.5 rounded-full text-sm font-bold bg-slate-100 text-slate-500 border border-slate-200 hidden"><i class="fa-solid fa-pen-to-square text-xs"></i> 模考</span>
+            </div>
+        </div>
+        <div class="flex items-center gap-6 text-sm">
+            <div><span class="text-slate-400 text-xs">报考级别</span><p class="font-semibold text-slate-700" id="applied-level">程序设计四级</p></div>
+            <div id="achieved-row"><span class="text-slate-400 text-xs">获得级别</span><p class="font-semibold text-brand-600" id="achieved-level">程序设计四级（良好）</p></div>
+            <div><span class="text-slate-400 text-xs">得分</span><p class="font-bold text-lg text-slate-900" id="total-score">85</p></div>
+        </div>
+    </section>
+
+    <!-- ============ §2 结果预览 ============ -->
+    <section class="section-card px-5 py-5 border-b border-slate-100">
+        <h2 class="text-base font-bold text-slate-800 mb-4 flex items-center gap-2"><i class="fa-solid fa-chart-simple text-brand-500"></i> 结果预览</h2>
+        <div class="flex items-center gap-3 mb-5">
+            <div class="w-16 h-16 rounded-2xl bg-gradient-to-br from-brand-500 to-indigo-500 flex items-center justify-center text-white font-extrabold text-2xl shadow-lg shadow-brand-500/25" id="level-badge">四</div>
+            <div>
+                <p class="font-bold text-lg text-slate-900" id="level-title">程序设计四级</p>
+                <p class="text-sm text-slate-500" id="level-sub">获得「良好」等级 · 熟练掌握</p>
+            </div>
+        </div>
+        <!-- Violin Plot -->
+        <div class="bg-slate-50 rounded-xl p-4 mb-4">
+            <p class="text-xs font-bold text-slate-400 uppercase tracking-wider mb-3">成长区间定位</p>
+            <svg viewBox="0 0 360 140" class="violin-svg">
+                <rect x="0" y="30" width="108" height="80" rx="8" fill="#f1f5f9" />
+                <rect x="108" y="30" width="108" height="80" rx="8" fill="#f1f5f9" />
+                <rect x="216" y="30" width="72" height="80" rx="8" fill="#f1f5f9" />
+                <rect x="288" y="30" width="36" height="80" rx="8" fill="#f1f5f9" />
+                <rect x="324" y="30" width="36" height="80" rx="8" fill="#f1f5f9" />
+                <ellipse id="v1" cx="54" cy="70" rx="22" ry="28" fill="#cbd5e1" opacity="0.5" />
+                <ellipse id="v2" cx="162" cy="70" rx="22" ry="30" fill="#94a3b8" opacity="0.5" />
+                <ellipse id="v3" cx="252" cy="70" rx="17" ry="32" fill="#64748b" opacity="0.5" />
+                <ellipse id="v4" cx="306" cy="70" rx="10" ry="25" fill="#93c5fd" opacity="0.5" />
+                <ellipse id="v5" cx="342" cy="70" rx="8" ry="20" fill="#93c5fd" opacity="0.5" />
+                <text x="54" y="125" text-anchor="middle" font-size="9" fill="#94a3b8">初步形成</text>
+                <text x="162" y="125" text-anchor="middle" font-size="9" fill="#94a3b8">稳步接近</text>
+                <text x="252" y="125" text-anchor="middle" font-size="9" fill="#94a3b8">目标达成</text>
+                <text x="306" y="118" text-anchor="middle" font-size="8" fill="#94a3b8">熟练</text>
+                <text x="306" y="128" text-anchor="middle" font-size="8" fill="#94a3b8">掌握</text>
+                <text x="342" y="118" text-anchor="middle" font-size="8" fill="#94a3b8">高阶</text>
+                <text x="342" y="128" text-anchor="middle" font-size="8" fill="#94a3b8">表现</text>
+                <g id="marker-group" class="marker-pulse">
+                    <line id="marker-line" x1="306" y1="22" x2="306" y2="110" stroke="#ef4444" stroke-width="2" stroke-dasharray="4,2" />
+                    <polygon id="marker-arrow" points="306,16 300,26 312,26" fill="#ef4444" />
+                    <rect id="marker-label-bg" x="276" y="0" width="60" height="16" rx="3" fill="#ef4444" />
+                    <text id="marker-label" x="306" y="11" text-anchor="middle" font-size="9" fill="white" font-weight="600">我的位置</text>
+                </g>
+            </svg>
+        </div>
+        <div class="bg-brand-50 border border-brand-100 rounded-lg px-4 py-3">
+            <p class="text-sm text-brand-700 leading-relaxed" id="summary-text"></p>
+        </div>
+    </section>
+
+    <!-- ============ §3 知识点掌握 ============ -->
+    <section class="section-card px-5 py-5 border-b border-slate-100">
+        <h2 class="text-base font-bold text-slate-800 mb-4 flex items-center gap-2"><i class="fa-solid fa-lightbulb text-amber-500"></i> 知识点掌握情况</h2>
+        <div id="knowledge-matrix"></div>
+    </section>
+
+    <!-- ============ §4 考级具体表现 ============ -->
+    <section class="section-card px-5 py-5 border-b border-slate-100">
+        <h2 class="text-base font-bold text-slate-800 mb-4 flex items-center gap-2" id="perf-title"><i class="fa-solid fa-magnifying-glass-chart text-brand-500"></i> 考级具体表现</h2>
+        <div id="exam-performance"></div>
+    </section>
+
+    <!-- ============ §5 下阶段建议 ============ -->
+    <section class="section-card px-5 py-5 pb-10">
+        <h2 class="text-base font-bold text-slate-800 mb-4 flex items-center gap-2"><i class="fa-solid fa-arrow-trend-up text-green-600"></i> 下阶段学习建议</h2>
+        <div id="next-stage"></div>
+    </section>
+
+</div>
+
+<script>
+// ============ Level Data ============
+const LEVEL_NUM_MAP = {1:'一',2:'二',3:'三',4:'四',5:'五',6:'六',7:'七',8:'八'};
+const STAGES = ['初步形成','稳步接近','目标达成','熟练掌握','高阶表现'];
+const STAGE_CX = [54,162,252,306,342];
+const ELLIPSE_IDS = ['v1','v2','v3','v4','v5'];
+const ELLIPSE_HIGHLIGHT = ['#cbd5e1','#94a3b8','#64748b','#3b82f6','#1d4ed8'];
+
+const SUMMARIES = {
+    pending:  '综合本次考级表现，本级基础正在逐步形成，建议继续巩固核心任务。',
+    qualified:'综合本次考级表现，已达到本级基本要求，可继续巩固并拓展。',
+    good:     '综合本次考级表现，已较稳定达到本级要求，可进一步提升综合应用。',
+    excellent:'综合本次考级表现，已高质量完成本级主要任务，可继续挑战更复杂的综合任务。',
+    mokao:    '本次为模拟测评，结果供参考。建议根据知识点掌握情况针对性提升。',
+};
+
+const NEXT_STAGE_MAP = {
+    1:{pass:{link:'建议继续学习变量、循环和条件判断，尝试编写较复杂的逻辑程序，衔接二级。',course:'建议提升程序逻辑设计与表达能力，逐步完成更完整的编程任务。'},fail:{link:'建议先巩固一级，继续学习变量、循环和条件判断，尝试编写较复杂的逻辑程序。',course:''}},
+    2:{pass:{link:'建议继续学习数据类型及顺序、分支和循环结构，逐步过渡到代码编程，衔接四级。',course:'建议进阶学习代码编程，巩固基础编程语法。'},fail:{link:'建议先巩固二级，继续学习数据类型及顺序、分支和循环结构，尝试进行代码编程。',course:''}},
+    3:{pass:{link:'建议继续学习数据类型及顺序、分支和循环结构，逐步过渡到代码编程，衔接四级。',course:'建议进阶学习代码编程，巩固基础编程语法。'},fail:{link:'建议先巩固二级，继续学习数据类型及顺序、分支和循环结构，尝试进行代码编程。',course:''}},
+    4:{pass:{link:'建议继续学习列表、字典及循环分支嵌套，构建更复杂的程序逻辑，衔接五级。',course:'建议通过更完整的项目练习，提升复杂逻辑设计和问题解决能力。'},fail:{link:'建议先巩固四级，继续学习列表、字典及循环分支嵌套，练习构建复杂程序逻辑。',course:''}},
+    5:{pass:{link:'建议继续学习函数定义与整除取余，尝试用程序解决数学问题，衔接六级。',course:'建议提升多文件编程能力，增强模块协作与项目组织能力。'},fail:{link:'建议先巩固五级，继续学习函数定义与整除取余，尝试用程序解决数学问题。',course:''}},
+    6:{pass:{link:'建议继续学习核心算法与数据分析，使用枚举、模拟等方法解决实际问题，衔接七级。',course:'建议提升数据分析能力，增强数据处理与问题洞察能力。'},fail:{link:'建议先巩固六级，继续学习核心算法与数据分析，练习用枚举、模拟等方法解决实际问题。',course:''}},
+    7:{pass:{link:'建议继续学习经典高阶算法，尝试用算法解决综合项目问题，衔接八级。',course:'建议进一步提升算法设计与综合应用能力，为数据结构和高阶算法学习做好准备。'},fail:{link:'建议先巩固七级，继续学习经典高阶算法，尝试用算法解决综合项目问题。',course:''}},
+    8:{pass:{link:'已完成当前程序设计考级等级序列，可进一步衔接C++与高阶算法学习。',course:'建议进一步学习C++、数据结构与高阶算法，提升算法设计和综合问题求解能力。'},fail:{link:'建议先巩固八级，继续学习数据结构与高阶算法，提升综合问题求解能力。',course:''}},
+};
+
+// Score → stage index
+function scoreToStage(score) {
+    if (score < 30) return 0;
+    if (score < 60) return 1;
+    if (score < 70) return 2;
+    if (score < 80) return 3;
+    return 4;
+}
+// Score → level label
+function scoreToLabel(score) {
+    if (score < 60) return '待提升';
+    if (score < 70) return '合格';
+    if (score < 80) return '良好';
+    return '优秀';
+}
+
+// ============ Mock Data per Level ============
+// Each level has: name, score, modules, perfQuestions (for pass/fail below 100), perfectQuestions (for score=100)
+const LEVEL_DATA = {
+    1: {
+        name: '程序设计一级',
+        score: 88,
+        modules: [
+            {name:'基础操作',points:[{name:'鼠标点击',correct:4,total:4},{name:'界面认识',correct:3,total:4},{name:'拖拽积木',correct:3,total:3}]},
+            {name:'顺序执行',points:[{name:'移动积木',correct:3,total:4},{name:'等待指令',correct:2,total:2}]},
+        ],
+        perfQ: [{type:'客观题',num:1,title:'要让角色向右移动，应该使用哪个积木？',sa:'C. 改变造型',ca:'B. 移动10步',comment:'建议重点提升界面认识。',kp:'界面认识'},{type:'编程题',num:5,title:'让小猫走到终点',sa:'移动(50)步\n等待(1)秒\n移动(30)步',ca:'移动(50)步\n等待(1)秒\n向右旋转(90)度\n移动(30)步',comment:'建议重点提升拖拽积木及旋转指令。',kp:'拖拽积木'}],
+        perfectQ: [{type:'编程题',num:5,title:'让小猫走到终点',sa:'移动(50)步\n等待(1)秒\n向右旋转(90)度\n移动(30)步\n...',comment:'本题目作答达到要求，完整完成任务。太棒了！',kp:'移动积木'}],
+    },
+    2: {
+        name: '程序设计二级',
+        score: 73,
+        modules: [
+            {name:'顺序结构',points:[{name:'流程图',correct:3,total:4},{name:'步骤分解',correct:2,total:3}]},
+            {name:'循环初步',points:[{name:'重复执行',correct:3,total:4},{name:'次数循环',correct:2,total:3}]},
+        ],
+        perfQ: [{type:'客观题',num:2,title:'以下哪个流程图符号表示判断？',sa:'C. 矩形',ca:'B. 菱形',comment:'建议重点提升流程图。',kp:'流程图'},{type:'编程题',num:6,title:'画正方形',sa:'重复(4)次\n  移动(50)步\n  向右旋转(90)度\n',ca:'重复(4)次\n  移动(100)步\n  向右旋转(90)度\n',comment:'建议重点提升次数循环。',kp:'次数循环'}],
+        perfectQ: [{type:'编程题',num:6,title:'画正方形',sa:'重复(4)次\n  移动(100)步\n  向右旋转(90)度\n...',comment:'本题目作答达到要求，完整完成任务。太棒了！',kp:'次数循环'}],
+    },
+    3: {
+        name: '程序设计三级',
+        score: 55,
+        modules: [
+            {name:'条件判断',points:[{name:'如果...那么',correct:2,total:3},{name:'如果...否则',correct:1,total:3}]},
+            {name:'变量',points:[{name:'变量创建',correct:2,total:3},{name:'变量运算',correct:1,total:2}]},
+        ],
+        perfQ: [{type:'客观题',num:1,title:'在Scratch中，变量的值可以是？',sa:'A. 只能是数字',ca:'C. 数字或文字',comment:'建议重点提升变量创建。',kp:'变量创建'},{type:'编程题',num:4,title:'计分器',sa:'变量[分数]设为(0)\n如果(碰到苹果)\n  变量[分数]增加(1)\n',ca:'变量[分数]设为(0)\n重复执行\n  如果(碰到苹果)\n    变量[分数]增加(1)\n',comment:'建议重点提升如果...那么。',kp:'如果...那么'}],
+    },
+    4: {
+        name: '程序设计四级',
+        score: 85,
+        modules: [
+            {name:'Python运算',points:[{name:'比较运算',correct:3,total:3},{name:'布尔值',correct:2,total:2},{name:'算术运算',correct:3,total:3}]},
+            {name:'流程控制',points:[{name:'条件分支',correct:2,total:2},{name:'循环',correct:1,total:2},{name:'IPO编程',correct:1,total:1}]},
+            {name:'编程基础',points:[{name:'变量',correct:2,total:2},{name:'数据类型转换',correct:1,total:1},{name:'数据类型',correct:2,total:2},{name:'input()语句',correct:1,total:1},{name:'print()语句',correct:3,total:3}]},
+            {name:'常用标准库',points:[{name:'模块导入',correct:1,total:1}]},
+        ],
+        perfQ: [{type:'客观题',num:5,title:'以下哪个不是Python的合法变量名？',sa:'B. 2name',ca:'D. class',comment:'建议重点提升变量。',kp:'变量'},{type:'编程题',num:3,title:'成绩等级判断',sa:'score=int(input())\nif score>=60:\n  print("及格")\nelse:\n  print("不及格")',ca:'score=int(input())\nif score>=90:\n  print("优秀")\nelif score>=60:\n  print("及格")\nelse:\n  print("不及格")',comment:'建议重点提升条件分支。',kp:'条件分支'}],
+        perfectQ: [{type:'编程题',num:3,title:'成绩等级判断',sa:'score = int(input("请输入成绩: "))\nif score >= 90:\n    print("优秀")\nelif score >= 60:\n    print("及格")\n...',comment:'本题目作答达到要求，完整完成任务。太棒了！',kp:'条件分支'}],
+    },
+    5: {
+        name: '程序设计五级',
+        score: 68,
+        modules: [
+            {name:'函数',points:[{name:'函数定义',correct:2,total:3},{name:'参数传递',correct:1,total:2},{name:'返回值',correct:2,total:2}]},
+            {name:'数学运算',points:[{name:'整除与取余',correct:2,total:3},{name:'数学函数',correct:1,total:2}]},
+        ],
+        perfQ: [{type:'客观题',num:3,title:'def func(a,b): return a+b 调用func(3,5)的结果是？',sa:'A. 8',ca:'A. 8',comment:'建议重点提升函数定义。',kp:'函数定义'},{type:'编程题',num:6,title:'计算阶乘',sa:'def fac(n):\n  r=1\n  for i in range(1,n):\n    r*=i\n  return r',ca:'def fac(n):\n  r=1\n  for i in range(1,n+1):\n    r*=i\n  return r',comment:'建议重点提升参数传递。',kp:'参数传递'}],
+        perfectQ: [{type:'编程题',num:6,title:'计算阶乘',sa:'def fac(n):\n    r = 1\n    for i in range(1, n+1):\n        r *= i\n    return r\n...',comment:'本题目作答达到要求，完整完成任务。太棒了！',kp:'参数传递'}],
+    },
+    6: {
+        name: '程序设计六级',
+        score: 92,
+        modules: [
+            {name:'算法基础',points:[{name:'枚举算法',correct:3,total:3},{name:'模拟算法',correct:2,total:2},{name:'排序',correct:2,total:3}]},
+            {name:'数据分析',points:[{name:'列表操作',correct:2,total:2},{name:'字典操作',correct:1,total:2}]},
+        ],
+        perfQ: [{type:'客观题',num:2,title:'冒泡排序的时间复杂度是？',sa:'B. O(n)',ca:'C. O(n²)',comment:'建议重点提升排序。',kp:'排序'},{type:'编程题',num:7,title:'统计词频',sa:'s=input().split()\nd={}\nfor w in s:\n  d[w]=d[w]+1\nprint(d)',ca:'s=input().split()\nd={}\nfor w in s:\n  if w in d:\n    d[w]+=1\n  else:\n    d[w]=1\nprint(d)',comment:'建议重点提升字典操作。',kp:'字典操作'}],
+        perfectQ: [{type:'编程题',num:4,title:'找素数',sa:'def is_prime(n):\n    if n < 2: return False\n    for i in range(2, int(n**0.5)+1):\n        if n % i == 0: return False\n    return True\n...',comment:'本题目作答达到要求，完整完成任务。太棒了！',kp:'枚举算法'}],
+    },
+    7: {
+        name: '程序设计七级',
+        score: 45,
+        modules: [
+            {name:'高阶算法',points:[{name:'递归',correct:1,total:3},{name:'动态规划',correct:0,total:2},{name:'贪心',correct:2,total:3}]},
+            {name:'数据结构',points:[{name:'栈与队列',correct:1,total:2},{name:'树',correct:0,total:2}]},
+        ],
+        perfQ: [{type:'客观题',num:1,title:'递归函数必须包含什么？',sa:'D. 循环',ca:'B. 终止条件',comment:'建议重点提升递归。',kp:'递归'},{type:'编程题',num:4,title:'二叉树遍历',sa:'def preorder(root):\n  return []',ca:'def preorder(root):\n  if not root: return []\n  return [root.val] + preorder(root.left) + preorder(root.right)',comment:'建议重点提升树。',kp:'树'}],
+    },
+    8: {
+        name: '程序设计八级',
+        score: 72,
+        modules: [
+            {name:'C++基础',points:[{name:'输入输出',correct:2,total:2},{name:'STL容器',correct:1,total:3},{name:'指针与引用',correct:1,total:2}]},
+            {name:'算法进阶',points:[{name:'图论',correct:2,total:3},{name:'字符串算法',correct:1,total:2}]},
+        ],
+        perfQ: [{type:'客观题',num:2,title:'vector<int> v; v.push_back(5); v的大小是？',sa:'C. 不确定',ca:'A. 1',comment:'建议重点提升STL容器。',kp:'STL容器'},{type:'编程题',num:5,title:'最短路径',sa:'#include <iostream>\nusing namespace std;\nint main() {\n  cout << "hello";\n  return 0;\n}',ca:'#include <iostream>\n#include <vector>\n#include <queue>\nusing namespace std;\n// Dijkstra\nint main() { return 0; }',comment:'建议重点提升图论。',kp:'图论'}],
+        perfectQ: [{type:'编程题',num:3,title:'实现快速排序',sa:'void qsort(int a[], int l, int r) {\n    if (l >= r) return;\n    int i=l, j=r, p=a[l];\n    while(i<j) {\n        while(i<j&&a[j]>=p) j--;\n...',comment:'本题目作答达到要求，完整完成任务。太棒了！',kp:'图论'}],
+    },
+};
+
+let currentLevel = 4;
+let currentExamType = 'kaoji'; // 'kaoji' | 'mokao'
+
+function switchLevel(level) {
+    currentLevel = level;
+    renderLevelButtons();
+    renderAll();
+}
+
+function switchExamType(type) {
+    currentExamType = type;
+    document.getElementById('btn-kaoji').className = type === 'kaoji'
+        ? 'flex-1 py-2 rounded-md text-sm font-semibold transition bg-white text-brand-700 shadow-sm'
+        : 'flex-1 py-2 rounded-md text-sm font-semibold transition text-slate-500';
+    document.getElementById('btn-mokao').className = type === 'mokao'
+        ? 'flex-1 py-2 rounded-md text-sm font-semibold transition bg-white text-brand-700 shadow-sm'
+        : 'flex-1 py-2 rounded-md text-sm font-semibold transition text-slate-500';
+    renderAll();
+}
+
+function renderLevelButtons() {
+    let html = '';
+    for (let i = 1; i <= 8; i++) {
+        html += '<button onclick="switchLevel(' + i + ')" class="level-btn py-2 rounded-lg text-xs font-semibold transition border border-slate-200 ' + (i === currentLevel ? 'active' : 'bg-white text-slate-600 hover:bg-slate-50') + '">' + LEVEL_NUM_MAP[i] + '级</button>';
+    }
+    document.getElementById('level-buttons').innerHTML = html;
+}
+
+function renderAll() {
+    const ld = LEVEL_DATA[currentLevel];
+    const isMock = currentExamType === 'mokao';
+    const score = ld.score;
+    const stageIdx = scoreToStage(score);
+    const passed = score >= 60;
+    const isPerfect = score === 100;
+
+    // §1 Top info
+    document.getElementById('exam-info').textContent = ld.name + ' · ' + (isMock ? '模考' : '考级') + ' · 2026年6月';
+    document.getElementById('applied-level').textContent = ld.name;
+
+    if (isMock) {
+        document.getElementById('badge-pass').classList.add('hidden');
+        document.getElementById('badge-fail').classList.add('hidden');
+        document.getElementById('badge-mokao').classList.remove('hidden');
+        document.getElementById('achieved-row').classList.add('hidden');
+    } else {
+        document.getElementById('badge-mokao').classList.add('hidden');
+        document.getElementById('badge-pass').classList.toggle('hidden', !passed);
+        document.getElementById('badge-fail').classList.toggle('hidden', passed);
+        document.getElementById('achieved-row').classList.remove('hidden');
+        document.getElementById('achieved-level').textContent = passed
+            ? ld.name + '（' + scoreToLabel(score) + '）'
+            : '最高通过：' + getHighestPassedLevel();
+    }
+    document.getElementById('total-score').textContent = score;
+
+    // §2 Overview
+    document.getElementById('level-badge').textContent = LEVEL_NUM_MAP[currentLevel];
+    document.getElementById('level-title').textContent = ld.name;
+    if (isMock) {
+        document.getElementById('level-sub').textContent = '模考成绩 · ' + STAGES[stageIdx];
+        document.getElementById('summary-text').textContent = SUMMARIES.mokao;
+    } else {
+        const lbl = scoreToLabel(score);
+        document.getElementById('level-sub').textContent = (passed ? '获得「' + lbl + '」等级' : '未通过') + ' · ' + STAGES[stageIdx];
+        if (!passed) document.getElementById('summary-text').textContent = SUMMARIES.pending;
+        else if (score < 70) document.getElementById('summary-text').textContent = SUMMARIES.qualified;
+        else if (score < 80) document.getElementById('summary-text').textContent = SUMMARIES.good;
+        else document.getElementById('summary-text').textContent = SUMMARIES.excellent;
+    }
+
+    // Violin marker
+    const cx = STAGE_CX[stageIdx];
+    document.getElementById('marker-line').setAttribute('x1', cx);
+    document.getElementById('marker-line').setAttribute('x2', cx);
+    document.getElementById('marker-arrow').setAttribute('points', cx + ',16 ' + (cx-6) + ',26 ' + (cx+6) + ',26');
+    document.getElementById('marker-label-bg').setAttribute('x', cx - 30);
+    document.getElementById('marker-label').setAttribute('x', cx);
+    ELLIPSE_IDS.forEach((id, i) => {
+        const el = document.getElementById(id);
+        if (!el) return;
+        if (i === stageIdx) {
+            el.setAttribute('fill', '#3b82f6'); el.setAttribute('opacity', '0.8');
+            el.setAttribute('stroke', '#2563eb'); el.setAttribute('stroke-width', '2');
+        } else {
+            el.setAttribute('fill', ELLIPSE_HIGHLIGHT[i]); el.setAttribute('opacity', '0.5');
+            el.removeAttribute('stroke'); el.removeAttribute('stroke-width');
+        }
+    });
+
+    // §3 Knowledge
+    renderKnowledge(ld);
+    // §4 Performance
+    renderPerformance(ld, isPerfect, isMock);
+    // §5 Next stage
+    renderNextStage(isMock, passed);
+}
+
+function getHighestPassedLevel() {
+    // For demo: if current level failed, highest passed is one below
+    if (currentLevel <= 1) return '无';
+    return LEVEL_DATA[currentLevel - 1].name;
+}
+
+function renderKnowledge(ld) {
+    let html = '';
+    ld.modules.forEach(mod => {
+        html += '<div class="mb-4 last:mb-0"><p class="text-sm font-bold text-slate-700 mb-2">' + mod.name + '</p><div class="space-y-1.5">';
+        mod.points.forEach(pt => {
+            const pct = pt.total > 0 ? Math.round((pt.correct / pt.total) * 100) : 0;
+            const weak = pct < 60;
+            html += '<div class="flex items-center justify-between py-1.5 px-3 rounded-lg ' + (weak ? 'bg-red-50' : 'bg-green-50') + '">';
+            html += '<div class="flex items-center gap-2"><span class="text-sm font-medium ' + (weak ? 'text-red-700' : 'text-green-700') + '">' + pt.name + '</span>';
+            html += '<span class="tag-mastery ' + (weak ? 'tag-need-improve' : 'tag-stable') + '">' + (weak ? '重点提升' : '稳定掌握') + '</span></div>';
+            html += '<span class="text-xs font-bold ' + (weak ? 'text-red-500' : 'text-green-600') + '">' + pt.correct + '/' + pt.total + '</span></div>';
+        });
+        html += '</div></div>';
+    });
+    document.getElementById('knowledge-matrix').innerHTML = html;
+}
+
+function renderPerformance(ld, isPerfect, isMock) {
+    const titleEl = document.getElementById('perf-title');
+    if (isMock) {
+        titleEl.innerHTML = '<i class="fa-solid fa-magnifying-glass-chart text-brand-500"></i> 作答表现';
+        if (ld.perfQ && ld.perfQ.length > 0) {
+            document.getElementById('exam-performance').innerHTML = buildPerfHTML(ld.perfQ.slice(0, 2));
+        } else {
+            document.getElementById('exam-performance').innerHTML = '<p class="text-sm text-slate-400 text-center py-8">暂无答题记录</p>';
+        }
+        return;
+    }
+    titleEl.innerHTML = '<i class="fa-solid fa-magnifying-glass-chart text-brand-500"></i> 考级具体表现';
+    if (isPerfect && ld.perfectQ) {
+        document.getElementById('exam-performance').innerHTML = buildPerfectHTML(ld.perfectQ[0]);
+    } else if (ld.perfQ) {
+        document.getElementById('exam-performance').innerHTML = buildPerfHTML(ld.perfQ.slice(0, 2));
+    } else {
+        document.getElementById('exam-performance').innerHTML = '<p class="text-sm text-slate-400 text-center py-8">暂无答题记录</p>';
+    }
+}
+
+function buildPerfectHTML(q) {
+    return '<div class="bg-gradient-to-br from-amber-50 to-yellow-50 border border-amber-200 rounded-xl p-4"><div class="flex items-center gap-2 mb-2"><i class="fa-solid fa-star text-amber-500"></i><span class="text-sm font-bold text-amber-700">高光时刻</span></div><p class="text-xs text-amber-600 mb-2">满分通过！以下为首道满分' + q.type + '作答展示。</p><div class="bg-white rounded-lg p-3 border border-amber-100"><div class="flex items-center gap-2 mb-2"><span class="text-xs font-bold text-slate-500">第' + q.num + '题</span><span class="text-xs text-slate-400">|</span><span class="text-xs text-slate-600">' + q.title + '</span></div><pre class="text-xs font-mono text-slate-700 bg-slate-50 p-3 rounded overflow-x-auto whitespace-pre-wrap">' + q.sa + '</pre></div><p class="text-sm text-amber-700 mt-2 font-medium">' + q.comment + '</p></div>';
+}
+
+function buildPerfHTML(questions) {
+    let html = '<div class="bg-red-50 border border-red-100 rounded-xl p-4"><div class="flex items-center gap-2 mb-2"><i class="fa-solid fa-triangle-exclamation text-red-500"></i><span class="text-sm font-bold text-red-700">重点错题回顾</span></div>';
+    questions.forEach(q => {
+        html += '<div class="bg-white rounded-lg p-3 border border-red-100 mb-2 last:mb-0"><div class="flex items-center gap-2 mb-2"><span class="text-xs font-bold text-slate-500">第' + q.num + '题</span><span class="text-xs px-2 py-0.5 rounded bg-slate-100 text-slate-500">' + q.type + '</span><span class="text-xs text-slate-400">|</span><span class="text-xs text-slate-600">' + q.title + '</span></div>';
+        html += '<div class="grid grid-cols-2 gap-3 text-xs"><div><p class="text-red-400 font-bold mb-1">你的作答</p><pre class="font-mono text-red-700 bg-red-50 p-2 rounded whitespace-pre-wrap">' + q.sa + '</pre></div><div><p class="text-green-500 font-bold mb-1">正确答案</p><pre class="font-mono text-green-700 bg-green-50 p-2 rounded whitespace-pre-wrap">' + q.ca + '</pre></div></div>';
+        html += '<p class="text-sm text-red-600 mt-2 font-medium">' + q.comment + '</p></div>';
+    });
+    html += '</div>';
+    return html;
+}
+
+function renderNextStage(isMock, passed) {
+    let html = '';
+    if (isMock) {
+        html += '<div class="bg-white border border-slate-200 rounded-xl p-4 mb-3"><p class="text-xs font-bold text-slate-400 uppercase tracking-wider mb-2">学习建议</p><p class="text-sm text-slate-700 leading-relaxed">本次模考仅供参考，建议针对「重点提升」知识点加强练习，巩固薄弱环节。</p></div>';
+    } else {
+        const adv = NEXT_STAGE_MAP[currentLevel] || NEXT_STAGE_MAP[4];
+        const entry = passed ? adv.pass : adv.fail;
+        html += '<div class="bg-white border border-slate-200 rounded-xl p-4 mb-3"><p class="text-xs font-bold text-slate-400 uppercase tracking-wider mb-2">考级衔接</p><p class="text-sm text-slate-700 leading-relaxed">' + entry.link + '</p></div>';
+        if (entry.course) {
+            html += '<div class="bg-white border border-slate-200 rounded-xl p-4"><p class="text-xs font-bold text-slate-400 uppercase tracking-wider mb-2">课程学习建议</p><p class="text-sm text-slate-700 leading-relaxed">' + entry.course + '</p></div>';
+        }
+    }
+    document.getElementById('next-stage').innerHTML = html;
+}
+
+// Init
+renderLevelButtons();
+renderAll();
+</script>
+</body>
+</html>
