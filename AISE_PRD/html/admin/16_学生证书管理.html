@@ -84,18 +84,18 @@
                 <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4 mb-4">
                     <div class="relative">
                         <span class="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none text-slate-400"><i class="fa-regular fa-user"></i></span>
-                        <input type="text" placeholder="学生姓名" class="w-full pl-9 pr-3 py-2 text-sm border border-slate-200 rounded-lg focus:border-brand-500 outline-none bg-white transition shadow-sm">
+                        <input type="text" id="filter-name" placeholder="学生姓名" class="w-full pl-9 pr-3 py-2 text-sm border border-slate-200 rounded-lg focus:border-brand-500 outline-none bg-white transition shadow-sm">
                     </div>
                     <div class="relative">
                         <span class="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none text-slate-400"><i class="fa-solid fa-phone"></i></span>
-                        <input type="text" placeholder="手机号" class="w-full pl-9 pr-3 py-2 text-sm border border-slate-200 rounded-lg focus:border-brand-500 outline-none bg-white transition shadow-sm">
+                        <input type="text" id="filter-phone" placeholder="手机号" class="w-full pl-9 pr-3 py-2 text-sm border border-slate-200 rounded-lg focus:border-brand-500 outline-none bg-white transition shadow-sm">
                     </div>
                     <div class="relative">
                         <span class="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none text-slate-400"><i class="fa-regular fa-id-card"></i></span>
-                        <input type="text" placeholder="身份证号" class="w-full pl-9 pr-3 py-2 text-sm border border-slate-200 rounded-lg focus:border-brand-500 outline-none bg-white transition shadow-sm">
+                        <input type="text" id="filter-idcard" placeholder="身份证号" class="w-full pl-9 pr-3 py-2 text-sm border border-slate-200 rounded-lg focus:border-brand-500 outline-none bg-white transition shadow-sm">
                     </div>
                     
-                    <select class="w-full px-3 py-2 text-sm border border-slate-200 rounded-lg bg-white focus:border-brand-500 outline-none shadow-sm text-slate-600 cursor-pointer">
+                    <select id="filter-channel" class="w-full px-3 py-2 text-sm border border-slate-200 rounded-lg bg-white focus:border-brand-500 outline-none shadow-sm text-slate-600 cursor-pointer">
                         <option value="">渠道 (名称/编号) - 可多选</option>
                         <option value="1">编程猫北京中心 (CH-BJ-001)</option>
                         <option value="2">童程童美上海 (CH-SH-002)</option>
@@ -104,7 +104,7 @@
                 </div>
 
                 <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
-                    <select class="w-full px-3 py-2 text-sm border border-slate-200 rounded-lg bg-white focus:border-brand-500 outline-none shadow-sm text-slate-600 cursor-pointer">
+                    <select id="filter-cert-status" class="w-full px-3 py-2 text-sm border border-slate-200 rounded-lg bg-white focus:border-brand-500 outline-none shadow-sm text-slate-600 cursor-pointer">
                         <option value="">证书状态 (全部)</option>
                         <option value="processing">批改中</option>
                         <option value="completed">批改完成</option>
@@ -113,7 +113,7 @@
                         <option value="sent">已寄送</option>
                     </select>
 
-                    <select class="w-full px-3 py-2 text-sm border border-slate-200 rounded-lg bg-white focus:border-brand-500 outline-none shadow-sm text-slate-600 cursor-pointer">
+                    <select id="filter-elec-cert" class="w-full px-3 py-2 text-sm border border-slate-200 rounded-lg bg-white focus:border-brand-500 outline-none shadow-sm text-slate-600 cursor-pointer">
                         <option value="">电子证书 (全部)</option>
                         <option value="issued">已签发</option>
                         <option value="pending">待签发</option>
@@ -122,26 +122,26 @@
                     </select>
 
                     <div class="flex gap-2">
-                        <select class="flex-1 px-3 py-2 text-sm border border-slate-200 rounded-lg bg-white focus:border-brand-500 outline-none shadow-sm text-slate-600 cursor-pointer">
+                        <select id="filter-result" class="flex-1 px-3 py-2 text-sm border border-slate-200 rounded-lg bg-white focus:border-brand-500 outline-none shadow-sm text-slate-600 cursor-pointer">
                             <option value="">测评结果</option>
                             <option value="优秀">优秀</option>
                             <option value="良好">良好</option>
                             <option value="合格">合格</option>
                         </select>
                         <div class="flex items-center gap-1 flex-[1.5]">
-                            <input type="number" placeholder="分" class="w-full px-2 py-2 text-sm border border-slate-200 rounded-lg focus:border-brand-500 outline-none bg-white shadow-sm text-center">
+                            <input type="number" id="filter-score-min" placeholder="分" class="w-full px-2 py-2 text-sm border border-slate-200 rounded-lg focus:border-brand-500 outline-none bg-white shadow-sm text-center">
                             <span class="text-slate-300">-</span>
-                            <input type="number" placeholder="分" class="w-full px-2 py-2 text-sm border border-slate-200 rounded-lg focus:border-brand-500 outline-none bg-white shadow-sm text-center">
+                            <input type="number" id="filter-score-max" placeholder="分" class="w-full px-2 py-2 text-sm border border-slate-200 rounded-lg focus:border-brand-500 outline-none bg-white shadow-sm text-center">
                         </div>
                     </div>
 
-                    <select class="w-full px-3 py-2 text-sm border border-slate-200 rounded-lg bg-white focus:border-brand-500 outline-none shadow-sm text-slate-600 cursor-pointer">
+                    <select id="filter-module" class="w-full px-3 py-2 text-sm border border-slate-200 rounded-lg bg-white focus:border-brand-500 outline-none shadow-sm text-slate-600 cursor-pointer">
                         <option value="">模块 (可多选)</option>
                         <option value="Python">Python</option>
                         <option value="C++">C++</option>
                     </select>
                     
-                    <select class="w-full px-3 py-2 text-sm border border-slate-200 rounded-lg bg-white focus:border-brand-500 outline-none shadow-sm text-slate-600 cursor-pointer">
+                    <select id="filter-level" class="w-full px-3 py-2 text-sm border border-slate-200 rounded-lg bg-white focus:border-brand-500 outline-none shadow-sm text-slate-600 cursor-pointer">
                         <option value="">级别 (可多选)</option>
                         <option value="1">一级</option>
                         <option value="2">二级</option>
@@ -373,39 +373,166 @@
     </main>
 
     <script>
-        function exportData() {
-            const btn = document.getElementById('btn-export');
-            const originalContent = '<i class="fa-solid fa-file-excel"></i> <span>导出数据</span>';
-            const loadingContent = '<i class="fa-solid fa-spinner fa-spin"></i> <span>正在导出...</span>';
+        // ========== 导出任务模拟存储（纯前端 demo：localStorage 模拟任务表，与 19_消息中心 共用键名） ==========
+        const EXPORT_TASKS_KEY = 'aise_export_tasks'; // JSON 数组，行字段契约见 S1 V4 附录 A
+        function loadExportTasks() {
+            try { return JSON.parse(localStorage.getItem(EXPORT_TASKS_KEY) || '[]'); }
+            catch (e) { return []; }
+        }
+        // 返回 false 表示写入失败（localStorage 配额满 → 模拟 QUOTA_EXCEEDED）
+        function saveExportTasks(tasks) {
+            try { localStorage.setItem(EXPORT_TASKS_KEY, JSON.stringify(tasks)); return true; }
+            catch (e) { return false; }
+        }
+
+        // ========== 通用 Toast（抽取自现状 exportData 内联逻辑，L387-391/L401-407） ==========
+        function showToast(text, duration = 3000) {
             const toast = document.getElementById('toast');
-
-            // 1. Change Button State
-            btn.innerHTML = loadingContent;
-            btn.classList.add('opacity-75', 'cursor-not-allowed');
-            btn.disabled = true;
-
-            // 2. Show Toast
+            toast.querySelector('span').textContent = text;
             toast.classList.remove('hidden');
             void toast.offsetWidth; // Force reflow
             toast.classList.add('animation-fade-in-down', 'opacity-100', 'translate-y-0');
             toast.classList.remove('opacity-0', '-translate-y-5');
+            if (toast._hideTimer) clearTimeout(toast._hideTimer);
+            toast._hideTimer = setTimeout(() => {
+                toast.classList.remove('opacity-100', 'translate-y-0');
+                toast.classList.add('opacity-0', '-translate-y-5');
+                setTimeout(() => toast.classList.add('hidden'), 300);
+            }, duration);
+        }
 
-            // 3. Mock Export Delay (Simulate async processing)
+        // ========== 筛选条件收集（唯一取值来源；字段与 S1 V4 附录 A filter 契约一致） ==========
+        function collectFilter() {
+            const v = (id) => { const el = document.getElementById(id); return el ? el.value.trim() : ''; };
+            const filter = {};
+
+            // 文本：空值不传（等价全部）
+            const name = v('filter-name');    if (name)    filter.name = name;
+            const phone = v('filter-phone');  if (phone)   filter.phone = phone;
+            const idCard = v('filter-idcard');if (idCard)  filter.idCard = idCard;
+
+            // 单选下拉：空=全部，不传
+            const certStatus = v('filter-cert-status');   if (certStatus)   filter.certStatus = certStatus;
+            const elecCertStatus = v('filter-elec-cert'); if (elecCertStatus) filter.elecCertStatus = elecCertStatus;
+            const result = v('filter-result');            if (result)       filter.result = result;
+
+            // 数组字段（现状为单选 select）：空=不传（等价全部），有值=[value]
+            const channelId = v('filter-channel'); if (channelId) filter.channelIds = [channelId];
+            const moduleId  = v('filter-module');  if (moduleId)  filter.moduleIds = [moduleId];
+            const levelId   = v('filter-level');   if (levelId)   filter.levelIds = [levelId];
+
+            // 分数范围：Number() 保留小数（98.5 不截断）；空串/非数字不传；单端填写只传一端
+            const scoreMinRaw = v('filter-score-min');
+            const scoreMaxRaw = v('filter-score-max');
+            if (scoreMinRaw !== '' && !Number.isNaN(Number(scoreMinRaw))) filter.scoreMin = Number(scoreMinRaw);
+            if (scoreMaxRaw !== '' && !Number.isNaN(Number(scoreMaxRaw))) filter.scoreMax = Number(scoreMaxRaw);
+
+            return filter;
+        }
+
+        // ========== 导出序号：warning 延迟 Toast 的任务守卫（旧 warning 不覆盖新任务 Toast） ==========
+        let exportSeq = 0;
+
+        // Toast 原文案保持不动（L44「正在导出，请稍后在「消息中心」查看下载」）
+        const EXPORT_TOAST_TEXT = '正在导出，请稍后在「消息中心」查看下载';
+
+        function exportData() {
+            const btn = document.getElementById('btn-export');
+            const originalContent = '<i class="fa-solid fa-file-excel"></i> <span>导出数据</span>';
+            const loadingContent = '<i class="fa-solid fa-spinner fa-spin"></i> <span>正在导出...</span>';
+            if (btn.disabled) return; // 重复点击兜底（disabled 按钮本不触发 onclick，双保险）
+            const seq = ++exportSeq;  // 本次导出序号（新导出会使旧 warning 定时器失效）
+
+            // 1. 按钮 loading + 禁用（复用现状逻辑 L383-385）
+            btn.innerHTML = loadingContent;
+            btn.classList.add('opacity-75', 'cursor-not-allowed');
+            btn.disabled = true;
+
+            // 2. 组装请求体（契约：S1 V4 附录 A；desensitize 恒 true）
+            const filter = collectFilter(); // 点击时刻快照，后续控件变化不影响本次任务
+            const payload = {
+                type: 'student_cert_package',
+                filter: filter,
+                desensitize: true
+            };
+
+            // 3. 创建导出任务（demo 模拟：写入 localStorage 任务表；真实接口为 POST /api/admin/export/tasks）
+            //    模拟网络往返 600ms（按钮 loading 期间可见；真实环境中 finally 在请求结束后恢复按钮）
             setTimeout(() => {
-                // Reset Button
-                btn.innerHTML = originalContent;
-                btn.classList.remove('opacity-75', 'cursor-not-allowed');
-                btn.disabled = false;
+                try {
+                    const tasks = loadExportTasks();
+                    const now = new Date();
+                    const pad = (n) => String(n).padStart(2, '0');
+                    const task = {
+                        taskId: 'EXP' + Date.now(),
+                        taskName: '导出学生证书包',
+                        fileName: '',       // 生成中暂无文件名
+                        fileSize: 0,
+                        operatorName: 'Admin',
+                        createdAt: now.getFullYear() + '-' + pad(now.getMonth() + 1) + '-' + pad(now.getDate()) + ' ' + pad(now.getHours()) + ':' + pad(now.getMinutes()) + ':' + pad(now.getSeconds()),
+                        status: 'processing',
+                        summary: { totalRows: 0, pdfCount: 0, missingCount: 0 },
+                        attemptCount: 1,
+                        filterSnapshot: filter, // 筛选快照（S1 V4 附录 A）
+                        desensitize: true,
+                        warning: null
+                    };
+                    tasks.unshift(task);
+                    if (!saveExportTasks(tasks)) {
+                        // QUOTA_EXCEEDED：存储配额不足（demo 中 localStorage 写入失败；真实接口为业务 code，HTTP 507/429 兜底映射同此文案）
+                        showToast('存储配额不足，请联系管理员', 4000);
+                        return;
+                    }
 
-                // Hide Toast after a delay
-                setTimeout(() => {
-                    toast.classList.remove('opacity-100', 'translate-y-0');
-                    toast.classList.add('opacity-0', '-translate-y-5');
+                    // 4. 成功：Toast 保持原文案（L44）
+                    showToast(EXPORT_TOAST_TEXT, 3000);
+
+                    // 5. warning 信息性提示（不阻塞、不弹确认，带 exportSeq 任务守卫）：
+                    //    demo 触发规则：无筛选条件（=全量 5,682 人导出，数据量大）时模拟返回 warning；联调后以服务端 data.warning 为准
+                    const isFullExport = Object.keys(filter).length === 0;
+                    if (isFullExport) {
+                        const warning = { estimatedSize: '1.2GB', estimatedTime: '约3分钟', message: '' };
+                        setTimeout(() => {
+                            if (seq !== exportSeq) return; // 期间已发起新导出，丢弃旧 warning，避免覆盖新任务 Toast
+                            showToast(
+                                warning.message ||
+                                '本次导出预计约 ' + warning.estimatedSize + '、耗时约 ' + warning.estimatedTime + '，请稍后在「消息中心」查看下载',
+                                6000
+                            );
+                        }, 3500);
+                    }
+
+                    // 6. 模拟异步完成：2~3 秒后 success（85%）/ failed（15%，演示重试）；任务更新按 taskId 定位，互不串扰
                     setTimeout(() => {
-                        toast.classList.add('hidden');
-                    }, 300);
-                }, 3000); 
-            }, 2000);
+                        const cur = loadExportTasks();
+                        const t = cur.find(x => x.taskId === task.taskId);
+                        if (!t) return;
+                        // 行数模拟：全量 5,682 人；有筛选随机 10~500
+                        const totalRows = isFullExport ? 5682 : 10 + Math.floor(Math.random() * 491);
+                        const pdfCount = Math.floor(totalRows * (0.55 + Math.random() * 0.25)); // 已签发占比（PDF 只打包已签发）
+                        const missingCount = totalRows - pdfCount;
+                        if (Math.random() < 0.15) {
+                            t.status = 'failed';
+                            t.failReason = 'PDF 生成服务超时（demo 模拟），请点击重试';
+                        } else {
+                            const ymd = pad(now.getFullYear()) + pad(now.getMonth() + 1) + pad(now.getDate());
+                            t.status = 'success';
+                            t.fileName = '学生证书包_' + ymd + '_共' + totalRows + '人_' + pdfCount + '份.zip';
+                            t.fileSize = Math.round((totalRows * 0.21 + Math.random() * 8) * 10) / 10; // MB（demo 模拟）
+                            t.summary = { totalRows: totalRows, pdfCount: pdfCount, missingCount: missingCount };
+                        }
+                        saveExportTasks(cur);
+                    }, 2000 + Math.random() * 1000); // 2~3 秒
+                } catch (e) {
+                    // 网络错误 / 其他异常（真实环境：5xx / 超时 / AbortError 等）
+                    showToast('网络异常，请稍后重试', 4000);
+                } finally {
+                    // 7. 按钮恢复（复用现状 L396-398），无论成功失败
+                    btn.innerHTML = originalContent;
+                    btn.classList.remove('opacity-75', 'cursor-not-allowed');
+                    btn.disabled = false;
+                }
+            }, 600);
         }
     </script>
 </body>

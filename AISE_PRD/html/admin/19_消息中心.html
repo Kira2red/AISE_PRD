@@ -80,6 +80,13 @@
 
             <!-- Tab: 导出记录 -->
             <div id="tab-export">
+            <div class="mb-4 flex items-center justify-between">
+                <div class="relative w-72">
+                    <i class="fa-solid fa-magnifying-glass absolute left-3 top-1/2 -translate-y-1/2 text-slate-400 text-sm"></i>
+                    <input id="export-search" type="text" placeholder="搜索文件名 / 任务类型" class="w-full pl-9 pr-3 py-2 text-sm bg-white border border-slate-200 rounded-lg focus:outline-none focus:border-brand-500 focus:ring-2 focus:ring-brand-100 transition">
+                </div>
+                <span class="text-xs text-slate-400"><i class="fa-solid fa-rotate mr-1"></i>生成中的任务将自动刷新</span>
+            </div>
             <div class="bg-white rounded-xl shadow-card border border-slate-200 overflow-hidden">
                 <table class="w-full text-left border-collapse">
                     <thead>
@@ -92,162 +99,12 @@
                             <th class="p-4 text-right pr-6">操作</th>
                         </tr>
                     </thead>
-                    <tbody class="text-sm text-slate-700 divide-y divide-slate-100">
-                        
-                        <tr class="hover-row transition group">
-                            <td class="p-4 pl-6">
-                                <div class="flex items-start gap-3">
-                                    <div class="w-8 h-8 rounded-full bg-blue-50 text-blue-600 flex items-center justify-center flex-shrink-0 mt-0.5">
-                                        <i class="fa-solid fa-file-excel"></i>
-                                    </div>
-                                    <div>
-                                        <p class="font-bold text-slate-800">导出考生及成绩数据</p>
-                                        <p class="text-xs text-slate-500 mt-0.5">2025春季 Python 一级等级测评 (ID:1001)</p>
-                                    </div>
-                                </div>
-                            </td>
-                            <td class="p-4">
-                                <p class="font-mono text-xs text-slate-600">grades_export_1001_v2.csv</p>
-                                <p class="text-[10px] text-slate-400">计算中...</p>
-                            </td>
-                            <td class="p-4">
-                                <div class="flex items-center gap-2">
-                                    <span class="w-6 h-6 rounded-full bg-indigo-100 text-indigo-600 text-xs flex items-center justify-center font-bold">A</span>
-                                    <span class="text-slate-600 text-xs">Admin</span>
-                                </div>
-                            </td>
-                            <td class="p-4 text-xs font-mono text-slate-500">
-                                2026-01-31 10:35:12
-                            </td>
-                            <td class="p-4">
-                                <span class="inline-flex items-center gap-1.5 px-2 py-0.5 rounded text-xs font-bold bg-blue-50 text-blue-600 border border-blue-100">
-                                    <i class="fa-solid fa-spinner fa-spin"></i> 生成中
-                                </span>
-                            </td>
-                            <td class="p-4 text-right pr-6">
-                                <button disabled class="text-slate-300 bg-slate-50 border border-slate-100 px-3 py-1.5 rounded text-xs font-medium cursor-not-allowed">
-                                    下载文件
-                                </button>
-                            </td>
-                        </tr>
-
-                        <tr class="hover-row transition group">
-                            <td class="p-4 pl-6">
-                                <div class="flex items-start gap-3">
-                                    <div class="w-8 h-8 rounded-full bg-green-50 text-green-600 flex items-center justify-center flex-shrink-0 mt-0.5">
-                                        <i class="fa-solid fa-file-zipper"></i>
-                                    </div>
-                                    <div>
-                                        <p class="font-bold text-slate-800">导出电子证书包 (PDF)</p>
-                                        <p class="text-xs text-slate-500 mt-0.5">2025夏季 AIGC 应用能力二级测评 (ID:1002)</p>
-                                    </div>
-                                </div>
-                            </td>
-                            <td class="p-4">
-                                <p class="font-mono text-xs text-slate-600">certs_batch_1002_final.zip</p>
-                                <p class="text-[10px] text-slate-400">45.2 MB</p>
-                            </td>
-                            <td class="p-4">
-                                <div class="flex items-center gap-2">
-                                    <span class="w-6 h-6 rounded-full bg-indigo-100 text-indigo-600 text-xs flex items-center justify-center font-bold">A</span>
-                                    <span class="text-slate-600 text-xs">Admin</span>
-                                </div>
-                            </td>
-                            <td class="p-4 text-xs font-mono text-slate-500">
-                                2026-01-30 16:20:05
-                            </td>
-                            <td class="p-4">
-                                <span class="inline-flex items-center gap-1.5 px-2 py-0.5 rounded text-xs font-bold bg-green-50 text-green-700 border border-green-100">
-                                    <i class="fa-solid fa-check"></i> 生成成功
-                                </span>
-                            </td>
-                            <td class="p-4 text-right pr-6">
-                                <button onclick="downloadFile('certs_batch_1002_final.zip')" class="text-white bg-brand-600 hover:bg-brand-700 shadow-sm shadow-brand-500/30 px-3 py-1.5 rounded text-xs font-bold transition flex items-center gap-1 ml-auto">
-                                    <i class="fa-solid fa-download"></i> 下载文件
-                                </button>
-                            </td>
-                        </tr>
-
-                        <tr class="hover-row transition group">
-                            <td class="p-4 pl-6">
-                                <div class="flex items-start gap-3">
-                                    <div class="w-8 h-8 rounded-full bg-blue-50 text-blue-600 flex items-center justify-center flex-shrink-0 mt-0.5">
-                                        <i class="fa-solid fa-file-excel"></i>
-                                    </div>
-                                    <div>
-                                        <p class="font-bold text-slate-800">导出未合格学生名单</p>
-                                        <p class="text-xs text-slate-500 mt-0.5">2025春季 Python 一级等级测评 (ID:1001)</p>
-                                    </div>
-                                </div>
-                            </td>
-                            <td class="p-4">
-                                <p class="font-mono text-xs text-slate-600">failed_students_1001.xlsx</p>
-                                <p class="text-[10px] text-slate-400">128 KB</p>
-                            </td>
-                            <td class="p-4">
-                                <div class="flex items-center gap-2">
-                                    <span class="w-6 h-6 rounded-full bg-pink-100 text-pink-600 text-xs flex items-center justify-center font-bold">L</span>
-                                    <span class="text-slate-600 text-xs">Li_Operator</span>
-                                </div>
-                            </td>
-                            <td class="p-4 text-xs font-mono text-slate-500">
-                                2026-01-30 09:15:00
-                            </td>
-                            <td class="p-4">
-                                <span class="inline-flex items-center gap-1.5 px-2 py-0.5 rounded text-xs font-bold bg-green-50 text-green-700 border border-green-100">
-                                    <i class="fa-solid fa-check"></i> 生成成功
-                                </span>
-                            </td>
-                            <td class="p-4 text-right pr-6">
-                                <button onclick="downloadFile('failed_students_1001.xlsx')" class="text-brand-600 bg-brand-50 hover:bg-brand-100 border border-brand-200 px-3 py-1.5 rounded text-xs font-bold transition flex items-center gap-1 ml-auto">
-                                    <i class="fa-solid fa-download"></i> 下载文件
-                                </button>
-                            </td>
-                        </tr>
-
-                        <tr class="hover-row transition group opacity-60 hover:opacity-100">
-                            <td class="p-4 pl-6">
-                                <div class="flex items-start gap-3">
-                                    <div class="w-8 h-8 rounded-full bg-slate-100 text-slate-400 flex items-center justify-center flex-shrink-0 mt-0.5">
-                                        <i class="fa-solid fa-clock-rotate-left"></i>
-                                    </div>
-                                    <div>
-                                        <p class="font-bold text-slate-600">导出全量备份数据</p>
-                                        <p class="text-xs text-slate-400 mt-0.5">2024冬季 综合测评 (ID:998)</p>
-                                    </div>
-                                </div>
-                            </td>
-                            <td class="p-4">
-                                <p class="font-mono text-xs text-slate-500 line-through">backup_full_998.zip</p>
-                                <p class="text-[10px] text-slate-400">已清理</p>
-                            </td>
-                            <td class="p-4">
-                                <div class="flex items-center gap-2">
-                                    <span class="w-6 h-6 rounded-full bg-indigo-100 text-indigo-600 text-xs flex items-center justify-center font-bold">A</span>
-                                    <span class="text-slate-600 text-xs">Admin</span>
-                                </div>
-                            </td>
-                            <td class="p-4 text-xs font-mono text-slate-500">
-                                2025-12-01 10:00:00
-                            </td>
-                            <td class="p-4">
-                                <span class="inline-flex items-center gap-1.5 px-2 py-0.5 rounded text-xs font-bold bg-slate-100 text-slate-500 border border-slate-200">
-                                    <i class="fa-solid fa-circle-exclamation"></i> 文件已过期
-                                </span>
-                            </td>
-                            <td class="p-4 text-right pr-6">
-                                <button disabled class="text-slate-300 bg-transparent border border-dashed border-slate-300 px-3 py-1.5 rounded text-xs font-medium cursor-not-allowed">
-                                    不可下载
-                                </button>
-                            </td>
-                        </tr>
-
-                    </tbody>
+                    <tbody id="export-tbody" class="text-sm text-slate-700 divide-y divide-slate-100"></tbody>
                 </table>
             </div>
             
-            <div class="mt-6 flex justify-center">
-                <button class="text-xs text-slate-400 hover:text-brand-600 transition">加载更多历史记录 <i class="fa-solid fa-chevron-down ml-1"></i></button>
+            <div id="load-more-wrap" class="mt-6 flex justify-center">
+                <button id="load-more-btn" onclick="loadMoreTasks()" class="text-xs text-slate-400 hover:text-brand-600 transition">加载更多历史记录 <i class="fa-solid fa-chevron-down ml-1"></i></button>
             </div>
             </div>
 
@@ -346,6 +203,313 @@
     </main>
 
     <script>
+        /* ================================================================
+         * 导出记录 Tab：localStorage 任务表（demo 无后端，键 aise_export_tasks）
+         * 与 16_学生证书管理.html 共用：16 页创建的任务写入同一键，本页读取渲染。
+         * 四态：processing(生成中) / success(生成成功) / failed(生成失败·重试) / expired(已过期)
+         * 轮询状态机：有 processing 行才轮询，无则停；tick 重读 localStorage 合并渲染，保持分页与关键词。
+         * ================================================================ */
+        const LS_KEY = 'aise_export_tasks';
+        const POLL_INTERVAL = 4000;   // 轮询间隔（demo：3~5s 档取 4s）
+        const POLL_AGE_MS = 3500;     // processing 超此时长视为服务端已完成（demo 模拟推进）
+        let exportPage = 1, exportSize = 5, exportKeyword = '';
+        let exportTimer = null, seededOnce = false;
+        let exportRows = [];          // 当前已加载（切片）行
+
+        /* ---------- localStorage 读写 ---------- */
+        function readExportTasks() {
+            try { const v = JSON.parse(localStorage.getItem(LS_KEY)); return Array.isArray(v) ? v : []; }
+            catch (e) { return []; }
+        }
+        function saveExportTasks(rows) { localStorage.setItem(LS_KEY, JSON.stringify(rows)); }
+
+        /* ---------- 预置历史 mock 行（四态演示；仅注入一次，不覆盖 16 页创建的任务） ---------- */
+        function seedPresetRows() {
+            const rows = readExportTasks();
+            if (!rows.some(r => r.taskId.startsWith('PRESET-'))) {
+                const now = new Date();
+                const p = n => String(n).padStart(2, '0');
+                const ts = off => {
+                    const d = new Date(now.getTime() - off * 1000);
+                    return `${d.getFullYear()}-${p(d.getMonth()+1)}-${p(d.getDate())} ${p(d.getHours())}:${p(d.getMinutes())}:${p(d.getSeconds())}`;
+                };
+                const presets = [
+                    { taskId: 'PRESET-001', type: 'student_cert_package', taskName: '导出学生证书包', fileName: '学生证书包_20260805_共5682人_3200份.zip', fileSize: 47395635, operatorName: 'Admin', createdAt: ts(3600), status: 'success', summary: { totalRows: 5682, pdfCount: 3200, missingCount: 2482 }, attemptCount: 1, filterSnapshot: { moduleIds: ['Python', '图形化'], elecCertStatus: 'issued' }, desensitize: false },
+                    { taskId: 'PRESET-002', type: 'student_cert_package', taskName: '导出学生证书包', fileName: '—', fileSize: null, operatorName: 'Li_Operator', createdAt: ts(2), status: 'processing', summary: null, attemptCount: 1, filterSnapshot: { name: '张', elecCertStatus: 'issued' }, desensitize: true },
+                    { taskId: 'PRESET-003', type: 'student_cert_package', taskName: '导出学生证书包', fileName: '—', fileSize: null, operatorName: 'Admin', createdAt: ts(7200), status: 'failed', summary: null, failReason: '存储写入失败，请重试', attemptCount: 1, filterSnapshot: { result: '优秀', certStatus: 'completed' }, desensitize: false },
+                    { taskId: 'PRESET-004', type: 'student_cert_package', taskName: '导出学生证书包', fileName: '—', fileSize: null, operatorName: 'Admin', createdAt: ts(10800), status: 'failed', summary: null, failReason: '存储写入失败，请重试', attemptCount: 3, filterSnapshot: { scoreMin: 90, channelIds: ['渠道A'] }, desensitize: false },
+                    { taskId: 'PRESET-005', type: 'student_cert_package', taskName: '导出学生证书包', fileName: '学生证书包_20260501_共1000人_980份.zip', fileSize: 7340032, operatorName: 'Admin', createdAt: ts(86400 * 30), status: 'expired', summary: { totalRows: 1000, pdfCount: 980, missingCount: 20 }, attemptCount: 1, filterSnapshot: { levelIds: ['一级'], elecCertStatus: 'issued' }, desensitize: false },
+                    { taskId: 'PRESET-006', type: 'student_cert_package', taskName: '导出学生证书包', fileName: '学生证书包_20260804_共128人_120份.zip', fileSize: 131072, operatorName: 'Li_Operator', createdAt: ts(18000), status: 'success', summary: { totalRows: 128, pdfCount: 120, missingCount: 0 }, attemptCount: 1, filterSnapshot: { scoreMin: 90 }, desensitize: false }
+                ];
+                saveExportTasks([...presets, ...rows]);
+            } else if (!seededOnce) {
+                // 仅首次打开页面：把预置 processing 演示行重置回「生成中」，便于每次刷新演示 生成中→生成成功 流转
+                seededOnce = true;
+                const p2 = rows.find(r => r.taskId === 'PRESET-002');
+                if (p2 && p2.status !== 'processing') {
+                    p2.status = 'processing'; p2.fileName = '—'; p2.fileSize = null; p2.summary = null; p2.failReason = undefined; p2._retried = false;
+                    const d = new Date(), p = n => String(n).padStart(2, '0');
+                    p2.createdAt = `${d.getFullYear()}-${p(d.getMonth()+1)}-${p(d.getDate())} ${p(d.getHours())}:${p(d.getMinutes())}:${p(d.getSeconds())}`;
+                    saveExportTasks(rows);
+                }
+            }
+        }
+
+        /* ---------- demo 模拟服务端推进：processing 超过阈值 → success / failed（重试任务 100% 成功） ---------- */
+        function advanceProcessing(rows) {
+            const now = Date.now();
+            let changed = false;
+            rows.forEach(r => {
+                if (r.status !== 'processing') return;
+                const t = Date.parse(String(r.createdAt || '').replace(' ', 'T'));
+                if (isNaN(t) || now - t < POLL_AGE_MS) return;
+                if (r._retried || Math.random() < 0.85) {
+                    r.status = 'success';
+                    if (!r.fileName || r.fileName === '—') {
+                        const total = 100 + Math.floor(Math.random() * 5000);
+                        const pdf = Math.floor(total * (0.5 + Math.random() * 0.45));
+                        const d = new Date(), p = n => String(n).padStart(2, '0');
+                        r.fileName = `学生证书包_${d.getFullYear()}${p(d.getMonth()+1)}${p(d.getDate())}_共${total}人_${pdf}份.zip`;
+                        r.fileSize = 1024 * 1024 * (1 + Math.floor(Math.random() * 45));
+                        r.summary = { totalRows: total, pdfCount: pdf, missingCount: Math.floor(Math.random() * total * 0.3) };
+                    }
+                    r.failReason = undefined;
+                } else {
+                    r.status = 'failed';
+                    r.failReason = '证书文件读取超时，请重试';
+                }
+                changed = true;
+            });
+            return changed;
+        }
+
+        /* ---------- 视图：keyword 过滤 + createdAt 倒序（新任务在前） ---------- */
+        function applyView(all) {
+            const kw = exportKeyword;
+            if (kw) {
+                all = all.filter(r =>
+                    (r.fileName || '').toLowerCase().includes(kw) ||
+                    (r.type || '').toLowerCase().includes(kw) ||
+                    JSON.stringify(r.filterSnapshot || '').toLowerCase().includes(kw));
+            }
+            return all.sort((a, b) => String(b.createdAt).localeCompare(String(a.createdAt)));
+        }
+
+        /* ---------- 列表加载（reset=清空重载；轮询 tick 复用） ---------- */
+        function loadExportTasks(reset) {
+            if (reset) { exportPage = 1; seedPresetRows(); }
+            let all = readExportTasks();
+            if (advanceProcessing(all)) saveExportTasks(all);
+            all = applyView(all);
+            exportRows = all.slice(0, exportPage * exportSize);
+            renderExportRows(all.length);
+            syncPolling(all);
+        }
+
+        /* ---------- 轮询 tick：重读 localStorage 合并渲染，保持当前分页与关键词 ---------- */
+        function tickExportTasks() {
+            let all = readExportTasks();
+            if (advanceProcessing(all)) saveExportTasks(all);
+            all = applyView(all);
+            exportRows = all.slice(0, exportPage * exportSize);
+            renderExportRows(all.length);
+            syncPolling(all);
+        }
+
+        /* ---------- 轮询状态机：有 processing 行才轮询，无则停 ---------- */
+        function syncPolling(all) {
+            if (all.some(r => r.status === 'processing')) startExportPolling();
+            else stopExportPolling();
+        }
+        function startExportPolling() { if (!exportTimer) exportTimer = setInterval(tickExportTasks, POLL_INTERVAL); }
+        function stopExportPolling() { if (exportTimer) { clearInterval(exportTimer); exportTimer = null; } }
+
+        /* ---------- 渲染 ---------- */
+        function renderExportRows(total) {
+            const tbody = document.getElementById('export-tbody');
+            const wrap = document.getElementById('load-more-wrap');
+            if (!exportRows.length) {
+                const emptyText = exportKeyword ? '未找到相关导出记录' : '暂无导出记录';
+                tbody.innerHTML = `<tr><td colspan="6" class="p-12 text-center">
+                    <i class="fa-solid fa-inbox text-4xl text-slate-200 mb-3 block"></i>
+                    <p class="text-sm font-bold text-slate-500">${emptyText}</p>
+                    <p class="text-xs text-slate-400 mt-1">发起导出后，任务将在此展示</p>
+                </td></tr>`;
+                wrap.classList.add('hidden');
+                return;
+            }
+            wrap.classList.remove('hidden');
+            tbody.innerHTML = exportRows.map(exportRowHtml).join('');
+            updateLoadMoreBtn(total);
+        }
+
+        function updateLoadMoreBtn(total) {
+            const btn = document.getElementById('load-more-btn');
+            const loaded = exportRows.length;
+            if (loaded >= total) {
+                btn.disabled = true;
+                btn.classList.add('text-slate-300', 'cursor-not-allowed');
+                btn.classList.remove('hover:text-brand-600');
+                btn.textContent = '没有更多了';
+            } else {
+                btn.disabled = false;
+                btn.classList.remove('text-slate-300', 'cursor-not-allowed');
+                btn.classList.add('hover:text-brand-600');
+                btn.textContent = '加载更多历史记录';
+            }
+        }
+
+        function exportRowHtml(r) {
+            const sub = r.status === 'success'
+                    ? `${formatFileSize(r.fileSize)} · ${summaryHtml(r.summary)}`
+                    : r.status === 'failed' ? escapeHtml(r.failReason || '任务执行失败')
+                    : r.status === 'processing' ? '计算中...'
+                    : '—';
+            const icon = r.status === 'expired' ? 'fa-clock-rotate-left bg-slate-100 text-slate-400'
+                       : r.status === 'success' ? 'fa-file-zipper bg-green-50 text-green-600'
+                       : r.status === 'failed' ? 'fa-file-zipper bg-red-50 text-red-500'
+                       : r.status === 'processing' ? 'fa-file-zipper bg-blue-50 text-blue-600'
+                       : 'fa-circle-question bg-slate-100 text-slate-400';
+            return `<tr class="hover-row transition group ${r.status === 'expired' ? 'opacity-60 hover:opacity-100' : ''}">
+              <td class="p-4 pl-6"><div class="flex items-start gap-3">
+                <div class="w-8 h-8 rounded-full ${icon} flex items-center justify-center flex-shrink-0 mt-0.5"><i class="fa-solid ${icon.split(' ')[0]}"></i></div>
+                <div><p class="font-bold text-slate-800">${escapeHtml(r.taskName || '导出学生证书包')}</p>
+                <p class="text-xs text-slate-500 mt-0.5">${escapeHtml(filterSummary(r.filterSnapshot))}</p></div>
+              </div></td>
+              <td class="p-4"><p class="font-mono text-xs text-slate-600 ${r.status === 'expired' ? 'line-through' : ''}">${escapeHtml(r.fileName || '—')}</p>
+                <p class="text-[10px] ${r.status === 'failed' ? 'text-red-400' : 'text-slate-400'}">${sub}</p></td>
+              <td class="p-4"><div class="flex items-center gap-2">
+                <span class="w-6 h-6 rounded-full bg-indigo-100 text-indigo-600 text-xs flex items-center justify-center font-bold">${escapeHtml((r.operatorName || '?')[0])}</span>
+                <span class="text-slate-600 text-xs">${escapeHtml(r.operatorName || '')}</span></div></td>
+              <td class="p-4 text-xs font-mono text-slate-500">${escapeHtml(r.createdAt || '—')}</td>
+              <td class="p-4">${statusBadge(r)}</td>
+              <td class="p-4 text-right pr-6">${actionCell(r)}</td>
+            </tr>`;
+        }
+
+        function summaryHtml(s) {
+            if (!s) return '';
+            const base = `${s.totalRows} 行 / ${s.pdfCount} 份`;
+            return s.missingCount > 0
+                ? `${base} / <span class="text-amber-600 font-bold">缺 ${s.missingCount}</span>`
+                : base;
+        }
+
+        function statusBadge(r) {
+            const map = {
+                processing: ['bg-blue-50 text-blue-600 border-blue-100', 'fa-spinner fa-spin', '生成中'],
+                success:    ['bg-green-50 text-green-700 border-green-100', 'fa-check', '生成成功'],
+                failed:     ['bg-red-50 text-red-600 border-red-100', 'fa-circle-xmark', '生成失败'],
+                expired:    ['bg-slate-100 text-slate-500 border-slate-200', 'fa-circle-exclamation', '文件已过期']
+            };
+            const [cls, icon, txt] = map[r.status] || ['bg-slate-100 text-slate-500 border-slate-200', 'fa-circle-question', '未知状态'];
+            return `<span class="inline-flex items-center gap-1.5 px-2 py-0.5 rounded text-xs font-bold ${cls} border"><i class="fa-solid ${icon}"></i> ${txt}</span>`;
+        }
+
+        function actionCell(r) {
+            if (r.status === 'success')
+                return `<button onclick="downloadTask('${r.taskId}', this)" class="text-white bg-brand-600 hover:bg-brand-700 shadow-sm shadow-brand-500/30 px-3 py-1.5 rounded text-xs font-bold transition flex items-center gap-1 ml-auto"><i class="fa-solid fa-download"></i> 下载文件</button>`;
+            if (r.status === 'failed') {
+                const hitLimit = r.attemptCount >= 3;
+                return `<button onclick="retryTask('${r.taskId}', this)" data-attempt="${r.attemptCount}" ${hitLimit ? 'disabled title="已达重试上限"' : ''}
+                        class="${hitLimit ? 'bg-slate-100 text-slate-400 cursor-not-allowed' : 'text-red-600 bg-red-50 hover:bg-red-100 border border-red-200'} px-3 py-1.5 rounded text-xs font-bold transition flex items-center gap-1 ml-auto">
+                        <i class="fa-solid fa-rotate-right"></i> ${hitLimit ? '已达上限' : '重试'}</button>`;
+            }
+            const txt = r.status === 'expired' ? '不可下载' : '下载文件';
+            return `<button disabled class="bg-slate-100 text-slate-400 cursor-not-allowed px-3 py-1.5 rounded text-xs font-bold flex items-center gap-1 ml-auto"><i class="fa-solid fa-download"></i> ${txt}</button>`;
+        }
+
+        /* ---------- 下载（demo mock：生成模拟包 blob 触发浏览器下载；processing/expired 渲染层已禁用，不发请求） ---------- */
+        function downloadTask(taskId, btn) {
+            const r = exportRows.find(x => x.taskId === taskId);
+            if (!r || r.status !== 'success') { showToast('文件暂不可下载'); return; }
+            btn.disabled = true;
+            const name = r.fileName || '学生证书包.zip';
+            const content = `【AISE 导出包 · demo 模拟】\n任务ID：${taskId}\n文件名：${name}\n大小：${formatFileSize(r.fileSize)}\n统计：${r.summary ? r.summary.totalRows + ' 行 / ' + r.summary.pdfCount + ' 份' + (r.summary.missingCount ? ' / 缺 ' + r.summary.missingCount : '') : '—'}\n\n说明：纯前端 demo 无后端，真实系统将下载 zip 压缩包（学生证书列表.xlsx + 缺证书说明.txt + 证书PDF/ 目录）。`;
+            setTimeout(() => {
+                const blob = new Blob(['\ufeff' + content], { type: 'text/plain;charset=utf-8' });
+                const url = URL.createObjectURL(blob);
+                const a = document.createElement('a');
+                a.href = url; a.download = name;
+                document.body.appendChild(a); a.click(); a.remove();
+                URL.revokeObjectURL(url);
+                showToast('已开始下载：' + name);
+                btn.disabled = false;
+            }, 300);
+        }
+
+        /* ---------- 重试（仅 failed 可点；attemptCount<3；重置 processing 后由轮询接管） ---------- */
+        function retryTask(taskId, btn) {
+            const rows = readExportTasks();
+            const r = rows.find(x => x.taskId === taskId);
+            if (!r || r.status !== 'failed') return;
+            if (r.attemptCount >= 3) { showToast('已达重试上限（3 次）'); return; }
+            btn.disabled = true;
+            r.attemptCount = (r.attemptCount || 0) + 1;
+            r.status = 'processing';
+            r._retried = true;                       // 重试任务 demo 中 100% 成功
+            r.failReason = undefined;
+            const d = new Date(), p = n => String(n).padStart(2, '0');
+            r.createdAt = `${d.getFullYear()}-${p(d.getMonth()+1)}-${p(d.getDate())} ${p(d.getHours())}:${p(d.getMinutes())}:${p(d.getSeconds())}`;
+            saveExportTasks(rows);
+            loadExportTasks(false);                  // 保持分页/关键词刷新当前视图
+            showToast('已重新提交导出任务');
+        }
+
+        /* ---------- 工具 ---------- */
+        function filterSummary(f) {
+            if (!f) return '全量导出';
+            const label = { elecCertStatus: '电子证书状态', certStatus: '证书状态', result: '测评结果', moduleIds: '模块', levelIds: '级别', channelIds: '渠道', scoreMin: '分数', name: '姓名', phone: '手机号', idCard: '身份证号' };
+            const text = { issued: '已签发', pending: '待签发', failed: '签发失败', unconfigured: '未配置',
+                           processing: '批改中', completed: '批改完成', publicity: '公示中', making: '制作中', sent: '已寄送' };
+            const parts = [];
+            const push = (key, val) => {
+                if (val === undefined || val === null || val === '' || (Array.isArray(val) && !val.length)) return;
+                parts.push(`${label[key] || key}=${val}`);
+            };
+            push('moduleIds', f.moduleIds && f.moduleIds.join('、'));
+            push('levelIds', f.levelIds && f.levelIds.join('、'));
+            push('elecCertStatus', text[f.elecCertStatus] || f.elecCertStatus);
+            push('certStatus', text[f.certStatus] || f.certStatus);
+            push('result', f.result);
+            push('channelIds', f.channelIds && f.channelIds.join('、'));
+            if (f.scoreMin != null || f.scoreMax != null) {
+                const sMin = f.scoreMin != null ? `${f.scoreMin}` : '';
+                const sMax = f.scoreMax != null ? `${f.scoreMax}` : '';
+                push('scoreMin', (sMin && sMax) ? `${sMin}~${sMax}` : (sMin || sMax));
+            }
+            push('name', f.name); push('phone', f.phone); push('idCard', f.idCard);
+            return parts.join('；') || '全量导出';
+        }
+
+        function formatFileSize(bytes) {
+            if (bytes == null || isNaN(bytes)) return '';
+            if (bytes < 1024) return `${bytes} B`;
+            const units = ['KB', 'MB', 'GB'];
+            let v = bytes / 1024, i = 0;
+            while (v >= 1024 && i < units.length - 1) { v /= 1024; i++; }
+            return `${v.toFixed(1)} ${units[i]}`;
+        }
+
+        function escapeHtml(s) {
+            return String(s == null ? '' : s).replace(/[&<>"']/g, c => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[c]));
+        }
+
+        function showToast(msg) {
+            let t = document.getElementById('global-toast');
+            if (!t) {
+                t = document.createElement('div');
+                t.id = 'global-toast';
+                t.className = 'fixed top-5 left-1/2 -translate-x-1/2 z-50 px-4 py-2 rounded-lg bg-slate-800 text-white text-sm shadow-lg transition-opacity duration-300 pointer-events-none';
+                document.body.appendChild(t);
+            }
+            t.textContent = msg;
+            t.style.opacity = '1';
+            clearTimeout(t._timer);
+            t._timer = setTimeout(() => { t.style.opacity = '0'; }, 2200);
+        }
+
+        /* ---------- 接线：Tab 切换 / 加载更多 / 搜索（防抖 300ms）/ 页面聚焦刷新 / 初始化 ---------- */
         function switchTab(tab) {
             document.querySelectorAll('.tab-btn').forEach(btn => {
                 const isActive = btn.dataset.tab === tab;
@@ -358,14 +522,30 @@
             });
             document.getElementById('tab-export').classList.toggle('hidden', tab !== 'export');
             document.getElementById('tab-notify').classList.toggle('hidden', tab !== 'notify');
+            if (tab === 'export') loadExportTasks(true);   // 进入 Tab：清空重载 + 按需启动轮询
+            else stopExportPolling();                       // 切走停止轮询
         }
 
-        function downloadFile(fileName) {
-            const link = document.createElement("a");
-            link.setAttribute("href", "#");
-            link.setAttribute("download", fileName);
-            alert(`正在开始下载文件：${fileName}`);
+        function loadMoreTasks() {
+            const total = applyView(readExportTasks()).length;
+            if (exportRows.length >= total) { showToast('没有更多了'); return; }
+            exportPage++;
+            loadExportTasks(false);
         }
+
+        let kwTimer;
+        document.getElementById('export-search').oninput = (e) => {
+            clearTimeout(kwTimer);
+            kwTimer = setTimeout(() => { exportKeyword = e.target.value.trim().toLowerCase(); loadExportTasks(true); }, 300);
+        };
+
+        // 16 页在另一标签创建任务后切回本页：聚焦即轻量刷新（不重置分页/关键词）
+        window.addEventListener('focus', () => {
+            if (!document.getElementById('tab-export').classList.contains('hidden')) loadExportTasks(false);
+        });
+
+        // 初始化：默认 Tab 即导出记录，加载首屏
+        loadExportTasks(true);
     </script>
 </body>
 </html>
