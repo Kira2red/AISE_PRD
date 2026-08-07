@@ -1,765 +1,480 @@
 <!DOCTYPE html>
 <html lang="zh-CN">
 <head>
-<meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0">
-<meta name="color-scheme" content="light">
-<title>考级报告 - AISE（S4 demo 重做）</title>
-<!--
-  ============================================================
-  29_考级报告.html —— S4「demo HTML 重做」首轮产出（R1_S4 第 1 轮修订后）
-  依据（唯一样式权威）：S2_方案V2.md（token/11段布局/组件/字号/换算）
-  内容逻辑：S1_方案V2.md（字段/等级映射/文案表/建议表）
-  遗留事项落实：N1 推导间距 8px 标注；N2 小提琴五段 stop 色
-    （段1 #4C3AAA / 段2 #4E36CC / 段3 #65C9C7 / 段4 #77CAD2 / 段5 #9CC6F8，
-     五段中心 15/45/70/85/95%，score=100 → 100% 满分特例）；
-    L7 掌握度阈值判定用未取整值、展示层 toFixed(1) 舍入。
-  demo 数据统一标注「示例数据」（T5）；头像=占位插画标注「占位」（T3）。
-  @media print 打印样式（T6）。
-  【口径说明】任务描述「总分85→良好」与 S1 2.4.2-a 映射（80≤score≤100→优秀）冲突；
-  按 S1「唯一事实源、不允许二次计算」执行，默认分数取 75 → 渲染「良好/熟练掌握」
-  （与设计原图样例一致）。调试条可输入 85 验证 → 优秀/高阶表现。
-  【R1_S4 第 1 轮修订（回应 R1_S4_审查.md 8 条：5 一般 + 3 建议，全接受）】
-  ① 八级 C++ 数据去预写 HTML 实体（预写实体字符全部改回真实字符），esc() 单次转义，不再双重转义；
-  ② 代码 >5 行统一保留前 5 行 + 截断标识（E-07；标识形态「……」为 demo 推导，
-     S1 未规定，truncCode() 渲染层统一执行，数据保持全文）；
-  ③ 满分画像 perfect 补 sa 字段 + 代码块标注「你的作答」归属
-     （S1 2.4.4：满分只展示学生作答、不展示正确答案）；
-  ④ 头部卡副行并入「两行 24px bold 白」标题口径（S2 §2.3-段2，行高 1.3）；
-  ⑤ 状态行标签 15px（S2 §2.3-段9 状态行 15px 口径）、代码段标签 12px（验收 1.7 辅助 ≥12px）；
-  建议① 非满分点评标点统一【】（S1 2.4.4 原文）；
-  建议② 页脚可见标注「同级参照尾部文案与引导段为 demo 推导文案」；
-  建议③ demo-only 标注（demo-badge/avatar-mark/调试条）字号豁免声明（验收 1.7 豁免登记）。
-  ============================================================
--->
-<style>
-/* ============ S2 设计 Token（page2_img1设计规格） ============ */
-:root{
-  /* A. 背景/面板系 */
-  --page-bg:#F8F8F8;      /* 页面底 */
-  --card-bg:#EEEEEE;      /* 四大区块卡片底 */
-  --panel-bg:#E2E2E2;     /* 图面板/知识行/题号行/标签行/总结条/代码区外侧 */
-  --suggest-card:#F4F3F4; /* 建议区重点卡底 */
-  --code-bg:#0F1A36;      /* 深色代码块底（深藏青） */
-  /* B. 品牌靛/强调系 */
-  --brand:#4E35CF;        /* 区块标题/竖条 */
-  --header:#553ECC;       /* 头部靛蓝卡 */
-  --header-edge:#CCC4F3;  /* 头部卡底边 1px（推导 D-15） */
-  --deep:#4C3AAA;         /* 小提琴边/标记、深靛 */
-  --mascot:#4E36CC;       /* 头像占位主色 */
-  --mascot-lilac:#A9A7DA; /* 头像浅紫 */
-  --mascot-skin:#D8ADAE;  /* 头像肤色 */
-  --accent:#503AC3;       /* 学生卡点缀 */
-  --ans-bg:#E5E7F1; --ans-ink:#493AA8;      /* 你的作答行 */
-  --ref-bg:#DEE7E7; --ref-ink:#238978;      /* 参考答案行 */
-  --tag-lilac-bg:#E5E1F5; --tag-lilac-ink:#5846B4; /* 知识标签 */
-  --suggest-ink:#523EBB;  /* 重点卡靛蓝文字 */
-  /* C. 绿/橙状态系 */
-  --green-ink:#33CD52; --green-bg:#E6F4E8;        /* 等级绿胶囊 */
-  --green-tag-ink:#1A8A78; --green-tag-bg:#AAD7D3;/* 知识树「稳定」 */
-  --orange-ink:#F27915; --orange-bg:#F5EFE8;      /* 参照橙胶囊 */
-  --orange-tag-ink:#E9862A; --orange-tag-bg:#F0CDAD;/* 知识树「重点提升」 */
-  --gray-ink:#626262; --gray-bg:#ECECEC;          /* 「待提升」灰胶囊（W9 落地） */
-  /* D. 文字色系 */
-  --white:#F8F8F8;        /* 头部大标题白字 */
-  --text-deep:#0F1A36;    /* 主文字/题号/模块名（深藏青） */
-  --text-darkgray:#323232;/* 总结条文字 */
-  --text-gray:#626262;    /* 副标题/提示/建议正文 */
-  --text-gray2:#656565;   /* 引导段 */
-  --code-ink:#E2E2E2;     /* 代码块文字 */
-  --radius:4px;           /* 卡片/面板圆角基线（D-1） */
-}
-*{margin:0;padding:0;box-sizing:border-box}
-html{-webkit-text-size-adjust:100%}
-body{
-  background:var(--page-bg);
-  font-family:-apple-system,BlinkMacSystemFont,"PingFang SC","Hiragino Sans GB","Microsoft YaHei","Helvetica Neue",sans-serif;
-  color:var(--text-deep);
-  -webkit-font-smoothing:antialiased;
-  font-size:15px;line-height:1.6;
-}
-.report{max-width:480px;margin:0 auto;padding-bottom:32px}
-
-/* ============ demo-only 调试条（非产品功能） ============ */
-/* 字号豁免声明（R1_S4 建议③）：调试条为 demo-only 调试 UI，不适用验收 1.7「辅助标签 ≥12px」 */
-.debug-bar{
-  display:flex;flex-wrap:wrap;align-items:center;gap:6px;
-  background:var(--gray-bg);color:var(--text-gray);
-  font-size:11px;line-height:1.4;padding:6px 10px;margin:6px 10px 0;
-  border-radius:var(--radius);
-}
-.debug-bar select,.debug-bar input{
-  font-size:11px;padding:2px 4px;border:1px solid #D8D8D8;border-radius:4px;
-  background:#fff;color:var(--text-deep);max-width:100px;
-}
-.debug-bar .dbg-btn{
-  font-size:11px;padding:2px 8px;border:1px solid #D8D8D8;border-radius:999px;
-  background:#fff;color:var(--text-gray);cursor:pointer;
-}
-.debug-bar .dbg-btn:hover{border-color:var(--brand);color:var(--brand)}
-.dbg-warn{color:#C0392B;font-weight:600}
-
-/* ============ 段1 顶部标签条 ============ */
-.tagbar{
-  display:flex;justify-content:space-between;align-items:center;
-  padding:10px 10px 0;font-size:12px;line-height:18px; /* 行高 ≈18px 推导 */
-}
-.tagbar .ti{color:var(--brand);font-weight:600}
-/* 字号豁免声明（R1_S4 建议③）：demo-badge 为 demo-only「示例数据」标注（T5），不适用辅助 ≥12px 下限 */
-.demo-badge{
-  flex-shrink:0;font-size:10px;color:var(--text-gray);
-  background:var(--gray-bg);border-radius:999px;padding:1px 8px;
-}
-
-/* ============ 段2 头部靛蓝卡 ============ */
-.header-card{
-  margin:8px 16px 0;                    /* 左右边距 16px（x50-1150→16.25） */
-  background:var(--header);
-  border-bottom:1px solid var(--header-edge); /* 底部 1px 边（D-15） */
-  border-radius:var(--radius);
-  min-height:44px;                      /* 最小高度，随内容自适应（G2/S3） */
-  padding:14px 16px;
-  text-align:center;
-}
-.header-title{font-size:24px;font-weight:700;color:var(--white);line-height:1.3} /* 24px bold 白 */
-/* 副行并入「两行 24px bold 白」标题口径（S2 §2.3-段2：居中大字标题两行、24px bold、行高 1.3；R1_S4 一般④） */
-.header-sub{font-size:24px;font-weight:700;color:var(--white);line-height:1.3}
-
-/* ============ 段3 学生信息区 ============ */
-.student-card{display:flex;align-items:center;gap:14px;padding:12px 16px}
-.avatar-wrap{position:relative;flex-shrink:0;width:75px;height:91px} /* ≈75×91px（T3 占位） */
-/* 字号豁免声明（R1_S4 建议③）：avatar-mark 为 demo-only「占位」角标（T3），不适用辅助 ≥12px 下限 */
-.avatar-mark{
-  position:absolute;right:2px;bottom:2px;
-  background:rgba(15,26,54,.72);color:var(--white);
-  font-size:9px;line-height:1;padding:2px 6px;border-radius:999px;
-}
-.student-info{display:flex;flex-direction:column;gap:8px} /* 行间隔 8px（推导，N1 登记） */
-.s-name{font-size:16px;font-weight:600;color:#000}
-.s-meta{font-size:14px;color:#000}
-.s-meta .meta-label{color:var(--accent);font-weight:600}
-
-/* ============ 段4/5 等级行 / 同级参照行 ============ */
-.grade-row,.peer-row{
-  display:flex;align-items:center;gap:8px;padding:0 10px;
-}
-.grade-row{min-height:44px} /* 行高 ≈44px */
-.peer-row{min-height:34px} /* 行高 ≈34px */
-.row-label{font-size:15px;color:var(--text-deep);white-space:nowrap}
-.row-tail{font-size:15px;color:var(--text-deep);line-height:1.5}
-
-/* 胶囊（D-9：高 17px 基线 + padding 6px 10px 自适应宽，12px 字） */
-.pill{
-  flex-shrink:0;border-radius:999px;
-  padding:1px 10px;font-size:12px;line-height:15px;white-space:nowrap;
-}
-.green-pill{background:var(--green-bg);color:var(--green-ink)}
-.orange-pill{background:var(--orange-bg);color:var(--orange-ink)}
-.gray-pill{background:var(--gray-bg);color:var(--gray-ink)} /* W9：待提升中性灰阶 */
-
-/* ============ 段6 灰色总结条 ============ */
-.summary-bar{
-  margin:10px 10px 0;                    /* 左右边距 10px（D-11） */
-  background:var(--panel-bg);border-radius:var(--radius);
-  min-height:44px;padding:10px 14px;
-  font-size:15px;color:var(--text-darkgray);line-height:1.6;
-}
-
-/* ============ 卡片 / 区块标题行 ============ */
-.card{
-  background:var(--card-bg);border-radius:var(--radius);
-  margin:10px;padding:10px;
-}
-.block-head{display:flex;align-items:center;gap:6px;padding:2px 0 8px} /* 竖条间距 ≈6px 推导 */
-.bar{width:4px;height:20px;background:var(--brand);border-radius:1px} /* 4×20px（D-2） */
-.block-title{font-size:22px;font-weight:700;color:var(--brand);line-height:1.2} /* 22px bold 靛 */
-.block-sub{margin-left:auto;font-size:12px;color:var(--text-gray);white-space:nowrap} /* D-12 副标题灰 */
-
-/* ============ 段7 参照分布卡：小提琴图 ============ */
-.violin-panel{
-  background:var(--panel-bg);border-radius:var(--radius);
-  padding:12px; /* 图面板 ≈104px 高（含内边距） */
-}
-.violin-svg{display:block;width:100%;height:auto}
-.legend{display:flex;margin-top:8px}
-.legend-item{
-  flex:1;display:flex;align-items:center;justify-content:center;gap:4px;
-  font-size:12px;color:var(--text-gray);white-space:nowrap;
-}
-.legend-item .dot{width:8px;height:8px;border-radius:50%;flex-shrink:0} /* 图例圆点 8px（D-10） */
-
-/* ============ 段8 知识点掌握情况 ============ */
-.k-mod{
-  background:var(--panel-bg);border-radius:var(--radius);
-  min-height:44px;display:flex;align-items:center;
-  padding:0 10px;margin-bottom:8px;      /* 行间隔 8px（推导，N1 登记） */
-  font-size:15px;font-weight:600;color:var(--text-deep);
-}
-.k-pt{
-  background:var(--panel-bg);border-radius:var(--radius);
-  min-height:44px;display:flex;align-items:center;gap:10px;
-  margin:0 0 8px 12px;                  /* 二级缩进 12px（推导，N1 登记） */
-  padding:0 10px;font-size:15px;color:var(--text-deep);
-}
-.k-name{flex:1}
-.k-pct{font-size:12px;color:var(--text-gray);white-space:nowrap}
-/* 知识树状态胶囊（高 ≈20px，W17/D-4） */
-.tag{flex-shrink:0;height:20px;line-height:20px;border-radius:999px;padding:0 8px;font-size:12px;white-space:nowrap}
-.tag.stable{background:var(--green-tag-bg);color:var(--green-tag-ink)}
-.tag.improve{background:var(--orange-tag-bg);color:var(--orange-tag-ink)}
-
-/* ============ 段9/10 典型难题 ============ */
-.q-no-row{
-  background:var(--panel-bg);border-radius:var(--radius);
-  min-height:44px;                      /* 题号行 ≥44px（D-16，同段8 口径） */
-  display:flex;align-items:center;padding:0 10px;
-  font-size:17px;font-weight:700;color:var(--text-deep);
-}
-.q-stem{font-size:15px;color:var(--text-deep);line-height:1.6;margin:10px 2px}
-.code-block{
-  background:var(--code-bg);color:var(--code-ink);
-  border-radius:var(--radius);min-height:72px;padding:10px 12px;
-  font:12px/1.6 Consolas,Menlo,monospace;white-space:pre-wrap;word-break:break-all;
-}
-.code-seg + .code-seg{margin-top:8px} /* 多段代码 8px 分隔（推导） */
-.code-seg-label{font-size:12px;color:#9CC6F8;margin-bottom:4px} /* 代码段标签 12px（验收 1.7 辅助 ≥12px，R1_S4 一般⑤） */
-.q-options{display:flex;flex-wrap:wrap;gap:8px;margin:10px 0}
-.q-option{
-  background:var(--page-bg);border-radius:var(--radius);
-  padding:6px 10px;font-size:15px;color:var(--text-deep);
-}
-/* 答题状态行（右半底采样呈现，W13 对照原图微调） */
-.state-row{display:flex;align-items:center;min-height:40px;margin-top:8px}
-.state-label{width:76px;flex-shrink:0;font-size:15px;color:var(--text-gray)} /* 状态行 15px（S2 §2.3-段9，R1_S4 一般⑤） */
-.state-val{
-  flex:1;height:40px;line-height:40px;padding:0 10px;border-radius:var(--radius);
-  font-size:15px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;
-}
-.state-val.ans{background:var(--ans-bg);color:var(--ans-ink)}   /* 你的作答 浅紫 */
-.state-val.ref{background:var(--ref-bg);color:var(--ref-ink)}   /* 参考答案 浅青 */
-/* 知识点标签行（底 panel-bg，S5 补录） */
-.tag-row{
-  background:var(--panel-bg);border-radius:var(--radius);
-  padding:8px 10px;margin-top:10px;display:flex;gap:6px;flex-wrap:wrap;
-}
-.kp-tag{
-  background:var(--tag-lilac-bg);color:var(--tag-lilac-ink);
-  border-radius:999px;padding:2px 10px;font-size:12px;
-}
-.q-tip{font-size:12px;color:var(--text-gray);margin-top:8px;line-height:1.5}
-
-/* ============ 段11 下一阶段建议 ============ */
-.focus-card{background:var(--suggest-card);border-radius:var(--radius);padding:10px 12px;margin-top:10px}
-.focus-label{font-size:12px;color:var(--text-gray);margin-bottom:4px}
-.focus-text{font-size:15px;font-weight:600;color:var(--suggest-ink);line-height:1.6}
-.advice-body{font-size:15px;color:var(--text-gray);line-height:1.7;margin-top:10px}
-.advice-guide{font-size:15px;color:var(--text-gray2);line-height:1.7;margin-top:10px}
-
-/* ============ 页脚说明 ============ */
-.foot{margin:20px 10px 0;font-size:12px;color:#7E7E7E;line-height:1.6}
-
-/* ============ 打印样式（T6：demo PDF 出口仅 @media print） ============ */
-@media print{
-  .debug-bar{display:none !important}
-  body{background:#fff}
-  .report{max-width:100%;padding-bottom:0}
-  .card,.header-card,.summary-bar,.violin-panel,.code-block,.state-row,.tag-row,.focus-card{break-inside:avoid}
-  *{-webkit-print-color-adjust:exact;print-color-adjust:exact}
-}
-</style>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>考级个人报告 - AISE</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <script>
+        tailwind.config = {
+            theme: {
+                extend: {
+                    fontFamily: {
+                        sans: ['Inter', 'PingFang SC', 'Microsoft YaHei', 'sans-serif'],
+                        mono: ['JetBrains Mono', 'monospace'],
+                    },
+                    colors: {
+                        brand: { 50:'#eff6ff', 100:'#dbeafe', 500:'#3b82f6', 600:'#2563eb', 700:'#1d4ed8' },
+                        navy:  { DEFAULT:'#0f1835', soft:'#212845' },
+                        violet2:{ DEFAULT:'#8777d3', deep:'#705fd2', light:'#aaa8e1', pale:'#c2bbe1' },
+                        brightblue:{ DEFAULT:'#2555e7', soft:'#2957e7' },
+                        pinkx: { DEFAULT:'#f0646b', soft:'#f1666d', pale:'#f39ca0' },
+                    },
+                    boxShadow: { 'card':'0 2px 10px -2px rgba(15,24,53,0.06)' },
+                }
+            }
+        }
+    </script>
+    <style>
+        body { background-color:#e9e9ea; -webkit-font-smoothing:antialiased; color:#0f1835; font-size:15px; }
+        .glass-nav { background:rgba(255,255,255,0.95); backdrop-filter:blur(12px); border-bottom:1px solid rgba(226,232,240,0.8); }
+        /* 报告卡片：白底圆角16px、细描边、轻阴影 */
+        .report-card { background:#fff; border-radius:16px; border:1px solid #e5e7eb; box-shadow:0 2px 10px -2px rgba(15,24,53,0.06); overflow:hidden; }
+        .mod-title { display:flex; align-items:center; gap:10px; font-size:20px; font-weight:700; color:#0f1835; }
+        .mod-title .bar { width:5px; height:20px; border-radius:3px; background:linear-gradient(180deg,#8777d3,#705fd2); }
+        .mod-sub { font-size:12px; color:#606471; }
+        /* 状态标签 chip */
+        .chip { display:inline-flex; align-items:center; gap:4px; padding:3px 12px; border-radius:999px; font-size:12px; font-weight:600; white-space:nowrap; }
+        .chip-green  { background:#e7f8f2; color:#14966f; border:1px solid #b9ecd9; }
+        .chip-orange { background:#fdf3e3; color:#c07f16; border:1px solid #f5dcb0; }
+        .chip-pink   { background:#fdecec; color:#e0484f; border:1px solid #f6c1c3; }
+        .chip-purple { background:#f0edfb; color:#705fd2; border:1px solid #d9d3f1; }
+        .chip-blue   { background:#e8edfd; color:#2555e7; border:1px solid #c4d0f7; }
+        .chip-gray   { background:#f1f2f4; color:#606471; border:1px solid #e0e1e5; }
+        /* 代码块：深色主题 */
+        .code-block { background:#1d1d1e; color:#e9e9e9; font-family:'JetBrains Mono',monospace; font-size:15px; line-height:1.7; border-radius:12px; padding:16px 18px; overflow-x:auto; }
+        .code-block .ln { color:#6b6b70; user-select:none; display:inline-block; width:2em; margin-right:12px; text-align:right; }
+        .code-block .kw { color:#1d90fa; }
+        .code-trunc { background:#1d1d1e; color:#8a8a90; font-size:12px; border-radius:0 0 12px 12px; padding:6px 18px 12px; margin-top:-12px; font-family:'JetBrains Mono',monospace; }
+        /* 操作区 */
+        .ops-card { background:#fff; border-radius:16px; border:1px solid #e5e7eb; box-shadow:0 2px 10px -2px rgba(15,24,53,0.06); }
+        .stu-btn { display:flex; align-items:center; gap:8px; width:100%; padding:10px 14px; border-radius:12px; border:1px solid #e5e7eb; background:#fff; font-size:15px; font-weight:500; color:#0f1835; transition:all .15s; cursor:pointer; text-align:left; }
+        .stu-btn:hover { border-color:#aaa8e1; background:#faf9fe; }
+        .stu-btn.active { border-color:#8777d3; background:#f0edfb; color:#705fd2; font-weight:600; box-shadow:0 0 0 1px #8777d3 inset; }
+        .stu-btn .avatar { width:32px; height:32px; border-radius:50%; display:flex; align-items:center; justify-content:center; color:#fff; font-size:13px; font-weight:700; flex-shrink:0; }
+        .pdf-btn { display:flex; align-items:center; justify-content:center; gap:8px; width:100%; padding:12px; border-radius:12px; background:linear-gradient(135deg,#2555e7,#2957e7); color:#fff; font-size:15px; font-weight:600; transition:all .2s; cursor:pointer; border:none; }
+        .pdf-btn:hover:not(:disabled) { filter:brightness(1.08); transform:translateY(-1px); box-shadow:0 6px 16px -4px rgba(37,85,231,0.4); }
+        .pdf-btn:disabled { opacity:.55; cursor:not-allowed; }
+        .pdf-btn.retry { background:linear-gradient(135deg,#f0646b,#f1666d); }
+        /* 成长区间图 */
+        .stage-track { display:flex; width:100%; height:56px; border-radius:12px; overflow:hidden; }
+        .stage-seg { position:relative; }
+        @media (max-width:1023px){ .mod-title{font-size:20px;} }
+    </style>
 </head>
-<body>
-<div class="report">
+<body class="font-sans">
 
-  <!-- demo-only 调试条（页面顶部小字标注，非产品功能） -->
-  <div class="debug-bar">
-    <span>demo-only 调试条：</span>
-    <label>级别</label>
-    <select id="dbgLevel" aria-label="切换级别">
-      <option value="1">一级</option><option value="2">二级</option><option value="3">三级</option>
-      <option value="4" selected>四级</option><option value="5">五级</option><option value="6">六级</option>
-      <option value="7">七级</option><option value="8">八级</option>
-    </select>
-    <label>分数</label>
-    <input type="number" id="dbgScore" min="0" max="100" step="0.01" value="75" aria-label="切换分数">
-    <button type="button" class="dbg-btn" onclick="quickScore(45)">45</button>
-    <button type="button" class="dbg-btn" onclick="quickScore(55)">55</button>
-    <button type="button" class="dbg-btn" onclick="quickScore(65)">65</button>
-    <button type="button" class="dbg-btn" onclick="quickScore(75)">75</button>
-    <button type="button" class="dbg-btn" onclick="quickScore(85)">85</button>
-    <button type="button" class="dbg-btn" onclick="quickScore(100)">100</button>
-    <span class="dbg-warn" id="dbgWarn"></span>
-  </div>
+    <!-- 顶栏（glass-nav，与 15_我的活动.html 一致） -->
+    <nav class="glass-nav fixed w-full z-40 top-0 transition-all duration-300">
+        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+            <div class="flex justify-between items-center h-16 sm:h-20">
+                <div class="flex items-center gap-3 cursor-pointer" onclick="window.location.href='index.html'">
+                    <div class="w-9 h-9 bg-gradient-to-br from-brand-600 to-indigo-600 rounded-lg flex items-center justify-center text-white font-bold text-lg shadow-md">A</div>
+                    <div class="flex flex-col">
+                        <span class="font-bold text-lg tracking-tight text-slate-900">AISE</span>
+                    </div>
+                </div>
+                <div class="hidden md:flex items-center space-x-8">
+                    <a href="index.html" class="text-slate-500 hover:text-brand-600 font-medium text-sm transition">首页</a>
+                    <a href="15_我的活动.html" class="text-slate-500 hover:text-brand-600 font-medium text-sm transition">我的活动</a>
+                </div>
+                <div class="flex items-center gap-3">
+                    <div class="flex items-center gap-2 py-1 px-2 rounded-full border border-slate-100 bg-white shadow-sm cursor-pointer hover:bg-slate-50 transition">
+                        <div class="w-8 h-8 rounded-full bg-gradient-to-tr from-blue-500 to-purple-600 text-white flex items-center justify-center text-xs font-bold">家</div>
+                        <span class="text-sm font-medium text-slate-700 pr-2 hidden sm:block">家长账号</span>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </nav>
 
-  <!-- ===== 段1 顶部标签条 ===== -->
-  <div class="tagbar">
-    <div><span class="ti">AISE</span>能力评定报告-<span class="ti">2026年6月</span></div>
-    <span class="demo-badge" id="demoBadge">示例数据 · 总分 75</span>
-  </div>
+    <!-- 主内容：宽屏左报告右操作区；窄屏操作区在上 -->
+    <main class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 pb-16" style="padding-top:104px;">
+        <div class="flex flex-col lg:flex-row gap-6 items-start">
 
-  <!-- ===== 段2 头部靛蓝卡 ===== -->
-  <div class="header-card">
-    <h1 class="header-title" id="headerTitle">程序设计四级</h1>
-    <p class="header-sub" id="headerSub">2026年6月 · 通过</p>
-  </div>
+            <!-- 报告条（五模块纵向信息流） -->
+            <div class="flex-1 min-w-0 w-full space-y-5 order-2 lg:order-1">
 
-  <!-- ===== 段3 学生信息区（T3：姓名/学号/学校/头像占位） ===== -->
-  <div class="student-card">
-    <div class="avatar-wrap">
-      <svg viewBox="0 0 75 91" width="75" height="91" aria-label="吉祥物头像占位插画">
-        <rect x="1.5" y="1.5" width="72" height="88" rx="14" fill="#A9A7DA"/>
-        <circle cx="26" cy="30" r="10" fill="#4E36CC"/>
-        <circle cx="49" cy="30" r="10" fill="#4E36CC"/>
-        <circle cx="37.5" cy="40" r="16" fill="#D8ADAE"/>
-        <ellipse cx="37.5" cy="73" rx="17" ry="15" fill="#4E36CC"/>
-        <circle cx="31.5" cy="39" r="2" fill="#0F1A36"/>
-        <circle cx="43.5" cy="39" r="2" fill="#0F1A36"/>
-        <path d="M32 46 Q37.5 50 43 46" stroke="#0F1A36" stroke-width="1.6" fill="none" stroke-linecap="round"/>
-        <path d="M37.5 24 v6" stroke="#D8ADAE" stroke-width="2" stroke-linecap="round"/>
-      </svg>
-      <span class="avatar-mark">占位</span>
-    </div>
-    <div class="student-info">
-      <p class="s-name">张三</p>
-      <p class="s-meta"><span class="meta-label">学号</span>：ID:1103467994323</p>
-      <p class="s-meta"><span class="meta-label">学校</span>：未来实验小学</p>
-    </div>
-  </div>
+                <!-- 模块一：标题栏 -->
+                <section class="report-card">
+                    <div class="px-6 sm:px-8 py-6" id="modHeader"></div>
+                </section>
 
-  <!-- ===== 段4 本次等级行 ===== -->
-  <div class="grade-row">
-    <span class="row-label">本次等级：</span>
-    <span class="pill green-pill" id="gradePill">良好</span>
-    <span class="row-tail" id="gradeTail">已达到程序设计四级核心要求</span>
-  </div>
+                <!-- 模块二：考级结果概览 -->
+                <section class="report-card">
+                    <div class="px-6 sm:px-8 pt-6 pb-2">
+                        <div class="mod-title"><span class="bar"></span>考级结果概览</div>
+                    </div>
+                    <div class="px-6 sm:px-8 pb-7 pt-4" id="modOverview"></div>
+                </section>
 
-  <!-- ===== 段5 同级参照行 ===== -->
-  <div class="peer-row">
-    <span class="row-label">同级参照：</span>
-    <span class="pill orange-pill" id="peerPill">熟练掌握</span>
-    <span class="row-tail" id="peerTail">处于较稳定的成长区</span>
-  </div>
+                <!-- 模块三：知识点掌握情况 -->
+                <section class="report-card">
+                    <div class="px-6 sm:px-8 pt-6 pb-2 flex items-baseline justify-between flex-wrap gap-2">
+                        <div class="mod-title"><span class="bar"></span>知识点掌握情况</div>
+                        <span class="mod-sub">掌握率 ≥60% 为稳定掌握，&lt;60% 为重点提升</span>
+                    </div>
+                    <div class="px-6 sm:px-8 pb-7 pt-4" id="modKnowledge"></div>
+                </section>
 
-  <!-- ===== 段6 灰色总结条 ===== -->
-  <div class="summary-bar" id="summaryBar">综合本次考级表现，已较稳定达到本级要求，可进一步提升综合应用。</div>
+                <!-- 模块四：考级具体表现 -->
+                <section class="report-card" id="cardPerformance">
+                    <div class="px-6 sm:px-8 pt-6 pb-2">
+                        <div class="mod-title"><span class="bar"></span>考级具体表现</div>
+                    </div>
+                    <div class="px-6 sm:px-8 pb-7 pt-4 space-y-5" id="modPerformance"></div>
+                </section>
 
-  <!-- ===== 段7 同级参照分布卡 ===== -->
-  <div class="card">
-    <div class="block-head">
-      <span class="bar"></span><h2 class="block-title">同级参照分布</h2><span class="block-sub">示例数据</span>
-    </div>
-    <div class="violin-panel">
-      <svg viewBox="0 0 346 76" class="violin-svg" role="img" aria-label="成长区间分布（类别轴，不代表真实分布）">
-        <defs>
-          <!-- 渐变 stop 映射（S2 §3.5：0/30/60/80/90/100% = 五段边界；N2 五段色） -->
-          <linearGradient id="violinGrad" gradientUnits="userSpaceOnUse" x1="24" y1="0" x2="322" y2="0">
-            <stop offset="0%" stop-color="#4C3AAA"/>
-            <stop offset="30%" stop-color="#4E36CC"/>
-            <stop offset="60%" stop-color="#65C9C7"/>
-            <stop offset="80%" stop-color="#71CAD0"/>
-            <stop offset="90%" stop-color="#77CAD2"/>
-            <stop offset="100%" stop-color="#9CC6F8"/>
-          </linearGradient>
-          <!-- 垂直 overlay 微渐变（D-14：white 8%→0 压亮顶部） -->
-          <linearGradient id="overlayGrad" x1="0" y1="0" x2="0" y2="1">
-            <stop offset="0%" stop-color="#FFFFFF" stop-opacity="0.08"/>
-            <stop offset="100%" stop-color="#FFFFFF" stop-opacity="0"/>
-          </linearGradient>
-        </defs>
-        <!-- 五段小提琴瓣：段宽 30/30/20/10/10%，中心 15/45/70/85/95%（S1 2.4.2-b） -->
-        <path d="M68.7 10 C93.3 12,117.9 18,117.9 38 C117.9 58,93.3 64,68.7 66 C44.1 64,19.5 58,19.5 38 C19.5 18,44.1 12,68.7 10 Z" fill="url(#violinGrad)"/>
-        <path d="M158.1 10 C182.7 12,207.3 18,207.3 38 C207.3 58,182.7 64,158.1 66 C133.5 64,108.9 58,108.9 38 C108.9 18,133.5 12,158.1 10 Z" fill="url(#violinGrad)"/>
-        <path d="M232.6 10 C249 12,265.4 18,265.4 38 C265.4 58,249 64,232.6 66 C216.2 64,199.8 58,199.8 38 C199.8 18,216.2 12,232.6 10 Z" fill="url(#violinGrad)"/>
-        <path d="M277.3 10 C285.5 12,293.7 18,293.7 38 C293.7 58,285.5 64,277.3 66 C269.1 64,260.9 58,260.9 38 C260.9 18,269.1 12,277.3 10 Z" fill="url(#violinGrad)"/>
-        <path d="M307.1 10 C315.3 12,323.5 18,323.5 38 C323.5 58,315.3 64,307.1 66 C298.9 64,290.7 58,290.7 38 C290.7 18,298.9 12,307.1 10 Z" fill="url(#violinGrad)"/>
-        <rect x="19.5" y="8" width="304" height="60" fill="url(#overlayGrad)"/>
-        <!-- 当前位置标记（deep-indigo，默认 良好→85%） -->
-        <g id="marker">
-          <line id="mLine" x1="277.3" y1="8" x2="277.3" y2="66" stroke="#4C3AAA" stroke-width="1.5"/>
-          <circle id="mDot" cx="277.3" cy="38" r="4" fill="#4C3AAA"/>
-        </g>
-      </svg>
-    </div>
-    <div class="legend">
-      <div class="legend-item"><span class="dot" style="background:#4C3AAA"></span>初步形成</div>
-      <div class="legend-item"><span class="dot" style="background:#4E36CC"></span>稳步接近</div>
-      <div class="legend-item"><span class="dot" style="background:#65C9C7"></span>目标达成</div>
-      <div class="legend-item"><span class="dot" style="background:#77CAD2"></span>熟练掌握</div>
-      <div class="legend-item"><span class="dot" style="background:#9CC6F8"></span>高阶表现</div>
-    </div>
-  </div>
+                <!-- 模块五：下一阶段建议 -->
+                <section class="report-card">
+                    <div class="px-6 sm:px-8 pt-6 pb-2">
+                        <div class="mod-title"><span class="bar"></span>下一阶段建议</div>
+                    </div>
+                    <div class="px-6 sm:px-8 pb-7 pt-4" id="modAdvice"></div>
+                </section>
 
-  <!-- ===== 段8 知识点掌握情况卡 ===== -->
-  <div class="card">
-    <div class="block-head">
-      <span class="bar"></span><h2 class="block-title">知识点掌握情况</h2><span class="block-sub">示例数据</span>
-    </div>
-    <div id="knowledge"></div>
-  </div>
+            </div>
 
-  <!-- ===== 段9 本次评定表现·典型难题1 卡 ===== -->
-  <div class="card">
-    <div class="block-head">
-      <span class="bar"></span><h2 class="block-title">本次评定表现</h2><span class="block-sub">示例数据</span>
-    </div>
-    <div id="q1"></div>
-  </div>
+            <!-- 操作区：宽屏 sticky 右侧；窄屏置顶 -->
+            <aside class="w-full lg:w-80 shrink-0 order-1 lg:order-2 lg:sticky" style="top:104px;">
+                <div class="space-y-4">
+                    <!-- 正式操作卡（正式版结构）：当前考生信息 + 下载报告 -->
+                    <div class="ops-card p-5">
+                        <div class="text-[12px] font-semibold text-[#606471] mb-3">考生信息</div>
+                        <div class="flex items-center gap-3 mb-4">
+                            <div class="w-11 h-11 rounded-full flex items-center justify-center text-white text-sm font-bold shrink-0" style="background:linear-gradient(135deg,#8777d3,#705fd2)" id="opsAvatar">李</div>
+                            <div class="min-w-0">
+                                <div class="text-[15px] font-bold text-navy" id="opsStudentName">李明 · 程序设计四级</div>
+                                <div class="text-[12px] text-[#a6a7af] mt-0.5" id="opsStudentMeta">2026年6月 · 优秀 · 100 分</div>
+                            </div>
+                        </div>
+                        <div class="border-t border-slate-100 pt-4">
+                            <button class="pdf-btn" id="pdfBtn" onclick="downloadPdf()">
+                                <i class="fa-solid fa-file-arrow-down"></i><span id="pdfBtnText">下载 PDF 报告</span>
+                            </button>
+                            <p class="text-[12px] text-[#a6a7af] mt-2 leading-relaxed">由服务端将当前报告渲染为 PDF，生成期间按钮置灰，失败可重试。</p>
+                        </div>
+                    </div>
+                    <!-- 演示卡（仅 Demo）：考生切换，正式版无此功能 -->
+                    <div class="rounded-xl border border-dashed border-[#c2bbe1] bg-white/70 p-4">
+                        <div class="flex items-center gap-2 mb-2">
+                            <span class="text-[12px] font-bold text-[#705fd2]"><i class="fa-solid fa-flask mr-1"></i>DEMO 演示</span>
+                            <span class="text-[11px] text-[#a6a7af] leading-tight">正式版无考生切换，本卡仅用于演示 4 种报告形态</span>
+                        </div>
+                        <div class="space-y-2" id="studentBtns"></div>
+                    </div>
+                </div>
+            </aside>
 
-  <!-- ===== 段10 典型难题2 卡（同段9 结构） ===== -->
-  <div class="card" id="q2Card">
-    <div id="q2"></div>
-  </div>
-
-  <!-- ===== 段11 下一阶段建议卡 ===== -->
-  <div class="card">
-    <div class="block-head">
-      <span class="bar"></span><h2 class="block-title">下一阶段建议</h2><span class="block-sub">示例数据</span>
-    </div>
-    <div id="advice"></div>
-  </div>
-
-  <div class="foot">
-    示例数据，字段口径以 PRD 数据契约为准（评估 T5）。头像为占位插画，正式素材归运营/设计侧（T3）。<br>
-    同级参照尾部文案与引导段为 demo 推导文案，非 PRD 正式文案（R1_S4 建议②）。<br>
-    本 demo 打印出口仅 @media print（T6）；服务端真实 PDF 归 S3。
-  </div>
-</div>
+        </div>
+    </main>
 
 <script>
-'use strict';
-/* ================= 数据契约（demo 示例数据，全部标注「示例数据」） ================= */
-var LEVEL_NUM = ['一','二','三','四','五','六','七','八'];
-
-var LEVELS = {
-  1:{no:1,name:'程序设计一级',modules:[
-        {name:'基础操作',pts:[['鼠标点击',4,4],['界面认识',3,4]]},
-        {name:'顺序执行',pts:[['移动积木',3,4],['等待指令',2,2]]}],
-    qs:[
-      {t:'客观题',n:1,label:'角色移动指令',title:'要让角色向右移动，应该使用哪个积木？',
-       options:['A. 移动10步','B. 改变造型','C. 播放声音','D. 隐藏'],
-       sa:'C. 播放声音',ca:'A. 移动10步',kp:'界面认识'},
-      {t:'编程题',n:2,label:'小猫走到终点',title:'让小猫从起点走到终点。',
-       saCode:'移动(50)步\n等待(1)秒\n移动(30)步',
-       caCode:'移动(50)步\n等待(1)秒\n向右旋转(90)度\n移动(30)步',
-       sa:'移动(50)步…',ca:'移动(50)步…',kp:'移动积木'}],
-    perfect:{t:'编程题',n:2,label:'小猫走到终点',title:'让小猫从起点走到终点。',
-       code:'移动(50)步\n等待(1)秒\n向右旋转(90)度\n移动(30)步',
-       sa:'移动(50)步…',kp:'移动积木'}},
-  2:{no:2,name:'程序设计二级',modules:[
-        {name:'顺序结构',pts:[['流程图',3,4],['步骤分解',2,3]]},
-        {name:'循环初步',pts:[['重复执行',3,4],['次数循环',2,3]]}],
-    qs:[
-      {t:'客观题',n:1,label:'流程图符号',title:'以下哪个流程图符号表示判断？',
-       options:['A. 圆角矩形','B. 菱形','C. 矩形','D. 圆形'],
-       sa:'C. 矩形',ca:'B. 菱形',kp:'流程图'},
-      {t:'编程题',n:2,label:'画正方形',title:'让角色画出一个正方形。',
-       saCode:'重复(4)次\n  移动(50)步\n  向右旋转(90)度',
-       caCode:'重复(4)次\n  移动(100)步\n  向右旋转(90)度',
-       sa:'重复(4)次…',ca:'重复(4)次…',kp:'次数循环'}],
-    perfect:{t:'编程题',n:2,label:'画正方形',title:'让角色画出一个正方形。',
-       code:'重复(4)次\n  移动(100)步\n  向右旋转(90)度',
-       sa:'重复(4)次…',kp:'次数循环'}},
-  3:{no:3,name:'程序设计三级',modules:[
-        {name:'条件判断',pts:[['如果…那么',2,3],['如果…否则',1,3]]},
-        {name:'变量',pts:[['变量创建',2,3],['变量运算',1,2]]}],
-    qs:[
-      {t:'客观题',n:1,label:'变量的值',title:'在 Scratch 中，变量的值可以是？',
-       options:['A. 只能是数字','B. 只能是文字','C. 数字或文字','D. 只能是布尔值'],
-       sa:'A. 只能是数字',ca:'C. 数字或文字',kp:'变量创建'},
-      {t:'编程题',n:2,label:'计分器',title:'编写计分器：碰到苹果加 1 分。',
-       saCode:'变量[分数]设为(0)\n如果(碰到苹果)\n  变量[分数]增加(1)',
-       caCode:'变量[分数]设为(0)\n重复执行\n  如果(碰到苹果)\n    变量[分数]增加(1)',
-       sa:'变量[分数]设为(0)…',ca:'变量[分数]设为(0)…',kp:'如果…那么'}],
-    perfect:{t:'编程题',n:2,label:'计分器',title:'编写计分器：碰到苹果加 1 分。',
-       code:'变量[分数]设为(0)\n重复执行\n  如果(碰到苹果)\n    变量[分数]增加(1)',
-       sa:'变量[分数]设为(0)…',kp:'如果…那么'}},
-  4:{no:4,name:'程序设计四级',modules:[  /* S1 2.4.3 四级（PL1）知识树 12 行 */
-        {name:'Python运算',pts:[['比较运算',2,3],['布尔值',2,2],['算术运算',3,3]]},
-        {name:'流程控制',pts:[['条件分支',2,2],['循环',1,2],['IPO编程',1,1]]},
-        {name:'常用标准库',pts:[['模块导入',1,1]]},
-        {name:'编程基础',pts:[['变量',2,2],['数据类型转换',1,1],['数据类型',2,2],['input()语句',1,1],['print()语句',3,3]]}],
-    qs:[
-      {t:'客观题',n:1,label:'阅读代码判断输出',title:'阅读以下代码，判断程序输出结果是（　）。',
-       code:'a = 3\na = a + 5\nprint(a + 3)',
-       options:['A. 8','B. 11','C. 13','D. 15'],
-       sa:'C. 13',ca:'B. 11',kp:'执行结果预测'},
-      {t:'编程题',n:2,label:'分支程序编写',title:'编写程序：输入一个整数，判断它是正数、负数还是零，并输出对应结果。',
-       saCode:'Xx = int(input())\nif Xx > 0:\n    print("正数")\nelse:\n    print("负数")',
-       caCode:'x = int(input())\nif x > 0:\n    print("正数")\nelif x < 0:\n    print("负数")\nelse:\n    print("零")',
-       sa:'Xx = int(input())…',ca:'x = int(input())…',kp:'条件判断'}],
-    perfect:{t:'编程题',n:2,label:'分支程序编写',title:'编写程序：输入一个整数，判断它是正数、负数还是零，并输出对应结果。',
-       code:'x = int(input())\nif x > 0:\n    print("正数")\nelif x < 0:\n    print("负数")\nelse:\n    print("零")',
-       sa:'x = int(input())…',kp:'条件判断'}},
-  5:{no:5,name:'程序设计五级',modules:[
-        {name:'函数',pts:[['函数定义',2,3],['参数传递',1,2],['返回值',2,2]]},
-        {name:'数学运算',pts:[['整除与取余',2,3],['数学函数',1,2]]}],
-    qs:[
-      {t:'客观题',n:1,label:'函数调用',title:'def func(a,b): return a+b，调用 func(3,5) 的结果是？',
-       options:['A. 8','B. 15','C. 35','D. 53'],
-       sa:'C. 35',ca:'A. 8',kp:'函数定义'},
-      {t:'编程题',n:2,label:'计算阶乘',title:'编写函数计算 n 的阶乘。',
-       saCode:'def fac(n):\n    r = 1\n    for i in range(1, n):\n        r *= i\n    return r',
-       caCode:'def fac(n):\n    r = 1\n    for i in range(1, n + 1):\n        r *= i\n    return r',
-       sa:'def fac(n):…',ca:'def fac(n):…',kp:'参数传递'}],
-    perfect:{t:'编程题',n:2,label:'计算阶乘',title:'编写函数计算 n 的阶乘。',
-       code:'def fac(n):\n    r = 1\n    for i in range(1, n + 1):\n        r *= i\n    return r',
-       sa:'def fac(n):…',kp:'参数传递'}},
-  6:{no:6,name:'程序设计六级',modules:[
-        {name:'算法基础',pts:[['枚举算法',3,3],['模拟算法',2,2],['排序',2,3]]},
-        {name:'数据分析',pts:[['列表操作',2,2],['字典操作',1,2]]}],
-    qs:[
-      {t:'客观题',n:1,label:'排序复杂度',title:'冒泡排序的时间复杂度是？',
-       options:['A. O(n)','B. O(n²)','C. O(log n)','D. O(n log n)'],
-       sa:'A. O(n)',ca:'B. O(n²)',kp:'排序'},
-      {t:'编程题',n:2,label:'统计词频',title:'统计一行单词中每个词出现的次数。',
-       saCode:'s = input().split()\nd = {}\nfor w in s:\n    d[w] = d[w] + 1\nprint(d)',
-       caCode:'s = input().split()\nd = {}\nfor w in s:\n    if w in d:\n        d[w] += 1\n    else:\n        d[w] = 1\nprint(d)',
-       sa:'s = input().split()…',ca:'s = input().split()…',kp:'字典操作'}],
-    perfect:{t:'编程题',n:2,label:'统计词频',title:'统计一行单词中每个词出现的次数。',
-       code:'s = input().split()\nd = {}\nfor w in s:\n    if w in d:\n        d[w] += 1\n    else:\n        d[w] = 1\nprint(d)',
-       sa:'s = input().split()…',kp:'字典操作'}},
-  7:{no:7,name:'程序设计七级',modules:[
-        {name:'高阶算法',pts:[['递归',1,3],['动态规划',0,2],['贪心',2,3]]},
-        {name:'数据结构',pts:[['栈与队列',1,2],['树',0,2]]}],
-    qs:[
-      {t:'客观题',n:1,label:'递归条件',title:'递归函数必须包含什么？',
-       options:['A. 循环','B. 终止条件','C. 全局变量','D. 指针'],
-       sa:'D. 指针',ca:'B. 终止条件',kp:'递归'},
-      {t:'编程题',n:2,label:'二叉树遍历',title:'实现二叉树先序遍历。',
-       saCode:'def preorder(root):\n    return []',
-       caCode:'def preorder(root):\n    if not root:\n        return []\n    return [root.val] + preorder(root.left) + preorder(root.right)',
-       sa:'def preorder(root):…',ca:'def preorder(root):…',kp:'树'}],
-    perfect:{t:'编程题',n:2,label:'二叉树遍历',title:'实现二叉树先序遍历。',
-       code:'def preorder(root):\n    if not root:\n        return []\n    return [root.val] + preorder(root.left) + preorder(root.right)',
-       sa:'def preorder(root):…',kp:'树'}},
-  8:{no:8,name:'程序设计八级',modules:[
-        {name:'C++基础',pts:[['输入输出',2,2],['STL容器',1,3],['指针与引用',1,2]]},
-        {name:'算法进阶',pts:[['图论',2,3],['字符串算法',1,2]]}],
-    qs:[
-      {t:'客观题',n:1,label:'vector 操作',title:'vector<int> v; v.push_back(5); 之后 v 的大小是？',
-       options:['A. 1','B. 0','C. 不确定','D. 报错'],
-       sa:'C. 不确定',ca:'A. 1',kp:'STL容器'},
-      {t:'编程题',n:2,label:'最短路径',title:'求单源最短路径（Dijkstra）。',
-       saCode:'#include <iostream>\nusing namespace std;\nint main() {\n    cout << "hello";\n    return 0;\n}',
-       caCode:'#include <iostream>\n#include <vector>\n#include <queue>\nusing namespace std;\n// Dijkstra 算法实现\nint main() { return 0; }',
-       sa:'#include <iostream>…',ca:'#include <iostream>…',kp:'图论'}],
-    perfect:{t:'编程题',n:2,label:'快速排序',title:'实现快速排序。',
-       code:'void qsort(int a[], int l, int r) {\n    if (l >= r) return;\n    int i = l, j = r, p = a[l];\n    while (i < j) {\n        while (i < j && a[j] >= p) j--;\n        a[i] = a[j];\n    }\n}',
-       sa:'void qsort(int a[], int l, int r) {…',kp:'快速排序'}}
+/* ===== 演示数据（业务需求梳理 1.3/1.4/1.5/1.6） ===== */
+const STAGES = [
+    { n:'初步形成', w:30, c:15 }, { n:'稳步接近', w:30, c:45 },
+    { n:'目标达成', w:20, c:70 }, { n:'熟练掌握', w:10, c:85 }, { n:'高阶表现', w:10, c:95 }
+];
+const SUMMARY = {
+    '待提升':'综合本次考级表现，本级基础正在逐步形成，建议继续巩固核心任务。',
+    '合格':'综合本次考级表现，已达到本级基本要求，可继续巩固并拓展。',
+    '良好':'综合本次考级表现，已较稳定达到本级要求，可进一步提升综合应用。',
+    '优秀':'综合本次考级表现，已高质量完成本级主要任务，可继续挑战更复杂的综合任务。'
 };
-
-/* ================= S1 2.4.2-a 等级映射（唯一事实源，不允许二次计算） =================
-   0≤s<30 待提升/初步形成(未通过)；30≤s<60 待提升/稳步接近(未通过)；
-   60≤s<70 合格/目标达成；70≤s<80 良好/熟练掌握；80≤s≤100 优秀/高阶表现。
-   边界左闭右开；score=100 唯一闭区间；越界(<0 或 >100)走 E-11 拦截。 */
-var STAGES = ['初步形成','稳步接近','目标达成','熟练掌握','高阶表现'];
-function gradeOf(score){
-  if(score < 30) return {label:'待提升',passed:false,stage:0};
-  if(score < 60) return {label:'待提升',passed:false,stage:1};
-  if(score < 70) return {label:'合格',passed:true,stage:2};
-  if(score < 80) return {label:'良好',passed:true,stage:3};
-  return {label:'优秀',passed:true,stage:4};
-}
-
-/* ================= S1 2.4.2-c 一句话总结（原文，不得改写） ================= */
-var SUMMARY = {
-  '待提升':'综合本次考级表现，本级基础正在逐步形成，建议继续巩固核心任务。',
-  '合格':'综合本次考级表现，已达到本级基本要求，可继续巩固并拓展。',
-  '良好':'综合本次考级表现，已较稳定达到本级要求，可进一步提升综合应用。',
-  '优秀':'综合本次考级表现，已高质量完成本级主要任务，可继续挑战更复杂的综合任务。'
+const ADVICE = { // 四级文案，逐字照录需求 1.6
+    pass:{ link:'建议继续学习列表、字典及循环分支嵌套，构建更复杂的程序逻辑，衔接五级。',
+           course:'建议通过更完整的项目练习，提升复杂逻辑设计和问题解决能力。' },
+    fail:{ link:'建议先巩固四级，继续学习列表、字典及循环分支嵌套，练习构建复杂程序逻辑。',
+           course:null } // 未通过不展示课程学习建议
 };
+const FULL_COMMENT = '本题目作答达到要求，完整完成任务。太棒了！';
 
-/* 同级参照尾部文案（demo 推导简化：W9 未通过取未通过区间，通过场景「熟练掌握→处于较稳定的成长区」为设计原样；
-   推导文案声明已见页脚，防误读为 PRD 正式文案，R1_S4 建议②） */
-var STAGE_TAIL = ['处于起步探索阶段','处于稳步积累阶段','已达成阶段目标','处于较稳定的成长区','处于领先成长区'];
+const STUDENTS = [
+{ id:'liming', name:'李明', level:'程序设计四级', date:'2026年6月', score:100, color:'#705fd2',
+  knowledge:[
+    {mod:'Python运算', pts:[['比较运算',100],['布尔值',100],['算术运算',100]]},
+    {mod:'流程控制', pts:[['条件分支',100],['循环',100],['IPO编程',100]]},
+    {mod:'常用标准库', pts:[['模块导入',100]]},
+    {mod:'编程基础', pts:[['变量',100],['数据类型转换',100],['数据类型',100],['input()语句',100],['print()语句',100]]}
+  ],
+  performance:{ full:true,
+    coding:{ no:'第13题', kp:'IPO编程', code:[
+      'name = input("请输入你的名字：")',
+      'age = int(input("请输入你的年龄："))',
+      'year = 2026 - age',
+      'print(name + "，你好！")',
+      'print("你大约出生于" + str(year) + "年")',
+      'print("欢迎参加 AISE 考级！")'
+    ]} } },
+{ id:'wangfang', name:'王芳', level:'程序设计四级', date:'2026年6月', score:76, color:'#2555e7',
+  knowledge:[
+    {mod:'Python运算', pts:[['比较运算',45],['布尔值',100],['算术运算',80]]},
+    {mod:'流程控制', pts:[['条件分支',50],['循环',75],['IPO编程',100]]},
+    {mod:'常用标准库', pts:[['模块导入',100]]},
+    {mod:'编程基础', pts:[['变量',100],['数据类型转换',60],['数据类型',100],['input()语句',100],['print()语句',100]]}
+  ],
+  performance:{ full:false,
+    objective:{ no:'第3题', type:'单选题', kp:'布尔值', scoreText:'0 / 4 分',
+      stem:'在 Python 中，表达式 3 > 5 的运算结果是？',
+      options:['True','False','3','5'], student:0, correct:1 },
+    coding:{ no:'第12题', kp:'循环', scoreText:'6 / 10 分', code:[
+      'count = 0',
+      'while count < 5:',
+      '    print(count)',
+      'print("循环结束")'
+    ]} } },
+{ id:'zhangwei', name:'张伟', level:'程序设计四级', date:'2026年6月', score:45, color:'#f0646b',
+  knowledge:[
+    {mod:'Python运算', pts:[['比较运算',40],['布尔值',50],['算术运算',100]]},
+    {mod:'流程控制', pts:[['条件分支',30],['循环',45],['IPO编程',60]]},
+    {mod:'常用标准库', pts:[['模块导入',0]]},
+    {mod:'编程基础', pts:[['变量',100],['数据类型转换',40],['数据类型',80],['input()语句',50],['print()语句',100]]}
+  ],
+  performance:{ full:false,
+    objective:{ no:'第2题', type:'单选题', kp:'条件分支', scoreText:'0 / 4 分',
+      stem:'下列哪个关键字用于在 Python 中编写条件判断？',
+      options:['for','if','print','input'], student:2, correct:1 },
+    coding:{ no:'第11题', kp:'IPO编程', scoreText:'3 / 10 分', code:[
+      'a = input()',
+      'print(a)'
+    ]} } },
+{ id:'chenchen', name:'陈晨', level:'程序设计四级', date:'2026年6月', score:68, color:'#14966f',
+  knowledge:null, // 知识点未配置：空数据占位
+  performance:{ full:false, objectiveOnly:true, // 编程题无扣分 → 缺一展一，仅展示客观题
+    objective:{ no:'第5题', type:'单选题', kp:'算术运算', scoreText:'0 / 4 分',
+      stem:'在 Python 中，表达式 7 % 3 的运算结果是？',
+      options:['1','2','2.5','3'], student:2, correct:0 },
+    coding:null } }
+];
 
-/* ================= S1 2.4.5 下一阶段建议文案表（原文；三级整级缺失=W6 人工配置） ================= */
-var ADVICE = {
-  1:{pass:{link:'建议继续学习变量、循环和条件判断，尝试编写较复杂的逻辑程序，衔接二级。',course:'建议提升程序逻辑设计与表达能力，逐步完成更完整的编程任务。'},
-     fail:{link:'建议先巩固一级，继续学习变量、循环和条件判断，尝试编写较复杂的逻辑程序。',course:''}},
-  2:{pass:{link:'建议继续学习数据类型及顺序、分支和循环结构，逐步过渡到代码编程，衔接四级。',course:'建议进阶学习代码编程，巩固基础编程语法。'},
-     fail:{link:'建议先巩固二级，继续学习数据类型及顺序、分支和循环结构，尝试进行代码编程。',course:''}},
-  3:{pass:{link:'考级衔接建议待运营人工配置（W6，三级整级缺失）。',course:''},
-     fail:{link:'考级衔接建议待运营人工配置（W6，三级整级缺失）。',course:''}},
-  4:{pass:{link:'建议继续学习列表、字典及循环分支嵌套，构建更复杂的程序逻辑，衔接五级。',course:'建议通过更完整的项目练习，提升复杂逻辑设计和问题解决能力。'},
-     fail:{link:'建议先巩固四级，继续学习列表、字典及循环分支嵌套，练习构建复杂程序逻辑。',course:''}},
-  5:{pass:{link:'建议继续学习函数定义与整除取余，尝试用程序解决数学问题，衔接六级。',course:'建议提升多文件编程能力，增强模块协作与项目组织能力。'},
-     fail:{link:'建议先巩固五级，继续学习函数定义与整除取余，尝试用程序解决数学问题。',course:''}},
-  6:{pass:{link:'建议继续学习核心算法与数据分析，使用枚举、模拟等方法解决实际问题，衔接七级。',course:'建议提升数据分析能力，增强数据处理与问题洞察能力。'},
-     fail:{link:'建议先巩固六级，继续学习核心算法与数据分析，练习用枚举、模拟等方法解决实际问题。',course:''}},
-  7:{pass:{link:'建议继续学习经典高阶算法，尝试用算法解决综合项目问题，衔接八级。',course:'建议进一步提升算法设计与综合应用能力，为数据结构和高阶算法学习做好准备。'},
-     fail:{link:'建议先巩固七级，继续学习经典高阶算法，尝试用算法解决综合项目问题。',course:''}},
-  8:{pass:{link:'已完成当前程序设计考级等级序列，可进一步衔接C++与高阶算法学习。',course:'建议进一步学习C++、数据结构与高阶算法，提升算法设计和综合问题求解能力。'},
-     fail:{link:'建议先巩固八级，继续学习数据结构与高阶算法，提升综合问题求解能力。',course:''}}
-};
-var GUIDE_PASS = '建议持续完成本级练习与阶段性测评，巩固薄弱知识点，为下一级考试做好衔接准备。'; /* demo 引导段 */
-var GUIDE_FAIL = '建议针对「重点提升」知识点加强练习，巩固基础后再参加下一次考级。';                       /* demo 引导段 */
-
-/* ================= 工具 ================= */
-function esc(s){
-  return String(s).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;').replace(/'/g,'&#39;');
+/* ===== 渲染函数 ===== */
+function gradeOf(s){
+    if(s < 30) return { pass:false, grade:'待提升', stage:0 };
+    if(s < 60) return { pass:false, grade:'待提升', stage:1 };
+    if(s < 70) return { pass:true,  grade:'合格',   stage:2 };
+    if(s < 80) return { pass:true,  grade:'良好',   stage:3 };
+    return { pass:true, grade:'优秀', stage:4 };
 }
-/* E-07 截断（S1 2.4.4/E-07：>5 行保留前 5 行；无展开交互；「≤5 行不截断」为推导口径）。
-   截断标识形态「……」为 demo 推导（S1 未规定），登记于文件头 R1_S4 修订记录②；渲染层统一执行，数据保持全文。 */
-var TRUNC_MARK = '……';
-function truncCode(s){
-  var lines = String(s).split('\n');
-  if(lines.length <= 5){ return s; }
-  return lines.slice(0, 5).join('\n') + '\n' + TRUNC_MARK;
-}
-function $(id){ return document.getElementById(id); }
+function esc(t){ return String(t).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;'); }
 
-/* ================= 渲染 ================= */
-var current = {level:4, score:75}; /* 默认示例：四级 · 总分 75 → 良好/熟练掌握（口径见文件头注释） */
-
-function renderAll(){
-  var ld = LEVELS[current.level] || LEVELS[4];
-  var score = current.score;
-  var g = gradeOf(score);
-  var stageName = STAGES[g.stage];
-  var isPerfect = score === 100; /* E-02：满分画像（满分=100 假设，S1 数据契约） */
-
-  /* 段1 顶部标签条（示例数据标注 T5） */
-  $('demoBadge').textContent = '示例数据 · 总分 ' + score;
-
-  /* 段2 头部靛蓝卡（两行 24px bold 白，S2 §2.3-段2；R1_S4 一般④） */
-  $('headerTitle').textContent = ld.name;
-  $('headerSub').textContent = '2026年6月 · ' + (g.passed ? '通过' : '未通过');
-
-  /* 段4 本次等级行（绿=通过；W9：未通过=待提升灰胶囊） */
-  var gp = $('gradePill');
-  gp.textContent = g.label;
-  gp.className = 'pill ' + (g.passed ? 'green-pill' : 'gray-pill');
-  $('gradeTail').textContent = (g.passed ? '已达到' : '暂未达到') + ld.name + '核心要求';
-
-  /* 段5 同级参照行（橙胶囊=成长区间；W9：未通过取未通过区间文案） */
-  $('peerPill').textContent = stageName;
-  $('peerTail').textContent = STAGE_TAIL[g.stage];
-
-  /* 段6 灰色总结条（S1 2.4.2-c 文案表） */
-  $('summaryBar').textContent = SUMMARY[g.label];
-
-  /* 段7 小提琴图标记（S1 2.4.2-b：固定于阶段中心；score=100 → 100% 满分特例） */
-  var pct = isPerfect ? 100 : [15,45,70,85,95][g.stage];
-  var mx = 24 + pct / 100 * 298; /* 图体 x24-322（左右留白 ≈7%） */
-  $('mLine').setAttribute('x1', mx); $('mLine').setAttribute('x2', mx);
-  $('mDot').setAttribute('cx', mx);
-
-  /* 段8 知识点树（S1 2.4.3：公式 Σ得分/Σ满分；<60% 重点提升、≥60% 稳定；二级按状态升序） */
-  renderKnowledge(ld);
-
-  /* 段9/10 具体表现（S1 2.4.4：满分 1 道/非满分 2 道；非满分=首道错误客观题+首道扣分编程题） */
-  renderPerformance(ld, isPerfect);
-
-  /* 段11 下一阶段建议（S1 2.4.5 级别×状态） */
-  renderAdvice(ld, g.passed);
+function renderHeader(stu, g){
+    const chip = g.pass
+        ? '<span class="chip chip-green"><i class="fa-solid fa-circle-check"></i>通过</span>'
+        : '<span class="chip chip-pink"><i class="fa-solid fa-circle-exclamation"></i>未通过</span>';
+    const gc = { '待提升':'#c07f16', '合格':'#2555e7', '良好':'#14966f', '优秀':'#705fd2' }[g.grade];
+    document.getElementById('modHeader').innerHTML =
+      '<div class="flex flex-wrap items-center justify-between gap-4">'
+      + '<div class="flex items-center gap-4 min-w-0">'
+      +   '<div class="w-14 h-14 rounded-2xl flex items-center justify-center text-white text-xl font-bold shrink-0" style="background:linear-gradient(135deg,#8777d3,#705fd2)">'+esc(stu.name[0])+'</div>'
+      +   '<div class="min-w-0">'
+      +     '<div class="flex items-center gap-3 flex-wrap"><h1 class="text-[22px] sm:text-[24px] font-extrabold text-navy leading-tight">'+esc(stu.level)+'考级报告</h1>'+chip+'</div>'
+      +     '<div class="text-[15px] text-[#606471] mt-1">'+esc(stu.name)+' · '+esc(stu.date)+'</div>'
+      +   '</div>'
+      + '</div>'
+      + '<div class="flex items-center gap-5 shrink-0">'
+      +   '<div class="text-right"><div class="text-[12px] text-[#a6a7af]">正式总分</div>'
+      +   '<div class="text-[34px] leading-none font-extrabold" style="color:'+gc+'">'+stu.score+'<span class="text-[15px] font-medium text-[#a6a7af]"> 分</span></div></div>'
+      +   '<div class="text-right border-l border-slate-100 pl-5"><div class="text-[12px] text-[#a6a7af]">报告等级</div>'
+      +   '<div class="text-[24px] leading-none font-extrabold mt-1" style="color:'+gc+'">'+g.grade+'</div></div>'
+      + '</div></div>';
 }
 
-function renderKnowledge(ld){
-  var h = '';
-  ld.modules.forEach(function(mod){
-    h += '<div class="k-mod">' + esc(mod.name) + '</div>';
-    /* 排序：先「重点提升」再「稳定掌握」；同状态内保持知识树顺序（S1 1.4.3） */
-    var pts = mod.pts.slice().sort(function(a,b){
-      var sa = (a[1] / a[2] >= 0.6) ? 1 : 0;
-      var sb = (b[1] / b[2] >= 0.6) ? 1 : 0;
-      return sa - sb;
+function renderOverview(stu, g){
+    const pos = Math.min(97, stu.score === 100 ? 100 : STAGES[g.stage].c); // 满分取色带右端，其余固定阶段中心（clamp 防圆点溢出）
+    const shades = ['#e3e0f5','#cfc9ee','#aaa8e1','#8777d3','#705fd2'];
+    let segs = '';
+    STAGES.forEach(function(s, i){
+        const active = i === g.stage;
+        segs += '<div class="stage-seg" style="width:'+s.w+'%;background:'+(active ? 'linear-gradient(180deg,'+shades[i]+',#5bc8e8)' : shades[i])+';opacity:'+(active?'1':'0.45')+'"></div>';
     });
-    pts.forEach(function(p){
-      var name = p[0], corr = p[1], total = p[2];
-      var raw = corr / total * 100;   /* 未取整值 —— L7：阈值判定用未取整值 */
-      var pct = raw.toFixed(1);       /* 展示层舍入 1 位小数（S1 2.4.3 精度规则） */
-      var stable = raw >= 60;         /* <60% 重点提升；≥60% 稳定掌握 */
-      h += '<div class="k-pt"><span class="k-name">' + esc(name) + '</span>'
-         + '<span class="k-pct">' + pct + '%</span>'
-         + '<span class="tag ' + (stable ? 'stable' : 'improve') + '">' + (stable ? '稳定掌握' : '重点提升') + '</span></div>';
+    let labels = '';
+    STAGES.forEach(function(s, i){
+        labels += '<div class="text-center text-[12px] '+(i===g.stage?'font-bold text-[#705fd2]':'text-[#a6a7af]')+'" style="width:'+s.w+'%">'+s.n+'</div>';
     });
-  });
-  $('knowledge').innerHTML = h;
+    document.getElementById('modOverview').innerHTML =
+      '<div class="flex items-center gap-2 flex-wrap mb-5">'
+      + '<span class="chip chip-purple">报告等级 · '+g.grade+'</span>'
+      + '<span class="chip '+(g.pass?'chip-blue':'chip-orange')+'">成长区间 · '+STAGES[g.stage].n+'</span></div>'
+      + '<div class="relative pt-2 pb-1"><div class="stage-track">'+segs+'</div>'
+      + '<div class="absolute" style="left:'+pos+'%;top:0;transform:translateX(-50%)">'
+      +   '<div class="w-4 h-4 rounded-full border-[3px] border-white shadow-md" style="background:#705fd2;margin-top:22px"></div>'
+      + '</div></div>'
+      + '<div class="flex mt-2">'+labels+'</div>'
+      + '<div class="text-[12px] text-[#606471] mt-3"><i class="fa-solid fa-location-dot mr-1" style="color:#705fd2"></i>本次考级所处阶段：<b class="text-navy">'+STAGES[g.stage].n+'</b></div>'
+      + '<div class="mt-4 rounded-xl px-5 py-4 text-[15px] leading-relaxed" style="background:#f5f6f8;color:#212845"><i class="fa-solid fa-quote-left mr-2" style="color:#aaa8e1"></i>'+SUMMARY[g.grade]+'</div>';
 }
 
-function questionHTML(q, isPerfect){
-  var h = '';
-  h += '<div class="q-no-row">' + q.n + '. ' + esc(q.label) + '</div>';
-  h += '<p class="q-stem">' + esc(q.title) + '</p>';
-  if(q.code){
-    if(isPerfect){
-      /* 满分画像：只展示学生作答，代码块标注「你的作答」归属（S1 2.4.4；R1_S4 一般③） */
-      h += '<div class="code-block">'
-         +   '<div class="code-seg"><div class="code-seg-label">你的作答</div><pre>' + esc(truncCode(q.code)) + '</pre></div>'
-         + '</div>';
-    }else{
-      h += '<pre class="code-block">' + esc(truncCode(q.code)) + '</pre>';
+function renderKnowledge(stu){
+    const box = document.getElementById('modKnowledge');
+    if(!stu.knowledge){ // 空状态（需求 3.4）：知识树未配置
+        box.innerHTML = '<div class="rounded-xl border border-dashed border-[#c2bbe1] bg-[#faf9fe] py-10 flex flex-col items-center justify-center text-center">'
+          + '<i class="fa-solid fa-folder-open text-[28px] mb-3" style="color:#aaa8e1"></i>'
+          + '<div class="text-[15px] font-semibold text-navy">暂无知识点掌握数据</div>'
+          + '<div class="text-[12px] text-[#a6a7af] mt-1">本场考试题目暂未配置知识点标签</div></div>';
+        return;
     }
-  }
-  if(q.saCode || q.caCode){
-    h += '<div class="code-block">'
-       +   '<div class="code-seg"><div class="code-seg-label">你的作答</div><pre>' + esc(truncCode(q.saCode)) + '</pre></div>'
-       +   '<div class="code-seg"><div class="code-seg-label">标准答案</div><pre>' + esc(truncCode(q.caCode)) + '</pre></div>'
-       + '</div>';
-  }
-  if(q.options){
-    var o = '';
-    q.options.forEach(function(x){ o += '<span class="q-option">' + esc(x) + '</span>'; });
-    h += '<div class="q-options">' + o + '</div>';
-  }
-  h += '<div class="state-row"><span class="state-label">你的作答</span><span class="state-val ans">' + esc(q.sa || '') + '</span></div>';
-  if(!isPerfect){
-    h += '<div class="state-row"><span class="state-label">参考答案</span><span class="state-val ref">' + esc(q.ca || '') + '</span></div>';
-  }
-  h += '<div class="tag-row"><span class="kp-tag">' + esc(q.kp) + '</span></div>';
-  h += '<p class="q-tip">' + esc(q.tip) + '</p>';
-  return h;
-}
-
-function renderPerformance(ld, isPerfect){
-  if(isPerfect){
-    /* 满分画像：首道满分编程题 1 道，只展示学生作答，不展示正确答案（S1 2.4.4） */
-    var pq = ld.perfect;
-    pq.tip = '本题目作答达到要求，完整完成任务。太棒了！'; /* 满分固定点评 */
-    $('q1').innerHTML = questionHTML(pq, true);
-    $('q2Card').style.display = 'none';
-  } else {
-    /* 非满分画像：首道错误客观题 + 首道扣分编程题，按题号排序（S1 2.4.4） */
-    var qs = ld.qs.slice(0,2);
-    qs.forEach(function(q){
-      q.tip = '建议重点提升【' + q.kp + '】。'; /* S1 2.4.4 非满分点评原文：建议重点提升【二级标签知识点】。（R1_S4 建议①） */
+    let html = '';
+    stu.knowledge.forEach(function(m){
+        // 排序：先重点提升后稳定掌握，同状态按知识树顺序（需求 1.4.3）
+        const sorted = m.pts.slice().sort(function(a,b){
+            const wa = a[1] >= 60 ? 1 : 0, wb = b[1] >= 60 ? 1 : 0;
+            return wa - wb;
+        });
+        let rows = '';
+        sorted.forEach(function(p){
+            const ok = p[1] >= 60;
+            rows += '<div class="flex items-center justify-between py-2 border-b border-slate-50 last:border-0">'
+              + '<span class="text-[15px] text-navy">'+esc(p[0])+'</span>'
+              + '<span class="flex items-center gap-3 shrink-0"><span class="text-[13px] font-bold '+(ok?'text-[#14966f]':'text-[#c07f16]')+'">'+p[1]+'%</span>'
+              + '<span class="chip '+(ok?'chip-green':'chip-orange')+'">'+(ok?'稳定掌握':'重点提升')+'</span></span></div>';
+        });
+        html += '<div class="mb-4 last:mb-0"><div class="flex items-center gap-2 mb-1">'
+          + '<i class="fa-solid fa-layer-group text-[13px]" style="color:#8777d3"></i>'
+          + '<span class="text-[15px] font-bold text-navy-soft">'+esc(m.mod)+'</span></div>'
+          + '<div class="pl-6">'+rows+'</div></div>';
     });
-    $('q1').innerHTML = questionHTML(qs[0], false);
-    $('q2').innerHTML = questionHTML(qs[1] || qs[0], false);
-    $('q2Card').style.display = '';
-  }
+    box.innerHTML = html;
 }
 
-function renderAdvice(ld, passed){
-  var a = ADVICE[ld.no] || ADVICE[4];
-  var entry = passed ? a.pass : a.fail;
-  var h = '';
-  h += '<div class="focus-card"><p class="focus-label">考级衔接</p><p class="focus-text">' + esc(entry.link) + '</p></div>';
-  h += '<p class="advice-body">' + (entry.course ? esc(entry.course) : '课程学习建议：待运营人工配置（W6）。') + '</p>';
-  h += '<p class="advice-guide">' + esc(passed ? GUIDE_PASS : GUIDE_FAIL) + '</p>';
-  $('advice').innerHTML = h;
+function codeHtml(lines){
+    const shown = lines.slice(0, 5); // 统一保留前 5 行后截断（需求 1.5.2）
+    let rows = '';
+    shown.forEach(function(l, i){ rows += '<div><span class="ln">'+(i+1)+'</span>'+esc(l)+'</div>'; });
+    let html = '<div class="code-block">'+rows+'</div>';
+    if(lines.length > 5) html += '<div class="code-trunc">··· 作答代码较长，仅展示前 5 行 ···</div>';
+    return html;
 }
 
-/* ================= demo-only 调试条 ================= */
-function quickScore(v){ $('dbgScore').value = v; applyDebug(); }
-function applyDebug(){
-  var lv = parseInt($('dbgLevel').value, 10);
-  var sc = parseFloat($('dbgScore').value);
-  var warn = $('dbgWarn');
-  if(isNaN(sc) || sc < 0 || sc > 100){
-    warn.textContent = '⚠ 数据异常：score 越界（E-11 拦截），不进入映射判定';
-    return;
-  }
-  warn.textContent = '';
-  current = {level: lv, score: sc};
-  renderAll();
+function renderPerformance(stu){
+    const card = document.getElementById('cardPerformance');
+    const box = document.getElementById('modPerformance');
+    const p = stu.performance;
+    let html = '';
+    if(p.full){ // 满分画像：1 道首道满分编程题，只展示作答不展示答案
+        if(!p.coding){ card.style.display = 'none'; return; } // 找不到首道满分编程题则整模块不展示
+        html = '<div><div class="flex items-center gap-2 flex-wrap mb-3">'
+          + '<span class="chip chip-purple">'+esc(p.coding.no)+' · 编程题</span>'
+          + '<span class="chip chip-green"><i class="fa-solid fa-award"></i>满分高光</span></div>'
+          + '<div class="text-[12px] font-semibold text-[#606471] mb-1.5">你的作答</div>'+codeHtml(p.coding.code)
+          + '<div class="mt-3 rounded-xl px-4 py-3 text-[15px]" style="background:#f0edfb;color:#705fd2"><i class="fa-solid fa-comment-dots mr-2"></i>'+FULL_COMMENT+'</div></div>';
+    } else { // 非满分画像：首错客观题 + 首扣分编程题，各自独立判定，缺一展一
+        if(p.objective){
+            const o = p.objective, letters = ['A','B','C','D'];
+            let opts = '';
+            o.options.forEach(function(t, i){
+                let cls = 'border-slate-200 text-navy', tag = '';
+                if(i === o.student){ cls = 'border-[#f0646b] bg-[#fdecec] text-[#e0484f]'; tag = '<span class="chip chip-pink ml-2">你的作答</span>'; }
+                if(i === o.correct){ cls = 'border-[#14966f] bg-[#e7f8f2] text-[#14966f]'; tag = '<span class="chip chip-green ml-2">正确答案</span>'; }
+                opts += '<div class="flex items-center rounded-xl border px-4 py-2.5 text-[15px] '+cls+'"><b class="mr-2">'+letters[i]+'.</b>'+esc(t)+tag+'</div>';
+            });
+            html += '<div><div class="flex items-center gap-2 flex-wrap mb-3">'
+              + '<span class="chip chip-purple">'+esc(o.no)+' · '+esc(o.type)+'</span>'
+              + '<span class="chip chip-gray">得分 '+esc(o.scoreText)+'</span></div>'
+              + '<div class="text-[15px] text-navy leading-relaxed mb-3">'+esc(o.stem)+'</div>'
+              + '<div class="space-y-2">'+opts+'</div>'
+              + '<div class="mt-3 rounded-xl px-4 py-3 text-[15px]" style="background:#fdecec;color:#e0484f"><i class="fa-solid fa-lightbulb mr-2"></i>建议重点提升【'+esc(o.kp)+'】。</div></div>';
+        }
+        if(p.coding){
+            html += '<div><div class="flex items-center gap-2 flex-wrap mb-3">'
+              + '<span class="chip chip-purple">'+esc(p.coding.no)+' · 编程题</span>'
+              + '<span class="chip chip-gray">得分 '+esc(p.coding.scoreText)+'</span></div>'
+              + '<div class="text-[12px] font-semibold text-[#606471] mb-1.5">你的作答</div>'+codeHtml(p.coding.code)
+              + '<div class="mt-3 rounded-xl px-4 py-3 text-[15px]" style="background:#fdecec;color:#e0484f"><i class="fa-solid fa-lightbulb mr-2"></i>建议重点提升【'+esc(p.coding.kp)+'】。</div></div>';
+        }
+        if(!html){ card.style.display = 'none'; return; } // 两者均无则整模块不展示
+    }
+    card.style.display = '';
+    box.innerHTML = html;
 }
-$('dbgLevel').addEventListener('change', applyDebug);
-$('dbgScore').addEventListener('input', applyDebug);
 
-/* 初始渲染 */
-renderAll();
+function renderAdvice(g){
+    const a = g.pass ? ADVICE.pass : ADVICE.fail;
+    let html = '<div class="rounded-xl border border-slate-100 px-5 py-4" style="background:#faf9fe">'
+      + '<div class="flex items-center gap-2 mb-1.5"><i class="fa-solid fa-arrow-trend-up" style="color:#8777d3"></i><span class="text-[15px] font-bold text-navy">考级衔接</span></div>'
+      + '<div class="text-[15px] leading-relaxed text-[#212845]">'+a.link+'</div></div>';
+    if(a.course){ // 课程学习建议仅通过状态展示（需求 3.6）
+        html += '<div class="rounded-xl border border-slate-100 px-5 py-4 mt-3" style="background:#f4f8fe">'
+          + '<div class="flex items-center gap-2 mb-1.5"><i class="fa-solid fa-book-open" style="color:#2555e7"></i><span class="text-[15px] font-bold text-navy">课程学习建议</span></div>'
+          + '<div class="text-[15px] leading-relaxed text-[#212845]">'+a.course+'</div></div>';
+    }
+    document.getElementById('modAdvice').innerHTML = html;
+}
+
+function renderReport(stu){
+    const g = gradeOf(stu.score);
+    renderHeader(stu, g);
+    renderOverview(stu, g);
+    renderKnowledge(stu);
+    renderPerformance(stu);
+    renderAdvice(g);
+}
+/* ===== 交互与初始化 ===== */
+let currentId = 'liming';
+let pdfTimer = null;
+
+function switchStudent(id){
+    currentId = id;
+    const stu = STUDENTS.find(function(s){ return s.id === id; });
+    if(!stu) return;
+    renderReport(stu);
+    const g = gradeOf(stu.score);
+    document.getElementById('opsAvatar').textContent = stu.name[0];
+    document.getElementById('opsStudentName').textContent = stu.name + ' · ' + stu.level;
+    document.getElementById('opsStudentMeta').textContent = stu.date + ' · ' + g.grade + ' · ' + stu.score + ' 分';
+    document.querySelectorAll('.stu-btn').forEach(function(b){
+        b.classList.toggle('active', b.getAttribute('data-id') === id);
+    });
+    resetPdfBtn();
+    window.scrollTo({ top:0, behavior:'smooth' });
+}
+
+function resetPdfBtn(){
+    if(pdfTimer){ clearTimeout(pdfTimer); pdfTimer = null; }
+    const btn = document.getElementById('pdfBtn');
+    btn.disabled = false;
+    btn.classList.remove('retry');
+    btn.innerHTML = '<i class="fa-solid fa-file-arrow-down"></i><span>下载 PDF 报告</span>';
+}
+
+function downloadPdf(){
+    const btn = document.getElementById('pdfBtn');
+    if(btn.disabled) return;
+    const stu = STUDENTS.find(function(s){ return s.id === currentId; });
+    if(!stu) return;
+    // 真实下载：指向预生成的 PDF（样式与线上报告一致；未来线上由服务端实时渲染）
+    btn.disabled = true;
+    btn.innerHTML = '<i class="fa-solid fa-circle-notch fa-spin"></i><span>准备下载…</span>';
+    pdfTimer = setTimeout(function(){
+        pdfTimer = null;
+        btn.disabled = false;
+        btn.innerHTML = '<i class="fa-solid fa-file-arrow-down"></i><span>下载 PDF 报告</span>';
+        const a = document.createElement('a');
+        a.href = 'pdf/考级报告_' + stu.name + '.pdf';
+        a.download = 'AISE考级报告_' + stu.name + '.pdf';
+        document.body.appendChild(a);
+        a.click();
+        document.body.removeChild(a);
+    }, 600);
+}
+
+function initStudentBtns(){
+    const box = document.getElementById('studentBtns');
+    let html = '';
+    STUDENTS.forEach(function(s){
+        const g = gradeOf(s.score);
+        const sub = s.knowledge ? (s.score + ' 分 · ' + g.grade) : (s.score + ' 分 · 知识点未配置');
+        html += '<button class="stu-btn" data-id="'+s.id+'" onclick="switchStudent(\''+s.id+'\')">'
+          + '<span class="avatar" style="background:linear-gradient(135deg,#8777d3,#705fd2)">'+esc(s.name[0])+'</span>'
+          + '<span class="min-w-0"><span class="block truncate">'+esc(s.name)+'</span>'
+          + '<span class="block text-[12px] font-normal text-[#a6a7af]">'+sub+'</span></span></button>';
+    });
+    box.innerHTML = html;
+}
+
+initStudentBtns();
+switchStudent('liming');
 </script>
 </body>
 </html>

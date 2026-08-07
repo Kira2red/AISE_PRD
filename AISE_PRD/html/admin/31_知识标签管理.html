@@ -7,6 +7,7 @@
     <script src="https://cdn.tailwindcss.com"></script>
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.18.5/xlsx.full.min.js"></script>
     <script>
         tailwind.config = {
             theme: {
@@ -65,14 +66,27 @@
                 <button onclick="openModal('module')" class="text-xs flex items-center gap-1 text-brand-600 hover:text-brand-700 font-medium bg-brand-50 px-3 py-1.5 rounded-lg hover:bg-brand-100 transition">
                     <i class="fa-solid fa-plus"></i> 新增模块
                 </button>
+                <span class="text-xs text-slate-400">|</span>
+                <button onclick="downloadTemplate()" class="text-xs flex items-center gap-1 text-slate-600 hover:text-slate-800 font-medium bg-slate-100 px-3 py-1.5 rounded-lg hover:bg-slate-200 transition" title="下载 Excel 导入模板">
+                    <i class="fa-solid fa-download"></i> 下载模板
+                </button>
+                <button onclick="triggerImport()" class="text-xs flex items-center gap-1 text-slate-600 hover:text-slate-800 font-medium bg-slate-100 px-3 py-1.5 rounded-lg hover:bg-slate-200 transition" title="按模板批量导入，按「父级+名称」去重，已存在则覆盖更新">
+                    <i class="fa-solid fa-file-import"></i> 批量导入
+                </button>
+                <button onclick="exportData()" class="text-xs flex items-center gap-1 text-slate-600 hover:text-slate-800 font-medium bg-slate-100 px-3 py-1.5 rounded-lg hover:bg-slate-200 transition" title="导出当前筛选条件下的知识标签数据">
+                    <i class="fa-solid fa-file-export"></i> 批量导出
+                </button>
             </div>
         </header>
+
+        <!-- 隐藏的文件选择框：批量导入用 -->
+        <input type="file" id="import-file" accept=".xlsx" class="hidden" onchange="handleImportFile(this)">
 
         <div class="flex flex-1 overflow-hidden">
             <!-- Left Panel: Tree -->
             <div class="w-80 bg-white border-r border-slate-200 flex flex-col flex-shrink-0">
                 <div class="p-4 border-b border-slate-100">
-                    <input type="text" placeholder="搜索级别、模块或知识点..." class="w-full text-xs px-3 py-2 rounded-lg border border-slate-200 focus:border-brand-500 focus:ring-1 focus:ring-brand-100 outline-none bg-slate-50" oninput="filterTree(this.value)">
+                    <input type="text" id="tree-search" placeholder="搜索级别、模块或知识点..." class="w-full text-xs px-3 py-2 rounded-lg border border-slate-200 focus:border-brand-500 focus:ring-1 focus:ring-brand-100 outline-none bg-slate-50" oninput="filterTree(this.value)">
                 </div>
                 <div class="flex-1 overflow-y-auto p-2" id="tree-container">
                     <!-- JS rendered -->
@@ -128,13 +142,27 @@
         <div class="bg-white rounded-2xl shadow-xl w-[400px] p-6 modal-enter">
             <div class="text-center">
                 <div class="w-12 h-12 mx-auto mb-4 rounded-full bg-red-50 flex items-center justify-center"><i class="fa-solid fa-triangle-exclamation text-red-500 text-xl"></i></div>
-                <h3 class="text-lg font-bold text-slate-800 mb-2">确认删除</h3>
+                <h3 class="text-lg font-bold text-slate-800 mb-2" id="confirm-title">确认删除</h3>
                 <p class="text-sm text-slate-500 mb-2" id="confirm-msg">确定要删除此项吗？</p>
                 <p class="text-xs text-red-500" id="confirm-warn"></p>
             </div>
             <div class="flex justify-center gap-3 mt-6">
                 <button onclick="closeConfirm()" class="px-6 py-2 text-sm font-medium text-slate-600 bg-slate-100 hover:bg-slate-200 rounded-lg transition">取消</button>
-                <button onclick="confirmDelete()" class="px-6 py-2 text-sm font-medium text-white bg-red-500 hover:bg-red-600 rounded-lg transition">删除</button>
+                <button onclick="confirmDelete()" id="confirm-ok-btn" class="px-6 py-2 text-sm font-medium text-white bg-red-500 hover:bg-red-600 rounded-lg transition">删除</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Import Result Modal -->
+    <div id="import-result-overlay" class="fixed inset-0 z-50 hidden flex items-center justify-center bg-slate-900/50 backdrop-blur-sm">
+        <div class="bg-white rounded-2xl shadow-xl w-[480px] p-6 modal-enter">
+            <div class="flex justify-between items-center mb-5">
+                <h3 class="text-lg font-bold text-slate-800">批量导入结果</h3>
+                <button onclick="closeImportResult()" class="w-8 h-8 rounded-lg hover:bg-slate-100 flex items-center justify-center text-slate-400 hover:text-slate-600 transition"><i class="fa-solid fa-xmark"></i></button>
+            </div>
+            <div class="space-y-3" id="import-result-body"></div>
+            <div class="flex justify-end mt-6 pt-4 border-t border-slate-100">
+                <button onclick="closeImportResult()" class="px-4 py-2 text-sm font-medium text-white bg-brand-600 hover:bg-brand-700 rounded-lg transition">完成</button>
             </div>
         </div>
     </div>
@@ -218,12 +246,13 @@ function renderTree(filter = '') {
 
         html += '<div class="mb-2">';
         // Level row
-        html += '<div class="tree-item flex items-center gap-2 px-3 py-2 rounded-lg text-sm font-semibold text-slate-700 relative" onclick="toggleLevel(this)" data-level-id="' + level.id + '">';
+        html += '<div class="tree-item flex items-center gap-2 px-3 py-2 rounded-lg text-sm font-semibold text-slate-700 relative min-w-0" onclick="toggleLevel(this)" data-level-id="' + level.id + '">';
         html += '<i class="fa-solid fa-chevron-down text-xs text-slate-400 transition-transform w-4 text-center level-arrow"></i>';
         html += '<i class="fa-solid fa-layer-group text-brand-500 text-xs w-4 text-center"></i>';
-        html += '<span>' + escapeHtml(level.name) + '</span>';
-        html += '<span class="ml-auto text-xs text-slate-400">' + level.modules.length + '模块</span>';
+        html += '<span class="truncate">' + escapeHtml(level.name) + '</span>';
+        html += '<span class="ml-auto text-xs text-slate-400 whitespace-nowrap shrink-0">' + level.modules.length + '模块</span>';
         html += '<button onclick="event.stopPropagation(); openModal(\'module\', \'' + level.id + '\')" class="ml-1 w-6 h-6 rounded flex items-center justify-center hover:bg-brand-50 text-slate-400 hover:text-brand-600 transition"><i class="fa-solid fa-plus text-[10px]"></i></button>';
+        html += '<button onclick="event.stopPropagation(); openClearTagsConfirm(\'level\', \'' + level.id + '\')" class="ml-1 w-6 h-6 rounded flex items-center justify-center hover:bg-red-50 text-slate-400 hover:text-red-500 transition" title="清空该级别下全部三级标签"><i class="fa-solid fa-eraser text-[10px]"></i></button>';
         html += '</div>';
 
         // Modules
@@ -232,12 +261,13 @@ function renderTree(filter = '') {
             const modMatch = !filter || mod.name.includes(filter) || mod.points.some(p => p.name.includes(filter) || p.tags.some(t => t.includes(filter)));
             if (filter && !modMatch) return;
 
-            html += '<div class="tree-item flex items-center gap-2 px-3 py-2 rounded-lg text-sm text-slate-600 relative" onclick="toggleModule(this)" data-module-id="' + mod.id + '" data-level-id="' + level.id + '">';
+            html += '<div class="tree-item flex items-center gap-2 px-3 py-2 rounded-lg text-sm text-slate-600 relative min-w-0" onclick="toggleModule(this)" data-module-id="' + mod.id + '" data-level-id="' + level.id + '">';
             html += '<i class="fa-solid fa-chevron-right text-xs text-slate-400 transition-transform w-4 text-center module-arrow"></i>';
             html += '<i class="fa-regular fa-folder text-amber-500 text-xs w-4 text-center"></i>';
-            html += '<span>' + escapeHtml(mod.name) + '</span>';
-            html += '<span class="ml-auto text-xs text-slate-400">' + mod.points.length + '知识点</span>';
+            html += '<span class="truncate">' + escapeHtml(mod.name) + '</span>';
+            html += '<span class="ml-auto text-xs text-slate-400 whitespace-nowrap shrink-0">' + mod.points.length + '知识点</span>';
             html += '<button onclick="event.stopPropagation(); openModal(\'point\', \'' + level.id + '\', \'' + mod.id + '\')" class="ml-1 w-6 h-6 rounded flex items-center justify-center hover:bg-brand-50 text-slate-400 hover:text-brand-600 transition"><i class="fa-solid fa-plus text-[10px]"></i></button>';
+            html += '<button onclick="event.stopPropagation(); openClearTagsConfirm(\'module\', \'' + level.id + '\', \'' + mod.id + '\')" class="ml-1 w-6 h-6 rounded flex items-center justify-center hover:bg-red-50 text-slate-400 hover:text-red-500 transition" title="清空该模块下全部三级标签"><i class="fa-solid fa-eraser text-[10px]"></i></button>';
             html += '</div>';
 
             // Points
@@ -247,10 +277,11 @@ function renderTree(filter = '') {
                 if (filter && !ptMatch) return;
 
                 const isSelected = selectedPointId === pt.id;
-                html += '<div class="tree-item flex items-center gap-2 px-3 py-1.5 rounded-lg text-sm relative ' + (isSelected ? 'selected' : 'text-slate-500') + '" onclick="selectPoint(\'' + pt.id + '\', \'' + level.id + '\', \'' + mod.id + '\')">';
+                html += '<div class="tree-item flex items-center gap-2 px-3 py-1.5 rounded-lg text-sm relative min-w-0 ' + (isSelected ? 'selected' : 'text-slate-500') + '" onclick="selectPoint(\'' + pt.id + '\', \'' + level.id + '\', \'' + mod.id + '\')">';
                 html += '<i class="fa-solid fa-circle text-[6px] w-4 text-center ' + (isSelected ? 'text-brand-500' : 'text-slate-300') + '"></i>';
-                html += '<span>' + escapeHtml(pt.name) + '</span>';
-                html += '<span class="ml-auto text-xs text-slate-400">' + pt.tags.length + '标签</span>';
+                html += '<span class="truncate">' + escapeHtml(pt.name) + '</span>';
+                html += '<span class="ml-auto text-xs text-slate-400 whitespace-nowrap shrink-0">' + pt.tags.length + '标签</span>';
+                html += '<button onclick="event.stopPropagation(); openClearTagsConfirm(\'point\', \'' + level.id + '\', \'' + mod.id + '\', \'' + pt.id + '\')" class="ml-1 w-6 h-6 rounded flex items-center justify-center hover:bg-red-50 text-slate-400 hover:text-red-500 transition" title="清空该知识点下全部三级标签"><i class="fa-solid fa-eraser text-[10px]"></i></button>';
                 html += '</div>';
             });
             html += '</div>';
@@ -519,8 +550,38 @@ function openDeleteConfirm(type, levelId, moduleId, pointId, tagName) {
         tag:      { msg: '删除标签「' + tagName + '」？', warn: '仅删除该标签，不影响其他数据。' },
     };
     const m = msgs[type] || { msg: '确认删除？', warn: '' };
+    document.getElementById('confirm-title').textContent = '确认删除';
+    document.getElementById('confirm-ok-btn').textContent = '删除';
     document.getElementById('confirm-msg').textContent = m.msg;
     document.getElementById('confirm-warn').textContent = m.warn;
+    document.getElementById('confirm-overlay').classList.remove('hidden');
+}
+
+// 清空某树节点下全部三级标签（保留级别/模块/知识点结构），二次确认后执行
+function openClearTagsConfirm(type, levelId, moduleId, pointId) {
+    let name = '', count = 0;
+    if (type === 'level') {
+        const l = DATA.levels.find(x => x.id === levelId);
+        name = l?.name || '';
+        count = l ? l.modules.reduce((s, m) => s + m.points.reduce((s2, p) => s2 + p.tags.length, 0), 0) : 0;
+    } else if (type === 'module') {
+        const l = DATA.levels.find(x => x.id === levelId);
+        const m = l?.modules.find(x => x.id === moduleId);
+        name = m?.name || '';
+        count = m ? m.points.reduce((s, p) => s + p.tags.length, 0) : 0;
+    } else if (type === 'point') {
+        const l = DATA.levels.find(x => x.id === levelId);
+        const m = l?.modules.find(x => x.id === moduleId);
+        const p = m?.points.find(x => x.id === pointId);
+        name = p?.name || '';
+        count = p ? p.tags.length : 0;
+    }
+    if (count === 0) { alert('「' + name + '」下没有可清空的标签。'); return; }
+    deleteTarget = { type: 'clear-tags', targetType: type, levelId: levelId || '', moduleId: moduleId || '', pointId: pointId || '' };
+    document.getElementById('confirm-title').textContent = '确认清空';
+    document.getElementById('confirm-ok-btn').textContent = '清空';
+    document.getElementById('confirm-msg').textContent = '确定清空「' + name + '」下的全部 ' + count + ' 个三级标签吗？';
+    document.getElementById('confirm-warn').textContent = '仅删除标签，级别、模块、知识点结构保留。此操作不可恢复。';
     document.getElementById('confirm-overlay').classList.remove('hidden');
 }
 
@@ -554,10 +615,195 @@ function confirmDelete() {
             const refreshed = findPointById(pointId);
             if (refreshed) renderTagTable(refreshed.point, levelId, moduleId);
         }
+    } else if (type === 'clear-tags') {
+        // 清空某树节点下全部三级标签（结构保留）
+        if (deleteTarget.targetType === 'level') {
+            const l = DATA.levels.find(x => x.id === levelId);
+            if (l) l.modules.forEach(m => m.points.forEach(p => p.tags = []));
+        } else if (deleteTarget.targetType === 'module') {
+            const l = DATA.levels.find(x => x.id === levelId);
+            const m = l?.modules.find(x => x.id === moduleId);
+            if (m) m.points.forEach(p => p.tags = []);
+        } else if (deleteTarget.targetType === 'point') {
+            const l = DATA.levels.find(x => x.id === levelId);
+            const m = l?.modules.find(x => x.id === moduleId);
+            const p = m?.points.find(x => x.id === pointId);
+            if (p) p.tags = [];
+        }
+        if (selectedPointId) {
+            const r = findPointById(selectedPointId);
+            if (r) renderTagTable(r.point, r.levelId, r.moduleId);
+        }
     }
 
     closeConfirm();
     renderTree();
+}
+
+// ============ Excel 批量导入 / 导出 ============
+const IMPORT_COLS = ['级别', '模块', '知识点', '标签名称'];
+const IMPORT_EXAMPLE = [
+    ['程序设计四级', 'Python运算', '比较运算', '>'],
+    ['程序设计四级', 'Python运算', '循环', 'while循环'],
+];
+
+function requireXLSX() {
+    if (typeof XLSX === 'undefined') { alert('Excel 组件加载失败，请检查网络后刷新页面重试。'); return false; }
+    return true;
+}
+
+// 下载导入模板（.xlsx）
+function downloadTemplate() {
+    if (!requireXLSX()) return;
+    const rows = [IMPORT_COLS].concat(IMPORT_EXAMPLE);
+    const ws = XLSX.utils.aoa_to_sheet(rows);
+    ws['!cols'] = [{ wch: 18 }, { wch: 18 }, { wch: 20 }, { wch: 24 }];
+    const wb = XLSX.utils.book_new();
+    XLSX.utils.book_append_sheet(wb, ws, '知识标签导入模板');
+    XLSX.writeFile(wb, '知识标签导入模板.xlsx');
+}
+
+// 批量导入：按「父级+名称」去重，已存在则覆盖更新，不存在则追加
+function triggerImport() {
+    if (!requireXLSX()) return;
+    document.getElementById('import-file').click();
+}
+
+function handleImportFile(input) {
+    const file = input.files && input.files[0];
+    if (!file) return;
+    const reader = new FileReader();
+    reader.onload = e => {
+        try {
+            const wb = XLSX.read(new Uint8Array(e.target.result), { type: 'array' });
+            const ws = wb.Sheets[wb.SheetNames[0]];
+            const rows = XLSX.utils.sheet_to_json(ws, { header: 1, defval: '' });
+            importRows(rows);
+        } catch (err) {
+            alert('文件解析失败，请确认上传的是模板格式的 .xlsx 文件。');
+        }
+    };
+    reader.readAsArrayBuffer(file);
+    input.value = '';
+}
+
+function importRows(rows) {
+    // 跳过表头行（首行为列名或空行）
+    const dataRows = rows.filter((r, i) => {
+        if (i === 0 && String(r[0] || '').trim() === IMPORT_COLS[0]) return false;
+        return r.some(c => String(c || '').trim() !== '');
+    });
+
+    const stats = { levels: 0, modules: 0, points: 0, tags: 0, dupTags: 0, errors: [] };
+
+    dataRows.forEach((row, i) => {
+        const lv = String(row[0] || '').trim();
+        const mo = String(row[1] || '').trim();
+        const pt = String(row[2] || '').trim();
+        const tag = String(row[3] || '').trim();
+        const lineNo = i + 2;
+
+        if (!lv) { stats.errors.push('第 ' + lineNo + ' 行：级别为空，已跳过'); return; }
+
+        // 级别：父级为空 + 名称去重
+        let level = DATA.levels.find(l => l.name === lv);
+        if (!level) { level = { id: 'l' + Date.now() + '_' + i, name: lv, modules: [] }; DATA.levels.push(level); stats.levels++; }
+
+        if (!mo) return;
+
+        // 模块：父级=级别 + 名称去重
+        let mod = level.modules.find(m => m.name === mo);
+        if (!mod) { mod = { id: 'm' + Date.now() + '_' + i, name: mo, points: [] }; level.modules.push(mod); stats.modules++; }
+
+        if (!pt) return;
+
+        // 知识点：父级=模块 + 名称去重
+        let point = mod.points.find(p => p.name === pt);
+        if (!point) { point = { id: 'p' + Date.now() + '_' + i, name: pt, tags: [] }; mod.points.push(point); stats.points++; }
+
+        if (!tag) return;
+
+        // 三级标签：父级=知识点 + 名称去重；已存在则覆盖（幂等保留），不存在则追加
+        if (point.tags.includes(tag)) { stats.dupTags++; }
+        else { point.tags.push(tag); stats.tags++; }
+    });
+
+    renderTree();
+    if (selectedPointId) {
+        const r = findPointById(selectedPointId);
+        if (r) renderTagTable(r.point, r.levelId, r.moduleId);
+        else { selectedPointId = null; resetDetailPanel(); }
+    }
+    showImportResult(stats);
+}
+
+function showImportResult(stats) {
+    const body = document.getElementById('import-result-body');
+    const total = stats.levels + stats.modules + stats.points + stats.tags;
+    const parts = [];
+    if (stats.levels) parts.push('新增级别 ' + stats.levels + ' 个');
+    if (stats.modules) parts.push('模块 ' + stats.modules + ' 个');
+    if (stats.points) parts.push('知识点 ' + stats.points + ' 个');
+    if (stats.tags) parts.push('三级标签 ' + stats.tags + ' 个');
+    if (stats.dupTags) parts.push('重复标签 ' + stats.dupTags + ' 个（已覆盖更新）');
+
+    let html = '';
+    html += '<div class="rounded-lg px-4 py-3 ' + (total > 0 ? 'bg-brand-50 text-brand-700' : 'bg-slate-50 text-slate-500') + '">';
+    html += '<p class="font-medium text-sm">' + (total > 0 ? '导入成功，共 ' + total + ' 条新增' : '没有可导入的新数据') + '</p>';
+    if (parts.length) html += '<p class="text-xs mt-1 opacity-80">' + parts.join(' · ') + '</p>';
+    html += '</div>';
+    if (stats.dupTags) html += '<p class="text-xs text-slate-400">去重规则：按「父级 + 名称」逐级匹配，同名标签已存在时以模板内容覆盖，不重复新增。</p>';
+    if (stats.errors.length) {
+        html += '<div class="rounded-lg bg-red-50 px-4 py-3">';
+        html += '<p class="text-xs font-bold text-red-500 mb-1">以下行未导入（' + stats.errors.length + ' 条）</p>';
+        html += '<ul class="text-xs text-red-400 space-y-0.5">' + stats.errors.map(e => '<li>' + e + '</li>').join('') + '</ul>';
+        html += '</div>';
+    }
+    body.innerHTML = html;
+    document.getElementById('import-result-overlay').classList.remove('hidden');
+}
+
+function closeImportResult() {
+    document.getElementById('import-result-overlay').classList.add('hidden');
+}
+
+// 批量导出：导出当前筛选条件下的数据（.xlsx）
+// 筛选语义与左侧树一致：任一层级匹配关键词，其下层级全部导出
+function exportData() {
+    if (!requireXLSX()) return;
+    const query = (document.getElementById('tree-search').value || '').trim();
+    const rows = [IMPORT_COLS];
+
+    const pushRow = (lv, mo, pt, tag) => rows.push([lv, mo, pt, tag]);
+    const matchLevel = l => !query || l.name.includes(query) || l.modules.some(m => m.name.includes(query) || m.points.some(p => p.name.includes(query) || p.tags.some(t => t.includes(query))));
+    const matchMod = m => !query || m.name.includes(query) || m.points.some(p => p.name.includes(query) || p.tags.some(t => t.includes(query)));
+
+    DATA.levels.forEach(level => {
+        if (!matchLevel(level)) return;
+        const lvSelfMatch = level.name.includes(query);
+
+        if (!level.modules.length) { pushRow(level.name, '', '', ''); return; }
+        level.modules.forEach(mod => {
+            if (!(lvSelfMatch || matchMod(mod))) return;
+            const modSelfMatch = mod.name.includes(query);
+
+            if (!mod.points.length) { pushRow(level.name, mod.name, '', ''); return; }
+            mod.points.forEach(pt => {
+                if (lvSelfMatch || modSelfMatch || pt.name.includes(query) || pt.tags.some(t => t.includes(query))) {
+                    if (!pt.tags.length) { pushRow(level.name, mod.name, pt.name, ''); return; }
+                    pt.tags.forEach(tag => pushRow(level.name, mod.name, pt.name, tag));
+                }
+            });
+        });
+    });
+
+    if (rows.length === 1) { alert('当前筛选条件下没有可导出的数据。'); return; }
+
+    const ws = XLSX.utils.aoa_to_sheet(rows);
+    ws['!cols'] = [{ wch: 18 }, { wch: 18 }, { wch: 20 }, { wch: 24 }];
+    const wb = XLSX.utils.book_new();
+    XLSX.utils.book_append_sheet(wb, ws, '知识标签');
+    XLSX.writeFile(wb, '知识标签' + (query ? '_筛选' : '_全部') + '.xlsx');
 }
 
 // ============ Filter ============
