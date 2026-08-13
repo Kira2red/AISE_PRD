@@ -1,0 +1,215 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>检录 - 爱测评（线上样式还原）</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <style>
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", "PingFang SC", "Microsoft YaHei", sans-serif;
+            background-color: #e8f0ec;
+            background-image: radial-gradient(circle, rgba(100,140,120,0.12) 1px, transparent 1px);
+            background-size: 20px 20px;
+            min-height: 100vh;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            padding: 32px 16px;
+        }
+        .reg-wrap { width: 860px; max-width: 100%; }
+
+        .reg-row { display: flex; gap: 20px; }
+
+        /* 左：视频区 */
+        .video-col { flex: 1 1 auto; min-width: 0; }
+        .reg-box {
+            background: #fff; border-radius: 12px;
+            box-shadow: 0 6px 24px rgba(0,0,0,0.08);
+            overflow: hidden;
+        }
+        .video-box {
+            position: relative;
+            background: #000;
+            aspect-ratio: 4 / 3;
+            display: flex; align-items: center; justify-content: center;
+        }
+        .video-box .sim-cam {
+            width: 180px; height: 180px; border-radius: 50%;
+            background: radial-gradient(circle at 35% 30%, #fbbf24, #92400e);
+            position: relative;
+            box-shadow: inset -12px -10px 24px rgba(0,0,0,0.35);
+        }
+        .video-box .sim-cam::after {
+            content: '';
+            position: absolute; left: 50%; top: 8%; transform: translateX(-50%);
+            width: 60px; height: 18px; border-radius: 10px; background: #1f2937;
+        }
+        .video-box .sim-cam::before {
+            content: '';
+            position: absolute; left: 50%; top: 62%; transform: translateX(-50%);
+            width: 120px; height: 46px; border-radius: 12px; background: #1f2937;
+        }
+        .video-box .cam-label {
+            position: absolute; bottom: 10px; left: 50%; transform: translateX(-50%);
+            color: rgba(255,255,255,0.6); font-size: 12px; letter-spacing: 1px;
+        }
+        .video-box canvas { display: none; }
+
+        /* 右：信息区 */
+        .info-col { flex: 0 0 300px; }
+        .info-box { padding: 22px 20px; }
+        .info-box .title {
+            font-size: 17px; font-weight: 700; color: #1f2329; margin-bottom: 8px;
+        }
+        .info-box .tips {
+            font-size: 13px; color: #8a8f99; margin-bottom: 14px; line-height: 1.5;
+        }
+        .info-box .demo-img {
+            width: 100%; border-radius: 8px; margin-bottom: 14px;
+            border: 1px solid #e5e7eb;
+        }
+        /* 拍照后显示的照片 */
+        .info-box .photo-img {
+            width: 100%; border-radius: 8px; margin-bottom: 14px;
+            border: 2px solid #2563eb;
+        }
+        .buttonBox { display: flex; gap: 10px; margin-top: 4px; }
+        .ant-btn {
+            flex: 1;
+            height: 38px; border: none; border-radius: 6px;
+            background: #2563eb; color: #fff;
+            font-size: 14px; font-weight: 600; cursor: pointer;
+            transition: background 0.2s;
+        }
+        .ant-btn:hover { background: #1d4ed8; }
+        .ant-btn.ghost {
+            background: #fff; color: #2563eb; border: 1px solid #2563eb;
+        }
+        .ant-btn.ghost:hover { background: #eff6ff; }
+
+        /* 模式提示 */
+        .mode-tag {
+            display: inline-flex; align-items: center; gap: 6px;
+            margin-bottom: 14px; padding: 5px 12px; border-radius: 999px;
+            font-size: 12px; font-weight: 600;
+            background: #eff6ff; color: #2563eb; border: 1px solid #bfdbfe;
+        }
+        .mode-tag.mock { background: #fdf4ff; color: #a21caf; border-color: #e9d5ff; }
+        /* 窄屏适配：左右分栏改纵向堆叠 */
+        @media (max-width: 768px) {
+            .reg-row { flex-direction: column; }
+            .info-col { flex: 1 1 auto !important; }
+            .video-box { aspect-ratio: 4 / 3; }
+            .reg-wrap { padding: 0 4px; }
+        }
+    </style>
+</head>
+<body>
+
+    <div class="reg-wrap">
+        <!-- 模式标签（正式测评走等候页，模拟测评直接进入） -->
+        <div class="mode-tag" id="mode-tag">
+            <i class="fa-solid fa-circle-info"></i>
+            <span id="mode-text">正式测评 · 检录完成后进入候考等待</span>
+        </div>
+
+        <div class="reg-row">
+            <!-- 左：实时摄像头画面 -->
+            <div class="video-col">
+                <div class="reg-box video-box" id="video-box">
+                    <div class="sim-cam"></div>
+                    <canvas id="photo-canvas" width="640" height="480" style="display:none;"></canvas>
+                    <div class="cam-label">实时画面 · 请端正面对摄像头</div>
+                </div>
+            </div>
+
+            <!-- 右：检录要求 -->
+            <div class="info-col">
+                <div class="reg-box info-box">
+                    <p class="title">检录要求</p>
+                    <p class="tips" id="tips-text">请端正面对摄像头，拍摄检录照片</p>
+                    <img class="demo-img" id="demo-img"
+                         src="https://qn.iceping.org.cn/000950cd5cd34b839e439c73feae2245.jpg"
+                         alt="检录示意图" onerror="this.style.display='none'">
+                    <img class="photo-img" id="photo-img" style="display:none;" alt="检录照片">
+                    <div class="buttonBox" id="btn-box">
+                        <button class="ant-btn" id="photo-btn" onclick="takePhoto()">拍 照</button>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        var mode = 'formal';
+        var params = new URLSearchParams(location.search);
+        if (params.get('mode') === 'mock') mode = 'mock';
+
+        var modeTag = document.getElementById('mode-tag');
+        var modeText = document.getElementById('mode-text');
+        if (mode === 'mock') {
+            modeTag.classList.add('mock');
+            modeText.textContent = '模拟测评 · 检录完成后直接进入模拟测';
+        }
+
+        // 页面加载 1 秒后模拟检测到人脸（示意）
+        // （线上为真实摄像头画面，demo 用模拟图形）
+
+        function takePhoto() {
+            var btn = document.getElementById('photo-btn');
+            btn.textContent = '拍摄中…';
+            btn.disabled = true;
+            setTimeout(function () {
+                // 用 canvas 画一张模拟检录照片
+                var canvas = document.getElementById('photo-canvas');
+                var ctx = canvas.getContext('2d');
+                ctx.fillStyle = '#e5e7eb';
+                ctx.fillRect(0, 0, 640, 480);
+                ctx.fillStyle = '#d1d5db';
+                ctx.fillRect(0, 380, 640, 100);
+                // 模拟人脸
+                ctx.fillStyle = '#fbbf24';
+                ctx.beginPath();
+                ctx.arc(320, 220, 90, 0, Math.PI * 2);
+                ctx.fill();
+                ctx.fillStyle = '#1f2937';
+                ctx.beginPath(); ctx.arc(285, 200, 10, 0, Math.PI * 2); ctx.fill();
+                ctx.beginPath(); ctx.arc(355, 200, 10, 0, Math.PI * 2); ctx.fill();
+                ctx.strokeStyle = '#1f2937'; ctx.lineWidth = 4;
+                ctx.beginPath(); ctx.arc(320, 240, 40, 0.15 * Math.PI, 0.85 * Math.PI); ctx.stroke();
+                ctx.fillStyle = '#1f2937';
+                ctx.fillRect(280, 300, 80, 8);
+                ctx.fillStyle = '#0f172a';
+                ctx.font = '20px sans-serif';
+                ctx.fillText('检录时间 ' + new Date().toLocaleString('zh-CN'), 20, 460);
+                // 照片显示
+                var photoImg = document.getElementById('photo-img');
+                photoImg.src = canvas.toDataURL('image/jpeg', 0.9);
+                photoImg.style.display = 'block';
+
+                btn.textContent = '重新拍照';
+                btn.disabled = false;
+
+                // 按钮组变为：重新拍照 + 开始答题（正式测）/ 进入模拟测（模拟测）
+                var box = document.getElementById('btn-box');
+                var startBtn = document.createElement('button');
+                startBtn.className = 'ant-btn';
+                startBtn.id = 'start-btn';
+                startBtn.textContent = mode === 'formal' ? '开始答题' : '进入模拟测';
+                startBtn.onclick = function () {
+                    if (mode === 'formal') {
+                        // 正式测评：进入等候页
+                        window.location.href = '11_等候页.html';
+                    } else {
+                        // 模拟测评：直接进入模拟测（线上为直接进入答题环境）
+                        alert('已进入模拟测评（Demo：正式环境将直接打开模拟测答题环境）');
+                    }
+                };
+                box.appendChild(startBtn);
+            }, 1000);
+        }
+    </script>
+</body>
+</html>

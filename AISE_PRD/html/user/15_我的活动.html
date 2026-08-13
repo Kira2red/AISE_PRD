@@ -113,7 +113,7 @@
     <nav class="glass-nav fixed w-full z-40 top-0 transition-all duration-300">
         <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
             <div class="flex justify-between items-center h-16 sm:h-20">
-                <div class="flex items-center gap-3 cursor-pointer" onclick="window.location.href='index.html'">
+                <div class="flex items-center gap-3 cursor-pointer" onclick="window.location.href='02_首页.html'">
                     <div
                         class="w-9 h-9 bg-gradient-to-br from-brand-600 to-indigo-600 rounded-lg flex items-center justify-center text-white font-bold text-lg shadow-md">
                         A</div>
@@ -122,7 +122,7 @@
                     </div>
                 </div>
                 <div class="hidden md:flex items-center space-x-8">
-                    <a href="index.html"
+                    <a href="02_首页.html"
                         class="text-slate-500 hover:text-brand-600 font-medium text-sm transition">首页</a>
                     <a href="#" class="text-slate-500 hover:text-brand-600 font-medium text-sm transition">新闻中心</a>
                 </div>
@@ -157,7 +157,7 @@
                     </div>
 
                     <nav class="flex md:flex-col overflow-x-auto hide-scroll p-2 md:p-3 gap-1 md:gap-2">
-                        <a href="user-profile.html"
+                        <a href="13_个人中心.html"
                             class="flex-shrink-0 px-4 py-3 rounded-lg text-slate-600 hover:bg-slate-50 hover:text-slate-900 font-medium text-sm flex items-center gap-3 transition">
                             <i class="fa-regular fa-id-card w-5 text-center text-slate-400"></i> 个人中心
                         </a>
@@ -177,6 +177,11 @@
                 <div class="mb-6">
                     <h1 class="text-2xl font-bold text-slate-900">我的活动</h1>
                     <p class="text-sm text-slate-500 mt-1">查看准考证信息，或在规定时间内进入考场。</p>
+                </div>
+
+                <!-- 候考功能演示说明 -->
+                <div class="mb-6 px-4 py-3 bg-blue-50 border border-blue-100 rounded-xl text-xs text-brand-700 leading-relaxed">
+                    <b>候考功能演示：</b>Python 程序设计 = 候考窗口内（入口「准备考试」）｜AIGC 应用能力 = 未开始（入口「考试未开始」，点击查看最早可候考时间）｜Scratch 创意编程 = 已开考（入口恢复「开始考试」）。模拟测评随时可进，检测检录后直接进入模拟测。
                 </div>
 
                 <div class="flex flex-col gap-4">
@@ -222,15 +227,16 @@
                                 查看准考证
                             </button>
 
-                            <!-- 模拟考按钮 (新增) -->
-                            <button onclick="alert('即将进入【Python 一级模拟考 A】环境...')"
+                            <!-- 模拟考按钮 (新增)：候考配置下模拟测评随时可进，检测检录后直接进入 -->
+                            <button onclick="window.location.href='../iceping/09_设备检测.html?mode=mock'"
                                 class="flex-1 md:flex-none px-4 py-2.5 bg-purple-50 text-purple-600 border border-purple-200 rounded-lg text-sm font-bold hover:bg-purple-100 transition flex items-center justify-center gap-1.5 whitespace-nowrap group">
                                 <i class="fa-solid fa-vial text-xs group-hover:animate-bounce"></i> 模拟测评
                             </button>
 
-                            <button onclick="window.location.href='#'"
+                            <!-- 候考窗口内：入口显示「准备考试」 -->
+                            <button onclick="window.location.href='../iceping/09_设备检测.html'"
                                 class="flex-1 md:flex-none px-5 py-2.5 bg-brand-600 text-white rounded-lg text-sm font-bold hover:bg-brand-700 transition shadow-lg shadow-brand-500/30 btn-active-pulse flex items-center justify-center gap-2 whitespace-nowrap">
-                                正式测评 <i class="fa-solid fa-arrow-right text-xs"></i>
+                                准备考试 <i class="fa-solid fa-arrow-right text-xs"></i>
                             </button>
                         </div>
                     </div>
@@ -267,16 +273,55 @@
                                 查看准考证
                             </button>
 
-                            <div class="relative group flex-1 md:flex-none">
-                                <button disabled
-                                    class="w-full px-5 py-2.5 bg-slate-100 text-slate-400 rounded-lg text-sm font-semibold cursor-not-allowed border border-slate-100 whitespace-nowrap">
-                                    进入测评
-                                </button>
+                            <!-- 未开始：入口显示「考试未开始」，点击提示最早可候考时间 -->
+                            <button onclick="showNotOpenTip('AIGC 应用能力', '2025-06-15 09:00', '2025-06-15 08:30')"
+                                class="flex-1 md:flex-none px-5 py-2.5 bg-slate-100 text-slate-400 rounded-lg text-sm font-semibold border border-slate-100 whitespace-nowrap cursor-pointer hover:bg-slate-200 transition">
+                                考试未开始
+                            </button>
+                        </div>
+                    </div>
+
+                    <!-- 状态演示：已开考（候考窗口结束，入口恢复「开始考试」） -->
+                    <div
+                        class="bg-white rounded-2xl shadow-card border border-slate-100 p-5 sm:p-6 flex flex-col md:flex-row items-start md:items-center gap-5 md:gap-0 transition hover:shadow-md group">
+                        <div class="flex items-start gap-4 flex-1 w-full md:w-auto">
+                            <div
+                                class="w-14 h-14 bg-amber-50 rounded-xl flex items-center justify-center text-amber-500 text-2xl flex-shrink-0 mt-1 md:mt-0">
+                                <i class="fa-solid fa-gamepad"></i>
+                            </div>
+                            <div class="flex-1">
+                                <div class="flex flex-col sm:flex-row sm:items-center gap-2 mb-1.5">
+                                    <h3 class="font-bold text-slate-900 text-lg">Scratch 创意编程</h3>
+                                    <span
+                                        class="inline-block bg-blue-50 text-brand-600 border border-blue-100 text-[10px] px-2 py-0.5 rounded font-bold tracking-wide">
+                                        2025秋季三级等级测评
+                                    </span>
+                                </div>
+
                                 <div
-                                    class="absolute bottom-full left-1/2 transform -translate-x-1/2 mb-2 px-2 py-1 bg-slate-800 text-white text-[10px] rounded opacity-0 group-hover:opacity-100 transition pointer-events-none whitespace-nowrap z-10">
-                                    考试尚未开始
+                                    class="flex flex-col sm:flex-row sm:items-center gap-1 sm:gap-4 text-xs text-slate-500">
+                                    <span><i class="fa-regular fa-clock mr-1.5"></i>报名时间：2025-08-01</span>
+                                    <span class="hidden sm:block text-slate-300">|</span>
+                                    <span class="text-amber-600 font-semibold flex items-center gap-1">
+                                        <span class="w-1.5 h-1.5 bg-amber-500 rounded-full animate-pulse"></span>
+                                        考试时间：2025-09-14 09:00-11:00 (进行中)
+                                    </span>
                                 </div>
                             </div>
+                        </div>
+
+                        <div
+                            class="flex items-center gap-3 w-full md:w-auto mt-2 md:mt-0 border-t md:border-t-0 border-slate-50 pt-4 md:pt-0">
+                            <button onclick="openTicketModal('Scratch 创意编程', '2025秋季三级等级测评')"
+                                class="flex-1 md:flex-none px-5 py-2.5 border border-slate-200 rounded-lg text-sm font-medium text-slate-600 hover:border-slate-400 hover:text-slate-900 transition bg-white whitespace-nowrap">
+                                查看准考证
+                            </button>
+
+                            <!-- 开考后：入口恢复「开始考试」，走原流程（检测→检录→直接进考试） -->
+                            <button onclick="window.location.href='../iceping/09_设备检测.html'"
+                                class="flex-1 md:flex-none px-5 py-2.5 bg-brand-600 text-white rounded-lg text-sm font-bold hover:bg-brand-700 transition shadow-lg shadow-brand-500/30 flex items-center justify-center gap-2 whitespace-nowrap">
+                                开始考试 <i class="fa-solid fa-arrow-right text-xs"></i>
+                            </button>
                         </div>
                     </div>
 
@@ -399,6 +444,11 @@
     </div>
 
     <script>
+        // 候考功能演示：未开始入口点击提示（展示开始时间与最早可候考时间）
+        function showNotOpenTip(examName, startTime, waitStartTime) {
+            alert(examName + ' 尚未开始\n\n考试开始时间：' + startTime + '\n最早可进入考场（候考）时间：' + waitStartTime + '\n\n请于候考时间开放后进入完成设备检测与检录');
+        }
+
         function openTicketModal(projectName, examName, roomName, examTime, duration, submitLimit) {
             const modal = document.getElementById('ticket-modal');
             const card = document.getElementById('modal-card');

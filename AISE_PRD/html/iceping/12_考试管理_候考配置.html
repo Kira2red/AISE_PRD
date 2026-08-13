@@ -1,0 +1,438 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>考试管理 - 爱测评（候考时长配置）</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <style>
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", "PingFang SC", "Microsoft YaHei", sans-serif;
+            background: #f7f8fa;
+            min-height: 100vh;
+            color: #323335;
+        }
+
+        /* 顶栏（线上：淡蓝淡紫渐变光泽） */
+        .topbar {
+            background: linear-gradient(90deg, #eef4ff, #f5f3ff);
+            border-bottom: 1px solid #e5e9f0;
+            height: 56px; display: flex; align-items: center; padding: 0 24px; gap: 32px;
+        }
+        .topbar .logo { display: flex; align-items: center; gap: 10px; font-weight: 700; color: #1f2329; font-size: 17px; }
+        .topbar .logo .logo-ai {
+            width: 30px; height: 30px; border-radius: 8px;
+            background: #f97316; color: #fff;
+            display: flex; align-items: center; justify-content: center;
+            font-size: 14px; font-weight: 800;
+        }
+        .topbar .logo .badge {
+            font-size: 10px; background: #ede9fe; color: #6d28d9;
+            padding: 2px 6px; border-radius: 4px; font-weight: 600;
+        }
+        .topbar nav { display: flex; gap: 4px; flex: 1; }
+        .topbar nav a {
+            text-decoration: none; color: #4a5568; font-size: 14px;
+            padding: 8px 16px; border-radius: 6px;
+        }
+        .topbar nav a.active { color: #2A55E5; font-weight: 600; }
+        .topbar .user { display: flex; align-items: center; gap: 8px; font-size: 14px; color: #323335; }
+        .topbar .avatar {
+            width: 30px; height: 30px; border-radius: 50%;
+            background: #6366f1; color: #fff;
+            display: flex; align-items: center; justify-content: center; font-size: 13px;
+        }
+
+        /* 主体：侧边栏 + 内容区（ant-layout-has-sider） */
+        .layout { display: flex; align-items: flex-start; min-height: calc(100vh - 56px); }
+
+        /* 侧边栏：半透明白底（线上覆盖了 dark 主题） */
+        .sider {
+            width: 200px; flex-shrink: 0;
+            background: rgba(255, 255, 255, 0.4);
+            border-right: 1px solid #edf0f5;
+            padding: 18px 0 20px;
+            display: flex; flex-direction: column; justify-content: space-between;
+            height: calc(100vh - 56px); position: sticky; top: 56px;
+        }
+        .side-menu { list-style: none; padding: 0 12px; }
+        .side-menu li {
+            display: flex; align-items: center; gap: 10px;
+            padding: 12px 14px; border-radius: 6px;
+            font-size: 14px; color: #323335; cursor: pointer;
+        }
+        .side-menu li:hover { background: #f0f3f9; }
+        .side-menu li.active { color: #2A55E5; }
+        .side-menu li i { font-size: 15px; width: 16px; text-align: center; }
+        .sider .actions { padding: 0 16px; }
+        .btn-primary {
+            width: 100%; padding: 9px 0; border: none; border-radius: 4px;
+            background: #2A55E5; color: #fff; font-size: 14px; cursor: pointer;
+            margin-bottom: 10px;
+        }
+        .btn-primary:hover { background: #1f46c9; }
+        .btn-default {
+            width: 100%; padding: 9px 0; border: 1px solid #d1d5db; border-radius: 4px;
+            background: #fff; color: #323335; font-size: 14px; cursor: pointer;
+        }
+        .btn-default:hover { border-color: #2A55E5; color: #2A55E5; }
+
+        /* 内容区 */
+        .content { flex: 1; min-width: 0; background: #fff; padding: 32px 40px 48px; }
+        .form { max-width: 1200px; }
+        .section-title {
+            font-size: 20px; font-weight: 700; color: #2c3e50;
+            margin-bottom: 24px;
+        }
+
+        /* 表单项栅格：label 5/24 右对齐 + 控件 16/24（antd 栅格） */
+        .form-item {
+            display: flex; align-items: flex-start; gap: 8px;
+            margin-bottom: 18px;
+        }
+        .form-item .label {
+            width: 140px; flex-shrink: 0; text-align: right;
+            font-size: 14px; color: #323335; padding-top: 7px;
+        }
+        .form-item .label .req { color: #f5222d; margin-right: 4px; }
+        .form-item .label .colon { color: #8c8c8c; margin-left: 2px; }
+        .form-item .control { flex: 1; }
+
+        /* 圆形 radio（outline 组：摄像头/录屏/检录） */
+        .radio-outline { display: inline-flex; align-items: center; gap: 20px; padding-top: 7px; }
+        .radio-outline label {
+            display: inline-flex; align-items: center; gap: 7px;
+            font-size: 14px; color: #323335; cursor: pointer;
+        }
+        .radio-outline .circle {
+            width: 15px; height: 15px; border-radius: 50%;
+            border: 1px solid #b8bcc4; background: #fff;
+            display: inline-flex; align-items: center; justify-content: center;
+            transition: border-color 0.2s;
+        }
+        .radio-outline label.checked .circle { border-color: #2A55E5; }
+        .radio-outline .circle::after {
+            content: ''; width: 9px; height: 9px; border-radius: 50%;
+            background: #2A55E5; transform: scale(0); transition: transform 0.15s;
+        }
+        .radio-outline label.checked .circle::after { transform: scale(1); }
+
+        /* 分段按钮 radio（solid 组：成绩/分数/读题/可见范围等开关） */
+        .radio-solid {
+            display: inline-flex; border: 1px solid #d1d5db; border-radius: 4px;
+            overflow: hidden; margin-top: 4px;
+        }
+        .radio-solid label {
+            padding: 6px 20px; font-size: 14px; color: #323335;
+            background: #fff; cursor: pointer; border-right: 1px solid #e5e7eb;
+        }
+        .radio-solid label:last-child { border-right: none; }
+        .radio-solid label.checked { background: #2A55E5; color: #fff; }
+
+        /* 数字输入框 + 单位后缀（考试时长同款 input-group） */
+        .input-group { display: inline-flex; align-items: stretch; margin-top: 4px; }
+        .input-group input {
+            width: 140px; height: 32px; border: 1px solid #d1d5db; border-radius: 4px 0 0 4px;
+            padding: 0 10px; font-size: 14px; outline: none; color: #323335;
+        }
+        .input-group input:focus { border-color: #2A55E5; }
+        .input-group .addon {
+            height: 32px; line-height: 30px; padding: 0 10px;
+            background: #f7f8fa; border: 1px solid #d1d5db; border-left: none;
+            border-radius: 0 4px 4px 0; font-size: 13px; color: #8c8c8c;
+        }
+        .field-hint { font-size: 12px; color: #9ca3af; margin-top: 6px; }
+
+        /* 文本框（检录视频引导文案：460px 宽 + 清除按钮 + 拖拽手柄） */
+        .textarea-wrap { display: inline-block; position: relative; margin-top: 4px; }
+        .textarea-wrap textarea {
+            width: 460px; max-width: 100%; height: 52px; min-height: 52px;
+            border: 1px solid #d1d5db; border-radius: 4px;
+            padding: 6px 30px 6px 10px; font-size: 14px; resize: vertical;
+            outline: none; color: #323335; font-family: inherit;
+        }
+        .textarea-wrap textarea:focus { border-color: #2A55E5; }
+        .textarea-wrap .clear {
+            position: absolute; right: 8px; top: 8px;
+            color: #c0c4cc; cursor: pointer; font-size: 13px; background: none; border: none;
+        }
+        .textarea-wrap .clear:hover { color: #8c8c8c; }
+
+        /* 上传组件（检录视频示意图：已传缩略图 + 虚线占位框） */
+        .upload-group { display: flex; gap: 10px; margin-top: 4px; }
+        .upload-thumb {
+            width: 96px; height: 96px; border-radius: 6px;
+            border: 1px solid #e5e7eb; overflow: hidden;
+            background: #fafbfc; position: relative;
+        }
+        .upload-thumb img { width: 100%; height: 100%; object-fit: cover; }
+        .upload-thumb .del {
+            position: absolute; top: 4px; right: 4px;
+            width: 18px; height: 18px; border-radius: 50%;
+            background: rgba(0,0,0,0.55); color: #fff;
+            font-size: 10px; display: flex; align-items: center; justify-content: center;
+            cursor: pointer;
+        }
+        .upload-add {
+            width: 96px; height: 96px; border: 1px dashed #d1d5db; border-radius: 6px;
+            display: flex; flex-direction: column; align-items: center; justify-content: center;
+            gap: 4px; color: #8c8c8c; font-size: 12px; cursor: pointer;
+        }
+        .upload-add:hover { border-color: #2A55E5; color: #2A55E5; }
+        .upload-add .plus { font-size: 22px; line-height: 1; }
+
+        /* toast */
+        .toast {
+            position: fixed; top: 70px; left: 50%; transform: translateX(-50%);
+            background: #111827; color: #fff; font-size: 13px;
+            padding: 10px 20px; border-radius: 6px; z-index: 300;
+            display: none;
+        }
+        .toast.show { display: block; animation: fadein 0.2s; }
+        @keyframes fadein { from { opacity: 0; } to { opacity: 1; } }
+    </style>
+</head>
+<body>
+
+    <div class="topbar">
+        <div class="logo">
+            <div class="logo-ai">AI</div>
+            <span>爱测评</span>
+            <span class="badge">AISE</span>
+        </div>
+        <nav>
+            <a href="#">首页</a>
+            <a href="#" class="active">测评管理</a>
+            <a href="#">测评报告</a>
+        </nav>
+        <div class="user">
+            <div class="avatar">管</div>
+            <span>AISE管理员</span>
+            <i class="fa-solid fa-chevron-down" style="font-size: 11px; color: #9ca3af;"></i>
+        </div>
+    </div>
+
+    <div class="layout">
+        <!-- 侧边栏（线上样式：半透明白底 + 菜单 + 底部操作按钮） -->
+        <aside class="sider">
+            <ul class="side-menu">
+                <li class="active" data-target="base" onclick="switchMenu(this)"><i class="fa-solid fa-circle"></i>基础考试信息</li>
+                <li data-target="invigilate" onclick="switchMenu(this)"><i class="fa-solid fa-circle"></i>监考信息</li>
+                <li data-target="students" onclick="switchMenu(this)"><i class="fa-solid fa-circle"></i>学生管理</li>
+            </ul>
+            <div class="actions">
+                <button class="btn-primary" onclick="saveForm()">保存并关闭</button>
+                <button class="btn-default" onclick="alert('已取消（Demo）')">取消保存</button>
+            </div>
+        </aside>
+
+        <!-- 内容区 -->
+        <div class="content">
+            <div class="form">
+
+                <h2 class="section-title" id="base">基础考试信息</h2>
+
+                <div class="form-item">
+                    <div class="label"><span class="req">*</span>考试名称<span class="colon">:</span></div>
+                    <div class="control">
+                        <div class="input-group">
+                            <input type="text" value="0730 test" style="width: 300px;">
+                            <div class="addon" style="width: auto; background: transparent; border: none; color: #9ca3af;">9 / 40</div>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="form-item">
+                    <div class="label"><span class="req">*</span>考试时间<span class="colon">:</span></div>
+                    <div class="control">
+                        <div class="input-group">
+                            <input type="text" value="2026-07-30 20:01:10 ~ 2027-08-31 20:01:10" style="width: 300px;" disabled>
+                            <div class="addon"><i class="fa-regular fa-calendar"></i></div>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="form-item">
+                    <div class="label"><span class="req">*</span>考试时长<span class="colon">:</span></div>
+                    <div class="control">
+                        <div class="input-group">
+                            <input type="number" value="60" min="0">
+                            <div class="addon">分钟</div>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="form-item">
+                    <div class="label">考试地点<span class="colon">:</span></div>
+                    <div class="control">
+                        <div class="input-group">
+                            <input type="text" placeholder="请输入考试地点" style="width: 300px;">
+                        </div>
+                    </div>
+                </div>
+
+                <div class="form-item">
+                    <div class="label"><span class="req">*</span>关联试卷<span class="colon">:</span></div>
+                    <div class="control">
+                        <div class="input-group">
+                            <input type="text" value="zgz批改测试" style="width: 300px;" disabled>
+                            <div class="addon"><i class="fa-solid fa-chevron-down"></i></div>
+                        </div>
+                    </div>
+                </div>
+
+                <h2 class="section-title" id="invigilate" style="margin-top: 36px;">监考信息</h2>
+
+                <div class="form-item">
+                    <div class="label"><span class="req">*</span>摄像头监考<span class="colon">:</span></div>
+                    <div class="control">
+                        <div class="radio-outline" id="r-cam">
+                            <label class="checked" onclick="pickOutline('r-cam', this)"><span class="circle"></span>强制开启</label>
+                            <label onclick="pickOutline('r-cam', this)"><span class="circle"></span>非强制开启</label>
+                            <label onclick="pickOutline('r-cam', this)"><span class="circle"></span>不开启</label>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="form-item">
+                    <div class="label">成绩开关<span class="colon">:</span></div>
+                    <div class="control">
+                        <div class="radio-solid" id="r-score">
+                            <label class="checked" onclick="pickSolid('r-score', this)">开启</label>
+                            <label onclick="pickSolid('r-score', this)">关闭</label>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="form-item">
+                    <div class="label">分数开关<span class="colon">:</span></div>
+                    <div class="control">
+                        <div class="radio-solid" id="r-point">
+                            <label class="checked" onclick="pickSolid('r-point', this)">开启</label>
+                            <label onclick="pickSolid('r-point', this)">关闭</label>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="form-item">
+                    <div class="label"><span class="req">*</span>录屏监考<span class="colon">:</span></div>
+                    <div class="control">
+                        <div class="radio-outline" id="r-screen">
+                            <label class="checked" onclick="pickOutline('r-screen', this)"><span class="circle"></span>强制开启</label>
+                            <label onclick="pickOutline('r-screen', this)"><span class="circle"></span>非强制开启</label>
+                            <label onclick="pickOutline('r-screen', this)"><span class="circle"></span>不开启</label>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="form-item">
+                    <div class="label">读题开关<span class="colon">:</span></div>
+                    <div class="control">
+                        <div class="radio-solid" id="r-read">
+                            <label class="checked" onclick="pickSolid('r-read', this)">开启</label>
+                            <label onclick="pickSolid('r-read', this)">关闭</label>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="form-item">
+                    <div class="label">检录照片<span class="colon">:</span></div>
+                    <div class="control">
+                        <div class="radio-outline" id="r-checkin">
+                            <label class="checked" onclick="pickOutline('r-checkin', this)"><span class="circle"></span>强制开启</label>
+                            <label onclick="pickOutline('r-checkin', this)"><span class="circle"></span>非强制开启</label>
+                            <label onclick="pickOutline('r-checkin', this)"><span class="circle"></span>不开启</label>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="form-item">
+                    <div class="label">检录视频引导文案<span class="colon">:</span></div>
+                    <div class="control">
+                        <div class="textarea-wrap">
+                            <textarea id="guide-text" maxlength="500">123123123</textarea>
+                            <button class="clear" onclick="clearText()"><i class="fa-solid fa-circle-xmark"></i></button>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="form-item">
+                    <div class="label">检录视频示意图<span class="colon">:</span></div>
+                    <div class="control">
+                        <div class="upload-group">
+                            <div class="upload-thumb">
+                                <img src="https://qn.iceping.org.cn/000950cd5cd34b839e439c73feae2245.jpg" alt="示意图"
+                                     onerror="this.style.display='none'">
+                                <div class="del" onclick="this.parentElement.style.display='none'"><i class="fa-solid fa-xmark"></i></div>
+                            </div>
+                            <div class="upload-add" onclick="alert('Demo：唤起文件选择')">
+                                <span class="plus">+</span>
+                                <span>检录视频示意<br>图上传</span>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- 新增：候考时长（与考试时长同款 input-group，无高亮） -->
+                <div class="form-item">
+                    <div class="label">候考时长<span class="colon">:</span></div>
+                    <div class="control">
+                        <div class="input-group">
+                            <input type="number" id="wait-minutes" value="30" min="0" max="120" oninput="validateWait(this)">
+                            <div class="addon">分钟</div>
+                        </div>
+                        <div class="field-hint">留空或 0 = 不开启候考；开启后开考前 30 分钟入口显示「准备考试」，考生可提前完成设备检测和检录并等待开考（上限 120 分钟；考试已开考后修改不生效）</div>
+                    </div>
+                </div>
+
+            </div>
+        </div>
+    </div>
+
+    <div class="toast" id="toast"></div>
+
+    <script>
+        function pickOutline(groupId, el) {
+            var group = document.getElementById(groupId);
+            group.querySelectorAll('label').forEach(function (l) { l.classList.remove('checked'); });
+            el.classList.add('checked');
+        }
+        function pickSolid(groupId, el) {
+            var group = document.getElementById(groupId);
+            group.querySelectorAll('label').forEach(function (l) { l.classList.remove('checked'); });
+            el.classList.add('checked');
+        }
+        function validateWait(input) {
+            var v = parseInt(input.value, 10);
+            if (isNaN(v) || v < 0) { input.value = ''; return; }
+            if (v > 120) { input.value = 120; showToast('候考时长上限 120 分钟'); }
+        }
+        function clearText() {
+            document.getElementById('guide-text').value = '';
+        }
+        function switchMenu(li) {
+            document.querySelectorAll('.side-menu li').forEach(function (n) { n.classList.remove('active'); });
+            li.classList.add('active');
+            var target = document.getElementById(li.getAttribute('data-target'));
+            if (target) target.scrollIntoView({ behavior: 'smooth' });
+        }
+        function saveForm() {
+            var wait = document.getElementById('wait-minutes').value;
+            if (wait !== '' && wait !== '0') {
+                showToast('已保存：候考时长 ' + wait + ' 分钟（Demo）');
+            } else {
+                showToast('已保存：未开启候考（Demo）');
+            }
+        }
+        var toastTimer = null;
+        function showToast(msg) {
+            var t = document.getElementById('toast');
+            t.textContent = msg;
+            t.classList.add('show');
+            clearTimeout(toastTimer);
+            toastTimer = setTimeout(function () { t.classList.remove('show'); }, 2500);
+        }
+    </script>
+</body>
+</html>

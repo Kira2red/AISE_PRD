@@ -1,0 +1,392 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>设备检测 - 爱测评（线上样式还原）</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <style>
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", "PingFang SC", "Microsoft YaHei", sans-serif;
+            background-color: #e8ecf1;
+            background-image: radial-gradient(circle, rgba(148,163,184,0.15) 1px, transparent 1px);
+            background-size: 20px 20px;
+            min-height: 100vh;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+        .modal-mask {
+            position: fixed; inset: 0;
+            background: rgba(0,0,0,0.3);
+            display: flex; align-items: center; justify-content: center;
+            z-index: 100;
+        }
+        .modal {
+            width: 640px; max-width: 94vw;
+            background: #fff;
+            border-radius: 12px;
+            box-shadow: 0 12px 40px rgba(0,0,0,0.18);
+            overflow: hidden;
+            animation: pop 0.25s ease;
+        }
+        @keyframes pop { from { transform: scale(0.96); opacity: 0; } to { transform: scale(1); opacity: 1; } }
+        .modal-header {
+            padding: 28px 40px 16px;
+            font-size: 20px; font-weight: 700; color: #1f2329;
+        }
+        .modal-body { padding: 0 40px 36px; }
+
+        /* 状态提示条 */
+        .alert {
+            display: flex; align-items: flex-start; gap: 10px;
+            padding: 10px 14px; border-radius: 8px;
+            font-size: 14px; line-height: 1.6; margin-bottom: 10px;
+        }
+        .alert-success { background: #f0fdf4; border: 1px solid #86efac; color: #15803d; }
+        .alert-success .anticon { color: #22c55e; font-size: 16px; margin-top: 2px; }
+        .alert-error { background: #fef2f2; border: 1px solid #fecaca; color: #b91c1c; }
+        .alert-error .anticon { color: #ef4444; font-size: 16px; margin-top: 2px; }
+        .alert-error .err-reason { color: #6b7280; font-size: 13px; }
+        .alert-error .retry-link { color: #2563eb; background: none; border: none; cursor: pointer; font-size: 13px; padding: 0; }
+
+        /* 检测卡片 */
+        .test-row { display: flex; gap: 16px; margin: 18px 0 6px; }
+        .test-card {
+            flex: 1;
+            background: #f8f9fb;
+            border: 1px solid #e2e8f0;
+            border-radius: 10px;
+            padding: 20px 16px 14px;
+            display: flex; flex-direction: column; align-items: center;
+        }
+        .test-card .icon-wrap {
+            width: 52px; height: 52px; border-radius: 12px;
+            display: flex; align-items: center; justify-content: center;
+            margin-bottom: 12px; font-size: 24px;
+        }
+        .icon-cam { background: #ecfdf5; color: #10b981; }
+        .icon-screen { background: #eef2ff; color: #6366f1; }
+        .icon-mobile { background: #f1f5f9; color: #94a3b8; }
+        .qr-box {
+            background: #fff; border: 1px solid #e2e8f0; border-radius: 8px;
+            padding: 4px; margin-bottom: 6px; cursor: pointer;
+            transition: border-color 0.2s;
+        }
+        .qr-box:hover { border-color: #2563eb; }
+        .qr-box.connected { border-color: #22c55e; background: #f0fdf4; }
+        .qr-tip {
+            font-size: 11px; color: #6b7280; text-align: center;
+            line-height: 1.5; padding: 0 4px;
+        }
+        .btn-test {
+            min-height: 36px; padding: 6px 18px;
+            background: #fff; border: 1px solid #cbd5e1;
+            color: #475569; border-radius: 8px;
+            font-size: 14px; cursor: pointer; transition: all 0.2s;
+        }
+        .btn-test:hover { border-color: #2563eb; color: #2563eb; }
+        .btn-test.done { color: #16a34a; border-color: #86efac; background: #f0fdf4; }
+        .test-card .label { color: #6b7280; font-size: 13px; margin-top: 10px; }
+        .video-preview {
+            width: 100%; height: 96px; margin-top: 10px; border-radius: 8px;
+            background: #1e293b; display: none; align-items: center; justify-content: center;
+            color: rgba(255,255,255,0.7); font-size: 12px; overflow: hidden; position: relative;
+        }
+        .video-preview.show { display: flex; }
+        .video-preview .sim-face {
+            width: 40px; height: 40px; border-radius: 50%;
+            background: radial-gradient(circle at 35% 30%, #fbbf24, #b45309);
+            position: relative;
+        }
+
+        /* 底部按钮 */
+        .enter-btn {
+            display: block; width: 200px; margin: 26px auto 0;
+            padding: 12px 0; border: none; border-radius: 10px;
+            background: #cbd5e1; color: #fff;
+            font-size: 16px; font-weight: 600; cursor: not-allowed;
+            transition: all 0.2s;
+        }
+        .enter-btn.active { cursor: pointer; opacity: 1; box-shadow: 0 4px 14px rgba(37,99,235,0.35); }
+        .enter-btn.active:hover { background: #1d4ed8; }
+        .enter-btn i { margin-right: 6px; }
+
+        /* 窄屏适配 */
+        @media (max-width: 768px) {
+            .test-row { flex-direction: column; }
+            .modal-header { padding: 20px 20px 12px; }
+            .modal-body { padding: 0 20px 24px; }
+            .enter-btn { width: 100%; }
+        }
+
+        /* 演示控制条 */
+        .demo-bar {
+            position: fixed; bottom: 16px; right: 16px; z-index: 200;
+            background: rgba(15,23,42,0.85); color: #e2e8f0;
+            border-radius: 10px; padding: 10px 14px;
+            font-size: 12px; display: flex; align-items: center; gap: 10px;
+        }
+        .demo-bar button {
+            background: rgba(255,255,255,0.15); color: #fff;
+            border: 1px solid rgba(255,255,255,0.25); border-radius: 6px;
+            padding: 4px 10px; font-size: 12px; cursor: pointer;
+        }
+        .demo-bar button:hover { background: rgba(255,255,255,0.3); }
+    </style>
+</head>
+<body>
+
+    <div class="modal-mask">
+        <div class="modal">
+            <div class="modal-header">设备检测</div>
+            <div class="modal-body">
+
+                <!-- 浏览器环境检测 -->
+                <div class="alert alert-success" id="browser-alert">
+                    <span class="anticon"><i class="fa-solid fa-circle-check"></i></span>
+                    <span>浏览器环境检测通过</span>
+                </div>
+
+                <!-- 摄像头/麦克风错误提示（演示失败态时显示） -->
+                <div class="alert alert-error" id="cam-error" style="display:none;">
+                    <span class="anticon"><i class="fa-solid fa-circle-xmark"></i></span>
+                    <span>
+                        摄像头和麦克风开启失败，请检查设备，否则可能影响后续考试。<br>
+                        <span class="err-reason" id="err-reason">错误原因:摄像头/麦克风权限已被拒绝，请在浏览器地址栏左侧权限设置中开启</span>
+                        <button class="retry-link" onclick="retryCam()">重试</button>
+                    </span>
+                </div>
+
+                <!-- 录屏错误提示 -->
+                <div class="alert alert-error" id="screen-error" style="display:none;">
+                    <span class="anticon"><i class="fa-solid fa-circle-xmark"></i></span>
+                    <span>
+                        录屏开启失败，请检查设备，否则可能影响后续考试。<br>
+                        <span class="err-reason" id="screen-err-reason">错误原因:屏幕共享权限已被拒绝</span>
+                        <button class="retry-link" onclick="retryScreen()">重试</button>
+                    </span>
+                </div>
+
+                <!-- 检测卡片 -->
+                <div class="test-row">
+                    <div class="test-card">
+                        <div class="icon-wrap icon-cam"><i class="fa-solid fa-video"></i></div>
+                        <button class="btn-test" id="cam-btn" onclick="testCamera()">测试</button>
+                        <div class="video-preview" id="cam-preview">
+                            <div class="sim-face"></div>
+                        </div>
+                        <div class="label">摄像头调试</div>
+                    </div>
+                    <div class="test-card">
+                        <div class="icon-wrap icon-screen"><i class="fa-solid fa-clapperboard"></i></div>
+                        <button class="btn-test" id="screen-btn" onclick="testScreen()">测试</button>
+                        <div class="video-preview" id="screen-preview">
+                            <div class="sim-face"></div>
+                        </div>
+                        <div class="label">录屏调试</div>
+                    </div>
+                    <!-- 手机监考：电脑没有摄像头时的备选摄像头入口 -->
+                    <div class="test-card">
+                        <div class="icon-wrap icon-mobile"><i class="fa-solid fa-mobile-screen-button"></i></div>
+                        <div class="qr-box" id="qr-box" onclick="connectMobile()" title="手机扫码开启视频监考">
+                            <canvas id="qr-canvas" width="82" height="82"></canvas>
+                        </div>
+                        <p class="qr-tip">电脑没有摄像头？<br>手机扫码开启视频监考</p>
+                        <div class="label">手机监考</div>
+                    </div>
+                </div>
+
+                <button class="enter-btn" id="enter-btn" onclick="enterExam()">
+                    <i class="fa-solid fa-arrow-right"></i>进入测评
+                </button>
+
+            </div>
+        </div>
+    </div>
+
+    <div class="demo-bar">
+        <span>演示控制：</span>
+        <button onclick="demoFail('cam')">摄像头失败</button>
+        <button onclick="demoFail('screen')">录屏失败</button>
+        <button onclick="resetAll()">重置</button>
+    </div>
+
+    <script>
+        var camPassed = false, screenPassed = false, mobileConnected = false;
+
+        // 模拟二维码（与考生+考试场次绑定的 token，demo 用固定 seed 绘制）
+        function drawQR() {
+            var canvas = document.getElementById('qr-canvas');
+            if (!canvas) return;
+            var ctx = canvas.getContext('2d');
+            var size = 82, mod = 3.417, n = 24;
+            ctx.fillStyle = '#fff';
+            ctx.fillRect(0, 0, size, size);
+            function drawFinder(x, y) {
+                var s = 7 * mod;
+                ctx.fillStyle = '#1e293b';
+                ctx.fillRect(x, y, s, s);
+                ctx.fillStyle = '#fff';
+                ctx.fillRect(x + mod, y + mod, 5 * mod, 5 * mod);
+                ctx.fillStyle = '#1e293b';
+                ctx.fillRect(x + 2 * mod, y + 2 * mod, 3 * mod, 3 * mod);
+            }
+            drawFinder(2, 2);
+            drawFinder(size - 7 * mod - 2, 2);
+            drawFinder(2, size - 7 * mod - 2);
+            var seed = 42;
+            for (var row = 0; row < n; row++) {
+                for (var col = 0; col < n; col++) {
+                    if (row < 8 && col < 8) continue;
+                    if (row < 8 && col >= n - 8) continue;
+                    if (row >= n - 8 && col < 8) continue;
+                    var val = (seed * 31 + row * 17 + col * 13) % 100;
+                    if (val < 38) {
+                        ctx.fillStyle = '#1e293b';
+                        ctx.fillRect(col * mod, row * mod, Math.ceil(mod), Math.ceil(mod));
+                    }
+                }
+            }
+        }
+
+        // 手机连接成功：视同摄像头检测通过
+        function connectMobile() {
+            if (mobileConnected) return;
+            mobileConnected = true;
+            camPassed = true;
+            document.getElementById('qr-box').classList.add('connected');
+            document.getElementById('qr-canvas').style.opacity = '0.25';
+            var camBtn = document.getElementById('cam-btn');
+            camBtn.textContent = '✓ 手机已连接';
+            camBtn.classList.add('done');
+            camBtn.disabled = true;
+            document.getElementById('cam-preview').classList.add('show');
+            hideError('cam-error');
+            updateEnterBtn();
+        }
+
+        function updateEnterBtn() {
+            var btn = document.getElementById('enter-btn');
+            if (camPassed && screenPassed) {
+                btn.classList.add('active');
+            } else {
+                btn.classList.remove('active');
+            }
+        }
+
+        function testCamera() {
+            var btn = document.getElementById('cam-btn');
+            btn.textContent = '检测中…';
+            btn.disabled = true;
+            btn.classList.add('cursor-wait');
+            setTimeout(function () {
+                btn.textContent = '✓ 摄像头正常';
+                btn.classList.add('done');
+                btn.disabled = false;
+                document.getElementById('cam-preview').classList.add('show');
+                camPassed = true;
+                hideError('cam-error');
+                updateEnterBtn();
+            }, 1200);
+        }
+
+        function testScreen() {
+            var btn = document.getElementById('screen-btn');
+            btn.textContent = '请求中…';
+            btn.disabled = true;
+            btn.classList.add('cursor-wait');
+            setTimeout(function () {
+                btn.textContent = '✓ 已授权';
+                btn.classList.add('done');
+                btn.disabled = false;
+                document.getElementById('screen-preview').classList.add('show');
+                screenPassed = true;
+                hideError('screen-error');
+                updateEnterBtn();
+            }, 1000);
+        }
+
+        function retryCam() {
+            var btn = document.getElementById('cam-btn');
+            btn.textContent = '检测中…';
+            btn.disabled = true;
+            setTimeout(function () {
+                btn.textContent = '✓ 摄像头正常';
+                btn.classList.add('done');
+                btn.disabled = false;
+                document.getElementById('cam-preview').classList.add('show');
+                camPassed = true;
+                hideError('cam-error');
+                updateEnterBtn();
+            }, 1200);
+        }
+
+        function retryScreen() {
+            var btn = document.getElementById('screen-btn');
+            btn.textContent = '请求中…';
+            btn.disabled = true;
+            setTimeout(function () {
+                btn.textContent = '✓ 已授权';
+                btn.classList.add('done');
+                btn.disabled = false;
+                document.getElementById('screen-preview').classList.add('show');
+                screenPassed = true;
+                hideError('screen-error');
+                updateEnterBtn();
+            }, 1000);
+        }
+
+        function hideError(id) { document.getElementById(id).style.display = 'none'; }
+        function showError(id) { document.getElementById(id).style.display = 'flex'; }
+
+        function demoFail(kind) {
+            if (kind === 'cam') {
+                camPassed = false;
+                var btn = document.getElementById('cam-btn');
+                btn.textContent = '测试';
+                btn.classList.remove('done');
+                document.getElementById('cam-preview').classList.remove('show');
+                showError('cam-error');
+            } else {
+                screenPassed = false;
+                var btn2 = document.getElementById('screen-btn');
+                btn2.textContent = '测试';
+                btn2.classList.remove('done');
+                document.getElementById('screen-preview').classList.remove('show');
+                showError('screen-error');
+            }
+            updateEnterBtn();
+        }
+
+        function resetAll() {
+            camPassed = false; screenPassed = false; mobileConnected = false;
+            document.getElementById('cam-btn').textContent = '测试';
+            document.getElementById('cam-btn').classList.remove('done');
+            document.getElementById('cam-btn').disabled = false;
+            document.getElementById('screen-btn').textContent = '测试';
+            document.getElementById('screen-btn').classList.remove('done');
+            document.getElementById('cam-preview').classList.remove('show');
+            document.getElementById('screen-preview').classList.remove('show');
+            var qrBox = document.getElementById('qr-box');
+            if (qrBox) {
+                qrBox.classList.remove('connected');
+                document.getElementById('qr-canvas').style.opacity = '1';
+            }
+            hideError('cam-error');
+            hideError('screen-error');
+            updateEnterBtn();
+        }
+
+        function enterExam() {
+            if (!camPassed || !screenPassed) return;
+            // 透传模式：formal=正式测（进等候页）mock=模拟测（直接进）
+            var mode = new URLSearchParams(location.search).get('mode') || 'formal';
+            window.location.href = '10_检录.html?mode=' + mode;
+        }
+
+        drawQR();
+    </script>
+</body>
+</html>
