@@ -19,17 +19,15 @@
     </script>
     <style>
         body { font-family: 'Inter', sans-serif; }
-        /* 取景框：原始实时画面（与线上检录一致，不做镜像） */
         .placeholder-img {
             background: #f1f5f9;
             border: 1px dashed #cbd5e1;
-            border-radius: 12px;
+            border-radius: 8px;
             display: flex;
             flex-direction: column;
             align-items: center;
             justify-content: center;
             color: #94a3b8;
-            aspect-ratio: 4 / 3;
         }
         .modal-mask {
             background: rgba(15, 23, 42, 0.5);
@@ -39,85 +37,81 @@
 </head>
 <body class="bg-slate-50 min-h-screen">
 
-    <div class="max-w-md mx-auto px-5 pt-6" style="padding-bottom:160px">
+    <div class="max-w-md mx-auto px-4 pt-3" style="padding-bottom:150px">
 
         <!-- 检录配置标签（演示用：强制 / 非强制） -->
-        <div id="mode-tag" class="inline-flex items-center gap-2 mb-4 px-3 py-1.5 rounded-full text-xs font-semibold">
+        <div id="mode-tag" class="inline-flex items-center gap-1.5 mb-2 px-3 py-1 rounded-full text-xs font-semibold">
             <i class="fa-solid fa-circle-info"></i>
             <span id="mode-text">检录（强制）· 完成后进入监考引导</span>
         </div>
 
         <!-- 标题 -->
-        <h1 class="text-xl font-bold text-slate-900 mb-1">AISE手机端检录</h1>
-        <p class="text-sm text-slate-400 mb-6">请端正面对摄像头，拍摄检录照片</p>
+        <h1 class="text-lg font-bold text-slate-900 leading-tight">AISE手机端检录</h1>
+        <p class="text-xs text-slate-400 mb-3">请端正面对摄像头，拍摄检录照片</p>
 
-        <!-- 取景框（前置摄像头实时画面） -->
-        <div class="relative rounded-2xl overflow-hidden bg-slate-900 shadow-md mb-6" style="aspect-ratio: 3 / 4;">
-            <video id="camera" autoplay playsinline muted class="w-full h-full object-cover"></video>
+        <!-- 取景框（前置摄像头实时画面，拍照后变检录照片） -->
+        <div class="relative rounded-2xl overflow-hidden bg-slate-900 shadow-md mb-4" style="aspect-ratio: 4 / 3;">
+            <video id="camera" autoplay playsinline muted class="absolute inset-0 w-full h-full object-cover"></video>
+            <img id="photo-img" class="absolute inset-0 w-full h-full object-cover hidden" alt="检录照片">
 
             <!-- 无摄像头 fallback -->
             <div id="fallback" class="absolute inset-0 hidden flex-col items-center justify-center text-slate-400 bg-slate-900">
-                <i class="fa-solid fa-video-slash text-4xl mb-3"></i>
+                <i class="fa-solid fa-video-slash text-3xl mb-2"></i>
                 <p class="text-sm font-medium mb-1">无法访问摄像头</p>
-                <p class="text-xs mb-4">请检查权限设置后重试</p>
+                <p class="text-xs mb-3">请检查权限设置后重试</p>
                 <button onclick="startCamera()" class="px-5 py-2 bg-white/10 border border-white/20 text-white text-sm rounded-full">重试</button>
             </div>
 
+            <!-- 已上传徽标（拍照后显示） -->
+            <div id="uploaded-badge" class="absolute top-2 right-2 hidden items-center gap-1 px-2.5 py-1 rounded-full text-xs font-semibold text-emerald-600 bg-emerald-50 border border-emerald-200">
+                <i class="fa-solid fa-circle-check"></i><span>已上传</span>
+            </div>
+
             <!-- 底部提示条 -->
-            <div class="absolute bottom-0 inset-x-0 px-3 py-2 bg-gradient-to-t from-black/60 to-transparent">
+            <div id="hint-bar" class="absolute bottom-0 inset-x-0 px-3 py-1.5 bg-gradient-to-t from-black/60 to-transparent">
                 <span class="text-[11px] text-white/80">实时画面 · 仅实时拍摄，不支持相册选图</span>
             </div>
         </div>
 
-        <!-- 检录照片示意 -->
-        <div class="bg-white rounded-xl p-4 shadow-sm border border-slate-100 mb-4">
-            <div class="flex items-start gap-2 mb-3">
-                <i class="fa-solid fa-circle-info text-brand-500 text-sm mt-0.5"></i>
+        <!-- 检录要求 -->
+        <div class="bg-white rounded-xl p-3 shadow-sm border border-slate-100">
+            <div class="flex items-start gap-2 mb-2">
+                <i class="fa-solid fa-circle-info text-brand-500 text-xs mt-0.5"></i>
                 <span class="text-sm font-medium text-slate-700">检录要求</span>
             </div>
-            <div class="placeholder-img mb-3">
-                <i class="fa-solid fa-image text-3xl mb-2"></i>
-                <span class="text-xs">检录照片示意（图待替换）</span>
+            <div class="placeholder-img w-full mb-2" style="aspect-ratio: 4 / 3;">
+                <i class="fa-solid fa-image text-4xl mb-2"></i>
+                <span class="text-xs">照片示意</span>
             </div>
             <p class="text-xs text-slate-500 leading-relaxed">
                 请正面面对摄像头，光线充足、无遮挡，确保面部清晰完整。照片将作为本场考试的检录凭证。
             </p>
         </div>
 
-        <!-- 已拍照片展示（拍照后出现） -->
-        <div id="photo-card" class="hidden bg-white rounded-xl p-4 shadow-sm border-2 border-brand-500 mb-4">
-            <div class="flex items-center justify-between mb-2">
-                <span class="text-sm font-medium text-slate-700">检录照片</span>
-                <span class="text-xs text-emerald-600 font-medium"><i class="fa-solid fa-circle-check mr-1"></i>已上传</span>
-            </div>
-            <img id="photo-img" class="w-full rounded-lg" alt="检录照片">
-            <p class="text-[11px] text-slate-400 mt-2" id="photo-time"></p>
-        </div>
-
         <!-- 底部按钮组（吸底） -->
-        <div class="fixed bottom-0 left-0 right-0 px-5 py-4 bg-white border-t border-slate-100">
+        <div class="fixed bottom-0 left-0 right-0 px-4 py-3 bg-white border-t border-slate-100">
             <div class="max-w-md mx-auto">
                 <!-- 拍照按钮（初始） -->
                 <button id="photo-btn" onclick="takePhoto()"
-                    class="w-full py-4 bg-brand-600 text-white font-semibold text-base rounded-xl hover:bg-brand-700 transition shadow-md active:scale-[0.98]">
+                    class="w-full py-3.5 bg-brand-600 text-white font-semibold text-base rounded-xl hover:bg-brand-700 transition shadow-md active:scale-[0.98]">
                     <i class="fa-solid fa-camera mr-2"></i>拍 照
                 </button>
 
                 <!-- 拍照后按钮组（重新拍照 + 开始监考） -->
                 <div id="after-photo-btns" class="hidden">
                     <button onclick="goGuide()"
-                        class="w-full py-4 bg-brand-600 text-white font-semibold text-base rounded-xl hover:bg-brand-700 transition shadow-md active:scale-[0.98]">
+                        class="w-full py-3.5 bg-brand-600 text-white font-semibold text-base rounded-xl hover:bg-brand-700 transition shadow-md active:scale-[0.98]">
                         开始监考
                     </button>
                     <button onclick="retakePhoto()"
-                        class="w-full mt-2 py-3 bg-white text-brand-600 font-medium text-sm rounded-xl border border-brand-600 active:scale-[0.98]">
+                        class="w-full mt-2 py-2.5 bg-white text-brand-600 font-medium text-sm rounded-xl border border-brand-600 active:scale-[0.98]">
                         重新拍照
                     </button>
                 </div>
 
                 <!-- 跳过（仅非强制档显示） -->
                 <button id="skip-btn" onclick="skipCheckin()"
-                    class="hidden w-full mt-3 py-2 text-slate-400 text-sm font-medium">
+                    class="hidden w-full mt-2 py-1.5 text-slate-400 text-sm font-medium">
                     跳过检录
                 </button>
             </div>
@@ -150,7 +144,7 @@
     <script>
         // 检录配置：?mode=optional → 非强制（有跳过）；默认强制（无跳过）
         var params = new URLSearchParams(location.search);
-        var isMandatory = params.get('mode') !== 'optional';   // 默认强制
+        var isMandatory = params.get('mode') !== 'optional';
 
         var stream = null;
         var canvas = document.createElement('canvas');
@@ -160,11 +154,11 @@
             var text = document.getElementById('mode-text');
             var skipBtn = document.getElementById('skip-btn');
             if (isMandatory) {
-                tag.className = 'inline-flex items-center gap-2 mb-4 px-3 py-1.5 rounded-full text-xs font-semibold bg-blue-50 text-brand-600 border border-blue-200';
+                tag.className = 'inline-flex items-center gap-1.5 mb-2 px-3 py-1 rounded-full text-xs font-semibold bg-blue-50 text-brand-600 border border-blue-200';
                 text.textContent = '检录（强制）· 完成后进入监考引导';
                 skipBtn.classList.add('hidden');
             } else {
-                tag.className = 'inline-flex items-center gap-2 mb-4 px-3 py-1.5 rounded-full text-xs font-semibold bg-purple-50 text-purple-600 border border-purple-200';
+                tag.className = 'inline-flex items-center gap-1.5 mb-2 px-3 py-1 rounded-full text-xs font-semibold bg-purple-50 text-purple-600 border border-purple-200';
                 text.textContent = '检录（非强制）· 可跳过，完成后进入监考引导';
                 skipBtn.classList.remove('hidden');
             }
@@ -179,12 +173,16 @@
                 .then(function (s) {
                     stream = s;
                     video.srcObject = s;
-                    video.style.display = 'block';
+                    video.classList.remove('hidden');
+                    document.getElementById('photo-img').classList.add('hidden');
+                    document.getElementById('uploaded-badge').classList.add('hidden');
+                    document.getElementById('uploaded-badge').classList.remove('flex');
+                    document.getElementById('hint-bar').classList.remove('hidden');
                     fallback.classList.add('hidden');
                     fallback.classList.remove('flex');
                 })
                 .catch(function () {
-                    video.style.display = 'none';
+                    video.classList.add('hidden');
                     fallback.classList.remove('hidden');
                     fallback.classList.add('flex');
                 });
@@ -207,13 +205,16 @@
                 var ctx = canvas.getContext('2d');
                 ctx.drawImage(video, 0, 0, canvas.width, canvas.height);
 
+                // 关闭摄像头，取景框区域变检录照片
+                if (stream) { stream.getTracks().forEach(function (t) { t.stop(); }); stream = null; }
                 var photoImg = document.getElementById('photo-img');
                 photoImg.src = canvas.toDataURL('image/jpeg', 0.9);
-
-                var card = document.getElementById('photo-card');
-                card.classList.remove('hidden');
-                document.getElementById('photo-time').textContent =
-                    '检录时间 ' + new Date().toLocaleString('zh-CN');
+                video.classList.add('hidden');
+                photoImg.classList.remove('hidden');
+                document.getElementById('hint-bar').classList.add('hidden');
+                var badge = document.getElementById('uploaded-badge');
+                badge.classList.remove('hidden');
+                badge.classList.add('flex');
 
                 // 按钮切换：隐藏拍照，显示「重新拍照 + 开始监考」
                 btn.classList.add('hidden');
@@ -227,7 +228,9 @@
         }
 
         function retakePhoto() {
-            document.getElementById('photo-card').classList.add('hidden');
+            document.getElementById('photo-img').classList.add('hidden');
+            document.getElementById('uploaded-badge').classList.add('hidden');
+            document.getElementById('uploaded-badge').classList.remove('flex');
             document.getElementById('after-photo-btns').classList.add('hidden');
             var btn = document.getElementById('photo-btn');
             btn.classList.remove('hidden');
@@ -236,6 +239,7 @@
             if (!isMandatory) {
                 document.getElementById('skip-btn').classList.remove('hidden');
             }
+            startCamera();   // 重新开启摄像头
         }
 
         function goGuide() {
