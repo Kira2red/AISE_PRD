@@ -1,0 +1,323 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no">
+    <title>账号绑定 - AISE</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <script>
+        tailwind.config = {
+            theme: { extend: { fontFamily: { sans: ['Inter', 'sans-serif'] } } }
+        }
+    </script>
+    <style>
+        body { background-color: #F1F5F9; -webkit-font-smoothing: antialiased; overscroll-behavior: none; touch-action: manipulation; }
+        .premium-gradient { background: linear-gradient(135deg, #1e293b 0%, #0f172a 100%); }
+        .fade-in { animation: fadeIn .25s ease; }
+        @keyframes fadeIn { from { opacity: 0; transform: translateY(6px); } to { opacity: 1; transform: none; } }
+    </style>
+</head>
+<body class="min-h-screen">
+
+    <!-- 微信外打开引导 -->
+    <div id="outside-view" class="hidden min-h-screen flex items-center justify-center p-6">
+        <div class="w-full max-w-sm bg-white rounded-2xl shadow-lg border border-slate-100 p-8 text-center">
+            <div class="w-14 h-14 rounded-full bg-slate-50 text-slate-400 flex items-center justify-center mx-auto mb-4">
+                <i class="fa-brands fa-weixin text-2xl"></i>
+            </div>
+            <h1 class="text-lg font-bold text-slate-900 mb-2">请在微信中打开</h1>
+            <p class="text-sm text-slate-500 mb-6">请使用微信打开此链接，或在服务号会话回复「绑定账号」重新进入</p>
+            <button onclick="copyLink()" class="w-full bg-white border border-slate-200 text-slate-600 py-3 rounded-xl font-medium text-sm hover:bg-slate-50 transition">复制链接</button>
+        </div>
+    </div>
+
+    <!-- 微信内主视图 -->
+    <div id="main-view" class="min-h-screen">
+        <div class="max-w-[480px] mx-auto px-5 pt-8" style="padding-bottom:130px">
+
+            <!-- 标题 -->
+            <div class="text-center mb-6">
+                <div class="w-12 h-12 rounded-xl premium-gradient text-white flex items-center justify-center mx-auto mb-3">
+                    <i class="fa-solid fa-link text-lg"></i>
+                </div>
+                <h1 class="text-xl font-bold text-slate-900">AISE账号绑定</h1>
+                <p class="text-sm text-slate-500 mt-1">绑定后可接收报名、测评、成绩等微信通知</p>
+            </div>
+
+            <!-- ============ 状态1：未登录 ============ -->
+            <div id="state-1" class="state-panel bg-white rounded-2xl shadow-sm border border-slate-100 p-6 fade-in">
+                <h2 class="text-base font-bold text-slate-900 mb-4">登录</h2>
+                <form onsubmit="event.preventDefault(); onLogin();">
+                    <div class="mb-4">
+                        <label class="block text-xs font-semibold text-slate-600 uppercase mb-2">账号 / 身份证号</label>
+                        <div class="relative">
+                            <i class="fa-regular fa-user absolute left-4 top-3.5 text-slate-400"></i>
+                            <input type="text" class="w-full pl-11 pr-4 py-3 rounded-xl border border-slate-200 focus:border-slate-800 focus:ring-0 outline-none transition text-sm text-slate-800 placeholder-slate-400" placeholder="请输入身份证号或手机号">
+                        </div>
+                    </div>
+                    <div class="mb-4">
+                        <div class="flex justify-between mb-2">
+                            <label class="block text-xs font-semibold text-slate-600 uppercase">密码</label>
+                            <span class="text-xs text-slate-400">默认密码为身份证后6位</span>
+                        </div>
+                        <div class="relative">
+                            <i class="fa-solid fa-lock absolute left-4 top-3.5 text-slate-400"></i>
+                            <input type="password" class="w-full pl-11 pr-4 py-3 rounded-xl border border-slate-200 focus:border-slate-800 focus:ring-0 outline-none transition text-sm text-slate-800 placeholder-slate-400" placeholder="请输入密码">
+                        </div>
+                    </div>
+                    <div class="mb-6">
+                        <label class="block text-xs font-semibold text-slate-600 uppercase mb-2">验证码</label>
+                        <div class="flex gap-3">
+                            <div class="relative flex-1">
+                                <i class="fa-solid fa-shield-halved absolute left-4 top-3.5 text-slate-400"></i>
+                                <input type="text" class="w-full pl-11 pr-4 py-3 rounded-xl border border-slate-200 focus:border-slate-800 focus:ring-0 outline-none transition text-sm text-slate-800 placeholder-slate-400" placeholder="输入右侧数字">
+                            </div>
+                            <div id="captcha-box" onclick="refreshCaptcha()" class="w-28 h-[46px] bg-slate-100 rounded-xl border border-slate-200 flex items-center justify-center text-lg font-mono font-bold text-slate-500 tracking-widest italic select-none cursor-pointer hover:bg-slate-200 transition" title="点击刷新">
+                                83K5
+                            </div>
+                        </div>
+                    </div>
+                    <button class="w-full premium-gradient text-white font-semibold py-3.5 rounded-xl shadow-lg hover:shadow-xl transition-all duration-300 mb-5">
+                        立即登录
+                    </button>
+                </form>
+                <div class="flex items-center justify-between text-sm">
+                    <a href="01_登录注册.html" class="text-slate-600 font-medium transition">没有账号？注册新账号</a>
+                    <a href="01_登录注册.html" class="text-slate-400 transition">忘记密码</a>
+                </div>
+            </div>
+
+            <!-- ============ 状态2：已登录未绑定 ============ -->
+            <div id="state-2" class="state-panel hidden bg-white rounded-2xl shadow-sm border border-slate-100 p-6 fade-in">
+                <h2 class="text-base font-bold text-slate-900 mb-4">确认绑定</h2>
+                <div class="bg-slate-50 rounded-xl p-4 mb-6 text-sm">
+                    <div class="flex justify-between py-1.5"><span class="text-slate-400">姓名</span><span class="text-slate-800 font-medium">张三</span></div>
+                    <div class="flex justify-between py-1.5 border-t border-slate-100"><span class="text-slate-400">手机号</span><span class="text-slate-800 font-medium">139****5678</span></div>
+                </div>
+                <p class="text-xs text-slate-500 mb-4">确认将当前微信绑定至以上账号？绑定后可通过微信接收报名、测评、成绩等通知。</p>
+                <button onclick="onBind()" class="w-full premium-gradient text-white font-semibold py-3.5 rounded-xl transition">确认绑定</button>
+            </div>
+
+            <!-- ============ 状态3：已绑定当前账号 ============ -->
+            <div id="state-3" class="state-panel hidden fade-in">
+                <div class="bg-white rounded-2xl shadow-sm border border-slate-100 p-6 text-center mb-4">
+                    <div class="w-14 h-14 rounded-full bg-green-50 text-green-600 flex items-center justify-center mx-auto mb-3">
+                        <i class="fa-solid fa-circle-check text-2xl"></i>
+                    </div>
+                    <h2 class="text-base font-bold text-slate-900 mb-1">已绑定</h2>
+                    <p class="text-xs text-slate-400 mb-4">当前微信已绑定以下账号</p>
+                    <div class="bg-slate-50 rounded-xl p-4 mb-4 text-sm text-left">
+                        <div class="flex justify-between py-1.5"><span class="text-slate-400">姓名</span><span class="text-slate-800 font-medium">张三</span></div>
+                        <div class="flex justify-between py-1.5 border-t border-slate-100"><span class="text-slate-400">手机号</span><span class="text-slate-800 font-medium">139****5678</span></div>
+                        <div class="flex justify-between py-1.5 border-t border-slate-100"><span class="text-slate-400">绑定时间</span><span class="text-slate-800 font-medium">2026-07-27 14:35</span></div>
+                    </div>
+                </div>
+                <div id="sub-box-3"></div>
+            </div>
+
+            <!-- ============ 状态4：已绑其他账号 ============ -->
+            <div id="state-4" class="state-panel hidden bg-white rounded-2xl shadow-sm border border-slate-100 p-6 fade-in">
+                <div class="flex items-start gap-3 mb-5">
+                    <div class="w-9 h-9 rounded-full bg-amber-50 text-amber-500 flex items-center justify-center flex-shrink-0">
+                        <i class="fa-solid fa-triangle-exclamation"></i>
+                    </div>
+                    <div>
+                        <p class="text-sm font-semibold text-slate-900 mb-1">当前微信已绑定其他账号</p>
+                        <p class="text-xs text-slate-500">已绑定账号：138****1234</p>
+                    </div>
+                </div>
+                <div class="bg-slate-50 rounded-xl p-4 mb-6 text-sm">
+                    <p class="text-xs text-slate-400 mb-2">当前登录账号</p>
+                    <div class="flex justify-between py-1.5"><span class="text-slate-400">姓名</span><span class="text-slate-800 font-medium">张三</span></div>
+                    <div class="flex justify-between py-1.5 border-t border-slate-100"><span class="text-slate-400">手机号</span><span class="text-slate-800 font-medium">139****5678</span></div>
+                </div>
+                <button onclick="openSwapModal()" class="w-full bg-white border border-slate-200 text-slate-700 font-semibold py-3.5 rounded-xl transition hover:bg-slate-50">更换绑定</button>
+                <button onclick="switchState(1)" class="w-full text-slate-400 text-sm py-3 mt-1 transition">返回登录</button>
+            </div>
+
+            <!-- ============ 状态5：绑定成功 ============ -->
+            <div id="state-5" class="state-panel hidden fade-in">
+                <div class="bg-white rounded-2xl shadow-sm border border-slate-100 p-6 text-center mb-4">
+                    <div class="w-14 h-14 rounded-full bg-green-50 text-green-600 flex items-center justify-center mx-auto mb-3">
+                        <i class="fa-solid fa-circle-check text-2xl"></i>
+                    </div>
+                    <h2 class="text-base font-bold text-slate-900 mb-1">绑定成功</h2>
+                    <p class="text-xs text-slate-400">当前微信已绑定账号：张三（139****5678）</p>
+                </div>
+                <div id="sub-box-5"></div>
+                <p class="text-xs text-slate-400 text-center mt-4">历史消息不补发，后续通知将及时推送</p>
+            </div>
+
+        </div>
+
+        <!-- 更换绑定确认弹窗 -->
+        <div id="swap-modal" class="hidden fixed inset-0 z-50 flex items-center justify-center p-6" style="background:rgba(15,23,42,0.45)">
+            <div class="w-full max-w-sm bg-white rounded-2xl p-6 fade-in">
+                <h3 class="text-base font-bold text-slate-900 mb-3 text-center">确认更换绑定</h3>
+                <p class="text-sm text-slate-600 mb-6 text-center">更换后，原账号（138****1234）将不再通过本微信接收通知，确认更换至当前登录账号？</p>
+                <div class="flex gap-3">
+                    <button onclick="closeSwapModal()" class="flex-1 bg-white border border-slate-200 text-slate-600 py-3 rounded-xl font-medium text-sm transition">取消</button>
+                    <button onclick="confirmSwap()" class="flex-1 premium-gradient text-white py-3 rounded-xl font-semibold text-sm transition">确认更换</button>
+                </div>
+            </div>
+        </div>
+
+        <!-- 模拟微信订阅确认弹窗 -->
+        <div id="wx-modal" class="hidden fixed inset-0 z-50 flex items-center justify-center p-8" style="background:rgba(15,23,42,0.45)">
+            <div class="w-full max-w-sm bg-white rounded-2xl overflow-hidden fade-in">
+                <div class="px-6 pt-6 pb-4 text-center">
+                    <h3 class="text-base font-bold text-slate-900 mb-1">订阅消息</h3>
+                    <p class="text-xs text-slate-400">AISE青少年AI人才培养工程 申请发送以下通知</p>
+                </div>
+                <div class="px-6 pb-4 text-sm" id="wx-modal-list"></div>
+                <div class="flex border-t border-slate-100">
+                    <button onclick="wxDeny()" class="flex-1 py-3.5 text-slate-500 font-medium text-sm">取消</button>
+                    <button onclick="wxAllow()" class="flex-1 py-3.5 text-green-600 font-semibold text-sm border-l border-slate-100">允许</button>
+                </div>
+            </div>
+        </div>
+
+        <!-- demo 状态切换条 -->
+        <div class="fixed bottom-0 left-0 right-0 z-40 bg-slate-900/95 text-white px-3 py-2.5">
+            <div class="max-w-[480px] mx-auto flex flex-wrap items-center gap-1.5">
+                <span class="text-[11px] text-slate-400 mr-1">Demo状态：</span>
+                <button class="demo-btn px-2.5 py-1 rounded bg-slate-700 text-[11px]" data-state="1">未登录</button>
+                <button class="demo-btn px-2.5 py-1 rounded bg-slate-700 text-[11px]" data-state="2">待确认绑定</button>
+                <button class="demo-btn px-2.5 py-1 rounded bg-slate-700 text-[11px]" data-state="3">已绑定</button>
+                <button class="demo-btn px-2.5 py-1 rounded bg-slate-700 text-[11px]" data-state="4">已绑其他</button>
+                <button class="demo-btn px-2.5 py-1 rounded bg-slate-700 text-[11px]" data-state="5">绑定成功</button>
+                <button id="btn-outside" class="px-2.5 py-1 rounded bg-slate-700 text-[11px]">预览微信外</button>
+            </div>
+        </div>
+    </div>
+
+<script>
+    const SUB_ITEMS = [
+        { id: 's1', name: '测评前提醒' },
+        { id: 's2', name: '测评开始提醒' },
+        { id: 's3', name: '成绩公示提醒' },
+        { id: 's4', name: '测评变更通知' }
+    ];
+    let subChecked = { s1: true, s2: true, s3: true, s4: true };
+    let currentState = 1;
+
+    // 渲染订阅组件到指定容器
+    function renderSubBox(containerId) {
+        const el = document.getElementById(containerId);
+        if (!el) return;
+        el.innerHTML = `
+            <div class="bg-white rounded-2xl shadow-sm border border-slate-100 overflow-hidden">
+                <div class="px-6 pt-5 pb-1">
+                    <h2 class="text-base font-bold text-slate-900">消息提醒</h2>
+                    <p class="text-xs text-slate-500 mt-1">开启消息提醒，不错过测评安排与成绩通知</p>
+                </div>
+                <div class="px-6 py-3">
+                    ${SUB_ITEMS.map(it => `
+                        <label class="flex items-center justify-between py-2.5 border-b border-slate-50 cursor-pointer">
+                            <span class="text-sm text-slate-700">${it.name}</span>
+                            <input type="checkbox" class="w-4 h-4 accent-slate-900" data-sub="${it.id}" onchange="toggleSub('${it.id}', this.checked)">
+                        </label>
+                    `).join('')}
+                </div>
+                <div class="px-6 pb-5">
+                    <button onclick="openWxModal()" class="w-full premium-gradient text-white font-semibold py-3 rounded-xl transition">允许</button>
+                </div>
+            </div>`;
+        // 同步已勾选状态
+        SUB_ITEMS.forEach(it => {
+            const cb = el.querySelector('[data-sub="' + it.id + '"]');
+            if (cb) cb.checked = subChecked[it.id];
+        });
+    }
+
+    function toggleSub(id, checked) {
+        subChecked[id] = checked;
+    }
+
+    function openWxModal() {
+        if (!Object.values(subChecked).some(Boolean)) {
+            alert('请先勾选需要订阅的通知');
+            return;
+        }
+        const list = document.getElementById('wx-modal-list');
+        list.innerHTML = SUB_ITEMS.filter(it => subChecked[it.id])
+            .map(it => '<div class="flex justify-between py-1.5"><span class="text-slate-600">' + it.name + '</span><i class="fa-solid fa-check text-green-600"></i></div>')
+            .join('');
+        document.getElementById('wx-modal').classList.remove('hidden');
+    }
+    function wxAllow() {
+        document.getElementById('wx-modal').classList.add('hidden');
+        alert('已订阅所选通知（微信授权完成）');
+    }
+    function wxDeny() {
+        document.getElementById('wx-modal').classList.add('hidden');
+    }
+
+    function onLogin() {
+        // demo：默认进入待确认绑定；已绑其他账号的换绑场景用切换条查看状态4
+        switchState(2);
+    }
+    function onBind() {
+        switchState(5);
+    }
+    function openSwapModal() {
+        document.getElementById('swap-modal').classList.remove('hidden');
+    }
+    function closeSwapModal() {
+        document.getElementById('swap-modal').classList.add('hidden');
+    }
+    function confirmSwap() {
+        closeSwapModal();
+        switchState(5);
+    }
+
+    function refreshCaptcha() {
+        const chars = 'ABCDEFGHJKLMNPQRSTUVWXYZ23456789';
+        let s = '';
+        for (let i = 0; i < 4; i++) s += chars[Math.floor(Math.random() * chars.length)];
+        document.getElementById('captcha-box').textContent = s;
+    }
+
+    function switchState(n) {
+        currentState = n;
+        for (let i = 1; i <= 5; i++) {
+            const p = document.getElementById('state-' + i);
+            if (p) p.classList.toggle('hidden', i !== n);
+        }
+        if (n === 3) renderSubBox('sub-box-3');
+        if (n === 5) renderSubBox('sub-box-5');
+        document.querySelectorAll('.demo-btn').forEach(b => {
+            b.classList.toggle('bg-slate-500', parseInt(b.dataset.state) === n);
+            b.classList.toggle('bg-slate-700', parseInt(b.dataset.state) !== n);
+        });
+        window.scrollTo({ top: 0 });
+    }
+
+    function copyLink() {
+        alert('链接已复制，请在微信中粘贴打开');
+    }
+
+    // 环境判断：demo 默认显示主视图便于验收；线上由 UA 决定（applyEnv 供上线参考）
+    function applyEnv() {
+        const isWx = /MicroMessenger/i.test(navigator.userAgent);
+        document.getElementById('outside-view').classList.toggle('hidden', isWx);
+        document.getElementById('main-view').classList.toggle('hidden', !isWx);
+        document.getElementById('btn-outside').textContent = isWx ? '预览微信外' : '预览微信内';
+    }
+    document.getElementById('btn-outside').addEventListener('click', function () {
+        const outside = document.getElementById('outside-view').classList.contains('hidden');
+        document.getElementById('outside-view').classList.toggle('hidden', !outside);
+        document.getElementById('main-view').classList.toggle('hidden', outside);
+        this.textContent = outside ? '预览微信内' : '预览微信外';
+    });
+
+    document.querySelectorAll('.demo-btn').forEach(b => {
+        b.addEventListener('click', () => switchState(parseInt(b.dataset.state)));
+    });
+
+    switchState(1);
+</script>
+</body>
+</html>

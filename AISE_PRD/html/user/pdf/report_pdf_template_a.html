@@ -1,0 +1,246 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<title>AISE 考级报告（长条版）</title>
+<style>
+/* ===== A 版 PDF：1:1 还原运营效果图 page3_img1.jpeg，长条一页不分页 ===== */
+@page { size: 390px 4000px; margin: 0; }
+* { margin:0; padding:0; box-sizing:border-box; -webkit-print-color-adjust:exact; print-color-adjust:exact; }
+html, body { width:390px; }
+body { background:#F8F8F8; font-family:'PingFang SC','Hiragino Sans GB','Microsoft YaHei',sans-serif; color:#333; padding:10px 0; }
+
+.head-card { background:#EEEEEE; border-radius:14px; padding:14px 14px 12px; margin-bottom:12px; }
+.report-head { text-align:center; margin-bottom:12px; }
+.report-head .kicker { font-size:12px; color:#666; margin-bottom:6px; }
+.report-head .title { font-size:24px; font-weight:800; color:#4E39BA; line-height:1.3; }
+
+.stu-wrap { display:flex; align-items:center; justify-content:center; gap:12px; margin-bottom:10px; }
+.stu-avatar { width:80px; height:80px; border-radius:50%; background:linear-gradient(135deg,#8777D3,#705FD2); display:flex; align-items:center; justify-content:center; color:#fff; font-size:38px; flex-shrink:0; }
+.stu-info { text-align:left; }
+.stu-name { font-size:14px; font-weight:700; color:#4E39BA; }
+.stu-name .age { font-weight:400; color:#FF9900; margin-left:6px; }
+.stu-id { font-size:12px; color:#666; margin-top:5px; }
+.stu-school { display:inline-block; background:#F5F5F5; border:1px solid #E0E0E0; border-radius:6px; padding:4px 12px; font-size:12px; color:#666; margin-top:6px; }
+
+.grade-card { background:#F5F5F5; border:1px solid #E0E0E0; border-radius:10px; padding:8px 12px; font-size:14px; display:flex; align-items:center; flex-wrap:wrap; gap:6px; }
+.grade-card + .grade-card { margin-top:8px; }
+.grade-card .lb { color:#333; }
+.grade-card .v { font-weight:800; }
+.grade-note { border:1px dashed #D0D0D5; border-radius:6px; padding:2px 10px; font-size:12px; color:#666; margin-left:auto; width:176px; flex-shrink:0; }
+
+.summary-bar { background:#F5F5F5; border:1px solid #E0E0E0; border-radius:8px; padding:9px 12px; font-size:14px; color:#333; line-height:1.6; margin-top:8px; }
+
+.block-card { background:#EEEEEE; border-radius:14px; padding:12px; margin-bottom:12px; }
+.mod-head { display:flex; align-items:center; gap:8px; margin-bottom:10px; }
+.mod-head .bar { width:3px; height:18px; border-radius:2px; background:#4E39BA; flex-shrink:0; }
+.mod-head .t { font-size:18px; font-weight:800; color:#4E39BA; }
+.mod-head .sub { margin-left:auto; font-size:12px; color:#666; }
+
+.chart-card { background:#fff; border:1.5px solid #8777D3; border-radius:10px; padding:14px 12px 10px; }
+.stage-labels { display:flex; margin-top:2px; }
+.stage-labels div { text-align:center; font-size:12px; color:#666; }
+.stage-labels div.active { color:#4E39BA; font-weight:700; }
+
+.kp-sub { background:#E2E2E2; border-radius:10px; border:1.5px solid #E2E2E2; border-left:3px solid #26A69A; border-right:3px solid #26A69A; padding:10px 12px; margin-bottom:8px; }
+.kp-sub.kp-warn { border-left-color:#FF9800; border-right-color:#FF9800; }
+.kp-sub:last-child { margin-bottom:0; }
+.kp-sub .m { font-size:14px; font-weight:700; color:#333; margin-bottom:6px; display:flex; align-items:center; justify-content:space-between; gap:6px; }
+.kp-pt { display:flex; align-items:center; font-size:12px; color:#666; padding:2px 0; }
+.kp-pt .dot { width:5px; height:5px; border-radius:50%; background:#C9C9CE; margin-right:8px; flex-shrink:0; }
+
+.tag { display:inline-flex; align-items:center; padding:2px 10px; border-radius:6px; font-size:12px; font-weight:600; white-space:nowrap; }
+.tag-ok { background:#E0F2F1; color:#26A69A; }
+.tag-warn { background:#FFF3E0; color:#FF9800; }
+
+.q-card { background:#fff; border:1px solid #E0E0E0; border-radius:10px; padding:12px; }
+.q-card + .q-card { margin-top:12px; }
+.q-no { display:flex; align-items:center; gap:6px; flex-wrap:wrap; margin-bottom:6px; }
+.q-title { font-size:16px; font-weight:800; color:#333; }
+.q-stem { font-size:14px; color:#333; line-height:1.6; margin-bottom:8px; }
+.ans-label { font-size:12px; color:#999; font-weight:600; margin:10px 0 4px; }
+.q-type { display:inline-flex; align-items:center; background:#F1F2F4; color:#606471; border-radius:6px; padding:2px 10px; font-size:12px; font-weight:600; }
+
+.code-block { background:#0F1A36; color:#fff; font-family:Menlo,Consolas,'Courier New',monospace; font-size:15px; line-height:1.7; border-radius:8px; padding:10px 12px; overflow-x:hidden; }
+.code-block .ln { color:#5B6280; display:inline-block; width:2em; margin-right:12px; text-align:right; }
+.code-block .cl { border-bottom:1px solid rgba(255,255,255,0.07); }
+.code-trunc { background:#0F1A36; color:#8A8FA8; font-size:12px; border-radius:0 0 8px 8px; padding:4px 12px 8px; margin-top:-8px; font-family:Menlo,Consolas,monospace; }
+
+.opt { position:relative; display:flex; align-items:center; background:#F5F5F5; border:1px solid #E0E0E0; border-radius:8px; padding:7px 10px; font-size:14px; color:#333; }
+.opt b { margin-right:8px; }
+.opt .tag { position:absolute; right:8px; top:50%; transform:translateY(-50%); font-size:10px; font-weight:500; }
+.opt.stu { background:#E5E8F7; border:1.5px solid #4E39BA; }
+.opt.stu .tag { color:#4E39BA; }
+.opt.cor { background:#DCECEC; border:1.5px solid #14966F; }
+.opt.cor .tag { color:#14966F; font-weight:600; }
+
+.tip { background:#F5F5F5; border:1px solid #E0E0E0; border-radius:8px; padding:8px 10px; font-size:14px; color:#555; line-height:1.6; margin-top:8px; }
+.tip b { color:#FF9900; }
+.tip-ok { background:#EFEBFB; border-color:#D9D3F1; color:#705FD2; }
+
+.adv-grid { display:grid; grid-template-columns:1fr 1fr; gap:10px; }
+.adv-card { background:#fff; border:1px solid #E0E0E0; border-radius:10px; padding:10px 12px; }
+.adv-card .t { font-size:14px; font-weight:800; color:#4E39BA; margin-bottom:5px; }
+.adv-card .c { font-size:12px; color:#666; line-height:1.6; }
+
+.report-foot { text-align:center; font-size:12px; color:#A6A7AF; padding:4px 0 8px; line-height:1.8; }
+.empty { background:#fff; border-radius:10px; padding:18px; text-align:center; color:#8A8A90; font-size:14px; }
+</style>
+</head>
+<body>
+<div id="report"></div>
+<script>
+/* ===== 数据（与 29_考级报告.html 同源） ===== */
+const STAGES=[{n:'初步形成',w:30,c:15},{n:'稳步接近',w:30,c:45},{n:'目标达成',w:20,c:70},{n:'熟练掌握',w:10,c:85},{n:'高阶表现',w:10,c:95}];
+const STAGE_NOTE={'初步形成':'基础正在建立','稳步接近':'处于稳步接近的成长区间','目标达成':'处于目标达成的成长区间','熟练掌握':'处于较稳定的成长区间','高阶表现':'处于高阶表现的成长区间'};
+const SUMMARY={'待提升':'综合本次考级表现，本级基础正在逐步形成，建议继续巩固核心任务。','合格':'综合本次考级表现，已达到本级基本要求，可继续巩固并拓展。','良好':'综合本次考级表现，已较稳定达到本级要求，可进一步提升综合应用。','优秀':'综合本次考级表现，已高质量完成本级主要任务，可继续挑战更复杂的综合任务。'};
+const ADVICE={pass:{link:'建议继续学习列表、字典及循环分支嵌套，构建更复杂的程序逻辑，衔接五级。',course:'建议通过更完整的项目练习，提升复杂逻辑设计和问题解决能力。'},fail:{link:'建议先巩固四级，继续学习列表、字典及循环分支嵌套，练习构建复杂程序逻辑。',course:null}};
+const FULL_COMMENT='本题目作答达到要求，完整完成任务。太棒了！';
+const STUDENTS=[
+{id:'liming',name:'李明',age:'12岁',idNo:'ID:1103467994323',school:'所在学校/培训机构',level:'程序设计四级',date:'2026年6月',score:100,
+ knowledge:[{mod:'Python运算',pts:[['比较运算',100],['布尔值',100],['算术运算',100]]},{mod:'流程控制',pts:[['条件分支',100],['循环',100],['IPO编程',100]]},{mod:'常用标准库',pts:[['模块导入',100]]},{mod:'编程基础',pts:[['变量',100],['数据类型转换',100],['数据类型',100],['input()语句',100],['print()语句',100]]}],
+ performance:{full:true,coding:{no:'第13题',type:'编程题',title:'名字输入输出',kp:'IPO编程',stem:'编写程序，输入姓名和年龄，输出问候语和出生年份。',code:['name = input("请输入你的名字：")','age = int(input("请输入你的年龄："))','year = 2026 - age','print(name + "，你好！")','print("你大约出生于" + str(year) + "年")','print("欢迎参加 AISE 考级！")'],ref:['name = input("请输入你的名字：")','age = int(input("请输入你的年龄："))','year = 2026 - age','print(name + "，你好！")','print("你大约出生于" + str(year) + "年")','print("欢迎参加 AISE 考级！")']}}},
+{id:'wangfang',name:'王芳',age:'13岁',idNo:'ID:1103467994324',school:'所在学校/培训机构',level:'程序设计四级',date:'2026年6月',score:76,
+ knowledge:[{mod:'Python运算',pts:[['比较运算',45],['布尔值',100],['算术运算',80]]},{mod:'流程控制',pts:[['条件分支',50],['循环',75],['IPO编程',100]]},{mod:'常用标准库',pts:[['模块导入',100]]},{mod:'编程基础',pts:[['变量',100],['数据类型转换',60],['数据类型',100],['input()语句',100],['print()语句',100]]}],
+ performance:{full:false,objective:{no:'第3题',type:'单选题',title:'输出判断',kp:'布尔值',scoreText:'0 / 4 分',stem:'在 Python 中，表达式 3 > 5 的运算结果是？',options:['True','False','3','5'],student:0,correct:1},coding:{no:'第12题',type:'编程题',title:'循环计数',kp:'循环',scoreText:'6 / 10 分',stem:'编写程序，使用 while 循环依次输出 0 到 4。',code:['count = 0','while count < 5:','    print(count)','print("循环结束")'],ref:['count = 0','while count < 5:','    print(count)','    count = count + 1','print("循环结束")']}}},
+{id:'zhangwei',name:'张伟',age:'12岁',idNo:'ID:1103467994325',school:'所在学校/培训机构',level:'程序设计四级',date:'2026年6月',score:45,
+ knowledge:[{mod:'Python运算',pts:[['比较运算',40],['布尔值',50],['算术运算',100]]},{mod:'流程控制',pts:[['条件分支',30],['循环',45],['IPO编程',60]]},{mod:'常用标准库',pts:[['模块导入',0]]},{mod:'编程基础',pts:[['变量',100],['数据类型转换',40],['数据类型',80],['input()语句',50],['print()语句',100]]}],
+ performance:{full:false,objective:{no:'第2题',type:'单选题',title:'条件判断关键字',kp:'条件分支',scoreText:'0 / 4 分',stem:'下列哪个关键字用于在 Python 中编写条件判断？',options:['for','if','print','input'],student:2,correct:1},coding:{no:'第11题',type:'编程题',title:'IPO输入输出',kp:'IPO编程',scoreText:'3 / 10 分',stem:'编写程序，读入一个数并原样输出。',code:['a = input()','print(a)'],ref:['a = input()','print(a)']}}},
+{id:'chenchen',name:'陈晨',age:'13岁',idNo:'ID:1103467994326',school:'所在学校/培训机构',level:'程序设计四级',date:'2026年6月',score:68,
+ knowledge:null,
+ performance:{full:false,objectiveOnly:true,objective:{no:'第5题',type:'单选题',title:'取余运算',kp:'算术运算',scoreText:'0 / 4 分',stem:'在 Python 中，表达式 7 % 3 的运算结果是？',options:['1','2','2.5','3'],student:2,correct:0},coding:null}}
+];
+
+function gradeOf(s){ if(s<30)return{pass:false,grade:'待提升',stage:0}; if(s<60)return{pass:false,grade:'待提升',stage:1}; if(s<70)return{pass:true,grade:'合格',stage:2}; if(s<80)return{pass:true,grade:'良好',stage:3}; return{pass:true,grade:'优秀',stage:4}; }
+function esc(t){ return String(t).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;'); }
+const GRADE_COLOR={'待提升':'#FF9900','合格':'#2A6CE0','良好':'#00CC66','优秀':'#4E39BA'};
+
+function curveSvg(stageIdx){
+    let xAcc=0;
+    const centers=STAGES.map(function(s){const cx=xAcc+s.w*s.c/100;xAcc+=s.w;return cx;});
+    const pos=centers[stageIdx];
+    const cy=27;
+    return '<svg viewBox="0 0 100 52" style="width:100%;height:auto;display:block">'
+      +'<defs><linearGradient id="vgA2" x1="0" y1="0" x2="1" y2="0"><stop offset="0" stop-color="#B6BEEF"/><stop offset="1" stop-color="#80C6D2"/></linearGradient></defs>'
+      +'<path d="M0,50 L0,44 C 10,26 18,18 30,18 C 40,18 44,30 52,30 C 60,30 64,14 74,14 C 84,14 88,28 96,34 C 99,37 100,41 100,44 L100,50 Z" fill="url(#vgA2)" opacity="0.9"/>'
+      +'<line x1="'+pos+'" y1="'+cy+'" x2="'+pos+'" y2="50" stroke="#5C49D6" stroke-width="1" stroke-dasharray="3 3"/>'
+      +'<circle cx="'+pos+'" cy="'+cy+'" r="4.5" fill="#5C49D6" stroke="#fff" stroke-width="1.5"/></svg>';
+}
+function stageLabels(stageIdx){
+    let html='';
+    STAGES.forEach(function(s,i){ html+='<div style="width:'+s.w+'%" class="'+(i===stageIdx?'active':'')+'">'+s.n+'</div>'; });
+    return html;
+}
+
+function render(stu){
+    const g=gradeOf(stu.score);
+    const gc=GRADE_COLOR[g.grade];
+
+    let html='<div class="head-card">'
+      +'<div class="report-head"><div class="kicker">AISE能力评定报告'+esc(stu.date)+'</div>'
+      +'<div class="title">AISE'+esc(stu.level)+'能力评定报告</div></div>'
+      +'<div class="stu-wrap"><div class="stu-avatar">&#129302;</div><div class="stu-info">'
+      +'<div class="stu-name">'+esc(stu.name)+'<span class="age">'+esc(stu.age)+'</span></div>'
+      +'<div class="stu-id">'+esc(stu.idNo)+'</div>'
+      +'<div class="stu-school">'+esc(stu.school)+'</div></div></div>'
+      +'<div class="grade-card"><span class="lb">本次等级：</span><span class="v" style="color:'+gc+'">'+g.grade+'</span>'
+      +'<span class="grade-note">'+(g.pass?'已达到'+esc(stu.level)+'核心要求':'未达到本级核心要求')+'</span></div>'
+      +'<div class="grade-card"><span class="lb">同级参照：</span><span class="v" style="color:#FF9900">'+STAGES[g.stage].n+'</span>'
+      +'<span class="grade-note">'+STAGE_NOTE[STAGES[g.stage].n]+'</span></div>'
+      +'<div class="summary-bar">'+SUMMARY[g.grade]+'</div></div>';
+
+    html+='<div class="block-card"><div class="mod-head"><span class="bar"></span><span class="t">同级参照分布</span><span class="sub">看本次表现所在区间</span></div>'
+      +'<div class="chart-card">'+curveSvg(g.stage)+'<div class="stage-labels">'+stageLabels(g.stage)+'</div></div></div>';
+
+    let kpHtml='';
+    if(!stu.knowledge){ kpHtml='<div class="empty">本场考试题目暂未配置知识点标签，暂无知识点掌握数据。</div>'; }
+    else{
+        stu.knowledge.forEach(function(m){
+            const hasBad=m.pts.some(function(p){return p[1]<60;});
+            const sorted=m.pts.slice();
+            let rows='';
+            sorted.forEach(function(p){
+                rows+='<div class="kp-pt"><span class="dot"></span><span>'+esc(p[0])+'</span></div>';
+            });
+            kpHtml+='<div class="kp-sub'+(hasBad?' kp-warn':'')+'"><div class="m"><span>'+esc(m.mod)+'</span>'
+              +'<span class="tag '+(hasBad?'tag-warn':'tag-ok')+'">'+(hasBad?'重点提升':'稳定')+'</span></div>'+rows+'</div>';
+        });
+    }
+    html+='<div class="block-card"><div class="mod-head"><span class="bar"></span><span class="t">知识点掌握情况</span><span class="sub">程序设计四级知识树</span></div>'+kpHtml+'</div>';
+
+    const p=stu.performance;
+    let perfHtml='';
+    function codeHtml(lines){
+        const shown=lines.slice(0,5);
+        let rows='';
+        shown.forEach(function(l,i){ rows+='<div class="cl"><span class="ln">'+(i+1)+'</span>'+esc(l)+'</div>'; });
+        let h='<div class="code-block">'+rows+'</div>';
+        if(lines.length>5) h+='<div class="code-trunc">··· 作答代码较长，仅展示前 5 行 ···</div>';
+        return h;
+    }
+    if(p.full){
+        if(p.coding){
+            const c=p.coding;
+            perfHtml='<div class="q-card"><div style="display:flex;align-items:center;justify-content:space-between;flex-wrap:wrap;gap:6px;margin-bottom:8px">'
+              +'<div class="q-title">'+esc(c.no)+'</div><span class="q-type">'+esc(c.type)+'</span></div>'
+              +'<div class="ans-label">题干要求</div><div class="q-stem">'+esc(c.stem)+'</div>'
+              +'<div class="ans-label">你的作答</div>'+codeHtml(c.code)
+              +'<div class="ans-label">标准作答</div>'+codeHtml(c.ref)
+              +'<div class="tip tip-ok">'+FULL_COMMENT+'</div></div>';
+        }
+    }else{
+        if(p.objective){
+            const o=p.objective,letters=['A','B','C','D'];
+            let opts='';
+            o.options.forEach(function(t,i){
+                let cls='opt',tag='';
+                if(i===o.student){cls+=' stu';tag='<span class="tag">·你的作答</span>';}
+                if(i===o.correct){cls+=' cor';tag='<span class="tag">·参考答案</span>';}
+                opts+='<div class="'+cls+'"><b>'+letters[i]+'.</b><span>'+esc(t)+'</span>'+tag+'</div>';
+            });
+            perfHtml='<div class="q-card"><div style="display:flex;align-items:center;justify-content:space-between;flex-wrap:wrap;gap:6px;margin-bottom:8px">'
+              +'<div class="q-title">'+esc(o.no)+'</div><span class="q-type">'+esc(o.type)+'</span></div>'
+              +'<div class="ans-label">题干要求</div><div class="q-stem">'+esc(o.stem)+'</div>'
+              +'<div class="ans-label">你的作答</div>'
+              +'<div style="display:grid;grid-template-columns:1fr 1fr;gap:8px">'+opts+'</div>'
+              +'<div class="tip">建议重点提升<b>【'+esc(o.kp)+'】</b>。</div></div>';
+        }
+        if(p.coding){
+            const c=p.coding;
+            perfHtml+='<div class="q-card"><div style="display:flex;align-items:center;justify-content:space-between;flex-wrap:wrap;gap:6px;margin-bottom:8px">'
+              +'<div class="q-title">'+esc(c.no)+'</div><span class="q-type">'+esc(c.type)+'</span></div>'
+              +'<div class="ans-label">题干要求</div><div class="q-stem">'+esc(c.stem)+'</div>'
+              +'<div class="ans-label">你的作答</div>'+codeHtml(c.code)
+              +'<div class="ans-label">标准作答</div>'+codeHtml(c.ref)
+              +'<div class="tip">建议重点提升<b>【'+esc(c.kp)+'】</b>。</div></div>';
+        }
+        if(!perfHtml) perfHtml='<div class="empty">本次考试无错题。</div>';
+    }
+    html+='<div class="block-card"><div class="mod-head"><span class="bar"></span><span class="t">本次评定表现</span><span class="sub">典型难题</span></div>'+perfHtml+'</div>';
+
+    const a=g.pass?ADVICE.pass:ADVICE.fail;
+    let advHtml='<div class="adv-grid"><div class="adv-card"><div class="t">考级衔接</div><div class="c">'+a.link+'</div></div>';
+    if(a.course) advHtml+='<div class="adv-card"><div class="t">课程学习建议</div><div class="c">'+a.course+'</div></div>';
+    advHtml+='</div>';
+    html+='<div class="block-card"><div class="mod-head"><span class="bar"></span><span class="t">下一阶段建议</span><span class="sub">本阶段重点</span></div>'+advHtml+'</div>';
+
+    document.getElementById('report').innerHTML=html;
+    document.title='AISE考级报告_'+stu.name;
+}
+
+const id=new URLSearchParams(location.search).get('id')||'liming';
+const stu=STUDENTS.find(function(s){return s.id===id;})||STUDENTS[0];
+render(stu);
+
+function fixPageSize(){
+    const h=Math.ceil(document.body.getBoundingClientRect().height)+2;
+    const style=document.createElement('style');
+    style.textContent='@page { size: 390px '+h+'px; margin: 0; }';
+    document.head.appendChild(style);
+}
+fixPageSize();
+window.addEventListener('load',function(){ fixPageSize(); });
+document.fonts && document.fonts.ready && document.fonts.ready.then(fixPageSize);
+</script>
+</body>
+</html>

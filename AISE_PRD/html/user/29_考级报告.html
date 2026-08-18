@@ -17,182 +17,233 @@
                     },
                     colors: {
                         brand: { 50:'#eff6ff', 100:'#dbeafe', 500:'#3b82f6', 600:'#2563eb', 700:'#1d4ed8' },
-                        navy:  { DEFAULT:'#0f1835', soft:'#212845' },
-                        violet2:{ DEFAULT:'#8777d3', deep:'#705fd2', light:'#aaa8e1', pale:'#c2bbe1' },
-                        brightblue:{ DEFAULT:'#2555e7', soft:'#2957e7' },
-                        pinkx: { DEFAULT:'#f0646b', soft:'#f1666d', pale:'#f39ca0' },
                     },
-                    boxShadow: { 'card':'0 2px 10px -2px rgba(15,24,53,0.06)' },
                 }
             }
         }
     </script>
     <style>
-        body { background-color:#e9e9ea; -webkit-font-smoothing:antialiased; color:#0f1835; font-size:15px; }
-        .glass-nav { background:rgba(255,255,255,0.95); backdrop-filter:blur(12px); border-bottom:1px solid rgba(226,232,240,0.8); }
-        /* 报告卡片：白底圆角16px、细描边、轻阴影 */
-        .report-card { background:#fff; border-radius:16px; border:1px solid #e5e7eb; box-shadow:0 2px 10px -2px rgba(15,24,53,0.06); overflow:hidden; }
-        .mod-title { display:flex; align-items:center; gap:10px; font-size:20px; font-weight:700; color:#0f1835; }
-        .mod-title .bar { width:5px; height:20px; border-radius:3px; background:linear-gradient(180deg,#8777d3,#705fd2); }
-        .mod-sub { font-size:12px; color:#606471; }
-        /* 状态标签 chip */
-        .chip { display:inline-flex; align-items:center; gap:4px; padding:3px 12px; border-radius:999px; font-size:12px; font-weight:600; white-space:nowrap; }
-        .chip-green  { background:#e7f8f2; color:#14966f; border:1px solid #b9ecd9; }
-        .chip-orange { background:#fdf3e3; color:#c07f16; border:1px solid #f5dcb0; }
-        .chip-pink   { background:#fdecec; color:#e0484f; border:1px solid #f6c1c3; }
-        .chip-purple { background:#f0edfb; color:#705fd2; border:1px solid #d9d3f1; }
-        .chip-blue   { background:#e8edfd; color:#2555e7; border:1px solid #c4d0f7; }
-        .chip-gray   { background:#f1f2f4; color:#606471; border:1px solid #e0e1e5; }
-        /* 代码块：深色主题 */
-        .code-block { background:#1d1d1e; color:#e9e9e9; font-family:'JetBrains Mono',monospace; font-size:15px; line-height:1.7; border-radius:12px; padding:16px 18px; overflow-x:auto; }
-        .code-block .ln { color:#6b6b70; user-select:none; display:inline-block; width:2em; margin-right:12px; text-align:right; }
-        .code-block .kw { color:#1d90fa; }
-        .code-trunc { background:#1d1d1e; color:#8a8a90; font-size:12px; border-radius:0 0 12px 12px; padding:6px 18px 12px; margin-top:-12px; font-family:'JetBrains Mono',monospace; }
-        /* 操作区 */
-        .ops-card { background:#fff; border-radius:16px; border:1px solid #e5e7eb; box-shadow:0 2px 10px -2px rgba(15,24,53,0.06); }
-        .stu-btn { display:flex; align-items:center; gap:8px; width:100%; padding:10px 14px; border-radius:12px; border:1px solid #e5e7eb; background:#fff; font-size:15px; font-weight:500; color:#0f1835; transition:all .15s; cursor:pointer; text-align:left; }
-        .stu-btn:hover { border-color:#aaa8e1; background:#faf9fe; }
-        .stu-btn.active { border-color:#8777d3; background:#f0edfb; color:#705fd2; font-weight:600; box-shadow:0 0 0 1px #8777d3 inset; }
-        .stu-btn .avatar { width:32px; height:32px; border-radius:50%; display:flex; align-items:center; justify-content:center; color:#fff; font-size:13px; font-weight:700; flex-shrink:0; }
-        .pdf-btn { display:flex; align-items:center; justify-content:center; gap:8px; width:100%; padding:12px; border-radius:12px; background:linear-gradient(135deg,#2555e7,#2957e7); color:#fff; font-size:15px; font-weight:600; transition:all .2s; cursor:pointer; border:none; }
-        .pdf-btn:hover:not(:disabled) { filter:brightness(1.08); transform:translateY(-1px); box-shadow:0 6px 16px -4px rgba(37,85,231,0.4); }
+        /* ===== A 版：1:1 还原运营效果图 page3_img1.jpeg（手机端 390 窄条） =====
+           色值来源：PIL 像素采样（页面底 #F8F8F8 / 区块卡 #E2E2E2 / 头部卡 #EEEEEE /
+           主标题 #4E39BA / 渐变条 #B6BEEF→#80C6D2 / 圆点 #5C49D6 / 代码块 #0F1A36 / 选项 #E5E8F7·#DCECEC） */
+        body { background-color:#F8F8F8; -webkit-font-smoothing:antialiased; color:#333; }
+        .glass-nav { background:rgba(255,255,255,0.95); backdrop-filter:blur(12px); border-bottom:1px solid rgba(255,255,255,0.3); }
+
+        #reportStrip { max-width:390px; margin:0 auto; }
+
+        /* 头部卡（标题+个人信息+等级卡+总结条） */
+        .head-card { background:#EEEEEE; border-radius:14px; padding:14px 14px 12px; margin-bottom:12px; }
+
+        /* 页眉标题：两行居中 */
+        .report-head { text-align:center; margin-bottom:12px; }
+        .report-head .kicker { font-size:12px; color:#666; margin-bottom:6px; }
+        .report-head .title { font-size:24px; font-weight:800; color:#4E39BA; line-height:1.3; }
+
+        /* 个人信息：居中，头像+右侧文字 */
+        .stu-wrap { display:flex; align-items:center; justify-content:center; gap:12px; margin-bottom:10px; }
+        .stu-avatar { width:80px; height:80px; border-radius:50%; background:linear-gradient(135deg,#8777D3,#705FD2); display:flex; align-items:center; justify-content:center; color:#fff; font-size:38px; flex-shrink:0; }
+        .stu-info { text-align:left; }
+        .stu-name { font-size:14px; font-weight:700; color:#4E39BA; display:flex; align-items:center; gap:6px; }
+        .stu-age { font-size:14px; color:#FF9900; font-weight:400; }
+        .stu-id { font-size:12px; color:#666; margin-top:5px; }
+        .stu-school { display:inline-block; background:#F5F5F5; border:1px solid #E0E0E0; border-radius:6px; padding:4px 12px; font-size:12px; color:#666; margin-top:6px; }
+
+        /* 等级卡：上下堆叠、浅灰底浅灰细边 */
+        .grade-card { background:#F5F5F5; border:1px solid #E0E0E0; border-radius:10px; padding:8px 12px; font-size:14px; display:flex; align-items:center; flex-wrap:wrap; gap:6px; }
+        .grade-card + .grade-card { margin-top:8px; }
+        .grade-card .lb { color:#333; }
+        .grade-card .v { font-weight:800; }
+        .grade-note { border:1px dashed #D0D0D5; border-radius:6px; padding:2px 10px; font-size:12px; color:#666; margin-left:auto; width:176px; flex-shrink:0; }
+
+        /* 总结条 */
+        .summary-bar { background:#F5F5F5; border:1px solid #E0E0E0; border-radius:8px; padding:9px 12px; font-size:14px; color:#333; line-height:1.6; margin-top:8px; }
+
+        /* 区块卡：#EEEEEE 圆角大卡（模块卡 #E2E2E2 在其中可见区分） */
+        .block-card { background:#EEEEEE; border-radius:14px; padding:12px; margin-bottom:12px; }
+        .mod-head { display:flex; align-items:center; gap:8px; margin-bottom:10px; }
+        .mod-head .bar { width:3px; height:18px; border-radius:2px; background:#4E39BA; flex-shrink:0; }
+        .mod-head .t { font-size:18px; font-weight:800; color:#4E39BA; }
+        .mod-head .sub { margin-left:auto; font-size:12px; color:#666; }
+
+        /* 图表区：白底圆角 + 蓝紫实线外框 */
+        .chart-card { background:#fff; border:1.5px solid #8777D3; border-radius:10px; padding:14px 12px 10px; }
+        .stage-labels { display:flex; margin-top:2px; }
+        .stage-labels div { text-align:center; font-size:12px; color:#666; }
+        .stage-labels div.active { color:#4E39BA; font-weight:700; }
+
+        /* 知识点模块子卡：#E2E2E2 浅灰底 + 左右亮色边缘（随模块掌握状态），模块级状态标签 */
+        .kp-sub { background:#E2E2E2; border-radius:10px; border:1.5px solid #E2E2E2; border-left:3px solid #26A69A; border-right:3px solid #26A69A; padding:10px 12px; margin-bottom:8px; }
+        .kp-sub.kp-warn { border-left-color:#FF9800; border-right-color:#FF9800; }
+        .kp-sub:last-child { margin-bottom:0; }
+        .kp-sub .m { font-size:14px; font-weight:700; color:#333; margin-bottom:6px; display:flex; align-items:center; justify-content:space-between; gap:6px; }
+        .kp-pt { display:flex; align-items:center; font-size:12px; color:#666; padding:2px 0; }
+        .kp-pt .dot { width:5px; height:5px; border-radius:50%; background:#C9C9CE; margin-right:8px; flex-shrink:0; }
+
+        /* 状态标签：圆角6 */
+        .tag { display:inline-flex; align-items:center; padding:2px 10px; border-radius:6px; font-size:12px; font-weight:600; white-space:nowrap; }
+        .tag-ok { background:#E0F2F1; color:#26A69A; }
+        .tag-warn { background:#FFF3E0; color:#FF9800; }
+
+        /* 题目卡：白底 */
+        .q-card { background:#fff; border:1px solid #E0E0E0; border-radius:10px; padding:12px; }
+        .q-card + .q-card { margin-top:12px; }
+        .q-no { display:flex; align-items:center; gap:6px; flex-wrap:wrap; margin-bottom:6px; }
+        .q-title { font-size:16px; font-weight:800; color:#333; }
+        .q-stem { font-size:14px; color:#333; line-height:1.6; margin-bottom:8px; }
+        .ans-label { font-size:12px; color:#999; font-weight:600; margin:10px 0 4px; }
+        .q-type { display:inline-flex; align-items:center; background:#F1F2F4; color:#606471; border-radius:6px; padding:2px 10px; font-size:12px; font-weight:600; }
+
+        /* 代码块：深海军蓝 #0F1A36 白字 */
+        .code-block { background:#0F1A36; color:#fff; font-family:'JetBrains Mono',Menlo,Consolas,monospace; font-size:15px; line-height:1.7; border-radius:8px; padding:10px 12px; overflow-x:auto; }
+        .code-block .ln { color:#5B6280; user-select:none; display:inline-block; width:2em; margin-right:12px; text-align:right; }
+        .code-block .cl { border-bottom:1px solid rgba(255,255,255,0.07); }
+        .code-trunc { background:#0F1A36; color:#8A8FA8; font-size:12px; border-radius:0 0 8px 8px; padding:4px 12px 8px; margin-top:-8px; font-family:'JetBrains Mono',monospace; }
+
+        /* 选项：2×2，标注同行右侧 */
+        .opt { position:relative; display:flex; align-items:center; background:#F5F5F5; border:1px solid #E0E0E0; border-radius:8px; padding:7px 10px; font-size:14px; color:#333; }
+        .opt b { margin-right:8px; }
+        .opt .tag { position:absolute; right:8px; top:50%; transform:translateY(-50%); font-size:10px; font-weight:500; }
+        .opt.stu { background:#E5E8F7; border:1.5px solid #4E39BA; }
+        .opt.stu .tag { color:#4E39BA; }
+        .opt.cor { background:#DCECEC; border:1.5px solid #14966F; }
+        .opt.cor .tag { color:#14966F; font-weight:600; }
+
+        /* 点评条 */
+        .tip { background:#F5F5F5; border:1px solid #E0E0E0; border-radius:8px; padding:8px 10px; font-size:14px; color:#555; line-height:1.6; margin-top:8px; }
+        .tip b { color:#FF9900; }
+        .tip-ok { background:#EFEBFB; border-color:#D9D3F1; color:#705FD2; }
+
+        /* 建议双卡 */
+        .adv-grid { display:grid; grid-template-columns:1fr 1fr; gap:10px; }
+        .adv-card { background:#fff; border:1px solid #E0E0E0; border-radius:10px; padding:10px 12px; }
+        .adv-card .t { font-size:14px; font-weight:800; color:#4E39BA; margin-bottom:5px; }
+        .adv-card .c { font-size:12px; color:#666; line-height:1.6; }
+
+        /* 布局：PC 左报告右信息栏，手机上下 + 吸底下载 */
+        .main-wrap { padding-bottom:110px; }
+        .layout { display:flex; justify-content:center; align-items:flex-start; gap:40px; padding:20px 16px 40px; }
+        .report-col { width:390px; flex-shrink:0; }
+        .side-col { display:none; width:280px; }
+        .side-card { background:#fff; border:1px solid #E5E5E5; border-radius:12px; padding:16px 18px; margin-bottom:14px; }
+        .side-card .t { font-size:13px; font-weight:700; color:#4E39BA; margin-bottom:10px; }
+        .side-row { display:flex; justify-content:space-between; align-items:baseline; font-size:13px; padding:5px 0; }
+        .side-row .k { color:#999; }
+        .side-row .v { color:#333; font-weight:500; }
+        @media (min-width:900px){
+            .main-wrap { padding-bottom:0; }
+            .side-col { display:block; position:sticky; top:112px; }
+            .mobile-dl { display:none; }
+        }
+        /* 手机吸底下载条（正式 UI） */
+        .mobile-dl { position:fixed; left:0; right:0; bottom:0; z-index:45; background:rgba(255,255,255,0.96); backdrop-filter:blur(10px); border-top:1px solid rgba(226,232,240,0.8); padding:12px 16px calc(12px + env(safe-area-inset-bottom)); }
+        /* demo 调试浮球（正式版无） */
+        .demo-fab { position:fixed; right:18px; bottom:110px; z-index:60; display:flex; flex-direction:column; align-items:flex-end; }
+        .fab-btn { width:46px; height:46px; border-radius:50%; background:#4E39BA; color:#fff; border:0; font-size:16px; cursor:pointer; display:flex; align-items:center; justify-content:center; box-shadow:0 4px 12px rgba(78,57,186,0.35); }
+        .fab-panel { display:none; background:#fff; border:1px solid #E5E5E5; border-radius:12px; padding:14px 16px; margin-bottom:12px; width:220px; }
+        .fab-panel .demo-label { font-size:11px; font-weight:700; color:#4E39BA; }
+        .stu-btn { display:block; width:100%; text-align:left; font-size:13px; color:#555; background:none; border:0; padding:8px 0; cursor:pointer; }
+        .stu-btn .n { font-weight:600; color:#333; }
+        .stu-btn .s { font-size:11px; color:#999; margin-left:6px; }
+        .stu-btn::before { content:''; display:inline-block; width:6px; height:6px; border-radius:50%; background:#C9C9CE; margin-right:8px; vertical-align:1px; }
+        .stu-btn.active .n { color:#4E39BA; }
+        .stu-btn.active::before { background:#4E39BA; }
+        @media (min-width:900px){ .demo-fab { bottom:32px; } }
+        .pdf-btn { display:flex; align-items:center; justify-content:center; gap:8px; width:100%; padding:11px; border-radius:10px; background:#4E39BA; color:#fff; font-size:15px; font-weight:600; cursor:pointer; border:none; transition:all .2s; }
+        .pdf-btn:hover:not(:disabled) { filter:brightness(1.1); }
         .pdf-btn:disabled { opacity:.55; cursor:not-allowed; }
-        .pdf-btn.retry { background:linear-gradient(135deg,#f0646b,#f1666d); }
-        /* 成长区间图 */
-        .stage-track { display:flex; width:100%; height:56px; border-radius:12px; overflow:hidden; }
-        .stage-seg { position:relative; }
-        @media (max-width:1023px){ .mod-title{font-size:20px;} }
+
+        .report-foot { text-align:center; font-size:12px; color:#A6A7AF; padding:4px 0 12px; line-height:1.8; }
+        .empty { background:#fff; border-radius:10px; padding:18px; text-align:center; color:#8A8A90; font-size:14px; }
     </style>
 </head>
 <body class="font-sans">
 
-    <!-- 顶栏（glass-nav，与 15_我的活动.html 一致） -->
+    <!-- 顶栏（glass-nav，与 16_我的考试/18_我的准考证 通用顶栏一致） -->
     <nav class="glass-nav fixed w-full z-40 top-0 transition-all duration-300">
         <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-            <div class="flex justify-between items-center h-16 sm:h-20">
-                <div class="flex items-center gap-3 cursor-pointer" onclick="window.location.href='index.html'">
+            <div class="flex justify-between items-center h-20">
+                <div class="flex items-center gap-3 cursor-pointer" onclick="window.location.href='02_首页.html'">
                     <div class="w-9 h-9 bg-gradient-to-br from-brand-600 to-indigo-600 rounded-lg flex items-center justify-center text-white font-bold text-lg shadow-md">A</div>
                     <div class="flex flex-col">
                         <span class="font-bold text-lg tracking-tight text-slate-900">AISE</span>
                     </div>
                 </div>
                 <div class="hidden md:flex items-center space-x-8">
-                    <a href="index.html" class="text-slate-500 hover:text-brand-600 font-medium text-sm transition">首页</a>
-                    <a href="15_我的活动.html" class="text-slate-500 hover:text-brand-600 font-medium text-sm transition">我的活动</a>
+                    <a href="02_首页.html" class="text-slate-500 hover:text-brand-600 font-medium text-sm transition">首页</a>
+                    <a href="#" class="text-slate-500 hover:text-brand-600 font-medium text-sm transition">新闻中心</a>
                 </div>
                 <div class="flex items-center gap-3">
                     <div class="flex items-center gap-2 py-1 px-2 rounded-full border border-slate-100 bg-white shadow-sm cursor-pointer hover:bg-slate-50 transition">
-                        <div class="w-8 h-8 rounded-full bg-gradient-to-tr from-blue-500 to-purple-600 text-white flex items-center justify-center text-xs font-bold">家</div>
-                        <span class="text-sm font-medium text-slate-700 pr-2 hidden sm:block">家长账号</span>
+                        <div class="w-8 h-8 rounded-full bg-gradient-to-tr from-blue-500 to-purple-600 text-white flex items-center justify-center text-xs font-bold">张</div>
+                        <span class="text-sm font-medium text-slate-700 pr-2 hidden sm:block">张三</span>
                     </div>
                 </div>
             </div>
         </div>
     </nav>
 
-    <!-- 主内容：宽屏左报告右操作区；窄屏操作区在上 -->
-    <main class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 pb-16" style="padding-top:104px;">
-        <div class="flex flex-col lg:flex-row gap-6 items-start">
-
-            <!-- 报告条（五模块纵向信息流） -->
-            <div class="flex-1 min-w-0 w-full space-y-5 order-2 lg:order-1">
-
-                <!-- 模块一：标题栏 -->
-                <section class="report-card">
-                    <div class="px-6 sm:px-8 py-6" id="modHeader"></div>
-                </section>
-
-                <!-- 模块二：考级结果概览 -->
-                <section class="report-card">
-                    <div class="px-6 sm:px-8 pt-6 pb-2">
-                        <div class="mod-title"><span class="bar"></span>考级结果概览</div>
-                    </div>
-                    <div class="px-6 sm:px-8 pb-7 pt-4" id="modOverview"></div>
-                </section>
-
-                <!-- 模块三：知识点掌握情况 -->
-                <section class="report-card">
-                    <div class="px-6 sm:px-8 pt-6 pb-2 flex items-baseline justify-between flex-wrap gap-2">
-                        <div class="mod-title"><span class="bar"></span>知识点掌握情况</div>
-                        <span class="mod-sub">掌握率 ≥60% 为稳定掌握，&lt;60% 为重点提升</span>
-                    </div>
-                    <div class="px-6 sm:px-8 pb-7 pt-4" id="modKnowledge"></div>
-                </section>
-
-                <!-- 模块四：考级具体表现 -->
-                <section class="report-card" id="cardPerformance">
-                    <div class="px-6 sm:px-8 pt-6 pb-2">
-                        <div class="mod-title"><span class="bar"></span>考级具体表现</div>
-                    </div>
-                    <div class="px-6 sm:px-8 pb-7 pt-4 space-y-5" id="modPerformance"></div>
-                </section>
-
-                <!-- 模块五：下一阶段建议 -->
-                <section class="report-card">
-                    <div class="px-6 sm:px-8 pt-6 pb-2">
-                        <div class="mod-title"><span class="bar"></span>下一阶段建议</div>
-                    </div>
-                    <div class="px-6 sm:px-8 pb-7 pt-4" id="modAdvice"></div>
-                </section>
-
+    <main class="main-wrap" style="padding-top:96px;">
+        <div class="layout">
+            <!-- 3. 报告本体：细长条 -->
+            <div class="report-col">
+                <div id="reportStrip"></div>
             </div>
-
-            <!-- 操作区：宽屏 sticky 右侧；窄屏置顶 -->
-            <aside class="w-full lg:w-80 shrink-0 order-1 lg:order-2 lg:sticky" style="top:104px;">
-                <div class="space-y-4">
-                    <!-- 正式操作卡（正式版结构）：当前考生信息 + 下载报告 -->
-                    <div class="ops-card p-5">
-                        <div class="text-[12px] font-semibold text-[#606471] mb-3">考生信息</div>
-                        <div class="flex items-center gap-3 mb-4">
-                            <div class="w-11 h-11 rounded-full flex items-center justify-center text-white text-sm font-bold shrink-0" style="background:linear-gradient(135deg,#8777d3,#705fd2)" id="opsAvatar">李</div>
-                            <div class="min-w-0">
-                                <div class="text-[15px] font-bold text-navy" id="opsStudentName">李明 · 程序设计四级</div>
-                                <div class="text-[12px] text-[#a6a7af] mt-0.5" id="opsStudentMeta">2026年6月 · 优秀 · 100 分</div>
-                            </div>
-                        </div>
-                        <div class="border-t border-slate-100 pt-4">
-                            <button class="pdf-btn" id="pdfBtn" onclick="downloadPdf()">
-                                <i class="fa-solid fa-file-arrow-down"></i><span id="pdfBtnText">下载 PDF 报告</span>
-                            </button>
-                            <p class="text-[12px] text-[#a6a7af] mt-2 leading-relaxed">由服务端将当前报告渲染为 PDF，生成期间按钮置灰，失败可重试。</p>
-                        </div>
-                    </div>
-                    <!-- 演示卡（仅 Demo）：考生切换，正式版无此功能 -->
-                    <div class="rounded-xl border border-dashed border-[#c2bbe1] bg-white/70 p-4">
-                        <div class="flex items-center gap-2 mb-2">
-                            <span class="text-[12px] font-bold text-[#705fd2]"><i class="fa-solid fa-flask mr-1"></i>DEMO 演示</span>
-                            <span class="text-[11px] text-[#a6a7af] leading-tight">正式版无考生切换，本卡仅用于演示 4 种报告形态</span>
-                        </div>
-                        <div class="space-y-2" id="studentBtns"></div>
-                    </div>
-                </div>
+            <!-- 2. 右侧栏（仅 PC）：学生信息 + 考试信息 + 下载按钮 -->
+            <aside class="side-col">
+                <div id="sideInfo"></div>
+                <button class="pdf-btn" id="pdfBtn" onclick="downloadPdf()">
+                    <i class="fa-solid fa-file-arrow-down"></i><span id="pdfBtnText">下载 PDF 报告</span>
+                </button>
             </aside>
-
         </div>
     </main>
 
+    <!-- 2. 手机吸底下载条（正式 UI） -->
+    <div class="mobile-dl">
+        <button class="pdf-btn" id="pdfBtnM" onclick="downloadPdf()">
+            <i class="fa-solid fa-file-arrow-down"></i><span id="pdfBtnMText">下载 PDF 报告</span>
+        </button>
+    </div>
+
+    <!-- 1. demo 调试浮球（正式版无） -->
+    <div class="demo-fab">
+        <div class="fab-panel" id="fabPanel">
+            <span class="demo-label"><i class="fa-solid fa-flask mr-1"></i>DEMO · 示例考生</span>
+            <div style="margin-top:6px;" id="studentBtns"></div>
+        </div>
+        <button class="fab-btn" id="fabBtn" onclick="toggleFab()"><i class="fa-solid fa-flask"></i></button>
+    </div>
+
 <script>
-/* ===== 演示数据（业务需求梳理 1.3/1.4/1.5/1.6） ===== */
+/* ===== 演示数据（与业务需求梳理 1.3/1.4/1.5/1.6 一致） ===== */
 const STAGES = [
     { n:'初步形成', w:30, c:15 }, { n:'稳步接近', w:30, c:45 },
     { n:'目标达成', w:20, c:70 }, { n:'熟练掌握', w:10, c:85 }, { n:'高阶表现', w:10, c:95 }
 ];
+/* 成长区间说明（虚线框文案；「熟练掌握」句为效果图原文，其余为 demo 示例文案） */
+const STAGE_NOTE = {
+    '初步形成':'基础正在建立',
+    '稳步接近':'处于稳步接近的成长区间',
+    '目标达成':'处于目标达成的成长区间',
+    '熟练掌握':'处于较稳定的成长区间',
+    '高阶表现':'处于高阶表现的成长区间'
+};
 const SUMMARY = {
     '待提升':'综合本次考级表现，本级基础正在逐步形成，建议继续巩固核心任务。',
     '合格':'综合本次考级表现，已达到本级基本要求，可继续巩固并拓展。',
     '良好':'综合本次考级表现，已较稳定达到本级要求，可进一步提升综合应用。',
     '优秀':'综合本次考级表现，已高质量完成本级主要任务，可继续挑战更复杂的综合任务。'
 };
-const ADVICE = { // 四级文案，逐字照录需求 1.6
+const ADVICE = {
     pass:{ link:'建议继续学习列表、字典及循环分支嵌套，构建更复杂的程序逻辑，衔接五级。',
            course:'建议通过更完整的项目练习，提升复杂逻辑设计和问题解决能力。' },
     fail:{ link:'建议先巩固四级，继续学习列表、字典及循环分支嵌套，练习构建复杂程序逻辑。',
-           course:null } // 未通过不展示课程学习建议
+           course:null }
 };
 const FULL_COMMENT = '本题目作答达到要求，完整完成任务。太棒了！';
 
 const STUDENTS = [
-{ id:'liming', name:'李明', level:'程序设计四级', date:'2026年6月', score:100, color:'#705fd2',
+{ id:'liming', name:'李明', age:'12岁', idNo:'ID:1103467994323', school:'所在学校/培训机构', level:'程序设计四级', date:'2026年6月', score:100,
   knowledge:[
     {mod:'Python运算', pts:[['比较运算',100],['布尔值',100],['算术运算',100]]},
     {mod:'流程控制', pts:[['条件分支',100],['循环',100],['IPO编程',100]]},
@@ -200,7 +251,17 @@ const STUDENTS = [
     {mod:'编程基础', pts:[['变量',100],['数据类型转换',100],['数据类型',100],['input()语句',100],['print()语句',100]]}
   ],
   performance:{ full:true,
-    coding:{ no:'第13题', kp:'IPO编程', code:[
+    coding:{ no:'第13题', type:'编程题', title:'名字输入输出', kp:'IPO编程',
+      stem:'编写程序，输入姓名和年龄，输出问候语和出生年份。',
+      code:[
+      'name = input("请输入你的名字：")',
+      'age = int(input("请输入你的年龄："))',
+      'year = 2026 - age',
+      'print(name + "，你好！")',
+      'print("你大约出生于" + str(year) + "年")',
+      'print("欢迎参加 AISE 考级！")'
+    ],
+      ref:[
       'name = input("请输入你的名字：")',
       'age = int(input("请输入你的年龄："))',
       'year = 2026 - age',
@@ -208,7 +269,7 @@ const STUDENTS = [
       'print("你大约出生于" + str(year) + "年")',
       'print("欢迎参加 AISE 考级！")'
     ]} } },
-{ id:'wangfang', name:'王芳', level:'程序设计四级', date:'2026年6月', score:76, color:'#2555e7',
+{ id:'wangfang', name:'王芳', age:'13岁', idNo:'ID:1103467994324', school:'所在学校/培训机构', level:'程序设计四级', date:'2026年6月', score:76,
   knowledge:[
     {mod:'Python运算', pts:[['比较运算',45],['布尔值',100],['算术运算',80]]},
     {mod:'流程控制', pts:[['条件分支',50],['循环',75],['IPO编程',100]]},
@@ -216,16 +277,25 @@ const STUDENTS = [
     {mod:'编程基础', pts:[['变量',100],['数据类型转换',60],['数据类型',100],['input()语句',100],['print()语句',100]]}
   ],
   performance:{ full:false,
-    objective:{ no:'第3题', type:'单选题', kp:'布尔值', scoreText:'0 / 4 分',
+    objective:{ no:'第3题', type:'单选题', title:'输出判断', kp:'布尔值', scoreText:'0 / 4 分',
       stem:'在 Python 中，表达式 3 > 5 的运算结果是？',
       options:['True','False','3','5'], student:0, correct:1 },
-    coding:{ no:'第12题', kp:'循环', scoreText:'6 / 10 分', code:[
+    coding:{ no:'第12题', type:'编程题', title:'循环计数', kp:'循环', scoreText:'6 / 10 分',
+      stem:'编写程序，使用 while 循环依次输出 0 到 4。',
+      code:[
       'count = 0',
       'while count < 5:',
       '    print(count)',
       'print("循环结束")'
+    ],
+      ref:[
+      'count = 0',
+      'while count < 5:',
+      '    print(count)',
+      '    count = count + 1',
+      'print("循环结束")'
     ]} } },
-{ id:'zhangwei', name:'张伟', level:'程序设计四级', date:'2026年6月', score:45, color:'#f0646b',
+{ id:'zhangwei', name:'张伟', age:'12岁', idNo:'ID:1103467994325', school:'所在学校/培训机构', level:'程序设计四级', date:'2026年6月', score:45,
   knowledge:[
     {mod:'Python运算', pts:[['比较运算',40],['布尔值',50],['算术运算',100]]},
     {mod:'流程控制', pts:[['条件分支',30],['循环',45],['IPO编程',60]]},
@@ -233,23 +303,29 @@ const STUDENTS = [
     {mod:'编程基础', pts:[['变量',100],['数据类型转换',40],['数据类型',80],['input()语句',50],['print()语句',100]]}
   ],
   performance:{ full:false,
-    objective:{ no:'第2题', type:'单选题', kp:'条件分支', scoreText:'0 / 4 分',
+    objective:{ no:'第2题', type:'单选题', title:'条件判断关键字', kp:'条件分支', scoreText:'0 / 4 分',
       stem:'下列哪个关键字用于在 Python 中编写条件判断？',
       options:['for','if','print','input'], student:2, correct:1 },
-    coding:{ no:'第11题', kp:'IPO编程', scoreText:'3 / 10 分', code:[
+    coding:{ no:'第11题', type:'编程题', title:'IPO输入输出', kp:'IPO编程', scoreText:'3 / 10 分',
+      stem:'编写程序，读入一个数并原样输出。',
+      code:[
+      'a = input()',
+      'print(a)'
+    ],
+      ref:[
       'a = input()',
       'print(a)'
     ]} } },
-{ id:'chenchen', name:'陈晨', level:'程序设计四级', date:'2026年6月', score:68, color:'#14966f',
-  knowledge:null, // 知识点未配置：空数据占位
-  performance:{ full:false, objectiveOnly:true, // 编程题无扣分 → 缺一展一，仅展示客观题
-    objective:{ no:'第5题', type:'单选题', kp:'算术运算', scoreText:'0 / 4 分',
+{ id:'chenchen', name:'陈晨', age:'13岁', idNo:'ID:1103467994326', school:'所在学校/培训机构', level:'程序设计四级', date:'2026年6月', score:68,
+  knowledge:null,
+  performance:{ full:false, objectiveOnly:true,
+    objective:{ no:'第5题', type:'单选题', title:'取余运算', kp:'算术运算', scoreText:'0 / 4 分',
       stem:'在 Python 中，表达式 7 % 3 的运算结果是？',
       options:['1','2','2.5','3'], student:2, correct:0 },
     coding:null } }
 ];
 
-/* ===== 渲染函数 ===== */
+/* ===== 工具函数 ===== */
 function gradeOf(s){
     if(s < 30) return { pass:false, grade:'待提升', stage:0 };
     if(s < 60) return { pass:false, grade:'待提升', stage:1 };
@@ -258,201 +334,247 @@ function gradeOf(s){
     return { pass:true, grade:'优秀', stage:4 };
 }
 function esc(t){ return String(t).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;'); }
+const GRADE_COLOR = { '待提升':'#FF9900', '合格':'#2A6CE0', '良好':'#00CC66', '优秀':'#4E39BA' };
 
-function renderHeader(stu, g){
-    const chip = g.pass
-        ? '<span class="chip chip-green"><i class="fa-solid fa-circle-check"></i>通过</span>'
-        : '<span class="chip chip-pink"><i class="fa-solid fa-circle-exclamation"></i>未通过</span>';
-    const gc = { '待提升':'#c07f16', '合格':'#2555e7', '良好':'#14966f', '优秀':'#705fd2' }[g.grade];
-    document.getElementById('modHeader').innerHTML =
-      '<div class="flex flex-wrap items-center justify-between gap-4">'
-      + '<div class="flex items-center gap-4 min-w-0">'
-      +   '<div class="w-14 h-14 rounded-2xl flex items-center justify-center text-white text-xl font-bold shrink-0" style="background:linear-gradient(135deg,#8777d3,#705fd2)">'+esc(stu.name[0])+'</div>'
-      +   '<div class="min-w-0">'
-      +     '<div class="flex items-center gap-3 flex-wrap"><h1 class="text-[22px] sm:text-[24px] font-extrabold text-navy leading-tight">'+esc(stu.level)+'考级报告</h1>'+chip+'</div>'
-      +     '<div class="text-[15px] text-[#606471] mt-1">'+esc(stu.name)+' · '+esc(stu.date)+'</div>'
-      +   '</div>'
-      + '</div>'
-      + '<div class="flex items-center gap-5 shrink-0">'
-      +   '<div class="text-right"><div class="text-[12px] text-[#a6a7af]">正式总分</div>'
-      +   '<div class="text-[34px] leading-none font-extrabold" style="color:'+gc+'">'+stu.score+'<span class="text-[15px] font-medium text-[#a6a7af]"> 分</span></div></div>'
-      +   '<div class="text-right border-l border-slate-100 pl-5"><div class="text-[12px] text-[#a6a7af]">报告等级</div>'
-      +   '<div class="text-[24px] leading-none font-extrabold mt-1" style="color:'+gc+'">'+g.grade+'</div></div>'
-      + '</div></div>';
+/* ===== 分布图：起伏曲线（渐变填充）+ 中间位置圆点 + 垂直虚线 ===== */
+function curveSvg(stageIdx){
+    let xAcc = 0;
+    const centers = STAGES.map(function(s){ const cx = xAcc + s.w * s.c / 100; xAcc += s.w; return cx; });
+    const pos = centers[stageIdx];
+    /* 圆点放在曲线中部高度（不在峰顶），垂直虚线落到基线 */
+    const cy = 27;
+    return '<svg viewBox="0 0 100 52" style="width:100%;height:auto;display:block">'
+      + '<defs><linearGradient id="vgA" x1="0" y1="0" x2="1" y2="0">'
+      + '<stop offset="0" stop-color="#B6BEEF"/><stop offset="1" stop-color="#80C6D2"/></linearGradient></defs>'
+      + '<path d="M0,50 L0,44 C 10,26 18,18 30,18 C 40,18 44,30 52,30 C 60,30 64,14 74,14 C 84,14 88,28 96,34 C 99,37 100,41 100,44 L100,50 Z" fill="url(#vgA)" opacity="0.9"/>'
+      + '<line x1="' + pos + '" y1="' + cy + '" x2="' + pos + '" y2="50" stroke="#5C49D6" stroke-width="1" stroke-dasharray="3 3"/>'
+      + '<circle cx="' + pos + '" cy="' + cy + '" r="4.5" fill="#5C49D6" stroke="#fff" stroke-width="1.5"/>'
+      + '</svg>';
 }
-
-function renderOverview(stu, g){
-    const pos = Math.min(97, stu.score === 100 ? 100 : STAGES[g.stage].c); // 满分取色带右端，其余固定阶段中心（clamp 防圆点溢出）
-    const shades = ['#e3e0f5','#cfc9ee','#aaa8e1','#8777d3','#705fd2'];
-    let segs = '';
-    STAGES.forEach(function(s, i){
-        const active = i === g.stage;
-        segs += '<div class="stage-seg" style="width:'+s.w+'%;background:'+(active ? 'linear-gradient(180deg,'+shades[i]+',#5bc8e8)' : shades[i])+';opacity:'+(active?'1':'0.45')+'"></div>';
-    });
-    let labels = '';
-    STAGES.forEach(function(s, i){
-        labels += '<div class="text-center text-[12px] '+(i===g.stage?'font-bold text-[#705fd2]':'text-[#a6a7af]')+'" style="width:'+s.w+'%">'+s.n+'</div>';
-    });
-    document.getElementById('modOverview').innerHTML =
-      '<div class="flex items-center gap-2 flex-wrap mb-5">'
-      + '<span class="chip chip-purple">报告等级 · '+g.grade+'</span>'
-      + '<span class="chip '+(g.pass?'chip-blue':'chip-orange')+'">成长区间 · '+STAGES[g.stage].n+'</span></div>'
-      + '<div class="relative pt-2 pb-1"><div class="stage-track">'+segs+'</div>'
-      + '<div class="absolute" style="left:'+pos+'%;top:0;transform:translateX(-50%)">'
-      +   '<div class="w-4 h-4 rounded-full border-[3px] border-white shadow-md" style="background:#705fd2;margin-top:22px"></div>'
-      + '</div></div>'
-      + '<div class="flex mt-2">'+labels+'</div>'
-      + '<div class="text-[12px] text-[#606471] mt-3"><i class="fa-solid fa-location-dot mr-1" style="color:#705fd2"></i>本次考级所处阶段：<b class="text-navy">'+STAGES[g.stage].n+'</b></div>'
-      + '<div class="mt-4 rounded-xl px-5 py-4 text-[15px] leading-relaxed" style="background:#f5f6f8;color:#212845"><i class="fa-solid fa-quote-left mr-2" style="color:#aaa8e1"></i>'+SUMMARY[g.grade]+'</div>';
-}
-
-function renderKnowledge(stu){
-    const box = document.getElementById('modKnowledge');
-    if(!stu.knowledge){ // 空状态（需求 3.4）：知识树未配置
-        box.innerHTML = '<div class="rounded-xl border border-dashed border-[#c2bbe1] bg-[#faf9fe] py-10 flex flex-col items-center justify-center text-center">'
-          + '<i class="fa-solid fa-folder-open text-[28px] mb-3" style="color:#aaa8e1"></i>'
-          + '<div class="text-[15px] font-semibold text-navy">暂无知识点掌握数据</div>'
-          + '<div class="text-[12px] text-[#a6a7af] mt-1">本场考试题目暂未配置知识点标签</div></div>';
-        return;
-    }
+function stageLabels(stageIdx){
     let html = '';
-    stu.knowledge.forEach(function(m){
-        // 排序：先重点提升后稳定掌握，同状态按知识树顺序（需求 1.4.3）
-        const sorted = m.pts.slice().sort(function(a,b){
-            const wa = a[1] >= 60 ? 1 : 0, wb = b[1] >= 60 ? 1 : 0;
-            return wa - wb;
-        });
-        let rows = '';
-        sorted.forEach(function(p){
-            const ok = p[1] >= 60;
-            rows += '<div class="flex items-center justify-between py-2 border-b border-slate-50 last:border-0">'
-              + '<span class="text-[15px] text-navy">'+esc(p[0])+'</span>'
-              + '<span class="flex items-center gap-3 shrink-0"><span class="text-[13px] font-bold '+(ok?'text-[#14966f]':'text-[#c07f16]')+'">'+p[1]+'%</span>'
-              + '<span class="chip '+(ok?'chip-green':'chip-orange')+'">'+(ok?'稳定掌握':'重点提升')+'</span></span></div>';
-        });
-        html += '<div class="mb-4 last:mb-0"><div class="flex items-center gap-2 mb-1">'
-          + '<i class="fa-solid fa-layer-group text-[13px]" style="color:#8777d3"></i>'
-          + '<span class="text-[15px] font-bold text-navy-soft">'+esc(m.mod)+'</span></div>'
-          + '<div class="pl-6">'+rows+'</div></div>';
+    STAGES.forEach(function(s, i){
+        html += '<div style="width:' + s.w + '%" class="' + (i === stageIdx ? 'active' : '') + '">' + s.n + '</div>';
     });
-    box.innerHTML = html;
+    return html;
+}
+
+/* ===== 渲染 ===== */
+function renderHeadCard(stu, g){
+    let html = '<div class="head-card">';
+    /* 页眉标题 */
+    html += '<div class="report-head">'
+      + '<div class="kicker">AISE能力评定报告' + esc(stu.date) + '</div>'
+      + '<div class="title">AISE' + esc(stu.level) + '能力评定报告</div></div>';
+    /* 个人信息 */
+    html += '<div class="stu-wrap">'
+      + '<div class="stu-avatar"><i class="fa-solid fa-robot"></i></div>'
+      + '<div class="stu-info">'
+      + '<div class="stu-name">' + esc(stu.name) + '<i class="fa-solid fa-mars text-[13px]" style="color:#FF9900"></i><span class="stu-age">' + esc(stu.age) + '</span></div>'
+      + '<div class="stu-id">' + esc(stu.idNo) + '</div>'
+      + '<div class="stu-school">' + esc(stu.school) + '</div>'
+      + '</div></div>';
+    /* 等级卡×2 */
+    const gc = GRADE_COLOR[g.grade];
+    html += '<div class="grade-card"><span class="lb">本次等级：</span><span class="v" style="color:' + gc + '">' + g.grade + '</span>'
+      + '<span class="grade-note">' + (g.pass ? '已达到' + esc(stu.level) + '核心要求' : '未达到本级核心要求') + '</span></div>';
+    html += '<div class="grade-card"><span class="lb">同级参照：</span><span class="v" style="color:#FF9900">' + STAGES[g.stage].n + '</span>'
+      + '<span class="grade-note">' + STAGE_NOTE[STAGES[g.stage].n] + '</span></div>';
+    /* 总结条 */
+    html += '<div class="summary-bar">' + SUMMARY[g.grade] + '</div>';
+    html += '</div>';
+    return html;
+}
+
+function renderViolinBlock(g){
+    return '<div class="block-card">'
+      + '<div class="mod-head"><span class="bar"></span><span class="t">同级参照分布</span><span class="sub">看本次表现所在区间</span></div>'
+      + '<div class="chart-card">' + curveSvg(g.stage) + '<div class="stage-labels">' + stageLabels(g.stage) + '</div></div>'
+      + '</div>';
+}
+
+function renderKnowledgeBlock(stu){
+    let inner = '';
+    if(!stu.knowledge){
+        inner = '<div class="empty">本场考试题目暂未配置知识点标签，暂无知识点掌握数据。</div>';
+    } else {
+        stu.knowledge.forEach(function(m){
+            const hasBad = m.pts.some(function(p){ return p[1] < 60; });
+            const sorted = m.pts.slice();
+            let rows = '';
+            sorted.forEach(function(p){
+                rows += '<div class="kp-pt"><span class="dot"></span><span>' + esc(p[0]) + '</span></div>';
+            });
+            inner += '<div class="kp-sub' + (hasBad ? ' kp-warn' : '') + '"><div class="m"><span>' + esc(m.mod) + '</span>'
+              + '<span class="tag ' + (hasBad ? 'tag-warn' : 'tag-ok') + '">' + (hasBad ? '重点提升' : '稳定') + '</span></div>'
+              + rows + '</div>';
+        });
+    }
+    return '<div class="block-card">'
+      + '<div class="mod-head"><span class="bar"></span><span class="t">知识点掌握情况</span><span class="sub">程序设计四级知识树</span></div>'
+      + inner + '</div>';
 }
 
 function codeHtml(lines){
-    const shown = lines.slice(0, 5); // 统一保留前 5 行后截断（需求 1.5.2）
+    const shown = lines.slice(0, 5);
     let rows = '';
-    shown.forEach(function(l, i){ rows += '<div><span class="ln">'+(i+1)+'</span>'+esc(l)+'</div>'; });
-    let html = '<div class="code-block">'+rows+'</div>';
+    shown.forEach(function(l, i){ rows += '<div class="cl"><span class="ln">' + (i+1) + '</span>' + esc(l) + '</div>'; });
+    let html = '<div class="code-block">' + rows + '</div>';
     if(lines.length > 5) html += '<div class="code-trunc">··· 作答代码较长，仅展示前 5 行 ···</div>';
     return html;
 }
 
-function renderPerformance(stu){
-    const card = document.getElementById('cardPerformance');
-    const box = document.getElementById('modPerformance');
+function renderPerformanceBlock(stu){
     const p = stu.performance;
     let html = '';
-    if(p.full){ // 满分画像：1 道首道满分编程题，只展示作答不展示答案
-        if(!p.coding){ card.style.display = 'none'; return; } // 找不到首道满分编程题则整模块不展示
-        html = '<div><div class="flex items-center gap-2 flex-wrap mb-3">'
-          + '<span class="chip chip-purple">'+esc(p.coding.no)+' · 编程题</span>'
-          + '<span class="chip chip-green"><i class="fa-solid fa-award"></i>满分高光</span></div>'
-          + '<div class="text-[12px] font-semibold text-[#606471] mb-1.5">你的作答</div>'+codeHtml(p.coding.code)
-          + '<div class="mt-3 rounded-xl px-4 py-3 text-[15px]" style="background:#f0edfb;color:#705fd2"><i class="fa-solid fa-comment-dots mr-2"></i>'+FULL_COMMENT+'</div></div>';
-    } else { // 非满分画像：首错客观题 + 首扣分编程题，各自独立判定，缺一展一
+    /* 题头：题号 + 题目类型 */
+    function qHead(q){
+        return '<div class="flex items-center justify-between flex-wrap gap-2 mb-2">'
+          + '<div class="q-title">' + esc(q.no) + '</div>'
+          + '<span class="q-type">' + esc(q.type) + '</span></div>';
+    }
+    /* 题干要求 */
+    function qStem(q){
+        return '<div class="ans-label">题干要求</div><div class="q-stem">' + esc(q.stem) + '</div>';
+    }
+    if(p.full){
+        if(!p.coding) return null;
+        const c = p.coding;
+        html = '<div class="q-card">'
+          + qHead(c) + qStem(c)
+          + '<div class="ans-label">你的作答</div>' + codeHtml(c.code)
+          + '<div class="ans-label">标准作答</div>' + codeHtml(c.ref)
+          + '<div class="tip tip-ok">' + FULL_COMMENT + '</div></div>';
+    } else {
         if(p.objective){
             const o = p.objective, letters = ['A','B','C','D'];
             let opts = '';
             o.options.forEach(function(t, i){
-                let cls = 'border-slate-200 text-navy', tag = '';
-                if(i === o.student){ cls = 'border-[#f0646b] bg-[#fdecec] text-[#e0484f]'; tag = '<span class="chip chip-pink ml-2">你的作答</span>'; }
-                if(i === o.correct){ cls = 'border-[#14966f] bg-[#e7f8f2] text-[#14966f]'; tag = '<span class="chip chip-green ml-2">正确答案</span>'; }
-                opts += '<div class="flex items-center rounded-xl border px-4 py-2.5 text-[15px] '+cls+'"><b class="mr-2">'+letters[i]+'.</b>'+esc(t)+tag+'</div>';
+                let cls = 'opt', tag = '';
+                if(i === o.student){ cls += ' stu'; tag = '<span class="tag">·你的作答</span>'; }
+                if(i === o.correct){ cls += ' cor'; tag = '<span class="tag">·参考答案</span>'; }
+                opts += '<div class="' + cls + '"><b>' + letters[i] + '.</b><span>' + esc(t) + '</span>' + tag + '</div>';
             });
-            html += '<div><div class="flex items-center gap-2 flex-wrap mb-3">'
-              + '<span class="chip chip-purple">'+esc(o.no)+' · '+esc(o.type)+'</span>'
-              + '<span class="chip chip-gray">得分 '+esc(o.scoreText)+'</span></div>'
-              + '<div class="text-[15px] text-navy leading-relaxed mb-3">'+esc(o.stem)+'</div>'
-              + '<div class="space-y-2">'+opts+'</div>'
-              + '<div class="mt-3 rounded-xl px-4 py-3 text-[15px]" style="background:#fdecec;color:#e0484f"><i class="fa-solid fa-lightbulb mr-2"></i>建议重点提升【'+esc(o.kp)+'】。</div></div>';
+            html = '<div class="q-card">'
+              + qHead(o) + qStem(o)
+              + '<div class="ans-label">你的作答</div>'
+              + '<div class="grid grid-cols-2 gap-2">' + opts + '</div>'
+              + '<div class="tip">建议重点提升<b>【' + esc(o.kp) + '】</b>。</div></div>';
         }
         if(p.coding){
-            html += '<div><div class="flex items-center gap-2 flex-wrap mb-3">'
-              + '<span class="chip chip-purple">'+esc(p.coding.no)+' · 编程题</span>'
-              + '<span class="chip chip-gray">得分 '+esc(p.coding.scoreText)+'</span></div>'
-              + '<div class="text-[12px] font-semibold text-[#606471] mb-1.5">你的作答</div>'+codeHtml(p.coding.code)
-              + '<div class="mt-3 rounded-xl px-4 py-3 text-[15px]" style="background:#fdecec;color:#e0484f"><i class="fa-solid fa-lightbulb mr-2"></i>建议重点提升【'+esc(p.coding.kp)+'】。</div></div>';
+            const c = p.coding;
+            html += '<div class="q-card">'
+              + qHead(c) + qStem(c)
+              + '<div class="ans-label">你的作答</div>' + codeHtml(c.code)
+              + '<div class="ans-label">标准作答</div>' + codeHtml(c.ref)
+              + '<div class="tip">建议重点提升<b>【' + esc(c.kp) + '】</b>。</div></div>';
         }
-        if(!html){ card.style.display = 'none'; return; } // 两者均无则整模块不展示
+        if(!html) return null;
     }
-    card.style.display = '';
-    box.innerHTML = html;
+    return '<div class="block-card">'
+      + '<div class="mod-head"><span class="bar"></span><span class="t">本次评定表现</span><span class="sub">典型难题</span></div>'
+      + html + '</div>';
 }
 
-function renderAdvice(g){
+function renderAdviceBlock(g){
     const a = g.pass ? ADVICE.pass : ADVICE.fail;
-    let html = '<div class="rounded-xl border border-slate-100 px-5 py-4" style="background:#faf9fe">'
-      + '<div class="flex items-center gap-2 mb-1.5"><i class="fa-solid fa-arrow-trend-up" style="color:#8777d3"></i><span class="text-[15px] font-bold text-navy">考级衔接</span></div>'
-      + '<div class="text-[15px] leading-relaxed text-[#212845]">'+a.link+'</div></div>';
-    if(a.course){ // 课程学习建议仅通过状态展示（需求 3.6）
-        html += '<div class="rounded-xl border border-slate-100 px-5 py-4 mt-3" style="background:#f4f8fe">'
-          + '<div class="flex items-center gap-2 mb-1.5"><i class="fa-solid fa-book-open" style="color:#2555e7"></i><span class="text-[15px] font-bold text-navy">课程学习建议</span></div>'
-          + '<div class="text-[15px] leading-relaxed text-[#212845]">'+a.course+'</div></div>';
+    let html = '<div class="adv-grid">'
+      + '<div class="adv-card"><div class="t">考级衔接</div><div class="c">' + a.link + '</div></div>';
+    if(a.course){
+        html += '<div class="adv-card"><div class="t">课程学习建议</div><div class="c">' + a.course + '</div></div>';
     }
-    document.getElementById('modAdvice').innerHTML = html;
+    html += '</div>';
+    return '<div class="block-card">'
+      + '<div class="mod-head"><span class="bar"></span><span class="t">下一阶段建议</span><span class="sub">本阶段重点</span></div>'
+      + html + '</div>';
 }
 
 function renderReport(stu){
     const g = gradeOf(stu.score);
-    renderHeader(stu, g);
-    renderOverview(stu, g);
-    renderKnowledge(stu);
-    renderPerformance(stu);
-    renderAdvice(g);
+    let html = renderHeadCard(stu, g) + renderViolinBlock(g) + renderKnowledgeBlock(stu);
+    const perf = renderPerformanceBlock(stu);
+    if(perf) html += perf;
+    html += renderAdviceBlock(g);
+    document.getElementById('reportStrip').innerHTML = html;
 }
-/* ===== 交互与初始化 ===== */
+
+/* ===== 交互 ===== */
 let currentId = 'liming';
 let pdfTimer = null;
+
+/* 右侧栏：学生信息 + 考试信息（仅 PC 显示） */
+function renderSideInfo(stu){
+    const g = gradeOf(stu.score);
+    document.getElementById('sideInfo').innerHTML =
+      '<div class="side-card"><div class="t">考生信息</div>'
+      + '<div class="side-row"><span class="k">姓名</span><span class="v">' + esc(stu.name) + '</span></div>'
+      + '<div class="side-row"><span class="k">年龄</span><span class="v">' + esc(stu.age) + '</span></div>'
+      + '<div class="side-row"><span class="k">考生ID</span><span class="v">' + esc(stu.idNo.replace('ID:','')) + '</span></div>'
+      + '<div class="side-row"><span class="k">所在学校/机构</span><span class="v">' + esc(stu.school) + '</span></div>'
+      + '</div>'
+      + '<div class="side-card"><div class="t">考试信息</div>'
+      + '<div class="side-row"><span class="k">考试项目</span><span class="v">AISE ' + esc(stu.level) + '</span></div>'
+      + '<div class="side-row"><span class="k">考试时间</span><span class="v">' + esc(stu.date) + '</span></div>'
+      + '<div class="side-row"><span class="k">正式总分</span><span class="v">' + stu.score + ' 分</span></div>'
+      + '<div class="side-row"><span class="k">评定等级</span><span class="v">' + g.grade + ' · ' + STAGES[g.stage].n + '</span></div>'
+      + '<div class="side-row"><span class="k">通过状态</span><span class="v" style="color:' + (g.pass ? '#00CC66' : '#FF9900') + '">' + (g.pass ? '已通过' : '未通过') + '</span></div>'
+      + '</div>';
+}
 
 function switchStudent(id){
     currentId = id;
     const stu = STUDENTS.find(function(s){ return s.id === id; });
     if(!stu) return;
     renderReport(stu);
-    const g = gradeOf(stu.score);
-    document.getElementById('opsAvatar').textContent = stu.name[0];
-    document.getElementById('opsStudentName').textContent = stu.name + ' · ' + stu.level;
-    document.getElementById('opsStudentMeta').textContent = stu.date + ' · ' + g.grade + ' · ' + stu.score + ' 分';
+    renderSideInfo(stu);
     document.querySelectorAll('.stu-btn').forEach(function(b){
         b.classList.toggle('active', b.getAttribute('data-id') === id);
     });
+    closeFab();
     resetPdfBtn();
     window.scrollTo({ top:0, behavior:'smooth' });
+}
+
+function toggleFab(){
+    const panel = document.getElementById('fabPanel');
+    const btn = document.getElementById('fabBtn');
+    const open = panel.style.display === 'block';
+    panel.style.display = open ? 'none' : 'block';
+    btn.innerHTML = open ? '<i class="fa-solid fa-flask"></i>' : '<i class="fa-solid fa-xmark"></i>';
+}
+function closeFab(){
+    document.getElementById('fabPanel').style.display = 'none';
+    document.getElementById('fabBtn').innerHTML = '<i class="fa-solid fa-flask"></i>';
 }
 
 function resetPdfBtn(){
     if(pdfTimer){ clearTimeout(pdfTimer); pdfTimer = null; }
     const btn = document.getElementById('pdfBtn');
-    btn.disabled = false;
-    btn.classList.remove('retry');
-    btn.innerHTML = '<i class="fa-solid fa-file-arrow-down"></i><span>下载 PDF 报告</span>';
+    const btnM = document.getElementById('pdfBtnM');
+    [btn, btnM].forEach(function(b){
+        if(!b) return;
+        b.disabled = false;
+        b.innerHTML = '<i class="fa-solid fa-file-arrow-down"></i><span>下载 PDF 报告</span>';
+    });
 }
 
 function downloadPdf(){
     const btn = document.getElementById('pdfBtn');
-    if(btn.disabled) return;
+    const btnM = document.getElementById('pdfBtnM');
+    if(btn.disabled && btnM.disabled) return;
     const stu = STUDENTS.find(function(s){ return s.id === currentId; });
     if(!stu) return;
-    // 真实下载：指向预生成的 PDF（样式与线上报告一致；未来线上由服务端实时渲染）
-    btn.disabled = true;
-    btn.innerHTML = '<i class="fa-solid fa-circle-notch fa-spin"></i><span>准备下载…</span>';
+    [btn, btnM].forEach(function(b){
+        if(!b) return;
+        b.disabled = true;
+        b.innerHTML = '<i class="fa-solid fa-circle-notch fa-spin"></i><span>准备下载…</span>';
+    });
     pdfTimer = setTimeout(function(){
         pdfTimer = null;
-        btn.disabled = false;
-        btn.innerHTML = '<i class="fa-solid fa-file-arrow-down"></i><span>下载 PDF 报告</span>';
+        resetPdfBtn();
         const a = document.createElement('a');
-        a.href = 'pdf/考级报告_' + stu.name + '.pdf';
-        a.download = 'AISE考级报告_' + stu.name + '.pdf';
+        a.href = 'pdf/考级报告_' + stu.name + '_运营版.pdf';
+        a.download = 'AISE考级报告_' + stu.name + '_运营版.pdf';
         document.body.appendChild(a);
         a.click();
         document.body.removeChild(a);
@@ -464,11 +586,9 @@ function initStudentBtns(){
     let html = '';
     STUDENTS.forEach(function(s){
         const g = gradeOf(s.score);
-        const sub = s.knowledge ? (s.score + ' 分 · ' + g.grade) : (s.score + ' 分 · 知识点未配置');
-        html += '<button class="stu-btn" data-id="'+s.id+'" onclick="switchStudent(\''+s.id+'\')">'
-          + '<span class="avatar" style="background:linear-gradient(135deg,#8777d3,#705fd2)">'+esc(s.name[0])+'</span>'
-          + '<span class="min-w-0"><span class="block truncate">'+esc(s.name)+'</span>'
-          + '<span class="block text-[12px] font-normal text-[#a6a7af]">'+sub+'</span></span></button>';
+        const sub = s.knowledge ? (s.score + '分 · ' + g.grade) : (s.score + '分 · 无知识点');
+        html += '<button class="stu-btn" data-id="' + s.id + '" onclick="switchStudent(\'' + s.id + '\')">'
+          + '<span class="n">' + esc(s.name) + '</span><span class="s">' + sub + '</span></button>';
     });
     box.innerHTML = html;
 }

@@ -2,7 +2,7 @@
 <html lang="zh-CN">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
     <title>报名成功 - AISE 测评报名</title>
     <script src="https://cdn.tailwindcss.com"></script>
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
@@ -10,7 +10,7 @@
     <script>tailwind.config = { theme: { extend: { fontFamily: { sans: ['Inter', 'sans-serif'] } } } }</script>
     <style>body{background-color:#F1F5F9;-webkit-font-smoothing:antialiased}</style>
 </head>
-<body class="min-h-screen flex items-center justify-center p-4">
+<body class="min-h-screen flex items-center justify-center p-4 pt-14">
     <div class="w-full max-w-lg bg-white rounded-2xl shadow-lg border border-slate-100 overflow-hidden">
         <div class="p-8 sm:p-10">
 
@@ -51,11 +51,144 @@
                 </button>
             </div>
 
-            <a href="02_测评项目.html" class="block w-full bg-white border border-slate-200 text-slate-600 py-3 rounded-xl font-medium text-sm hover:bg-slate-50 transition text-center">返回首页</a>
+            <!-- 消息提醒区 -->
+            <div class="mb-6">
+                <h2 class="text-sm font-semibold text-slate-900 mb-1">消息提醒</h2>
+                <p class="text-xs text-slate-500 mb-3">开启消息提醒，不错过测评安排与成绩通知</p>
+
+                <!-- 微信内视图：订阅组件 -->
+                <div id="sub-view-wx" class="hidden">
+                    <div class="border border-slate-200 rounded-xl overflow-hidden">
+                        <div class="bg-slate-50 px-4 py-2.5 text-xs text-slate-500 border-b border-slate-100">订阅消息</div>
+                        <div class="px-4 py-2">
+                            <label class="flex items-center justify-between py-2.5 border-b border-slate-50 cursor-pointer">
+                                <span class="text-sm text-slate-700">测评前提醒</span>
+                                <input type="checkbox" class="w-4 h-4 accent-slate-900" data-sub="s1" checked>
+                            </label>
+                            <label class="flex items-center justify-between py-2.5 border-b border-slate-50 cursor-pointer">
+                                <span class="text-sm text-slate-700">测评开始提醒</span>
+                                <input type="checkbox" class="w-4 h-4 accent-slate-900" data-sub="s2" checked>
+                            </label>
+                            <label class="flex items-center justify-between py-2.5 border-b border-slate-50 cursor-pointer">
+                                <span class="text-sm text-slate-700">成绩公示提醒</span>
+                                <input type="checkbox" class="w-4 h-4 accent-slate-900" data-sub="s3" checked>
+                            </label>
+                            <label class="flex items-center justify-between py-2.5 cursor-pointer">
+                                <span class="text-sm text-slate-700">测评变更通知</span>
+                                <input type="checkbox" class="w-4 h-4 accent-slate-900" data-sub="s4" checked>
+                            </label>
+                        </div>
+                        <div class="px-4 pb-4">
+                            <button onclick="openWxModal28()" class="w-full bg-slate-900 text-white font-semibold py-2.5 rounded-xl text-sm transition hover:bg-slate-800">允许</button>
+                        </div>
+                    </div>
+                    <p class="text-xs text-slate-400 mt-2">未收到消息？在服务号回复「绑定账号」完成绑定</p>
+                </div>
+
+                <!-- 电脑端视图：扫码引导卡片 -->
+                <div id="sub-view-pc">
+                    <div class="border border-slate-200 rounded-xl p-4 flex items-center gap-4">
+                        <canvas id="qr-canvas" width="92" height="92" class="flex-shrink-0"></canvas>
+                        <div>
+                            <p class="text-sm font-medium text-slate-800">微信扫码开启消息提醒</p>
+                            <p class="text-xs text-slate-500 mt-1">接收测评安排、成绩通知</p>
+                        </div>
+                    </div>
+                    <p class="text-xs text-slate-400 mt-2">未收到消息？在服务号回复「绑定账号」完成绑定</p>
+                </div>
+            </div>
+
+            <a href="02_首页.html" class="block w-full bg-white border border-slate-200 text-slate-600 py-3 rounded-xl font-medium text-sm hover:bg-slate-50 transition text-center">返回首页</a>
 
             <p class="text-xs text-slate-300 mt-6 text-center">退费政策：报名截止日前可全额退费，截止日后不予退费。如有疑问请联系客服。</p>
         </div>
     </div>
+
+    <!-- demo 视图切换条 -->
+    <div id="demo-bar" class="fixed top-0 left-0 right-0 z-40 bg-slate-900/95 text-white px-3 py-2">
+        <div class="max-w-lg mx-auto flex items-center gap-1.5">
+            <span class="text-[11px] text-slate-400 mr-1">Demo视图：</span>
+            <button id="view-pc-btn" class="px-2.5 py-1 rounded bg-slate-500 text-[11px]">电脑端</button>
+            <button id="view-wx-btn" class="px-2.5 py-1 rounded bg-slate-700 text-[11px]">微信内</button>
+        </div>
+    </div>
+
+    <script>
+        // 模拟伪二维码绘制（定位图案 + 伪随机数据区）
+        function drawQR(seed) {
+            const c = document.getElementById('qr-canvas');
+            if (!c) return;
+            const ctx = c.getContext('2d');
+            const n = 23, cell = 92 / n;
+            ctx.fillStyle = '#fff';
+            ctx.fillRect(0, 0, 92, 92);
+            // 数据区伪随机
+            ctx.fillStyle = '#0f172a';
+            for (let r = 0; r < n; r++) {
+                for (let col = 0; col < n; col++) {
+                    const v = (seed * 31 + r * 37 + col * 41 + r * col * 7) % 10;
+                    if (v < 4) ctx.fillRect(col * cell, r * cell, cell * 0.9, cell * 0.9);
+                }
+            }
+            // 三个定位角
+            const corner = (x, y) => {
+                ctx.fillRect(x, y, 7 * cell, 7 * cell);
+                ctx.fillStyle = '#fff';
+                ctx.fillRect(x + cell, y + cell, 5 * cell, 5 * cell);
+                ctx.fillStyle = '#0f172a';
+                ctx.fillRect(x + 2 * cell, y + 2 * cell, 3 * cell, 3 * cell);
+            };
+            corner(0, 0);
+            corner(16 * cell, 0);
+            corner(0, 16 * cell);
+        }
+        drawQR(20260816);
+
+        // 视图切换：默认电脑端视图；微信内 UA 自动切到订阅组件
+        function setView(wx) {
+            document.getElementById('sub-view-wx').classList.toggle('hidden', !wx);
+            document.getElementById('sub-view-pc').classList.toggle('hidden', wx);
+            document.getElementById('view-pc-btn').classList.toggle('bg-slate-500', !wx);
+            document.getElementById('view-pc-btn').classList.toggle('bg-slate-700', wx);
+            document.getElementById('view-wx-btn').classList.toggle('bg-slate-500', wx);
+            document.getElementById('view-wx-btn').classList.toggle('bg-slate-700', !wx);
+        }
+        const isWx = /MicroMessenger/i.test(navigator.userAgent);
+        setView(isWx);
+        document.getElementById('view-pc-btn').addEventListener('click', () => setView(false));
+        document.getElementById('view-wx-btn').addEventListener('click', () => setView(true));
+
+        // 模拟微信订阅确认弹窗
+        function openWxModal28() {
+            const checked = Array.from(document.querySelectorAll('#sub-view-wx input[type=checkbox]'))
+                .filter(cb => cb.checked)
+                .map(cb => cb.closest('label').querySelector('span').textContent);
+            if (!checked.length) { alert('请先勾选需要订阅的通知'); return; }
+            const overlay = document.createElement('div');
+            overlay.className = 'fixed inset-0 z-50 flex items-center justify-center p-6';
+            overlay.style.background = 'rgba(15,23,42,0.45)';
+            overlay.innerHTML = `
+                <div class="w-full max-w-sm bg-white rounded-2xl overflow-hidden">
+                    <div class="px-6 pt-6 pb-4 text-center">
+                        <h3 class="text-base font-bold text-slate-900 mb-1">订阅消息</h3>
+                        <p class="text-xs text-slate-400">AISE青少年AI人才培养工程 申请发送以下通知</p>
+                    </div>
+                    <div class="px-6 pb-4 text-sm">
+                        ${checked.map(t => '<div class="flex justify-between py-1.5"><span class="text-slate-600">' + t + '</span><i class="fa-solid fa-check text-green-600"></i></div>').join('')}
+                    </div>
+                    <div class="flex border-t border-slate-100">
+                        <button class="flex-1 py-3.5 text-slate-500 font-medium text-sm" data-act="cancel">取消</button>
+                        <button class="flex-1 py-3.5 text-green-600 font-semibold text-sm border-l border-slate-100" data-act="allow">允许</button>
+                    </div>
+                </div>`;
+            document.body.appendChild(overlay);
+            overlay.addEventListener('click', (e) => {
+                const act = e.target.dataset && e.target.dataset.act;
+                if (act === 'allow') alert('已订阅所选通知（微信授权完成）');
+                overlay.remove();
+            });
+        }
+    </script>
 
 </body>
 </html>
