@@ -9,6 +9,10 @@
 
 ## 启动
 
+**方式一（推荐）：双击启动** —— macOS 双击 `启动演示.command`，Windows 双击 `启动演示.bat`，浏览器自动打开。macOS 首次若提示安全拦截：右键 → 打开。
+
+**方式二：终端启动**
+
 ```bash
 python3 server.py
 ```

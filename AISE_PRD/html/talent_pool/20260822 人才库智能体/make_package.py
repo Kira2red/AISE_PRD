@@ -30,6 +30,8 @@ shutil.copy(os.path.join(ROOT, 'server.py'), STAGE)
 shutil.copytree(os.path.join(ROOT, 'www'), os.path.join(STAGE, 'www'))
 shutil.copy(os.path.join(ROOT, '.env.example'), STAGE)
 shutil.copy(os.path.join(ROOT, '.gitignore'), STAGE)
+shutil.copy(os.path.join(ROOT, '启动演示.command'), STAGE)
+shutil.copy(os.path.join(ROOT, '启动演示.bat'), STAGE)
 
 # 2. 测试作品与生成脚本（从需求文件夹复制）
 shutil.copytree(PRD_SAMPLES, os.path.join(STAGE, '示例作品'))
@@ -43,13 +45,10 @@ README = """# 人才库智能体（AI 人才大脑 1.0）演示包
 ## 三步跑起来
 
 1. **电脑装有 Python3**（macOS 自带；Windows 到 python.org 下载安装，安装时勾选「Add Python to PATH」）
-2. 解压后打开终端（Windows 用 PowerShell），进入本文件夹，运行：
-
-```bash
-python3 server.py
-```
-
-3. 浏览器打开：
+2. 解压后**双击启动**（浏览器会自动打开）：
+   - macOS：双击 `启动演示.command`（首次若提示安全拦截，右键 → 打开）
+   - Windows：双击 `启动演示.bat`
+3. 或手动启动：终端进入本文件夹，运行 `python3 server.py`，然后浏览器打开 http://localhost:8080/
 
 | 页面 | 地址 | 说明 |
 |------|------|------|
