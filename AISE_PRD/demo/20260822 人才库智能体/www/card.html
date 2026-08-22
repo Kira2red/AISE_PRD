@@ -1,0 +1,153 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>人才信息卡 - 人工智能人才资源库</title>
+<link rel="stylesheet" href="style.css">
+</head>
+<body>
+<div class="topbar">
+  <div class="brand"><span class="logo">AI</span> 人工智能人才资源库 · 学员端</div>
+  <nav class="tabs">
+    <a href="index.html">作品上传</a>
+    <a href="card.html" class="active">人才卡</a>
+    <a href="report.html">画像分析</a>
+  </nav>
+  <span class="mode-badge" id="modeBadge">…</span>
+</div>
+
+<div class="tcard">
+  <div class="head">
+    <div>
+      <div class="t">人工智能人才信息卡</div>
+      <div style="font-size:13px;color:#7a8194;margin-top:4px">姓名：李小明　入库时间：2026-01-15</div>
+    </div>
+    <div class="no">人才库编号：R·C·A·2026·0115</div>
+  </div>
+
+  <!-- ① 基本信息（AISE 同步，本期不变） -->
+  <div class="tsec">
+    <span class="label">基本信息</span>
+    <div class="tinfo">
+      <div>姓名：<b>李小明</b></div>
+      <div>性别：<b>男</b></div>
+      <div>出生年月：<b>2013-06</b></div>
+      <div>籍贯：<b>北京市</b></div>
+      <div>证件号：<b>110***********0019</b></div>
+      <div>入库时间：<b>2026-01-15</b></div>
+    </div>
+  </div>
+
+  <!-- ② 特长领域（智能体动态标签，决策 #15 更新点） -->
+  <div class="tsec">
+    <span class="label">特长领域</span>
+    <div id="tagArea"><span class="notice">标签加载中…</span></div>
+  </div>
+
+  <!-- ③ 人工智能应用创新能力（AISE 同步，本期不变） -->
+  <div class="tsec">
+    <span class="label">人工智能应用创新能力</span>
+    <div style="font-size:13px;color:#7a8194;margin-bottom:6px">考核记录（AISE 同步）</div>
+    <div class="rec">智能工具实操　三级　2026-03-15</div>
+    <div class="rec">生成式人工智能　二级　2026-05-24</div>
+    <div class="rec">程序设计　二级　2025-11-02</div>
+    <div style="font-size:13px;color:#7a8194;margin:12px 0 6px">实践记录</div>
+    <div class="rec">原创 S 营 · 合格结业　2025-08</div>
+    <div class="rec">校园 AI 挑战赛 · 二等奖　2026-04</div>
+  </div>
+
+  <!-- ④ 社会实践与人才培养 / 综合分析（能力雷达为动态更新点，决策 #15） -->
+  <div class="tsec">
+    <span class="label">社会实践与人才培养记录 / 综合分析</span>
+    <div style="display:flex;gap:24px;flex-wrap:wrap">
+      <div style="flex:1;min-width:280px">
+        <div class="rec">原创 S 营　2025-08　合格结业</div>
+        <div class="rec">校园 AI 挑战赛　2026-04　二等奖</div>
+        <div class="rec">青少年人工智能素养科普活动　2025-12　优秀学员</div>
+        <div class="rec" style="margin-top:10px">专利 / 软著：一项软著（校园小助手工具软件）</div>
+      </div>
+      <div style="flex:1;min-width:260px">
+        <div style="font-size:13px;color:#7a8194;margin-bottom:4px">综合分析（AI 智能体动态分析）</div>
+        <div class="chart-box"><canvas id="radar" width="300" height="260"></canvas></div>
+        <div id="radarNote" class="notice" style="text-align:center"></div>
+      </div>
+    </div>
+  </div>
+
+  <!-- ⑤ 底部说明（本期不变） -->
+  <div class="tsec" style="margin-bottom:0">
+    <span class="label">说明</span>
+    <div class="notice" style="line-height:2">
+      本卡为 AISE 工程官方认证的人才信息凭证，数据动态更新；限本人使用；查询网址：talent.aise.example.cn。<br>
+      特长领域标签与综合分析由 AI 智能体自动分析生成，仅供展示参考。
+    </div>
+  </div>
+</div>
+
+<script>
+const $ = s => document.querySelector(s);
+fetch('/api/health').then(r => r.json()).then(m => {
+  const b = $('#modeBadge');
+  b.textContent = m.mode === 'real' ? '真实模式 · ' + m.model : 'Mock 模拟模式（未配置 key）';
+  if (m.mode !== 'real') b.classList.add('mock');
+});
+
+function drawRadar(vals) {
+  const c = $('#radar'), ctx = c.getContext('2d');
+  const cx = 150, cy = 132, R = 92, keys = ['认知层', '应用层', '创新层', '责任层'];
+  ctx.clearRect(0, 0, c.width, c.height);
+  ctx.strokeStyle = '#d5dae6'; ctx.fillStyle = '#f6f7fb'; ctx.lineWidth = 1;
+  for (let g = 1; g <= 4; g++) {
+    ctx.beginPath();
+    keys.forEach((k, i) => {
+      const a = -Math.PI / 2 + i * Math.PI / 2;
+      const x = cx + Math.cos(a) * R * g / 4, y = cy + Math.sin(a) * R * g / 4;
+      i === 0 ? ctx.moveTo(x, y) : ctx.lineTo(x, y);
+    });
+    ctx.closePath(); g === 4 ? ctx.stroke() : (ctx.fill(), ctx.stroke());
+  }
+  keys.forEach((k, i) => {
+    const a = -Math.PI / 2 + i * Math.PI / 2;
+    ctx.beginPath(); ctx.moveTo(cx, cy);
+    ctx.lineTo(cx + Math.cos(a) * R, cy + Math.sin(a) * R); ctx.stroke();
+  });
+  ctx.beginPath();
+  keys.forEach((k, i) => {
+    const a = -Math.PI / 2 + i * Math.PI / 2;
+    const x = cx + Math.cos(a) * R * vals[k] / 100, y = cy + Math.sin(a) * R * vals[k] / 100;
+    i === 0 ? ctx.moveTo(x, y) : ctx.lineTo(x, y);
+  });
+  ctx.closePath(); ctx.fillStyle = 'rgba(59,63,191,.22)'; ctx.fill();
+  ctx.strokeStyle = '#3b3fbf'; ctx.lineWidth = 2; ctx.stroke();
+  ctx.fillStyle = '#3b3fbf';
+  keys.forEach((k, i) => {
+    const a = -Math.PI / 2 + i * Math.PI / 2;
+    const x = cx + Math.cos(a) * R * vals[k] / 100, y = cy + Math.sin(a) * R * vals[k] / 100;
+    ctx.beginPath(); ctx.arc(x, y, 4, 0, Math.PI * 2); ctx.fill();
+  });
+  ctx.fillStyle = '#2a3150'; ctx.font = '13px sans-serif'; ctx.textAlign = 'center';
+  keys.forEach((k, i) => {
+    const a = -Math.PI / 2 + i * Math.PI / 2;
+    ctx.fillText(k + ' ' + vals[k], cx + Math.cos(a) * (R + 26), cy + Math.sin(a) * (R + 26) + 4);
+  });
+}
+
+async function load() {
+  const p = await (await fetch('/api/profile')).json();
+  const tagArea = $('#tagArea');
+  if (p.tags && p.tags.length) {
+    tagArea.innerHTML = p.tags.map(t => '<span class="ktag">' + t + '</span>').join('');
+  } else {
+    tagArea.innerHTML = '<span class="notice">暂无动态标签（作品入库后由智能体自动生成）</span>';
+  }
+  const r = p.radar || { '认知层': 0, '应用层': 0, '创新层': 0, '责任层': 0 };
+  drawRadar(r);
+  $('#radarNote').textContent = p.linked
+    ? '四维能力雷达 · AI 智能体基于测评与作品数据动态分析'
+    : '暂未关联 AISE 测评数据';
+}
+load();
+</script>
+</body>
+</html>

@@ -1,0 +1,150 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>作品上传 - 人工智能人才资源库</title>
+<link rel="stylesheet" href="style.css">
+</head>
+<body>
+<div class="topbar">
+  <div class="brand"><span class="logo">AI</span> 人工智能人才资源库 · 学员端</div>
+  <nav class="tabs">
+    <a href="index.html" class="active">作品上传</a>
+    <a href="card.html">人才卡</a>
+    <a href="report.html">画像分析</a>
+  </nav>
+  <span class="mode-badge" id="modeBadge">…</span>
+</div>
+
+<div class="wrap">
+  <h1 class="page-title">作品上传</h1>
+  <p class="page-sub">上传你的学习作品（代码 / 图片 / PDF），智能体将自动预审，审核结果以「审核中 / 审核完成」展示</p>
+  <div id="modeNotice"></div>
+
+  <div class="card">
+    <h3>提交新作品</h3>
+    <div class="grid2">
+      <div>
+        <label>作品名称（必填）</label>
+        <input type="text" id="name" placeholder="如：智能计算器小程序">
+        <label>作品类型（必选）</label>
+        <select id="type">
+          <option value="code">代码</option>
+          <option value="image">图片</option>
+          <option value="pdf">PDF</option>
+        </select>
+        <label>作品描述（选填，辅助智能体理解作品）</label>
+        <textarea id="desc" rows="3" placeholder="一句话说明作品做了什么"></textarea>
+      </div>
+      <div>
+        <label>作品文件（必选，≤10MB）</label>
+        <div class="file-box" id="fileBox">
+          <input type="file" id="file" accept=".py,.js,.java,.c,.cpp,.html,.css,.txt,.md,.png,.jpg,.jpeg,.webp,.pdf">
+          <div>点击选择文件</div>
+          <div style="font-size:12px;margin-top:6px" id="fileHint"></div>
+        </div>
+        <label id="typeHint" style="color:#9aa1b5">当前类型「代码」支持：.py .js .java .c .cpp .html .css .txt .md</label>
+      </div>
+    </div>
+    <div style="margin-top:18px">
+      <button class="btn" id="submitBtn">提交审核</button>
+      <span class="notice" id="submitMsg" style="margin-left:12px"></span>
+    </div>
+  </div>
+
+  <div class="card">
+    <h3>我的作品</h3>
+    <div id="workList"><div class="empty">暂无提交记录</div></div>
+  </div>
+</div>
+
+<script>
+const $ = s => document.querySelector(s);
+const extMap = {
+  code:   ['py','js','java','c','cpp','html','css','txt','md'],
+  image:  ['png','jpg','jpeg','webp'],
+  pdf:    ['pdf'],
+};
+const typeNames = { code: '代码', image: '图片', pdf: 'PDF' };
+
+function modeBadge(m) {
+  const b = $('#modeBadge');
+  if (m.mode === 'real') {
+    b.textContent = '真实模式 · ' + m.model; b.classList.remove('mock');
+  } else {
+    b.textContent = 'Mock 模拟模式（未配置 key）'; b.classList.add('mock');
+  }
+}
+fetch('/api/health').then(r => r.json()).then(m => {
+  modeBadge(m);
+  if (m.mode !== 'real') {
+    $('#modeNotice').innerHTML = '<div class="mock-note">当前为 <b>Mock 模拟模式</b>：智能体预审返回显式标注「模拟结果」的预设结论，全链路照常演示。配置 .env 中的 DEEPSEEK_API_KEY 后重启即可切换真实模式。</div>';
+  }
+});
+
+let fileData = null, fileName = '';
+$('#type').addEventListener('change', e => {
+  const hint = { code: '代码：.py .js .java .c .cpp .html .css .txt .md',
+                 image: '图片：.png .jpg .jpeg .webp',
+                 pdf: 'PDF：.pdf' }[e.target.value];
+  $('#typeHint').textContent = '当前类型支持：' + hint;
+});
+$('#fileBox').addEventListener('click', () => $('#file').click());
+$('#file').addEventListener('change', e => {
+  const f = e.target.files[0];
+  if (!f) return;
+  fileName = f.name;
+  const ext = f.name.split('.').pop().toLowerCase();
+  const ok = extMap[$('#type').value].includes(ext);
+  if (!ok) { $('#fileHint').innerHTML = '格式与类型不匹配'; return; }
+  if (f.size > 10 * 1024 * 1024) { $('#fileHint').innerHTML = '文件超过 10MB'; return; }
+  const rd = new FileReader();
+  rd.onload = () => {
+    fileData = rd.result.split(',')[1];
+    $('#fileBox').classList.add('done');
+    $('#fileHint').innerHTML = f.name + '（' + (f.size / 1024).toFixed(1) + 'KB）已就绪';
+  };
+  rd.readAsDataURL(f);
+});
+
+$('#submitBtn').addEventListener('click', async () => {
+  const name = $('#name').value.trim();
+  const msg = $('#submitMsg');
+  if (!name) { msg.textContent = '请填写作品名称'; return; }
+  if (!fileData) { msg.textContent = '请选择作品文件'; return; }
+  $('#submitBtn').disabled = true; msg.textContent = '提交中…';
+  try {
+    const r = await fetch('/api/works', {
+      method: 'POST', headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ name, type: $('#type').value, desc: $('#desc').value.trim(),
+                             filename: fileName, content_b64: fileData })
+    });
+    const j = await r.json();
+    if (!r.ok) { msg.textContent = j.error || '提交失败'; $('#submitBtn').disabled = false; return; }
+    msg.textContent = '提交成功，作品进入审核中';
+    $('#name').value = ''; $('#desc').value = '';
+    fileData = null; fileName = ''; $('#fileBox').classList.remove('done'); $('#fileHint').textContent = '';
+    loadWorks();
+    setTimeout(() => { msg.textContent = ''; }, 3000);
+  } catch (e) { msg.textContent = '网络错误，请重试'; }
+  $('#submitBtn').disabled = false;
+});
+
+const statusCls = { '审核中': 'orange', '审核完成': 'green', '未通过': 'red' };
+async function loadWorks() {
+  const list = await (await fetch('/api/works')).json();
+  const box = $('#workList');
+  if (!list.length) { box.innerHTML = '<div class="empty">暂无提交记录</div>'; return; }
+  box.innerHTML = '<table><thead><tr><th>作品名称</th><th>类型</th><th>提交时间</th><th>审核状态</th><th>说明</th></tr></thead><tbody>' +
+    list.map(w => {
+      const note = w.status === '未通过' ? '<span class="notice">驳回原因：' + (w.reject_reason || '—') + '，可修改后重新提交</span>' : '';
+      return '<tr><td>' + w.name + '</td><td>' + typeNames[w.type] + '</td><td>' + w.created + '</td>' +
+        '<td><span class="tag ' + (statusCls[w.status] || 'blue') + '">' + w.status + '</span></td><td>' + note + '</td></tr>';
+    }).join('') + '</tbody></table>';
+}
+loadWorks();
+setInterval(loadWorks, 4000);
+</script>
+</body>
+</html>

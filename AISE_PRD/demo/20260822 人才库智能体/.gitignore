@@ -1,0 +1,7 @@
+# 本地环境配置（含 API key）—— 绝不提交、绝不随 demo 分享
+.env
+# 运行时数据
+data.json
+__pycache__/
+*.pyc
+.DS_Store

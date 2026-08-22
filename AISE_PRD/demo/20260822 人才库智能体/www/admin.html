@@ -1,0 +1,257 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>审核工作台 - 人工智能人才资源库（后台）</title>
+<link rel="stylesheet" href="style.css">
+</head>
+<body>
+<div class="topbar">
+  <div class="brand"><span class="logo">AI</span> 人工智能人才资源库 · 审核工作台</div>
+  <nav class="tabs">
+    <a href="#works" class="active" id="tabWorks">作品审核</a>
+    <a href="#materials" id="tabMaterials">材料审核</a>
+    <a href="#audits" id="tabAudits">审核记录</a>
+  </nav>
+  <span class="mode-badge" id="modeBadge">…</span>
+</div>
+
+<div class="wrap">
+  <h1 class="page-title">审核工作台</h1>
+  <p class="page-sub">智能体预审给结论 · 人工终审把关（AI 不放行，人工裁决留痕）</p>
+  <div id="modeNotice"></div>
+
+  <!-- 演示控制 -->
+  <div class="card" style="display:flex;align-items:center;gap:16px;flex-wrap:wrap">
+    <div style="font-size:13px;color:#525a70">演示控制：</div>
+    <label style="margin:0"><input type="checkbox" id="linkChk" style="margin-right:6px">演示用户「李小明」已关联 AISE（取消勾选可查看画像分析空态）</label>
+    <button class="btn small ghost" id="resetBtn">清空演示数据</button>
+  </div>
+
+  <!-- 作品审核 -->
+  <div class="card" id="secWorks">
+    <h3>作品审核队列</h3>
+    <div id="workQueue"><div class="empty">暂无作品</div></div>
+  </div>
+
+  <!-- 材料审核 -->
+  <div class="card" id="secMaterials" style="display:none">
+    <h3>简历材料审核（按条目，AI 预审意见参考）</h3>
+    <div id="matQueue"><div class="empty">暂无材料提交</div></div>
+  </div>
+
+  <!-- 审核记录 -->
+  <div class="card" id="secAudits" style="display:none">
+    <h3>审核留痕记录</h3>
+    <div id="auditList"><div class="empty">暂无记录</div></div>
+  </div>
+</div>
+
+<!-- 作品详情弹窗 -->
+<div class="modal-mask" id="mask">
+  <div class="modal">
+    <h3 id="mTitle">作品详情</h3>
+    <div id="mBody"></div>
+  </div>
+</div>
+
+<script>
+const $ = s => document.querySelector(s);
+const typeNames = { code: '代码', image: '图片', pdf: 'PDF' };
+const statusMap = {
+  pending: ['预审排队中', 'orange'], reviewing: ['预审中', 'orange'],
+  ai_done: ['预审完成', 'blue'], ai_failed: ['预审失败', 'red'],
+  approved: ['已通过入库', 'green'], rejected: ['已驳回', 'red'],
+};
+
+fetch('/api/health').then(r => r.json()).then(m => {
+  const b = $('#modeBadge');
+  b.textContent = m.mode === 'real' ? '真实模式 · ' + m.model : 'Mock 模拟模式（未配置 key）';
+  if (m.mode !== 'real') b.classList.add('mock');
+});
+
+// tabs
+$('#tabWorks').onclick = e => { e.preventDefault(); switchTab('works'); };
+$('#tabMaterials').onclick = e => { e.preventDefault(); switchTab('materials'); };
+$('#tabAudits').onclick = e => { e.preventDefault(); switchTab('audits'); };
+function switchTab(k) {
+  ['works', 'materials', 'audits'].forEach(x => {
+    $('#sec' + x[0].toUpperCase() + x.slice(1)).style.display = x === k ? '' : 'none';
+    $('#tab' + x[0].toUpperCase() + x.slice(1)).classList.toggle('active', x === k);
+  });
+}
+
+// AISE 关联切换
+fetch('/api/profile').then(r => r.json()).then(p => { $('#linkChk').checked = p.linked; });
+$('#linkChk').onchange = async e => {
+  await fetch('/api/admin/link', { method: 'POST', headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify({ linked: e.target.checked }) });
+};
+
+// 清空数据
+$('#resetBtn').onclick = async () => {
+  if (!confirm('清空全部演示数据（作品/材料/审核记录/报告）？')) return;
+  await fetch('/api/admin/reset', { method: 'POST' });
+  loadAll();
+};
+
+async function loadAll() { loadWorks(); loadMaterials(); loadAudits(); }
+
+async function loadWorks() {
+  const list = await (await fetch('/api/admin/works')).json();
+  const box = $('#workQueue');
+  if (!list.length) { box.innerHTML = '<div class="empty">暂无作品</div>'; return; }
+  box.innerHTML = '<table><thead><tr><th>作品</th><th>类型</th><th>提交时间</th><th>预审状态</th><th>AI 结论</th><th>操作</th></tr></thead><tbody>' +
+    list.map(w => {
+      const [st, cls] = statusMap[w.status] || [w.status, ''];
+      let ai = '<span class="notice">—</span>';
+      if (w.ai) {
+        const concl = w.ai.conclusion === '通过' ? '<span class="tag green">建议通过</span>' : '<span class="tag red">建议驳回</span>';
+        const score = w.ai.score != null ? w.ai.score + '分' : '';
+        ai = concl + ' ' + score + ' ' + (w.ai.mock ? '<span class="tag orange">模拟</span>' : '<span class="tag blue">AI</span>');
+      } else if (w.ai_error) {
+        ai = '<span class="notice" title="' + w.ai_error + '">预审异常</span>';
+      }
+      const acts = '<button class="btn small" onclick="openDetail(\'' + w.id + '\')">查看/终审</button>' +
+        (w.status === 'ai_failed' ? ' <button class="btn small ghost" onclick="retry(\'' + w.id + '\')">重试预审</button>' : '');
+      return '<tr><td><b>' + w.name + '</b><div class="notice">' + w.filename + '</div></td>' +
+        '<td>' + typeNames[w.type] + '</td><td>' + w.created + '</td>' +
+        '<td><span class="tag ' + cls + '">' + st + '</span></td><td>' + ai + '</td><td>' + acts + '</td></tr>';
+    }).join('') + '</tbody></table>';
+}
+
+async function openDetail(id) {
+  const w = await (await fetch('/api/admin/works/' + id)).json();
+  const [st, cls] = statusMap[w.status] || [w.status, ''];
+  const ai = w.ai || {};
+  const mock = ai.mock ? '<span class="tag orange">模拟结果</span>' : '';
+  const canReview = ['ai_done', 'ai_failed', 'reviewing', 'pending'].includes(w.status);
+  let preview = '';
+  if (w.type === 'code') {
+    const t = await (await fetch('/api/files/' + id)).text();
+    preview = '<pre style="background:#f6f7fb;border-radius:8px;padding:14px;font-size:12px;max-height:220px;overflow:auto;white-space:pre-wrap">' + t.replace(/</g, '&lt;') + '</pre>';
+  } else if (w.type === 'image') {
+    preview = '<img src="/api/files/' + id + '" style="max-width:100%;max-height:260px;border-radius:8px;border:1px solid #e8ebf3">';
+  } else {
+    preview = '<iframe src="/api/files/' + id + '" style="width:100%;height:260px;border:1px solid #e8ebf3;border-radius:8px"></iframe>';
+  }
+  $('#mTitle').textContent = '作品详情 · ' + w.name;
+  $('#mBody').innerHTML =
+    '<div style="display:flex;gap:10px;flex-wrap:wrap;margin-bottom:12px">' +
+      '<span class="tag ' + cls + '">' + st + '</span>' + mock +
+      '<span class="tag">' + typeNames[w.type] + '</span>' +
+      '<span class="notice">' + w.filename + '（' + (w.size / 1024).toFixed(1) + 'KB）' + '</span>' +
+    '</div>' +
+    (w.desc ? '<p class="notice" style="margin-bottom:10px">作者描述：' + w.desc + '</p>' : '') +
+    '<div style="margin-bottom:14px">' + preview + '</div>' +
+    '<div class="card" style="box-shadow:none;border:1px solid #e8ebf3;padding:14px 16px;margin-bottom:14px">' +
+      '<h3 style="margin-bottom:8px">智能体预审结论 ' + mock + '</h3>' +
+      (w.ai ? (
+        '<div style="font-size:13px;margin-bottom:8px">' +
+          '准入结论：<b>' + (ai.conclusion === '通过' ? '建议通过' : '建议驳回') + '</b>　得分：<b>' + (ai.score != null ? ai.score + ' / 100' : '—') + '</b></div>' +
+        '<div style="font-size:13px;margin-bottom:8px">理由：' + (ai.reason || '—') + '</div>' +
+        '<div style="font-size:13px;margin-bottom:8px">标签：' + (ai.tags || []).map(t => '<span class="ktag">' + t + '</span>').join('') + '</div>' +
+        '<div style="font-size:13px;margin-bottom:8px">评语：' + (ai.comment || '—') + '</div>' +
+        '<div style="font-size:13px">理解结果：' + (ai.understanding || '—') + '</div>'
+      ) : '<div class="notice">' + (w.ai_error ? '预审失败：' + w.ai_error : '预审尚未完成') + '</div>') +
+    '</div>' +
+    (canReview ? (
+      '<div style="border-top:1px solid #e8ebf3;padding-top:14px">' +
+        '<h3 style="margin-bottom:10px">人工终审（可修改 AI 结论后通过）</h3>' +
+        '<div class="grid2" style="margin-bottom:12px">' +
+          '<div><label>标签（逗号分隔）</label><input type="text" id="eTags" value="' + (ai.tags || []).join(',') + '"></div>' +
+          '<div><label>得分（0-100）</label><input type="number" id="eScore" min="0" max="100" value="' + (ai.score != null ? ai.score : '') + '"></div>' +
+          '<div style="grid-column:1/-1"><label>评语</label><textarea id="eComment" rows="2">' + (ai.comment || '') + '</textarea></div>' +
+        '</div>' +
+        '<div style="margin-bottom:10px"><label>驳回原因（驳回时填写）</label><input type="text" id="eReason" placeholder="仅驳回时必填"></div>' +
+        '<button class="btn success" onclick="approve(\'' + id + '\')">确认通过 / 修改后通过</button> ' +
+        '<button class="btn danger" onclick="reject(\'' + id + '\')">驳回</button> ' +
+        '<button class="btn ghost" onclick="closeDetail()">关闭</button>' +
+      '</div>'
+    ) : '<div class="notice">该作品已终审（' + st + '），无待办操作。</div>') +
+    '<div style="margin-top:12px;font-size:12px;color:#9aa1b5">人工裁决：' +
+      (w.review ? (w.review.action === 'approve' ? '已通过（' + w.review.time + '）' : '已驳回（' + w.review.time + '）') : '—') +
+      '</div>';
+  $('#mask').classList.add('open');
+}
+
+function closeDetail() { $('#mask').classList.remove('open'); }
+$('#mask').addEventListener('click', e => { if (e.target === $('#mask')) closeDetail(); });
+
+async function approve(id) {
+  const body = {
+    action: 'approve',
+    tags: $('#eTags').value.split(/[,，]/).map(s => s.trim()).filter(Boolean),
+    score: parseInt($('#eScore').value, 10) || null,
+    comment: $('#eComment').value.trim(),
+  };
+  const r = await fetch('/api/admin/works/' + id + '/review', {
+    method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify(body) });
+  if (!r.ok) alert((await r.json()).error);
+  closeDetail(); loadAll();
+}
+async function reject(id) {
+  const reason = $('#eReason').value.trim();
+  if (!reason) { alert('请填写驳回原因'); return; }
+  await fetch('/api/admin/works/' + id + '/review', {
+    method: 'POST', headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify({ action: 'reject', reason }) });
+  closeDetail(); loadAll();
+}
+async function retry(id) {
+  await fetch('/api/admin/works/' + id + '/retry', { method: 'POST' });
+  loadAll();
+}
+
+async function loadMaterials() {
+  const list = await (await fetch('/api/admin/materials')).json();
+  const box = $('#matQueue');
+  if (!list.length) { box.innerHTML = '<div class="empty">暂无材料提交</div>'; return; }
+  const modNames = { practice: '社会实践与人才培养记录', patent: '专利和软著', honor: '其他荣誉记录' };
+  box.innerHTML = '<table><thead><tr><th>模块</th><th>内容</th><th>提交时间</th><th>AI 预审意见</th><th>终审</th></tr></thead><tbody>' +
+    list.map(m => {
+      const ai = m.ai || {};
+      let aiCell = '<span class="notice">' + (m.ai_error ? '预审异常' : (m.status === 'checking' ? '预审中…' : '—')) + '</span>';
+      if (ai.conclusion) {
+        aiCell = (ai.conclusion === '通过' ? '<span class="tag green">建议通过</span>' : '<span class="tag red">建议驳回</span>') +
+          (ai.mock ? ' <span class="tag orange">模拟</span>' : '') +
+          '<div class="notice" style="margin-top:4px">' + (ai.comment || '') + '</div>';
+      }
+      const done = ['approved', 'rejected'].includes(m.status);
+      const acts = done
+        ? '<span class="tag ' + (m.status === 'approved' ? 'green' : 'red') + '">' + (m.status === 'approved' ? '已通过' : '已驳回') + '</span>'
+        : '<button class="btn small success" onclick="matReview(\'' + m.id + '\',\'approve\')">通过</button> <button class="btn small danger" onclick="matReview(\'' + m.id + '\',\'reject\')">驳回</button>';
+      const fields = Object.entries(m.fields || {}).map(([k, v]) => '<b>' + k + '：</b>' + v).join('　');
+      return '<tr><td>' + modNames[m.module] + '</td><td style="max-width:300px">' + fields + '</td><td>' + m.created + '</td><td>' + aiCell + '</td><td>' + acts + '</td></tr>';
+    }).join('') + '</tbody></table>';
+}
+async function matReview(id, action) {
+  await fetch('/api/admin/materials/' + id + '/review', {
+    method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ action }) });
+  loadAll();
+}
+
+async function loadAudits() {
+  const list = await (await fetch('/api/audits')).json();
+  const box = $('#auditList');
+  if (!list.length) { box.innerHTML = '<div class="empty">暂无记录</div>'; return; }
+  box.innerHTML = '<table><thead><tr><th>时间</th><th>对象</th><th>动作</th><th>详情</th></tr></thead><tbody>' +
+    list.slice().reverse().map(a => {
+      const before = JSON.parse(a.before || '{}');
+      const after = JSON.parse(a.after || '{}');
+      const detail = a.action === 'approve'
+        ? '标签：' + (after.tags || []).join('、') + '　得分：' + (after.score != null ? after.score : '—')
+        : '驳回原因：' + (after.reason || '—');
+      const aiHad = before.ai ? '（AI 结论：' + (before.ai.conclusion === '通过' ? '建议通过' : '建议驳回') + '）' : '';
+      return '<tr><td>' + a.time + '</td><td>作品「' + a.work_name + '」</td>' +
+        '<td><span class="tag ' + (a.action === 'approve' ? 'green' : 'red') + '">' + (a.action === 'approve' ? '通过' : '驳回') + '</span></td>' +
+        '<td>' + detail + aiHad + '</td></tr>';
+    }).join('') + '</tbody></table>';
+}
+
+loadAll();
+setInterval(loadAll, 5000);
+</script>
+</body>
+</html>
