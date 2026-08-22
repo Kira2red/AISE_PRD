@@ -24,6 +24,7 @@ body {
     display: flex;
     flex-direction: column;
     align-items: center;
+    padding-top: 56px; /* 为固定顶栏留出空间 */
 }
 
 /* ===== 顶栏（沿用后台 demo 风格：白底 + 主色品牌字） ===== */
@@ -36,8 +37,10 @@ body {
     align-items: center;
     justify-content: space-between;
     padding: 0 24px;
-    position: sticky;
+    position: fixed;
     top: 0;
+    left: 0;
+    right: 0;
     z-index: 20;
     flex-shrink: 0;
 }
@@ -338,7 +341,7 @@ body.admin-body { align-items: stretch; }
 .report-sec ul, .report-sec ol { padding-left: 22px; font-size: 14px; color: #525A70; line-height: 2; }
 
 @media (max-width: 768px) {
-    body { padding: 0; }
+    body { padding: 56px 0 0; }
     .card-wrapper { width: 100%; margin-top: 8px; }
     .topbar { padding: 0 12px; }
     .tabs a { padding: 0 10px; font-size: 13px; }
