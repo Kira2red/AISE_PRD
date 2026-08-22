@@ -7,159 +7,147 @@
 <link rel="stylesheet" href="style.css">
 </head>
 <body>
+
 <div class="topbar">
-  <div class="brand"><span class="logo">AI</span> 人工智能人才资源库 · 学员端</div>
-  <nav class="tabs">
-    <a href="index.html">作品上传</a>
-    <a href="card.html">人才卡</a>
-    <a href="report.html" class="active">画像分析</a>
-  </nav>
-  <span class="mode-badge" id="modeBadge">…</span>
+    <div class="brand"><img src="aise-logo.png" alt="AISE"> 人工智能人才资源库</div>
+    <nav class="tabs">
+        <a href="index.html">作品上传</a>
+        <a href="card.html">人才卡</a>
+        <a href="report.html" class="active">画像分析</a>
+    </nav>
+    <span class="mode-badge" id="modeBadge">…</span>
 </div>
 
-<div class="wrap" style="max-width:860px">
-  <div class="card">
-    <!-- 标题栏（沿用个人报告样式体系） -->
-    <div style="display:flex;justify-content:space-between;align-items:flex-end;border-bottom:2px solid #2a3150;padding-bottom:14px;margin-bottom:18px">
-      <div>
-        <div style="font-size:20px;font-weight:700;color:#2a3150">个人画像分析报告</div>
-        <div style="font-size:13px;color:#7a8194;margin-top:4px">AISE 工程 · 人工智能人才资源库</div>
-      </div>
-      <div style="text-align:right;font-size:12px;color:#9aa1b5">
-        姓名：李小明<br>报告编号：RPT-2026-0822-01<br><span id="genTime">生成时间：—</span>
-      </div>
+<div class="upload-card report-body" style="margin-top:24px">
+    <!-- 标题栏 -->
+    <div style="display:flex;justify-content:space-between;align-items:flex-end;border-bottom:2px solid #2A3150;padding-bottom:14px;margin-bottom:18px">
+        <div>
+            <div style="font-size:20px;font-weight:800;color:#5037cd;letter-spacing:2px">个人画像分析报告</div>
+            <div style="font-size:13px;color:#6B7280;margin-top:4px">AISE 工程 · 人工智能人才资源库</div>
+        </div>
+        <div style="text-align:right;font-size:12px;color:#9AA1B5">
+            姓名：李小明<br>报告编号：RPT-2026-0822-01<br><span id="genTime">生成时间：—</span>
+        </div>
     </div>
 
     <div id="mockNote"></div>
     <div id="emptyState" style="display:none">
-      <div class="empty">暂未关联 AISE 测评数据，如已参加 AISE 考试请联系管理员</div>
+        <div class="empty">暂未关联 AISE 测评数据，如已参加 AISE 考试请联系管理员</div>
     </div>
 
     <div id="reportBody">
-      <!-- 画像概览 -->
-      <div class="tsec">
-        <span class="label">画像概览</span>
-        <div class="chart-box"><canvas id="radar" width="300" height="260"></canvas></div>
-        <p id="summary" style="font-size:14px;color:#1f2430;margin-top:6px">加载中…</p>
-      </div>
-
-      <!-- 优势与短板 -->
-      <div class="tsec">
-        <span class="label">能力优势</span>
-        <ul id="strengths" style="padding-left:20px;font-size:14px;color:#525a70"></ul>
-      </div>
-      <div class="tsec">
-        <span class="label">能力短板</span>
-        <ul id="weaknesses" style="padding-left:20px;font-size:14px;color:#525a70"></ul>
-      </div>
-
-      <!-- 特长领域 -->
-      <div class="tsec">
-        <span class="label">特长领域</span>
-        <div id="tags"></div>
-      </div>
-
-      <!-- 下一阶段建议 -->
-      <div class="tsec">
-        <span class="label">下一阶段建议</span>
-        <ol id="suggestions" style="padding-left:20px;font-size:14px;color:#525a70"></ol>
-      </div>
-
-      <div style="margin-top:8px">
-        <button class="btn ghost" id="exportBtn">导出报告</button>
-        <button class="btn ghost" id="regenBtn">重新生成</button>
-        <span class="notice" id="regenMsg" style="margin-left:12px"></span>
-      </div>
+        <div class="report-sec">
+            <div class="bar">画像概览</div>
+            <div class="chart-box">
+                <svg class="radar-svg" id="radarSvg" viewBox="0 0 200 200" style="width:240px;height:240px"></svg>
+            </div>
+            <p id="summary" style="font-size:14px;color:#1F2937;margin-top:6px">加载中…</p>
+        </div>
+        <div class="report-sec">
+            <div class="bar">能力优势</div>
+            <ul id="strengths"></ul>
+        </div>
+        <div class="report-sec">
+            <div class="bar">能力短板</div>
+            <ul id="weaknesses"></ul>
+        </div>
+        <div class="report-sec">
+            <div class="bar">特长领域</div>
+            <div class="inline-tags" id="tags"></div>
+        </div>
+        <div class="report-sec">
+            <div class="bar">下一阶段建议</div>
+            <ol id="suggestions"></ol>
+        </div>
+        <div style="margin-top:8px">
+            <button class="btn ghost small" id="exportBtn">导出报告</button>
+            <button class="btn ghost small" id="regenBtn">重新生成</button>
+            <span class="notice" id="regenMsg" style="margin-left:12px"></span>
+        </div>
     </div>
-  </div>
 </div>
 
 <script>
 const $ = s => document.querySelector(s);
 fetch('/api/health').then(r => r.json()).then(m => {
-  const b = $('#modeBadge');
-  b.textContent = m.mode === 'real' ? '真实模式 · ' + m.model : 'Mock 模拟模式（未配置 key）';
-  if (m.mode !== 'real') b.classList.add('mock');
+    const b = $('#modeBadge');
+    b.textContent = m.mode === 'real' ? 'AI 真实模式' : 'Mock 模拟模式';
+    if (m.mode !== 'real') b.classList.add('mock');
 });
 
-function drawRadar(vals) {
-  const c = $('#radar'), ctx = c.getContext('2d');
-  const cx = 150, cy = 132, R = 92, keys = ['认知层', '应用层', '创新层', '责任层'];
-  ctx.clearRect(0, 0, c.width, c.height);
-  ctx.strokeStyle = '#d5dae6'; ctx.fillStyle = '#f6f7fb'; ctx.lineWidth = 1;
-  for (let g = 1; g <= 4; g++) {
-    ctx.beginPath();
+function renderRadar(vals) {
+    const keys = ['认知层', '应用层', '创新层', '责任层'];
+    const cx = 100, cy = 106, R = 66;
+    let s = '';
+    for (let g = 1; g <= 3; g++) {
+        const pts = keys.map((k, i) => {
+            const a = -Math.PI / 2 + i * Math.PI / 2;
+            return [cx + Math.cos(a) * R * g / 3, cy + Math.sin(a) * R * g / 3];
+        }).map(p => p[0].toFixed(1) + ',' + p[1].toFixed(1)).join(' ');
+        s += '<polygon points="' + pts + '" fill="none" stroke="#E5E7EB" stroke-width="0.5"/>';
+    }
     keys.forEach((k, i) => {
-      const a = -Math.PI / 2 + i * Math.PI / 2;
-      const x = cx + Math.cos(a) * R * g / 4, y = cy + Math.sin(a) * R * g / 4;
-      i === 0 ? ctx.moveTo(x, y) : ctx.lineTo(x, y);
+        const a = -Math.PI / 2 + i * Math.PI / 2;
+        s += '<line x1="' + cx + '" y1="' + cy + '" x2="' + (cx + Math.cos(a) * R).toFixed(1) + '" y2="' + (cy + Math.sin(a) * R).toFixed(1) + '" stroke="#D1D5DB" stroke-width="0.5"/>';
     });
-    ctx.closePath(); g === 4 ? ctx.stroke() : (ctx.fill(), ctx.stroke());
-  }
-  keys.forEach((k, i) => {
-    const a = -Math.PI / 2 + i * Math.PI / 2;
-    ctx.beginPath(); ctx.moveTo(cx, cy); ctx.lineTo(cx + Math.cos(a) * R, cy + Math.sin(a) * R); ctx.stroke();
-  });
-  ctx.beginPath();
-  keys.forEach((k, i) => {
-    const a = -Math.PI / 2 + i * Math.PI / 2;
-    const x = cx + Math.cos(a) * R * vals[k] / 100, y = cy + Math.sin(a) * R * vals[k] / 100;
-    i === 0 ? ctx.moveTo(x, y) : ctx.lineTo(x, y);
-  });
-  ctx.closePath(); ctx.fillStyle = 'rgba(59,63,191,.22)'; ctx.fill();
-  ctx.strokeStyle = '#3b3fbf'; ctx.lineWidth = 2; ctx.stroke();
-  ctx.fillStyle = '#2a3150'; ctx.font = '13px sans-serif'; ctx.textAlign = 'center';
-  keys.forEach((k, i) => {
-    const a = -Math.PI / 2 + i * Math.PI / 2;
-    ctx.fillText(k + ' ' + vals[k], cx + Math.cos(a) * (R + 26), cy + Math.sin(a) * (R + 26) + 4);
-  });
+    const dpts = keys.map((k, i) => {
+        const a = -Math.PI / 2 + i * Math.PI / 2;
+        const v = (vals[k] != null ? vals[k] : 0) / 100;
+        return [cx + Math.cos(a) * R * v, cy + Math.sin(a) * R * v];
+    });
+    s += '<polygon points="' + dpts.map(p => p[0].toFixed(1) + ',' + p[1].toFixed(1)).join(' ') + '" fill="#FED7AA" fill-opacity="0.45" stroke="#FED7AA" stroke-width="1.5"/>';
+    dpts.forEach(p => { s += '<circle cx="' + p[0].toFixed(1) + '" cy="' + p[1].toFixed(1) + '" r="3.5" fill="#F97316" stroke="white" stroke-width="1.5"/>'; });
+    const lp = keys.map((k, i) => {
+        const a = -Math.PI / 2 + i * Math.PI / 2;
+        return { x: cx + Math.cos(a) * (R + 16), y: cy + Math.sin(a) * (R + 16) + 3, k };
+    });
+    s += '<text x="' + lp[0].x + '" y="' + (lp[0].y - 8) + '" text-anchor="middle" font-size="10" fill="#000" font-weight="600">' + lp[0].k + '</text>';
+    s += '<text x="' + (lp[1].x + 14) + '" y="' + lp[1].y + '" text-anchor="start" font-size="10" fill="#000" font-weight="600">' + lp[1].k + '</text>';
+    s += '<text x="' + lp[2].x + '" y="' + (lp[2].y + 12) + '" text-anchor="middle" font-size="10" fill="#000" font-weight="600">' + lp[2].k + '</text>';
+    s += '<text x="' + (lp[3].x - 14) + '" y="' + lp[3].y + '" text-anchor="end" font-size="10" fill="#000" font-weight="600">' + lp[3].k + '</text>';
+    $('#radarSvg').innerHTML = s;
 }
 
 function fill(p) {
-  const r = p.report || {};
-  if (!p.linked) {
-    $('#emptyState').style.display = 'block';
-    $('#reportBody').style.display = 'none';
-    return;
-  }
-  if (r.error) {
-    $('#summary').textContent = '报告生成失败：' + r.error;
-    return;
-  }
-  if (r.mock) {
-    $('#mockNote').innerHTML = '<div class="mock-note">当前为 <b>Mock 模拟模式</b>，本报告为预设模拟内容。</div>';
-  }
-  $('#genTime').textContent = '生成时间：' + (r.generated_at || '—');
-  drawRadar(p.radar || { '认知层': 0, '应用层': 0, '创新层': 0, '责任层': 0 });
-  $('#summary').textContent = r.summary || '—';
-  $('#strengths').innerHTML = (r.strengths || []).map(s => '<li>' + s + '</li>').join('');
-  $('#weaknesses').innerHTML = (r.weaknesses || []).map(s => '<li>' + s + '</li>').join('');
-  $('#suggestions').innerHTML = (r.suggestions || []).map(s => '<li>' + s + '</li>').join('');
-  const tags = p.tags || [];
-  $('#tags').innerHTML = tags.length
-    ? tags.map(t => '<span class="ktag">' + t + '</span>').join('')
-    : '<span class="notice">暂无特长标签（作品入库后由智能体自动生成）</span>';
+    const r = p.report || {};
+    if (!p.linked) {
+        $('#emptyState').style.display = 'block';
+        $('#reportBody').style.display = 'none';
+        return;
+    }
+    if (r.error) { $('#summary').textContent = '报告生成失败：' + r.error; return; }
+    if (r.mock) $('#mockNote').innerHTML = '<div class="mock-note">当前为 <b>Mock 模拟模式</b>，本报告为预设模拟内容。</div>';
+    $('#genTime').textContent = '生成时间：' + (r.generated_at || '—');
+    renderRadar(p.radar || { '认知层': 0, '应用层': 0, '创新层': 0, '责任层': 0 });
+    $('#summary').textContent = r.summary || '—';
+    $('#strengths').innerHTML = (r.strengths || []).map(s => '<li>' + s + '</li>').join('');
+    $('#weaknesses').innerHTML = (r.weaknesses || []).map(s => '<li>' + s + '</li>').join('');
+    $('#suggestions').innerHTML = (r.suggestions || []).map(s => '<li>' + s + '</li>').join('');
+    const tags = p.tags || [];
+    $('#tags').innerHTML = tags.length
+        ? tags.map(t => '<span>' + t + '</span>').join('')
+        : '<span>暂无特长标签（作品入库后由智能体自动生成）</span>';
 }
 
 async function load() { fill(await (await fetch('/api/profile')).json()); }
 load();
 
 $('#regenBtn').addEventListener('click', async () => {
-  $('#regenMsg').textContent = '重新生成中…';
-  const p = await (await fetch('/api/profile/report', { method: 'POST' })).json();
-  fill(p);
-  $('#regenMsg').textContent = '已重新生成';
-  setTimeout(() => $('#regenMsg').textContent = '', 3000);
+    $('#regenMsg').textContent = '重新生成中…';
+    const p = await (await fetch('/api/profile/report', { method: 'POST' })).json();
+    fill(p);
+    $('#regenMsg').textContent = '已重新生成';
+    setTimeout(() => $('#regenMsg').textContent = '', 3000);
 });
 
 $('#exportBtn').addEventListener('click', () => {
-  const content = document.querySelector('.card').innerText;
-  const blob = new Blob([content], { type: 'text/plain;charset=utf-8' });
-  const a = document.createElement('a');
-  a.href = URL.createObjectURL(blob);
-  a.download = '个人画像分析报告_李小明.txt';
-  a.click();
-  URL.revokeObjectURL(a.href);
+    const content = document.querySelector('.report-body').innerText;
+    const blob = new Blob([content], { type: 'text/plain;charset=utf-8' });
+    const a = document.createElement('a');
+    a.href = URL.createObjectURL(blob);
+    a.download = '个人画像分析报告_李小明.txt';
+    a.click();
+    URL.revokeObjectURL(a.href);
 });
 </script>
 </body>

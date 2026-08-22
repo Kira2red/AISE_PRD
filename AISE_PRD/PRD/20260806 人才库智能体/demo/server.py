@@ -114,6 +114,34 @@ def chat(messages, model=None, temperature=0.4, image_b64=None):
         return json.loads(r.read().decode('utf-8'))['choices'][0]['message']['content']
 
 
+# 标签清洗：过滤非能力标签（文件格式、作品名、通用占位词）
+BAD_TAGS = {'pdf', 'png', 'jpg', 'jpeg', 'webp', 'py', 'js', 'java', 'c', 'cpp', 'html', 'css',
+            'txt', 'md', 'doc', 'docx', 'ppt', 'pptx', '未命名', 'unnamed', 'untitled', '作品',
+            '文件', '代码', '图片', '文档', 'image', 'code', 'file'}
+
+
+def sanitize_tags(tags, work=None):
+    """清洗 AI 生成标签：去重、去格式词/作品名/占位词、限长。"""
+    out = []
+    name = (work or {}).get('name', '')
+    stem = ((work or {}).get('filename', '') or '').rsplit('.', 1)[0]
+    for t in tags or []:
+        t = str(t).strip()
+        if not t:
+            continue
+        if t.lower() in BAD_TAGS:
+            continue
+        if name and (t == name or (len(t) > 1 and t in name)):
+            continue
+        if stem and (t == stem or (len(t) > 1 and t in stem)):
+            continue
+        if len(t) < 2 or len(t) > 12:
+            continue
+        if t not in out:
+            out.append(t)
+    return out[:4]
+
+
 def extract_json(text):
     """容错提取 LLM 输出中的 JSON 对象。"""
     m = re.search(r'\{[\s\S]*\}', text)
@@ -135,7 +163,9 @@ def real_review(work):
             user_msg += ' 作者描述：' + desc
         sys_msg = ('你是人工智能人才库的作品审核智能体。请只输出 JSON（不要其他文字），字段：'
                    '{"conclusion":"通过或驳回","reason":"一句话理由","tags":["标签1","标签2"],'
-                   '"score":0到100整数,"comment":"两句话评语","understanding":"对作品内容的理解摘要"}')
+                   '"score":0到100整数,"comment":"两句话评语","understanding":"对作品内容的理解摘要"}。'
+                   'tags 必须是人工智能教育方向的能力标签（如：程序设计、生成式人工智能、算法思维、'
+                   '创意设计、逻辑思维），禁止使用文件格式（如PDF）、作品名称或文件名。')
         try:
             raw = chat([{'role': 'system', 'content': sys_msg},
                         {'role': 'user', 'content': user_msg}],
@@ -164,7 +194,9 @@ def real_review(work):
         user_msg += '（Demo 环境不解析 PDF 正文，请基于名称与描述判断）'
     sys_msg = ('你是人工智能人才库的作品审核智能体。请只输出 JSON（不要其他文字），字段：'
                '{"conclusion":"通过或驳回","reason":"一句话理由","tags":["标签1","标签2"],'
-               '"score":0到100整数,"comment":"两句话评语","understanding":"对作品内容的理解摘要"}')
+               '"score":0到100整数,"comment":"两句话评语","understanding":"对作品内容的理解摘要"}。'
+               'tags 必须是人工智能教育方向的能力标签（如：程序设计、生成式人工智能、算法思维、'
+               '创意设计、逻辑思维），禁止使用文件格式（如PDF）、作品名称或文件名。')
     return extract_json(chat([{'role': 'system', 'content': sys_msg},
                               {'role': 'user', 'content': user_msg}]))
 
@@ -173,7 +205,7 @@ def real_review(work):
 def mock_review(work):
     samples = {
         'code': {'conclusion': '通过', 'reason': '代码结构完整、逻辑清晰，具备基本可运行性',
-                 'tags': ['程序设计', 'Python'], 'score': 82,
+                 'tags': ['程序设计', '逻辑思维'], 'score': 82,
                  'comment': '代码规范，函数拆分合理，注释完整；建议补充异常处理与边界条件测试。',
                  'understanding': '一个命令行计算器程序：实现加减乘除四则运算、循环交互与输入校验，约 60 行代码。'},
         'image': {'conclusion': '通过', 'reason': '画面内容完整、主题清晰，构图合理',
@@ -201,6 +233,8 @@ def review_work(work):
         time.sleep(2)  # 模拟异步耗时
         result = real_review(work) if MODE == 'real' else mock_review(work)
         result.setdefault('mock', False)
+        # 标签清洗：只保留人工智能教育方向的能力标签
+        result['tags'] = sanitize_tags(result.get('tags'), work)
         with LOCK:
             work['ai'] = result
             work['status'] = 'ai_done'
@@ -292,8 +326,8 @@ def mock_report(radar):
 def real_report(radar):
     tags = approved_tags()
     works = [w for w in DB['works'] if w.get('status') == 'approved']
-    evals = [{'name': w['name'], 'tags': w['review'].get('tags', []),
-              'score': w['review'].get('score'), 'comment': w['review'].get('comment')} for w in works]
+    evals = [{'name': w['name'], 'tags': sanitize_tags((w['review'] or {}).get('tags', []), w),
+              'score': (w['review'] or {}).get('score'), 'comment': (w['review'] or {}).get('comment')} for w in works]
     data = {
         '测评记录': AISE_BASE['exam_records'],
         '知识点统计': AISE_BASE['answer_stats'],
@@ -313,7 +347,7 @@ def approved_tags():
     tags = []
     for w in DB['works']:
         if w.get('status') == 'approved':
-            for t in w['review'].get('tags', []):
+            for t in sanitize_tags((w.get('review') or {}).get('tags', []), w):
                 if t not in tags:
                     tags.append(t)
     return tags
@@ -563,7 +597,9 @@ class Handler(BaseHTTPRequestHandler):
         data = base64.b64decode(w['content_b64'])
         self.send_response(200)
         self.send_header('Content-Type', ctype)
-        self.send_header('Content-Disposition', 'inline; filename="%s"' % w['filename'])
+        # RFC 5987 编码文件名，支持中文文件名
+        from urllib.parse import quote
+        self.send_header('Content-Disposition', "inline; filename*=UTF-8''" + quote(w['filename']))
         self.send_header('Content-Length', str(len(data)))
         self.end_headers()
         self.wfile.write(data)

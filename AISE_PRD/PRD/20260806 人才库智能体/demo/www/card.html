@@ -1,211 +1,419 @@
 <!DOCTYPE html>
 <html lang="zh-CN">
 <head>
-<meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>人才信息卡 - 人工智能人才资源库</title>
-<link rel="stylesheet" href="style.css">
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>人工智能应用创新人才信息卡</title>
+    <link rel="stylesheet" href="style.css">
 </head>
 <body>
+
 <div class="topbar">
-  <div class="brand"><span class="logo">AI</span> 人工智能人才资源库 · 学员端</div>
-  <nav class="tabs">
-    <a href="index.html">作品上传</a>
-    <a href="card.html" class="active">人才卡</a>
-    <a href="report.html">画像分析</a>
-  </nav>
-  <span class="mode-badge" id="modeBadge">…</span>
+    <div class="brand"><img src="aise-logo.png" alt="AISE"> 人工智能人才资源库</div>
+    <nav class="tabs">
+        <a href="index.html">作品上传</a>
+        <a href="card.html" class="active">人才卡</a>
+        <a href="report.html">画像分析</a>
+    </nav>
+    <span class="mode-badge" id="modeBadge">…</span>
 </div>
 
-<div class="tcard">
-  <div class="head">
-    <div>
-      <div class="t">人工智能人才信息卡</div>
-      <div style="font-size:13px;color:#7a8194;margin-top:4px">姓名：李小明　入库时间：2026-01-15</div>
+<div class="card-wrapper">
+    <div class="card-header">
+        <div class="header-logos">
+            <img src="aise-logo.png" alt="AISE">
+            <img src="csia-logo.png" alt="CSIA">
+        </div>
+        <h1 class="card-title">人工智能应用创新人才信息卡</h1>
     </div>
-    <div class="no">人才库编号：R·C·A·2026·0115</div>
-  </div>
 
-  <!-- ① 基本信息（AISE 同步，本期不变） -->
-  <div class="tsec">
-    <span class="label">基本信息</span>
-    <div class="tinfo">
-      <div>姓名：<b>李小明</b></div>
-      <div>性别：<b>男</b></div>
-      <div>出生年月：<b>2013-06</b></div>
-      <div>籍贯：<b>北京市</b></div>
-      <div>证件号：<b>110***********0019</b></div>
-      <div>入库时间：<b>2026-01-15</b></div>
+    <div class="card-body">
+
+        <!-- ① 基本信息：通栏横标题（AISE 同步，本期不变） -->
+        <div class="section">
+            <div class="section-bar">
+                基本信息
+                <span class="badge">人才库编号：<span class="masked-id" data-full="RCA2026-0115-0086" data-masked="RCA2026-********">RCA2026-********</span> <span class="masked-toggle" onclick="toggleMask(this)" title="显示/隐藏">👁</span></span>
+            </div>
+            <div class="basic-content">
+                <div class="basic-info-grid">
+                    <div class="photo-area">📷<br>证件照</div>
+                    <div class="info-grid">
+                        <div class="info-item"><span class="label">姓名：</span><span class="value">李小明</span></div>
+                        <div class="info-item"><span class="label">性别：</span><span class="value">男</span></div>
+                        <div class="info-item"><span class="label">出生年月：</span><span class="value">2013年6月</span></div>
+                        <div class="info-item"><span class="label">籍贯：</span><span class="value">北京市</span></div>
+                        <div class="info-item"><span class="label">身份证号：</span><span class="value"><span class="masked-id" data-full="110108201306150019" data-masked="110108********0019">110108********0019</span> <span class="masked-toggle" onclick="toggleMask(this)" title="显示/隐藏">👁</span></span></div>
+                        <div class="info-item"><span class="label">入库时间：</span><span class="value">2026年1月</span></div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- ② 特长领域：左竖条标题 + 右横排（智能体动态标签） -->
+        <div class="section">
+            <div class="section-v">
+                <div class="v-title">特长领域</div>
+                <div class="v-content">
+                    <div class="inline-tags" id="tagArea">
+                        <span>加载中…</span>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- ③ 人工智能应用创新能力：左竖条标题 + 右列表（AISE 同步，本期不变） -->
+        <div class="section">
+            <div class="section-v">
+                <div class="v-title" style="min-height:200px">人工智能应用创新能力</div>
+                <div class="v-content">
+                    <table class="record-table">
+                        <tr><td>智能工具实操——程序设计二级</td><td style="text-align:right">2025年11月2日</td></tr>
+                        <tr><td>智能工具实操——程序设计三级</td><td style="text-align:right">2026年3月15日</td></tr>
+                        <tr><td>智能工具实操——生成式人工智能二级</td><td style="text-align:right">2026年5月24日</td></tr>
+                    </table>
+                    <hr class="record-divider">
+                    <table class="record-table">
+                        <tr><td>2025年8月，参加<u>&emsp;原创S营&emsp;</u>，成绩：<u>&emsp;合格结业&emsp;</u>。</td></tr>
+                        <tr><td>2025年12月，参加<u>&emsp;科普活动&emsp;</u>，成绩：<u>&emsp;优秀学员&emsp;</u>。</td></tr>
+                        <tr><td>2026年4月，参加<u>&emsp;校园AI挑战赛&emsp;</u>，成绩：<u>&emsp;二等奖&emsp;</u>。</td></tr>
+                    </table>
+                </div>
+            </div>
+        </div>
+
+        <!-- ④ 左三模块 + 右综合分析（雷达为智能体动态更新点） -->
+        <div class="section-lr">
+            <div class="lr-left">
+                <div class="section-v" style="margin-bottom:8px">
+                    <div class="v-title">社会实践与人才培养记录</div>
+                    <div class="v-content" id="m-practice"></div>
+                </div>
+                <div class="section-v" style="margin-bottom:8px">
+                    <div class="v-title">专利和软著</div>
+                    <div class="v-content" id="m-patent"></div>
+                </div>
+                <div class="section-v">
+                    <div class="v-title">其他荣誉记录</div>
+                    <div class="v-content" id="m-honor"></div>
+                </div>
+            </div>
+            <div class="lr-right">
+                <div class="h-title">综合分析</div>
+                <div class="lr-right-body">
+                    <div class="radar-container">
+                        <svg class="radar-svg" id="radarSvg" viewBox="0 0 200 200"></svg>
+                    </div>
+                </div>
+            </div>
+        </div>
+
     </div>
-  </div>
 
-  <!-- ② 特长领域（智能体动态标签，决策 #15 更新点） -->
-  <div class="tsec">
-    <span class="label">特长领域</span>
-    <div id="tagArea"><span class="notice">标签加载中…</span></div>
-  </div>
-
-  <!-- ③ 人工智能应用创新能力（AISE 同步，本期不变） -->
-  <div class="tsec">
-    <span class="label">人工智能应用创新能力</span>
-    <div style="font-size:13px;color:#7a8194;margin-bottom:6px">考核记录（AISE 同步）</div>
-    <div class="rec">智能工具实操　三级　2026-03-15</div>
-    <div class="rec">生成式人工智能　二级　2026-05-24</div>
-    <div class="rec">程序设计　二级　2025-11-02</div>
-    <div style="font-size:13px;color:#7a8194;margin:12px 0 6px">实践记录</div>
-    <div class="rec">原创 S 营 · 合格结业　2025-08</div>
-    <div class="rec">校园 AI 挑战赛 · 二等奖　2026-04</div>
-  </div>
-
-  <!-- ④ 社会实践与人才培养 / 综合分析（能力雷达为动态更新点，决策 #15） -->
-  <div class="tsec">
-    <span class="label">社会实践与人才培养记录 / 综合分析</span>
-    <div style="display:flex;gap:24px;flex-wrap:wrap">
-      <div style="flex:1;min-width:280px">
-        <div class="rec">原创 S 营　2025-08　合格结业</div>
-        <div class="rec">校园 AI 挑战赛　2026-04　二等奖</div>
-        <div class="rec">青少年人工智能素养科普活动　2025-12　优秀学员</div>
-        <div class="rec" style="margin-top:10px">专利 / 软著：一项软著（校园小助手工具软件）</div>
-      </div>
-      <div style="flex:1;min-width:260px">
-        <div style="font-size:13px;color:#7a8194;margin-bottom:4px">综合分析（AI 智能体动态分析）</div>
-        <div class="chart-box"><canvas id="radar" width="300" height="260"></canvas></div>
-        <div id="radarNote" class="notice" style="text-align:center"></div>
-      </div>
+    <div class="card-footer">
+        <p class="aise-desc">
+            AISE工程由中国软件行业协会发起，联合高等院校、科研院所及人工智能应用创新领域领先企业，共同打造以真实场景需求为驱动的AI应用创新人才培育开放平台，旨在构建产学研协同的人才培养体系，为国家人工智能复合型人才储备提供坚实支撑。
+        </p>
+        <ul class="notes">
+            <li data-num="1">学员参加 AISE 培养工程相关学习或活动可计入人才库，经审核后动态更新，作为人工智能应用创新能力参考依据。</li>
+            <li data-num="2">由持卡者个人保管，限本人使用，不得涂改转借。</li>
+            <li data-num="3">人才信息卡查询：<span class="query-url">http://aise.csia.org.cn</span></li>
+        </ul>
     </div>
-  </div>
 
-  <!-- ⑤ 材料上传（M3：按条目触发 AI 预审 + 人工终审） -->
-  <div class="tsec">
-    <span class="label">材料上传（AI 智能体预审）</span>
-    <div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(260px,1fr));gap:14px">
-      <div style="border:1px solid #e8ebf3;border-radius:10px;padding:14px">
-        <b style="font-size:13px">社会实践与人才培养记录</b>
-        <input type="text" id="pAct" placeholder="活动名称（必填）" style="margin-top:8px">
-        <input type="text" id="pTime" placeholder="时间（必填），如 2025年8月" style="margin-top:8px">
-        <input type="text" id="pHonor" placeholder="获得荣誉（必填）" style="margin-top:8px">
-        <button class="btn small" style="margin-top:10px" onclick="submitMat('practice', ['pAct','pTime','pHonor'])">提交审核</button>
-      </div>
-      <div style="border:1px solid #e8ebf3;border-radius:10px;padding:14px">
-        <b style="font-size:13px">专利和软著</b>
-        <input type="text" id="ptName" placeholder="专利/软著名称（必填）" style="margin-top:8px">
-        <button class="btn small" style="margin-top:10px" onclick="submitMat('patent', ['ptName'])">提交审核</button>
-      </div>
-      <div style="border:1px solid #e8ebf3;border-radius:10px;padding:14px">
-        <b style="font-size:13px">其他荣誉记录</b>
-        <input type="text" id="hHonor" placeholder="获得荣誉（必填）" style="margin-top:8px">
-        <input type="text" id="hTime" placeholder="时间（必填），如 2025年" style="margin-top:8px">
-        <button class="btn small" style="margin-top:10px" onclick="submitMat('honor', ['hHonor','hTime'])">提交审核</button>
-      </div>
-    </div>
-    <div id="myMats" style="margin-top:14px"></div>
-  </div>
+    <div class="card-footer-decor"></div>
+</div>
 
-  <!-- ⑥ 底部说明（本期不变） -->
-  <div class="tsec" style="margin-bottom:0">
-    <span class="label">说明</span>
-    <div class="notice" style="line-height:2">
-      本卡为 AISE 工程官方认证的人才信息凭证，数据动态更新；限本人使用；查询网址：talent.aise.example.cn。<br>
-      特长领域标签与综合分析由 AI 智能体自动分析生成，仅供展示参考。
+<!-- ===== 材料上传区（沿用原 demo 样式；提交后触发 AI 预审 + 人工终审） ===== -->
+<div class="upload-card">
+    <div class="upload-card-title">材料上传</div>
+    <div class="upload-card-sub">填写文字描述并上传证明材料，智能体自动预审，经后台审核后录入人才卡对应模块</div>
+
+    <div class="upload-module" id="module-practice">
+        <div class="upload-module-header">
+            <span class="upload-label">社会实践与人才培养记录</span>
+            <span class="upload-count" id="count-practice">0/3 条待审核</span>
+        </div>
+        <div class="entry-list" id="entries-practice"></div>
+        <button class="add-entry-btn" id="add-btn-practice" onclick="addEntry('practice')">＋ 添加条目</button>
     </div>
-  </div>
+
+    <div class="upload-module" id="module-patent">
+        <div class="upload-module-header">
+            <span class="upload-label">专利和软著</span>
+            <span class="upload-count" id="count-patent">0/3 条待审核</span>
+        </div>
+        <div class="entry-list" id="entries-patent"></div>
+        <button class="add-entry-btn" id="add-btn-patent" onclick="addEntry('patent')">＋ 添加条目</button>
+    </div>
+
+    <div class="upload-module" id="module-honor">
+        <div class="upload-module-header">
+            <span class="upload-label">其他荣誉记录</span>
+            <span class="upload-count" id="count-honor">0/3 条待审核</span>
+        </div>
+        <div class="entry-list" id="entries-honor"></div>
+        <button class="add-entry-btn" id="add-btn-honor" onclick="addEntry('honor')">＋ 添加条目</button>
+    </div>
 </div>
 
 <script>
 const $ = s => document.querySelector(s);
+
+/* 顶栏模式徽章 */
 fetch('/api/health').then(r => r.json()).then(m => {
-  const b = $('#modeBadge');
-  b.textContent = m.mode === 'real' ? '真实模式 · ' + m.model : 'Mock 模拟模式（未配置 key）';
-  if (m.mode !== 'real') b.classList.add('mock');
+    const b = $('#modeBadge');
+    b.textContent = m.mode === 'real' ? 'AI 真实模式' : 'Mock 模拟模式';
+    if (m.mode !== 'real') b.classList.add('mock');
 });
 
-function drawRadar(vals) {
-  const c = $('#radar'), ctx = c.getContext('2d');
-  const cx = 150, cy = 132, R = 92, keys = ['认知层', '应用层', '创新层', '责任层'];
-  ctx.clearRect(0, 0, c.width, c.height);
-  ctx.strokeStyle = '#d5dae6'; ctx.fillStyle = '#f6f7fb'; ctx.lineWidth = 1;
-  for (let g = 1; g <= 4; g++) {
-    ctx.beginPath();
+/* 证件号显隐 */
+function toggleMask(icon) {
+    const span = icon.parentElement.querySelector('.masked-id');
+    if (span.textContent === span.dataset.masked) span.textContent = span.dataset.full;
+    else span.textContent = span.dataset.masked;
+}
+
+/* ===== 雷达图（原 demo 视觉语言：#E5E7EB 网格 / #FED7AA 填充 / #F97316 数据点，四维） ===== */
+function renderRadar(vals) {
+    const keys = ['认知层', '应用层', '创新层', '责任层'];
+    const cx = 100, cy = 106, R = 66;
+    let s = '';
+    // 网格（三层菱形）
+    for (let g = 1; g <= 3; g++) {
+        const pts = keys.map((k, i) => {
+            const a = -Math.PI / 2 + i * Math.PI / 2;
+            return [cx + Math.cos(a) * R * g / 3, cy + Math.sin(a) * R * g / 3];
+        }).map(p => p[0].toFixed(1) + ',' + p[1].toFixed(1)).join(' ');
+        s += '<polygon points="' + pts + '" fill="none" stroke="#E5E7EB" stroke-width="0.5"/>';
+    }
+    // 轴线
     keys.forEach((k, i) => {
-      const a = -Math.PI / 2 + i * Math.PI / 2;
-      const x = cx + Math.cos(a) * R * g / 4, y = cy + Math.sin(a) * R * g / 4;
-      i === 0 ? ctx.moveTo(x, y) : ctx.lineTo(x, y);
+        const a = -Math.PI / 2 + i * Math.PI / 2;
+        s += '<line x1="' + cx + '" y1="' + cy + '" x2="' + (cx + Math.cos(a) * R).toFixed(1) + '" y2="' + (cy + Math.sin(a) * R).toFixed(1) + '" stroke="#D1D5DB" stroke-width="0.5"/>';
     });
-    ctx.closePath(); g === 4 ? ctx.stroke() : (ctx.fill(), ctx.stroke());
-  }
-  keys.forEach((k, i) => {
-    const a = -Math.PI / 2 + i * Math.PI / 2;
-    ctx.beginPath(); ctx.moveTo(cx, cy);
-    ctx.lineTo(cx + Math.cos(a) * R, cy + Math.sin(a) * R); ctx.stroke();
-  });
-  ctx.beginPath();
-  keys.forEach((k, i) => {
-    const a = -Math.PI / 2 + i * Math.PI / 2;
-    const x = cx + Math.cos(a) * R * vals[k] / 100, y = cy + Math.sin(a) * R * vals[k] / 100;
-    i === 0 ? ctx.moveTo(x, y) : ctx.lineTo(x, y);
-  });
-  ctx.closePath(); ctx.fillStyle = 'rgba(59,63,191,.22)'; ctx.fill();
-  ctx.strokeStyle = '#3b3fbf'; ctx.lineWidth = 2; ctx.stroke();
-  ctx.fillStyle = '#3b3fbf';
-  keys.forEach((k, i) => {
-    const a = -Math.PI / 2 + i * Math.PI / 2;
-    const x = cx + Math.cos(a) * R * vals[k] / 100, y = cy + Math.sin(a) * R * vals[k] / 100;
-    ctx.beginPath(); ctx.arc(x, y, 4, 0, Math.PI * 2); ctx.fill();
-  });
-  ctx.fillStyle = '#2a3150'; ctx.font = '13px sans-serif'; ctx.textAlign = 'center';
-  keys.forEach((k, i) => {
-    const a = -Math.PI / 2 + i * Math.PI / 2;
-    ctx.fillText(k + ' ' + vals[k], cx + Math.cos(a) * (R + 26), cy + Math.sin(a) * (R + 26) + 4);
-  });
+    // 数据多边形
+    const dpts = keys.map((k, i) => {
+        const a = -Math.PI / 2 + i * Math.PI / 2;
+        const v = (vals[k] != null ? vals[k] : 0) / 100;
+        return [cx + Math.cos(a) * R * v, cy + Math.sin(a) * R * v];
+    });
+    s += '<polygon points="' + dpts.map(p => p[0].toFixed(1) + ',' + p[1].toFixed(1)).join(' ') + '" fill="#FED7AA" fill-opacity="0.45" stroke="#FED7AA" stroke-width="1.5"/>';
+    dpts.forEach(p => { s += '<circle cx="' + p[0].toFixed(1) + '" cy="' + p[1].toFixed(1) + '" r="3.5" fill="#F97316" stroke="white" stroke-width="1.5"/>'; });
+    // 标签
+    const lp = keys.map((k, i) => {
+        const a = -Math.PI / 2 + i * Math.PI / 2;
+        return { x: cx + Math.cos(a) * (R + 16), y: cy + Math.sin(a) * (R + 16) + 3, k };
+    });
+    s += '<text x="' + lp[0].x + '" y="' + (lp[0].y - 8) + '" text-anchor="middle" font-size="10" fill="#000" font-weight="600">' + lp[0].k + '</text>';
+    s += '<text x="' + (lp[1].x + 14) + '" y="' + lp[1].y + '" text-anchor="start" font-size="10" fill="#000" font-weight="600">' + lp[1].k + '</text>';
+    s += '<text x="' + lp[2].x + '" y="' + (lp[2].y + 12) + '" text-anchor="middle" font-size="10" fill="#000" font-weight="600">' + lp[2].k + '</text>';
+    s += '<text x="' + (lp[3].x - 14) + '" y="' + lp[3].y + '" text-anchor="end" font-size="10" fill="#000" font-weight="600">' + lp[3].k + '</text>';
+    $('#radarSvg').innerHTML = s;
 }
 
-async function load() {
-  const p = await (await fetch('/api/profile')).json();
-  const tagArea = $('#tagArea');
-  if (p.tags && p.tags.length) {
-    tagArea.innerHTML = p.tags.map(t => '<span class="ktag">' + t + '</span>').join('');
-  } else {
-    tagArea.innerHTML = '<span class="notice">暂无动态标签（作品入库后由智能体自动生成）</span>';
-  }
-  const r = p.radar || { '认知层': 0, '应用层': 0, '创新层': 0, '责任层': 0 };
-  drawRadar(r);
-  $('#radarNote').textContent = p.linked
-    ? '四维能力雷达 · AI 智能体基于测评与作品数据动态分析'
-    : '暂未关联 AISE 测评数据';
-  loadMats();
-}
-load();
+/* ===== 三模块展示（审核通过的材料动态录入；无数据时保持原 demo 占位） ===== */
+const PLACEHOLDER = {
+    practice: '<table class="record-table"><tr><td>原创S营</td><td style="text-align:right">2025年8月</td><td style="text-align:right">合格结业</td></tr><tr><td>校园AI挑战赛</td><td style="text-align:right">2026年4月</td><td style="text-align:right">二等奖</td></tr><tr><td>科普活动</td><td style="text-align:right">2025年12月</td><td style="text-align:right">优秀学员</td></tr></table>',
+    patent: '<ol class="record-list"><li>校园小助手工具软件（软著）</li></ol>',
+    honor: '<ol class="record-list"><li>青少年人工智能素养科普活动优秀学员</li></ol>',
+};
+const MODULE_LABELS = { practice: '社会实践与人才培养记录', patent: '专利和软著', honor: '其他荣誉记录' };
 
-/* ---- 材料上传（按条目触发 AI 预审） ---- */
-const fieldNameMap = { practice: { pAct: '活动名称', pTime: '时间', pHonor: '获得荣誉' },
-                       patent: { ptName: '专利/软著名称' },
-                       honor: { hHonor: '获得荣誉', hTime: '时间' } };
-async function submitMat(module, ids) {
-  const fields = {};
-  for (const id of ids) {
-    const v = $('#' + id).value.trim();
-    if (!v) { alert('请填写完整再提交'); return; }
-    fields[fieldNameMap[module][id]] = v;
-  }
-  const r = await fetch('/api/materials', {
-    method: 'POST', headers: { 'Content-Type': 'application/json' },
-    body: JSON.stringify({ module, fields }) });
-  if (!r.ok) { alert((await r.json()).error || '提交失败'); return; }
-  ids.forEach(id => { $('#' + id).value = ''; });
-  loadMats();
+async function loadCardData() {
+    const p = await (await fetch('/api/profile')).json();
+    // ② 特长领域：动态标签
+    const tags = p.tags || [];
+    $('#tagArea').innerHTML = tags.length
+        ? tags.map(t => '<span>' + t + '</span>').join('')
+        : '<span>程序设计</span><span>生成式人工智能</span>';
+    // ④ 综合分析：动态雷达
+    renderRadar(p.radar || { '认知层': 0, '应用层': 0, '创新层': 0, '责任层': 0 });
+    // 三模块：审核通过的材料动态录入
+    const mats = await (await fetch('/api/materials')).json();
+    ['practice', 'patent', 'honor'].forEach(k => {
+        const approved = mats.filter(m => m.module === k && m.status === '已通过');
+        if (approved.length) {
+            const rows = approved.map(m => {
+                const f = m.fields || {};
+                if (k === 'practice') return '<tr><td>' + (f['活动名称'] || '') + '</td><td style="text-align:right">' + (f['时间'] || '') + '</td><td style="text-align:right">' + (f['获得荣誉'] || '') + '</td></tr>';
+                return '<li>' + Object.values(f).join('，') + '</li>';
+            }).join('');
+            $('#' + 'm-' + k).innerHTML = k === 'practice' ? '<table class="record-table">' + rows + '</table>' : '<ol class="record-list">' + rows + '</ol>';
+        } else {
+            $('#' + 'm-' + k).innerHTML = PLACEHOLDER[k];
+        }
+    });
 }
-async function loadMats() {
-  const list = await (await fetch('/api/materials')).json();
-  const box = $('#myMats');
-  if (!list.length) { box.innerHTML = '<div class="notice">暂无材料提交记录（提交后智能体自动预审，人工终审通过后录入人才卡）</div>'; return; }
-  box.innerHTML = '<table><thead><tr><th>模块</th><th>内容</th><th>审核状态</th></tr></thead><tbody>' +
-    list.map(m => {
-      const cls = m.status === '已通过' ? 'green' : m.status === '未通过' ? 'red' : 'orange';
-      const fields = Object.entries(m.fields || {}).map(([k, v]) => k + '：' + v).join('　');
-      return '<tr><td>' + ({ practice: '社会实践', patent: '专利软著', honor: '其他荣誉' })[m.module] +
-        '</td><td>' + fields + '</td><td><span class="tag ' + cls + '">' + m.status + '</span></td></tr>';
-    }).join('') + '</tbody></table>';
+loadCardData();
+
+/* ===== 材料上传（沿用原 demo 条目交互，提交走服务端 AI 预审） ===== */
+const FIELD_CONFIGS = {
+    practice: [
+        { key: '活动名称', label: '活动名称', placeholder: '如"XXX高校营地"', required: true },
+        { key: '时间', label: '时间', placeholder: '如"2025年8月"', required: true },
+        { key: '获得荣誉', label: '获得荣誉', placeholder: '如"合格结业"', required: true },
+    ],
+    patent: [
+        { key: '专利/软著名称', label: '专利/软著名称', placeholder: '如"一种基于AI的图像识别装置"', required: true },
+    ],
+    honor: [
+        { key: '获得荣誉', label: '获得荣誉', placeholder: '如"全国青少年AI创新大赛一等奖"', required: true },
+        { key: '时间', label: '时间', placeholder: '如"2025年"', required: true },
+    ],
+};
+const MAX_ENTRIES = 3;
+let entryData = { practice: [], patent: [], honor: [] };
+let entryIdCounter = 0;
+
+function pendingCount(type) { return entryData[type].filter(e => e.status === 'pending').length; }
+
+function updateModuleUI(type) {
+    const pCount = pendingCount(type);
+    const tCount = entryData[type].length;
+    $('#count-' + type).textContent = pCount + '/' + MAX_ENTRIES + ' 条待审核';
+    const addBtn = $('#add-btn-' + type);
+    addBtn.disabled = tCount >= MAX_ENTRIES;
+    const locked = tCount >= MAX_ENTRIES && pCount > 0;
+    $('#count-' + type).style.color = locked ? 'var(--red)' : '#888';
+    $('#count-' + type).style.background = locked ? '#FEE2E2' : '#EEF0F4';
 }
+
+function renderEntries(type) {
+    const list = $('#entries-' + type);
+    list.innerHTML = '';
+    const cfg = FIELD_CONFIGS[type];
+    entryData[type].forEach(entry => {
+        const row = document.createElement('div');
+        row.className = 'entry-row';
+        row.id = 'entry-' + type + '-' + entry.id;
+        const isDraft = entry.status === 'draft';
+
+        const fieldsWrap = document.createElement('div');
+        fieldsWrap.className = 'entry-fields';
+        cfg.forEach(fd => {
+            const input = document.createElement('input');
+            input.type = 'text';
+            input.className = 'entry-field';
+            input.placeholder = fd.placeholder;
+            input.value = entry.fields[fd.key] || '';
+            input.disabled = !isDraft;
+            input.oninput = function () { entry.fields[fd.key] = this.value; };
+            fieldsWrap.appendChild(input);
+        });
+        row.appendChild(fieldsWrap);
+
+        if (!isDraft && entry.displayText) {
+            const disp = document.createElement('span');
+            disp.className = 'entry-display-text';
+            disp.textContent = entry.displayText;
+            row.appendChild(disp);
+        }
+
+        const fileLabel = document.createElement('label');
+        fileLabel.className = 'entry-file-btn';
+        fileLabel.innerHTML = '📎 ' + (entry.fileName ? '已选文件' : '选择文件');
+        if (!isDraft) fileLabel.style.opacity = '0.45';
+        if (isDraft) {
+            const fileInput = document.createElement('input');
+            fileInput.type = 'file';
+            fileInput.accept = '.pdf,.jpg,.jpeg,.png,.doc,.docx';
+            fileInput.hidden = true;
+            fileInput.onchange = function () {
+                if (this.files[0]) {
+                    if (this.files[0].size > 10 * 1024 * 1024) { alert('文件大小不能超过 10MB'); this.value = ''; return; }
+                    entry.fileName = this.files[0].name;
+                    fileLabel.innerHTML = '📎 已选文件';
+                    const ns = row.querySelector('.entry-file-name');
+                    if (ns) ns.textContent = entry.fileName;
+                }
+            };
+            fileLabel.appendChild(fileInput);
+        }
+        row.appendChild(fileLabel);
+
+        if (entry.fileName) {
+            const ns = document.createElement('span');
+            ns.className = 'entry-file-name';
+            ns.textContent = entry.fileName;
+            row.appendChild(ns);
+        }
+
+        const actions = document.createElement('div');
+        actions.className = 'entry-actions';
+        if (isDraft) {
+            const sub = document.createElement('button');
+            sub.className = 'btn-submit-entry';
+            sub.textContent = '提交审核';
+            sub.onclick = function () { submitEntry(type, entry.id); };
+            actions.appendChild(sub);
+            const rm = document.createElement('button');
+            rm.className = 'btn-remove-entry';
+            rm.innerHTML = '✕';
+            rm.title = '移除';
+            rm.onclick = function () { removeEntry(type, entry.id); };
+            actions.appendChild(rm);
+        } else {
+            const badge = document.createElement('span');
+            badge.className = 'entry-status-badge badge-' + entry.status;
+            badge.textContent = { pending: '审核中', approved: '已通过', rejected: '未通过' }[entry.status] || entry.status;
+            actions.appendChild(badge);
+        }
+        row.appendChild(actions);
+        list.appendChild(row);
+    });
+    updateModuleUI(type);
+}
+
+function addEntry(type) {
+    if (entryData[type].length >= MAX_ENTRIES) return;
+    const fields = {};
+    FIELD_CONFIGS[type].forEach(f => { fields[f.key] = ''; });
+    entryData[type].push({ id: ++entryIdCounter, fields, fileName: null, status: 'draft', displayText: '', serverId: null });
+    renderEntries(type);
+}
+
+function removeEntry(type, id) {
+    entryData[type] = entryData[type].filter(e => e.id !== id);
+    renderEntries(type);
+}
+
+async function submitEntry(type, id) {
+    const entry = entryData[type].find(e => e.id === id);
+    if (!entry) return;
+    for (const fd of FIELD_CONFIGS[type]) {
+        if (fd.required && !(entry.fields[fd.key] || '').trim()) { alert('请填写「' + fd.label + '」'); return; }
+    }
+    entry.displayText = FIELD_CONFIGS[type].map(f => entry.fields[f.key]).filter(Boolean).join('，');
+    entry.status = 'pending';
+    renderEntries(type);
+    const r = await fetch('/api/materials', {
+        method: 'POST', headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ module: type, fields: entry.fields }),
+    });
+    const j = await r.json();
+    entry.serverId = j.id || null;
+    loadCardData();
+}
+
+/* 轮询服务端材料状态，回写条目徽章 */
+setInterval(async () => {
+    const mats = await (await fetch('/api/materials')).json();
+    ['practice', 'patent', 'honor'].forEach(type => {
+        entryData[type].forEach(e => {
+            if (e.status === 'pending' && e.serverId) {
+                const m = mats.find(x => x.id === e.serverId);
+                if (m && m.status !== '审核中') {
+                    e.status = m.status === '已通过' ? 'approved' : 'rejected';
+                    renderEntries(type);
+                    loadCardData();
+                }
+            }
+        });
+    });
+}, 5000);
+
+['practice', 'patent', 'honor'].forEach(t => addEntry(t));
 </script>
 </body>
 </html>
