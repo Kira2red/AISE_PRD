@@ -177,7 +177,7 @@ function toggleMask(icon) {
 /* ===== 雷达图（原 demo 视觉语言：#E5E7EB 网格 / #FED7AA 填充 / #F97316 数据点，四维） ===== */
 function renderRadar(vals) {
     const keys = ['认知层', '应用层', '创新层', '责任层'];
-    const cx = 100, cy = 106, R = 66;
+    const cx = 100, cy = 100, R = 60;
     let s = '';
     // 网格（三层菱形）
     for (let g = 1; g <= 3; g++) {
@@ -200,15 +200,15 @@ function renderRadar(vals) {
     });
     s += '<polygon points="' + dpts.map(p => p[0].toFixed(1) + ',' + p[1].toFixed(1)).join(' ') + '" fill="#FED7AA" fill-opacity="0.45" stroke="#FED7AA" stroke-width="1.5"/>';
     dpts.forEach(p => { s += '<circle cx="' + p[0].toFixed(1) + '" cy="' + p[1].toFixed(1) + '" r="3.5" fill="#F97316" stroke="white" stroke-width="1.5"/>'; });
-    // 标签
+    // 标签（全部收在 200×200 视口内，避免被裁剪）
     const lp = keys.map((k, i) => {
         const a = -Math.PI / 2 + i * Math.PI / 2;
-        return { x: cx + Math.cos(a) * (R + 16), y: cy + Math.sin(a) * (R + 16) + 3, k };
+        return { x: cx + Math.cos(a) * (R + 4), y: cy + Math.sin(a) * (R + 4) + 3, k };
     });
-    s += '<text x="' + lp[0].x + '" y="' + (lp[0].y - 8) + '" text-anchor="middle" font-size="10" fill="#000" font-weight="600">' + lp[0].k + '</text>';
-    s += '<text x="' + (lp[1].x + 14) + '" y="' + lp[1].y + '" text-anchor="start" font-size="10" fill="#000" font-weight="600">' + lp[1].k + '</text>';
+    s += '<text x="' + lp[0].x + '" y="' + (lp[0].y - 10) + '" text-anchor="middle" font-size="10" fill="#000" font-weight="600">' + lp[0].k + '</text>';
+    s += '<text x="' + (lp[1].x + 4) + '" y="' + lp[1].y + '" text-anchor="start" font-size="10" fill="#000" font-weight="600">' + lp[1].k + '</text>';
     s += '<text x="' + lp[2].x + '" y="' + (lp[2].y + 12) + '" text-anchor="middle" font-size="10" fill="#000" font-weight="600">' + lp[2].k + '</text>';
-    s += '<text x="' + (lp[3].x - 14) + '" y="' + lp[3].y + '" text-anchor="end" font-size="10" fill="#000" font-weight="600">' + lp[3].k + '</text>';
+    s += '<text x="' + (lp[3].x - 4) + '" y="' + lp[3].y + '" text-anchor="end" font-size="10" fill="#000" font-weight="600">' + lp[3].k + '</text>';
     $('#radarSvg').innerHTML = s;
 }
 
