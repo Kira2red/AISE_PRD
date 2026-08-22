@@ -41,7 +41,7 @@
             <div class="chart-box">
                 <svg class="radar-svg" id="radarSvg" viewBox="0 0 200 200" style="width:240px;height:240px"></svg>
             </div>
-            <p id="summary" style="font-size:14px;color:#1F2937;margin-top:6px">加载中…</p>
+            <div class="summary-box" id="summary">加载中…</div>
         </div>
         <div class="report-sec">
             <div class="bar">能力优势</div>
@@ -126,7 +126,7 @@ function fill(p) {
     const tags = p.tags || [];
     $('#tags').innerHTML = tags.length
         ? tags.map(t => '<span>' + t + '</span>').join('')
-        : '<span>暂无特长标签（作品入库后由智能体自动生成）</span>';
+        : '<div class="notice" style="width:100%">暂无特长标签（作品入库后由智能体自动生成）</div>';
 }
 
 async function load() { fill(await (await fetch('/api/profile')).json()); }
