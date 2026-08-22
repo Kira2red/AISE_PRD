@@ -476,7 +476,7 @@ class Handler(BaseHTTPRequestHandler):
             return self.send_json({'error': '请选择作品文件'}, 400)
         ext = filename.rsplit('.', 1)[-1].lower() if '.' in filename else ''
         if ext not in ALLOWED_EXT[typ]:
-            return self.send_json({'error': '文件格式与作品类型不匹配（不支持：.%s）' % ext}, 400)
+            return self.send_json({'error': '以下文件格式不支持：.%s' % ext}, 400)
         try:
             raw = base64.b64decode(content_b64)
         except Exception:
