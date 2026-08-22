@@ -180,6 +180,7 @@ body {
 .upload-label { font-size: 14px; font-weight: 600; color: var(--value-dark); }
 .upload-count { font-size: 12px; color: #888; background: #EEF0F4; padding: 3px 10px; border-radius: 12px; white-space: nowrap; }
 .entry-list { display: flex; flex-direction: column; gap: 10px; }
+.entry-list label { margin: 0; }
 .entry-row { display: flex; align-items: center; gap: 10px; flex-wrap: wrap; }
 .entry-fields { display: flex; gap: 8px; flex: 3; flex-wrap: wrap; }
 .entry-field, .entry-text {
@@ -196,6 +197,7 @@ body {
     background: white; color: var(--primary); border: 1px solid var(--primary);
     border-radius: 8px; font-size: 12px; cursor: pointer; white-space: nowrap;
     transition: all 0.15s; font-family: inherit; box-sizing: border-box;
+    margin: 0; line-height: 1;
 }
 .entry-file-btn:hover { background: var(--primary-hover); color: white; }
 .entry-file-name {
