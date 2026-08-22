@@ -117,13 +117,13 @@ body {
 .info-item .label { color: var(--label-gray); font-size: 13px; white-space: nowrap; }
 .info-item .value { font-weight: 600; color: var(--value-dark); }
 
-/* 标签（特长领域） */
-.v-content .inline-tags { display: flex; gap: 10px; flex-wrap: wrap; }
-.v-content .inline-tags span {
+/* 标签（特长领域）——通用胶囊样式，人才卡与报告页共用 */
+.inline-tags { display: flex; gap: 10px; flex-wrap: wrap; }
+.inline-tags span {
     background: white; padding: 5px 14px; border-radius: 20px;
     font-size: 14px; color: var(--value-dark); font-weight: 500;
 }
-.v-content .inline-tags span::before { content: '· '; color: var(--primary); font-weight: 900; }
+.inline-tags span::before { content: '· '; color: var(--primary); font-weight: 900; }
 
 /* 记录表格 */
 .record-table { width: 100%; border-collapse: collapse; font-size: 13px; }
