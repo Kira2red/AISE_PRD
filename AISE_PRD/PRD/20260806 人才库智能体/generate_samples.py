@@ -204,27 +204,26 @@ def make_pdf(path, title, paras):
     objs[pages_id - 1] = '<< /Type /Pages /Kids [%d 0 R] /Count 1 >>' % page_id
     catalog_id = add('<< /Type /Catalog /Pages %d 0 R >>' % pages_id)
 
-    lines = ['%PDF-1.4']
-    offsets = {}
-    pos = 0
+    # 组装并精确计算 xref 偏移（字节级）
+    out = bytearray()
+    out += b'%PDF-1.4\n'
+    offsets = []
     for i, obj in enumerate(objs, 1):
-        offsets[i] = pos
-        lines.append('%d 0 obj' % i)
-        lines.append(obj)
-        lines.append('endobj')
-        pos = len('\n'.join(lines).encode('latin-1')) + 1
-    xref_pos = len('\n'.join(lines).encode('latin-1')) + 1
-    lines.append('xref')
-    lines.append('0 %d' % (len(objs) + 1))
-    lines.append('0000000000 65535 f ')
-    for i in range(1, len(objs) + 1):
-        lines.append('%010d 00000 n ' % offsets[i])
-    lines.append('trailer')
-    lines.append('<< /Size %d /Root %d 0 R >>' % (len(objs) + 1, catalog_id))
-    lines.append('startxref')
-    lines.append(str(xref_pos))
-    lines.append('%%EOF')
-    open(path, 'wb').write('\n'.join(lines).encode('latin-1'))
+        offsets.append(len(out))
+        out += ('%d 0 obj\n' % i).encode('latin-1')
+        out += obj.encode('latin-1')
+        out += b'\nendobj\n'
+    xref_pos = len(out)
+    out += b'xref\n'
+    out += ('0 %d\n' % (len(objs) + 1)).encode('latin-1')
+    out += b'0000000000 65535 f \n'
+    for off in offsets:
+        out += ('%010d 00000 n \n' % off).encode('latin-1')
+    out += b'trailer\n'
+    out += ('<< /Size %d /Root %d 0 R >>\n' % (len(objs) + 1, catalog_id)).encode('latin-1')
+    out += b'startxref\n'
+    out += (str(xref_pos) + '\n%%EOF\n').encode('latin-1')
+    open(path, 'wb').write(out)
 
 make_pdf(os.path.join(OUT, 'AI项目学习总结报告.pdf'), 'AI Project Learning Summary',
          ['Student: Li Xiaoming   Date: 2026-08',
