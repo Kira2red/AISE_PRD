@@ -303,6 +303,8 @@ tr:last-child td { border-bottom: none; }
 .modal {
     background: #fff; border-radius: 14px; width: 720px; max-width: 100%; max-height: 88vh;
     overflow-y: auto; overflow-x: hidden; padding: 0;
+    /* 滚动视口安全边距：内容滚动到顶/底时仍与弹窗边缘保持空隙 */
+    scroll-padding: 28px 28px 36px 28px;
     scrollbar-width: thin; scrollbar-color: #D1D5DB transparent;
 }
 .modal::-webkit-scrollbar { width: 6px; }
