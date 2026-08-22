@@ -75,7 +75,33 @@
     </div>
   </div>
 
-  <!-- ⑤ 底部说明（本期不变） -->
+  <!-- ⑤ 材料上传（M3：按条目触发 AI 预审 + 人工终审） -->
+  <div class="tsec">
+    <span class="label">材料上传（AI 智能体预审）</span>
+    <div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(260px,1fr));gap:14px">
+      <div style="border:1px solid #e8ebf3;border-radius:10px;padding:14px">
+        <b style="font-size:13px">社会实践与人才培养记录</b>
+        <input type="text" id="pAct" placeholder="活动名称（必填）" style="margin-top:8px">
+        <input type="text" id="pTime" placeholder="时间（必填），如 2025年8月" style="margin-top:8px">
+        <input type="text" id="pHonor" placeholder="获得荣誉（必填）" style="margin-top:8px">
+        <button class="btn small" style="margin-top:10px" onclick="submitMat('practice', ['pAct','pTime','pHonor'])">提交审核</button>
+      </div>
+      <div style="border:1px solid #e8ebf3;border-radius:10px;padding:14px">
+        <b style="font-size:13px">专利和软著</b>
+        <input type="text" id="ptName" placeholder="专利/软著名称（必填）" style="margin-top:8px">
+        <button class="btn small" style="margin-top:10px" onclick="submitMat('patent', ['ptName'])">提交审核</button>
+      </div>
+      <div style="border:1px solid #e8ebf3;border-radius:10px;padding:14px">
+        <b style="font-size:13px">其他荣誉记录</b>
+        <input type="text" id="hHonor" placeholder="获得荣誉（必填）" style="margin-top:8px">
+        <input type="text" id="hTime" placeholder="时间（必填），如 2025年" style="margin-top:8px">
+        <button class="btn small" style="margin-top:10px" onclick="submitMat('honor', ['hHonor','hTime'])">提交审核</button>
+      </div>
+    </div>
+    <div id="myMats" style="margin-top:14px"></div>
+  </div>
+
+  <!-- ⑥ 底部说明（本期不变） -->
   <div class="tsec" style="margin-bottom:0">
     <span class="label">说明</span>
     <div class="notice" style="line-height:2">
@@ -146,8 +172,40 @@ async function load() {
   $('#radarNote').textContent = p.linked
     ? '四维能力雷达 · AI 智能体基于测评与作品数据动态分析'
     : '暂未关联 AISE 测评数据';
+  loadMats();
 }
 load();
+
+/* ---- 材料上传（按条目触发 AI 预审） ---- */
+const fieldNameMap = { practice: { pAct: '活动名称', pTime: '时间', pHonor: '获得荣誉' },
+                       patent: { ptName: '专利/软著名称' },
+                       honor: { hHonor: '获得荣誉', hTime: '时间' } };
+async function submitMat(module, ids) {
+  const fields = {};
+  for (const id of ids) {
+    const v = $('#' + id).value.trim();
+    if (!v) { alert('请填写完整再提交'); return; }
+    fields[fieldNameMap[module][id]] = v;
+  }
+  const r = await fetch('/api/materials', {
+    method: 'POST', headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify({ module, fields }) });
+  if (!r.ok) { alert((await r.json()).error || '提交失败'); return; }
+  ids.forEach(id => { $('#' + id).value = ''; });
+  loadMats();
+}
+async function loadMats() {
+  const list = await (await fetch('/api/materials')).json();
+  const box = $('#myMats');
+  if (!list.length) { box.innerHTML = '<div class="notice">暂无材料提交记录（提交后智能体自动预审，人工终审通过后录入人才卡）</div>'; return; }
+  box.innerHTML = '<table><thead><tr><th>模块</th><th>内容</th><th>审核状态</th></tr></thead><tbody>' +
+    list.map(m => {
+      const cls = m.status === '已通过' ? 'green' : m.status === '未通过' ? 'red' : 'orange';
+      const fields = Object.entries(m.fields || {}).map(([k, v]) => k + '：' + v).join('　');
+      return '<tr><td>' + ({ practice: '社会实践', patent: '专利软著', honor: '其他荣誉' })[m.module] +
+        '</td><td>' + fields + '</td><td><span class="tag ' + cls + '">' + m.status + '</span></td></tr>';
+    }).join('') + '</tbody></table>';
+}
 </script>
 </body>
 </html>

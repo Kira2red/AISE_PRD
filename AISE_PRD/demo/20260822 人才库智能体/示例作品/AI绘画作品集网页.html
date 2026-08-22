@@ -1,0 +1,52 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<title>我的AI绘画作品集</title>
+<style>
+body { font-family: sans-serif; background: #1a1a2e; color: #eee; margin: 0; }
+header { text-align: center; padding: 32px 16px; background: linear-gradient(135deg, #16213e, #0f3460); }
+h1 { margin: 0; font-size: 26px; }
+p.sub { color: #aaa; font-size: 14px; margin-top: 8px; }
+.filters { text-align: center; padding: 14px; }
+.filters button { background: #0f3460; color: #eee; border: 1px solid #533483;
+  padding: 8px 18px; margin: 0 6px; border-radius: 20px; cursor: pointer; }
+.filters button:hover { background: #533483; }
+.gallery { display: grid; grid-template-columns: repeat(auto-fill, minmax(240px, 1fr));
+  gap: 18px; padding: 20px; max-width: 1000px; margin: 0 auto; }
+.card { background: #16213e; border-radius: 12px; overflow: hidden; }
+.card .art { height: 180px; }
+.card .info { padding: 12px 14px; font-size: 13px; color: #ccc; }
+.card .tag { display: inline-block; background: #533483; border-radius: 10px;
+  padding: 2px 10px; font-size: 11px; margin-right: 6px; }
+</style>
+</head>
+<body>
+<header>
+  <h1>我的 AI 绘画作品集</h1>
+  <p class="sub">用生成式人工智能创作的数字艺术作品</p>
+</header>
+<div class="filters">
+  <button>全部</button><button>科幻</button><button>自然</button><button>校园</button>
+</div>
+<div class="gallery" id="gallery"></div>
+<script>
+const works = [
+  { name: '未来城市', tag: '科幻', c1: '#0f3460', c2: '#533483' },
+  { name: '森林之光', tag: '自然', c1: '#1b4332', c2: '#74c69d' },
+  { name: '星空漫步', tag: '科幻', c1: '#1a1a2e', c2: '#3a0ca3' },
+  { name: '校园晨曦', tag: '校园', c1: '#fb8500', c2: '#ffb703' },
+  { name: '深海探秘', tag: '自然', c1: '#023e8a', c2: '#00b4d8' },
+  { name: '机器伙伴', tag: '科幻', c1: '#2b2d42', c2: '#8d99ae' },
+];
+const box = document.getElementById('gallery');
+works.forEach(w => {
+  const card = document.createElement('div');
+  card.className = 'card';
+  card.innerHTML = '<div class="art" style="background:linear-gradient(135deg,' + w.c1 + ',' + w.c2 + ')"></div>' +
+    '<div class="info"><span class="tag">' + w.tag + '</span>' + w.name + '<br>AI 生成 · 数字艺术</div>';
+  box.appendChild(card);
+});
+</script>
+</body>
+</html>
