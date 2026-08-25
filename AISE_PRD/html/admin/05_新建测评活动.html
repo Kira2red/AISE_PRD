@@ -111,8 +111,8 @@
                         <select
                             class="px-3 py-2 rounded-lg border border-slate-200 text-sm text-slate-600 bg-white outline-none hover:border-slate-300 cursor-pointer">
                             <option value="">所有同步状态</option>
-                            <option value="synced">已同步</option>
-                            <option value="unsynced">未同步</option>
+                            <option value="synced">已创建</option>
+                            <option value="unsynced">创建失败</option>
                             <option value="unassociated">未关联</option>
                         </select>
                         <select
@@ -165,9 +165,9 @@
                             <td class="p-4">
                                 <span
                                     class="inline-flex items-center gap-1.5 px-2 py-0.5 rounded text-xs font-bold bg-green-50 text-green-600 border border-green-200">
-                                    <i class="fa-solid fa-link"></i> 已同步
+                                    <i class="fa-solid fa-link"></i> 已创建
                                 </span>
-                                <p class="text-xs text-slate-400 mt-1">源: 爱测评-Python-01</p>
+                                <p class="text-xs text-slate-400 mt-1">爱测评考试：已自动创建</p>
                             </td>
                             <td class="p-4">
                                 <div class="flex flex-wrap gap-1">
@@ -184,9 +184,6 @@
                             </td>
                             <td class="p-4 text-right pr-6">
                                 <div class="flex items-center justify-end gap-4">
-                                    <button
-                                        class="text-red-500 hover:text-red-700 text-xs font-medium transition">取消同步</button>
-                                    <div class="w-px h-3 bg-slate-200"></div>
                                     <button onclick="openActivityModal('2025春季 Python 一级等级测评', 'edit_synced')"
                                         class="text-brand-600 hover:text-brand-800 text-xs font-medium transition">编辑</button>
                                     <button
@@ -207,10 +204,10 @@
                             </td>
                             <td class="p-4">
                                 <span
-                                    class="inline-flex items-center gap-1.5 px-2 py-0.5 rounded text-xs font-bold bg-slate-100 text-slate-500 border border-slate-200">
-                                    <i class="fa-solid fa-cloud"></i> 未同步
+                                    class="inline-flex items-center gap-1.5 px-2 py-0.5 rounded text-xs font-bold bg-red-50 text-red-600 border border-red-100">
+                                    <i class="fa-solid fa-triangle-exclamation"></i> 创建失败
                                 </span>
-                                <p class="text-xs text-slate-400 mt-1">源: 爱测评自动推送</p>
+                                <p class="text-xs text-slate-400 mt-1">爱测评考试：自动创建失败，点击重试</p>
                             </td>
                             <td class="p-4"><span class="text-slate-400 text-xs">-</span></td>
                             <td class="p-4 text-xs text-slate-500">
@@ -220,8 +217,8 @@
                             <td class="p-4"><span class="text-slate-400 text-xs">● 未开始</span></td>
                             <td class="p-4 text-right pr-6">
                                 <div class="flex items-center justify-end gap-4">
-                                    <button onclick="syncActivity(1003)"
-                                        class="text-brand-600 hover:text-brand-800 text-xs font-bold transition">立即同步</button>
+                                    <button onclick="retryCreate(1003)"
+                                        class="text-red-500 hover:text-red-700 text-xs font-bold transition"><i class="fa-solid fa-rotate-right mr-1"></i>重试</button>
                                     <div class="w-px h-3 bg-slate-200"></div>
                                     <button onclick="openActivityModal('0206验收测试04【刘玮】', 'edit_unsynced')"
                                         class="text-brand-600 hover:text-brand-800 text-xs font-medium transition">编辑</button>
@@ -231,7 +228,7 @@
                             </td>
                         </tr>
 
-                        <tr class="hover-row transition group">
+                        <tr class="hover-row transition group" id="row-unlinked">
                             <td class="p-4 pl-6">
                                 <p class="font-bold text-slate-800">2025夏季 AIGC 专项预热活动</p>
                                 <p class="text-xs text-slate-400 mt-0.5">ID: 1004</p>
@@ -241,7 +238,7 @@
                                     class="inline-flex items-center gap-1.5 px-2 py-0.5 rounded text-xs font-bold bg-red-50 text-red-600 border border-red-100">
                                     <i class="fa-solid fa-link-slash"></i> 未关联
                                 </span>
-                                <p class="text-xs text-slate-400 mt-1">源: AISE后台新建</p>
+                                <p class="text-xs text-slate-400 mt-1">源: AISE后台新建（未关联爱测评试卷）</p>
                             </td>
                             <td class="p-4">
                                 <div class="flex flex-wrap gap-1">
@@ -282,20 +279,27 @@
 
                 <div class="bg-blue-50/50 p-4 rounded-xl border border-blue-100 dashed mb-6" id="link-section">
                     <label class="block text-xs font-bold text-slate-600 uppercase mb-2">
-                        <i class="fa-solid fa-link text-brand-500 mr-1"></i> 关联爱测评源数据 <span
+                        <i class="fa-solid fa-link text-brand-500 mr-1"></i> 关联爱测评试卷 <span
                             class="text-slate-400 font-normal">(选填)</span>
                     </label>
                     <div class="relative">
                         <select id="link-source"
                             class="w-full pl-3 pr-8 py-2.5 rounded-lg border border-brand-200 focus:border-brand-500 focus:ring-2 focus:ring-brand-100 outline-none text-sm text-slate-700 bg-white appearance-none transition"
                             onchange="handleSourceLink()">
-                            <option value="">-- 不关联 (仅创建AISE活动) --</option>
-                            <option value="1">0206验收测试04【刘玮】 (未同步)</option>
-                            <option value="2">2026算法大赛初赛 (未同步)</option>
+                            <option value="">-- 不关联 (保存为未关联状态) --</option>
+                            <option value="程序设计一级【正式】">程序设计一级【正式】</option>
+                            <option value="程序设计一级【模拟测】">程序设计一级【模拟测】</option>
+                            <option value="程序设计二级【正式】">程序设计二级【正式】</option>
+                            <option value="AIGC 一级【正式】">AIGC 一级【正式】</option>
                         </select>
                         <i
                             class="fa-solid fa-chevron-down absolute right-3 top-1/2 -translate-y-1/2 text-slate-400 text-xs pointer-events-none"></i>
                     </div>
+                    <p class="text-[11px] text-slate-500 mt-2"><i class="fa-solid fa-circle-info mr-1"></i>保存时系统将按本活动要素，自动在爱测评对应组织创建考试；未关联试卷时保存为「未关联」状态，之后补关联试卷并保存即自动创建。</p>
+                    <label class="flex items-center gap-2 mt-2 cursor-pointer select-none">
+                        <input type="checkbox" id="demo-fail-toggle" class="accent-red-500">
+                        <span class="text-[11px] text-red-500 font-medium">演示开关：模拟自动创建失败</span>
+                    </label>
                 </div>
 
                 <div>
@@ -507,6 +511,20 @@
         </div>
     </div>
 
+    <!-- 自动创建爱测评考试浮层 -->
+    <div id="create-overlay" class="fixed inset-0 z-[70] items-center justify-center bg-slate-900/60 backdrop-blur-sm" style="display:none">
+        <div class="bg-white rounded-2xl shadow-2xl w-[420px] p-8 text-center modal-enter">
+            <div id="co-icon" class="mx-auto w-12 h-12 rounded-full bg-blue-50 text-brand-600 flex items-center justify-center text-xl mb-4"><i class="fa-solid fa-spinner fa-spin"></i></div>
+            <h3 class="font-bold text-slate-800 text-base mb-1" id="co-title">正在自动创建爱测评考试…</h3>
+            <p class="text-xs text-slate-400 mt-2" id="co-desc">系统正在按本活动要素，在爱测评对应组织生成考试，请稍候</p>
+            <div class="mt-6 flex justify-center gap-3" id="co-actions" style="display:none">
+                <button onclick="coRetry()" id="co-retry-btn" class="hidden px-5 py-2 text-sm font-bold text-white bg-brand-600 hover:bg-brand-700 rounded-lg transition">重试</button>
+                <button onclick="coSaveUnlinked()" id="co-unlink-btn" class="hidden px-5 py-2 text-sm font-bold text-slate-600 bg-white border border-slate-200 hover:bg-slate-50 rounded-lg transition">保存为未关联</button>
+                <button onclick="coClose()" id="co-close-btn" class="hidden px-5 py-2 text-sm font-bold text-white bg-green-600 hover:bg-green-700 rounded-lg transition">知道了</button>
+            </div>
+        </div>
+    </div>
+
     <script>
         const modal = document.getElementById('modal-activity');
         const content = document.getElementById('modal-activity-content');
@@ -515,6 +533,8 @@
         const sourceSelect = document.getElementById('link-source');
         const saveBtn = document.getElementById('btn-save');
         const linkSection = document.getElementById('link-section');
+
+        let coPendingRow = null;
 
         // 打开弹窗
         // type: 'new' | 'edit_synced' | 'edit_unsynced' | 'edit_unassociated'
@@ -533,14 +553,22 @@
                 title.innerText = "关联 / 编辑测评活动";
                 nameInput.value = existingName;
                 linkSection.style.display = 'block'; // 编辑未关联时显示，允许关联
+                coPendingRow = 'row-unlinked';
+                handleSourceLink();
+            } else if (type === 'edit_unsynced') {
+                title.innerText = "编辑测评信息";
+                nameInput.value = existingName;
+                linkSection.style.display = 'block'; // 创建失败可重新关联试卷或保存为未关联
+                coPendingRow = 'row-unsynced';
                 handleSourceLink();
             } else {
-                // 已同步或未同步的普通编辑，隐藏关联选择（因为已经有关联或来源确定）
+                // 已创建活动的普通编辑，隐藏关联选择（关联关系已确定）
                 title.innerText = "编辑测评信息";
                 nameInput.value = existingName;
                 linkSection.style.display = 'none';
                 saveBtn.innerText = "保存修改";
                 saveBtn.className = "px-6 py-2.5 bg-brand-600 text-white text-sm font-bold rounded-lg hover:bg-brand-700 transition shadow-md";
+                coPendingRow = null;
             }
 
             // 3. 显示弹窗
@@ -562,11 +590,8 @@
         function handleSourceLink() {
             const val = sourceSelect.value;
             if (val) {
-                saveBtn.innerText = "保存并同步";
+                saveBtn.innerText = "保存并自动创建爱测评考试";
                 saveBtn.className = "px-6 py-2.5 bg-green-600 text-white text-sm font-bold rounded-lg hover:bg-green-700 transition shadow-md";
-                if (!nameInput.value) {
-                    nameInput.value = sourceSelect.options[sourceSelect.selectedIndex].text.split(' (')[0];
-                }
             } else {
                 saveBtn.innerText = "仅保存 (未关联)";
                 saveBtn.className = "px-6 py-2.5 bg-brand-600 text-white text-sm font-bold rounded-lg hover:bg-brand-700 transition shadow-md";
@@ -574,8 +599,78 @@
         }
 
         function saveActivity() {
-            alert("操作成功！数据已更新。");
+            const nm = nameInput.value;
+            if (!nm.trim()) { alert('请输入测评名称'); return; }
+            const paper = sourceSelect.value;
+            if (!paper) {
+                alert('已保存（未关联爱测评试卷）。之后编辑补关联试卷并保存，将自动创建爱测评考试。');
+                closeActivityModal();
+                return;
+            }
+            coReset(); coShow();
+            setTimeout(() => {
+                const fail = document.getElementById('demo-fail-toggle').checked;
+                coSetResult(!fail);
+                if (!fail && coPendingRow) markRowCreated(document.getElementById(coPendingRow));
+            }, 1200);
+        }
+
+        // ===== 自动创建爱测评考试浮层 =====
+        const coOverlay = document.getElementById('create-overlay');
+        function coShow() { coOverlay.style.display = 'flex'; }
+        function coClose() { coOverlay.style.display = 'none'; }
+        function coReset() {
+            document.getElementById('co-icon').className = 'mx-auto w-12 h-12 rounded-full bg-blue-50 text-brand-600 flex items-center justify-center text-xl mb-4';
+            document.getElementById('co-icon').innerHTML = '<i class="fa-solid fa-spinner fa-spin"></i>';
+            document.getElementById('co-title').innerText = '正在自动创建爱测评考试…';
+            document.getElementById('co-desc').innerText = '系统正在按本活动要素，在爱测评对应组织生成考试，请稍候';
+            document.getElementById('co-actions').style.display = 'none';
+            document.getElementById('co-retry-btn').classList.add('hidden');
+            document.getElementById('co-unlink-btn').classList.add('hidden');
+            document.getElementById('co-close-btn').classList.add('hidden');
+        }
+        function coSetResult(ok) {
+            const icon = document.getElementById('co-icon');
+            if (ok) {
+                icon.className = 'mx-auto w-12 h-12 rounded-full bg-green-50 text-green-600 flex items-center justify-center text-xl mb-4';
+                icon.innerHTML = '<i class="fa-solid fa-check"></i>';
+                document.getElementById('co-title').innerText = '爱测评考试已自动创建';
+                document.getElementById('co-desc').innerText = '考试已同步创建完成，考生可正常报名参加';
+                document.getElementById('co-close-btn').classList.remove('hidden');
+                document.getElementById('co-actions').style.display = 'flex';
+            } else {
+                icon.className = 'mx-auto w-12 h-12 rounded-full bg-red-50 text-red-500 flex items-center justify-center text-xl mb-4';
+                icon.innerHTML = '<i class="fa-solid fa-triangle-exclamation"></i>';
+                document.getElementById('co-title').innerText = '自动创建失败';
+                document.getElementById('co-desc').innerText = '爱测评考试未创建成功，本活动创建也不成功。可重试，或先保存为未关联状态';
+                document.getElementById('co-retry-btn').classList.remove('hidden');
+                document.getElementById('co-unlink-btn').classList.remove('hidden');
+                document.getElementById('co-actions').style.display = 'flex';
+            }
+        }
+        function coRetry() { coReset(); coShow(); setTimeout(() => { coSetResult(!document.getElementById('demo-fail-toggle').checked); }, 1200); }
+        function coSaveUnlinked() {
+            coClose();
+            alert('已保存为「未关联爱测评」状态。之后编辑补关联试卷并保存，将自动创建爱测评考试。');
             closeActivityModal();
+        }
+        function markRowCreated(row) {
+            if (!row) return;
+            const badge = row.querySelector('td:nth-child(2) .inline-flex');
+            if (!badge) return;
+            badge.className = 'inline-flex items-center gap-1.5 px-2 py-0.5 rounded text-xs font-bold bg-green-50 text-green-600 border border-green-200';
+            badge.innerHTML = '<i class="fa-solid fa-link"></i> 已创建';
+            const p = badge.nextElementSibling;
+            if (p) p.innerText = '爱测评考试：已自动创建';
+            const retryBtn = row.querySelector('button[onclick^="retryCreate"]');
+            if (retryBtn) retryBtn.outerHTML = '';
+        }
+        function retryCreate(id) {
+            coReset(); coShow();
+            setTimeout(() => {
+                coSetResult(true);
+                markRowCreated(document.getElementById('row-unsynced'));
+            }, 1200);
         }
 
         function toggleMockConfig() {
@@ -610,11 +705,6 @@
             }
         }
 
-        function syncActivity(id) {
-            if (confirm("确定要立即同步此测评吗？")) {
-                alert("同步成功！状态已更新为【已同步】");
-            }
-        }
     </script>
 </body>
 
