@@ -60,23 +60,27 @@ html, body { margin: 0; padding: 0; background: #fff; font-family: -apple-system
 .preview-stem .optionBox { font-size: 14px; color: #323335; line-height: 30px; }
 .preview-stem .analysisBox { background: linear-gradient(138deg, rgba(55,123,255,.07) 0%, rgba(55,195,255,.04) 100%); padding: 16px; font-size: 14px; color: #323335; margin-top: 12px; border-radius: 4px; }
 
-/* 积木区 */
+/* 积木区（线上三栏：分类 | 可用积木 | 不可用积木） */
 .graphicPage { overflow: hidden; }
 .graphicPage .graphicMain { width: 100%; display: flex; }
-.graphicPage .graphicLeftBox { width: 80px; padding: 0; }
-.graphicPage .graphicLeftBox .graphicLi { width: 100%; height: 80px; padding: 10px; box-sizing: border-box; background: #fff; text-align: center; line-height: 25px; cursor: pointer; }
-.graphicPage .graphicLeftBox .graphicLi.active { background: #E5F5FF; color: #2A55E5; }
+.graphicPage .graphicLeftBox { width: 80px; height: auto; padding: 0; margin: 0; list-style: none; }
+.graphicPage .graphicLeftBox .graphicLi { width: 100%; height: 80px; padding: 10px; box-sizing: border-box; background: #ffffff; text-align: center; line-height: 25px; cursor: pointer; }
+.graphicPage .graphicLeftBox .graphicLi .iconBox { width: 25px; height: 25px; border-radius: 50%; margin: 0 auto 4px; }
+.graphicPage .graphicLeftBox .graphicLi p { margin: 0; font-size: 13px; color: #323335; }
 .graphicPage .graphicImageBox { width: calc(100% - 90px); margin-left: 10px; }
+.graphicPage .graphicImageBox .ant-row { display: flex; }
 .graphicPage .graphicImageBox .graphicImageList { height: auto; max-height: 520px; padding: 10px 15px; border: 1px solid #ccc; border-radius: 10px; overflow-y: auto; }
 .graphicPage .graphicImageBox .graphicImageList .p1 { line-height: 40px; color: #323335; font-weight: 600; margin: 0; }
-.block-cat-title { font-size: 14px; color: #64666B; line-height: 32px; margin: 4px 0 0; }
-.blocks-row { display: flex; flex-wrap: wrap; gap: 8px; padding: 4px 0 8px; }
-.graphicBlock { position: relative; display: inline-block; padding: 8px 14px; border-radius: 10px; color: #fff; font-size: 13px; line-height: 18px; cursor: pointer; box-shadow: 0 2px 0 rgba(0,0,0,.15); }
-.graphicBlock .blk-del { position: absolute; top: -6px; right: -6px; width: 16px; height: 16px; border-radius: 50%; background: #ff4d4f; color: #fff; font-size: 10px; line-height: 16px; text-align: center; cursor: pointer; }
-.b-motion { background: #4C97FF; } .b-looks { background: #9966FF; } .b-sound { background: #CF63CF; }
-.b-event { background: #FFBF00; } .b-control { background: #FFAB19; } .b-sensing { background: #5CB1D6; }
-.b-operator { background: #59C059; } .b-variable { background: #FF8C1A; } .b-more { background: #FF6680; }
-.dot { display: inline-block; width: 14px; height: 14px; border-radius: 50%; margin-right: 6px; vertical-align: -2px; }
+.graphicPage .graphicImageBox .graphicImageList .p2 { font-size: 14px; color: #64666B; line-height: 30px; margin: 6px 0 2px; }
+.txList { padding-bottom: 4px; }
+.blocks-row { display: flex; flex-wrap: wrap; align-items: flex-start; }
+.custom-button { position: relative; display: inline-block; margin: 8px; padding: 10px 16px; min-width: 90px; border-radius: 10px; color: #fff; font-size: 13px; line-height: 18px; text-align: left; cursor: pointer; box-shadow: 0 2px 0 rgba(0,0,0,.15); }
+.custom-button .handleIcon { position: absolute; top: -8px; right: -8px; font-size: 16px; line-height: 1; cursor: pointer; }
+.handle-remove { color: #ff4d4f; }
+.handle-restore { color: rgb(62, 201, 192); }
+.b-motion { background: rgb(76,151,255); } .b-looks { background: rgb(153,102,255); } .b-sound { background: rgb(207,99,207); }
+.b-event { background: rgb(255,191,0); } .b-control { background: rgb(255,171,25); } .b-sensing { background: rgb(92,177,214); }
+.b-operator { background: rgb(89,192,89); } .b-variable { background: rgb(255,140,26); } .b-more { background: rgb(255,102,128); }
 
 /* 编程语言区 */
 .lang-row .ant-radio-wrapper { margin-right: 16px; }
@@ -454,25 +458,26 @@ html, body { margin: 0; padding: 0; background: #fff; font-family: -apple-system
                   </div>
                 </div>
 
-                <!-- 图形化编程专属区：题目设置积木区 -->
+                <!-- 图形化编程专属区：题目设置（线上三栏：分类 | 可用积木 | 不可用积木） -->
                 <div id="graphicArea" style="display:none;">
                   <div class="ant-row ant-form-item">
                     <div class="ant-col ant-col-xs-24 ant-col-sm-2 ant-form-item-label"><label title="题目设置">题目设置</label></div>
                     <div class="ant-col ant-col-xs-24 ant-col-sm-16 ant-form-item-control-wrapper">
                       <div class="ant-form-item-control"><span class="ant-form-item-children">
                         <div class="graphicPage">
-                          <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:8px;">
-                            <span style="font-weight:600;font-size:16px;color:#323335;line-height:24px;">题目设置</span>
-                            <div>
-                              <button type="button" class="ant-btn ant-btn-primary" onclick="toast('✏ 编辑题目（线上为跳转 Scratch 编辑器）')">编辑题目</button>
-                              <button type="button" class="ant-btn ant-btn-primary" onclick="selectAllBlocks(true)" style="margin-left:8px;">全选积木</button>
-                              <button type="button" class="ant-btn" style="margin-left:8px;background:#ff4d4f;color:#fff;border-color:#ff4d4f;" onclick="selectAllBlocks(false)">清空积木</button>
-                            </div>
+                          <div class="ant-row-flex ant-row-flex-middle" style="display:flex;align-items:center;">
+                            <div style="flex:0 0 100px;"><span class="cardTitle" style="font-weight:600;font-size:16px;color:#323335;line-height:24px;">题目设置</span></div>
+                            <div style="flex:0 0 100px;"><button type="button" class="ant-btn ant-btn-primary" onclick="toast('✏ 编辑题目（线上为跳转 Scratch 编辑器）')">编辑题目</button></div>
+                            <div style="flex:0 0 100px;"><button type="button" class="ant-btn ant-btn-primary" onclick="selectAllBlocks(true)">全选积木</button></div>
+                            <div style="flex:0 0 100px;"><button type="button" class="ant-btn ant-btn-danger" onclick="selectAllBlocks(false)">清空积木</button></div>
                           </div>
-                          <div class="graphicMain">
-                            <div class="graphicLeftBox" id="blockCats"></div>
+                          <div class="graphicMain" style="margin-top:20px;overflow:hidden;">
+                            <ul class="graphicLeftBox" id="blockCats"></ul>
                             <div class="graphicImageBox">
-                              <div class="graphicImageList" id="blockList"></div>
+                              <div class="ant-row">
+                                <div class="graphicImageList scrollbarStyle ant-col ant-col-10" id="availBlocks"></div>
+                                <div class="graphicImageList scrollbarStyle ant-col ant-col-10" style="margin-left:4.1667%;" id="disBlocks"></div>
+                              </div>
                             </div>
                           </div>
                         </div>
@@ -849,45 +854,47 @@ function openTest() {
 }
 function closeTest() { document.getElementById('testModal').style.display = 'none'; }
 
-/* ============ 积木区 ============ */
+/* ============ 积木区（线上三栏） ============ */
 function renderBlockCats() {
   var box = document.getElementById('blockCats');
-  var html = '<div class="graphicLi' + (activeCat === 'all' ? ' active' : '') + '" onclick="setActiveCat(\'all\')"><span class="dot" style="background:#999;"></span>全部</div>';
+  var html = '<li class="graphicLi" style="background: rgb(243, 243, 243);" onclick="setActiveCat(\'all\')"><div class="iconBox" style="background: rgb(102, 102, 102);"></div><p>全部</p></li>';
   for (var i = 0; i < BLOCKS.length; i++) {
-    html += '<div class="graphicLi' + (activeCat === BLOCKS[i].key ? ' active' : '') + '" onclick="setActiveCat(\'' + BLOCKS[i].key + '\')"><span class="dot" style="background:' + BLOCKS[i].color + ';"></span>' + BLOCKS[i].name + '</div>';
+    html += '<li class="graphicLi" onclick="setActiveCat(\'' + BLOCKS[i].key + '\')"><div class="iconBox" style="background:' + BLOCKS[i].color + ';"></div><p>' + BLOCKS[i].name + '</p></li>';
   }
   box.innerHTML = html;
   renderBlocks();
 }
 function setActiveCat(key) { activeCat = key; renderBlockCats(); }
+function isDisabled(key) { return !!disabledBlocks[key]; }
 function renderBlocks() {
-  var box = document.getElementById('blockList');
-  var html = '';
+  var availBox = document.getElementById('availBlocks');
+  var disBox = document.getElementById('disBlocks');
+  var availHtml = '<p class="p1">可用积木</p>';
+  var disHtml = '<p class="p1">不可用积木</p>';
   var cats = activeCat === 'all' ? BLOCKS : BLOCKS.filter(function (b) { return b.key === activeCat; });
   for (var i = 0; i < cats.length; i++) {
     var c = cats[i];
-    var avail = c.blocks.filter(function (b) { return !disabledBlocks[c.key + '|' + b]; });
-    html += '<p class="block-cat-title">' + c.name + '</p><div class="blocks-row">';
-    for (var j = 0; j < avail.length; j++) {
-      html += '<span class="graphicBlock ' + c.cls + '">' + c.blocks[j] + '<span class="blk-del" title="移入不可用" onclick="disableBlock(\'' + c.key + '|' + escapeHtml(c.blocks[j]) + '\')">✕</span></span>';
+    availHtml += '<div class="txList"><p class="p2">' + c.name + '</p><div class="blocks-row">';
+    disHtml += '<div class="txList"><p class="p2">' + c.name + '</p><div class="blocks-row">';
+    for (var j = 0; j < c.blocks.length; j++) {
+      var key = c.key + '|' + c.blocks[j];
+      var dis = isDisabled(key);
+      // 可用栏：未禁用的积木（红色叉号 → 移入不可用）
+      if (!dis) {
+        availHtml += '<span class="custom-button ' + c.cls + '">' + c.blocks[j] +
+          '<span class="handleIcon handle-remove" title="移入不可用" onclick="disableBlock(\'' + c.key + '|' + escapeHtml(c.blocks[j]) + '\')">✕</span></span>';
+      }
+      // 不可用栏：已禁用的积木（青色加号 → 恢复可用）
+      if (dis) {
+        disHtml += '<span class="custom-button ' + c.cls + '">' + c.blocks[j] +
+          '<span class="handleIcon handle-restore" title="恢复可用" onclick="enableBlock(\'' + c.key + '|' + escapeHtml(c.blocks[j]) + '\')">＋</span></span>';
+      }
     }
-    html += '</div>';
+    availHtml += '</div></div>';
+    disHtml += '</div></div>';
   }
-  var dis = [];
-  for (var key in disabledBlocks) {
-    if (disabledBlocks[key]) {
-      var parts = key.split('|'); dis.push({ cat: parts[0], name: parts.slice(1).join('|') });
-    }
-  }
-  if (dis.length) {
-    html += '<p class="block-cat-title">不可用积木</p><div class="blocks-row">';
-    for (var d = 0; d < dis.length; d++) {
-      var cat = BLOCKS.filter(function (b) { return b.key === dis[d].cat; })[0] || { cls: 'b-motion' };
-      html += '<span class="graphicBlock ' + cat.cls + '" style="opacity:.45;">' + dis[d].name + '<span class="blk-del" title="恢复可用" onclick="enableBlock(\'' + dis[d].cat + '|' + escapeHtml(dis[d].name) + '\')">↺</span></span>';
-    }
-    html += '</div>';
-  }
-  box.innerHTML = html || '<p class="p1" style="color:#bfbfbf;">该分类暂无积木</p>';
+  availBox.innerHTML = availHtml;
+  disBox.innerHTML = disHtml;
 }
 function disableBlock(key) { disabledBlocks[key] = true; renderBlocks(); }
 function enableBlock(key) { disabledBlocks[key] = false; renderBlocks(); }
