@@ -7,11 +7,20 @@
 <link rel="stylesheet" href="爱测评线上样式.css">
 <style>
 /* ===== demo 骨架（线上样式由 爱测评线上样式.css 提供） ===== */
-html, body { margin: 0; padding: 0; background: #f0f2f5; font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", "PingFang SC", "Hiragino Sans GB", "Microsoft YaHei", sans-serif; }
+html, body { margin: 0; padding: 0; background: #fff; font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", "PingFang SC", "Hiragino Sans GB", "Microsoft YaHei", sans-serif; }
 * { box-sizing: border-box; }
 
-/* 面包屑条（线上 positionSticky，高 64px，居左） */
-.questionForm .positionSticky { position: sticky; top: 60px; z-index: 90; background: #f0f2f5; height: 64px; display: flex; align-items: center; gap: 8px; }
+/* 线上容器：浅蓝渐变背景，左右顶满 */
+.container {
+  min-width: 1280px !important;
+  background: linear-gradient(0deg, rgba(255, 255, 255, 0.4) 0%, rgba(255, 255, 255, 0.4) 100%), radial-gradient(158.01% 139.35% at 0% 0%, #D9F2FF 0%, #F2F0FC 27.87%, #BFD8FF 100%);
+  min-height: 100vh;
+}
+/* 线上顶栏：透明+毛玻璃，64px，满宽 */
+.header { height: 64px; width: 100%; position: sticky; top: 0; left: 0; backdrop-filter: blur(10px); background: rgba(0,0,0,0); }
+
+/* 面包屑条（线上 positionSticky，高 64px，居左，白底） */
+.questionForm .positionSticky { position: sticky; top: 64px; z-index: 90; background: #fff; height: 64px; display: flex; align-items: center; gap: 8px; }
 .questionForm .positionSticky .ant-col { color: #323335; font-size: 14px; font-weight: 600; }
 .questionForm .positionSticky span { cursor: pointer; }
 .header_title { font-size: 14px; font-weight: 600; color: #323335; }
@@ -32,19 +41,18 @@ html, body { margin: 0; padding: 0; background: #f0f2f5; font-family: -apple-sys
 .questionForm .questionCard .ant-radio-wrapper { font-size: 14px; color: #323335; line-height: 28px; }
 .questionForm .questionCard .ant-input { border-radius: 4px; font-size: 14px; }
 
-/* 读题文本配置（线上：独立整行 label + 右侧操作按钮） */
-.questionForm .questionCard .dtwb_label { display: flex; align-items: center; justify-content: space-between; margin-bottom: 2px; }
-.questionForm .questionCard .dtwb_label .label { font-size: 14px; color: #323335; margin: 0; line-height: 36px; }
+/* 读题文本配置（线上：padding-left 120px、宽 68%、高 40px，label 左、操作按钮右） */
+.questionForm .questionCard .dtwb_label { padding-left: 120px; width: 68%; height: 40px; display: flex; align-items: center; justify-content: space-between; margin-bottom: 0; }
+.questionForm .questionCard .dtwb_label .label { color: #333; font-size: 14px; margin: 0; }
 .questionForm .questionCard .dtwb_label .tts-actions { display: flex; align-items: center; }
+.questionForm .questionCard .dtwb_label .ant-btn-link span { margin: 0 !important; }
 
-/* 答案解析图片上传 */
-.analysis-upload { margin-top: 10px; }
-.analysis-upload .upload-btn-row { display: flex; align-items: center; gap: 8px; }
-.analysis-imgs { display: flex; flex-wrap: wrap; gap: 10px; margin-top: 10px; }
-.analysis-imgs .img-item { position: relative; width: 96px; height: 96px; border: 1px solid #e8e8e8; border-radius: 4px; overflow: hidden; }
-.analysis-imgs .img-item img { width: 100%; height: 100%; object-fit: cover; }
-.analysis-imgs .img-item .del { position: absolute; top: 2px; right: 2px; width: 20px; height: 20px; border-radius: 50%; background: rgba(0,0,0,.55); color: #fff; font-size: 12px; line-height: 20px; text-align: center; cursor: pointer; }
-.analysis-imgs .img-item .del:hover { background: #ff4d4f; }
+/* 答案解析富文本编辑器 */
+.analysis-editor { border: 1px solid #d9d9d9; border-radius: 4px; }
+.analysis-editor .rt-toolbar { background: #fafafa; border-bottom: 1px solid #d9d9d9; padding: 6px 10px; display: flex; flex-wrap: wrap; gap: 4px; align-items: center; }
+.analysis-editor .rt-content { min-height: 94px; padding: 12px; font-size: 14px; color: #323335; outline: none; }
+.analysis-editor .rt-content img { max-width: 200px; border-radius: 4px; vertical-align: middle; margin: 4px; }
+.analysis-editor .rt-content:empty::before { content: attr(data-placeholder); color: #bfbfbf; }
 
 /* 预览弹窗（学生端视图） */
 .preview-stem { background: #fff; border-radius: 8px; padding: 20px 24px; }
@@ -299,8 +307,8 @@ html, body { margin: 0; padding: 0; background: #f0f2f5; font-family: -apple-sys
                   </div>
                 </div>
 
-                <!-- 读题文本配置 (TTS)：线上为独立整行 label + 右侧操作按钮 -->
-                <div class="dtwb_label" style="width:83%;margin-left:auto;margin-right:0;">
+                <!-- 读题文本配置 (TTS)：线上同构（120px/68% 行 + 按钮右置） -->
+                <div class="dtwb_label">
                   <p class="label">读题文本配置 (TTS)</p>
                   <div class="tts-actions">
                     <button type="button" class="ant-btn ant-btn-link" id="copyStemBtn" onclick="copyStem()" style="color:rgb(50,118,255);">📋 复制题干</button>
@@ -308,7 +316,7 @@ html, body { margin: 0; padding: 0; background: #f0f2f5; font-family: -apple-sys
                     <button type="button" class="ant-btn ant-btn-link" onclick="toast('🎧 系统正在调用语音合成测试播放...')" style="color:rgb(50,118,255);">▶ 试听发音</button>
                   </div>
                 </div>
-                <div class="ant-row ant-form-item">
+                <div class="ant-row ant-form-item" style="margin-top:0;">
                   <div class="ant-col ant-col-xs-24 ant-col-sm-2 ant-form-item-label"><label title="；">；</label></div>
                   <div class="ant-col ant-col-xs-24 ant-col-sm-14 ant-form-item-control-wrapper">
                     <div class="ant-form-item-control"><span class="ant-form-item-children">
@@ -317,22 +325,23 @@ html, body { margin: 0; padding: 0; background: #f0f2f5; font-family: -apple-sys
                   </div>
                 </div>
 
-                <!-- 答案解析 + 图片上传 -->
+                <!-- 答案解析（富文本，支持插入图片） -->
                 <div class="ant-row ant-form-item" id="analysisItem">
                   <div class="ant-col ant-col-xs-24 ant-col-sm-2 ant-form-item-label"><label title="答案解析">答案解析</label></div>
                   <div class="ant-col ant-col-xs-24 ant-col-sm-14 ant-form-item-control-wrapper">
                     <div class="ant-form-item-control"><span class="ant-form-item-children">
-                      <textarea placeholder="请输入答案解析" class="ant-input" id="analysisText" style="height:94px;min-height:94px;max-height:136px;resize:vertical;"></textarea>
-                      <div class="analysis-upload">
-                        <div class="upload-btn-row">
-                          <button type="button" class="ant-btn" onclick="document.getElementById('analysisFileInput').click()">
-                            <i class="anticon anticon-upload">⬆</i><span>上传图片</span>
-                          </button>
+                      <div class="analysis-editor">
+                        <div class="rt-toolbar">
+                          <button type="button" class="ck-btn" title="加粗" style="border:none;background:transparent;font-weight:bold;padding:4px 8px;cursor:pointer;">B</button>
+                          <button type="button" class="ck-btn" title="斜体" style="border:none;background:transparent;font-style:italic;padding:4px 8px;cursor:pointer;">I</button>
+                          <button type="button" class="ck-btn" title="下划线" style="border:none;background:transparent;text-decoration:underline;padding:4px 8px;cursor:pointer;">U</button>
+                          <span style="width:1px;height:16px;background:#d9d9d9;margin:0 2px;"></span>
+                          <button type="button" class="ck-btn" title="插入图片" onclick="document.getElementById('analysisFileInput').click()" style="border:none;background:transparent;padding:4px 8px;cursor:pointer;">🖼 图片</button>
                           <input type="file" id="analysisFileInput" accept="image/png,image/jpg,image/jpeg,image/gif,image/webp" multiple style="display:none;" onchange="onAnalysisImgUpload(this)">
                         </div>
-                        <div class="analysis-imgs" id="analysisImgs"></div>
-                        <div class="upload-hint">支持 png / jpg / gif / webp，单图不超过 5MB</div>
+                        <div class="rt-content" contenteditable="true" id="analysisText" data-placeholder="请输入答案解析"></div>
                       </div>
+                      <div class="upload-hint">支持在解析中插入图片（png / jpg / gif / webp，单图不超过 5MB），图片与文字一并保存</div>
                     </span></div>
                   </div>
                 </div>
@@ -372,7 +381,7 @@ html, body { margin: 0; padding: 0; background: #f0f2f5; font-family: -apple-sys
                     <div class="ant-form-item-control"><span class="ant-form-item-children">
                       <button type="button" class="ant-btn" onclick="openPreview()">👁 预览</button>
                       <button type="button" class="ant-btn ant-btn-primary" onclick="openTest()" style="margin-left:8px;">⚙ 测试</button>
-                      <span class="upload-hint" style="display:inline-block;margin-left:12px;margin-top:0;">测试将在新页面打开图形化编程操作页（Scratch 编辑器）</span>
+                      <span class="upload-hint" style="display:inline-block;margin-left:12px;margin-top:0;">测试将打开编程题答题页（学生端答题体验）</span>
                     </span></div>
                   </div>
                 </div>
@@ -515,10 +524,13 @@ html, body { margin: 0; padding: 0; background: #f0f2f5; font-family: -apple-sys
 </div>
 
 <!-- 预览弹窗（学生端视图） -->
-<div class="ant-modal-wrap" id="previewModal" style="display:none;position:fixed;inset:0;background:rgba(0,0,0,.45);z-index:1000;">
+<div class="ant-modal-wrap" id="previewModal" style="display:none;position:fixed;inset:0;background:rgba(0,0,0,.45);z-index:2000;" onclick="if(event.target===this)closePreview()">
   <div class="ant-modal" style="position:absolute;left:50%;top:50%;transform:translate(-50%,-50%);width:640px;background:#fff;border-radius:4px;">
-    <div class="ant-modal-header" style="padding:16px 24px;border-bottom:1px solid #e8e8e8;"><div class="ant-modal-title" style="font-size:16px;font-weight:600;color:#323335;">题目预览（学生端）</div></div>
-    <div class="ant-modal-body" style="padding:24px;">
+    <div class="ant-modal-header" style="padding:16px 24px;border-bottom:1px solid #e8e8e8;display:flex;justify-content:space-between;align-items:center;">
+      <div class="ant-modal-title" style="font-size:16px;font-weight:600;color:#323335;">题目预览（学生端）</div>
+      <span style="cursor:pointer;color:#969AA0;font-size:18px;line-height:1;" onclick="closePreview()">✕</span>
+    </div>
+    <div class="ant-modal-body" style="padding:24px;max-height:60vh;overflow:auto;">
       <div class="preview-stem">
         <div class="stemTitle" id="pvTitle">例：程序输出判断</div>
         <div style="margin-top:8px;" id="pvStem">题干内容预览……</div>
@@ -532,12 +544,35 @@ html, body { margin: 0; padding: 0; background: #f0f2f5; font-family: -apple-sys
   </div>
 </div>
 
+<!-- 测试弹窗（学生端答题页模拟：线上对应 /examine 答题页） -->
+<div class="ant-modal-wrap" id="testModal" style="display:none;position:fixed;inset:0;background:rgba(0,0,0,.45);z-index:2000;" onclick="if(event.target===this)closeTest()">
+  <div class="ant-modal" style="position:absolute;left:50%;top:50%;transform:translate(-50%,-50%);width:720px;background:#fff;border-radius:4px;">
+    <div class="ant-modal-header" style="padding:16px 24px;border-bottom:1px solid #e8e8e8;display:flex;justify-content:space-between;align-items:center;">
+      <div class="ant-modal-title" style="font-size:16px;font-weight:600;color:#323335;">编程题测试（学生端答题页）</div>
+      <span style="cursor:pointer;color:#969AA0;font-size:18px;line-height:1;" onclick="closeTest()">✕</span>
+    </div>
+    <div class="ant-modal-body" style="padding:24px;">
+      <div class="preview-stem">
+        <div class="stemTitle" id="tvTitle">例：程序输出判断</div>
+        <div style="margin-top:8px;" id="tvStem">题干内容……</div>
+        <div style="margin-top:16px;border:1px solid #d9d9d9;border-radius:4px;background:#F9FAFB;padding:12px;text-align:center;color:#64666B;font-size:13px;">
+          作答区（编程环境）<br><span id="tvAnswerArea" style="color:#bfbfbf;">图形化编程：Scratch 积木编辑区 / 代码题：代码编辑器</span>
+        </div>
+        <div class="upload-hint" style="margin-top:8px;">线上对应页面：学生端答题页（/examine 路由），测试提交后按题型自动批改（客观题）或进入批改（主观题）</div>
+      </div>
+    </div>
+    <div class="ant-modal-footer" style="padding:10px 16px;border-top:1px solid #e8e8e8;text-align:right;">
+      <button type="button" class="ant-btn ant-btn-primary" onclick="toast('✅ 已提交测试答卷（演示）')">提交测试</button>
+      <button type="button" class="ant-btn" onclick="closeTest()">关 闭</button>
+    </div>
+  </div>
+</div>
+
 <script>
 'use strict';
 /* ============ 数据 ============ */
 var CURRENT_TYPE = '';
 var CURRENT_LANG = '';
-var analysisImgs = [];
 
 /* 知识标签树（与线上 A02 分类一致） */
 var KP_TREE = {
@@ -748,7 +783,7 @@ function delOption(el) {
   el.parentNode.parentNode.removeChild(el.parentNode);
 }
 
-/* ============ 答案解析图片上传 ============ */
+/* ============ 答案解析图片上传（富文本内插入图片） ============ */
 function onAnalysisImgUpload(input) {
   var files = Array.prototype.slice.call(input.files || []);
   for (var i = 0; i < files.length; i++) {
@@ -759,31 +794,27 @@ function onAnalysisImgUpload(input) {
     var reader = new FileReader();
     reader.onload = (function (name) {
       return function (e) {
-        analysisImgs.push({ name: name, data: e.target.result });
-        renderAnalysisImgs();
-        toast('图片已上传：' + name);
+        var ed = document.getElementById('analysisText');
+        var img = document.createElement('img');
+        img.src = e.target.result;
+        img.alt = name;
+        img.style.maxWidth = '200px';
+        img.style.borderRadius = '4px';
+        img.style.margin = '4px';
+        ed.appendChild(img);
+        toast('图片已插入解析：' + name);
       };
     })(f.name);
     reader.readAsDataURL(f);
   }
   input.value = '';
 }
-function renderAnalysisImgs() {
-  var box = document.getElementById('analysisImgs');
-  var html = '';
-  for (var i = 0; i < analysisImgs.length; i++) {
-    html += '<div class="img-item"><img src="' + analysisImgs[i].data + '" alt="' + analysisImgs[i].name + '">' +
-      '<span class="del" onclick="delAnalysisImg(' + i + ')">✕</span></div>';
-  }
-  box.innerHTML = html;
-}
-function delAnalysisImg(i) {
-  analysisImgs.splice(i, 1);
-  renderAnalysisImgs();
-  toast('已删除图片');
-}
 
 /* ============ 预览/测试 ============ */
+function getAnalysisRich() {
+  var ed = document.getElementById('analysisText');
+  return ed ? ed.innerHTML.trim() : '';
+}
 function openPreview() {
   var title = document.getElementById('qNameInput').value.trim() || '例：程序输出判断';
   var stem = getStemText() || '（题干预览：请在题干编辑器中输入内容）';
@@ -797,22 +828,26 @@ function openPreview() {
     pvOpts.innerHTML = html || '<div style="color:#bfbfbf;">（暂无选项）</div>';
     pvOpts.style.display = '';
   } else { pvOpts.style.display = 'none'; }
-  var an = document.getElementById('analysisText').value.trim();
+  var rich = getAnalysisRich();
   var pvAn = document.getElementById('pvAnalysis');
-  if (an || analysisImgs.length) {
-    var ah = '<b>答案解析：</b>' + (an || '');
-    for (var j = 0; j < analysisImgs.length; j++) ah += '<div style="margin-top:8px;"><img src="' + analysisImgs[j].data + '" style="max-width:200px;border-radius:4px;"></div>';
-    pvAn.innerHTML = ah;
+  if (rich) {
+    pvAn.innerHTML = '<b>答案解析：</b><div style="margin-top:6px;">' + rich + '</div>';
     pvAn.style.display = '';
   } else { pvAn.style.display = 'none'; }
   document.getElementById('previewModal').style.display = '';
 }
 function closePreview() { document.getElementById('previewModal').style.display = 'none'; }
 function openTest() {
-  // 线上真实行为：新页面打开图形化编程操作页（Scratch 编辑器）
-  window.open('/scratch3/index.html?scene=create&role=teacher', '_blank');
-  toast('已打开图形化编程操作页（新窗口）');
+  // 测试 = 打开编程题答题页（学生端答题体验）。线上对应路由 /examine（学生答题页），
+  // 图形化编程题在答题页中以 Scratch 编辑器作答，代码题以代码编辑器作答。
+  var title = document.getElementById('qNameInput').value.trim() || '例：程序输出判断';
+  document.getElementById('tvTitle').textContent = title;
+  document.getElementById('tvStem').textContent = getStemText() || '（题干预览：请在题干编辑器中输入内容）';
+  var area = document.getElementById('tvAnswerArea');
+  area.textContent = CURRENT_TYPE === 'graphic' ? '图形化编程：Scratch 积木编辑区（答题页 /examine 内嵌 Scratch 编辑器）' : '代码题：代码编辑器（答题页 /examine）';
+  document.getElementById('testModal').style.display = '';
 }
+function closeTest() { document.getElementById('testModal').style.display = 'none'; }
 
 /* ============ 积木区 ============ */
 function renderBlockCats() {
