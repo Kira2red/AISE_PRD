@@ -401,18 +401,24 @@ function renderKnowledgeBlock(stu){
     } else {
         stu.knowledge.forEach(function(m){
             const hasBad = m.pts.some(function(p){ return p[1] < 60; });
-            const sorted = m.pts.slice();
+            /* 二级知识点排序：先「重点提升」再「稳定掌握」，同状态内保持知识树顺序 */
+            const sorted = m.pts.slice().sort(function(a, b){
+                const badA = a[1] < 60, badB = b[1] < 60;
+                if(badA !== badB) return badA ? -1 : 1;
+                return 0;
+            });
             let rows = '';
             sorted.forEach(function(p){
-                rows += '<div class="kp-pt"><span class="dot"></span><span>' + esc(p[0]) + '</span></div>';
+                const bad = p[1] < 60;
+                rows += '<div class="kp-pt"><span class="dot"></span><span>' + esc(p[0]) + '</span>'
+                  + '<span class="tag ' + (bad ? 'tag-warn' : 'tag-ok') + '">' + (bad ? '重点提升' : '稳定掌握') + '</span></div>';
             });
-            inner += '<div class="kp-sub' + (hasBad ? ' kp-warn' : '') + '"><div class="m"><span>' + esc(m.mod) + '</span>'
-              + '<span class="tag ' + (hasBad ? 'tag-warn' : 'tag-ok') + '">' + (hasBad ? '重点提升' : '稳定') + '</span></div>'
+            inner += '<div class="kp-sub' + (hasBad ? ' kp-warn' : '') + '"><div class="m"><span>' + esc(m.mod) + '</span></div>'
               + rows + '</div>';
         });
     }
     return '<div class="block-card">'
-      + '<div class="mod-head"><span class="bar"></span><span class="t">知识点掌握情况</span><span class="sub">程序设计四级知识树</span></div>'
+      + '<div class="mod-head"><span class="bar"></span><span class="t">知识点掌握情况</span></div>'
       + inner + '</div>';
 }
 
