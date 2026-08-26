@@ -1,0 +1,119 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>爱测评 - 班级管理</title>
+<link rel="stylesheet" href="爱测评线上样式.css">
+<style>
+html, body { margin: 0; padding: 0; background: #fff; font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", "PingFang SC", "Hiragino Sans GB", "Microsoft YaHei", sans-serif; }
+* { box-sizing: border-box; }
+.container { min-width: 1280px !important; background: linear-gradient(0deg, rgba(255,255,255,0.4) 0%, rgba(255,255,255,0.4) 100%), radial-gradient(158.01% 139.35% at 0% 0%, #D9F2FF 0%, #F2F0FC 27.87%, #BFD8FF 100%); min-height: 100vh; }
+.header { height: 64px; width: 100%; backdrop-filter: blur(10px); background: rgba(0,0,0,0); }
+.brand img { vertical-align: middle; }
+.sidebar { position: fixed; top: 0; left: 0; bottom: 0; width: 200px; background: #fff; border-right: 1px solid #e8e8e8; padding-top: 76px; z-index: 10; overflow-y: auto; }
+.sidebar .ant-menu-inline { border-right: none; }
+.main-content-area { margin-left: 200px; padding: 24px; }
+.demo-toast { position: fixed; top: 80px; left: 50%; transform: translateX(-50%); background: rgba(0,0,0,.75); color: #fff; padding: 10px 20px; border-radius: 6px; font-size: 14px; z-index: 9999; display: none; }
+.ant-table { width: 100%; border-collapse: collapse; table-layout: fixed; }
+.ant-table th { background: #fafafa; font-size: 13px; font-weight: 600; color: #64666B; text-align: left; padding: 10px 12px; border-bottom: 1px solid #f0f0f0; }
+.ant-table td { font-size: 13px; color: #323335; padding: 10px 12px; border-bottom: 1px solid #f0f0f0; word-break: break-all; }
+.ta-center { text-align: center; }
+.op-link { color: #2A55E5; cursor: pointer; font-size: 13px; }
+.op-link:hover { text-decoration: underline; }
+.op-divider { display: inline-block; width: 1px; height: 12px; background: #e8e8e8; margin: 0 8px; vertical-align: middle; }
+.form-card { background: #fff; border-radius: 8px; padding: 24px; }
+.form-card .card-title { font-size: 16px; font-weight: 600; color: #323335; margin: 0 0 20px; }
+.ant-form-item { display: flex; align-items: flex-start; margin-bottom: 20px; }
+.ant-form-item-label { width: 110px; text-align: right; padding-right: 14px; line-height: 32px; font-size: 14px; color: #323335; }
+.ant-form-item-label .required::before { content: "*"; color: #f5222d; margin-right: 4px; }
+.ant-form-item-control { flex: 1; max-width: 560px; }
+.ant-input { height: 32px; padding: 4px 11px; border: 1px solid #d9d9d9; border-radius: 4px; font-size: 14px; width: 100%; outline: none; }
+.ant-input:focus { border-color: #2A55E5; box-shadow: 0 0 0 2px rgba(42,85,229,.15); }
+.step-tabs { display: flex; align-items: center; gap: 0; margin-bottom: 24px; }
+.step-item { display: flex; align-items: center; gap: 8px; padding: 10px 18px; font-size: 14px; color: #64666B; cursor: pointer; border-bottom: 2px solid transparent; }
+.step-item.active { color: #2A55E5; border-bottom-color: #2A55E5; font-weight: 600; }
+.step-num { width: 22px; height: 22px; border-radius: 50%; background: #f0f0f0; color: #64666B; font-size: 12px; line-height: 22px; text-align: center; }
+.step-item.active .step-num { background: #2A55E5; color: #fff; }
+.float-btns { position: fixed; right: 24px; bottom: 80px; display: flex; flex-direction: column; gap: 10px; }
+.float-btns .fbtn { width: 48px; height: 48px; border-radius: 8px; background: #fff; box-shadow: 0 2px 8px rgba(0,0,0,.12); display: flex; align-items: center; justify-content: center; cursor: pointer; font-size: 12px; color: #64666B; border: 1px solid #eee; }
+</style>
+</head>
+<body>
+<div class="demo-toast" id="demoToast"></div>
+<div class="container" id="app">
+  <div style="position: sticky; top: 0; z-index: 999;">
+    <div class="header">
+      <div class="ant-row-flex ant-row-flex-middle" style="display:flex;align-items:center;">
+        <div class="brand ant-col" style="flex: 0 0 300px; display:flex; align-items:center; padding-left:24px;">
+          <img src="assets/logo.png" alt="logo" style="height:36px;">
+          <div role="separator" class="ant-divider ant-divider-vertical"></div>
+          <div class="levelLogo"><img src="assets/level-logo.png" alt="" style="height:30px;"></div>
+        </div>
+        <div class="menu ant-col" style="flex: 1 1 0%;">
+          <ul role="menu" class="ant-menu ant-menu-horizontal ant-menu-root ant-menu-light" style="display:flex;list-style:none;margin:0;padding:0;">
+            <li role="menuitem" class="ant-menu-item" style="padding:0 20px;line-height:64px;font-size:15px;"><a href="26_首页.html" style="color:#323335;text-decoration:none;">首页</a></li>
+            <li role="menuitem" class="ant-menu-submenu ant-menu-submenu-horizontal ant-menu-submenu-selected" style="padding:0 20px;line-height:64px;font-size:15px;"><span style="color:#2A55E5;font-weight:600;">测评管理</span></li>
+            <li role="menuitem" class="ant-menu-item" style="padding:0 20px;line-height:64px;font-size:15px;"><a href="25_测评报告.html" style="color:#323335;text-decoration:none;">测评报告</a></li>
+          </ul>
+        </div>
+        <div style="padding-right:24px; display:flex; align-items:center; gap:8px;">
+          <span class="ant-avatar" style="background:#2A55E5;width:32px;height:32px;border-radius:50%;color:#fff;line-height:32px;text-align:center;font-size:14px;">A</span>
+          <span style="font-size:14px;color:#323335;">AISE管理员</span>
+          <i class="anticon anticon-down" style="color:#999;">▾</i>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  
+  <aside class="sidebar">
+    <button type="button" class="ant-btn ant-btn-primary" onclick="toast('创建考试（演示）')" style="border-radius:8px;background:rgb(42,85,229);border:none;color:#fff;height:36px;padding:0 16px;margin:0 16px 12px;font-size:14px;">创建考试</button>
+    <ul role="menu" class="ant-menu ant-menu-inline ant-menu-root ant-menu-light" style="width:calc(100% - 16px);margin-left:8px;padding:0;">
+      <li role="menuitem" class="ant-menu-item" style="padding-left:24px;height:40px;line-height:40px;margin:4px 8px;border-radius:4px;list-style:none;"><a href="13_管理首页.html" style="text-decoration:none;color:#323335;"><i class="iconfont">🏠</i>首页</a></li><li role="menuitem" class="ant-menu-item" style="padding-left:24px;height:40px;line-height:40px;margin:4px 8px;border-radius:4px;list-style:none;"><a href="01_题目管理.html" style="text-decoration:none;color:#323335;"><i class="iconfont">📋</i>题目管理</a></li><li role="menuitem" class="ant-menu-item" style="padding-left:24px;height:40px;line-height:40px;margin:4px 8px;border-radius:4px;list-style:none;"><a href="14_试卷管理.html" style="text-decoration:none;color:#323335;"><i class="iconfont">📄</i>试卷管理</a></li><li role="menuitem" class="ant-menu-item" style="padding-left:24px;height:40px;line-height:40px;margin:4px 8px;border-radius:4px;list-style:none;"><a href="16_考试管理.html" style="text-decoration:none;color:#323335;"><i class="iconfont">📎</i>考试管理</a></li><li role="menuitem" class="ant-menu-item" style="padding-left:24px;height:40px;line-height:40px;margin:4px 8px;border-radius:4px;list-style:none;"><a href="18_日常作业.html" style="text-decoration:none;color:#323335;"><i class="iconfont">📝</i>日常作业</a></li><li role="menuitem" class="ant-menu-item class="ant-menu-item-selected"" style="padding-left:24px;height:40px;line-height:40px;margin:4px 8px;border-radius:4px;list-style:none;"><a href="19_班级管理.html" style="text-decoration:none;color:#323335;"><i class="iconfont">🎓</i>班级管理</a></li><li role="menuitem" class="ant-menu-item" style="padding-left:24px;height:40px;line-height:40px;margin:4px 8px;border-radius:4px;list-style:none;"><a href="21_教师管理.html" style="text-decoration:none;color:#323335;"><i class="iconfont">👨‍🏫</i>教师管理</a></li><li role="menuitem" class="ant-menu-item" style="padding-left:24px;height:40px;line-height:40px;margin:4px 8px;border-radius:4px;list-style:none;"><a href="22_学生管理.html" style="text-decoration:none;color:#323335;"><i class="iconfont">🧑‍🎓</i>学生管理</a></li><li role="menuitem" class="ant-menu-item" style="padding-left:24px;height:40px;line-height:40px;margin:4px 8px;border-radius:4px;list-style:none;"><a href="23_组织管理.html" style="text-decoration:none;color:#323335;"><i class="iconfont">🏢</i>组织管理</a></li><li role="menuitem" class="ant-menu-item" style="padding-left:24px;height:40px;line-height:40px;margin:4px 8px;border-radius:4px;list-style:none;"><a href="24_回收站.html" style="text-decoration:none;color:#323335;"><i class="iconfont">🗑</i>回收站</a></li>
+    </ul>
+  </aside>
+
+  <div class="main-content-area">
+    <div class="form-card">
+      <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:20px;">
+        <p class="card-title" style="font-size:18px;font-weight:600;color:#323335;margin:0;">班级管理</p>
+        <button type="button" class="ant-btn ant-btn-primary" onclick="location.href='20_班级表单.html'" style="background:#2A55E5;border:none;color:#fff;height:34px;padding:0 18px;border-radius:6px;cursor:pointer;">新增班级</button>
+      </div>
+      <div style="display:flex;gap:10px;flex-wrap:wrap;margin-bottom:20px;">
+        <div style="display:flex;border:1px solid #d9d9d9;border-radius:4px;overflow:hidden;">
+          <span style="background:#fafafa;border-right:1px solid #d9d9d9;padding:0 10px;line-height:30px;font-size:14px;color:#323335;">班级ID</span>
+          <input id="idInput" placeholder="请输入班级ID" style="border:none;outline:none;height:30px;padding:0 10px;font-size:14px;width:150px;">
+        </div>
+        <div style="display:flex;border:1px solid #d9d9d9;border-radius:4px;overflow:hidden;">
+          <span style="background:#fafafa;border-right:1px solid #d9d9d9;padding:0 10px;line-height:30px;font-size:14px;color:#323335;">班级名</span>
+          <input id="nameInput" placeholder="请输入班级名" style="border:none;outline:none;height:30px;padding:0 10px;font-size:14px;width:150px;">
+        </div>
+        <div style="display:flex;border:1px solid #d9d9d9;border-radius:4px;overflow:hidden;">
+          <span style="background:#fafafa;border-right:1px solid #d9d9d9;padding:0 10px;line-height:30px;font-size:14px;color:#323335;">所属教师</span>
+          <input id="teacherInput" placeholder="请选择教师" readonly style="border:none;outline:none;height:30px;padding:0 10px;font-size:14px;width:150px;background:#fff;cursor:pointer;" onclick="toast('教师选择（演示）')">
+        </div>
+        <button type="button" class="ant-btn" onclick="applyFilter()" style="background:#fff;border:1px solid #2A55E5;color:#2A55E5;height:32px;padding:0 22px;border-radius:4px;cursor:pointer;">查 询</button>
+        <button type="button" class="ant-btn" onclick="resetFilter()" style="background:#fff;border:1px solid #d9d9d9;color:#323335;height:32px;padding:0 22px;border-radius:4px;cursor:pointer;">重 置</button>
+      </div>
+      <table class="ant-table">
+        <thead><tr><th style="width:14%;">班级ID</th><th style="width:16%;">班级名称</th><th style="width:12%;">年级</th><th style="width:12%;">学生数量</th><th style="width:14%;">教师</th><th style="width:14%;" class="ta-center">操作</th></tr></thead>
+        <tbody id="tableBody"><tr><td colspan="6" style="text-align:center;color:#bfbfbf;padding:32px;">暂无数据</td></tr></tbody>
+      </table>
+    </div>
+  </div>
+</div>
+<script>
+function toast(msg) {
+  var t = document.getElementById('demoToast');
+  t.textContent = msg;
+  t.style.display = 'block';
+  clearTimeout(window._tt);
+  window._tt = setTimeout(function () { t.style.display = 'none'; }, 1800);
+}
+
+function applyFilter() { toast('筛选（演示：暂无匹配数据）'); document.getElementById('tableBody').innerHTML = '<tr><td colspan="6" style="text-align:center;color:#bfbfbf;padding:32px;">暂无数据</td></tr>'; }
+function resetFilter() { document.getElementById('idInput').value = ''; document.getElementById('nameInput').value = ''; document.getElementById('teacherInput').value = ''; applyFilter(); }
+</script>
+</body>
+</html>

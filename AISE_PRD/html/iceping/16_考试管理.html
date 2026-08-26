@@ -1,0 +1,371 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>爱测评 - 考试管理</title>
+<link rel="stylesheet" href="爱测评线上样式.css">
+<style>
+html, body { margin: 0; padding: 0; background: #fff; font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", "PingFang SC", "Hiragino Sans GB", "Microsoft YaHei", sans-serif; }
+* { box-sizing: border-box; }
+
+/* 线上容器：浅蓝渐变背景，左右顶满 */
+.container {
+  min-width: 1280px !important;
+  background: linear-gradient(0deg, rgba(255, 255, 255, 0.4) 0%, rgba(255, 255, 255, 0.4) 100%), radial-gradient(158.01% 139.35% at 0% 0%, #D9F2FF 0%, #F2F0FC 27.87%, #BFD8FF 100%);
+  min-height: 100vh;
+}
+/* 线上顶栏：透明+毛玻璃，64px，满宽 */
+.header { height: 64px; width: 100%; position: sticky; top: 0; left: 0; backdrop-filter: blur(10px); background: rgba(0,0,0,0); }
+
+/* 侧边栏 */
+.sidebar { position: fixed; top: 0; left: 0; bottom: 0; width: 200px; background: #fff; border-right: 1px solid #e8e8e8; padding-top: 76px; z-index: 10; }
+.sidebar .ant-menu-inline { border-right: none; }
+
+/* 内容区 */
+.main-content-area { margin-left: 200px; padding: 24px; }
+.common-radius { border-radius: 8px; }
+.table-page-search-wrapper { background: #fff; }
+.table-page-search-wrapper .cardHeader { display: flex; justify-content: space-between; align-items: center; }
+.table-page-search-wrapper .cardHeader .title { font-size: 18px; font-weight: 600; color: #323335; margin: 0; }
+.table-page-search-wrapper .ant-divider-horizontal { margin: 16px 0; }
+.table-page-search-wrapper .ant-input { height: 32px; font-size: 14px; }
+
+/* 筛选：标签 + 控件（线上 acp_form） */
+.acp_form .ant-form-item-label { border: 1px solid #d9d9d9; border-right: none; padding: 0 5px 0 10px; border-radius: 4px 0 0 4px; line-height: 30px !important; background: #fafafa; min-width: 90px; text-align: center; height: 32px; }
+.acp_form .ant-form-item-label label { color: #323335; font-size: 14px; }
+.acp_form .ant-select-selection { border-radius: 0 4px 4px 0; }
+.acp_form .ant-input { border-radius: 0 4px 4px 0; }
+.acp_form .ant-form-item-control { line-height: 32px; }
+.acp_form .ant-select { width: 100%; }
+
+/* 状态下拉 */
+.opt-dropdown { position: absolute; top: 34px; left: 0; right: 0; z-index: 200; background: #fff; border: 1px solid #e8e8e8; border-radius: 4px; box-shadow: 0 2px 8px rgba(0,0,0,.15); max-height: 260px; overflow: auto; display: none; }
+.opt-dropdown .kp-opt { padding: 7px 14px; font-size: 13px; color: #323335; cursor: pointer; }
+.opt-dropdown .kp-opt:hover, .opt-dropdown .kp-opt.active { background: #E5F5FF; color: #2A55E5; }
+
+/* 列表操作按钮区 */
+.table-operator { margin-bottom: 16px; }
+
+/* 表格 */
+.ant-table { width: 100%; border-collapse: collapse; table-layout: fixed; }
+.ant-table th { background: #fafafa; font-size: 13px; font-weight: 600; color: #64666B; text-align: left; padding: 10px 12px; border-bottom: 1px solid #e8e8e8; }
+.ant-table td { font-size: 13px; color: #323335; padding: 10px 12px; border-bottom: 1px solid #f0f0f0; word-break: break-all; }
+.ant-table .ta-center { text-align: center; }
+.exam-name { color: rgb(50, 51, 53); cursor: pointer; }
+.exam-name:hover { color: #2A55E5; }
+.status-doing { color: rgb(0, 148, 62); }
+.status-done { color: rgb(227, 73, 73); }
+.op-link { color: #2A55E5; cursor: pointer; font-size: 13px; }
+.op-link:hover { text-decoration: underline; }
+.op-divider { display: inline-block; width: 1px; height: 12px; background: #e8e8e8; margin: 0 8px; vertical-align: middle; }
+.op-more { color: #969AA0; cursor: pointer; margin-left: 8px; }
+
+/* 分页 */
+.pagination-wrap { display: flex; align-items: center; justify-content: flex-end; padding-top: 15px; }
+.ant-pagination { display: inline-flex; align-items: center; margin: 0; padding: 0; list-style: none; font-size: 13px; color: #64666B; }
+.ant-pagination li { display: inline-block; margin-right: 8px; min-width: 28px; height: 28px; line-height: 26px; text-align: center; border: 1px solid #d9d9d9; border-radius: 4px; cursor: pointer; background: #fff; }
+.ant-pagination li a { color: rgba(0,0,0,.65); padding: 0 6px; display: block; }
+.ant-pagination li.ant-pagination-item-active { border-color: #2A55E5; }
+.ant-pagination li.ant-pagination-item-active a { color: #2A55E5; }
+.ant-pagination li.ant-pagination-disabled { cursor: not-allowed; color: rgba(0,0,0,.25); background: #f5f5f5; }
+.ant-pagination li.ant-pagination-total-text { border: none; background: transparent; width: auto; min-width: 0; line-height: 28px; }
+.demo-toast { position: fixed; top: 80px; left: 50%; transform: translateX(-50%); background: rgba(0,0,0,.75); color: #fff; padding: 10px 20px; border-radius: 6px; font-size: 14px; z-index: 9999; display: none; }
+</style>
+</head>
+<body>
+<div class="demo-toast" id="demoToast"></div>
+<div class="container" id="app">
+  <!-- ===== 顶部导航 ===== -->
+  <div style="position: sticky; top: 0; z-index: 999;">
+    <div class="header">
+      <div class="ant-row-flex ant-row-flex-middle" style="display:flex;align-items:center;">
+        <div class="brand ant-col" style="flex: 0 0 300px; display:flex; align-items:center; padding-left:24px;">
+          <img src="assets/logo.png" alt="logo" style="height:36px;">
+          <div role="separator" class="ant-divider ant-divider-vertical"></div>
+          <div class="levelLogo"><img src="assets/level-logo.png" alt="" style="height:30px;"></div>
+        </div>
+        <div class="menu ant-col" style="flex: 1 1 0%;">
+          <ul role="menu" class="ant-menu ant-menu-horizontal ant-menu-root ant-menu-light">
+            <li role="menuitem" class="ant-menu-item"><a href="/index"><span>首页</span></a></li>
+            <li role="menuitem" class="ant-menu-submenu ant-menu-submenu-horizontal ant-menu-submenu-selected"><div class="ant-menu-submenu-title"><span style="display:flex;align-items:center;cursor:pointer;"><span>测评管理</span></span><i class="ant-menu-submenu-arrow"></i></div></li>
+            <li role="menuitem" class="ant-menu-item"><a href="/dataReport"><span>测评报告</span></a></li>
+          </ul>
+        </div>
+        <div style="padding-right:24px; display:flex; align-items:center; gap:8px;">
+          <span class="ant-avatar" style="background:#2A55E5;">A</span>
+          <span style="font-size:14px;color:#323335;">AISE管理员</span>
+          <i class="anticon anticon-down" style="color:#999;">▾</i>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- ===== 侧边栏 ===== -->
+  <aside class="sidebar">
+    <button type="button" class="ant-btn ant-btn-primary" onclick="toast('创建考试（演示）')" style="border-radius:8px;background:rgb(42,85,229);width:184px;height:44px;margin:0 auto 12px;display:block;"><span>创建考试</span></button>
+    <ul role="menu" class="ant-menu ant-menu-inline ant-menu-root ant-menu-light" style="width:calc(100% - 16px);margin-left:8px;">
+      <li role="menuitem" class="ant-menu-item" style="padding-left:24px;"><a href="#"><i class="iconfont">🏠</i>首页</a></li>
+      <li role="menuitem" class="ant-menu-item" style="padding-left:24px;"><a href="01_题目管理.html"><i class="iconfont">📋</i>题目管理</a></li>
+      <li role="menuitem" class="ant-menu-item" style="padding-left:24px;"><a href="14_试卷管理.html"><i class="iconfont">📄</i>试卷管理</a></li>
+      <li role="menuitem" class="ant-menu-item ant-menu-item-selected" style="padding-left:24px;"><a href="16_考试管理.html"><i class="iconfont">📝</i>考试管理</a></li>
+      <li role="menuitem" class="ant-menu-item" style="padding-left:24px;"><a href="#"><i class="iconfont">📚</i>日常作业</a></li>
+      <li role="menuitem" class="ant-menu-item" style="padding-left:24px;"><a href="#"><i class="iconfont">🏫</i>班级管理</a></li>
+      <li role="menuitem" class="ant-menu-item" style="padding-left:24px;"><a href="#"><i class="iconfont">👨‍🏫</i>教师管理</a></li>
+      <li role="menuitem" class="ant-menu-item" style="padding-left:24px;"><a href="#"><i class="iconfont">🧑‍🎓</i>学生管理</a></li>
+      <li role="menuitem" class="ant-menu-item" style="padding-left:24px;"><a href="#"><i class="iconfont">🏢</i>组织管理</a></li>
+      <li role="menuitem" class="ant-menu-item" style="padding-left:24px;"><a href="#"><i class="iconfont">🗑</i>回收站</a></li>
+    </ul>
+  </aside>
+
+  <!-- ===== 主内容 ===== -->
+  <main class="ant-layout-content main-content-area">
+    <!-- 筛选卡片 -->
+    <div class="common-radius table-page-search-wrapper ant-card" style="padding:24px;">
+      <div class="cardHeader"><h2 class="title">考试管理</h2></div>
+      <div role="separator" class="ant-divider ant-divider-horizontal"></div>
+      <form class="ant-form ant-form-inline">
+        <div class="ant-row" style="margin-left:-12px;margin-right:-12px;">
+          <div class="ant-col ant-col-sm-24 ant-col-md-8 ant-col-lg-7 ant-col-xl-6" style="padding-left:12px;padding-right:12px;">
+            <div class="acp_form ant-row ant-form-item" style="display:flex;margin-bottom:16px;">
+              <div class="ant-col ant-form-item-label"><label title="关键词" class="">关键词</label></div>
+              <div class="ant-col ant-form-item-control-wrapper" style="flex:1;">
+                <div class="ant-form-item-control">
+                  <span class="ant-form-item-children">
+                    <input placeholder="请输入关键词" type="text" class="ant-input" id="kwInput" oninput="applyFilters()" style="width:100%;">
+                  </span>
+                </div>
+              </div>
+            </div>
+          </div>
+          <div class="ant-col ant-col-sm-24 ant-col-md-8 ant-col-lg-7 ant-col-xl-6" style="padding-left:12px;padding-right:12px;">
+            <div class="acp_form ant-row ant-form-item" style="display:flex;margin-bottom:16px;">
+              <div class="ant-col ant-form-item-label"><label title="考试ID" class="">考试ID</label></div>
+              <div class="ant-col ant-form-item-control-wrapper" style="flex:1;">
+                <div class="ant-form-item-control">
+                  <span class="ant-form-item-children">
+                    <input placeholder="请输入考试ID" type="text" class="ant-input" id="idInput" oninput="applyFilters()" style="width:100%;">
+                  </span>
+                </div>
+              </div>
+            </div>
+          </div>
+          <div class="ant-col ant-col-sm-24 ant-col-md-8 ant-col-lg-7 ant-col-xl-6" style="padding-left:12px;padding-right:12px;">
+            <div class="acp_form ant-row ant-form-item" style="display:flex;margin-bottom:16px;">
+              <div class="ant-col ant-form-item-label"><label title="状态" class="">状态</label></div>
+              <div class="ant-col ant-form-item-control-wrapper" style="flex:1;position:relative;">
+                <div class="ant-form-item-control">
+                  <span class="ant-form-item-children">
+                    <div tabindex="0" class="ant-select ant-select-enabled" style="position:relative;height:32px;border:1px solid #d9d9d9;border-radius:0 4px 4px 0;cursor:pointer;" onclick="toggleDropdown('statusDropdown')">
+                      <div role="combobox" aria-autocomplete="list" aria-haspopup="true" class="ant-select-selection ant-select-selection--single" style="border:none;height:30px;">
+                        <div class="ant-select-selection__rendered" style="line-height:30px;padding:0 8px;">
+                          <div unselectable="on" class="ant-select-selection__placeholder" id="statusVal" style="display:block;user-select:none;color:#bfbfbf;">请选择考试状态</div>
+                        </div>
+                        <span unselectable="on" class="ant-select-arrow" style="position:absolute;right:8px;top:50%;transform:translateY(-50%);color:#bfbfbf;font-size:12px;">▾</span>
+                      </div>
+                      <div class="opt-dropdown" id="statusDropdown">
+                        <div class="kp-opt" onclick="pickStatus(this)">进行中</div>
+                        <div class="kp-opt" onclick="pickStatus(this)">已结束</div>
+                      </div>
+                    </div>
+                  </span>
+                </div>
+              </div>
+            </div>
+          </div>
+          <div class="ant-col ant-col-sm-24 ant-col-md-8 ant-col-lg-7 ant-col-xl-6" style="padding-left:12px;padding-right:12px;">
+            <span class="table-page-search-submitButtons" style="float:left;overflow:hidden;">
+              <button type="button" class="ant-btn ant-btn-primary" onclick="applyFilters()"><span>查 询</span></button>
+              <button type="button" class="ant-btn" style="margin-left:8px;" onclick="resetFilters()"><span>重 置</span></button>
+            </span>
+          </div>
+        </div>
+      </form>
+    </div>
+
+    <!-- 考试列表卡片 -->
+    <div class="common-radius list ant-card" style="margin-top:16px;">
+      <div class="ant-card-body" style="padding:24px;">
+        <div class="table-operator">
+          <button type="button" class="ant-btn ant-btn-primary" onclick="toast('创建考试（演示）')">
+            <i aria-label="图标: plus" class="anticon anticon-plus" style="margin-right:4px;">＋</i><span>创建考试</span>
+          </button>
+        </div>
+        <div class="j-table-force-nowrap ant-table-wrapper">
+          <div class="ant-spin-nested-loading">
+            <div class="ant-spin-container">
+              <div class="ant-table ant-table-middle">
+                <div class="ant-table-content">
+                  <div class="ant-table-scroll">
+                    <div tabindex="-1" class="ant-table-body">
+                      <table class="ant-table-fixed" style="width:100%;">
+                        <colgroup>
+                          <col style="width:220px;min-width:220px;"><col>
+                          <col style="width:120px;min-width:120px;"><col style="width:280px;min-width:280px;">
+                          <col style="width:120px;min-width:120px;"><col style="width:120px;min-width:120px;">
+                          <col style="width:140px;min-width:140px;">
+                        </colgroup>
+                        <thead class="ant-table-thead">
+                          <tr>
+                            <th class="ant-table-row-cell-break-word"><span class="ant-table-header-column"><div><span class="ant-table-column-title">考试ID</span></div></span></th>
+                            <th class=""><span class="ant-table-header-column"><div><span class="ant-table-column-title">考试名称</span></div></span></th>
+                            <th class="ant-table-row-cell-break-word"><span class="ant-table-header-column"><div><span class="ant-table-column-title">创建人</span></div></span></th>
+                            <th class="ant-table-row-cell-break-word"><span class="ant-table-header-column"><div><span class="ant-table-column-title">起止时间</span></div></span></th>
+                            <th class="ant-table-row-cell-break-word"><span class="ant-table-header-column"><div><span class="ant-table-column-title">考试时长(分钟)</span></div></span></th>
+                            <th class="ant-table-align-center ant-table-row-cell-break-word ta-center"><span class="ant-table-header-column"><div><span class="ant-table-column-title">考试状态</span></div></span></th>
+                            <th class="ant-table-align-center ant-table-row-cell-break-word ta-center"><span class="ant-table-header-column"><div><span class="ant-table-column-title">操作</span></div></span></th>
+                          </tr>
+                        </thead>
+                        <tbody class="ant-table-tbody" id="tableBody"></tbody>
+                      </table>
+                    </div>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+        <div class="pagination-wrap">
+          <ul unselectable="unselectable" class="ant-pagination" id="pagination">
+            <li class="ant-pagination-total-text" id="pageInfo">1-10 共149条</li>
+            <li title="上一页" aria-disabled="true" class="ant-pagination-disabled ant-pagination-prev"><a class="ant-pagination-item-link">‹</a></li>
+            <li class="ant-pagination-item ant-pagination-item-1 ant-pagination-item-active" data-page="1"><a>1</a></li>
+            <li class="ant-pagination-item ant-pagination-item-2" data-page="2"><a>2</a></li>
+            <li class="ant-pagination-item ant-pagination-item-3" data-page="3"><a>3</a></li>
+            <li class="ant-pagination-item ant-pagination-item-4" data-page="4"><a>4</a></li>
+            <li class="ant-pagination-item ant-pagination-item-5" data-page="5"><a>5</a></li>
+            <li class="ant-pagination-item ant-pagination-item-6" data-page="6"><a>6</a></li>
+            <li class="ant-pagination-item ant-pagination-item-7" data-page="7"><a>7</a></li>
+            <li class="ant-pagination-item ant-pagination-item-8" data-page="8"><a>8</a></li>
+            <li class="ant-pagination-item ant-pagination-item-9" data-page="9"><a>9</a></li>
+            <li class="ant-pagination-item ant-pagination-item-10" data-page="10"><a>10</a></li>
+            <li class="ant-pagination-item ant-pagination-item-11" data-page="11"><a>11</a></li>
+            <li class="ant-pagination-item ant-pagination-item-12" data-page="12"><a>12</a></li>
+            <li class="ant-pagination-item ant-pagination-item-13" data-page="13"><a>13</a></li>
+            <li class="ant-pagination-item ant-pagination-item-14" data-page="14"><a>14</a></li>
+            <li class="ant-pagination-item ant-pagination-item-15" data-page="15"><a>15</a></li>
+            <li title="下一页" class="ant-pagination-next"><a class="ant-pagination-item-link">›</a></li>
+          </ul>
+        </div>
+      </div>
+    </div>
+  </main>
+</div>
+
+<script>
+'use strict';
+/* ============ Mock 数据（基于线上真实列表） ============ */
+var ROWS = [
+  { id: '2090549022635401218', name: '0821测试考场', creator: 'adminAica', time: '2026-08-24 06:05~2026-08-27 11:00', duration: '180', status: '进行中' },
+  { id: '2090695444920926210', name: '0821测试', creator: 'adminAica', time: '2026-08-20 14:58~2026-08-25 14:58', duration: '60', status: '已结束' },
+  { id: '2088509703934513153', name: '候场0815', creator: 'adminAica', time: '2026-08-15 14:30~2026-08-15 14:50', duration: '20', status: '已结束' },
+  { id: '2088038583234007042', name: '0814测试', creator: 'adminAica', time: '2026-08-14 17:06~2026-08-14 18:06', duration: '20', status: '已结束' },
+  { id: '2088022815830249473', name: '候场0814', creator: 'O1gkUb477', time: '2026-08-14 17:03~2026-08-14 20:03', duration: '20', status: '已结束' },
+  { id: '2087852874921480193', name: '候场测试0813', creator: 'adminAica', time: '2026-08-14 07:05~2026-08-14 23:59', duration: '20', status: '已结束' },
+  { id: '2087846878828367873', name: '候场0813', creator: 'adminAica', time: '2026-08-14 05:05~2026-08-14 19:59', duration: '60', status: '已结束' },
+  { id: '2087412826438701058', name: '侯考测试', creator: 'adminAica', time: '2026-08-13 19:35~2026-08-15 13:35', duration: '20', status: '已结束' },
+  { id: '2089726847699456001', name: '0818测试', creator: 'adminAica', time: '2026-08-01 22:50~2026-08-25 22:18', duration: '60', status: '已结束' },
+  { id: '1994709955930329089', name: 'aica测试考试2024', creator: 'adminAica', time: '2026-08-01 18:07~2026-12-31 18:07', duration: '1800', status: '进行中' }
+];
+
+var FILTERS = { kw: '', id: '', status: '请选择考试状态' };
+var toastTimer = null;
+function toast(msg) {
+  var t = document.getElementById('demoToast');
+  t.textContent = msg; t.style.display = 'block';
+  if (toastTimer) clearTimeout(toastTimer);
+  toastTimer = setTimeout(function () { t.style.display = 'none'; }, 2200);
+}
+
+function esc(s) { return String(s == null ? '' : s).replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;').replace(/"/g, '&quot;'); }
+
+/* ============ 筛选 ============ */
+function toggleDropdown(id) {
+  document.querySelectorAll('.opt-dropdown').forEach(function (d) { if (d.id !== id) d.style.display = 'none'; });
+  var dd = document.getElementById(id);
+  dd.style.display = dd.style.display === 'none' ? 'block' : 'none';
+}
+function pickStatus(el) {
+  var val = document.getElementById('statusVal');
+  val.textContent = el.textContent;
+  val.style.color = '#323335';
+  document.getElementById('statusDropdown').querySelectorAll('.kp-opt').forEach(function (o) { o.classList.remove('active'); });
+  el.classList.add('active');
+  document.getElementById('statusDropdown').style.display = 'none';
+  FILTERS.status = el.textContent;
+  applyFilters();
+}
+document.addEventListener('click', function (e) {
+  if (!e.target.closest('.ant-select')) {
+    document.querySelectorAll('.opt-dropdown').forEach(function (d) { d.style.display = 'none'; });
+  }
+});
+function applyFilters() {
+  FILTERS.kw = document.getElementById('kwInput').value.trim();
+  FILTERS.id = document.getElementById('idInput').value.trim();
+  var rows = ROWS.filter(function (r) {
+    if (FILTERS.kw && r.name.indexOf(FILTERS.kw) < 0 && r.creator.indexOf(FILTERS.kw) < 0) return false;
+    if (FILTERS.id && r.id.indexOf(FILTERS.id) < 0) return false;
+    if (FILTERS.status !== '请选择考试状态' && r.status !== FILTERS.status) return false;
+    return true;
+  });
+  renderTable(rows);
+}
+function resetFilters() {
+  FILTERS = { kw: '', id: '', status: '请选择考试状态' };
+  document.getElementById('kwInput').value = '';
+  document.getElementById('idInput').value = '';
+  var val = document.getElementById('statusVal');
+  val.textContent = '请选择考试状态';
+  val.style.color = '#bfbfbf';
+  document.getElementById('statusDropdown').querySelectorAll('.kp-opt').forEach(function (o) { o.classList.remove('active'); });
+  applyFilters();
+}
+
+/* ============ 表格渲染 ============ */
+function renderTable(rows) {
+  var html = '';
+  for (var i = 0; i < rows.length; i++) {
+    var r = rows[i];
+    var statusCls = r.status === '进行中' ? 'status-doing' : 'status-done';
+    html += '<tr class="ant-table-row ant-table-row-level-0" data-row-key="' + esc(r.id) + '">' +
+      '<td class="ant-table-row-cell-break-word">' + esc(r.id) + '</td>' +
+      '<td class=""><span><a class="exam-name" onclick="toast(\'考试详情（演示）\')">' + esc(r.name) + '</a></span></td>' +
+      '<td class="ant-table-row-cell-break-word">' + esc(r.creator) + '</td>' +
+      '<td class="ant-table-row-cell-break-word">' + esc(r.time) + '</td>' +
+      '<td class="ant-table-row-cell-break-word">' + esc(r.duration) + '</td>' +
+      '<td class="ant-table-row-cell-break-word ta-center"><span class="' + statusCls + '">● ' + esc(r.status) + '</span></td>' +
+      '<td class="ant-table-row-cell-break-word ta-center">' +
+        '<span class="op-link" onclick="toast(\'考试详情（演示）\')">详情</span><span class="op-divider"></span>' +
+        '<span class="op-link" onclick="toast(\'编辑考试（演示）\')">编辑</span><span class="op-divider"></span>' +
+        '<span class="op-more" onclick="toast(\'更多操作（演示）\')">⋯</span>' +
+      '</td>' +
+      '</tr>';
+  }
+  document.getElementById('tableBody').innerHTML = html ||
+    '<tr><td colspan="7" style="text-align:center;color:#bfbfbf;padding:32px;">暂无数据</td></tr>';
+  document.getElementById('pageInfo').textContent = rows.length ? ('1-' + rows.length + ' 共149条') : '0 条';
+}
+
+/* ============ 分页 mock ============ */
+var currentPage = 1;
+document.getElementById('pagination').addEventListener('click', function (e) {
+  var li = e.target.closest('li[data-page]');
+  if (!li) return;
+  var p = parseInt(li.getAttribute('data-page'), 10);
+  if (p === currentPage) return;
+  document.querySelectorAll('#pagination li[data-page]').forEach(function (x) { x.classList.remove('ant-pagination-item-active'); });
+  li.classList.add('ant-pagination-item-active');
+  currentPage = p;
+  if (p > 1) {
+    toast('演示数据仅采集第 1 页，共149条');
+  } else {
+    applyFilters();
+  }
+});
+
+/* ============ 初始化 ============ */
+applyFilters();
+</script>
+</body>
+</html>

@@ -1,0 +1,226 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>爱测评 - 测评报告</title>
+<link rel="stylesheet" href="爱测评线上样式.css">
+<style>
+html, body { margin: 0; padding: 0; background: #fff; font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", "PingFang SC", "Hiragino Sans GB", "Microsoft YaHei", sans-serif; }
+* { box-sizing: border-box; }
+
+/* 线上容器：浅蓝渐变背景，左右顶满 */
+.container {
+  min-width: 1280px !important;
+  background: linear-gradient(0deg, rgba(255, 255, 255, 0.4) 0%, rgba(255, 255, 255, 0.4) 100%), radial-gradient(158.01% 139.35% at 0% 0%, #D9F2FF 0%, #F2F0FC 27.87%, #BFD8FF 100%);
+  min-height: 100vh;
+}
+/* 线上顶栏：透明+毛玻璃，64px，满宽 */
+.header { height: 64px; width: 100%; position: sticky; top: 0; left: 0; backdrop-filter: blur(10px); background: rgba(0,0,0,0); }
+
+/* 侧边栏（测评报告专用：仅 单次测评数据分析/整体测评报告 两个导航项） */
+.sidebar { position: fixed; top: 0; left: 0; bottom: 0; width: 200px; background: #fff; border-right: 1px solid #e8e8e8; padding-top: 76px; z-index: 10; }
+.sidebar .ant-menu-inline { border-right: none; }
+.sidebar .ant-menu-inline li { cursor: pointer; }
+
+/* 内容区 */
+.main-content-area { margin-left: 200px; padding: 24px; }
+.common-radius { border-radius: 8px; }
+.ant-card { background: #fff; }
+
+/* 测评报告主体（线上 scoped 样式） */
+.wholeData .common-radius { border-radius: 12px; margin-bottom: 16px; }
+.wholeData ul, .wholeData li { margin: 0; padding: 0; list-style: none; }
+.wholeData .pdfFileBox { width: 100%; height: calc(100vh - 240px); overflow-y: auto; }
+.wholeData .listStyle { padding: 0 20px; width: 100%; box-sizing: border-box; height: 38px; border-radius: 4px; text-align: left; line-height: 38px; font-size: 14px; color: #323335; cursor: pointer; }
+.wholeData .listStyleActive { background: #FFFFFF; color: #2A55E5; }
+.wholeData .list-dot { font-style: normal; font-size: 10px; margin-right: 8px; vertical-align: 1px; color: #323335; }
+.wholeData .listStyleActive .list-dot { color: #2A55E5; }
+.display-space-between { display: flex; align-items: center; justify-content: space-between; }
+
+/* PDF 预览占位 */
+.pdf-preview { position: relative; background: #F5F6F8; border-radius: 8px; min-height: 620px; display: flex; align-items: center; justify-content: center; }
+.pdf-preview .pdf-page { position: absolute; top: 24px; left: 50%; transform: translateX(-50%); width: 420px; background: #fff; border: 1px solid #e8e8e8; border-radius: 6px; box-shadow: 0 2px 10px rgba(0,0,0,.08); padding: 24px; }
+.pdf-preview .pdf-title { font-size: 16px; font-weight: 600; color: #323335; text-align: center; margin: 0 0 16px; }
+.pdf-preview .pdf-note { font-size: 12px; color: #969AA0; text-align: center; margin: 16px 0 0; }
+
+/* 空状态 */
+.empty-box { text-align: center; color: #bfbfbf; padding: 120px 0; font-size: 14px; }
+
+.demo-toast { position: fixed; top: 80px; left: 50%; transform: translateX(-50%); background: rgba(0,0,0,.75); color: #fff; padding: 10px 20px; border-radius: 6px; font-size: 14px; z-index: 9999; display: none; }
+</style>
+</head>
+<body>
+<div class="demo-toast" id="demoToast"></div>
+<div class="container" id="app">
+  <!-- ===== 顶部导航 ===== -->
+  <div style="position: sticky; top: 0; z-index: 999;">
+    <div class="header">
+      <div class="ant-row-flex ant-row-flex-middle" style="display:flex;align-items:center;">
+        <div class="brand ant-col" style="flex: 0 0 300px; display:flex; align-items:center; padding-left:24px;">
+          <img src="assets/logo.png" alt="logo" style="height:36px;">
+          <div role="separator" class="ant-divider ant-divider-vertical"></div>
+          <div class="levelLogo"><img src="assets/level-logo.png" alt="" style="height:30px;"></div>
+        </div>
+        <div class="menu ant-col" style="flex: 1 1 0%;">
+          <ul role="menu" class="ant-menu ant-menu-horizontal ant-menu-root ant-menu-light">
+            <li role="menuitem" class="ant-menu-item"><a href="13_管理首页.html"><span>首页</span></a></li>
+            <li role="menuitem" class="ant-menu-submenu ant-menu-submenu-horizontal"><div class="ant-menu-submenu-title"><span style="display:flex;align-items:center;cursor:pointer;"><span>测评管理</span></span><i class="ant-menu-submenu-arrow"></i></div></li>
+            <li role="menuitem" class="ant-menu-submenu ant-menu-submenu-horizontal ant-menu-submenu-selected"><div class="ant-menu-submenu-title"><span style="display:flex;align-items:center;cursor:pointer;"><span>测评报告</span></span><i class="ant-menu-submenu-arrow"></i></div></li>
+          </ul>
+        </div>
+        <div style="padding-right:24px; display:flex; align-items:center; gap:8px;">
+          <span class="ant-avatar" style="background:#2A55E5;">A</span>
+          <span style="font-size:14px;color:#323335;">AISE管理员</span>
+          <i class="anticon anticon-down" style="color:#999;">▾</i>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- ===== 侧边栏（报告分类导航） ===== -->
+  <aside class="sidebar">
+    <ul role="menu" class="ant-menu ant-menu-inline ant-menu-root ant-menu-light" style="width:calc(100% - 16px);margin-left:8px;">
+      <li role="menuitem" class="ant-menu-item" style="padding-left:24px;" onclick="switchTab('single', this)"><a><i class="iconfont">📊</i>单次测评数据分析</a></li>
+      <li role="menuitem" class="ant-menu-item ant-menu-item-selected" style="padding-left:24px;" onclick="switchTab('overall', this)"><a><i class="iconfont">📁</i>整体测评报告</a></li>
+    </ul>
+  </aside>
+
+  <!-- ===== 主内容 ===== -->
+  <main class="ant-layout-content main-content-area">
+    <!-- 整体测评报告 -->
+    <div class="wholeData" id="viewOverall">
+      <div class="ant-row" style="margin-left:-8px;margin-right:-8px;display:flex;">
+        <!-- 报告列表 -->
+        <div class="ant-col ant-col-sm-24 ant-col-md-6 ant-col-lg-6 ant-col-xl-4" style="padding-left:8px;padding-right:8px;width:20%;">
+          <div class="common-radius ant-card" style="background-color:rgba(255,255,255,.25);">
+            <div class="ant-card-body">
+              <ul class="pdfFileBox scrollbarStyle" style="height:calc(-150px + 100vh);">
+                <li class="listStyleActive listStyle" onclick="pickReport(this, '报告test')"><i class="list-dot">●</i>报告test</li>
+                <li class="listStyle" onclick="pickReport(this, '测试报告')"><i class="list-dot">●</i>测试报告</li>
+                <li class="listStyle" onclick="pickReport(this, '测试报告2')"><i class="list-dot">●</i>测试报告2</li>
+                <li class="listStyle" onclick="pickReport(this, '测试无文件')"><i class="list-dot">●</i>测试无文件</li>
+                <li class="listStyle" onclick="pickReport(this, '测试pdf')"><i class="list-dot">●</i>测试pdf</li>
+              </ul>
+            </div>
+          </div>
+        </div>
+        <!-- 报告内容 -->
+        <div class="ant-col ant-col-sm-24 ant-col-md-18 ant-col-lg-18 ant-col-xl-20" style="padding-left:8px;padding-right:8px;width:80%;">
+          <div class="common-radius ant-card">
+            <div class="ant-card-body">
+              <div class="display-space-between">
+                <p id="reportName" style="font-size:14px;font-weight:600;color:rgb(50,51,53);line-height:32px;margin:0;">报告test</p>
+                <button class="ant-btn" type="button" onclick="downloadReport()"><i class="anticon anticon-download" style="margin-right:6px;">⬇</i><span>下载报告</span></button>
+              </div>
+            </div>
+          </div>
+          <div class="common-radius ant-card">
+            <div class="ant-card-body">
+              <div class="pdfFileBox scrollbarStyle" style="height:auto;">
+                <div class="pdf-preview">
+                  <div class="pdf-page" id="pdfPage">
+                    <p class="pdf-title" id="pdfTitle">报告test</p>
+                    <svg id="chartSvg" width="372" height="240" viewBox="0 0 372 240" style="display:block;"></svg>
+                    <p class="pdf-note">测评报告 PDF 预览（演示）</p>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- 单次测评数据分析 -->
+    <div class="wholeData" id="viewSingle" style="display:none;">
+      <div class="common-radius ant-card">
+        <div class="ant-card-body">
+          <div class="sec-title" style="color:#323335;font-size:18px;font-weight:600;margin-bottom:16px;">单次测评数据分析</div>
+          <div class="empty-box">
+            <div style="font-size:40px;margin-bottom:12px;">📊</div>
+            <p style="margin:0;">暂无数据</p>
+          </div>
+        </div>
+      </div>
+    </div>
+  </main>
+</div>
+
+<script>
+'use strict';
+/* ============ Mock 数据（基于线上真实报告列表） ============ */
+var REPORTS = ['报告test', '测试报告', '测试报告2', '测试无文件', '测试pdf'];
+var curReport = '报告test';
+
+var toastTimer = null;
+function toast(msg) {
+  var t = document.getElementById('demoToast');
+  t.textContent = msg; t.style.display = 'block';
+  if (toastTimer) clearTimeout(toastTimer);
+  toastTimer = setTimeout(function () { t.style.display = 'none'; }, 2200);
+}
+function esc(s) { return String(s == null ? '' : s).replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;').replace(/\"/g, '&quot;'); }
+
+/* ============ tab 切换（单次测评数据分析 / 整体测评报告） ============ */
+function switchTab(tab, el) {
+  var items = document.querySelectorAll('.sidebar .ant-menu-item');
+  for (var i = 0; i < items.length; i++) items[i].classList.remove('ant-menu-item-selected');
+  el.classList.add('ant-menu-item-selected');
+  document.getElementById('viewOverall').style.display = tab === 'overall' ? '' : 'none';
+  document.getElementById('viewSingle').style.display = tab === 'single' ? '' : 'none';
+  if (tab === 'single') toast('📊 单次测评数据分析（演示）');
+}
+
+/* ============ 报告列表 ============ */
+function pickReport(el, name) {
+  var lis = document.querySelectorAll('#viewOverall .listStyle');
+  for (var i = 0; i < lis.length; i++) lis[i].classList.remove('listStyleActive');
+  el.classList.add('listStyleActive');
+  curReport = name;
+  document.getElementById('reportName').textContent = name;
+  document.getElementById('pdfTitle').textContent = name;
+  drawChart(name);
+}
+function downloadReport() {
+  toast('⬇ 开始下载《' + esc(curReport) + '》PDF（演示）');
+}
+
+/* ============ 报告图表（演示占位） ============ */
+function hashSeed(s) {
+  var h = 0;
+  for (var i = 0; i < s.length; i++) h = (h * 31 + s.charCodeAt(i)) % 100000;
+  return h;
+}
+function drawChart(name) {
+  var seed = hashSeed(name);
+  var W = 372, H = 240, baseY = 190, topY = 30;
+  var pts = [];
+  for (var i = 0; i <= 12; i++) {
+    var x = 20 + (W - 40) * i / 12;
+    var y = baseY - (30 + ((seed >> i) % 7) * 18 + ((i * 37) % 29));
+    pts.push([x, y]);
+  }
+  var svg = document.getElementById('chartSvg');
+  var body = '<rect x="0" y="0" width="' + W + '" height="' + H + '" rx="8" fill="#F5F6F8"/>';
+  for (var g = 1; g <= 4; g++) {
+    var gy = 30 + (H - 60) * g / 4;
+    body += '<line x1="20" y1="' + gy + '" x2="' + (W - 20) + '" y2="' + gy + '" stroke="#E8E8E8" stroke-width="1"/>';
+  }
+  var line = '';
+  for (var i = 0; i < pts.length; i++) {
+    line += (i === 0 ? 'M' : 'L') + pts[i][0].toFixed(1) + ' ' + pts[i][1].toFixed(1);
+  }
+  body += '<path d="' + line + '" fill="none" stroke="#F5A623" stroke-width="3" stroke-linecap="round"/>';
+  for (var i = 0; i < pts.length; i++) {
+    body += '<circle cx="' + pts[i][0].toFixed(1) + '" cy="' + pts[i][1].toFixed(1) + '" r="3.5" fill="#F5A623"/>';
+  }
+  body += '<rect x="0" y="0" width="372" height="240" fill="none"/>';
+  svg.innerHTML = body;
+}
+
+/* ============ 初始化 ============ */
+drawChart(curReport);
+</script>
+</body>
+</html>

@@ -1,0 +1,252 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>爱测评 - 回收站</title>
+<link rel="stylesheet" href="爱测评线上样式.css">
+<style>
+html, body { margin: 0; padding: 0; background: #fff; font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", "PingFang SC", "Hiragino Sans GB", "Microsoft YaHei", sans-serif; }
+* { box-sizing: border-box; }
+
+/* 线上容器：浅蓝渐变背景，左右顶满 */
+.container {
+  min-width: 1280px !important;
+  background: linear-gradient(0deg, rgba(255, 255, 255, 0.4) 0%, rgba(255, 255, 255, 0.4) 100%), radial-gradient(158.01% 139.35% at 0% 0%, #D9F2FF 0%, #F2F0FC 27.87%, #BFD8FF 100%);
+  min-height: 100vh;
+}
+/* 线上顶栏：透明+毛玻璃，64px，满宽 */
+.header { height: 64px; width: 100%; position: sticky; top: 0; left: 0; backdrop-filter: blur(10px); background: rgba(0,0,0,0); }
+
+/* 侧边栏 */
+.sidebar { position: fixed; top: 0; left: 0; bottom: 0; width: 200px; background: #fff; border-right: 1px solid #e8e8e8; padding-top: 76px; z-index: 10; }
+.sidebar .ant-menu-inline { border-right: none; }
+
+/* 内容区 */
+.main-content-area { margin-left: 200px; padding: 24px; }
+.common-radius { border-radius: 16px; }
+.table-page-search-wrapper { background: #fff; }
+
+/* 回收站头部（线上组件样式） */
+.recycleBin .ant-card-body { padding: 0 24px; }
+.recycleHeader { width: 100%; height: 64px; display: flex; align-items: center; justify-content: space-between; }
+.recycleTabs { display: flex; align-items: center; }
+.recycleButton { padding: 0 15px; font-size: 16px; line-height: 62px; color: #64666B; border-bottom: 2px solid transparent; cursor: pointer; }
+.recycleButtonActive { border-color: #2A55E5 !important; color: #323335 !important; }
+.recyclTips { font-size: 12px; color: #323335; }
+.recycle-list { margin-top: 16px; }
+
+/* 表格 */
+.ant-table { width: 100%; border-collapse: collapse; }
+.ant-table th { background: #fafafa; font-size: 13px; font-weight: 600; color: #64666B; text-align: left; padding: 10px 12px; border-bottom: 1px solid #e8e8e8; }
+.ant-table td { font-size: 13px; color: #323335; padding: 10px 12px; border-bottom: 1px solid #f0f0f0; }
+.stem-cell p { margin: 0 0 4px; }
+.stem-cell p:last-child { margin-bottom: 0; }
+.stem-cell pre { margin: 4px 0 0; padding: 8px; background: #fafafa; border: 1px solid #f0f0f0; border-radius: 4px; font-size: 12px; color: #323335; white-space: pre-wrap; word-break: break-all; }
+.op-link { color: #2A55E5; cursor: pointer; font-size: 13px; }
+.op-link:hover { text-decoration: underline; }
+.op-link-danger { color: #FF4D4F; cursor: pointer; font-size: 13px; }
+.op-link-danger:hover { text-decoration: underline; }
+.vd { display: inline-block; width: 1px; height: 12px; background: #e8e8e8; margin: 0 8px; vertical-align: middle; }
+
+/* 分页 */
+.pagination { display: flex; align-items: center; justify-content: flex-end; gap: 6px; margin-top: 16px; font-size: 13px; color: #64666B; }
+.pagination .page-btn { min-width: 28px; height: 28px; line-height: 28px; text-align: center; border: 1px solid #d9d9d9; border-radius: 4px; cursor: pointer; background: #fff; padding: 0 6px; }
+.pagination .page-btn.active { border-color: #2A55E5; color: #2A55E5; }
+.demo-toast { position: fixed; top: 80px; left: 50%; transform: translateX(-50%); background: rgba(0,0,0,.75); color: #fff; padding: 10px 20px; border-radius: 6px; font-size: 14px; z-index: 9999; display: none; }
+</style>
+</head>
+<body>
+<div class="demo-toast" id="demoToast"></div>
+<div id="app" class="container">
+  <!-- ===== 顶部导航 ===== -->
+  <div style="position: sticky; top: 0; z-index: 999;">
+    <div class="header">
+      <div class="ant-row-flex ant-row-flex-middle" style="display:flex;align-items:center;">
+        <div class="brand ant-col" style="flex: 0 0 300px; display:flex; align-items:center; padding-left:24px;">
+          <img src="assets/logo.png" alt="logo" style="height:36px;">
+          <div role="separator" class="ant-divider ant-divider-vertical"></div>
+          <div class="levelLogo"><img src="assets/level-logo.png" alt="" style="height:30px;"></div>
+        </div>
+        <div class="menu ant-col" style="flex: 1 1 0%;">
+          <ul role="menu" class="ant-menu ant-menu-horizontal ant-menu-root ant-menu-light">
+            <li role="menuitem" class="ant-menu-item"><a href="#"><span>首页</span></a></li>
+            <li role="menuitem" class="ant-menu-submenu ant-menu-submenu-horizontal ant-menu-submenu-selected"><div class="ant-menu-submenu-title"><span style="display:flex;align-items:center;cursor:pointer;"><span>测评管理</span></span><i class="ant-menu-submenu-arrow"></i></div></li>
+            <li role="menuitem" class="ant-menu-item"><a href="#"><span>测评报告</span></a></li>
+          </ul>
+        </div>
+        <div style="padding-right:24px; display:flex; align-items:center; gap:8px;">
+          <span class="ant-avatar" style="background:#2A55E5;">A</span>
+          <span style="font-size:14px;color:#323335;">AISE管理员</span>
+          <i class="anticon anticon-down" style="color:#999;">▾</i>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- ===== 侧边栏 ===== -->
+  <aside class="sidebar">
+    <button type="button" class="ant-btn ant-btn-primary" style="border-radius:8px;background:rgb(42,85,229);width:184px;height:44px;margin:0 auto 12px;display:block;"><span>创建考试</span></button>
+    <ul role="menu" class="ant-menu ant-menu-inline ant-menu-root ant-menu-light" style="width:calc(100% - 16px);margin-left:8px;">
+      <li role="menuitem" class="ant-menu-item" style="padding-left:24px;"><a href="#"><i class="iconfont">🏠</i>首页</a></li>
+      <li role="menuitem" class="ant-menu-item" style="padding-left:24px;"><a href="01_题目管理.html"><i class="iconfont">📋</i>题目管理</a></li>
+      <li role="menuitem" class="ant-menu-item" style="padding-left:24px;"><a href="#"><i class="iconfont">📄</i>试卷管理</a></li>
+      <li role="menuitem" class="ant-menu-item" style="padding-left:24px;"><a href="#"><i class="iconfont">📝</i>考试管理</a></li>
+      <li role="menuitem" class="ant-menu-item" style="padding-left:24px;"><a href="#"><i class="iconfont">📚</i>日常作业</a></li>
+      <li role="menuitem" class="ant-menu-item" style="padding-left:24px;"><a href="#"><i class="iconfont">🏫</i>班级管理</a></li>
+      <li role="menuitem" class="ant-menu-item" style="padding-left:24px;"><a href="21_教师管理.html"><i class="iconfont">👨‍🏫</i>教师管理</a></li>
+      <li role="menuitem" class="ant-menu-item" style="padding-left:24px;"><a href="22_学生管理.html"><i class="iconfont">🧑‍🎓</i>学生管理</a></li>
+      <li role="menuitem" class="ant-menu-item" style="padding-left:24px;"><a href="23_组织管理.html"><i class="iconfont">🏢</i>组织管理</a></li>
+      <li role="menuitem" class="ant-menu-item ant-menu-item-selected" style="padding-left:24px;"><a href="24_回收站.html"><i class="iconfont">🗑</i>回收站</a></li>
+    </ul>
+  </aside>
+
+  <!-- ===== 主内容 ===== -->
+  <main class="ant-layout-content main-content-area">
+    <div class="recycleBin">
+      <div class="common-radius table-page-search-wrapper ant-card">
+        <div class="ant-card-body" style="padding:0 24px;">
+          <div class="recycleHeader">
+            <div class="recycleTabs">
+              <span class="recycleButton recycleButtonActive" data-tab="question" onclick="switchTab(this,'question')">已删除题目</span>
+              <span class="recycleButton" data-tab="paper" onclick="switchTab(this,'paper')">已删除试卷</span>
+              <span class="recycleButton" data-tab="task" onclick="switchTab(this,'task')">已删除作业</span>
+              <span class="recycleButton" data-tab="student" onclick="switchTab(this,'student')">已删除学生</span>
+              <span class="recycleButton" data-tab="teacher" onclick="switchTab(this,'teacher')">已删除教师</span>
+            </div>
+            <p class="recyclTips"><i aria-label="图标: exclamation-circle" class="anticon anticon-exclamation-circle" style="color:red;padding-right:6px;font-style:normal;">⚠</i>回收站所有数据仅保留30天</p>
+          </div>
+        </div>
+      </div>
+
+      <div class="common-radius recycle-list ant-card" style="padding:24px;background:#fff;">
+        <table class="ant-table">
+          <thead id="tableHead"></thead>
+          <tbody id="tableBody"></tbody>
+        </table>
+
+        <!-- 分页 -->
+        <div class="pagination">
+          <span id="pageInfo">1-5 共5条</span>
+          <span class="page-btn">‹</span>
+          <span class="page-btn active">1</span>
+          <span class="page-btn">›</span>
+          <span>10 条/页</span>
+        </div>
+      </div>
+    </div>
+  </main>
+</div>
+
+<script>
+'use strict';
+/* ============ Mock 数据（已删除题目：基于线上真实列表） ============ */
+var DATA = {
+  question: [
+    { id: '2042470576026095618', type: '单选', stem: '流程测试单选（）', time: '2026-04-10 13:17:00' },
+    { id: '2042470916435808258', type: '多选', stem: '流程测试多选题（）', time: '2026-04-10 13:16:53' },
+    { id: '2042471399384748033', type: '填空', stem: '流程测试填空题___,___。', time: '2026-04-10 13:16:49' },
+    { id: '2042471071251763201', type: '判断', stem: '流程测试判断题（）', time: '2026-04-10 13:16:43' },
+    { id: '2010971692217208833', type: '编程OJ', time: '2026-01-13 15:07:37',
+      stem: '<p><strong>【题目描述】</strong></p><p>某城市道路规定，机动车行驶速度不得超过每小时40公里，否则构成超速行驶。请你补全代码区第2行、第4行的代码，实现根据车速，判断是否超速的功能。</p><p><strong>【模版程序】</strong></p><pre># 创建变量speed，表示车速\nspeed ? 45\n# 如果车速大于40（公里/小时），输出“超速”\n? speed ? 40:\n    print(\'超速\')</pre>' }
+  ],
+  paper: [
+    { id: '2089700012345678901', name: '流程测试试卷A', time: '2026-04-11 09:12:00' },
+    { id: '2089700012345678902', name: '五年级Scratch期末测评卷', time: '2026-04-11 09:05:00' }
+  ],
+  task: [
+    { id: '2089700023456789012', name: '流程测试作业-第3课练习', time: '2026-04-09 18:30:00' },
+    { id: '2089700023456789013', name: '编程入门作业1', time: '2026-04-08 10:00:00' }
+  ],
+  student: [
+    { id: '2089700034567890123', name: '测试学生A', time: '2026-04-07 14:20:00' }
+  ],
+  teacher: [
+    { id: '2089700045678901234', name: '测试教师B', time: '2026-04-06 16:45:00' }
+  ]
+};
+
+var HEAD = {
+  question: { cols: ['题目ID', '题目类型', '题干', '删除时间', '操作'], op: '恢复题目' },
+  paper: { cols: ['试卷ID', '试卷名称', '删除时间', '操作'], op: '恢复试卷' },
+  task: { cols: ['作业ID', '作业名称', '删除时间', '操作'], op: '恢复作业' },
+  student: { cols: ['学生ID', '学生姓名', '删除时间', '操作'], op: '恢复学生' },
+  teacher: { cols: ['教师ID', '教师姓名', '删除时间', '操作'], op: '恢复教师' }
+};
+
+var CUR = 'question';
+var toastTimer = null;
+function toast(msg) {
+  var t = document.getElementById('demoToast');
+  t.textContent = msg; t.style.display = 'block';
+  if (toastTimer) clearTimeout(toastTimer);
+  toastTimer = setTimeout(function () { t.style.display = 'none'; }, 2200);
+}
+function esc(s) { return String(s == null ? '' : s).replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;').replace(/\"/g, '&quot;'); }
+
+/* ============ Tab 切换 ============ */
+function switchTab(el, tab) {
+  CUR = tab;
+  document.querySelectorAll('.recycleButton').forEach(function (b) { b.classList.remove('recycleButtonActive'); });
+  el.classList.add('recycleButtonActive');
+  render();
+}
+
+/* ============ 表格渲染 ============ */
+function render() {
+  var h = HEAD[CUR];
+  var rows = DATA[CUR];
+  var headHtml = '<tr>' + h.cols.map(function (c, i) {
+    var w = CUR === 'question' ? ['20%', '10%', '40%', '16%', '12%'] : ['26%', '38%', '20%', '16%'];
+    var align = i === h.cols.length - 1 ? ' style="text-align:center;"' : '';
+    return '<th style="width:' + w[i] + ';"' + align + '>' + esc(c) + '</th>';
+  }).join('') + '</tr>';
+  document.getElementById('tableHead').innerHTML = headHtml;
+
+  var bodyHtml = '';
+  for (var i = 0; i < rows.length; i++) {
+    var r = rows[i];
+    if (CUR === 'question') {
+      bodyHtml += '<tr data-id="' + esc(r.id) + '">' +
+        '<td>' + esc(r.id) + '</td>' +
+        '<td>' + esc(r.type) + '</td>' +
+        '<td class="stem-cell">' + r.stem + '</td>' +
+        '<td>' + esc(r.time) + '</td>' +
+        '<td style="text-align:center;white-space:nowrap;">' +
+          '<span class="op-link" onclick="restore(\'' + esc(r.id) + '\')">恢复题目</span>' +
+        '</td>' +
+        '</tr>';
+    } else {
+      bodyHtml += '<tr data-id="' + esc(r.id) + '">' +
+        '<td>' + esc(r.id) + '</td>' +
+        '<td>' + esc(r.name) + '</td>' +
+        '<td>' + esc(r.time) + '</td>' +
+        '<td style="text-align:center;white-space:nowrap;">' +
+          '<span class="op-link" onclick="restore(\'' + esc(r.id) + '\')">' + esc(h.op) + '</span><span class="vd"></span>' +
+          '<span class="op-link-danger" onclick="destroy(\'' + esc(r.id) + '\')">彻底删除</span>' +
+        '</td>' +
+        '</tr>';
+    }
+  }
+  document.getElementById('tableBody').innerHTML = bodyHtml || '<tr><td colspan="' + h.cols.length + '" style="text-align:center;color:#bfbfbf;padding:32px;">暂无数据</td></tr>';
+  document.getElementById('pageInfo').textContent = rows.length ? ('1-' + rows.length + ' 共' + rows.length + '条') : '0 条';
+}
+
+/* ============ 恢复 / 彻底删除 ============ */
+function restore(id) {
+  var op = HEAD[CUR].op;
+  DATA[CUR] = DATA[CUR].filter(function (r) { return r.id !== id; });
+  render();
+  toast(op + '成功（演示）');
+}
+function destroy(id) {
+  DATA[CUR] = DATA[CUR].filter(function (r) { return r.id !== id; });
+  render();
+  toast('彻底删除成功（演示）');
+}
+
+/* ============ 初始化 ============ */
+render();
+</script>
+</body>
+</html>

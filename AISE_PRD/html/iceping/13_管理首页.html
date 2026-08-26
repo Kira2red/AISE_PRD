@@ -1,0 +1,329 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>爱测评 - 管理首页</title>
+<link rel="stylesheet" href="爱测评线上样式.css">
+<style>
+html, body { margin: 0; padding: 0; background: #fff; font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", "PingFang SC", "Hiragino Sans GB", "Microsoft YaHei", sans-serif; }
+* { box-sizing: border-box; }
+
+/* 线上容器：浅蓝渐变背景，左右顶满 */
+.container {
+  min-width: 1280px !important;
+  background: linear-gradient(0deg, rgba(255, 255, 255, 0.4) 0%, rgba(255, 255, 255, 0.4) 100%), radial-gradient(158.01% 139.35% at 0% 0%, #D9F2FF 0%, #F2F0FC 27.87%, #BFD8FF 100%);
+  min-height: 100vh;
+}
+/* 线上顶栏：透明+毛玻璃，64px，满宽 */
+.header { height: 64px; width: 100%; position: sticky; top: 0; left: 0; backdrop-filter: blur(10px); background: rgba(0,0,0,0); }
+
+/* 侧边栏 */
+.sidebar { position: fixed; top: 0; left: 0; bottom: 0; width: 200px; background: #fff; border-right: 1px solid #e8e8e8; padding-top: 76px; z-index: 10; }
+.sidebar .ant-menu-inline { border-right: none; }
+
+/* 内容区 */
+.main-content-area { margin-left: 200px; padding: 24px; }
+.common-radius { border-radius: 8px; }
+.table-page-search-wrapper { background: #fff; }
+.table-page-search-wrapper .cardHeader { display: flex; justify-content: space-between; align-items: center; }
+.table-page-search-wrapper .cardHeader .title { font-size: 18px; font-weight: 600; color: #323335; margin: 0; }
+
+/* 全部功能（线上 scoped 样式） */
+.all-func { margin-top: 16px; }
+.all-func .all-panel { height: 94px; width: 100%; padding: 30px 24px; display: flex; align-items: center; border-radius: 8px; border: 1px solid #E5F5FF; background: #E5F5FF; cursor: pointer; }
+.all-func .all-panel span { color: #2A55E5; font-family: "PingFang SC"; font-size: 20px; font-weight: 600; }
+.all-func .all-panel i.iconfont { width: 32px; height: 32px; line-height: 32px; text-align: right; float: right; font-style: normal; font-size: 28px; }
+.all-func .all-panel:hover { border: 1px solid #2A55E5; }
+.all-func .all-panel.active { border: 1px solid #2A55E5; background: #DCE9FF; }
+.sec-title { color: #323335; font-family: "PingFang SC"; font-size: 18px; font-style: normal; font-weight: 600; margin-bottom: 16px; }
+
+/* 视图卡片（考试卡片/班级卡片） */
+.view-card-grid { display: flex; flex-wrap: wrap; margin: -6px; }
+.view-card-grid .ant-col-8 { width: 33.3333%; padding: 6px; }
+.func-card { background: #fff; border: 1px solid #E8E8E8; border-radius: 8px; padding: 16px; cursor: pointer; transition: border-color .2s; }
+.func-card:hover { border-color: #2A55E5; }
+.func-card .fc-name { font-size: 15px; font-weight: 600; color: #323335; margin: 0 0 10px; }
+.func-card .fc-row { font-size: 13px; color: #64666B; line-height: 24px; }
+.func-card .fc-row b { color: #323335; font-weight: 500; }
+
+/* 表格 */
+.ant-table { width: 100%; border-collapse: collapse; }
+.ant-table th { background: #fafafa; font-size: 13px; font-weight: 600; color: #64666B; text-align: left; padding: 10px 12px; border-bottom: 1px solid #e8e8e8; }
+.ant-table td { font-size: 13px; color: #323335; padding: 10px 12px; border-bottom: 1px solid #f0f0f0; }
+.op-link { color: #2A55E5; cursor: pointer; font-size: 13px; }
+.op-link:hover { text-decoration: underline; }
+.divider-v { display: inline-block; width: 1px; height: 12px; background: #e8e8e8; margin: 0 8px; vertical-align: middle; }
+.status-dot { white-space: nowrap; }
+.status-dot.green { color: rgb(0, 148, 62); }
+.status-dot.red { color: rgb(227, 73, 73); }
+
+/* 分页 */
+.pagination { display: flex; align-items: center; justify-content: flex-end; gap: 6px; margin-top: 16px; font-size: 13px; color: #64666B; }
+.pagination .page-btn { min-width: 28px; height: 28px; line-height: 28px; text-align: center; border: 1px solid #d9d9d9; border-radius: 4px; cursor: pointer; background: #fff; padding: 0 6px; }
+.pagination .page-btn.active { border-color: #2A55E5; color: #2A55E5; }
+.pagination .page-btn:hover { border-color: #2A55E5; color: #2A55E5; }
+.pagination .page-btn.disabled { color: rgba(0,0,0,.25); cursor: not-allowed; }
+.pagination .jump-input { width: 44px; height: 28px; border: 1px solid #d9d9d9; border-radius: 4px; text-align: center; font-size: 13px; }
+.pagination .page-size { display: inline-flex; align-items: center; gap: 6px; }
+
+/* 弹窗与提示 */
+.demo-toast { position: fixed; top: 80px; left: 50%; transform: translateX(-50%); background: rgba(0,0,0,.75); color: #fff; padding: 10px 20px; border-radius: 6px; font-size: 14px; z-index: 9999; display: none; }
+</style>
+</head>
+<body>
+<div class="demo-toast" id="demoToast"></div>
+<div class="container" id="app">
+  <!-- ===== 顶部导航 ===== -->
+  <div style="position: sticky; top: 0; z-index: 999;">
+    <div class="header">
+      <div class="ant-row-flex ant-row-flex-middle" style="display:flex;align-items:center;">
+        <div class="brand ant-col" style="flex: 0 0 300px; display:flex; align-items:center; padding-left:24px;">
+          <img src="assets/logo.png" alt="logo" style="height:36px;">
+          <div role="separator" class="ant-divider ant-divider-vertical"></div>
+          <div class="levelLogo"><img src="assets/level-logo.png" alt="" style="height:30px;"></div>
+        </div>
+        <div class="menu ant-col" style="flex: 1 1 0%;">
+          <ul role="menu" class="ant-menu ant-menu-horizontal ant-menu-root ant-menu-light">
+            <li role="menuitem" class="ant-menu-item"><a href="13_管理首页.html"><span>首页</span></a></li>
+            <li role="menuitem" class="ant-menu-submenu ant-menu-submenu-horizontal ant-menu-submenu-selected"><div class="ant-menu-submenu-title"><span style="display:flex;align-items:center;cursor:pointer;"><span>测评管理</span></span><i class="ant-menu-submenu-arrow"></i></div></li>
+            <li role="menuitem" class="ant-menu-item"><a href="25_测评报告.html"><span>测评报告</span></a></li>
+          </ul>
+        </div>
+        <div style="padding-right:24px; display:flex; align-items:center; gap:8px;">
+          <span class="ant-avatar" style="background:#2A55E5;">A</span>
+          <span style="font-size:14px;color:#323335;">AISE管理员</span>
+          <i class="anticon anticon-down" style="color:#999;">▾</i>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- ===== 侧边栏 ===== -->
+  <aside class="sidebar">
+    <button type="button" class="ant-btn ant-btn-primary" style="border-radius:8px;background:rgb(42,85,229);width:184px;height:44px;margin:0 auto 12px;display:block;"><span>创建考试</span></button>
+    <ul role="menu" class="ant-menu ant-menu-inline ant-menu-root ant-menu-light" style="width:calc(100% - 16px);margin-left:8px;">
+      <li role="menuitem" class="ant-menu-item ant-menu-item-selected" style="padding-left:24px;"><a href="13_管理首页.html"><i class="iconfont">🏠</i>首页</a></li>
+      <li role="menuitem" class="ant-menu-item" style="padding-left:24px;"><a href="01_题目管理.html"><i class="iconfont">📋</i>题目管理</a></li>
+      <li role="menuitem" class="ant-menu-item" style="padding-left:24px;"><a href="03_试卷编辑_列表.html"><i class="iconfont">📄</i>试卷管理</a></li>
+      <li role="menuitem" class="ant-menu-item" style="padding-left:24px;"><a href="12_考试管理_候考配置.html"><i class="iconfont">📝</i>考试管理</a></li>
+      <li role="menuitem" class="ant-menu-item" style="padding-left:24px;"><a href="18_日常作业.html"><i class="iconfont">📚</i>日常作业</a></li>
+      <li role="menuitem" class="ant-menu-item" style="padding-left:24px;"><a href="#"><i class="iconfont">🏫</i>班级管理</a></li>
+      <li role="menuitem" class="ant-menu-item" style="padding-left:24px;"><a href="#"><i class="iconfont">👨‍🏫</i>教师管理</a></li>
+      <li role="menuitem" class="ant-menu-item" style="padding-left:24px;"><a href="#"><i class="iconfont">🧑‍🎓</i>学生管理</a></li>
+      <li role="menuitem" class="ant-menu-item" style="padding-left:24px;"><a href="#"><i class="iconfont">🏢</i>组织管理</a></li>
+      <li role="menuitem" class="ant-menu-item" style="padding-left:24px;"><a href="#"><i class="iconfont">🗑</i>回收站</a></li>
+    </ul>
+  </aside>
+
+  <!-- ===== 主内容 ===== -->
+  <main class="ant-layout-content main-content-area">
+    <!-- 全部功能 -->
+    <div class="common-radius all-func ant-card">
+      <div class="ant-card-body">
+        <div class="sec-title"><span>全部功能</span></div>
+        <div class="ant-row view-card-grid">
+          <div class="ant-col ant-col-6" style="padding: 6px; width: 25%;">
+            <div class="all-panel active" data-view="exam" onclick="switchView('exam', this)"><span>所有考试</span><i class="iconfont">📝</i></div>
+          </div>
+          <div class="ant-col ant-col-6" style="padding: 6px; width: 25%;">
+            <div class="all-panel" data-view="paper" onclick="switchView('paper', this)"><span>所有试卷</span><i class="iconfont">📄</i></div>
+          </div>
+          <div class="ant-col ant-col-6" style="padding: 6px; width: 25%;">
+            <div class="all-panel" data-view="class" onclick="switchView('class', this)"><span>班级管理</span><i class="iconfont">👥</i></div>
+          </div>
+          <div class="ant-col ant-col-6" style="padding: 6px; width: 25%;">
+            <div class="all-panel" data-view="user" onclick="switchView('user', this)"><span>个人中心</span><i class="iconfont">👤</i></div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- 所有考试（卡片） -->
+    <div class="common-radius exam-list ant-card" id="viewExam" style="display:none;">
+      <div class="ant-card-body">
+        <div class="sec-title"><span>所有考试</span></div>
+        <div class="ant-row view-card-grid" id="examCards"></div>
+      </div>
+    </div>
+
+    <!-- 试卷列表（默认） -->
+    <div class="common-radius exam-list ant-card" id="viewPaper">
+      <div class="ant-card-body">
+        <div class="sec-title"><span>试卷列表</span></div>
+        <table class="ant-table">
+          <thead>
+            <tr>
+              <th style="width: 420px; min-width: 420px;">试卷名称</th>
+              <th>题目数量</th>
+              <th>总分</th>
+              <th>试卷id</th>
+              <th style="text-align: center;">操作</th>
+            </tr>
+          </thead>
+          <tbody id="paperBody"></tbody>
+        </table>
+        <div class="pagination">
+          <span id="pageInfo">1-10 共68条</span>
+          <span class="page-btn disabled" id="prevBtn" onclick="goPage(curPage-1)">‹</span>
+          <span id="pageBtns" style="display:flex;gap:6px;"></span>
+          <span class="page-btn" id="nextBtn" onclick="goPage(curPage+1)">›</span>
+          <span class="page-size">10 条/页</span>
+          <span style="display:inline-flex;align-items:center;gap:6px;">跳至 <input type="text" class="jump-input" id="jumpInput" onkeydown="if(event.key==='Enter')jumpPage()"> 页 <button type="button" class="ant-btn" style="height:28px;line-height:26px;padding:0 12px;" onclick="jumpPage()">跳 转</button></span>
+        </div>
+      </div>
+    </div>
+
+    <!-- 班级管理（卡片） -->
+    <div class="common-radius exam-list ant-card" id="viewClass" style="display:none;">
+      <div class="ant-card-body">
+        <div class="sec-title"><span>班级管理</span></div>
+        <div class="ant-row view-card-grid" id="classCards"></div>
+      </div>
+    </div>
+
+    <!-- 个人中心（演示占位） -->
+    <div class="common-radius exam-list ant-card" id="viewUser" style="display:none;">
+      <div class="ant-card-body">
+        <div class="sec-title"><span>个人中心</span></div>
+        <div style="text-align:center;color:#bfbfbf;padding:64px 0;font-size:14px;">个人中心页面（演示占位）</div>
+      </div>
+    </div>
+  </main>
+</div>
+
+<script>
+'use strict';
+/* ============ Mock 数据（基于线上真实列表） ============ */
+var PAPERS = [
+  { name: '测试考中考后修改', q: 1, score: 100, id: 'PAPER20260512000002' },
+  { name: '评分维度测试', q: 1, score: 100, id: 'PAPER20260508000001' },
+  { name: '【LW】维度测试', q: 1, score: 100, id: 'PAPER20260512000001' },
+  { name: '测试模拟考试', q: 5, score: 2, id: 'PAPER20260509000001' },
+  { name: '试卷一', q: 1, score: 0, id: 'PAPER20260427000005' },
+  { name: '图形化2', q: 1, score: 100, id: 'PAPER20260427000001' },
+  { name: '测试实践题赋分增强功能', q: 3, score: 100, id: 'PAPER20251130000001' },
+  { name: '4月27第二次测试', q: 1, score: 10, id: 'PAPER20260413000002' },
+  { name: '4.27wqhaisecs', q: 7, score: 25, id: 'PAPER20260410000001' },
+  { name: '实践题在线阅卷预览功能与手动批改试卷状态测试', q: 2, score: 100, id: 'PAPER20260112000002' }
+];
+var EXAMS = [
+  { name: '0821测试考场', time: '2026-08-24 06:05~2026-08-27 11:00', dur: 180, status: '进行中' },
+  { name: '0821测试', time: '2026-08-20 14:58~2026-08-25 14:58', dur: 60, status: '已结束' },
+  { name: '候场0815', time: '2026-08-15 14:30~2026-08-15 14:50', dur: 20, status: '已结束' },
+  { name: '0814测试', time: '2026-08-14 17:06~2026-08-14 18:06', dur: 20, status: '已结束' },
+  { name: '0818测试', time: '2026-08-01 22:50~2026-08-25 22:18', dur: 60, status: '已结束' },
+  { name: 'aica测试考试2024', time: '2026-08-01 18:07~2026-12-31 18:07', dur: 1800, status: '进行中' }
+];
+var CLASSES = [
+  { name: 'AI创新实验1班', grade: '四年级', count: 32, teacher: '王老师' },
+  { name: 'Scratch趣味编程班', grade: '三年级', count: 28, teacher: '李老师' },
+  { name: 'Python进阶班', grade: '五年级', count: 25, teacher: '张老师' },
+  { name: 'C++竞赛集训班', grade: '六年级', count: 18, teacher: '陈老师' }
+];
+
+var toastTimer = null;
+function toast(msg) {
+  var t = document.getElementById('demoToast');
+  t.textContent = msg; t.style.display = 'block';
+  if (toastTimer) clearTimeout(toastTimer);
+  toastTimer = setTimeout(function () { t.style.display = 'none'; }, 2200);
+}
+function esc(s) { return String(s == null ? '' : s).replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;').replace(/\"/g, '&quot;'); }
+
+/* ============ 全部功能卡片切换 ============ */
+function switchView(view, el) {
+  if (view === 'user') { toast('👤 个人中心（演示）'); }
+  var panels = document.querySelectorAll('.all-panel');
+  for (var i = 0; i < panels.length; i++) panels[i].classList.remove('active');
+  el.classList.add('active');
+  ['viewExam', 'viewPaper', 'viewClass', 'viewUser'].forEach(function (id) {
+    document.getElementById(id).style.display = id === 'viewExam' && view === 'exam' || id === 'viewPaper' && view === 'paper' || id === 'viewClass' && view === 'class' || id === 'viewUser' && view === 'user' ? '' : 'none';
+  });
+}
+
+/* ============ 考试卡片 / 班级卡片 ============ */
+function renderExamCards() {
+  var html = '';
+  for (var i = 0; i < EXAMS.length; i++) {
+    var e = EXAMS[i];
+    var green = e.status === '进行中';
+    html += '<div class="ant-col ant-col-8"><div class="func-card" onclick="toast(\'📝 查看考试「' + esc(e.name) + '」详情（演示）\')">' +
+      '<p class="fc-name">' + esc(e.name) + '</p>' +
+      '<div class="fc-row">起止时间：<b>' + esc(e.time) + '</b></div>' +
+      '<div class="fc-row">考试时长：<b>' + e.dur + '</b> 分钟　状态：<span class="status-dot ' + (green ? 'green' : 'red') + '">● ' + esc(e.status) + '</span></div>' +
+      '</div></div>';
+  }
+  document.getElementById('examCards').innerHTML = html;
+}
+function renderClassCards() {
+  var html = '';
+  for (var i = 0; i < CLASSES.length; i++) {
+    var c = CLASSES[i];
+    html += '<div class="ant-col ant-col-8"><div class="func-card" onclick="toast(\'🏫 查看班级「' + esc(c.name) + '」（演示）\')">' +
+      '<p class="fc-name">' + esc(c.name) + '</p>' +
+      '<div class="fc-row">年级：<b>' + esc(c.grade) + '</b></div>' +
+      '<div class="fc-row">学生数量：<b>' + c.count + '</b> 人　教师：<b>' + esc(c.teacher) + '</b></div>' +
+      '</div></div>';
+  }
+  document.getElementById('classCards').innerHTML = html;
+}
+
+/* ============ 试卷列表（分页 mock，共68条） ============ */
+var curPage = 1, pageSize = 10, total = 68, pageCount = Math.ceil(total / pageSize);
+function pad(n, w) { n = String(n); while (n.length < w) n = '0' + n; return n; }
+function pageRows(p) {
+  if (p === 1) return PAPERS;
+  var rows = [];
+  var start = (p - 1) * pageSize;
+  var cnt = Math.min(pageSize, total - start);
+  for (var i = 1; i <= cnt; i++) {
+    var seq = start + i;
+    rows.push({ name: '测试试卷' + seq, q: (seq % 8) + 1, score: (seq % 5) * 20, id: 'PAPER' + (2090000000000000 + seq) });
+  }
+  return rows;
+}
+function renderPaper() {
+  var rows = pageRows(curPage);
+  var html = '';
+  for (var i = 0; i < rows.length; i++) {
+    var r = rows[i];
+    html += '<tr>' +
+      '<td>' + esc(r.name) + '</td>' +
+      '<td>' + r.q + '</td>' +
+      '<td>' + r.score + '</td>' +
+      '<td>' + r.id + '</td>' +
+      '<td style="text-align:center;"><span class="op-link" onclick="toast(\'👁 预览试卷「' + esc(r.name) + '」（演示）\')">预览</span><span class="divider-v"></span><span class="op-link" onclick="toast(\'📅 安排考试（演示）\')">安排考试</span></td>' +
+      '</tr>';
+  }
+  document.getElementById('paperBody').innerHTML = html;
+  var startIdx = (curPage - 1) * pageSize + 1;
+  var endIdx = Math.min(curPage * pageSize, total);
+  document.getElementById('pageInfo').textContent = startIdx + '-' + endIdx + ' 共' + total + '条';
+  var btns = '';
+  for (var p = 1; p <= pageCount; p++) {
+    btns += '<span class="page-btn' + (p === curPage ? ' active' : '') + '" onclick="goPage(' + p + ')">' + p + '</span>';
+  }
+  document.getElementById('pageBtns').innerHTML = btns;
+  document.getElementById('prevBtn').className = 'page-btn' + (curPage <= 1 ? ' disabled' : '');
+  document.getElementById('nextBtn').className = 'page-btn' + (curPage >= pageCount ? ' disabled' : '');
+}
+function goPage(p) {
+  if (p < 1 || p > pageCount || p === curPage) return;
+  curPage = p;
+  renderPaper();
+}
+function jumpPage() {
+  var v = parseInt(document.getElementById('jumpInput').value, 10);
+  if (isNaN(v)) { toast('请输入页码'); return; }
+  if (v < 1 || v > pageCount) { toast('页码超出范围（1-' + pageCount + '）'); return; }
+  goPage(v);
+}
+
+/* ============ 初始化 ============ */
+renderExamCards();
+renderClassCards();
+renderPaper();
+</script>
+</body>
+</html>

@@ -235,10 +235,7 @@
             startTimer();
         }
 
-        function startExam() {
-            // 正式环境：服务端二次校验当前时刻 ≥ 开考时间后进入答题页
-            alert('已进入考试（Demo：正式环境将跳转答题页，无需重复检测检录）');
-        }
+        function startExam() { location.href = '../exam/03_答题页_选择填空判断.html'; }
 
         render();
         startTimer();

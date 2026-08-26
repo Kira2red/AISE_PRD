@@ -1,0 +1,301 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>爱测评 - 试卷管理</title>
+<link rel="stylesheet" href="爱测评线上样式.css">
+<style>
+html, body { margin: 0; padding: 0; background: #fff; font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", "PingFang SC", "Hiragino Sans GB", "Microsoft YaHei", sans-serif; }
+* { box-sizing: border-box; }
+
+/* 线上容器：浅蓝渐变背景，左右顶满 */
+.container {
+  min-width: 1280px !important;
+  background: linear-gradient(0deg, rgba(255, 255, 255, 0.4) 0%, rgba(255, 255, 255, 0.4) 100%), radial-gradient(158.01% 139.35% at 0% 0%, #D9F2FF 0%, #F2F0FC 27.87%, #BFD8FF 100%);
+  min-height: 100vh;
+}
+/* 线上顶栏：透明+毛玻璃，64px，满宽 */
+.header { height: 64px; width: 100%; position: sticky; top: 0; left: 0; backdrop-filter: blur(10px); background: rgba(0,0,0,0); }
+
+/* 侧边栏 */
+.sidebar { position: fixed; top: 0; left: 0; bottom: 0; width: 200px; background: #fff; border-right: 1px solid #e8e8e8; padding-top: 76px; z-index: 10; }
+.sidebar .ant-menu-inline { border-right: none; }
+
+/* 内容区 */
+.main-content-area { margin-left: 200px; padding: 24px; }
+.common-radius { border-radius: 8px; }
+.table-page-search-wrapper { background: #fff; }
+.table-page-search-wrapper .cardHeader { display: flex; justify-content: space-between; align-items: center; }
+.table-page-search-wrapper .cardHeader .title { font-size: 18px; font-weight: 600; color: #323335; margin: 0; }
+.table-page-search-wrapper .ant-divider-horizontal { margin: 16px 0; }
+.table-page-search-wrapper .ant-input-group-wrapper { width: 100%; }
+.table-page-search-wrapper .ant-input { height: 32px; font-size: 14px; }
+
+/* 查询按钮：ghost 主色描边（线上样式） */
+.ant-btn-background-ghost.ant-btn-primary { color: #2A55E5; background-color: transparent; border-color: #2A55E5; text-shadow: none; }
+
+/* 新增按钮 */
+.table-operator { margin-bottom: 16px; }
+
+/* 试卷卡片 */
+.list .paper-card { border-radius: 12px; border: 1px solid #f4f4f5; }
+.list .paper-card .ant-card-body { padding: 16px; }
+.list .paper-card .title { display: flex; align-items: center; justify-content: space-between; margin: 0; }
+.list .paper-card .title span { color: #323335; font-family: PingFang SC; font-size: 16px; font-style: normal; font-weight: 500; }
+.list .paper-card .tag { margin-top: 10px; }
+.list .paper-card .tag span { color: #969aa0; font-family: PingFang SC; font-size: 12px; }
+.list .paper-card .tag .ant-divider-vertical { margin: 0 8px; }
+.list .paper-card .desc { color: #64666b; font-family: PingFang SC; font-size: 14px; min-height: 20px; }
+.list .paper-card .btn { float: right; margin-top: 10px; }
+.list .paper-card .btn .ks_primary { background: #fff; border: 1px solid #2A55E5; color: #2A55E5; }
+.spanTag1 { display: inline-block; width: auto; min-height: 18px !important; background-color: #E9F8F1; font-size: 12px !important; color: #00943E !important; border-radius: 4px; line-height: 18px; padding: 2px 6px; }
+
+/* 表格 & 分页 */
+.pagination-wrap { display: flex; align-items: center; justify-content: flex-end; padding-top: 15px; }
+.ant-pagination { display: inline-flex; align-items: center; margin: 0; padding: 0; list-style: none; font-size: 13px; color: #64666B; }
+.ant-pagination li { display: inline-block; margin-right: 8px; min-width: 28px; height: 28px; line-height: 26px; text-align: center; border: 1px solid #d9d9d9; border-radius: 4px; cursor: pointer; background: #fff; }
+.ant-pagination li a { color: rgba(0,0,0,.65); padding: 0 6px; display: block; }
+.ant-pagination li.ant-pagination-item-active { border-color: #2A55E5; }
+.ant-pagination li.ant-pagination-item-active a { color: #2A55E5; }
+.ant-pagination li.ant-pagination-disabled { cursor: not-allowed; color: rgba(0,0,0,.25); background: #f5f5f5; }
+.ant-pagination li.ant-pagination-total-text { border: none; background: transparent; width: auto; min-width: 0; line-height: 28px; }
+.demo-toast { position: fixed; top: 80px; left: 50%; transform: translateX(-50%); background: rgba(0,0,0,.75); color: #fff; padding: 10px 20px; border-radius: 6px; font-size: 14px; z-index: 9999; display: none; }
+</style>
+</head>
+<body>
+<div class="demo-toast" id="demoToast"></div>
+<div class="container" id="app">
+  <!-- ===== 顶部导航 ===== -->
+  <div style="position: sticky; top: 0; z-index: 999;">
+    <div class="header">
+      <div class="ant-row-flex ant-row-flex-middle" style="display:flex;align-items:center;">
+        <div class="brand ant-col" style="flex: 0 0 300px; display:flex; align-items:center; padding-left:24px;">
+          <img src="assets/logo.png" alt="logo" style="height:36px;">
+          <div role="separator" class="ant-divider ant-divider-vertical"></div>
+          <div class="levelLogo"><img src="assets/level-logo.png" alt="" style="height:30px;"></div>
+        </div>
+        <div class="menu ant-col" style="flex: 1 1 0%;">
+          <ul role="menu" class="ant-menu ant-menu-horizontal ant-menu-root ant-menu-light">
+            <li role="menuitem" class="ant-menu-item"><a href="/index"><span>首页</span></a></li>
+            <li role="menuitem" class="ant-menu-submenu ant-menu-submenu-horizontal ant-menu-submenu-selected"><div class="ant-menu-submenu-title"><span style="display:flex;align-items:center;cursor:pointer;"><span>测评管理</span></span><i class="ant-menu-submenu-arrow"></i></div></li>
+            <li role="menuitem" class="ant-menu-item"><a href="/dataReport"><span>测评报告</span></a></li>
+          </ul>
+        </div>
+        <div style="padding-right:24px; display:flex; align-items:center; gap:8px;">
+          <span class="ant-avatar" style="background:#2A55E5;">A</span>
+          <span style="font-size:14px;color:#323335;">AISE管理员</span>
+          <i class="anticon anticon-down" style="color:#999;">▾</i>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- ===== 侧边栏 ===== -->
+  <aside class="sidebar">
+    <button type="button" class="ant-btn ant-btn-primary" onclick="toast('创建考试（演示）')" style="border-radius:8px;background:rgb(42,85,229);width:184px;height:44px;margin:0 auto 12px;display:block;"><span>创建考试</span></button>
+    <ul role="menu" class="ant-menu ant-menu-inline ant-menu-root ant-menu-light" style="width:calc(100% - 16px);margin-left:8px;">
+      <li role="menuitem" class="ant-menu-item" style="padding-left:24px;"><a href="#"><i class="iconfont">🏠</i>首页</a></li>
+      <li role="menuitem" class="ant-menu-item" style="padding-left:24px;"><a href="01_题目管理.html"><i class="iconfont">📋</i>题目管理</a></li>
+      <li role="menuitem" class="ant-menu-item ant-menu-item-selected" style="padding-left:24px;"><a href="14_试卷管理.html"><i class="iconfont">📄</i>试卷管理</a></li>
+      <li role="menuitem" class="ant-menu-item" style="padding-left:24px;"><a href="16_考试管理.html"><i class="iconfont">📝</i>考试管理</a></li>
+      <li role="menuitem" class="ant-menu-item" style="padding-left:24px;"><a href="#"><i class="iconfont">📚</i>日常作业</a></li>
+      <li role="menuitem" class="ant-menu-item" style="padding-left:24px;"><a href="#"><i class="iconfont">🏫</i>班级管理</a></li>
+      <li role="menuitem" class="ant-menu-item" style="padding-left:24px;"><a href="#"><i class="iconfont">👨‍🏫</i>教师管理</a></li>
+      <li role="menuitem" class="ant-menu-item" style="padding-left:24px;"><a href="#"><i class="iconfont">🧑‍🎓</i>学生管理</a></li>
+      <li role="menuitem" class="ant-menu-item" style="padding-left:24px;"><a href="#"><i class="iconfont">🏢</i>组织管理</a></li>
+      <li role="menuitem" class="ant-menu-item" style="padding-left:24px;"><a href="#"><i class="iconfont">🗑</i>回收站</a></li>
+    </ul>
+  </aside>
+
+  <!-- ===== 主内容 ===== -->
+  <main class="ant-layout-content main-content-area">
+    <!-- 筛选卡片 -->
+    <div class="common-radius table-page-search-wrapper ant-card" style="padding:24px;">
+      <div class="cardHeader"><h2 class="title">试卷管理</h2></div>
+      <div role="separator" class="ant-divider ant-divider-horizontal"></div>
+      <form class="ant-form ant-form-inline">
+        <div class="ant-row" style="margin-left:-12px;margin-right:-12px;">
+          <div class="ant-col ant-col-sm-24 ant-col-md-8 ant-col-lg-7 ant-col-xl-6" style="padding-left:12px;padding-right:12px;">
+            <div class="ant-row ant-form-item" style="margin-bottom:16px;">
+              <div class="ant-col ant-form-item-control-wrapper">
+                <div class="ant-form-item-control">
+                  <span class="ant-form-item-children">
+                    <span class="ant-input-group-wrapper">
+                      <span class="ant-input-wrapper ant-input-group">
+                        <span class="ant-input-group-addon">关键词</span>
+                        <input placeholder="请输入关键词" type="text" class="ant-input" id="kwInput" oninput="applyFilters()">
+                      </span>
+                    </span>
+                  </span>
+                </div>
+              </div>
+            </div>
+          </div>
+          <div class="ant-col ant-col-sm-24 ant-col-md-8 ant-col-lg-7 ant-col-xl-6" style="padding-left:12px;padding-right:12px;">
+            <div class="ant-row ant-form-item" style="margin-bottom:16px;">
+              <div class="ant-col ant-form-item-control-wrapper">
+                <div class="ant-form-item-control">
+                  <span class="ant-form-item-children">
+                    <span class="ant-input-group-wrapper">
+                      <span class="ant-input-wrapper ant-input-group">
+                        <span class="ant-input-group-addon">试卷ID</span>
+                        <input placeholder="请输入试卷ID" type="text" class="ant-input" id="idInput" oninput="applyFilters()">
+                      </span>
+                    </span>
+                  </span>
+                </div>
+              </div>
+            </div>
+          </div>
+          <div class="ant-col ant-col-sm-24 ant-col-md-8 ant-col-lg-7 ant-col-xl-6" style="padding-left:12px;padding-right:12px;">
+            <span class="table-page-search-submitButtons" style="float:left;overflow:hidden;">
+              <button type="button" class="ant-btn ant-btn-primary ant-btn-background-ghost" onclick="applyFilters()"><span>查 询</span></button>
+              <button type="button" class="ant-btn" style="margin-left:8px;" onclick="resetFilters()"><span>重 置</span></button>
+            </span>
+          </div>
+        </div>
+      </form>
+    </div>
+
+    <!-- 试卷列表卡片 -->
+    <div class="common-radius list ant-card" style="margin-top:16px;">
+      <div class="ant-card-body" style="padding:24px;">
+        <button type="button" class="ant-btn ant-btn-primary" style="margin-bottom:16px;" onclick="location.href='15_试卷编辑.html'">
+          <i aria-label="图标: plus" class="anticon anticon-plus" style="margin-right:4px;">＋</i><span>新增试卷</span>
+        </button>
+        <div class="ant-row-flex" style="display:flex;flex-wrap:wrap;margin:-12px;" id="cardGrid"></div>
+        <div class="pagination-wrap">
+          <ul unselectable="unselectable" class="ant-pagination" id="pagination">
+            <li class="ant-pagination-total-text" id="pageInfo">1-16 共68条</li>
+            <li title="上一页" aria-disabled="true" class="ant-pagination-disabled ant-pagination-prev" id="prevPage"><a class="ant-pagination-item-link">‹</a></li>
+            <li class="ant-pagination-item ant-pagination-item-1 ant-pagination-item-active" data-page="1"><a>1</a></li>
+            <li class="ant-pagination-item ant-pagination-item-2" data-page="2"><a>2</a></li>
+            <li class="ant-pagination-item ant-pagination-item-3" data-page="3"><a>3</a></li>
+            <li class="ant-pagination-item ant-pagination-item-4" data-page="4"><a>4</a></li>
+            <li class="ant-pagination-item ant-pagination-item-5" data-page="5"><a>5</a></li>
+            <li title="下一页" class="ant-pagination-next" id="nextPage"><a class="ant-pagination-item-link">›</a></li>
+          </ul>
+        </div>
+      </div>
+    </div>
+  </main>
+</div>
+
+<script>
+'use strict';
+/* ============ Mock 数据（基于线上真实列表） ============ */
+var ROWS = [
+  { name: '测试考中考后修改', difficulty: '简单', count: '1题', score: '100分', id: 'PAPER20260512000002', submitter: 'adminAica' },
+  { name: '评分维度测试', difficulty: '简单', count: '1题', score: '100分', id: 'PAPER20260508000001', submitter: 'adminAica' },
+  { name: '【LW】维度测试', difficulty: '简单', count: '1题', score: '100分', id: 'PAPER20260512000001', submitter: 'adminAica' },
+  { name: '测试模拟考试', difficulty: '简单', count: '5题', score: '2分', id: 'PAPER20260509000001', submitter: 'adminAica' },
+  { name: '试卷一', difficulty: '简单', count: '1题', score: '0分', id: 'PAPER20260427000005', submitter: 'adminAica' },
+  { name: '图形化2', difficulty: '简单', count: '1题', score: '100分', id: 'PAPER20260427000001', submitter: 'adminAica' },
+  { name: '测试实践题赋分增强功能', difficulty: '简单', count: '3题', score: '100分', id: 'PAPER20251130000001', submitter: 'adminAica' },
+  { name: '4月27第二次测试', difficulty: '简单', count: '1题', score: '10分', id: 'PAPER20260413000002', submitter: 'adminAica' },
+  { name: '4.27wqhaisecs', difficulty: '简单', count: '7题', score: '25分', id: 'PAPER20260410000001', submitter: 'adminAica' },
+  { name: '实践题在线阅卷预览功能与手动批改试卷状态测试', difficulty: '简单', count: '2题', score: '100分', id: 'PAPER20260112000002', submitter: 'adminAica' },
+  { name: '验收证书&导入', difficulty: '简单', count: '10题', score: '100分', id: 'PAPER20260413000001', submitter: 'adminAica' },
+  { name: '测试渠道api', difficulty: '简单', count: '5题', score: '32分', id: 'PAPER20260413000023', submitter: 'adminAica' },
+  { name: '测试试卷编辑列表 - AIGC 题型答题次数限制', difficulty: '简单', count: '1题', score: '100分', id: 'PAPER20251210000001', submitter: 'adminAica' },
+  { name: '测试题目分组', difficulty: '简单', count: '14题', score: '28分', id: 'PAPER20260407000001', submitter: 'adminAica' },
+  { name: '【模拟】编程/AIGC', difficulty: '简单', count: '6题', score: '100分', id: 'PAPER20260114000001', submitter: 'adminAica' },
+  { name: '【正式】编程/AIGC', difficulty: '简单', count: '5题', score: '100分', id: 'PAPER20260319000001', submitter: 'adminAica' }
+];
+
+var toastTimer = null;
+function toast(msg) {
+  var t = document.getElementById('demoToast');
+  t.textContent = msg; t.style.display = 'block';
+  if (toastTimer) clearTimeout(toastTimer);
+  toastTimer = setTimeout(function () { t.style.display = 'none'; }, 2200);
+}
+
+function esc(s) { return String(s == null ? '' : s).replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;').replace(/"/g, '&quot;'); }
+
+/* ============ 筛选 ============ */
+function applyFilters() {
+  var kw = document.getElementById('kwInput').value.trim();
+  var id = document.getElementById('idInput').value.trim();
+  var rows = ROWS.filter(function (r) {
+    if (kw && r.name.indexOf(kw) < 0 && r.submitter.indexOf(kw) < 0) return false;
+    if (id && r.id.indexOf(id) < 0) return false;
+    return true;
+  });
+  renderCards(rows);
+}
+function resetFilters() {
+  document.getElementById('kwInput').value = '';
+  document.getElementById('idInput').value = '';
+  applyFilters();
+}
+
+/* ============ 卡片渲染 ============ */
+function cardHtml(r) {
+  return '<div class="ant-col ant-col-12" style="padding:12px;">' +
+    '<div class="paper-card ant-card ant-card-bordered">' +
+      '<div class="ant-card-body">' +
+        '<h2 class="title"><span>' + esc(r.name) + '</span><span class="spanTag1" style="float:right;">' + esc(r.difficulty) + '</span></h2>' +
+        '<div class="tag">' +
+          '<span>题目数量：' + esc(r.count) + '</span><div role="separator" class="ant-divider ant-divider-vertical"></div>' +
+          '<span>总分：' + esc(r.score) + '</span><div role="separator" class="ant-divider ant-divider-vertical"></div>' +
+          '<span>试卷ID：' + esc(r.id) + '</span><div role="separator" class="ant-divider ant-divider-vertical"></div>' +
+          '<span>提交人：' + esc(r.submitter) + '</span>' +
+        '</div>' +
+        '<div class="desc"></div>' +
+        '<div class="btn">' +
+          '<button type="button" class="ant-btn ant-btn-link" style="color:red;" onclick="deletePaper(\'' + esc(r.id) + '\')"><span>删除试卷</span></button>' +
+          '<button type="button" class="ant-btn ant-btn-link" onclick="editPaper(\'' + esc(r.id) + '\')"><span>修改试卷</span></button>' +
+          '<button type="button" class="ant-btn ant-btn-link" onclick="toast(\'预览试卷（演示）\')"><span>预览</span></button>' +
+          '<button type="button" class="ks_primary ant-btn ant-btn-primary" onclick="toast(\'考试安排（演示）\')"><span>考试安排</span></button>' +
+        '</div>' +
+      '</div>' +
+    '</div>' +
+  '</div>';
+}
+function renderCards(rows) {
+  var html = '';
+  for (var i = 0; i < rows.length; i++) html += cardHtml(rows[i]);
+  document.getElementById('cardGrid').innerHTML = html ||
+    '<div class="ant-col ant-col-24" style="padding:12px;text-align:center;color:#bfbfbf;padding:60px 0;">暂无数据</div>';
+}
+
+/* ============ 行操作 ============ */
+function findPaper(id) { return ROWS.filter(function (r) { return r.id === id; })[0]; }
+function deletePaper(id) {
+  var r = findPaper(id);
+  if (!r) return;
+  if (!confirm('确定删除试卷「' + r.name + '」吗？')) return;
+  ROWS = ROWS.filter(function (x) { return x.id !== id; });
+  applyFilters();
+  toast('已删除试卷（演示）');
+}
+function editPaper(id) {
+  var r = findPaper(id);
+  if (!r) return;
+  location.href = '15_试卷编辑.html?name=' + encodeURIComponent(r.name);
+}
+
+/* ============ 分页 mock ============ */
+var currentPage = 1;
+document.getElementById('pagination').addEventListener('click', function (e) {
+  var li = e.target.closest('li[data-page]');
+  if (!li) return;
+  var p = parseInt(li.getAttribute('data-page'), 10);
+  if (p === currentPage) return;
+  document.querySelectorAll('#pagination li[data-page]').forEach(function (x) { x.classList.remove('ant-pagination-item-active'); });
+  li.classList.add('ant-pagination-item-active');
+  currentPage = p;
+  if (p > 1) {
+    toast('演示数据仅采集第 1 页，共68条');
+  } else {
+    applyFilters();
+  }
+});
+
+/* ============ 初始化 ============ */
+applyFilters();
+</script>
+</body>
+</html>

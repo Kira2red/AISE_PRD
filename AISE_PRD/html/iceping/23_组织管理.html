@@ -1,0 +1,234 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>爱测评 - 组织管理</title>
+<link rel="stylesheet" href="爱测评线上样式.css">
+<style>
+html, body { margin: 0; padding: 0; background: #fff; font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", "PingFang SC", "Hiragino Sans GB", "Microsoft YaHei", sans-serif; }
+* { box-sizing: border-box; }
+
+/* 线上容器：浅蓝渐变背景，左右顶满 */
+.container {
+  min-width: 1280px !important;
+  background: linear-gradient(0deg, rgba(255, 255, 255, 0.4) 0%, rgba(255, 255, 255, 0.4) 100%), radial-gradient(158.01% 139.35% at 0% 0%, #D9F2FF 0%, #F2F0FC 27.87%, #BFD8FF 100%);
+  min-height: 100vh;
+}
+/* 线上顶栏：透明+毛玻璃，64px，满宽 */
+.header { height: 64px; width: 100%; position: sticky; top: 0; left: 0; backdrop-filter: blur(10px); background: rgba(0,0,0,0); }
+
+/* 侧边栏 */
+.sidebar { position: fixed; top: 0; left: 0; bottom: 0; width: 200px; background: #fff; border-right: 1px solid #e8e8e8; padding-top: 76px; z-index: 10; }
+.sidebar .ant-menu-inline { border-right: none; }
+
+/* 内容区 */
+.main-content-area { margin-left: 200px; padding: 24px; }
+.common-radius { border-radius: 8px; }
+.table-page-search-wrapper { background: #fff; }
+.table-page-search-wrapper .cardHeader { display: flex; justify-content: space-between; align-items: center; }
+.table-page-search-wrapper .cardHeader .title { font-size: 18px; font-weight: 600; color: #323335; margin: 0; }
+.list-card { margin-top: 16px; }
+
+/* 表单（线上 ant-form-horizontal） */
+.form-item { display: flex; align-items: flex-start; margin-bottom: 16px; }
+.form-item .form-label { width: 90px; text-align: right; padding-right: 12px; line-height: 32px; font-size: 14px; color: #323335; flex-shrink: 0; }
+.form-item .form-label .req { color: #f5222d; margin-right: 2px; }
+.form-item .form-ctl { flex: 1; max-width: 400px; }
+.form-item .ant-input { width: 300px; height: 32px; border: 1px solid #d9d9d9; border-radius: 4px; padding: 0 8px; font-size: 14px; outline: none; }
+.form-item .ant-input:focus { border-color: #2A55E5; }
+.form-item .form-text { font-size: 14px; color: #323335; line-height: 32px; }
+
+/* 地区选择（线上 j-area-linkage 简化演示） */
+.area-select { position: relative; display: inline-block; width: 300px; }
+.area-selected-trigger { display: block; width: 100%; height: 32px; line-height: 32px; border: 1px solid #d9d9d9; border-radius: 4px; padding: 0 28px 0 8px; font-size: 14px; color: #323335; background: #fff; cursor: pointer; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+.area-select-icon { position: absolute; right: 8px; top: 50%; transform: translateY(-50%); color: #bfbfbf; font-size: 12px; }
+.area-dropdown { position: absolute; top: 34px; left: 0; z-index: 300; background: #fff; border: 1px solid #e8e8e8; border-radius: 4px; box-shadow: 0 2px 8px rgba(0,0,0,.15); width: 300px; max-height: 260px; overflow: auto; display: none; }
+.area-dropdown .area-opt { padding: 7px 14px; font-size: 13px; color: #323335; cursor: pointer; }
+.area-dropdown .area-opt:hover, .area-dropdown .area-opt.selected { background: #E5F5FF; color: #2A55E5; }
+
+/* 组织图标上传（线上 ant-upload picture-card） */
+.upload-img-card { position: relative; width: 104px; height: 104px; border: 1px solid #e8e8e8; border-radius: 8px; overflow: hidden; display: inline-flex; align-items: center; justify-content: center; background: #fff; vertical-align: top; }
+.upload-img-card img { max-width: 100%; max-height: 100%; display: block; }
+.upload-img-card .ua-actions { position: absolute; inset: 0; background: rgba(0,0,0,.45); display: none; align-items: center; justify-content: center; gap: 12px; color: #fff; font-size: 12px; cursor: pointer; }
+.upload-img-card:hover .ua-actions { display: flex; }
+.ua-actions span:hover { color: #40a9ff; }
+.upload-btn { width: 104px; height: 104px; border: 1px dashed #d9d9d9; border-radius: 8px; background: #fafafa; cursor: pointer; display: inline-flex; flex-direction: column; align-items: center; justify-content: center; gap: 6px; color: #64666B; font-size: 12px; vertical-align: top; margin-left: 8px; }
+.upload-btn:hover { border-color: #2A55E5; color: #2A55E5; }
+
+.demo-toast { position: fixed; top: 80px; left: 50%; transform: translateX(-50%); background: rgba(0,0,0,.75); color: #fff; padding: 10px 20px; border-radius: 6px; font-size: 14px; z-index: 9999; display: none; }
+</style>
+</head>
+<body>
+<div class="demo-toast" id="demoToast"></div>
+<div id="app" class="container">
+  <!-- ===== 顶部导航 ===== -->
+  <div style="position: sticky; top: 0; z-index: 999;">
+    <div class="header">
+      <div class="ant-row-flex ant-row-flex-middle" style="display:flex;align-items:center;">
+        <div class="brand ant-col" style="flex: 0 0 300px; display:flex; align-items:center; padding-left:24px;">
+          <img src="assets/logo.png" alt="logo" style="height:36px;">
+          <div role="separator" class="ant-divider ant-divider-vertical"></div>
+          <div class="levelLogo"><img src="assets/level-logo.png" alt="" style="height:30px;"></div>
+        </div>
+        <div class="menu ant-col" style="flex: 1 1 0%;">
+          <ul role="menu" class="ant-menu ant-menu-horizontal ant-menu-root ant-menu-light">
+            <li role="menuitem" class="ant-menu-item"><a href="#"><span>首页</span></a></li>
+            <li role="menuitem" class="ant-menu-submenu ant-menu-submenu-horizontal ant-menu-submenu-selected"><div class="ant-menu-submenu-title"><span style="display:flex;align-items:center;cursor:pointer;"><span>测评管理</span></span><i class="ant-menu-submenu-arrow"></i></div></li>
+            <li role="menuitem" class="ant-menu-item"><a href="#"><span>测评报告</span></a></li>
+          </ul>
+        </div>
+        <div style="padding-right:24px; display:flex; align-items:center; gap:8px;">
+          <span class="ant-avatar" style="background:#2A55E5;">A</span>
+          <span style="font-size:14px;color:#323335;">AISE管理员</span>
+          <i class="anticon anticon-down" style="color:#999;">▾</i>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- ===== 侧边栏 ===== -->
+  <aside class="sidebar">
+    <button type="button" class="ant-btn ant-btn-primary" style="border-radius:8px;background:rgb(42,85,229);width:184px;height:44px;margin:0 auto 12px;display:block;"><span>创建考试</span></button>
+    <ul role="menu" class="ant-menu ant-menu-inline ant-menu-root ant-menu-light" style="width:calc(100% - 16px);margin-left:8px;">
+      <li role="menuitem" class="ant-menu-item" style="padding-left:24px;"><a href="#"><i class="iconfont">🏠</i>首页</a></li>
+      <li role="menuitem" class="ant-menu-item" style="padding-left:24px;"><a href="01_题目管理.html"><i class="iconfont">📋</i>题目管理</a></li>
+      <li role="menuitem" class="ant-menu-item" style="padding-left:24px;"><a href="#"><i class="iconfont">📄</i>试卷管理</a></li>
+      <li role="menuitem" class="ant-menu-item" style="padding-left:24px;"><a href="#"><i class="iconfont">📝</i>考试管理</a></li>
+      <li role="menuitem" class="ant-menu-item" style="padding-left:24px;"><a href="#"><i class="iconfont">📚</i>日常作业</a></li>
+      <li role="menuitem" class="ant-menu-item" style="padding-left:24px;"><a href="#"><i class="iconfont">🏫</i>班级管理</a></li>
+      <li role="menuitem" class="ant-menu-item" style="padding-left:24px;"><a href="21_教师管理.html"><i class="iconfont">👨‍🏫</i>教师管理</a></li>
+      <li role="menuitem" class="ant-menu-item" style="padding-left:24px;"><a href="22_学生管理.html"><i class="iconfont">🧑‍🎓</i>学生管理</a></li>
+      <li role="menuitem" class="ant-menu-item ant-menu-item-selected" style="padding-left:24px;"><a href="23_组织管理.html"><i class="iconfont">🏢</i>组织管理</a></li>
+      <li role="menuitem" class="ant-menu-item" style="padding-left:24px;"><a href="24_回收站.html"><i class="iconfont">🗑</i>回收站</a></li>
+    </ul>
+  </aside>
+
+  <!-- ===== 主内容 ===== -->
+  <main class="ant-layout-content main-content-area">
+    <div class="common-radius table-page-search-wrapper ant-card" style="padding:24px;">
+      <div class="cardHeader"><h2 class="title">组织配置</h2></div>
+    </div>
+
+    <div class="common-radius list-card ant-card" style="padding:24px;background:#fff;min-height:500px;">
+      <form onsubmit="saveOrg();return false;">
+        <div class="form-item">
+          <span class="form-label"><span class="req">*</span>组织名称</span>
+          <div class="form-ctl"><input type="text" class="ant-input" id="orgName" placeholder="请输入组织名称"></div>
+        </div>
+        <div class="form-item">
+          <span class="form-label">组织域名</span>
+          <div class="form-ctl"><span class="form-text">aica.test.iceping.org.cn</span></div>
+        </div>
+        <div class="form-item">
+          <span class="form-label">所属地区</span>
+          <div class="form-ctl">
+            <div class="area-select" id="areaSelect">
+              <span class="area-selected-trigger" id="areaVal" onclick="toggleArea()">北京市/市辖区/东城区</span>
+              <i class="area-select-icon">▾</i>
+              <div class="area-dropdown" id="areaDropdown">
+                <div class="area-opt selected" onclick="pickArea(this)">北京市</div>
+                <div class="area-opt" onclick="pickArea(this)">天津市</div>
+                <div class="area-opt" onclick="pickArea(this)">河北省</div>
+                <div class="area-opt" onclick="pickArea(this)">山西省</div>
+                <div class="area-opt" onclick="pickArea(this)">内蒙古自治区</div>
+                <div class="area-opt" onclick="pickArea(this)">辽宁省</div>
+                <div class="area-opt" onclick="pickArea(this)">吉林省</div>
+                <div class="area-opt" onclick="pickArea(this)">黑龙江省</div>
+                <div class="area-opt" onclick="pickArea(this)">上海市</div>
+                <div class="area-opt" onclick="pickArea(this)">江苏省</div>
+                <div class="area-opt" onclick="pickArea(this)">浙江省</div>
+                <div class="area-opt" onclick="pickArea(this)">安徽省</div>
+                <div class="area-opt" onclick="pickArea(this)">福建省</div>
+                <div class="area-opt" onclick="pickArea(this)">江西省</div>
+                <div class="area-opt" onclick="pickArea(this)">山东省</div>
+                <div class="area-opt" onclick="pickArea(this)">河南省</div>
+                <div class="area-opt" onclick="pickArea(this)">湖北省</div>
+                <div class="area-opt" onclick="pickArea(this)">湖南省</div>
+                <div class="area-opt" onclick="pickArea(this)">广东省</div>
+                <div class="area-opt" onclick="pickArea(this)">广西壮族自治区</div>
+                <div class="area-opt" onclick="pickArea(this)">海南省</div>
+                <div class="area-opt" onclick="pickArea(this)">重庆市</div>
+                <div class="area-opt" onclick="pickArea(this)">四川省</div>
+                <div class="area-opt" onclick="pickArea(this)">贵州省</div>
+                <div class="area-opt" onclick="pickArea(this)">云南省</div>
+                <div class="area-opt" onclick="pickArea(this)">西藏自治区</div>
+                <div class="area-opt" onclick="pickArea(this)">陕西省</div>
+                <div class="area-opt" onclick="pickArea(this)">甘肃省</div>
+                <div class="area-opt" onclick="pickArea(this)">青海省</div>
+                <div class="area-opt" onclick="pickArea(this)">宁夏回族自治区</div>
+                <div class="area-opt" onclick="pickArea(this)">新疆维吾尔自治区</div>
+                <div class="area-opt" onclick="pickArea(this)">台湾省</div>
+                <div class="area-opt" onclick="pickArea(this)">港澳</div>
+              </div>
+            </div>
+          </div>
+        </div>
+        <div class="form-item">
+          <span class="form-label">组织图标</span>
+          <div class="form-ctl">
+            <span class="upload-img-card" id="imgCard">
+              <img src="assets/level-logo.png" alt="75aa55f02287470f89d508c5d9688c47.png">
+              <span class="ua-actions">
+                <span onclick="event.stopPropagation();toast('预览组织图标（演示）')">预览</span>
+                <span onclick="event.stopPropagation();removeIcon()">删除</span>
+              </span>
+            </span>
+            <span class="upload-btn" id="uploadBtn" style="display:none;" onclick="toast('上传组织图标（演示）')">📷<span>组织图标上传</span></span>
+          </div>
+        </div>
+        <div class="form-item">
+          <span class="form-label"></span>
+          <div class="form-ctl">
+            <button type="submit" class="ant-btn ant-btn-primary" style="margin-left:60px;"><span>保 存</span></button>
+          </div>
+        </div>
+      </form>
+    </div>
+  </main>
+</div>
+
+<script>
+'use strict';
+var toastTimer = null;
+function toast(msg) {
+  var t = document.getElementById('demoToast');
+  t.textContent = msg; t.style.display = 'block';
+  if (toastTimer) clearTimeout(toastTimer);
+  toastTimer = setTimeout(function () { t.style.display = 'none'; }, 2200);
+}
+
+/* ============ 地区选择 ============ */
+function toggleArea() {
+  var dd = document.getElementById('areaDropdown');
+  dd.style.display = dd.style.display === 'none' ? 'block' : 'none';
+}
+function pickArea(el) {
+  document.getElementById('areaVal').textContent = el.textContent + '/市辖区/东城区';
+  document.querySelectorAll('.area-dropdown .area-opt').forEach(function (o) { o.classList.remove('selected'); });
+  el.classList.add('selected');
+  document.getElementById('areaDropdown').style.display = 'none';
+}
+document.addEventListener('click', function (e) {
+  if (!e.target.closest('#areaSelect')) document.getElementById('areaDropdown').style.display = 'none';
+});
+
+/* ============ 组织图标 ============ */
+function removeIcon() {
+  document.getElementById('imgCard').style.display = 'none';
+  document.getElementById('uploadBtn').style.display = 'inline-flex';
+  toast('已移除组织图标（演示）');
+}
+
+/* ============ 保存 ============ */
+function saveOrg() {
+  var name = document.getElementById('orgName').value.trim();
+  if (!name) { toast('请输入组织名称'); return; }
+  toast('保存成功（演示）');
+}
+
+/* ============ 初始化 ============ */
+document.getElementById('orgName').value = 'AISE青少年人工智能应用创新能力测评';
+</script>
+</body>
+</html>

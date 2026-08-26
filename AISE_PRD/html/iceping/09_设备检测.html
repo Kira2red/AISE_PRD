@@ -379,12 +379,7 @@
             updateEnterBtn();
         }
 
-        function enterExam() {
-            if (!camPassed || !screenPassed) return;
-            // 透传模式：formal=正式测（进等候页）mock=模拟测（直接进）
-            var mode = new URLSearchParams(location.search).get('mode') || 'formal';
-            window.location.href = '10_检录.html?mode=' + mode;
-        }
+        function enterExam() { location.href = '10_检录.html'; }
 
         drawQR();
     </script>

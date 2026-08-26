@@ -1,0 +1,390 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>爱测评 - 学生管理</title>
+<link rel="stylesheet" href="爱测评线上样式.css">
+<style>
+html, body { margin: 0; padding: 0; background: #fff; font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", "PingFang SC", "Hiragino Sans GB", "Microsoft YaHei", sans-serif; }
+* { box-sizing: border-box; }
+
+/* 线上容器：浅蓝渐变背景，左右顶满 */
+.container {
+  min-width: 1280px !important;
+  background: linear-gradient(0deg, rgba(255, 255, 255, 0.4) 0%, rgba(255, 255, 255, 0.4) 100%), radial-gradient(158.01% 139.35% at 0% 0%, #D9F2FF 0%, #F2F0FC 27.87%, #BFD8FF 100%);
+  min-height: 100vh;
+}
+/* 线上顶栏：透明+毛玻璃，64px，满宽 */
+.header { height: 64px; width: 100%; position: sticky; top: 0; left: 0; backdrop-filter: blur(10px); background: rgba(0,0,0,0); }
+
+/* 侧边栏 */
+.sidebar { position: fixed; top: 0; left: 0; bottom: 0; width: 200px; background: #fff; border-right: 1px solid #e8e8e8; padding-top: 76px; z-index: 10; }
+.sidebar .ant-menu-inline { border-right: none; }
+
+/* 内容区 */
+.main-content-area { margin-left: 200px; padding: 24px; }
+.common-radius { border-radius: 8px; }
+.table-page-search-wrapper { background: #fff; }
+.table-page-search-wrapper .cardHeader { display: flex; justify-content: space-between; align-items: center; }
+.table-page-search-wrapper .cardHeader .title { font-size: 18px; font-weight: 600; color: #323335; margin: 0; }
+.list-card { margin-top: 16px; }
+.ant-divider-horizontal { border-top: 1px solid #e8e8e8; margin: 12px 0; }
+
+/* 筛选区（线上 .acp_form） */
+.filter-row { display: flex; flex-wrap: wrap; gap: 12px 24px; }
+.filter-group { display: flex; align-items: center; }
+.filter-group .fl-label { flex-shrink: 0; min-width: 90px; height: 32px; line-height: 30px; text-align: center; background: #fafafa; border: 1px solid #d9d9d9; border-right: none; border-radius: 4px 0 0 4px; font-size: 14px; color: #323335; padding: 0 5px 0 10px; }
+.filter-group input.ant-input { width: 160px; height: 32px; border: 1px solid #d9d9d9; border-left: none; border-radius: 0 4px 4px 0; padding: 0 8px; font-size: 14px; outline: none; }
+.filter-group input.ant-input:focus { border-color: #2A55E5; }
+
+/* 操作按钮行 */
+.table-operator { margin-bottom: 16px; display: flex; align-items: center; }
+.op-divider { display: inline-block; width: 1px; height: 20px; background: #e8e8e8; margin: 0 12px; }
+
+/* 表格 */
+.ant-table { width: 100%; border-collapse: collapse; }
+.ant-table th { background: #fafafa; font-size: 13px; font-weight: 600; color: #64666B; text-align: left; padding: 10px 12px; border-bottom: 1px solid #e8e8e8; }
+.ant-table td { font-size: 13px; color: #323335; padding: 10px 12px; border-bottom: 1px solid #f0f0f0; }
+input[type="checkbox"] { width: 16px; height: 16px; accent-color: #2A55E5; cursor: pointer; vertical-align: middle; margin: 0; }
+.op-link { color: #2A55E5; cursor: pointer; font-size: 13px; }
+.op-link:hover { text-decoration: underline; }
+.op-link-danger { color: #FF4D4F; cursor: pointer; font-size: 13px; }
+.op-link-danger:hover { text-decoration: underline; }
+.vd { display: inline-block; width: 1px; height: 12px; background: #e8e8e8; margin: 0 8px; vertical-align: middle; }
+
+/* 分页 */
+.pagination { display: flex; align-items: center; justify-content: flex-end; gap: 6px; margin-top: 16px; font-size: 13px; color: #64666B; }
+.pagination .page-btn { min-width: 28px; height: 28px; line-height: 28px; text-align: center; border: 1px solid #d9d9d9; border-radius: 4px; cursor: pointer; background: #fff; padding: 0 6px; }
+.pagination .page-btn.active { border-color: #2A55E5; color: #2A55E5; }
+
+/* 弹窗 */
+.modal-mask { position: fixed; inset: 0; background: rgba(0,0,0,.45); z-index: 1000; display: none; }
+.modal-box { position: absolute; left: 50%; top: 50%; transform: translate(-50%,-50%); width: 480px; background: #fff; border-radius: 4px; }
+.modal-title-row { padding: 16px 24px; border-bottom: 1px solid #e8e8e8; display: flex; justify-content: space-between; align-items: center; }
+.modal-title-row .t { font-size: 16px; font-weight: 600; color: #323335; }
+.modal-title-row .x { cursor: pointer; color: #969AA0; }
+.modal-body { padding: 24px; }
+.form-item { display: flex; align-items: center; margin-bottom: 16px; }
+.form-item .form-label { width: 90px; text-align: right; padding-right: 12px; font-size: 14px; color: #323335; flex-shrink: 0; }
+.form-item .form-label .req { color: #f5222d; margin-right: 2px; }
+.form-item .ant-input { flex: 1; height: 32px; border: 1px solid #d9d9d9; border-radius: 4px; padding: 0 8px; font-size: 14px; outline: none; }
+.form-item .ant-input:focus { border-color: #2A55E5; }
+.form-item .ant-select { flex: 1; position: relative; cursor: pointer; }
+.ant-select { border: 1px solid #d9d9d9; border-radius: 4px; height: 32px; line-height: 30px; background: #fff; }
+.ant-select .ant-select-selection--single { border: none; height: 30px; line-height: 30px; }
+.ant-select .ant-select-selection__rendered { line-height: 30px; padding: 0 8px; }
+.ant-select-selection__placeholder { color: #bfbfbf; font-size: 14px; }
+.ant-select-arrow { position: absolute; right: 8px; top: 50%; transform: translateY(-50%); color: #bfbfbf; font-size: 12px; }
+.ant-select { position: relative; cursor: pointer; }
+.opt-dropdown { position: absolute; top: 34px; left: 0; z-index: 200; background: #fff; border: 1px solid #e8e8e8; border-radius: 4px; box-shadow: 0 2px 8px rgba(0,0,0,.15); min-width: 100%; max-height: 260px; overflow: auto; display: none; }
+.opt-dropdown .kp-opt { padding: 7px 14px; font-size: 13px; color: #323335; cursor: pointer; }
+.opt-dropdown .kp-opt:hover, .opt-dropdown .kp-opt.active { background: #E5F5FF; color: #2A55E5; }
+.modal-footer { padding: 10px 16px; border-top: 1px solid #e8e8e8; text-align: right; }
+.demo-toast { position: fixed; top: 80px; left: 50%; transform: translateX(-50%); background: rgba(0,0,0,.75); color: #fff; padding: 10px 20px; border-radius: 6px; font-size: 14px; z-index: 9999; display: none; }
+</style>
+</head>
+<body>
+<div class="demo-toast" id="demoToast"></div>
+<div id="app" class="container">
+  <!-- ===== 顶部导航 ===== -->
+  <div style="position: sticky; top: 0; z-index: 999;">
+    <div class="header">
+      <div class="ant-row-flex ant-row-flex-middle" style="display:flex;align-items:center;">
+        <div class="brand ant-col" style="flex: 0 0 300px; display:flex; align-items:center; padding-left:24px;">
+          <img src="assets/logo.png" alt="logo" style="height:36px;">
+          <div role="separator" class="ant-divider ant-divider-vertical"></div>
+          <div class="levelLogo"><img src="assets/level-logo.png" alt="" style="height:30px;"></div>
+        </div>
+        <div class="menu ant-col" style="flex: 1 1 0%;">
+          <ul role="menu" class="ant-menu ant-menu-horizontal ant-menu-root ant-menu-light">
+            <li role="menuitem" class="ant-menu-item"><a href="#"><span>首页</span></a></li>
+            <li role="menuitem" class="ant-menu-submenu ant-menu-submenu-horizontal ant-menu-submenu-selected"><div class="ant-menu-submenu-title"><span style="display:flex;align-items:center;cursor:pointer;"><span>测评管理</span></span><i class="ant-menu-submenu-arrow"></i></div></li>
+            <li role="menuitem" class="ant-menu-item"><a href="#"><span>测评报告</span></a></li>
+          </ul>
+        </div>
+        <div style="padding-right:24px; display:flex; align-items:center; gap:8px;">
+          <span class="ant-avatar" style="background:#2A55E5;">A</span>
+          <span style="font-size:14px;color:#323335;">AISE管理员</span>
+          <i class="anticon anticon-down" style="color:#999;">▾</i>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- ===== 侧边栏 ===== -->
+  <aside class="sidebar">
+    <button type="button" class="ant-btn ant-btn-primary" style="border-radius:8px;background:rgb(42,85,229);width:184px;height:44px;margin:0 auto 12px;display:block;"><span>创建考试</span></button>
+    <ul role="menu" class="ant-menu ant-menu-inline ant-menu-root ant-menu-light" style="width:calc(100% - 16px);margin-left:8px;">
+      <li role="menuitem" class="ant-menu-item" style="padding-left:24px;"><a href="#"><i class="iconfont">🏠</i>首页</a></li>
+      <li role="menuitem" class="ant-menu-item" style="padding-left:24px;"><a href="01_题目管理.html"><i class="iconfont">📋</i>题目管理</a></li>
+      <li role="menuitem" class="ant-menu-item" style="padding-left:24px;"><a href="#"><i class="iconfont">📄</i>试卷管理</a></li>
+      <li role="menuitem" class="ant-menu-item" style="padding-left:24px;"><a href="#"><i class="iconfont">📝</i>考试管理</a></li>
+      <li role="menuitem" class="ant-menu-item" style="padding-left:24px;"><a href="#"><i class="iconfont">📚</i>日常作业</a></li>
+      <li role="menuitem" class="ant-menu-item" style="padding-left:24px;"><a href="#"><i class="iconfont">🏫</i>班级管理</a></li>
+      <li role="menuitem" class="ant-menu-item" style="padding-left:24px;"><a href="21_教师管理.html"><i class="iconfont">👨‍🏫</i>教师管理</a></li>
+      <li role="menuitem" class="ant-menu-item ant-menu-item-selected" style="padding-left:24px;"><a href="22_学生管理.html"><i class="iconfont">🧑‍🎓</i>学生管理</a></li>
+      <li role="menuitem" class="ant-menu-item" style="padding-left:24px;"><a href="23_组织管理.html"><i class="iconfont">🏢</i>组织管理</a></li>
+      <li role="menuitem" class="ant-menu-item" style="padding-left:24px;"><a href="24_回收站.html"><i class="iconfont">🗑</i>回收站</a></li>
+    </ul>
+  </aside>
+
+  <!-- ===== 主内容 ===== -->
+  <main class="ant-layout-content main-content-area">
+    <div class="common-radius table-page-search-wrapper ant-card" style="padding:24px;">
+      <div class="cardHeader">
+        <h2 class="title">学生管理 <span style="color:red;font-size:12px;">提示：教师视图只展示本组织下的学生</span></h2>
+      </div>
+      <div class="ant-divider ant-divider-horizontal"></div>
+
+      <!-- 筛选区 -->
+      <div class="filter-row">
+        <div class="filter-group">
+          <span class="fl-label">班级ID</span>
+          <input type="text" class="ant-input" id="fClassId" placeholder="请输入班级ID">
+        </div>
+        <div class="filter-group">
+          <span class="fl-label">班级名</span>
+          <input type="text" class="ant-input" id="fClassName" placeholder="请输入班级名">
+        </div>
+        <div class="filter-group">
+          <span class="fl-label">登录账号</span>
+          <input type="text" class="ant-input" id="fAccount" placeholder="请输入登录账号" oninput="applyFilters()">
+        </div>
+        <div class="filter-group">
+          <span class="fl-label">学生姓名</span>
+          <input type="text" class="ant-input" id="fName" placeholder="请输入学生姓名" oninput="applyFilters()">
+        </div>
+        <div class="filter-group" style="border:none;">
+          <button type="button" class="ant-btn ant-btn-primary" onclick="applyFilters()">查 询</button>
+          <button type="button" class="ant-btn" style="margin-left:8px;" onclick="resetFilters()">重 置</button>
+        </div>
+      </div>
+    </div>
+
+    <div class="common-radius list-card ant-card" style="padding:24px;background:#fff;">
+      <!-- 操作按钮 -->
+      <div class="table-operator">
+        <button type="button" class="ant-btn ant-btn-primary" onclick="openStudentModal()"><span>＋ 新增学生</span></button>
+        <div role="separator" class="op-divider"></div>
+        <button type="button" class="ant-btn ant-btn-danger" id="batchDelBtn" disabled onclick="batchDelete()"><span>批量删除</span></button>
+      </div>
+
+      <!-- 表格 -->
+      <table class="ant-table">
+        <thead>
+          <tr>
+            <th style="width:4%;"><input type="checkbox" id="chkAll" onchange="toggleAll(this)"></th>
+            <th style="width:12%;">学生姓名</th>
+            <th style="width:12%;">登录账号</th>
+            <th style="width:8%;">性别</th>
+            <th style="width:14%;">所属教师</th>
+            <th style="width:14%;">所属班级</th>
+            <th style="width:10%;">状态</th>
+            <th style="width:14%;text-align:center;">操作</th>
+          </tr>
+        </thead>
+        <tbody id="tableBody"></tbody>
+      </table>
+
+      <!-- 分页 -->
+      <div class="pagination">
+        <span id="pageInfo">1-10 共10条</span>
+        <span class="page-btn">‹</span>
+        <span class="page-btn active">1</span>
+        <span class="page-btn">›</span>
+        <span>10 条/页</span>
+      </div>
+    </div>
+  </main>
+</div>
+
+<!-- 新增/编辑学生弹窗 -->
+<div class="modal-mask" id="studentModal">
+  <div class="modal-box">
+    <div class="modal-title-row"><span class="t" id="smTitle">新增学生</span><span class="x" onclick="closeStudentModal()">✕</span></div>
+    <div class="modal-body">
+      <div class="form-item"><span class="form-label"><span class="req">*</span>学生姓名</span><input type="text" class="ant-input" id="smName" placeholder="请输入学生姓名"></div>
+      <div class="form-item"><span class="form-label"><span class="req">*</span>登录账号</span><input type="text" class="ant-input" id="smAccount" placeholder="请输入登录账号"></div>
+      <div class="form-item"><span class="form-label">性别</span>
+        <div class="ant-select" onclick="toggleDropdown('sexDropdown')">
+          <div class="ant-select-selection ant-select-selection--single">
+            <div class="ant-select-selection__rendered"><div class="ant-select-selection__placeholder" id="sexVal">男</div></div>
+          </div><span class="ant-select-arrow">▾</span>
+          <div class="opt-dropdown" id="sexDropdown">
+            <div class="kp-opt active" onclick="pickSex(this,'男')">男</div>
+            <div class="kp-opt" onclick="pickSex(this,'女')">女</div>
+            <div class="kp-opt" onclick="pickSex(this,'未知')">未知</div>
+          </div>
+        </div>
+      </div>
+      <div class="form-item"><span class="form-label">所属班级</span><input type="text" class="ant-input" id="smClass" placeholder="请输入所属班级"></div>
+    </div>
+    <div class="modal-footer">
+      <button type="button" class="ant-btn" onclick="closeStudentModal()">取 消</button>
+      <button type="button" class="ant-btn ant-btn-primary" style="margin-left:8px;" onclick="saveStudent()">确 定</button>
+    </div>
+  </div>
+</div>
+
+<script>
+'use strict';
+/* ============ Mock 数据（基于线上真实列表） ============ */
+var ROWS = [
+  { name: '程小浩', account: 'gpPHgE517', sex: '女', teacher: '', cls: '', status: '正常' },
+  { name: '程浩', account: 'abtC9J515', sex: '男', teacher: '', cls: '', status: '正常' },
+  { name: 'WA', account: 'oRysrm513', sex: '男', teacher: '', cls: '', status: '正常' },
+  { name: 'wqh', account: 'ScUNHv512', sex: '男', teacher: '', cls: '', status: '正常' },
+  { name: '曹成铭2', account: '9Sgxo6509', sex: '未知', teacher: '', cls: '', status: '正常' },
+  { name: '小红2', account: 'Loa0uL508', sex: '男', teacher: '', cls: '', status: '正常' },
+  { name: '', account: 'I26asP507', sex: '未知', teacher: '', cls: '', status: '正常' },
+  { name: '小绿2', account: 'LxCU5U505', sex: '未知', teacher: '', cls: '', status: '正常' },
+  { name: 'TD01', account: 'L6eth3504', sex: '未知', teacher: '', cls: '', status: '正常' },
+  { name: '土豆', account: 'ZzSLW9503', sex: '男', teacher: '', cls: '', status: '正常' }
+];
+
+var FILTERS = { classId: '', className: '', account: '', name: '' };
+var editKey = null;
+var toastTimer = null;
+function toast(msg) {
+  var t = document.getElementById('demoToast');
+  t.textContent = msg; t.style.display = 'block';
+  if (toastTimer) clearTimeout(toastTimer);
+  toastTimer = setTimeout(function () { t.style.display = 'none'; }, 2200);
+}
+function esc(s) { return String(s == null ? '' : s).replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;').replace(/\"/g, '&quot;'); }
+function rowKey(r) { return r.account; }
+
+/* ============ 筛选 ============ */
+function applyFilters() {
+  FILTERS.classId = document.getElementById('fClassId').value.trim();
+  FILTERS.className = document.getElementById('fClassName').value.trim();
+  FILTERS.account = document.getElementById('fAccount').value.trim();
+  FILTERS.name = document.getElementById('fName').value.trim();
+  var rows = ROWS.filter(function (r) {
+    if (FILTERS.classId && (r.cls + '').indexOf(FILTERS.classId) < 0) return false;
+    if (FILTERS.className && (r.cls + '').indexOf(FILTERS.className) < 0) return false;
+    if (FILTERS.account && r.account.indexOf(FILTERS.account) < 0) return false;
+    if (FILTERS.name && r.name.indexOf(FILTERS.name) < 0) return false;
+    return true;
+  });
+  renderTable(rows);
+}
+function resetFilters() {
+  ['fClassId', 'fClassName', 'fAccount', 'fName'].forEach(function (id) { document.getElementById(id).value = ''; });
+  FILTERS = { classId: '', className: '', account: '', name: '' };
+  renderTable(ROWS);
+}
+
+/* ============ 表格渲染 ============ */
+function renderTable(rows) {
+  rows = rows || ROWS;
+  var html = '';
+  for (var i = 0; i < rows.length; i++) {
+    var r = rows[i];
+    html += '<tr data-key="' + esc(rowKey(r)) + '">' +
+      '<td><input type="checkbox" class="row-chk" value="' + esc(rowKey(r)) + '" onchange="syncChk()"></td>' +
+      '<td>' + (r.name ? esc(r.name) : '<span style="color:#bfbfbf;">-</span>') + '</td>' +
+      '<td>' + esc(r.account) + '</td>' +
+      '<td>' + esc(r.sex) + '</td>' +
+      '<td>' + (r.teacher ? esc(r.teacher) : '<span style="color:#bfbfbf;">-</span>') + '</td>' +
+      '<td>' + (r.cls ? esc(r.cls) : '<span style="color:#bfbfbf;">-</span>') + '</td>' +
+      '<td>' + esc(r.status) + '</td>' +
+      '<td style="text-align:center;white-space:nowrap;">' +
+        '<span class="op-link" onclick="openStudentModal(\'' + esc(rowKey(r)) + '\')">编辑</span><span class="vd"></span>' +
+        '<span class="op-link-danger" onclick="delRow(\'' + esc(rowKey(r)) + '\')">删除</span>' +
+      '</td>' +
+      '</tr>';
+  }
+  document.getElementById('tableBody').innerHTML = html || '<tr><td colspan="8" style="text-align:center;color:#bfbfbf;padding:32px;">暂无数据</td></tr>';
+  document.getElementById('pageInfo').textContent = rows.length ? ('1-' + rows.length + ' 共' + rows.length + '条') : '0 条';
+  document.getElementById('chkAll').checked = false;
+  syncChk();
+}
+
+/* ============ 选择 / 批量删除 ============ */
+function toggleAll(el) {
+  var boxes = document.querySelectorAll('.row-chk');
+  for (var i = 0; i < boxes.length; i++) boxes[i].checked = el.checked;
+  syncChk();
+}
+function syncChk() {
+  var boxes = document.querySelectorAll('.row-chk');
+  var n = 0;
+  for (var i = 0; i < boxes.length; i++) if (boxes[i].checked) n++;
+  var btn = document.getElementById('batchDelBtn');
+  btn.disabled = n === 0;
+  btn.classList.toggle('ant-btn-disabled', n === 0);
+  document.getElementById('chkAll').checked = boxes.length > 0 && n === boxes.length;
+}
+function batchDelete() {
+  var boxes = document.querySelectorAll('.row-chk');
+  var keys = [];
+  for (var i = 0; i < boxes.length; i++) if (boxes[i].checked) keys.push(boxes[i].value);
+  if (!keys.length) return;
+  ROWS = ROWS.filter(function (r) { return keys.indexOf(rowKey(r)) < 0; });
+  applyFilters();
+  toast('已删除 ' + keys.length + ' 名学生（演示）');
+}
+function delRow(key) {
+  ROWS = ROWS.filter(function (r) { return rowKey(r) !== key; });
+  applyFilters();
+  toast('删除成功（演示）');
+}
+
+/* ============ 新增/编辑弹窗 ============ */
+function toggleDropdown(id) {
+  document.querySelectorAll('.opt-dropdown').forEach(function (d) { if (d.id !== id) d.style.display = 'none'; });
+  var dd = document.getElementById(id);
+  dd.style.display = dd.style.display === 'none' ? 'block' : 'none';
+}
+function pickSex(el, val) {
+  document.getElementById('sexVal').textContent = val;
+  document.getElementById('sexVal').style.color = '#323335';
+  var dd = document.getElementById('sexDropdown');
+  dd.querySelectorAll('.kp-opt').forEach(function (o) { o.classList.remove('active'); });
+  el.classList.add('active');
+  dd.style.display = 'none';
+}
+document.addEventListener('click', function (e) {
+  if (!e.target.closest('.ant-select')) {
+    document.querySelectorAll('.opt-dropdown').forEach(function (d) { d.style.display = 'none'; });
+  }
+});
+function openStudentModal(key) {
+  editKey = key || null;
+  var r = key ? ROWS.filter(function (x) { return rowKey(x) === key; })[0] : null;
+  document.getElementById('smTitle').textContent = r ? '编辑学生' : '新增学生';
+  document.getElementById('smName').value = r ? r.name : '';
+  document.getElementById('smAccount').value = r ? r.account : '';
+  document.getElementById('smClass').value = r ? r.cls : '';
+  var sex = r ? r.sex : '男';
+  document.getElementById('sexVal').textContent = sex;
+  document.getElementById('sexVal').style.color = '#323335';
+  document.getElementById('studentModal').style.display = '';
+}
+function closeStudentModal() { document.getElementById('studentModal').style.display = 'none'; }
+function saveStudent() {
+  var name = document.getElementById('smName').value.trim();
+  var account = document.getElementById('smAccount').value.trim();
+  if (!name) { toast('请输入学生姓名'); return; }
+  if (!account) { toast('请输入登录账号'); return; }
+  var sex = document.getElementById('sexVal').textContent;
+  var cls = document.getElementById('smClass').value.trim();
+  if (editKey) {
+    var r = ROWS.filter(function (x) { return rowKey(x) === editKey; })[0];
+    r.name = name; r.account = account; r.sex = sex; r.cls = cls;
+    toast('修改成功（演示）');
+  } else {
+    ROWS.unshift({ name: name, account: account, sex: sex, teacher: '', cls: cls, status: '正常' });
+    toast('新增学生成功（演示）');
+  }
+  closeStudentModal();
+  applyFilters();
+}
+
+/* ============ 初始化 ============ */
+renderTable(ROWS);
+</script>
+</body>
+</html>
