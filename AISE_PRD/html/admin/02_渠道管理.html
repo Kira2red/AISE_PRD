@@ -1061,7 +1061,7 @@
                         '<button onclick="moveGroup(' + i + ', -1)" class="p-1.5 text-slate-400 hover:text-brand-600 text-xs" title="上移"><i class="fa-solid fa-chevron-up"></i></button>' +
                         '<button onclick="moveGroup(' + i + ', 1)" class="p-1.5 text-slate-400 hover:text-brand-600 text-xs" title="下移"><i class="fa-solid fa-chevron-down"></i></button>' +
                         '<button onclick="renameGroup(\'' + g.name + '\')" class="p-1.5 text-slate-400 hover:text-brand-600 text-xs" title="重命名"><i class="fa-regular fa-pen-to-square"></i></button>' +
-                        '<button onclick="deleteGroup(\'' + g.name + '\')" class="p-1.5 ' + (cnt > 0 ? 'text-slate-200 cursor-not-allowed' : 'text-slate-400 hover:text-red-500') + ' text-xs" title="删除"><i class="fa-solid fa-trash-can"></i></button>' +
+                        '<button ' + (cnt > 0 ? 'disabled ' : 'onclick="deleteGroup(\'' + g.name + '\')" ') + 'class="p-1.5 ' + (cnt > 0 ? 'text-slate-200 cursor-not-allowed' : 'text-slate-400 hover:text-red-500') + ' text-xs" title="' + (cnt > 0 ? '组内有活动，不可删除' : '删除') + '"><i class="fa-solid fa-trash-can"></i></button>' +
                     '</div></div>';
             }).join('')
             + '<div class="flex items-center justify-between bg-slate-50 border border-slate-100 rounded-lg px-4 py-3 opacity-70">' +
