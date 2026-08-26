@@ -402,6 +402,16 @@
             return agency.activities;
         }
 
+        // 考试时间格式化：同日省略第二个日期，跨日保留完整区间
+        function fmtExamTime(d) {
+            if (!d || !d.examStart || !d.examEnd) return '';
+            const d1 = d.examStart.split(' ')[0];
+            const t2 = d.examEnd.split(' ')[1];
+            return d1 === d.examEnd.split(' ')[0]
+                ? d.examStart + '-' + t2
+                : d.examStart + ' 至 ' + d.examEnd;
+        }
+
         function renderActCards(acts, emptyText) {
             const container = document.getElementById('act-cards');
             if (!acts || acts.length === 0) {
@@ -419,7 +429,7 @@
                         ${ended ? '<span class="px-2 py-0.5 rounded text-xs font-bold bg-slate-100 text-slate-500 border border-slate-200 whitespace-nowrap ml-2">已结束</span>' : isSel ? '<span class="px-2 py-0.5 rounded text-xs font-bold bg-brand-50 text-brand-600 border border-brand-200 whitespace-nowrap ml-2"><i class="fa-solid fa-check"></i> 已选</span>' : '<span class="px-2 py-0.5 rounded text-xs font-bold bg-green-50 text-green-600 border border-green-100 whitespace-nowrap ml-2">报名中</span>'}
                     </div>
                     <div class="text-xs text-slate-500 space-y-1 mt-1">
-                        <p><i class="fa-regular fa-calendar mr-1.5"></i>考试时间：${d.examStart} 至 ${d.examEnd}</p>
+                        <p><i class="fa-regular fa-calendar mr-1.5"></i>考试时间：${fmtExamTime(d)}</p>
                         <p><i class="fa-solid fa-yen-sign mr-1.5"></i>报名费：¥ ${d.fee.toFixed(2)}</p>
                     </div>
                 </div>`;
