@@ -19,8 +19,8 @@ html, body { margin: 0; padding: 0; background: #fff; font-family: -apple-system
 /* 线上顶栏：透明+毛玻璃，64px，满宽 */
 .header { height: 64px; width: 100%; position: sticky; top: 0; left: 0; backdrop-filter: blur(10px); background: rgba(0,0,0,0); }
 
-/* 面包屑条（线上 positionSticky，高 64px，居左，白底） */
-.questionForm .positionSticky { position: sticky; top: 64px; z-index: 90; background: #fff; height: 64px; display: flex; align-items: center; gap: 8px; }
+/* 面包屑条（线上：透明背景，渐变透出，sticky 64px） */
+.questionForm .positionSticky { position: sticky; top: 64px; z-index: 90; background: rgba(0,0,0,0); height: 64px; display: flex; align-items: center; gap: 8px; }
 .questionForm .positionSticky .ant-col { color: #323335; font-size: 14px; font-weight: 600; }
 .questionForm .positionSticky span { cursor: pointer; }
 .header_title { font-size: 14px; font-weight: 600; color: #323335; }
