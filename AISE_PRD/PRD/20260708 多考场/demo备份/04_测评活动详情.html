@@ -273,12 +273,32 @@
                         </div>
                     </div>
                 </div>
-                <div class="pt-3 border-t border-slate-100 flex justify-end items-center gap-3">
-                    <button onclick="closeEditModal()" class="px-4 py-2 text-sm text-slate-600 hover:bg-slate-50 rounded-lg transition">取消</button>
-                    <button onclick="saveEditSingle()" class="px-6 py-2 bg-brand-600 text-white text-sm font-bold rounded-lg hover:bg-brand-700 transition shadow-sm">保存</button>
+                <div class="pt-3 border-t border-slate-100 flex justify-between items-center">
+                    <button onclick="switchToMulti()" class="px-3 py-1.5 text-xs text-amber-600 hover:text-amber-700 font-medium border border-amber-200 hover:border-amber-300 rounded-lg hover:bg-amber-50 transition flex items-center gap-1"><i class="fa-solid fa-layer-group"></i> 切换为多考场</button>
+                    <div class="flex gap-3"><button onclick="closeEditModal()" class="px-4 py-2 text-sm text-slate-600 hover:bg-slate-50 rounded-lg transition">取消</button><button onclick="closeEditModal()" class="px-6 py-2 bg-brand-600 text-white text-sm font-bold rounded-lg hover:bg-brand-700 transition shadow-sm">保存</button></div>
                 </div>
             </div>
 
+            <!-- 多考场模式 -->
+            <div id="edit-multi" class="hidden flex-1 overflow-y-auto px-6 pb-4 space-y-3">
+                <!-- 固有字段（测评名称+时间边界） -->
+                <div><label class="block text-xs font-bold text-slate-500 mb-2"><span class="text-red-500">*</span> 测评名称</label><input type="text" class="w-full px-4 py-2.5 rounded-lg border border-slate-200 focus:border-brand-500 outline-none text-sm font-medium" value="小鹿API接口测试"></div>
+                <div class="grid grid-cols-2 gap-4">
+                    <div><label class="block text-xs font-bold text-slate-500 mb-1.5"><span class="text-red-500">*</span> 开始时间（边界）</label><input type="datetime-local" value="2026-07-01T11:54" class="w-full px-3 py-2.5 rounded-lg border border-slate-200 text-sm outline-none text-slate-600"></div>
+                    <div><label class="block text-xs font-bold text-slate-500 mb-1.5"><span class="text-red-500">*</span> 结束时间（边界）</label><input type="datetime-local" value="2026-07-31T11:54" class="w-full px-3 py-2.5 rounded-lg border border-slate-200 text-sm outline-none text-slate-600"></div>
+                </div>
+                <p class="text-xs text-slate-400"><i class="fa-solid fa-circle-info"></i> 时长、交卷限制、标签、模拟考已下沉至各考场独立配置。历史参考：<span class="text-slate-500">120分钟 / 1分钟 / 智能工具实操·程序设计四级 / 模拟考已开启</span></p>
+                <div class="grid grid-cols-3 gap-2">
+                    <div class="bg-slate-50 rounded-lg p-2 text-center"><p class="text-[10px] text-slate-400 uppercase font-bold">考场总数</p><p class="text-base font-bold text-slate-800" id="s-tot">6</p></div>
+                    <div class="bg-slate-50 rounded-lg p-2 text-center"><p class="text-[10px] text-slate-400 uppercase font-bold">已报名</p><p class="text-base font-bold text-brand-600" id="s-e">187</p></div>
+                    <div class="bg-slate-50 rounded-lg p-2 text-center"><p class="text-[10px] text-slate-400 uppercase font-bold">爱测评已创建</p><p class="text-base font-bold text-green-600" id="s-ic">5</p></div>
+                </div>
+                <div class="flex justify-between items-center"><span class="text-xs font-bold text-slate-500 uppercase">考场列表</span><button onclick="openRoomModal()" class="px-3 py-1.5 bg-brand-600 hover:bg-brand-700 text-white text-xs font-bold rounded-lg shadow-sm transition flex items-center gap-1"><i class="fa-solid fa-plus text-[10px]"></i> 新建考场</button></div>
+                <div class="rounded-lg border border-slate-200 overflow-x-auto">
+                    <table class="w-max min-w-full text-left border-collapse text-xs"><thead><tr class="border-b border-slate-100 bg-slate-50 text-[10px] uppercase text-slate-400 font-bold"><th class="p-2 pl-3 whitespace-nowrap">名称</th><th class="p-2 whitespace-nowrap">时间</th><th class="p-2 whitespace-nowrap">时长/限</th><th class="p-2 whitespace-nowrap">标签</th><th class="p-2 whitespace-nowrap">关联试卷</th><th class="p-2 whitespace-nowrap">模拟</th><th class="p-2 whitespace-nowrap">爱测评考试</th><th class="p-2 whitespace-nowrap">状态</th><th class="p-2 text-right pr-3 whitespace-nowrap">操作</th></tr></thead><tbody class="divide-y divide-slate-100" id="room-tbody"></tbody></table>
+                </div>
+                <div class="pt-3 border-t border-slate-100 flex justify-end gap-3"><button onclick="closeEditModal()" class="px-4 py-2 text-sm text-slate-600 hover:bg-slate-50 rounded-lg transition">关闭</button></div>
+            </div>
         </div>
     </div>
 
@@ -313,15 +333,74 @@
         </div>
     </div>
 
+    <!-- 切换为多考场确认弹窗 -->
+    <div id="modal-switch" class="fixed inset-0 z-[60] hidden flex items-center justify-center bg-slate-900/50 backdrop-blur-sm">
+        <div class="bg-white rounded-2xl shadow-xl w-[500px] p-6 modal-enter">
+            <div class="flex items-start gap-4 mb-6"><div class="w-10 h-10 bg-amber-50 text-amber-600 rounded-full flex items-center justify-center text-lg flex-shrink-0"><i class="fa-solid fa-triangle-exclamation"></i></div>
+            <div><h3 class="font-bold text-slate-800 text-lg">切换为多考场模式</h3><p class="text-sm text-slate-500 mt-2">切换后：</p><ul class="text-sm text-slate-600 mt-2 space-y-1.5 list-disc pl-4"><li>当前时长、交卷限制、标签、模拟考仅供历史参考，不再生效</li><li>自动创建默认考场继承当前时间配置</li><li>每个考场需独立配置</li><li class="text-red-500 font-medium">此操作不可撤销</li></ul></div></div>
+            <div class="flex justify-end gap-3 pt-4 border-t border-slate-100"><button onclick="closeSwitchModal()" class="px-4 py-2 text-sm text-slate-600 hover:bg-slate-50 rounded-lg transition">取消</button><button onclick="confirmSwitch()" class="px-6 py-2 bg-amber-500 text-white text-sm font-bold rounded-lg hover:bg-amber-600 transition shadow-sm">确认切换</button></div>
+        </div>
+    </div>
+
+    <!-- 考场编辑弹窗 -->
+    <div id="modal-room" class="fixed inset-0 z-[60] hidden flex items-center justify-center bg-slate-900/50 backdrop-blur-sm">
+        <div class="bg-white rounded-2xl shadow-xl w-[680px] max-h-[90vh] overflow-y-auto p-6 modal-enter">
+            <div class="flex justify-between items-center mb-5"><h3 class="font-bold text-slate-800 text-lg" id="rm-title">新建考场</h3><button onclick="closeRoomModal()" class="text-slate-400 hover:text-slate-600"><i class="fa-solid fa-xmark"></i></button></div>
+            <!-- 关联爱测评试卷（移至顶部，与单考场风格一致） -->
+            <div class="bg-blue-50/50 p-4 rounded-xl border border-blue-100 mb-5">
+                <label class="block text-xs font-bold text-slate-600 mb-2"><i class="fa-solid fa-link text-brand-500 mr-1"></i> 关联爱测评试卷 <span class="text-red-500">*</span></label>
+                <select id="rm-paper" class="w-full px-3 py-2.5 rounded-lg border border-brand-200 focus:border-brand-500 outline-none text-sm font-semibold bg-white"><option value="">请选择试卷...</option><option>程序设计一级【正式】</option><option>程序设计一级【模拟测】</option><option>程序设计二级【正式】</option><option>AIGC 一级【正式】</option></select>
+            </div>
+            <div class="grid grid-cols-2 gap-4">
+                <div class="col-span-2"><label class="block text-xs font-bold text-slate-500 mb-1">考场名称 <span class="text-red-500">*</span></label><input type="text" id="rm-name" placeholder="如：上午场 9:00-10:30" class="w-full px-3 py-2 rounded-lg border border-slate-200 focus:border-brand-500 outline-none text-sm"></div>
+                <div><label class="block text-xs font-bold text-slate-500 mb-1">开始时间 <span class="text-red-500">*</span></label><input type="datetime-local" id="rm-start" class="w-full px-3 py-2 rounded-lg border border-slate-200 focus:border-brand-500 outline-none text-sm"></div>
+                <div><label class="block text-xs font-bold text-slate-500 mb-1">结束时间 <span class="text-red-500">*</span></label><input type="datetime-local" id="rm-end" class="w-full px-3 py-2 rounded-lg border border-slate-200 focus:border-brand-500 outline-none text-sm"></div>
+                <div><label class="block text-xs font-bold text-slate-500 mb-1">测评时长(分钟) <span class="text-red-500">*</span></label><input type="number" id="rm-dur" value="60" min="1" class="w-full px-3 py-2 rounded-lg border border-slate-200 focus:border-brand-500 outline-none text-sm"></div>
+                <div><label class="block text-xs font-bold text-slate-500 mb-1">交卷时间限制 <span class="text-red-500">*</span></label><input type="number" id="rm-lim" value="15" min="0" class="w-full px-3 py-2 rounded-lg border border-slate-200 focus:border-brand-500 outline-none text-sm"></div>
+                <div><label class="block text-xs font-bold text-slate-500 mb-1">报名截止时间</label><input type="datetime-local" id="rm-dl" class="w-full px-3 py-2 rounded-lg border border-slate-200 focus:border-brand-500 outline-none text-sm"></div>
+                <div><label class="block text-xs font-bold text-slate-500 mb-1">级别标签</label><select id="rm-lvl" class="w-full px-3 py-2 rounded-lg border border-slate-200 focus:border-brand-500 outline-none text-sm bg-white"><option value="">请选择...</option><option>程序设计一级</option><option>程序设计二级</option></select></div>
+                <div><label class="block text-xs font-bold text-slate-500 mb-1">排序</label><input type="number" id="rm-sort" value="10" min="1" class="w-full px-3 py-2 rounded-lg border border-slate-200 focus:border-brand-500 outline-none text-sm"></div>
+                <div class="col-span-2"><label class="block text-xs font-bold text-slate-500 mb-1">标签配置</label>
+                    <div class="relative" id="rm-tag-picker">
+                        <div onclick="rmToggleTagDropdown()" class="min-h-[42px] w-full bg-white border border-slate-300 rounded-lg px-3 py-2 cursor-pointer flex flex-wrap gap-2 items-center hover:border-brand-400 transition" id="rm-tag-trigger">
+                            <span class="text-sm text-slate-400">点击添加标签...</span>
+                            <i class="fa-solid fa-chevron-down text-xs text-slate-400 ml-auto"></i>
+                        </div>
+                        <div id="rm-tag-dropdown" class="hidden absolute top-full left-0 mt-1 w-full bg-white border border-slate-200 rounded-xl shadow-popover z-50 p-4">
+                            <div class="relative mb-3"><i class="fa-solid fa-magnifying-glass absolute left-3 top-2.5 text-slate-400 text-xs"></i><input type="text" placeholder="搜索标签..." class="w-full pl-8 pr-3 py-2 rounded-lg border border-slate-200 text-sm outline-none focus:border-brand-500" oninput="rmFilterTags(this.value)"></div>
+                            <div id="rm-tag-groups" class="max-h-60 overflow-y-auto space-y-3">
+                                <div><p class="text-[10px] font-bold text-slate-400 uppercase mb-1.5">参测模块</p>
+                                    <label class="flex items-center gap-2 px-2 py-1.5 hover:bg-slate-50 rounded cursor-pointer"><input type="radio" name="rm-tag-module" class="accent-brand-600 rm-tag-radio" value="技术融合应用" onchange="rmSelectTag(this.value)"><span class="text-sm text-slate-600">技术融合应用</span></label>
+                                    <label class="flex items-center gap-2 px-2 py-1.5 hover:bg-slate-50 rounded cursor-pointer"><input type="radio" name="rm-tag-module" class="accent-brand-600 rm-tag-radio" value="智能工具实操" onchange="rmSelectTag(this.value)"><span class="text-sm text-slate-600">智能工具实操</span></label>
+                                    <label class="flex items-center gap-2 px-2 py-1.5 hover:bg-slate-50 rounded cursor-pointer"><input type="radio" name="rm-tag-module" class="accent-brand-600 rm-tag-radio" value="青年编程" onchange="rmSelectTag(this.value)"><span class="text-sm text-slate-600">青年编程</span></label>
+                                </div>
+                                <div><p class="text-[10px] font-bold text-slate-400 uppercase mb-1.5">参测等级</p>
+                                    <label class="flex items-center gap-2 px-2 py-1.5 hover:bg-slate-50 rounded cursor-pointer"><input type="radio" name="rm-tag-level" class="accent-brand-600 rm-tag-radio" value="一级" onchange="rmSelectTag(this.value)"><span class="text-sm text-slate-600">一级</span></label>
+                                    <label class="flex items-center gap-2 px-2 py-1.5 hover:bg-slate-50 rounded cursor-pointer"><input type="radio" name="rm-tag-level" class="accent-brand-600 rm-tag-radio" value="生成式人工智能一级" onchange="rmSelectTag(this.value)"><span class="text-sm text-slate-600">生成式人工智能一级</span></label>
+                                    <label class="flex items-center gap-2 px-2 py-1.5 hover:bg-slate-50 rounded cursor-pointer"><input type="radio" name="rm-tag-level" class="accent-brand-600 rm-tag-radio" value="生成式人工智能二级" onchange="rmSelectTag(this.value)"><span class="text-sm text-slate-600">生成式人工智能二级</span></label>
+                                </div>
+                            </div>
+                            <div class="flex justify-between mt-3 pt-3 border-t border-slate-100">
+                                <button onclick="rmResetTags()" class="px-3 py-1.5 text-xs text-slate-500 hover:text-slate-700 rounded-lg hover:bg-slate-50 transition">重置</button>
+                                <button onclick="rmConfirmTags()" class="px-4 py-1.5 bg-brand-600 text-white text-xs font-bold rounded-lg hover:bg-brand-700 transition">确认</button>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                <div class="col-span-2"><div class="flex items-center justify-between mb-1"><label class="text-xs font-bold text-slate-500">模拟考配置</label><label class="relative inline-flex items-center cursor-pointer"><input type="checkbox" id="rm-mock" class="sr-only peer" onchange="document.getElementById('rm-mock-sub').classList.toggle('hidden',!this.checked)"><div class="w-9 h-5 bg-slate-200 rounded-full peer peer-checked:bg-purple-500 peer-checked:after:translate-x-full after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:rounded-full after:h-4 after:w-4 after:transition-all"></div></label></div>
+                <div id="rm-mock-sub" class="hidden bg-purple-50/50 p-3 rounded-lg border border-purple-100 space-y-2"><div><label class="block text-[10px] font-bold text-slate-500 mb-1">模拟卷来源</label><select class="w-full px-3 py-1.5 rounded border border-purple-200 text-xs bg-white"><option>程序设计一级【模拟测】</option></select></div><div class="grid grid-cols-2 gap-2"><div><label class="block text-[10px] font-bold text-slate-500 mb-1">开始</label><input type="datetime-local" class="w-full px-3 py-1.5 rounded border border-purple-200 text-xs bg-white"></div><div><label class="block text-[10px] font-bold text-slate-500 mb-1">结束</label><input type="datetime-local" class="w-full px-3 py-1.5 rounded border border-purple-200 text-xs bg-white"></div></div></div></div>
+            </div>
+            <div class="mt-5 pt-4 border-t border-slate-100 flex justify-end gap-3"><button onclick="closeRoomModal()" class="px-4 py-2 text-sm text-slate-600 hover:bg-slate-50 rounded-lg transition">取消</button><button onclick="saveRoom()" class="px-6 py-2 bg-brand-600 text-white text-sm font-bold rounded-lg hover:bg-brand-700 transition shadow-sm">保存</button></div>
+        </div>
+    </div>
 
     <!-- 自动创建爱测评考试浮层 -->
     <div id="create-overlay" class="fixed inset-0 z-[80] items-center justify-center bg-slate-900/60 backdrop-blur-sm" style="display:none">
         <div class="bg-white rounded-2xl shadow-2xl w-[420px] p-8 text-center modal-enter">
             <div id="co-icon" class="mx-auto w-12 h-12 rounded-full bg-blue-50 text-brand-600 flex items-center justify-center text-xl mb-4"><i class="fa-solid fa-spinner fa-spin"></i></div>
             <h3 class="font-bold text-slate-800 text-base mb-1" id="co-title">正在自动创建爱测评考试…</h3>
-            <p class="text-xs text-slate-400 mt-2" id="co-desc">该测评对应的爱测评考试将由系统自动创建</p>
+            <p class="text-xs text-slate-400 mt-2" id="co-desc">每个考场对应一个爱测评考试，由系统自动创建</p>
             <div class="mt-6 flex justify-center gap-3" id="co-actions" style="display:none">
-                <button onclick="coRetry()" id="co-retry-btn" class="hidden px-5 py-2 text-sm font-bold text-white bg-brand-600 hover:bg-brand-700 rounded-lg transition">重试</button>
                 <button onclick="coClose()" id="co-close-btn" class="hidden px-5 py-2 text-sm font-bold text-white bg-green-600 hover:bg-green-700 rounded-lg transition">知道了</button>
             </div>
         </div>
@@ -434,18 +513,112 @@
             setTimeout(() => { prevModal.classList.add('hidden'); prevContent.classList.remove('modal-enter'); }, 200);
         }
 
-        // ===== 保存后自动创建爱测评考试（单考场） =====
+        // ===== 多考场功能 =====
+        const rooms = [
+            {id:1,name:'上午第一场 8:00-9:30',start:'2026-07-05T08:00',end:'2026-07-05T09:30',dur:90,lim:15,enr:38,lvl:'程序设计一级',tags:[{n:'Python',c:'blue'}],paper:'程序设计一级【正式】',mock:true,sort:1,st:'active',dl:'2026-07-05T07:30',ic:'ok'},
+            {id:2,name:'上午第二场 10:00-11:30',start:'2026-07-05T10:00',end:'2026-07-05T11:30',dur:90,lim:15,enr:50,lvl:'程序设计一级',tags:[{n:'Python',c:'blue'}],paper:'程序设计一级【正式】',mock:false,sort:2,st:'active',dl:'2026-07-05T09:30',ic:'fail'},
+            {id:3,name:'下午第一场 14:00-15:30',start:'2026-07-05T14:00',end:'2026-07-05T15:30',dur:90,lim:15,enr:42,lvl:'程序设计二级',tags:[{n:'智能工具实操',c:'green'}],paper:'程序设计二级【正式】',mock:true,sort:3,st:'active',dl:'2026-07-05T13:30',ic:'ok'},
+            {id:4,name:'下午第二场 16:00-17:30',start:'2026-07-05T16:00',end:'2026-07-05T17:30',dur:60,lim:10,enr:12,lvl:'程序设计二级',tags:[],paper:'程序设计二级【模拟测】',mock:false,sort:4,st:'active',dl:'2026-07-05T15:30',ic:'ok'},
+            {id:5,name:'上午场 8:00-10:00',start:'2026-07-06T08:00',end:'2026-07-06T10:00',dur:120,lim:30,enr:45,lvl:'程序设计四级',tags:[{n:'AIGC',c:'purple'}],paper:'AIGC 一级【正式】',mock:true,sort:5,st:'active',dl:'2026-07-06T07:30',ic:'ok'},
+            {id:6,name:'下午场 14:00-16:00',start:'2026-07-06T14:00',end:'2026-07-06T16:00',dur:120,lim:30,enr:0,lvl:'程序设计四级',tags:[],paper:'AIGC 一级【正式】',mock:false,sort:6,st:'inactive',dl:'2026-07-06T13:30',ic:'ok'}];
+        const tc={blue:'bg-blue-50 text-blue-700 border-blue-200',green:'bg-green-50 text-green-700 border-green-200',orange:'bg-orange-50 text-orange-700 border-orange-200',purple:'bg-purple-50 text-purple-700 border-purple-200'};
+        let eid=null;
+
+        function switchToMulti(){ document.getElementById('modal-switch').classList.remove('hidden'); }
+        function closeSwitchModal(){ document.getElementById('modal-switch').classList.add('hidden'); }
+        function confirmSwitch(){
+            closeSwitchModal();
+            document.getElementById('edit-single').classList.add('hidden');
+            document.getElementById('edit-multi').classList.remove('hidden');
+            renderRooms(); updateStats();
+        }
+
+        function renderRooms(){
+            document.getElementById('room-tbody').innerHTML=rooms.map(r=>`
+                <tr class="hover-row ${r.st==='inactive'?'opacity-50':''}">
+                    <td class="p-2 pl-3 font-bold whitespace-nowrap">${r.name}</td>
+                    <td class="p-2 font-mono text-[11px] whitespace-nowrap">${r.start.split('T')[1]}~${r.end.split('T')[1]}</td>
+                    <td class="p-2 text-[11px] whitespace-nowrap">${r.dur}分/${r.lim}</td>
+                    <td class="p-2 whitespace-nowrap"><div class="flex flex-wrap gap-0.5">${r.tags.map(t=>`<span class="px-1 py-0.5 rounded text-[9px] font-bold border ${tc[t.c]} whitespace-nowrap">${t.n}</span>`).join('')||'<span class="text-slate-300">—</span>'}</div></td>
+                    <td class="p-2 text-[11px] whitespace-nowrap">${r.paper||'<span class="text-slate-300">—</span>'}</td>
+                    <td class="p-2 text-[11px] whitespace-nowrap">${r.mock?'<span class="text-purple-600">✅</span>':'<span class="text-slate-300">—</span>'}</td>
+                    <td class="p-2 text-[11px] whitespace-nowrap">${r.ic==='ok'?'<span class="px-1.5 py-0.5 rounded text-[9px] font-bold border bg-green-50 text-green-700 border-green-200">已创建</span>':r.ic==='ing'?'<span class="px-1.5 py-0.5 rounded text-[9px] font-bold border bg-blue-50 text-blue-600 border-blue-200"><i class="fa-solid fa-spinner fa-spin mr-1"></i>创建中</span>':'<span class="inline-flex items-center gap-1"><span class="px-1.5 py-0.5 rounded text-[9px] font-bold border bg-red-50 text-red-600 border-red-100">创建失败</span><button onclick="retryRoomCreate(' + r.id + ')" class="text-red-500 hover:text-red-700 text-[9px] font-bold underline ml-1">重试</button></span>'}</td>
+                    <td class="p-2 whitespace-nowrap"><span class="px-1.5 py-0.5 rounded text-[9px] font-bold border ${r.st==='active'?'bg-green-50 text-green-700 border-green-200':'bg-slate-100 text-slate-400 border-slate-200'}">${r.st==='active'?'启用':'停用'}</span></td>
+                    <td class="p-2 text-right pr-3 whitespace-nowrap">
+                        <button onclick="openRoomModal(${r.id})" class="text-slate-400 hover:text-brand-600 mr-1.5">编辑</button>
+                        <button onclick="cloneRoom(${r.id})" class="text-slate-400 hover:text-green-600 mr-1.5">复制</button>
+                        <button onclick="toggleRoom(${r.id})" class="text-slate-400 hover:text-amber-500 mr-1.5">${r.st==='active'?'停用':'启用'}</button>
+                        <button onclick="deleteRoom(${r.id})" class="text-slate-400 hover:text-red-500">删除</button>
+                    </td>
+                </tr>`).join('');
+        }
+
+        function updateStats(){
+            document.getElementById('s-tot').innerText=rooms.length;
+            document.getElementById('s-e').innerText=rooms.reduce((s,r)=>s+r.enr,0);
+            document.getElementById('s-ic').innerText=rooms.filter(r=>r.ic==='ok').length;
+        }
+
+        function toggleRoom(id){ const r=rooms.find(x=>x.id===id); if(r){r.st=r.st==='active'?'inactive':'active';renderRooms();updateStats();} }
+        function cloneRoom(id){ const s=rooms.find(r=>r.id===id); if(s){const nid=Math.max(...rooms.map(r=>r.id))+1;rooms.push({...s,id:nid,name:s.name+' - 副本',enr:0,sort:rooms.length+1,ic:'ing'}); coPendingRoomId=nid; renderRooms();updateStats(); roomCreateFlow();} }
+        function deleteRoom(id){ const r=rooms.find(x=>x.id===id); if(r&&r.enr>0){alert('该考场已有报名，无法删除');return;} if(confirm('确定删除？')){rooms.splice(rooms.indexOf(r),1);renderRooms();updateStats();} }
+
+        function openRoomModal(id){
+            eid=id||null; document.getElementById('rm-title').innerText=id?'编辑考场':'新建考场';
+            const r=id?rooms.find(x=>x.id===id):null;
+            document.getElementById('rm-name').value=r?r.name:''; document.getElementById('rm-start').value=r?r.start:'';
+            document.getElementById('rm-end').value=r?r.end:''; document.getElementById('rm-dur').value=r?r.dur:60;
+            document.getElementById('rm-lim').value=r?r.lim:15;
+            document.getElementById('rm-dl').value=r?r.dl:''; document.getElementById('rm-lvl').value=r?r.lvl:'';
+            document.getElementById('rm-sort').value=r?r.sort:rooms.length+1;
+            document.getElementById('rm-mock').checked=r?r.mock:false;
+            document.getElementById('rm-mock-sub').classList.toggle('hidden',!(r&&r.mock));
+            document.getElementById('modal-room').classList.remove('hidden');
+        }
+        // 考场标签选择器
+        function rmToggleTagDropdown(){ document.getElementById('rm-tag-dropdown').classList.toggle('hidden'); }
+        function rmSelectTag(v){
+            if(!v) return;
+            const trigger = document.getElementById('rm-tag-trigger');
+            const existing = trigger.querySelectorAll('.tag-chip');
+            let found = false;
+            existing.forEach(c => { if(c.textContent.trim().startsWith(v)) found = true; });
+            if(found) return;
+            const colors = ['bg-green-50 text-green-700 border-green-200','bg-blue-50 text-blue-700 border-blue-200','bg-purple-50 text-purple-700 border-purple-200','bg-orange-50 text-orange-700 border-orange-200'];
+            const chip = document.createElement('span');
+            chip.className = 'inline-flex items-center gap-1 px-2 py-0.5 rounded text-xs font-bold border tag-chip '+colors[Math.floor(Math.random()*colors.length)];
+            chip.innerHTML = v+' <i class="fa-solid fa-xmark text-[10px] opacity-60 hover:opacity-100 cursor-pointer" onclick="this.parentElement.remove()"></i>';
+            const placeholder = trigger.querySelector('.text-slate-400');
+            if(placeholder) trigger.insertBefore(chip, placeholder);
+            else trigger.appendChild(chip);
+        }
+        function rmFilterTags(q){
+            document.querySelectorAll('#rm-tag-groups label').forEach(l=>{ l.style.display = l.textContent.includes(q) ? '' : 'none'; });
+        }
+        function rmResetTags(){ document.querySelectorAll('.rm-tag-radio').forEach(r=>r.checked=false); }
+        function rmConfirmTags(){ document.querySelectorAll('.rm-tag-radio:checked').forEach(r=>rmSelectTag(r.value)); document.getElementById('rm-tag-dropdown').classList.add('hidden'); }
+
+        function closeRoomModal(){ document.getElementById('modal-room').classList.add('hidden'); }
+        function saveRoom(){
+            const n=document.getElementById('rm-name').value; if(!n){alert('请输入考场名称');return;}
+            const paper=document.getElementById('rm-paper').value; if(!paper){alert('请选择关联爱测评试卷');return;}
+            const d={name:n,start:document.getElementById('rm-start').value,end:document.getElementById('rm-end').value,dur:parseInt(document.getElementById('rm-dur').value),lim:parseInt(document.getElementById('rm-lim').value),dl:document.getElementById('rm-dl').value,lvl:document.getElementById('rm-lvl').value,sort:parseInt(document.getElementById('rm-sort').value),mock:document.getElementById('rm-mock').checked,paper:paper,tags:[],st:'active'};
+            if(eid){ const i=rooms.findIndex(r=>r.id===eid); if(i>=0){d.ic=rooms[i].ic;rooms[i]={...rooms[i],...d}; coPendingRoomId=eid;} }
+            else { const nid=Math.max(...rooms.map(r=>r.id),0)+1; rooms.push({...d,id:nid,enr:0,ic:'ing'}); coPendingRoomId=nid; }
+            closeRoomModal(); roomCreateFlow();
+        }
+
+        // ===== 自动创建爱测评考试（考场维度） =====
         const coOverlay = document.getElementById('create-overlay');
+        let coPendingRoomId = null;
         function coShow(){ coOverlay.style.display='flex'; }
         function coClose(){ coOverlay.style.display='none'; }
-        function coRetry(){ saveEditSingle(); }
         function coReset(){
             document.getElementById('co-icon').className='mx-auto w-12 h-12 rounded-full bg-blue-50 text-brand-600 flex items-center justify-center text-xl mb-4';
             document.getElementById('co-icon').innerHTML='<i class="fa-solid fa-spinner fa-spin"></i>';
             document.getElementById('co-title').innerText='正在自动创建爱测评考试…';
-            document.getElementById('co-desc').innerText='该测评对应的爱测评考试将由系统自动创建';
+            document.getElementById('co-desc').innerText='每个考场对应一个爱测评考试，由系统自动创建';
             document.getElementById('co-close-btn').classList.add('hidden');
-            document.getElementById('co-retry-btn').classList.add('hidden');
             document.getElementById('co-actions').style.display='none';
         }
         function coSetResult(ok){
@@ -453,14 +626,26 @@
             icon.className='mx-auto w-12 h-12 rounded-full '+(ok?'bg-green-50 text-green-600':'bg-red-50 text-red-500')+' flex items-center justify-center text-xl mb-4';
             icon.innerHTML=ok?'<i class="fa-solid fa-check"></i>':'<i class="fa-solid fa-triangle-exclamation"></i>';
             document.getElementById('co-title').innerText=ok?'爱测评考试已自动创建':'自动创建失败';
-            document.getElementById('co-desc').innerText=ok?'该测评对应的爱测评考试已创建完成，活动可正常报名':'爱测评考试未创建成功，本测评创建也不成功，可重试或保存为未关联状态';
+            document.getElementById('co-desc').innerText=ok?'该考场对应的爱测评考试已创建完成':'爱测评考试未创建成功，本考场创建也不成功，可重试';
             document.getElementById('co-close-btn').classList.remove('hidden');
-            document.getElementById('co-retry-btn').classList.toggle('hidden', ok);
             document.getElementById('co-actions').style.display='flex';
         }
-        function saveEditSingle(){
+        function roomCreateFlow(){
+            const r=rooms.find(x=>x.id===coPendingRoomId);
+            if(r) r.ic='ing';
             coReset(); coShow();
-            setTimeout(()=>{ coSetResult(true); },1200);
+            setTimeout(()=>{
+                const rr=rooms.find(x=>x.id===coPendingRoomId);
+                if(rr) rr.ic='ok';
+                coSetResult(true);
+                renderRooms(); updateStats();
+            },1200);
+        }
+        function retryRoomCreate(id){
+            const r=rooms.find(x=>x.id===id);
+            if(!r) return;
+            coPendingRoomId=id;
+            roomCreateFlow();
         }
     </script>
 </body>

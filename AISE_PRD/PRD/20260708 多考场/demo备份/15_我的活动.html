@@ -211,12 +211,18 @@
                                         考试时间：2025-05-20 14:00-16:00
                                     </span>
                                 </div>
+                                <div class="flex items-center gap-2 mt-1.5">
+                                    <span class="inline-flex items-center gap-1 px-2 py-0.5 rounded text-[10px] font-bold bg-brand-50 text-brand-700 border border-brand-100">
+                                        <i class="fa-solid fa-door-open text-[9px]"></i> 下午场 14:00-15:30
+                                    </span>
+                                    <span class="text-[10px] text-slate-400">时长90分钟 / 交卷限制15分钟</span>
+                                </div>
                             </div>
                         </div>
 
                         <div
                             class="flex items-center gap-2 w-full md:w-auto mt-2 md:mt-0 border-t md:border-t-0 border-slate-50 pt-4 md:pt-0">
-                            <button onclick="openTicketModal('Python 程序设计', '2026-01-14 18:02', 90)"
+                            <button onclick="openTicketModal('Python 程序设计', null, '下午场 14:00-15:30', '2026-01-14 18:02', 90, 15)"
                                 class="flex-1 md:flex-none px-4 py-2.5 border border-slate-200 rounded-lg text-sm font-medium text-slate-600 hover:border-slate-400 hover:text-slate-900 transition bg-white whitespace-nowrap">
                                 查看准考证
                             </button>
@@ -262,7 +268,7 @@
 
                         <div
                             class="flex items-center gap-3 w-full md:w-auto mt-2 md:mt-0 border-t md:border-t-0 border-slate-50 pt-4 md:pt-0">
-                            <button onclick="openTicketModal('AIGC 应用能力')"
+                            <button onclick="openTicketModal('AIGC 应用能力', '2025夏季二级等级测评')"
                                 class="flex-1 md:flex-none px-5 py-2.5 border border-slate-200 rounded-lg text-sm font-medium text-slate-600 hover:border-slate-400 hover:text-slate-900 transition bg-white whitespace-nowrap">
                                 查看准考证
                             </button>
@@ -306,7 +312,7 @@
 
                         <div
                             class="flex items-center gap-3 w-full md:w-auto mt-2 md:mt-0 border-t md:border-t-0 border-slate-50 pt-4 md:pt-0">
-                            <button onclick="openTicketModal('Scratch 创意编程')"
+                            <button onclick="openTicketModal('Scratch 创意编程', '2025秋季三级等级测评')"
                                 class="flex-1 md:flex-none px-5 py-2.5 border border-slate-200 rounded-lg text-sm font-medium text-slate-600 hover:border-slate-400 hover:text-slate-900 transition bg-white whitespace-nowrap">
                                 查看准考证
                             </button>
@@ -350,7 +356,7 @@
 
                         <div
                             class="flex items-center gap-3 w-full md:w-auto mt-2 md:mt-0 border-t md:border-t-0 border-slate-50 pt-4 md:pt-0">
-                            <button onclick="openTicketModal('C++ 算法设计')"
+                            <button onclick="openTicketModal('C++ 算法设计', '2025春季三级等级测评')"
                                 class="flex-1 md:flex-none px-5 py-2.5 border border-slate-200 rounded-lg text-sm font-medium text-slate-600 hover:border-slate-400 hover:text-slate-900 transition bg-white whitespace-nowrap">
                                 查看准考证
                             </button>
@@ -411,6 +417,12 @@
                         </tr>
                         <tr><td class="py-2 text-slate-400 text-xs">准考证号</td><td class="py-2 font-mono font-bold" id="modal-ticket-no">EXM2026011798000001</td><td class="py-2 pl-4 text-slate-400 text-xs">测评项目</td><td class="py-2 font-bold text-brand-600" id="modal-project-name">新题型测试</td></tr>
                         <tr><td class="py-2 text-slate-400 text-xs">测评日期</td><td class="py-2 font-mono" id="modal-exam-time">2026-01-14 18:02:30</td><td class="py-2 pl-4 text-slate-400 text-xs">时长限制</td><td class="py-2 font-bold" id="modal-duration">90 分钟</td></tr>
+                        <tr id="modal-room-row">
+                            <td class="py-2 text-slate-400 text-xs">考场</td>
+                            <td class="py-2 font-bold" id="modal-room-name">下午场 14:00-15:30</td>
+                            <td class="py-2 pl-4 text-slate-400 text-xs">交卷限制</td>
+                            <td class="py-2" id="modal-submit-limit">15 分钟</td>
+                        </tr>
                     </table>
 
                     <div class="mt-5 p-4 bg-slate-50 rounded-lg border border-slate-100 text-xs text-slate-500 leading-relaxed">
@@ -437,13 +449,20 @@
             alert(examName + ' 尚未开始\n\n考试开始时间：' + startTime + '\n最早可进入考场（候考）时间：' + waitStartTime + '\n\n请于候考时间开放后进入完成设备检测与检录');
         }
 
-        function openTicketModal(projectName, examTime, duration) {
+        function openTicketModal(projectName, examName, roomName, examTime, duration, submitLimit) {
             const modal = document.getElementById('ticket-modal');
             const card = document.getElementById('modal-card');
 
             if (projectName) document.getElementById('modal-project-name').innerText = projectName;
             if (examTime) document.getElementById('modal-exam-time').innerText = examTime;
             if (duration) document.getElementById('modal-duration').innerText = duration + ' 分钟';
+            if (roomName) {
+                document.getElementById('modal-room-row').style.display = '';
+                document.getElementById('modal-room-name').innerText = roomName;
+                document.getElementById('modal-submit-limit').innerText = (submitLimit||15) + ' 分钟';
+            } else {
+                document.getElementById('modal-room-row').style.display = 'none';
+            }
 
             modal.classList.remove('hidden');
             modal.classList.add('modal-enter');

@@ -17,9 +17,6 @@
                     },
                     colors: {
                         brand: {
-                            50: '#eff6ff',
-                            100: '#dbeafe',
-                            400: '#60a5fa',
                             500: '#3b82f6',
                             600: '#2563eb',
                             700: '#1d4ed8',
@@ -76,6 +73,10 @@
                     <div class="step-item flex flex-col items-center gap-2">
                         <div id="step-indicator-2" class="w-8 h-8 rounded-full bg-slate-300 text-white flex items-center justify-center font-bold text-sm ring-4 ring-[#F1F5F9]">2</div>
                         <span class="text-xs font-medium text-slate-400 hidden sm:block">填写信息</span>
+                    </div>
+                    <div class="step-item flex flex-col items-center gap-2" id="step-room-item" style="display:none">
+                        <div id="step-indicator-room" class="w-8 h-8 rounded-full bg-slate-300 text-white flex items-center justify-center font-bold text-sm ring-4 ring-[#F1F5F9]">3</div>
+                        <span class="text-xs font-medium text-slate-400 hidden sm:block">选择考场</span>
                     </div>
                     <div class="step-item flex flex-col items-center gap-2">
                         <div id="step-indicator-3" class="w-8 h-8 rounded-full bg-slate-300 text-white flex items-center justify-center font-bold text-sm ring-4 ring-[#F1F5F9]">3</div>
@@ -143,24 +144,14 @@
                                 </div>
                             </div>
 
-                            <div id="group-select-wrapper" class="hidden">
-                                <label class="block text-xs font-bold text-slate-500 uppercase mb-1.5">活动分组 <span class="text-red-500">*</span></label>
+                            <div>
+                                <label class="block text-xs font-bold text-slate-500 uppercase mb-1.5">报名测评项目 <span class="text-red-500">*</span></label>
                                 <div class="relative">
-                                    <select id="select-group" class="w-full px-4 py-2.5 rounded-lg border border-slate-200 focus:border-slate-800 outline-none text-sm bg-white appearance-none" disabled onchange="onGroupChange()">
-                                        <option value="">请选择分组...</option>
+                                    <select id="select-project" class="w-full px-4 py-2.5 rounded-lg border border-slate-200 focus:border-slate-800 outline-none text-sm bg-white appearance-none" disabled onchange="onProjectChange()">
+                                        <option value="">请先选择机构...</option>
                                     </select>
                                     <i class="fa-solid fa-chevron-down absolute right-4 top-3.5 text-slate-400 text-xs pointer-events-none"></i>
                                 </div>
-                            </div>
-                        </div>
-
-                        <div class="md:col-span-2" id="activity-cards-section">
-                            <label class="block text-xs font-bold text-slate-500 uppercase mb-1.5">选择测评活动 <span class="text-red-500">*</span></label>
-                            <div id="act-cards" class="grid grid-cols-1 md:grid-cols-2 gap-3">
-                                <p class="col-span-2 text-center text-sm text-slate-400 py-8 border-2 border-dashed border-slate-200 rounded-xl">请先选择机构</p>
-                            </div>
-                            <div id="selected-act-info" class="hidden bg-brand-50 border border-brand-100 rounded-xl p-3 mt-3 text-sm">
-                                <span class="text-brand-700 font-bold">已选择：</span><span id="selected-act-text" class="text-slate-700"></span>
                             </div>
                         </div>
 
@@ -209,7 +200,42 @@
 
                     <div class="flex justify-between pt-4">
                         <button onclick="goToStep(1)" class="text-slate-500 px-6 py-3 rounded-xl font-medium hover:bg-slate-50 transition">上一步</button>
-                        <button onclick="goToStep(3)" class="bg-slate-900 text-white px-8 py-3 rounded-xl font-semibold shadow-lg hover:bg-brand-600 transition">确认信息</button>
+                        <button onclick="goToStep(nextStepFromInfo())" class="bg-slate-900 text-white px-8 py-3 rounded-xl font-semibold shadow-lg hover:bg-brand-600 transition">确认信息</button>
+                    </div>
+                </div>
+
+                <!-- 新增：选择考场 -->
+                <div id="step-content-room" class="p-6 sm:p-10 hidden">
+                    <h2 class="text-xl font-bold text-slate-900 mb-2 flex items-center gap-2">
+                        <span class="w-1 h-6 bg-brand-600 rounded-full"></span> 选择考场
+                    </h2>
+                    <p class="text-sm text-slate-500 mb-4">该测评有多个考场时间可选，请选择一个参加。</p>
+                    
+                    <!-- 标签筛选 -->
+                    <div id="room-filter-bar" class="flex flex-wrap gap-3 mb-5">
+                        <div class="flex-1 min-w-[180px]">
+                            <label class="block text-xs font-bold text-slate-500 mb-1">参测模块</label>
+                            <select id="filter-module" onchange="onFilterChange()" class="w-full px-3 py-2 rounded-lg border border-slate-200 text-sm bg-white outline-none focus:border-brand-500">
+                                <option value="">全部模块</option>
+                            </select>
+                        </div>
+                        <div class="flex-1 min-w-[180px]">
+                            <label class="block text-xs font-bold text-slate-500 mb-1">参测等级</label>
+                            <select id="filter-level" onchange="onFilterChange()" class="w-full px-3 py-2 rounded-lg border border-slate-200 text-sm bg-white outline-none focus:border-brand-500">
+                                <option value="">全部等级</option>
+                            </select>
+                        </div>
+                    </div>
+
+                    <div id="room-cards" class="grid grid-cols-1 md:grid-cols-2 gap-4 mb-8">
+                        <!-- JS动态渲染 -->
+                    </div>
+                    <div id="selected-room-info" class="hidden bg-brand-50 border border-brand-100 rounded-xl p-4 mb-6 text-sm">
+                        <span class="text-brand-700 font-bold">已选择：</span><span id="selected-room-text" class="text-slate-700"></span>
+                    </div>
+                    <div class="flex justify-between pt-4">
+                        <button onclick="goToStep(2)" class="text-slate-500 px-6 py-3 rounded-xl font-medium hover:bg-slate-50 transition">上一步</button>
+                        <button onclick="goToStep(3)" id="btn-room-next" class="bg-slate-300 text-white px-8 py-3 rounded-xl font-semibold shadow-lg transition cursor-not-allowed" disabled>确认信息</button>
                     </div>
                 </div>
 
@@ -221,9 +247,9 @@
                                 <dt class="text-slate-400 text-xs mb-1">测评项目</dt>
                                 <dd class="font-bold text-brand-700 text-lg" id="view-project">--</dd>
                             </div>
-                            <div class="sm:col-span-2 border-b border-slate-200 pb-4 mb-2" id="view-group-row" style="display:none">
-                                <dt class="text-slate-400 text-xs mb-1">活动分组</dt>
-                                <dd class="font-medium text-slate-800" id="view-group">--</dd>
+                            <div class="sm:col-span-2 border-b border-slate-200 pb-4 mb-2" id="view-room-row" style="display:none">
+                                <dt class="text-slate-400 text-xs mb-1">所选考场</dt>
+                                <dd class="font-bold text-slate-800" id="view-room">--</dd>
                             </div>
                             <div><dt class="text-slate-400 text-xs mb-1">渠道/机构</dt><dd class="font-medium text-slate-800" id="view-agency">--</dd></div>
                             <div><dt class="text-slate-400 text-xs mb-1">考生姓名</dt><dd class="font-medium text-slate-800" id="view-name">--</dd></div>
@@ -233,7 +259,7 @@
                         </dl>
                     </div>
                     <div class="flex justify-between pt-4">
-                        <button onclick="goToStep(2)" class="text-slate-500 px-6 py-3 rounded-xl font-medium hover:bg-slate-50 transition">返回修改</button>
+                        <button onclick="goToStep(isMultiRoom()?'room':2)" class="text-slate-500 px-6 py-3 rounded-xl font-medium hover:bg-slate-50 transition">返回修改</button>
                         <button onclick="goToStep(4)" class="bg-slate-900 text-white px-8 py-3 rounded-xl font-semibold shadow-lg hover:bg-brand-600 transition">确认并支付</button>
                     </div>
                 </div>
@@ -241,7 +267,7 @@
                 <div id="step-content-4" class="p-6 sm:p-10 hidden">
                     <div class="text-center mb-6">
                         <p class="text-slate-500 text-sm mb-2">需支付考试费用</p>
-                        <h2 class="text-4xl font-bold text-slate-900" id="pay-amount">¥ 199.00</h2>
+                        <h2 class="text-4xl font-bold text-slate-900">¥ 199.00</h2>
                     </div>
 
                     <!-- 公众号二维码 + 三种状态区域 -->
@@ -299,43 +325,40 @@
     </main>
 
     <script>
-        // 1. 模拟数据库（渠道 → 分组 → 活动）
-        const activityDB = {
-            "2025春季 Python 程序设计（一级）": { examStart: "2025-03-16 08:00", examEnd: "2025-03-16 11:30", fee: 199, status: "open" },
-            "2025春季 C++ 算法基础": { examStart: "2025-03-17 14:00", examEnd: "2025-03-17 16:00", fee: 199, status: "open" },
-            "2025夏季 AIGC 应用能力（二级）": { examStart: "2025-06-15 09:00", examEnd: "2025-06-15 11:00", fee: 0, status: "open" },
-            "2024冬季 Scratch 图形化（一级）": { examStart: "2024-12-21 09:00", examEnd: "2024-12-21 10:30", fee: 199, status: "ended" },
-        };
-
+        // 1. 模拟数据库 (Agency Data: 包含多个项目)
         const agencyData = [
-            {
-                code: "YPB2025", name: "猿编程教育科技",
-                groups: ["3月考期", "6月考期"],
-                activities: [
-                    { name: "2025春季 Python 程序设计（一级）", group: "3月考期" },
-                    { name: "2025春季 C++ 算法基础", group: "3月考期" },
-                    { name: "2025夏季 AIGC 应用能力（二级）", group: "6月考期" },
-                    { name: "2024冬季 Scratch 图形化（一级）", group: null },
-                ]
-            },
-            {
-                code: "CB888", name: "CodeBear 代码熊",
-                groups: [],
-                activities: [
-                    { name: "2025夏季 AIGC 应用能力（二级）", group: null },
-                ]
-            },
-            {
-                code: "DEFAULT", name: "社会考生通道",
-                groups: [],
-                activities: [
-                    { name: "2025春季 Python 程序设计（一级）", group: null },
-                    { name: "2025夏季 AIGC 应用能力（二级）", group: null },
-                ]
-            },
+            { code: "YPB2025", name: "猿编程教育科技", projects: ["2025春季 Python 程序设计（一级）", "2025春季 C++ 算法基础"] },
+            { code: "CB888", name: "CodeBear 代码熊", projects: ["2025夏季 AIGC 应用能力（二级）"] },
+            { code: "DEFAULT", name: "社会考生通道", projects: ["2025春季 Python 程序设计（一级）", "2025夏季 AIGC 应用能力（二级）"] }
         ];
 
-        let selectedActId = null;
+        // 考场数据：哪些测评项目是多考场，以及各自的考场列表
+        const roomData = {};
+        roomData["2025春季 Python 程序设计（一级）"] = [
+            { id:1, name:'上午场 8:00-9:30', date:'2025-03-16', time:'08:00-09:30', cap:50, enr:38, module:'智能工具实操', level:'程序设计一级' },
+            { id:2, name:'上午场 10:00-11:30', date:'2025-03-16', time:'10:00-11:30', cap:50, enr:50, module:'智能工具实操', level:'程序设计一级' },
+            { id:3, name:'下午场 14:00-15:30', date:'2025-03-16', time:'14:00-15:30', cap:50, enr:42, module:'智能工具实操', level:'程序设计二级' },
+            { id:4, name:'下午场 16:00-17:30', date:'2025-03-16', time:'16:00-17:30', cap:50, enr:12, module:'技术融合应用', level:'程序设计一级' },
+            { id:5, name:'次日上午场 8:00-10:00', date:'2025-03-17', time:'08:00-10:00', cap:50, enr:45, module:'技术融合应用', level:'程序设计二级' },
+            { id:6, name:'次日下午场 14:00-16:00', date:'2025-03-17', time:'14:00-16:00', cap:50, enr:0, module:'青年编程', level:'程序设计一级' },
+        ];
+        roomData["2025夏季 AIGC 应用能力（二级）"] = [
+            { id:7, name:'上午场 9:00-11:00', date:'2025-06-15', time:'09:00-11:00', cap:60, enr:55, module:'智能工具实操', level:'生成式人工智能一级' },
+            { id:8, name:'下午场 14:00-16:00', date:'2025-06-15', time:'14:00-16:00', cap:60, enr:20, module:'技术融合应用', level:'生成式人工智能二级' },
+            { id:9, name:'晚间场 18:00-20:00', date:'2025-06-15', time:'18:00-20:00', cap:60, enr:5, module:'青年编程', level:'生成式人工智能一级' },
+        ];
+        // 2025春季 C++ 算法基础 是单考场，没有roomData
+
+        // 标签级联数据：参测模块标签 → 关联的参测等级标签
+        const cascadeData = {
+            '智能工具实操': ['程序设计一级', '程序设计二级', '生成式人工智能一级'],
+            '技术融合应用': ['程序设计一级', '程序设计二级', '生成式人工智能二级'],
+            '青年编程': ['程序设计一级', '生成式人工智能一级'],
+        };
+
+        let selectedRoomId = null;
+        let totalSteps = 4; // 默认4步
+        let filterModule = '', filterLevel = '';
 
         // 2. 初始化与步骤控制
         const checkbox = document.getElementById('agreement-check');
@@ -344,44 +367,189 @@
 
         let currentStep = 1;
 
-        function currentActivity() {
-            return selectedActId ? activityDB[selectedActId] : null;
+        function isMultiRoom(){
+            const project = document.getElementById('select-project').value;
+            return roomData[project] && roomData[project].length > 0;
+        }
+
+        function onProjectChange(){
+            selectedRoomId = null;
+            if(isMultiRoom()){
+                document.getElementById('step-room-item').style.display = '';
+                totalSteps = 5;
+            } else {
+                document.getElementById('step-room-item').style.display = 'none';
+                totalSteps = 4;
+            }
+            updateStepNumbers();
+        }
+
+        function updateStepNumbers(){
+            const roomItem = document.getElementById('step-room-item');
+            const showingRoom = roomItem.style.display !== 'none';
+            document.getElementById('step-indicator-3').innerText = showingRoom ? '4' : '3';
+            document.getElementById('step-indicator-4').innerText = showingRoom ? '5' : '4';
+            if(showingRoom) document.getElementById('step-indicator-room').innerText = '3';
+        }
+
+        function nextStepFromInfo(){
+            const project = document.getElementById('select-project').value;
+            if(roomData[project] && roomData[project].length > 0) return 'room';
+            return '3';
         }
 
         function goToStep(step) {
-            if (step === 3 || step === 4) {
+            if (step === 3 || step === 4 || step === 5) {
                 const agency = document.getElementById('select-agency').value;
-                if (!agency || !selectedActId) { alert('请选择所属机构并选择测评活动'); return; }
+                const project = document.getElementById('select-project').value;
+                if (!agency || !project) { alert('请选择所属机构和测评项目'); return; }
+            }
+            // 如果有考场步骤但没选考场
+            if((step === 3 && isMultiRoom() && !selectedRoomId) || (step === 4 && !isMultiRoom() && !selectedRoomId && step > 2)){
+                // 从考场步骤来的，不用再校验
             }
             // 隐藏当前
-            document.getElementById('step-content-' + currentStep).classList.add('hidden');
+            if(currentStep === 'room') document.getElementById('step-content-room').classList.add('hidden');
+            else document.getElementById('step-content-'+currentStep).classList.add('hidden');
             // 离开支付步骤时停止轮询
             if (typeof currentStep === 'number' && currentStep === 4) stopPolling();
-
+            
             // 更新步骤UI
             updateStepperUI(step);
-
+            
             // 显示目标
-            document.getElementById('step-content-' + step).classList.remove('hidden');
-            if (step >= 3) syncDataToReview();
+            if(step === 'room') {
+                document.getElementById('step-content-room').classList.remove('hidden');
+                if(isMultiRoom()){ initFilters(); renderRoomCards(); }
+            } else {
+                if(step >= 3) syncDataToReview();
+                document.getElementById('step-content-'+step).classList.remove('hidden');
+            }
             currentStep = step;
             // 进入支付步骤时自动启动二维码和轮询
-            if (step === 4) {
-                const act = currentActivity();
-                if (act) document.getElementById('pay-amount').innerText = '¥ ' + act.fee.toFixed(2);
-                finishPayment();
-            }
+            if (step === 4) finishPayment();
             window.scrollTo({ top: 0, behavior: 'smooth' });
         }
 
+        function renderRoomCards(){
+            const project = document.getElementById('select-project').value;
+            let rooms = roomData[project] || [];
+            // 筛选
+            if(filterModule) rooms = rooms.filter(r => r.module === filterModule);
+            if(filterLevel) rooms = rooms.filter(r => r.level === filterLevel);
+            
+            const container = document.getElementById('room-cards');
+            if(rooms.length === 0){
+                container.innerHTML = '<p class="col-span-2 text-center text-sm text-slate-400 py-8">没有符合条件的考场</p>';
+                // 清空选中
+                selectedRoomId = null;
+                document.getElementById('selected-room-info').classList.add('hidden');
+                document.getElementById('btn-room-next').disabled = true;
+                document.getElementById('btn-room-next').classList.add('bg-slate-300','cursor-not-allowed');
+                document.getElementById('btn-room-next').classList.remove('bg-slate-900','hover:bg-brand-600','cursor-pointer');
+                return;
+            }
+            container.innerHTML = rooms.map(r => {
+                const full = r.enr >= r.cap;
+                const pct = r.cap > 0 ? Math.round(r.enr/r.cap*100) : 0;
+                const pctColor = full ? 'bg-red-500' : pct >= 80 ? 'bg-amber-400' : 'bg-green-500';
+                const isSel = selectedRoomId === r.id;
+                return `<div onclick="${full?'':'selectRoom('+r.id+')'}" class="rounded-xl border-2 p-5 transition cursor-pointer ${full?'border-slate-100 bg-slate-50 opacity-50':'border-slate-200 hover:border-brand-400 hover:shadow-md'} ${isSel?'border-brand-500 bg-brand-50 shadow-md':''}">
+                    <div class="flex justify-between items-start mb-3">
+                        <div>
+                            <p class="font-bold text-slate-800">${r.name}</p>
+                            <p class="text-xs text-slate-500 mt-0.5">${r.date} ${r.time}</p>
+                        </div>
+                        ${full?'<span class="px-2 py-0.5 rounded text-xs font-bold bg-red-50 text-red-600 border border-red-200">已满</span>':isSel?'<span class="px-2 py-0.5 rounded text-xs font-bold bg-brand-50 text-brand-600 border border-brand-200"><i class="fa-solid fa-check"></i> 已选</span>':'<span class="px-2 py-0.5 rounded text-xs font-bold bg-slate-50 text-slate-500 border border-slate-200">可选</span>'}
+                    </div>
+                    <div class="flex items-center gap-2 text-xs text-slate-500">
+                        <span>剩余名额</span>
+                        <div class="flex-1 h-2 bg-slate-100 rounded-full overflow-hidden"><div class="h-full ${pctColor} rounded-full" style="width:${Math.min(pct,100)}%"></div></div>
+                        <span class="font-mono font-bold ${r.enr>=r.cap?'text-red-500':r.enr/r.cap>=0.8?'text-amber-500':'text-slate-700'}">${r.enr}/${r.cap}</span>
+                    </div>
+                </div>`;
+            }).join('');
+        }
+
+        function selectRoom(id){
+            selectedRoomId = id;
+            const project = document.getElementById('select-project').value;
+            let rooms = roomData[project] || [];
+            if(filterModule) rooms = rooms.filter(r => r.module === filterModule);
+            if(filterLevel) rooms = rooms.filter(r => r.level === filterLevel);
+            const r = rooms.find(x=>x.id===id);
+            if(r){
+                document.getElementById('selected-room-info').classList.remove('hidden');
+                document.getElementById('selected-room-text').innerText = r.name + '（'+r.date+' '+r.time+'）';
+                document.getElementById('btn-room-next').disabled = false;
+                document.getElementById('btn-room-next').classList.remove('bg-slate-300','cursor-not-allowed');
+                document.getElementById('btn-room-next').classList.add('bg-slate-900','hover:bg-brand-600','cursor-pointer');
+            }
+            renderRoomCards();
+        }
+
+        // 初始化筛选下拉 + 级联
+        function initFilters(){
+            const project = document.getElementById('select-project').value;
+            const rooms = roomData[project] || [];
+            // 收集唯一的模块和等级
+            const modules = [...new Set(rooms.map(r => r.module).filter(Boolean))];
+            const levels = [...new Set(rooms.map(r => r.level).filter(Boolean))];
+            
+            const modSel = document.getElementById('filter-module');
+            modSel.innerHTML = '<option value="">全部模块</option>' + modules.map(m => `<option value="${m}">${m}</option>`).join('');
+            
+            const lvlSel = document.getElementById('filter-level');
+            lvlSel.innerHTML = '<option value="">全部等级</option>' + levels.map(l => `<option value="${l}">${l}</option>`).join('');
+            
+            filterModule = ''; filterLevel = '';
+        }
+
+        function onFilterChange(){
+            filterModule = document.getElementById('filter-module').value;
+            filterLevel = document.getElementById('filter-level').value;
+            
+            // 级联：选了模块 → 等级下拉只显示关联的等级
+            if(filterModule && cascadeData[filterModule]){
+                const lvlSel = document.getElementById('filter-level');
+                const curVal = lvlSel.value;
+                const allowed = cascadeData[filterModule];
+                if(!allowed.includes(curVal)){ lvlSel.value = ''; filterLevel = ''; }
+                // 隐藏不关联的选项
+                Array.from(lvlSel.options).forEach(opt => {
+                    if(opt.value === '') return;
+                    opt.style.display = allowed.includes(opt.value) ? '' : 'none';
+                });
+            } else {
+                // 恢复全部等级选项
+                Array.from(document.getElementById('filter-level').options).forEach(opt => opt.style.display = '');
+            }
+            
+            selectedRoomId = null;
+            document.getElementById('selected-room-info').classList.add('hidden');
+            document.getElementById('btn-room-next').disabled = true;
+            document.getElementById('btn-room-next').classList.add('bg-slate-300','cursor-not-allowed');
+            document.getElementById('btn-room-next').classList.remove('bg-slate-900','hover:bg-brand-600','cursor-pointer');
+            renderRoomCards();
+        }
+
         function updateStepperUI(targetStep) {
-            for (let i = 1; i <= 4; i++) {
-                const indicator = document.getElementById('step-indicator-' + i);
-                if (!indicator) continue;
-                if (i < targetStep) {
+            const steps = isMultiRoom() ? 5 : 4;
+            for (let i = 1; i <= steps; i++) {
+                let indicator;
+                if(i === 3 && isMultiRoom()){
+                    indicator = document.getElementById('step-indicator-room');
+                } else if(isMultiRoom() && i > 3){
+                    indicator = document.getElementById('step-indicator-'+(i-1));
+                } else {
+                    indicator = document.getElementById('step-indicator-'+i);
+                }
+                if(!indicator) continue;
+                const targetNum = targetStep === 'room' ? 3 : (isMultiRoom() && targetStep > 3 ? targetStep-1 : targetStep);
+                if (i < targetNum) {
                     indicator.className = "w-8 h-8 rounded-full bg-green-500 text-white flex items-center justify-center font-bold text-sm ring-4 ring-[#F1F5F9] transition-colors";
                     indicator.innerHTML = '<i class="fa-solid fa-check"></i>';
-                } else if (i === targetStep) {
+                } else if (i === targetNum) {
                     indicator.className = "w-8 h-8 rounded-full bg-brand-600 text-white flex items-center justify-center font-bold text-sm ring-4 ring-blue-100 transition-colors shadow-lg shadow-brand-500/30";
                     indicator.innerHTML = i;
                 } else {
@@ -389,57 +557,6 @@
                     indicator.innerHTML = i;
                 }
             }
-        }
-
-        // 活动卡片渲染
-        function visibleActs(agency) {
-            if (!agency) return [];
-            const groupSel = document.getElementById('select-group');
-            if (agency.groups && agency.groups.length > 0) {
-                const g = groupSel.value || '';
-                return agency.activities.filter(a => (a.group || '默认') === g);
-            }
-            return agency.activities;
-        }
-
-        function renderActCards(acts, emptyText) {
-            const container = document.getElementById('act-cards');
-            if (!acts || acts.length === 0) {
-                container.innerHTML = '<p class="col-span-2 text-center text-sm text-slate-400 py-8 border-2 border-dashed border-slate-200 rounded-xl">' + (emptyText || '该分组暂无可报名活动') + '</p>';
-                return;
-            }
-            container.innerHTML = acts.map(a => {
-                const d = activityDB[a.name];
-                const ended = !d || d.status === 'ended';
-                const isSel = selectedActId === a.name;
-                const click = ended ? '' : "selectAct('" + a.name + "')";
-                return `<div onclick="${click}" class="rounded-xl border-2 p-4 transition ${ended ? 'border-slate-100 bg-slate-50 opacity-50 cursor-not-allowed' : 'border-slate-200 hover:border-brand-400 hover:shadow-md cursor-pointer'} ${isSel ? 'border-brand-500 bg-brand-50 shadow-md' : ''}">
-                    <div class="flex justify-between items-start mb-2">
-                        <p class="font-bold text-slate-800 text-sm leading-snug">${a.name}</p>
-                        ${ended ? '<span class="px-2 py-0.5 rounded text-xs font-bold bg-slate-100 text-slate-500 border border-slate-200 whitespace-nowrap ml-2">已结束</span>' : isSel ? '<span class="px-2 py-0.5 rounded text-xs font-bold bg-brand-50 text-brand-600 border border-brand-200 whitespace-nowrap ml-2"><i class="fa-solid fa-check"></i> 已选</span>' : '<span class="px-2 py-0.5 rounded text-xs font-bold bg-green-50 text-green-600 border border-green-100 whitespace-nowrap ml-2">报名中</span>'}
-                    </div>
-                    <div class="text-xs text-slate-500 space-y-1 mt-1">
-                        <p><i class="fa-regular fa-calendar mr-1.5"></i>考试时间：${d.examStart} 至 ${d.examEnd}</p>
-                        <p><i class="fa-solid fa-yen-sign mr-1.5"></i>报名费：¥ ${d.fee.toFixed(2)}</p>
-                    </div>
-                </div>`;
-            }).join('');
-        }
-
-        function selectAct(name) {
-            const d = activityDB[name];
-            if (!d || d.status === 'ended') return;
-            selectedActId = name;
-            document.getElementById('selected-act-info').classList.remove('hidden');
-            document.getElementById('selected-act-text').innerText = name + '（' + d.examStart + '）';
-            const agency = agencyData.find(a => a.code === document.getElementById('select-agency').value);
-            renderActCards(visibleActs(agency));
-        }
-
-        function resetActSelection() {
-            selectedActId = null;
-            document.getElementById('selected-act-info').classList.add('hidden');
-            document.getElementById('selected-act-text').innerText = '';
         }
 
         // 3. 核心逻辑：识别码与下拉框联动
@@ -475,56 +592,32 @@
             });
         }
 
-        // 机构变化时，联动分组下拉与活动卡片
+        // 机构变化时，联动项目下拉框
         function onAgencyChange() {
             const agencyCode = document.getElementById('select-agency').value;
-            const wrapper = document.getElementById('group-select-wrapper');
-            const groupSel = document.getElementById('select-group');
-            resetActSelection();
-
+            const projectSelect = document.getElementById('select-project');
+            
+            projectSelect.innerHTML = '<option value="">请选择项目...</option>';
+            
             if (!agencyCode) {
-                wrapper.classList.add('hidden');
-                groupSel.disabled = true;
-                renderActCards([], '请先选择机构');
+                projectSelect.disabled = true;
                 return;
             }
 
             const agency = agencyData.find(a => a.code === agencyCode);
-            const hasGroups = agency && agency.groups && agency.groups.length > 0;
-
-            groupSel.innerHTML = '<option value="">请选择分组...</option>';
-            if (hasGroups) {
-                agency.groups.forEach(g => {
+            if (agency) {
+                agency.projects.forEach(p => {
+                    const isMulti = roomData[p] && roomData[p].length > 0;
                     const option = document.createElement('option');
-                    option.value = g; option.text = g;
-                    groupSel.appendChild(option);
+                    option.value = p;
+                    option.text = p + (isMulti ? '（多考场）' : '');
+                    projectSelect.appendChild(option);
                 });
-                if (agency.activities.some(a => !a.group)) {
-                    const option = document.createElement('option');
-                    option.value = '默认'; option.text = '默认';
-                    groupSel.appendChild(option);
-                }
-                wrapper.classList.remove('hidden');
-                groupSel.disabled = false;
-                renderActCards([], '请选择分组');
-            } else {
-                wrapper.classList.add('hidden');
-                groupSel.disabled = true;
-                renderActCards(agency ? agency.activities : [], '该渠道暂无可报名活动');
+                projectSelect.disabled = false;
             }
+            onProjectChange();
         }
 
-        function onGroupChange() {
-            resetActSelection();
-            const agencyCode = document.getElementById('select-agency').value;
-            const group = document.getElementById('select-group').value;
-            const agency = agencyData.find(a => a.code === agencyCode);
-            if (!agency || !group) {
-                renderActCards([], '请选择分组');
-                return;
-            }
-            renderActCards(agency.activities.filter(a => (a.group || '默认') === group));
-        }
         // 手动验证渠道码
         function manualVerifyCode() {
             const inputCode = document.getElementById('input-code');
@@ -559,13 +652,9 @@
                 // 触发项目更新
                 onAgencyChange();
                 
-                // 视觉反馈：分组下拉框或活动卡片区高亮
-                const groupWrapper = document.getElementById('group-select-wrapper');
-                if (!groupWrapper.classList.contains('hidden')) {
-                    groupWrapper.querySelector('select').classList.add('ring-2', 'ring-brand-200', 'bg-blue-50');
-                } else {
-                    document.getElementById('activity-cards-section').classList.add('ring-2', 'ring-brand-200', 'rounded-xl');
-                }
+                // 视觉反馈：项目下拉框高亮
+                const projectSelect = document.getElementById('select-project');
+                projectSelect.classList.add('ring-2', 'ring-brand-200', 'bg-blue-50');
 
                 return true;
             }
@@ -576,25 +665,25 @@
         function syncDataToReview() {
             const agencySelect = document.getElementById('select-agency');
             const agencyName = agencySelect.options[agencySelect.selectedIndex].text;
-            const act = currentActivity();
-
-            document.getElementById('view-project').innerText = act ? selectedActId : '--';
+            
+            document.getElementById('view-project').innerText = document.getElementById('select-project').value;
             document.getElementById('view-agency').innerText = agencyName;
             document.getElementById('view-name').innerText = document.getElementById('input-name').value;
             document.getElementById('view-id').innerText = document.getElementById('input-id').value;
             document.getElementById('view-gender').innerText = document.getElementById('input-gender').value;
             document.getElementById('view-address').innerText = `${document.getElementById('input-city').value} ${document.getElementById('input-address').value}`;
-            // 分组信息
-            const groupSel = document.getElementById('select-group');
-            const wrapper = document.getElementById('group-select-wrapper');
-            const groupRow = document.getElementById('view-group-row');
-            if (groupSel && groupSel.value && !wrapper.classList.contains('hidden')) {
-                groupRow.style.display = '';
-                document.getElementById('view-group').innerText = groupSel.value;
+            // 考场信息
+            if(selectedRoomId && isMultiRoom()){
+                const project = document.getElementById('select-project').value;
+                const rooms = roomData[project] || [];
+                const r = rooms.find(x=>x.id===selectedRoomId);
+                document.getElementById('view-room-row').style.display = '';
+                document.getElementById('view-room').innerText = r ? r.name + '（'+r.date+' '+r.time+'）' : '--';
             } else {
-                groupRow.style.display = 'none';
+                document.getElementById('view-room-row').style.display = 'none';
             }
         }
+
         function previewImage(input) {
             if (input.files && input.files[0]) {
                 const reader = new FileReader();
