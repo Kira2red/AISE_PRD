@@ -6,46 +6,38 @@
 <title>爱测评 - 题目管理 - 录入题目</title>
 <link rel="stylesheet" href="爱测评线上样式.css">
 <style>
-/* ===== demo 骨架与新增功能补充样式（线上样式已由 爱测评线上样式.css 提供） ===== */
+/* ===== demo 骨架（线上样式由 爱测评线上样式.css 提供） ===== */
 html, body { margin: 0; padding: 0; background: #f0f2f5; font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", "PingFang SC", "Hiragino Sans GB", "Microsoft YaHei", sans-serif; }
 * { box-sizing: border-box; }
 
-.demo-badge {
-  display: inline-block; margin-left: 8px; padding: 0 8px; height: 20px; line-height: 20px;
-  border-radius: 10px; background: #2A55E5; color: #fff; font-size: 12px; font-weight: 400; vertical-align: middle;
-}
+/* 面包屑条（线上 positionSticky，高 64px，居左） */
+.questionForm .positionSticky { position: sticky; top: 60px; z-index: 90; background: #f0f2f5; height: 64px; display: flex; align-items: center; gap: 8px; }
+.questionForm .positionSticky .ant-col { color: #323335; font-size: 14px; font-weight: 600; }
+.questionForm .positionSticky span { cursor: pointer; }
+.header_title { font-size: 14px; font-weight: 600; color: #323335; }
 
-/* 面包屑 */
-.positionSticky { position: sticky; top: 60px; z-index: 90; background: #f0f2f5; padding: 12px 24px; }
-.positionSticky .ant-row-flex { display: flex; align-items: center; gap: 8px; }
-.header_title { font-size: 15px; font-weight: 600; color: #323335; }
-
-/* 侧边栏 */
-.sidebar { position: fixed; top: 60px; left: 0; bottom: 0; width: 200px; background: #fff; border-right: 1px solid #e8e8e8; padding-top: 12px; }
-.sidebar .ant-menu-inline { border-right: none; }
-
-/* 表单卡片 */
+/* 表单卡片（线上：宽 90% 居中） */
 .questionForm { padding-bottom: 20px; }
 .questionForm .questionCard { width: 90%; padding: 24px; background: #fff; border-radius: 12px; margin: 10px auto; }
-.questionForm .questionCard .cardTitle { font-weight: 600; font-size: 16px; color: #323335; line-height: 24px; padding-bottom: 20px; }
+.questionForm .questionCard .cardTitle { font-weight: 600; font-size: 16px; color: #323335; line-height: 24px; text-align: left; padding-bottom: 20px; margin: 0; }
 .questionForm .questionCard .cardTips { font-size: 14px; color: #64666B; line-height: 22px; }
-.questionForm .questionCard .questionTypeTitle { font-size: 14px; color: #323335; line-height: 36px; }
-.questionForm .questionCard .questionTypeBox { width: 100%; padding: 8px; overflow: hidden; }
-.questionForm .questionCard .questionType { min-width: 76px; padding: 0 16px; height: 32px; background: #F4F4F5; border-radius: 16px; font-size: 14px; color: #323335; line-height: 32px; text-align: center; cursor: pointer; float: left; margin-right: 10px; }
+.questionForm .questionCard .questionTypeTitle { font-size: 14px; color: #323335; line-height: 36px; text-align: left; margin: 0; }
+.questionForm .questionCard .questionTypeBox { width: 100%; padding: 8px 8px 8px 0; overflow: hidden; }
+.questionForm .questionCard .questionType { min-width: 76px; width: auto; padding: 0 16px; height: 32px; background: #F4F4F5; border-radius: 16px; font-size: 14px; color: #323335; line-height: 32px; text-align: center; cursor: pointer; float: left; margin-right: 10px; }
 .questionForm .questionCard .questionTypeActive { background: #E5F5FF !important; color: #2A55E5 !important; }
 .questionForm .questionCard .ant-form-item { margin-bottom: 14px; }
-.questionForm .questionCard .ant-form-item-label { line-height: 36px; }
+.questionForm .questionCard .ant-form-item-label { line-height: 36px; text-align: right; }
 .questionForm .questionCard .ant-form-item-label label { font-size: 14px; color: #323335; }
-.questionForm .questionCard .ant-input { border-radius: 4px; }
 .questionForm .questionCard .ant-checkbox-wrapper span { font-size: 14px; color: #323335; }
+.questionForm .questionCard .ant-radio-wrapper { font-size: 14px; color: #323335; line-height: 28px; }
+.questionForm .questionCard .ant-input { border-radius: 4px; font-size: 14px; }
 
-/* 读题文本配置 */
-.dtwb_label { display: flex; align-items: center; justify-content: space-between; margin-bottom: 8px; }
-.dtwb_label .label { font-size: 14px; color: #323335; margin: 0; }
-.dtwb_label .tts-actions { display: flex; align-items: center; gap: 4px; }
-.dtwb_label .tts-actions .ant-btn { margin-left: 0; }
+/* 读题文本配置（线上：独立整行 label + 右侧操作按钮） */
+.questionForm .questionCard .dtwb_label { display: flex; align-items: center; justify-content: space-between; margin-bottom: 2px; }
+.questionForm .questionCard .dtwb_label .label { font-size: 14px; color: #323335; margin: 0; line-height: 36px; }
+.questionForm .questionCard .dtwb_label .tts-actions { display: flex; align-items: center; }
 
-/* 答案解析图片上传（新增） */
+/* 答案解析图片上传 */
 .analysis-upload { margin-top: 10px; }
 .analysis-upload .upload-btn-row { display: flex; align-items: center; gap: 8px; }
 .analysis-imgs { display: flex; flex-wrap: wrap; gap: 10px; margin-top: 10px; }
@@ -62,15 +54,14 @@ html, body { margin: 0; padding: 0; background: #f0f2f5; font-family: -apple-sys
 
 /* 积木区 */
 .graphicPage { overflow: hidden; }
-.graphicPage .cardTitle { font-weight: 600; font-size: 16px; color: #323335; line-height: 24px; padding-bottom: 20px; }
 .graphicPage .graphicMain { width: 100%; display: flex; }
 .graphicPage .graphicLeftBox { width: 80px; padding: 0; }
-.graphicPage .graphicLeftBox .graphicLi { width: 100%; height: 80px; padding: 10px; background: #fff; text-align: center; line-height: 25px; cursor: pointer; }
+.graphicPage .graphicLeftBox .graphicLi { width: 100%; height: 80px; padding: 10px; box-sizing: border-box; background: #fff; text-align: center; line-height: 25px; cursor: pointer; }
 .graphicPage .graphicLeftBox .graphicLi.active { background: #E5F5FF; color: #2A55E5; }
 .graphicPage .graphicImageBox { width: calc(100% - 90px); margin-left: 10px; }
-.graphicPage .graphicImageBox .graphicImageList { max-height: 520px; padding: 10px 15px; border: 1px solid #ccc; border-radius: 10px; overflow-y: auto; }
-.graphicPage .graphicImageBox .graphicImageList .p1 { line-height: 40px; color: #323335; font-weight: 600; }
-.block-cat-title { font-size: 14px; color: #64666B; line-height: 32px; }
+.graphicPage .graphicImageBox .graphicImageList { height: auto; max-height: 520px; padding: 10px 15px; border: 1px solid #ccc; border-radius: 10px; overflow-y: auto; }
+.graphicPage .graphicImageBox .graphicImageList .p1 { line-height: 40px; color: #323335; font-weight: 600; margin: 0; }
+.block-cat-title { font-size: 14px; color: #64666B; line-height: 32px; margin: 4px 0 0; }
 .blocks-row { display: flex; flex-wrap: wrap; gap: 8px; padding: 4px 0 8px; }
 .graphicBlock { position: relative; display: inline-block; padding: 8px 14px; border-radius: 10px; color: #fff; font-size: 13px; line-height: 18px; cursor: pointer; box-shadow: 0 2px 0 rgba(0,0,0,.15); }
 .graphicBlock .blk-del { position: absolute; top: -6px; right: -6px; width: 16px; height: 16px; border-radius: 50%; background: #ff4d4f; color: #fff; font-size: 10px; line-height: 16px; text-align: center; cursor: pointer; }
@@ -79,18 +70,29 @@ html, body { margin: 0; padding: 0; background: #f0f2f5; font-family: -apple-sys
 .b-operator { background: #59C059; } .b-variable { background: #FF8C1A; } .b-more { background: #FF6680; }
 .dot { display: inline-block; width: 14px; height: 14px; border-radius: 50%; margin-right: 6px; vertical-align: -2px; }
 
-/* 新增：编程语言区 */
-.lang-row { display: flex; flex-wrap: wrap; gap: 0; }
+/* 编程语言区 */
 .lang-row .ant-radio-wrapper { margin-right: 16px; }
 
-/* 新增：答案解析图片上传拖拽提示 */
+/* 提示小字 */
 .upload-hint { font-size: 12px; color: #969AA0; margin-top: 6px; }
 
-/* 底部按钮 */
-.questionCard.fotter { display: flex; justify-content: flex-end; gap: 12px; margin-top: 8px; }
+/* 底部按钮（线上 questionCard.fotter） */
+.questionForm .questionCard.fotter { display: flex; justify-content: flex-end; gap: 12px; margin-top: 8px; }
 
-/* 内容区 */
-.main-content-area { margin-left: 200px; padding-bottom: 40px; }
+/* 选项区 */
+.optionBox { width: 100%; padding: 10px; height: auto; margin: 0; }
+.optionBox .addOption { margin-top: 12px; cursor: pointer; width: 100%; height: 40px; border-radius: 4px; text-align: center; line-height: 40px; font-size: 14px; color: #64666B; border: 1px dashed #64666B; }
+.opt-row { display: flex; align-items: center; gap: 8px; margin-bottom: 8px; }
+
+/* OJ 区 */
+.tkTips { width: 100%; background: #E5F5FF; line-height: 34px; border-radius: 4px; font-size: 12px; color: #323335; margin-top: 10px; padding: 0 16px; box-sizing: border-box; }
+.referenceAnswerPreview { min-height: 110px; max-height: 180px; overflow: auto; margin: 0; padding: 14px; border-radius: 4px; background: #323335; color: #F4F4F5; font-size: 12px; line-height: 20px; white-space: pre-wrap; }
+
+/* 知识标签下拉 */
+.kp-dropdown .kp-cat { padding: 6px 16px; font-size: 13px; font-weight: 600; color: #323335; }
+.kp-dropdown .kp-sub { padding: 4px 16px 4px 24px; font-size: 13px; color: #64666B; }
+.kp-dropdown .kp-opt { padding: 4px 16px 4px 40px; font-size: 13px; color: #323335; cursor: pointer; }
+.kp-dropdown .kp-opt:hover { background: #E5F5FF; color: #2A55E5; }
 
 /* 简单 toast */
 .demo-toast { position: fixed; top: 80px; left: 50%; transform: translateX(-50%); background: rgba(0,0,0,.75); color: #fff; padding: 10px 20px; border-radius: 6px; font-size: 14px; z-index: 9999; display: none; }
@@ -119,412 +121,403 @@ html, body { margin: 0; padding: 0; background: #f0f2f5; font-family: -apple-sys
           <div style="padding-right:24px; display:flex; align-items:center; gap:8px;">
             <span class="ant-avatar" style="background:#2A55E5;">A</span>
             <span style="font-size:14px;color:#323335;">AISE管理员</span>
-            <i class="anticon anticon-down" style="color:#999;"></i>
+            <i class="anticon anticon-down" style="color:#999;">▾</i>
           </div>
         </div>
       </div>
     </div>
 
-    <!-- ===== 侧边栏（线上同构） ===== -->
-    <aside class="sidebar" style="top:0;padding-top:76px;">
-      <button type="button" class="ant-btn ant-btn-primary" style="border-radius:8px;background:rgb(42,85,229);width:184px;height:44px;margin:0 auto 12px;display:block;"><span>创建考试</span></button>
-      <ul role="menu" class="ant-menu ant-menu-inline ant-menu-root ant-menu-light" style="width:calc(100% - 16px);margin-left:8px;">
-        <li role="menuitem" class="ant-menu-item" style="padding-left:24px;"><a href="#"><i class="iconfont">🏠</i>首页</a></li>
-        <li role="menuitem" class="ant-menu-item ant-menu-item-selected" style="padding-left:24px;"><a href="01_题目管理.html"><i class="iconfont">📋</i>题目管理</a></li>
-        <li role="menuitem" class="ant-menu-item" style="padding-left:24px;"><a href="#"><i class="iconfont">📄</i>试卷管理</a></li>
-        <li role="menuitem" class="ant-menu-item" style="padding-left:24px;"><a href="#"><i class="iconfont">📝</i>考试管理</a></li>
-        <li role="menuitem" class="ant-menu-item" style="padding-left:24px;"><a href="#"><i class="iconfont">📚</i>日常作业</a></li>
-        <li role="menuitem" class="ant-menu-item" style="padding-left:24px;"><a href="#"><i class="iconfont">🏫</i>班级管理</a></li>
-        <li role="menuitem" class="ant-menu-item" style="padding-left:24px;"><a href="#"><i class="iconfont">👨‍🏫</i>教师管理</a></li>
-        <li role="menuitem" class="ant-menu-item" style="padding-left:24px;"><a href="#"><i class="iconfont">🧑‍🎓</i>学生管理</a></li>
-        <li role="menuitem" class="ant-menu-item" style="padding-left:24px;"><a href="#"><i class="iconfont">🏢</i>组织管理</a></li>
-        <li role="menuitem" class="ant-menu-item" style="padding-left:24px;"><a href="#"><i class="iconfont">🗑</i>回收站</a></li>
-      </ul>
-    </aside>
-
-    <!-- ===== 主内容 ===== -->
-    <main class="ant-layout-content main-content-area">
-      <div class="positionSticky" style="display:flex;align-items:center;gap:8px;">
-        <i class="anticon anticon-left" style="color:#323335;">←</i>
-        <span style="color:#323335;cursor:pointer;" onclick="history.back()">返回</span>
-        <div role="separator" class="ant-divider ant-divider-vertical"></div>
-        <span class="header_title">录入题目</span>
-      </div>
-
+    <!-- ===== 主内容（线上：无侧边栏，全宽） ===== -->
+    <div class="home">
       <div class="questionForm">
+        <!-- 面包屑条（线上同构） -->
+        <div class="positionSticky ant-row-flex ant-row-flex-start ant-row-flex-middle" style="height:64px;">
+          <div class="ant-col" style="color:rgb(50,51,53);font-size:14px;font-weight:600;">
+            <span style="cursor:pointer;" onclick="location.href='01_题目管理.html'">
+              <i aria-label="图标: left" class="anticon anticon-left">←</i>返回
+            </span>
+            <div role="separator" class="ant-divider ant-divider-vertical"></div>
+            <span class="header_title">录入题目</span>
+          </div>
+        </div>
+
         <div class="questionCard">
           <p class="cardTitle">录入题目</p>
-          <form class="ant-form ant-form-horizontal" onsubmit="return false;">
+          <div class="">
+            <fieldset style="border:none;margin:0;padding:0;">
+              <form class="ant-form ant-form-horizontal" onsubmit="return false;">
 
-            <!-- ① 所属题库 -->
-            <div class="ant-row ant-form-item">
-              <div class="ant-col ant-col-xs-24 ant-col-sm-2 ant-form-item-label"><label title="所属题库" class="ant-form-item-required">所属题库</label></div>
-              <div class="ant-col ant-col-xs-24 ant-col-sm-14 ant-form-item-control-wrapper">
-                <div class="ant-form-item-control"><span class="ant-form-item-children">
-                  <div class="ant-checkbox-group">
-                    <label class="ant-checkbox-wrapper" onclick="onLibToggle(3,this)"><span class="ant-checkbox"><input type="checkbox" class="ant-checkbox-input" value="3"><span class="ant-checkbox-inner"></span></span><span>默认题库</span></label>
-                    <label class="ant-checkbox-wrapper" onclick="onLibToggle(1,this)"><span class="ant-checkbox"><input type="checkbox" class="ant-checkbox-input" value="1"><span class="ant-checkbox-inner"></span></span><span>我的题库</span></label>
-                    <label class="ant-checkbox-wrapper" onclick="onLibToggle(3,this)"><span class="ant-checkbox"><input type="checkbox" class="ant-checkbox-input" value="3"><span class="ant-checkbox-inner"></span></span><span>AISE题库</span></label>
+                <!-- 所属题库 -->
+                <div class="ant-row ant-form-item">
+                  <div class="ant-col ant-col-xs-24 ant-col-sm-2 ant-form-item-label"><label title="所属题库" class="ant-form-item-required">所属题库</label></div>
+                  <div class="ant-col ant-col-xs-24 ant-col-sm-14 ant-form-item-control-wrapper">
+                    <div class="ant-form-item-control"><span class="ant-form-item-children">
+                      <div class="ant-checkbox-group">
+                        <label class="ant-checkbox-wrapper" onclick="onLibToggle(this)"><span class="ant-checkbox"><input type="checkbox" class="ant-checkbox-input" value="0"><span class="ant-checkbox-inner"></span></span><span>默认题库</span></label>
+                        <label class="ant-checkbox-wrapper" onclick="onLibToggle(this)"><span class="ant-checkbox"><input type="checkbox" class="ant-checkbox-input" value="1"><span class="ant-checkbox-inner"></span></span><span>我的题库</span></label>
+                        <label class="ant-checkbox-wrapper" onclick="onLibToggle(this)"><span class="ant-checkbox"><input type="checkbox" class="ant-checkbox-input" value="3"><span class="ant-checkbox-inner"></span></span><span>AISE题库</span></label>
+                      </div>
+                    </span></div>
                   </div>
-                </span></div>
-              </div>
-            </div>
+                </div>
 
-            <!-- ② AISE级别（勾选 AISE题库后出现） -->
-            <div class="ant-row ant-form-item" id="aiseLevelItem" style="display:none;">
-              <div class="ant-col ant-col-xs-24 ant-col-sm-2 ant-form-item-label"><label title="AISE级别" class="ant-form-item-required">AISE级别</label></div>
-              <div class="ant-col ant-col-xs-24 ant-col-sm-14 ant-form-item-control-wrapper">
-                <div class="ant-form-item-control"><span class="ant-form-item-children">
-                  <div class="ant-radio-group ant-radio-group-outline" id="aiseLevelGroup">
-                    <label class="ant-radio-wrapper"><span class="ant-radio"><input type="radio" name="aiseLevel" class="ant-radio-input" value="1"><span class="ant-radio-inner"></span></span><span>一级</span></label>
-                    <label class="ant-radio-wrapper"><span class="ant-radio"><input type="radio" name="aiseLevel" class="ant-radio-input" value="2"><span class="ant-radio-inner"></span></span><span>二级</span></label>
-                    <label class="ant-radio-wrapper"><span class="ant-radio"><input type="radio" name="aiseLevel" class="ant-radio-input" value="3"><span class="ant-radio-inner"></span></span><span>三级</span></label>
-                    <label class="ant-radio-wrapper"><span class="ant-radio"><input type="radio" name="aiseLevel" class="ant-radio-input" value="4"><span class="ant-radio-inner"></span></span><span>四级</span></label>
-                    <label class="ant-radio-wrapper"><span class="ant-radio"><input type="radio" name="aiseLevel" class="ant-radio-input" value="5"><span class="ant-radio-inner"></span></span><span>五级</span></label>
-                    <label class="ant-radio-wrapper"><span class="ant-radio"><input type="radio" name="aiseLevel" class="ant-radio-input" value="6"><span class="ant-radio-inner"></span></span><span>六级</span></label>
-                    <label class="ant-radio-wrapper"><span class="ant-radio"><input type="radio" name="aiseLevel" class="ant-radio-input" value="7"><span class="ant-radio-inner"></span></span><span>七级</span></label>
-                    <label class="ant-radio-wrapper"><span class="ant-radio"><input type="radio" name="aiseLevel" class="ant-radio-input" value="8"><span class="ant-radio-inner"></span></span><span>八级</span></label>
+                <!-- AISE级别（勾选 AISE题库后出现） -->
+                <div class="ant-row ant-form-item" id="aiseLevelItem" style="display:none;">
+                  <div class="ant-col ant-col-xs-24 ant-col-sm-2 ant-form-item-label"><label title="AISE级别" class="ant-form-item-required">AISE级别</label></div>
+                  <div class="ant-col ant-col-xs-24 ant-col-sm-14 ant-form-item-control-wrapper">
+                    <div class="ant-form-item-control"><span class="ant-form-item-children">
+                      <div class="ant-radio-group ant-radio-group-outline" id="aiseLevelGroup">
+                        <label class="ant-radio-wrapper"><span class="ant-radio"><input type="radio" name="aiseLevel" class="ant-radio-input" value="1"><span class="ant-radio-inner"></span></span><span>一级</span></label>
+                        <label class="ant-radio-wrapper"><span class="ant-radio"><input type="radio" name="aiseLevel" class="ant-radio-input" value="2"><span class="ant-radio-inner"></span></span><span>二级</span></label>
+                        <label class="ant-radio-wrapper"><span class="ant-radio"><input type="radio" name="aiseLevel" class="ant-radio-input" value="3"><span class="ant-radio-inner"></span></span><span>三级</span></label>
+                        <label class="ant-radio-wrapper"><span class="ant-radio"><input type="radio" name="aiseLevel" class="ant-radio-input" value="4"><span class="ant-radio-inner"></span></span><span>四级</span></label>
+                        <label class="ant-radio-wrapper"><span class="ant-radio"><input type="radio" name="aiseLevel" class="ant-radio-input" value="5"><span class="ant-radio-inner"></span></span><span>五级</span></label>
+                        <label class="ant-radio-wrapper"><span class="ant-radio"><input type="radio" name="aiseLevel" class="ant-radio-input" value="6"><span class="ant-radio-inner"></span></span><span>六级</span></label>
+                        <label class="ant-radio-wrapper"><span class="ant-radio"><input type="radio" name="aiseLevel" class="ant-radio-input" value="7"><span class="ant-radio-inner"></span></span><span>七级</span></label>
+                        <label class="ant-radio-wrapper"><span class="ant-radio"><input type="radio" name="aiseLevel" class="ant-radio-input" value="8"><span class="ant-radio-inner"></span></span><span>八级</span></label>
+                      </div>
+                    </span></div>
                   </div>
-                </span></div>
-              </div>
-            </div>
+                </div>
 
-            <!-- ③ 编程语言（新增：仅编程类题型显示且必选） -->
-            <div class="ant-row ant-form-item" id="langItem" style="display:none;">
-              <div class="ant-col ant-col-xs-24 ant-col-sm-2 ant-form-item-label"><label title="编程语言" class="ant-form-item-required">编程语言<span class="demo-badge">新增</span></label></div>
-              <div class="ant-col ant-col-xs-24 ant-col-sm-14 ant-form-item-control-wrapper">
-                <div class="ant-form-item-control"><span class="ant-form-item-children">
-                  <div class="ant-radio-group ant-radio-group-outline lang-row" id="langGroup">
-                    <label class="ant-radio-wrapper"><span class="ant-radio"><input type="radio" name="lang" class="ant-radio-input" value="scratch" onchange="onLangChange(this)"><span class="ant-radio-inner"></span></span><span>图形化（Scratch）</span></label>
-                    <label class="ant-radio-wrapper"><span class="ant-radio"><input type="radio" name="lang" class="ant-radio-input" value="python" onchange="onLangChange(this)"><span class="ant-radio-inner"></span></span><span>Python</span></label>
-                    <label class="ant-radio-wrapper"><span class="ant-radio"><input type="radio" name="lang" class="ant-radio-input" value="cpp" onchange="onLangChange(this)"><span class="ant-radio-inner"></span></span><span>C++</span></label>
-                    <label class="ant-radio-wrapper"><span class="ant-radio"><input type="radio" name="lang" class="ant-radio-input" value="c" onchange="onLangChange(this)"><span class="ant-radio-inner"></span></span><span>C</span></label>
+                <!-- 编程语言（仅编程类题型显示且必选） -->
+                <div class="ant-row ant-form-item" id="langItem" style="display:none;">
+                  <div class="ant-col ant-col-xs-24 ant-col-sm-2 ant-form-item-label"><label title="编程语言" class="ant-form-item-required">编程语言</label></div>
+                  <div class="ant-col ant-col-xs-24 ant-col-sm-14 ant-form-item-control-wrapper">
+                    <div class="ant-form-item-control"><span class="ant-form-item-children">
+                      <div class="ant-radio-group ant-radio-group-outline lang-row" id="langGroup">
+                        <label class="ant-radio-wrapper"><span class="ant-radio"><input type="radio" name="lang" class="ant-radio-input" value="scratch" onchange="onLangChange(this)"><span class="ant-radio-inner"></span></span><span>图形化（Scratch）</span></label>
+                        <label class="ant-radio-wrapper"><span class="ant-radio"><input type="radio" name="lang" class="ant-radio-input" value="python" onchange="onLangChange(this)"><span class="ant-radio-inner"></span></span><span>Python</span></label>
+                        <label class="ant-radio-wrapper"><span class="ant-radio"><input type="radio" name="lang" class="ant-radio-input" value="cpp" onchange="onLangChange(this)"><span class="ant-radio-inner"></span></span><span>C++</span></label>
+                        <label class="ant-radio-wrapper"><span class="ant-radio"><input type="radio" name="lang" class="ant-radio-input" value="c" onchange="onLangChange(this)"><span class="ant-radio-inner"></span></span><span>C</span></label>
+                      </div>
+                      <div class="upload-hint">选择语言后，下方知识标签仅展示该语言对应的知识树</div>
+                    </span></div>
                   </div>
-                  <div class="upload-hint">选择语言后，下方知识标签仅展示该语言对应的知识树</div>
-                </span></div>
-              </div>
-            </div>
+                </div>
 
-            <!-- ④ 题型 -->
-            <div class="ant-row ant-form-item">
-              <div class="ant-col ant-col-xs-24 ant-col-sm-2 ant-form-item-label"><label title="题型" class="ant-form-item-required">题型</label></div>
-              <div class="ant-col ant-col-xs-24 ant-col-sm-16 ant-form-item-control-wrapper">
-                <div class="ant-form-item-control"><span class="ant-form-item-children">
-                  <p class="questionTypeTitle">客观题类-可以系统自动批改</p>
-                  <div class="questionTypeBox">
-                    <div class="questionType" data-qt="single" onclick="onTypeChange(this)">单选</div>
-                    <div class="questionType" data-qt="multi" onclick="onTypeChange(this)">多选</div>
-                    <div class="questionType" data-qt="judge" onclick="onTypeChange(this)">判断</div>
-                    <div class="questionType" data-qt="gap" onclick="onTypeChange(this)">填空</div>
-                    <div class="questionType" data-qt="oj" onclick="onTypeChange(this)">编程OJ
-                      <i class="anticon anticon-question-circle" title="编程OJ题型（Online Judge）是一种支持在线批改的题型，输入测试用例之后，系统根据测试用例结果自动判分。目前支持Python、C语言、C++。" style="color:#bfbfbf;">?</i>
-                    </div>
-                    <div class="questionType" data-qt="graphic" onclick="onTypeChange(this)">图形化编程
-                      <i class="anticon anticon-question-circle" title="使用Scratch图形化编程，通过拖拽积木块设计创意项目（如动画、游戏或互动程序），考察逻辑思维与实现能力。" style="color:#bfbfbf;">?</i>
-                    </div>
+                <!-- 题型 -->
+                <div class="ant-row ant-form-item">
+                  <div class="ant-col ant-col-xs-24 ant-col-sm-2 ant-form-item-label"><label title="题型" class="ant-form-item-required">题型</label></div>
+                  <div class="ant-col ant-col-xs-24 ant-col-sm-16 ant-form-item-control-wrapper">
+                    <div class="ant-form-item-control"><span class="ant-form-item-children">
+                      <p class="questionTypeTitle">客观题类-可以系统自动批改</p>
+                      <div class="questionTypeBox">
+                        <div class="questionType" data-qt="single" onclick="onTypeChange(this)">单选</div>
+                        <div class="questionType" data-qt="multi" onclick="onTypeChange(this)">多选</div>
+                        <div class="questionType" data-qt="judge" onclick="onTypeChange(this)">判断</div>
+                        <div class="questionType" data-qt="gap" onclick="onTypeChange(this)">填空</div>
+                        <div class="questionType" data-qt="oj" onclick="onTypeChange(this)">编程OJ
+                          <i class="anticon anticon-question-circle" title="编程OJ题型（Online Judge）是一种支持在线批改的题型，输入测试用例之后，系统根据测试用例结果自动判分。目前支持Python、C语言、C++。" style="color:#bfbfbf;">?</i>
+                        </div>
+                        <div class="questionType" data-qt="graphic" onclick="onTypeChange(this)">图形化编程
+                          <i class="anticon anticon-question-circle" title="使用Scratch图形化编程，通过拖拽积木块设计创意项目（如动画、游戏或互动程序），考察逻辑思维与实现能力。" style="color:#bfbfbf;">?</i>
+                        </div>
+                      </div>
+                      <p class="questionTypeTitle">主观题类-需手动批改</p>
+                      <div class="questionTypeBox">
+                        <div class="questionType" data-qt="read" onclick="onTypeChange(this)">阅读</div>
+                        <div class="questionType" data-qt="code" onclick="onTypeChange(this)">编程
+                          <i class="anticon anticon-question-circle" title="编程：编程题不支持在线批改，目前支持Scratch3、Python、C语言、C++。" style="color:#bfbfbf;">?</i>
+                        </div>
+                        <div class="questionType" data-qt="practice" onclick="onTypeChange(this)">实践</div>
+                        <div class="questionType" data-qt="text2text" onclick="onTypeChange(this)">文生文</div>
+                        <div class="questionType" data-qt="text2img" onclick="onTypeChange(this)">文生图</div>
+                        <div class="questionType" data-qt="text2video" onclick="onTypeChange(this)">文生视频</div>
+                        <div class="questionType" data-qt="line" onclick="onTypeChange(this)">划线题</div>
+                        <div class="questionType" data-qt="workflow" onclick="onTypeChange(this)">工作流题型</div>
+                      </div>
+                    </span></div>
                   </div>
-                  <p class="questionTypeTitle">主观题类-需手动批改</p>
-                  <div class="questionTypeBox">
-                    <div class="questionType" data-qt="read" onclick="onTypeChange(this)">阅读</div>
-                    <div class="questionType" data-qt="code" onclick="onTypeChange(this)">编程
-                      <i class="anticon anticon-question-circle" title="编程：编程题不支持在线批改，目前支持Scratch3、Python、C语言、C++。" style="color:#bfbfbf;">?</i>
-                    </div>
-                    <div class="questionType" data-qt="practice" onclick="onTypeChange(this)">实践</div>
-                    <div class="questionType" data-qt="text2text" onclick="onTypeChange(this)">文生文</div>
-                    <div class="questionType" data-qt="text2img" onclick="onTypeChange(this)">文生图</div>
-                    <div class="questionType" data-qt="text2video" onclick="onTypeChange(this)">文生视频</div>
-                    <div class="questionType" data-qt="line" onclick="onTypeChange(this)">划线题</div>
-                    <div class="questionType" data-qt="workflow" onclick="onTypeChange(this)">工作流题型</div>
-                  </div>
-                </span></div>
-              </div>
-            </div>
+                </div>
 
-            <!-- ⑤ 知识标签 -->
-            <div class="ant-row ant-form-item">
-              <div class="ant-col ant-col-xs-24 ant-col-sm-2 ant-form-item-label"><label title="知识标签">知识标签</label></div>
-              <div class="ant-col ant-col-xs-24 ant-col-sm-14 ant-form-item-control-wrapper">
-                <div class="ant-form-item-control"><span class="ant-form-item-children">
-                  <div class="ant-select ant-select-enabled ant-select-multiple" style="width:100%;" id="kpSelect">
-                    <div class="ant-select-selection ant-select-selection--multiple" tabindex="0">
-                      <ul class="ant-select-selection__rendered">
-                        <li class="ant-select-selection__placeholder" id="kpPlaceholder" onclick="toggleKpDropdown(event)">请选择知识标签</li>
-                      </ul>
-                    </div>
-                  </div>
-                  <div class="kp-dropdown" id="kpDropdown" style="display:none;position:absolute;z-index:100;background:#fff;border:1px solid #e8e8e8;border-radius:4px;box-shadow:0 2px 8px rgba(0,0,0,.15);max-height:320px;overflow:auto;padding:8px 0;min-width:320px;">
-                    <!-- JS 渲染知识树 -->
-                  </div>
-                </span></div>
-              </div>
-            </div>
-
-            <!-- ⑥ 题目标题 -->
-            <div class="ant-row ant-form-item">
-              <div class="ant-col ant-col-xs-24 ant-col-sm-2 ant-form-item-label"><label title="题目标题">题目标题</label></div>
-              <div class="ant-col ant-col-xs-24 ant-col-sm-14 ant-form-item-control-wrapper">
-                <div class="ant-form-item-control"><span class="ant-form-item-children">
-                  <input placeholder="例如：1.程序输出判断" type="text" class="ant-input" id="qNameInput" style="width:100%;">
-                </span></div>
-              </div>
-            </div>
-
-            <!-- ⑦ 题干（CKEditor 5 形态，线上同构工具栏） -->
-            <div class="ant-row ant-form-item">
-              <div class="ant-col ant-col-xs-24 ant-col-sm-2 ant-form-item-label"><label title="题干" class="ant-form-item-required">题干</label></div>
-              <div class="ant-col ant-col-xs-24 ant-col-sm-16 ant-form-item-control-wrapper">
-                <div class="ant-form-item-control"><span class="ant-form-item-children">
-                  <div class="ck-editor" style="border:1px solid #d9d9d9;border-radius:4px;">
-                    <div class="ck ck-toolbar" style="background:#fafafa;border-bottom:1px solid #d9d9d9;padding:6px 10px;display:flex;flex-wrap:wrap;gap:2px;align-items:center;">
-                      <span class="ck-btn" title="段落" style="border:1px solid #d9d9d9;background:#fff;border-radius:3px;padding:2px 8px;font-size:13px;cursor:pointer;">段落 ▾</span>
-                      <button type="button" class="ck-btn" title="加粗" style="border:none;background:transparent;font-weight:bold;padding:4px 8px;cursor:pointer;">B</button>
-                      <button type="button" class="ck-btn" title="斜体" style="border:none;background:transparent;font-style:italic;padding:4px 8px;cursor:pointer;">I</button>
-                      <button type="button" class="ck-btn" title="下划线" style="border:none;background:transparent;text-decoration:underline;padding:4px 8px;cursor:pointer;">U</button>
-                      <button type="button" class="ck-btn" title="删除线" style="border:none;background:transparent;text-decoration:line-through;padding:4px 8px;cursor:pointer;">S</button>
-                      <span style="width:1px;height:16px;background:#d9d9d9;margin:0 4px;"></span>
-                      <button type="button" class="ck-btn" title="无序列表" style="border:none;background:transparent;padding:4px 8px;cursor:pointer;">≣</button>
-                      <button type="button" class="ck-btn" title="有序列表" style="border:none;background:transparent;padding:4px 8px;cursor:pointer;">1.</button>
-                      <span style="width:1px;height:16px;background:#d9d9d9;margin:0 4px;"></span>
-                      <button type="button" class="ck-btn" title="对齐" style="border:none;background:transparent;padding:4px 8px;cursor:pointer;">☰</button>
-                      <button type="button" class="ck-btn" title="分割线" style="border:none;background:transparent;padding:4px 8px;cursor:pointer;">―</button>
-                      <button type="button" class="ck-btn" title="插入图片/视频" style="border:none;background:transparent;padding:4px 8px;cursor:pointer;">🖼</button>
-                      <button type="button" class="ck-btn" title="引用" style="border:none;background:transparent;padding:4px 8px;cursor:pointer;">❝</button>
-                      <button type="button" class="ck-btn" title="表格" style="border:none;background:transparent;padding:4px 8px;cursor:pointer;">▦</button>
-                      <span style="flex:1;"></span>
-                      <button type="button" class="ck-btn" title="撤销" style="border:none;background:transparent;padding:4px 8px;cursor:pointer;">↺</button>
-                      <button type="button" class="ck-btn" title="重做" style="border:none;background:transparent;padding:4px 8px;cursor:pointer;">↻</button>
-                      <button type="button" class="ck-btn" title="AI" style="border:none;background:transparent;padding:4px 8px;cursor:pointer;">✦AI</button>
-                      <button type="button" class="ck-btn" title="涂鸦" style="border:none;background:transparent;padding:4px 8px;cursor:pointer;">✏</button>
-                      <button type="button" class="ck-btn" title="字体颜色" style="border:none;background:transparent;padding:4px 8px;cursor:pointer;">A<u style="text-decoration-color:#f00;">■</u></button>
-                      <button type="button" class="ck-btn" title="背景色" style="border:none;background:transparent;padding:4px 8px;cursor:pointer;">A<u>■</u></button>
-                      <button type="button" class="ck-btn" title="公式" style="border:none;background:transparent;padding:4px 8px;cursor:pointer;">√x</button>
-                      <button type="button" class="ck-btn" title="源代码" style="border:none;background:transparent;padding:4px 8px;cursor:pointer;">源代码</button>
-                      <button type="button" class="ck-btn" title="预览" style="border:none;background:transparent;padding:4px 8px;cursor:pointer;">👁</button>
-                      <button type="button" class="ck-btn" title="代码编辑" style="border:none;background:transparent;padding:4px 8px;cursor:pointer;">&lt;/&gt;</button>
-                    </div>
-                    <div class="ck-content" contenteditable="true" id="stemEditor" data-placeholder="请输入内容" style="min-height:120px;padding:12px;font-size:14px;color:#323335;outline:none;"></div>
-                  </div>
-                </span></div>
-              </div>
-            </div>
-
-            <!-- ⑧ 读题文本配置 TTS + 一键复制（新增） -->
-            <div class="dtwb_label" style="width:83%;">
-              <p class="label">读题文本配置 (TTS)<span class="demo-badge">新增复制</span></p>
-              <div class="tts-actions">
-                <button type="button" class="ant-btn ant-btn-link" id="copyStemBtn" onclick="copyStem()" style="color:#2A55E5;">📋 复制题干</button>
-                <button type="button" class="ant-btn ant-btn-link" id="copyOptionBtn" onclick="copyOptions()" style="color:#2A55E5;">📋 复制选项</button>
-                <button type="button" class="ant-btn ant-btn-link" onclick="toast('🎧 系统正在调用语音合成测试播放...')" style="color:rgb(50,118,255);">▶ 试听发音</button>
-              </div>
-            </div>
-            <div class="ant-row ant-form-item">
-              <div class="ant-col ant-col-xs-24 ant-col-sm-2 ant-form-item-label"><label title="；">；</label></div>
-              <div class="ant-col ant-col-xs-24 ant-col-sm-14 ant-form-item-control-wrapper">
-                <div class="ant-form-item-control"><span class="ant-form-item-children">
-                  <textarea placeholder="请输入读题文本" class="ant-input" id="ttsText" style="height:94px;min-height:94px;max-height:136px;resize:vertical;"></textarea>
-                </span></div>
-              </div>
-            </div>
-
-            <!-- ⑨ 答案解析 + 图片上传（新增） -->
-            <div class="ant-row ant-form-item" id="analysisItem">
-              <div class="ant-col ant-col-xs-24 ant-col-sm-2 ant-form-item-label"><label title="答案解析">答案解析<span class="demo-badge">新增图片</span></label></div>
-              <div class="ant-col ant-col-xs-24 ant-col-sm-14 ant-form-item-control-wrapper">
-                <div class="ant-form-item-control"><span class="ant-form-item-children">
-                  <textarea placeholder="请输入答案解析" class="ant-input" id="analysisText" style="height:94px;min-height:94px;max-height:136px;resize:vertical;"></textarea>
-                  <div class="analysis-upload">
-                    <div class="upload-btn-row">
-                      <button type="button" class="ant-btn" onclick="document.getElementById('analysisFileInput').click()">
-                        <i class="anticon anticon-upload">⬆</i><span>上传图片</span>
-                      </button>
-                      <input type="file" id="analysisFileInput" accept="image/png,image/jpg,image/jpeg,image/gif,image/webp" multiple style="display:none;" onchange="onAnalysisImgUpload(this)">
-                    </div>
-                    <div class="analysis-imgs" id="analysisImgs"></div>
-                    <div class="upload-hint">支持 png / jpg / gif / webp，单图不超过 5MB（图片将随解析内容一并保存）</div>
-                  </div>
-                </span></div>
-              </div>
-            </div>
-
-            <!-- ⑩ 代码类型+模板文件（图形化编程/编程OJ 态） -->
-            <div class="ant-row ant-form-item" id="codeTypeItem" style="display:none;">
-              <div class="ant-col ant-col-xs-24 ant-col-sm-2 ant-form-item-label"><label title="代码类型">代码类型</label></div>
-              <div class="ant-col ant-col-xs-24 ant-col-sm-14 ant-form-item-control-wrapper">
-                <div class="ant-form-item-control"><span class="ant-form-item-children">
-                  <div class="ant-row" style="display:flex;gap:16px;align-items:center;">
-                    <div style="width:320px;">
-                      <div class="ant-select ant-select-enabled" style="width:100%;">
-                        <div class="ant-select-selection ant-select-selection--single" tabindex="0" id="codeTypeSelect" onclick="toggleCodeType()">
-                          <div class="ant-select-selection__rendered">
-                            <div class="ant-select-selection__placeholder" id="codeTypePlaceholder" style="display:block;user-select:none;">请选择代码类型</div>
+                <!-- 知识标签 -->
+                <div class="ant-row ant-form-item">
+                  <div class="ant-col ant-col-xs-24 ant-col-sm-2 ant-form-item-label"><label title="知识标签">知识标签</label></div>
+                  <div class="ant-col ant-col-xs-24 ant-col-sm-14 ant-form-item-control-wrapper">
+                    <div class="ant-form-item-control"><span class="ant-form-item-children">
+                      <div style="position:relative;width:100%;">
+                        <div class="ant-select ant-select-enabled ant-select-multiple" style="width:100%;" id="kpSelect">
+                          <div class="ant-select-selection ant-select-selection--multiple" tabindex="0" onclick="toggleKpDropdown(event)">
+                            <ul class="ant-select-selection__rendered">
+                              <li class="ant-select-selection__placeholder" id="kpPlaceholder">请选择知识标签</li>
+                            </ul>
                           </div>
-                          <span class="ant-select-arrow">▾</span>
                         </div>
+                        <div class="kp-dropdown" id="kpDropdown" style="display:none;position:absolute;top:34px;left:0;z-index:100;background:#fff;border:1px solid #e8e8e8;border-radius:4px;box-shadow:0 2px 8px rgba(0,0,0,.15);max-height:320px;overflow:auto;padding:4px 0;min-width:320px;"></div>
                       </div>
-                      <div class="kp-dropdown" id="codeTypeDropdown" style="display:none;position:absolute;z-index:100;background:#fff;border:1px solid #e8e8e8;border-radius:4px;box-shadow:0 2px 8px rgba(0,0,0,.15);min-width:320px;">
-                        <div class="kp-opt" onclick="pickCodeType('Scratch3')">Scratch3</div>
-                        <div class="kp-opt" onclick="pickCodeType('命令行Python')">命令行Python</div>
-                        <div class="kp-opt" onclick="pickCodeType('C语言')">C语言</div>
-                        <div class="kp-opt" onclick="pickCodeType('C++')">C++</div>
-                      </div>
-                    </div>
-                    <button type="button" class="ant-btn" onclick="toast('📎 模板文件上传（演示）')">⬆ 模板文件</button>
+                    </span></div>
                   </div>
-                </span></div>
-              </div>
-            </div>
+                </div>
 
-            <!-- ⑪ 预览/测试按钮（新增，编程类题型显示） -->
-            <div class="ant-row ant-form-item" id="previewTestItem" style="display:none;">
-              <div class="ant-col ant-col-xs-24 ant-col-sm-2 ant-form-item-label"><label>预览/测试<span class="demo-badge">新增</span></label></div>
-              <div class="ant-col ant-col-xs-24 ant-col-sm-14 ant-form-item-control-wrapper">
-                <div class="ant-form-item-control"><span class="ant-form-item-children">
-                  <button type="button" class="ant-btn" onclick="openPreview()">👁 预览</button>
-                  <button type="button" class="ant-btn ant-btn-primary" onclick="openTest()" style="margin-left:8px;">⚙ 测试</button>
-                  <span class="upload-hint" style="display:inline-block;margin-left:12px;">测试将在新页面打开图形化编程操作页（Scratch 编辑器）</span>
-                </span></div>
-              </div>
-            </div>
+                <!-- 题目标题 -->
+                <div class="ant-row ant-form-item">
+                  <div class="ant-col ant-col-xs-24 ant-col-sm-2 ant-form-item-label"><label title="题目标题">题目标题</label></div>
+                  <div class="ant-col ant-col-xs-24 ant-col-sm-14 ant-form-item-control-wrapper">
+                    <div class="ant-form-item-control"><span class="ant-form-item-children">
+                      <input placeholder="例如：1.程序输出判断" type="text" class="ant-input" id="qNameInput" style="width:100%;">
+                    </span></div>
+                  </div>
+                </div>
 
-            <!-- ⑫ OJ 专属区 -->
-            <div id="ojArea" style="display:none;">
-              <div class="ant-row ant-form-item">
-                <div class="ant-col ant-col-xs-24 ant-col-sm-2 ant-form-item-label"><label title="输入描述">输入描述</label></div>
-                <div class="ant-col ant-col-xs-24 ant-col-sm-14 ant-form-item-control-wrapper">
-                  <div class="ant-form-item-control"><span class="ant-form-item-children"><input placeholder="请输入输入描述" type="text" class="ant-input" style="width:100%;"></span></div>
-                </div>
-              </div>
-              <div class="ant-row ant-form-item">
-                <div class="ant-col ant-col-xs-24 ant-col-sm-2 ant-form-item-label"><label title="输入样例">输入样例</label></div>
-                <div class="ant-col ant-col-xs-24 ant-col-sm-14 ant-form-item-control-wrapper">
-                  <div class="ant-form-item-control"><span class="ant-form-item-children"><input placeholder="请输入输入样例" type="text" class="ant-input" style="width:100%;"></span></div>
-                </div>
-              </div>
-              <div class="ant-row ant-form-item">
-                <div class="ant-col ant-col-xs-24 ant-col-sm-2 ant-form-item-label"><label title="输出描述">输出描述</label></div>
-                <div class="ant-col ant-col-xs-24 ant-col-sm-14 ant-form-item-control-wrapper">
-                  <div class="ant-form-item-control"><span class="ant-form-item-children"><input placeholder="请输入输出描述" type="text" class="ant-input" style="width:100%;"></span></div>
-                </div>
-              </div>
-              <div class="ant-row ant-form-item">
-                <div class="ant-col ant-col-xs-24 ant-col-sm-2 ant-form-item-label"><label title="输出样例">输出样例</label></div>
-                <div class="ant-col ant-col-xs-24 ant-col-sm-14 ant-form-item-control-wrapper">
-                  <div class="ant-form-item-control"><span class="ant-form-item-children"><input placeholder="请输入输出样例" type="text" class="ant-input" style="width:100%;"></span></div>
-                </div>
-              </div>
-              <div class="ant-row ant-form-item">
-                <div class="ant-col ant-col-xs-24 ant-col-sm-2 ant-form-item-label"><label title="答题时长">答题时长</label></div>
-                <div class="ant-col ant-col-xs-24 ant-col-sm-14 ant-form-item-control-wrapper">
-                  <div class="ant-form-item-control"><span class="ant-form-item-children"><input placeholder="请输入答题时长" type="text" class="ant-input" style="width:120px;"> 秒</span></div>
-                </div>
-              </div>
-              <div class="ant-row ant-form-item">
-                <div class="ant-col ant-col-xs-24 ant-col-sm-2 ant-form-item-label"><label title="内存限制">内存限制</label></div>
-                <div class="ant-col ant-col-xs-24 ant-col-sm-14 ant-form-item-control-wrapper">
-                  <div class="ant-form-item-control"><span class="ant-form-item-children"><input placeholder="请输入内存限制" type="text" class="ant-input" style="width:120px;"> MB</span></div>
-                </div>
-              </div>
-              <div class="ant-row ant-form-item">
-                <div class="ant-col ant-col-xs-24 ant-col-sm-2 ant-form-item-label"><label title="参考答案">参考答案</label></div>
-                <div class="ant-col ant-col-xs-24 ant-col-sm-14 ant-form-item-control-wrapper">
-                  <div class="ant-form-item-control"><span class="ant-form-item-children">
-                    <p style="margin:0 0 8px;font-size:14px;color:#323335;">参考答案文件</p>
-                    <div style="border:1px dashed #d9d9d9;border-radius:4px;padding:20px;text-align:center;color:#64666B;font-size:13px;cursor:pointer;" onclick="toast('📎 参考答案文件上传（演示）')">
-                      点击或拖拽上传文件<br>
-                      <button type="button" class="ant-btn ant-btn-primary" style="margin-top:8px;">⬆ 上传参考答案</button>
-                      <p class="upload-hint">支持 .py / .java / .cpp / .js / .c / .go / .ts，重新上传将覆盖旧文件</p>
-                    </div>
-                    <p style="margin:8px 0;font-size:14px;color:#323335;">前5行预览</p>
-                    <div class="referenceAnswerPreview" style="min-height:110px;padding:14px;border-radius:4px;background:#323335;color:#F4F4F5;font-size:12px;line-height:20px;white-space:pre-wrap;">上传文件后将在此显示前 5 行内容</div>
-                  </span></div>
-                </div>
-              </div>
-              <div class="ant-row ant-form-item">
-                <div class="ant-col ant-col-xs-24 ant-col-sm-2 ant-form-item-label"><label class="ant-form-item-required" title="评分标准">评分标准</label></div>
-                <div class="ant-col ant-col-xs-24 ant-col-sm-16 ant-form-item-control-wrapper">
-                  <div class="ant-form-item-control"><span class="ant-form-item-children">
-                    <div class="tkTips" style="width:100%;background:#E5F5FF;line-height:34px;border-radius:4px;font-size:12px;color:#323335;margin-top:10px;padding:0 16px;">编程OJ题目按照测试用例通过数得分，每通过一条测试用例，即可获得「题目总分」*「得分占比」的分数</div>
-                    <div style="margin-top:12px;"><button type="button" class="ant-btn" onclick="toast('➕ 添加测试用例（演示）')">＋ 添加测试用例</button></div>
-                    <table class="ant-table" style="width:100%;margin-top:12px;">
-                      <thead><tr><th style="padding:8px;">序号</th><th style="padding:8px;">用例名称</th><th style="padding:8px;">权重值</th><th style="padding:8px;">得分占比</th><th style="padding:8px;">操作</th></tr></thead>
-                      <tbody><tr><td colspan="5" style="text-align:center;color:#bfbfbf;padding:24px;">暂无数据</td></tr></tbody>
-                    </table>
-                  </span></div>
-                </div>
-              </div>
-            </div>
-
-            <!-- ⑬ 图形化编程专属区：题目设置积木区 -->
-            <div id="graphicArea" style="display:none;">
-              <div class="ant-row ant-form-item">
-                <div class="ant-col ant-col-xs-24 ant-col-sm-2 ant-form-item-label"><label title="题目设置">题目设置</label></div>
-                <div class="ant-col ant-col-xs-24 ant-col-sm-16 ant-form-item-control-wrapper">
-                  <div class="ant-form-item-control"><span class="ant-form-item-children">
-                    <div class="graphicPage">
-                      <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:8px;">
-                        <span class="cardTitle" style="padding-bottom:0;">题目设置</span>
-                        <div>
-                          <button type="button" class="ant-btn ant-btn-primary" onclick="toast('✏ 编辑题目（线上为跳转 Scratch 编辑器）')">编辑题目</button>
-                          <button type="button" class="ant-btn ant-btn-primary" onclick="selectAllBlocks(true)" style="margin-left:8px;">全选积木</button>
-                          <button type="button" class="ant-btn" style="margin-left:8px;background:#ff4d4f;color:#fff;border-color:#ff4d4f;" onclick="selectAllBlocks(false)">清空积木</button>
+                <!-- 题干（CKEditor 5 形态工具栏） -->
+                <div class="ant-row ant-form-item">
+                  <div class="ant-col ant-col-xs-24 ant-col-sm-2 ant-form-item-label"><label title="题干" class="ant-form-item-required">题干</label></div>
+                  <div class="ant-col ant-col-xs-24 ant-col-sm-16 ant-form-item-control-wrapper">
+                    <div class="ant-form-item-control"><span class="ant-form-item-children">
+                      <div class="ck-editor" style="border:1px solid #d9d9d9;border-radius:4px;">
+                        <div class="ck ck-toolbar" style="background:#fafafa;border-bottom:1px solid #d9d9d9;padding:6px 10px;display:flex;flex-wrap:wrap;gap:4px;align-items:center;">
+                          <span class="ck-btn" title="段落" style="border:1px solid #d9d9d9;background:#fff;border-radius:3px;padding:2px 8px;font-size:13px;cursor:pointer;">段落 ▾</span>
+                          <button type="button" class="ck-btn" title="加粗" style="border:none;background:transparent;font-weight:bold;padding:4px 8px;cursor:pointer;">B</button>
+                          <button type="button" class="ck-btn" title="斜体" style="border:none;background:transparent;font-style:italic;padding:4px 8px;cursor:pointer;">I</button>
+                          <button type="button" class="ck-btn" title="下划线" style="border:none;background:transparent;text-decoration:underline;padding:4px 8px;cursor:pointer;">U</button>
+                          <button type="button" class="ck-btn" title="删除线" style="border:none;background:transparent;text-decoration:line-through;padding:4px 8px;cursor:pointer;">S</button>
+                          <span style="width:1px;height:16px;background:#d9d9d9;margin:0 2px;"></span>
+                          <button type="button" class="ck-btn" title="无序列表" style="border:none;background:transparent;padding:4px 8px;cursor:pointer;">≣</button>
+                          <button type="button" class="ck-btn" title="有序列表" style="border:none;background:transparent;padding:4px 8px;cursor:pointer;">1.</button>
+                          <span style="width:1px;height:16px;background:#d9d9d9;margin:0 2px;"></span>
+                          <button type="button" class="ck-btn" title="对齐" style="border:none;background:transparent;padding:4px 8px;cursor:pointer;">☰</button>
+                          <button type="button" class="ck-btn" title="分割线" style="border:none;background:transparent;padding:4px 8px;cursor:pointer;">―</button>
+                          <button type="button" class="ck-btn" title="插入图片/视频" style="border:none;background:transparent;padding:4px 8px;cursor:pointer;">🖼</button>
+                          <button type="button" class="ck-btn" title="引用" style="border:none;background:transparent;padding:4px 8px;cursor:pointer;">❝</button>
+                          <button type="button" class="ck-btn" title="表格" style="border:none;background:transparent;padding:4px 8px;cursor:pointer;">▦</button>
+                          <span style="flex:1;"></span>
+                          <button type="button" class="ck-btn" title="撤销" style="border:none;background:transparent;padding:4px 8px;cursor:pointer;">↺</button>
+                          <button type="button" class="ck-btn" title="重做" style="border:none;background:transparent;padding:4px 8px;cursor:pointer;">↻</button>
+                          <button type="button" class="ck-btn" title="AI" style="border:none;background:transparent;padding:4px 8px;cursor:pointer;">✦AI</button>
+                          <button type="button" class="ck-btn" title="涂鸦" style="border:none;background:transparent;padding:4px 8px;cursor:pointer;">✏</button>
+                          <button type="button" class="ck-btn" title="字体颜色" style="border:none;background:transparent;padding:4px 8px;cursor:pointer;">A<u style="text-decoration-color:#f00;">■</u></button>
+                          <button type="button" class="ck-btn" title="背景色" style="border:none;background:transparent;padding:4px 8px;cursor:pointer;">A<u>■</u></button>
+                          <button type="button" class="ck-btn" title="公式" style="border:none;background:transparent;padding:4px 8px;cursor:pointer;">√x</button>
+                          <button type="button" class="ck-btn" title="源代码" style="border:none;background:transparent;padding:4px 8px;cursor:pointer;">源代码</button>
+                          <button type="button" class="ck-btn" title="预览" style="border:none;background:transparent;padding:4px 8px;cursor:pointer;">👁</button>
+                          <button type="button" class="ck-btn" title="代码编辑" style="border:none;background:transparent;padding:4px 8px;cursor:pointer;">&lt;/&gt;</button>
                         </div>
+                        <div class="ck-content" contenteditable="true" id="stemEditor" data-placeholder="请输入内容" style="min-height:120px;padding:12px;font-size:14px;color:#323335;outline:none;"></div>
                       </div>
-                      <div class="graphicMain">
-                        <div class="graphicLeftBox" id="blockCats"></div>
-                        <div class="graphicImageBox">
-                          <div class="graphicImageList scrollbarStyle" id="blockList"></div>
-                        </div>
-                      </div>
-                    </div>
-                  </span></div>
+                    </span></div>
+                  </div>
                 </div>
-              </div>
-            </div>
 
-            <!-- ⑭ 选项区（选择题型） -->
-            <div class="ant-row ant-form-item" id="optionArea" style="display:none;">
-              <div class="ant-col ant-col-xs-24 ant-col-sm-2 ant-form-item-label"><label class="ant-form-item-required" title="选项：">选项：</label></div>
-              <div class="ant-col ant-col-xs-24 ant-col-sm-16 ant-form-item-control-wrapper">
-                <div class="ant-form-item-control"><span class="ant-form-item-children">
-                  <div class="optionBox" style="width:100%;padding:10px;margin:0;">
-                    <div class="optionList" id="optionList"></div>
-                    <div class="addOption" onclick="addOption()">点击添加选项</div>
+                <!-- 读题文本配置 (TTS)：线上为独立整行 label + 右侧操作按钮 -->
+                <div class="dtwb_label" style="width:83%;margin-left:auto;margin-right:0;">
+                  <p class="label">读题文本配置 (TTS)</p>
+                  <div class="tts-actions">
+                    <button type="button" class="ant-btn ant-btn-link" id="copyStemBtn" onclick="copyStem()" style="color:rgb(50,118,255);">📋 复制题干</button>
+                    <button type="button" class="ant-btn ant-btn-link" id="copyOptionBtn" onclick="copyOptions()" style="color:rgb(50,118,255);">📋 复制选项</button>
+                    <button type="button" class="ant-btn ant-btn-link" onclick="toast('🎧 系统正在调用语音合成测试播放...')" style="color:rgb(50,118,255);">▶ 试听发音</button>
                   </div>
-                </span></div>
-              </div>
-            </div>
-
-            <!-- ⑮ 可见范围 -->
-            <div class="ant-row ant-form-item">
-              <div class="ant-col ant-col-xs-24 ant-col-sm-2 ant-form-item-label"><label class="ant-form-item-required" title="可见范围">可见范围</label></div>
-              <div class="ant-col ant-col-xs-24 ant-col-sm-14 ant-form-item-control-wrapper">
-                <div class="ant-form-item-control"><span class="ant-form-item-children">
-                  <div class="ant-radio-group ant-radio-group-outline">
-                    <label class="ant-radio-wrapper"><span class="ant-radio"><input type="radio" name="visibility" class="ant-radio-input" value="1"><span class="ant-radio-inner"></span></span><span>本组织可见 - 仅您所在的学校或组织的老师可以查看并使用本题目</span></label><br>
-                    <label class="ant-radio-wrapper"><span class="ant-radio ant-radio-checked"><input type="radio" name="visibility" class="ant-radio-input" value="3" checked><span class="ant-radio-inner"></span></span><span>仅自己可见 - 仅当前账号可以查看和使用本题目</span></label>
+                </div>
+                <div class="ant-row ant-form-item">
+                  <div class="ant-col ant-col-xs-24 ant-col-sm-2 ant-form-item-label"><label title="；">；</label></div>
+                  <div class="ant-col ant-col-xs-24 ant-col-sm-14 ant-form-item-control-wrapper">
+                    <div class="ant-form-item-control"><span class="ant-form-item-children">
+                      <textarea placeholder="请输入读题文本" class="ant-input" id="ttsText" style="height:94px;min-height:94px;max-height:136px;resize:vertical;"></textarea>
+                    </span></div>
                   </div>
-                </span></div>
-              </div>
-            </div>
+                </div>
 
-            <!-- 底部按钮 -->
-            <div class="questionCard fotter">
-              <button type="button" class="ant-btn" onclick="toast('已取消')">取 消</button>
-              <button type="button" class="ant-btn ant-btn-primary" onclick="saveQ(0)">仅保存</button>
-              <button type="button" class="ant-btn ant-btn-primary" onclick="saveQ(2)">保存并提交</button>
-            </div>
+                <!-- 答案解析 + 图片上传 -->
+                <div class="ant-row ant-form-item" id="analysisItem">
+                  <div class="ant-col ant-col-xs-24 ant-col-sm-2 ant-form-item-label"><label title="答案解析">答案解析</label></div>
+                  <div class="ant-col ant-col-xs-24 ant-col-sm-14 ant-form-item-control-wrapper">
+                    <div class="ant-form-item-control"><span class="ant-form-item-children">
+                      <textarea placeholder="请输入答案解析" class="ant-input" id="analysisText" style="height:94px;min-height:94px;max-height:136px;resize:vertical;"></textarea>
+                      <div class="analysis-upload">
+                        <div class="upload-btn-row">
+                          <button type="button" class="ant-btn" onclick="document.getElementById('analysisFileInput').click()">
+                            <i class="anticon anticon-upload">⬆</i><span>上传图片</span>
+                          </button>
+                          <input type="file" id="analysisFileInput" accept="image/png,image/jpg,image/jpeg,image/gif,image/webp" multiple style="display:none;" onchange="onAnalysisImgUpload(this)">
+                        </div>
+                        <div class="analysis-imgs" id="analysisImgs"></div>
+                        <div class="upload-hint">支持 png / jpg / gif / webp，单图不超过 5MB</div>
+                      </div>
+                    </span></div>
+                  </div>
+                </div>
 
-          </form>
+                <!-- 代码类型+模板文件（图形化编程/编程OJ 态） -->
+                <div class="ant-row ant-form-item" id="codeTypeItem" style="display:none;">
+                  <div class="ant-col ant-col-xs-24 ant-col-sm-2 ant-form-item-label"><label title="代码类型">代码类型</label></div>
+                  <div class="ant-col ant-col-xs-24 ant-col-sm-14 ant-form-item-control-wrapper">
+                    <div class="ant-form-item-control"><span class="ant-form-item-children">
+                      <div class="ant-row" style="display:flex;gap:16px;align-items:center;">
+                        <div style="width:320px;position:relative;">
+                          <div class="ant-select ant-select-enabled" style="width:100%;">
+                            <div class="ant-select-selection ant-select-selection--single" tabindex="0" id="codeTypeSelect" onclick="toggleCodeType(event)">
+                              <div class="ant-select-selection__rendered">
+                                <div class="ant-select-selection__placeholder" id="codeTypePlaceholder" style="display:block;user-select:none;">请选择代码类型</div>
+                              </div>
+                              <span class="ant-select-arrow">▾</span>
+                            </div>
+                          </div>
+                          <div class="kp-dropdown" id="codeTypeDropdown" style="display:none;position:absolute;top:34px;left:0;z-index:100;background:#fff;border:1px solid #e8e8e8;border-radius:4px;box-shadow:0 2px 8px rgba(0,0,0,.15);min-width:320px;">
+                            <div class="kp-opt" style="padding:7px 14px;" onclick="pickCodeType('Scratch3')">Scratch3</div>
+                            <div class="kp-opt" style="padding:7px 14px;" onclick="pickCodeType('命令行Python')">命令行Python</div>
+                            <div class="kp-opt" style="padding:7px 14px;" onclick="pickCodeType('C语言')">C语言</div>
+                            <div class="kp-opt" style="padding:7px 14px;" onclick="pickCodeType('C++')">C++</div>
+                          </div>
+                        </div>
+                        <button type="button" class="ant-btn" onclick="toast('📎 模板文件上传（演示）')">⬆ 模板文件</button>
+                      </div>
+                    </span></div>
+                  </div>
+                </div>
+
+                <!-- 预览/测试（编程类题型显示） -->
+                <div class="ant-row ant-form-item" id="previewTestItem" style="display:none;">
+                  <div class="ant-col ant-col-xs-24 ant-col-sm-2 ant-form-item-label"><label title="预览/测试">预览/测试</label></div>
+                  <div class="ant-col ant-col-xs-24 ant-col-sm-14 ant-form-item-control-wrapper">
+                    <div class="ant-form-item-control"><span class="ant-form-item-children">
+                      <button type="button" class="ant-btn" onclick="openPreview()">👁 预览</button>
+                      <button type="button" class="ant-btn ant-btn-primary" onclick="openTest()" style="margin-left:8px;">⚙ 测试</button>
+                      <span class="upload-hint" style="display:inline-block;margin-left:12px;margin-top:0;">测试将在新页面打开图形化编程操作页（Scratch 编辑器）</span>
+                    </span></div>
+                  </div>
+                </div>
+
+                <!-- OJ 专属区 -->
+                <div id="ojArea" style="display:none;">
+                  <div class="ant-row ant-form-item">
+                    <div class="ant-col ant-col-xs-24 ant-col-sm-2 ant-form-item-label"><label title="输入描述">输入描述</label></div>
+                    <div class="ant-col ant-col-xs-24 ant-col-sm-14 ant-form-item-control-wrapper">
+                      <div class="ant-form-item-control"><span class="ant-form-item-children"><input placeholder="请输入输入描述" type="text" class="ant-input" style="width:100%;"></span></div>
+                    </div>
+                  </div>
+                  <div class="ant-row ant-form-item">
+                    <div class="ant-col ant-col-xs-24 ant-col-sm-2 ant-form-item-label"><label title="输入样例">输入样例</label></div>
+                    <div class="ant-col ant-col-xs-24 ant-col-sm-14 ant-form-item-control-wrapper">
+                      <div class="ant-form-item-control"><span class="ant-form-item-children"><input placeholder="请输入输入样例" type="text" class="ant-input" style="width:100%;"></span></div>
+                    </div>
+                  </div>
+                  <div class="ant-row ant-form-item">
+                    <div class="ant-col ant-col-xs-24 ant-col-sm-2 ant-form-item-label"><label title="输出描述">输出描述</label></div>
+                    <div class="ant-col ant-col-xs-24 ant-col-sm-14 ant-form-item-control-wrapper">
+                      <div class="ant-form-item-control"><span class="ant-form-item-children"><input placeholder="请输入输出描述" type="text" class="ant-input" style="width:100%;"></span></div>
+                    </div>
+                  </div>
+                  <div class="ant-row ant-form-item">
+                    <div class="ant-col ant-col-xs-24 ant-col-sm-2 ant-form-item-label"><label title="输出样例">输出样例</label></div>
+                    <div class="ant-col ant-col-xs-24 ant-col-sm-14 ant-form-item-control-wrapper">
+                      <div class="ant-form-item-control"><span class="ant-form-item-children"><input placeholder="请输入输出样例" type="text" class="ant-input" style="width:100%;"></span></div>
+                    </div>
+                  </div>
+                  <div class="ant-row ant-form-item">
+                    <div class="ant-col ant-col-xs-24 ant-col-sm-2 ant-form-item-label"><label title="答题时长">答题时长</label></div>
+                    <div class="ant-col ant-col-xs-24 ant-col-sm-14 ant-form-item-control-wrapper">
+                      <div class="ant-form-item-control"><span class="ant-form-item-children"><input placeholder="请输入答题时长" type="text" class="ant-input" style="width:120px;"> 秒</span></div>
+                    </div>
+                  </div>
+                  <div class="ant-row ant-form-item">
+                    <div class="ant-col ant-col-xs-24 ant-col-sm-2 ant-form-item-label"><label title="内存限制">内存限制</label></div>
+                    <div class="ant-col ant-col-xs-24 ant-col-sm-14 ant-form-item-control-wrapper">
+                      <div class="ant-form-item-control"><span class="ant-form-item-children"><input placeholder="请输入内存限制" type="text" class="ant-input" style="width:120px;"> MB</span></div>
+                    </div>
+                  </div>
+                  <div class="ant-row ant-form-item">
+                    <div class="ant-col ant-col-xs-24 ant-col-sm-2 ant-form-item-label"><label title="参考答案">参考答案</label></div>
+                    <div class="ant-col ant-col-xs-24 ant-col-sm-14 ant-form-item-control-wrapper">
+                      <div class="ant-form-item-control"><span class="ant-form-item-children">
+                        <p style="margin:0 0 8px;font-size:14px;color:#323335;">参考答案文件</p>
+                        <div style="border:1px dashed #d9d9d9;border-radius:4px;padding:20px;text-align:center;color:#64666B;font-size:13px;cursor:pointer;" onclick="toast('📎 参考答案文件上传（演示）')">
+                          点击或拖拽上传文件<br>
+                          <button type="button" class="ant-btn ant-btn-primary" style="margin-top:8px;">⬆ 上传参考答案</button>
+                          <p class="upload-hint">支持 .py / .java / .cpp / .js / .c / .go / .ts，重新上传将覆盖旧文件</p>
+                        </div>
+                        <p style="margin:8px 0;font-size:14px;color:#323335;">前5行预览</p>
+                        <div class="referenceAnswerPreview">上传文件后将在此显示前 5 行内容</div>
+                      </span></div>
+                    </div>
+                  </div>
+                  <div class="ant-row ant-form-item">
+                    <div class="ant-col ant-col-xs-24 ant-col-sm-2 ant-form-item-label"><label class="ant-form-item-required" title="评分标准">评分标准</label></div>
+                    <div class="ant-col ant-col-xs-24 ant-col-sm-16 ant-form-item-control-wrapper">
+                      <div class="ant-form-item-control"><span class="ant-form-item-children">
+                        <div class="tkTips">编程OJ题目按照测试用例通过数得分，每通过一条测试用例，即可获得「题目总分」*「得分占比」的分数</div>
+                        <div style="margin-top:12px;"><button type="button" class="ant-btn" onclick="toast('➕ 添加测试用例（演示）')">＋ 添加测试用例</button></div>
+                        <table style="width:100%;margin-top:12px;border-collapse:collapse;">
+                          <thead><tr><th style="padding:8px;border-bottom:1px solid #e8e8e8;text-align:left;font-size:13px;color:#64666B;background:#fafafa;">序号</th><th style="padding:8px;border-bottom:1px solid #e8e8e8;text-align:left;font-size:13px;color:#64666B;background:#fafafa;">用例名称</th><th style="padding:8px;border-bottom:1px solid #e8e8e8;text-align:left;font-size:13px;color:#64666B;background:#fafafa;">权重值</th><th style="padding:8px;border-bottom:1px solid #e8e8e8;text-align:left;font-size:13px;color:#64666B;background:#fafafa;">得分占比</th><th style="padding:8px;border-bottom:1px solid #e8e8e8;text-align:left;font-size:13px;color:#64666B;background:#fafafa;">操作</th></tr></thead>
+                          <tbody><tr><td colspan="5" style="text-align:center;color:#bfbfbf;padding:24px;">暂无数据</td></tr></tbody>
+                        </table>
+                      </span></div>
+                    </div>
+                  </div>
+                </div>
+
+                <!-- 图形化编程专属区：题目设置积木区 -->
+                <div id="graphicArea" style="display:none;">
+                  <div class="ant-row ant-form-item">
+                    <div class="ant-col ant-col-xs-24 ant-col-sm-2 ant-form-item-label"><label title="题目设置">题目设置</label></div>
+                    <div class="ant-col ant-col-xs-24 ant-col-sm-16 ant-form-item-control-wrapper">
+                      <div class="ant-form-item-control"><span class="ant-form-item-children">
+                        <div class="graphicPage">
+                          <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:8px;">
+                            <span style="font-weight:600;font-size:16px;color:#323335;line-height:24px;">题目设置</span>
+                            <div>
+                              <button type="button" class="ant-btn ant-btn-primary" onclick="toast('✏ 编辑题目（线上为跳转 Scratch 编辑器）')">编辑题目</button>
+                              <button type="button" class="ant-btn ant-btn-primary" onclick="selectAllBlocks(true)" style="margin-left:8px;">全选积木</button>
+                              <button type="button" class="ant-btn" style="margin-left:8px;background:#ff4d4f;color:#fff;border-color:#ff4d4f;" onclick="selectAllBlocks(false)">清空积木</button>
+                            </div>
+                          </div>
+                          <div class="graphicMain">
+                            <div class="graphicLeftBox" id="blockCats"></div>
+                            <div class="graphicImageBox">
+                              <div class="graphicImageList" id="blockList"></div>
+                            </div>
+                          </div>
+                        </div>
+                      </span></div>
+                    </div>
+                  </div>
+                </div>
+
+                <!-- 选项区（选择题型） -->
+                <div class="ant-row ant-form-item" id="optionArea" style="display:none;">
+                  <div class="ant-col ant-col-xs-24 ant-col-sm-2 ant-form-item-label"><label class="ant-form-item-required" title="选项：">选项：</label></div>
+                  <div class="ant-col ant-col-xs-24 ant-col-sm-16 ant-form-item-control-wrapper">
+                    <div class="ant-form-item-control"><span class="ant-form-item-children">
+                      <div class="optionBox">
+                        <div class="optionList" id="optionList"></div>
+                        <div class="addOption" onclick="addOption()">点击添加选项</div>
+                      </div>
+                    </span></div>
+                  </div>
+                </div>
+
+                <!-- 可见范围 -->
+                <div class="ant-row ant-form-item">
+                  <div class="ant-col ant-col-xs-24 ant-col-sm-2 ant-form-item-label"><label class="ant-form-item-required" title="可见范围">可见范围</label></div>
+                  <div class="ant-col ant-col-xs-24 ant-col-sm-14 ant-form-item-control-wrapper">
+                    <div class="ant-form-item-control"><span class="ant-form-item-children">
+                      <div class="ant-radio-group ant-radio-group-outline">
+                        <label class="ant-radio-wrapper"><span class="ant-radio"><input type="radio" name="visibility" class="ant-radio-input" value="1"><span class="ant-radio-inner"></span></span><span>本组织可见 - 仅您所在的学校或组织的老师可以查看并使用本题目</span></label><br>
+                        <label class="ant-radio-wrapper"><span class="ant-radio ant-radio-checked"><input type="radio" name="visibility" class="ant-radio-input" value="3" checked><span class="ant-radio-inner"></span></span><span>仅自己可见 - 仅当前账号可以查看和使用本题目</span></label>
+                      </div>
+                    </span></div>
+                  </div>
+                </div>
+
+                <!-- 底部按钮 -->
+                <div class="questionCard fotter">
+                  <button type="button" class="ant-btn" onclick="toast('已取消')">取 消</button>
+                  <button type="button" class="ant-btn ant-btn-primary" onclick="saveQ(0)">仅保存</button>
+                  <button type="button" class="ant-btn ant-btn-primary" onclick="saveQ(2)">保存并提交</button>
+                </div>
+
+              </form>
+            </fieldset>
+          </div>
         </div>
       </div>
-    </main>
+    </div>
   </div>
 </div>
 
 <!-- 预览弹窗（学生端视图） -->
-<div class="ant-modal-wrap" id="previewModal" style="display:none;position:fixed;inset:0;background:rgba(0,0,0,.45);z-index:1000;display:none;">
+<div class="ant-modal-wrap" id="previewModal" style="display:none;position:fixed;inset:0;background:rgba(0,0,0,.45);z-index:1000;">
   <div class="ant-modal" style="position:absolute;left:50%;top:50%;transform:translate(-50%,-50%);width:640px;background:#fff;border-radius:4px;">
-    <div class="ant-modal-header" style="padding:16px 24px;border-bottom:1px solid #e8e8e8;"><div class="ant-modal-title" style="font-size:16px;font-weight:600;color:#323335;">题目预览（学生端）<span class="demo-badge">新增</span></div></div>
+    <div class="ant-modal-header" style="padding:16px 24px;border-bottom:1px solid #e8e8e8;"><div class="ant-modal-title" style="font-size:16px;font-weight:600;color:#323335;">题目预览（学生端）</div></div>
     <div class="ant-modal-body" style="padding:24px;">
       <div class="preview-stem">
         <div class="stemTitle" id="pvTitle">例：程序输出判断</div>
@@ -542,9 +535,8 @@ html, body { margin: 0; padding: 0; background: #f0f2f5; font-family: -apple-sys
 <script>
 'use strict';
 /* ============ 数据 ============ */
-var CURRENT_TYPE = '';          // single/multi/judge/gap/oj/graphic/read/code/...
-var CURRENT_LANG = '';          // scratch/python/cpp/c
-var optionSeed = 0;
+var CURRENT_TYPE = '';
+var CURRENT_LANG = '';
 var analysisImgs = [];
 
 /* 知识标签树（与线上 A02 分类一致） */
@@ -574,7 +566,7 @@ var BLOCKS = [
   { key:'variable', name:'变量', color:'#FF8C1A', cls:'b-variable', blocks:['将 %1 设为 %2','将 %1 增加 %2','显示变量 %1','隐藏变量 %1'] },
   { key:'more', name:'自制积木', color:'#FF6680', cls:'b-more', blocks:['定义 积木','使用 积木'] }
 ];
-var disabledBlocks = {};  // key -> true 表示已移除到不可用
+var disabledBlocks = {};
 var activeCat = 'all';
 
 /* ============ 工具 ============ */
@@ -587,9 +579,8 @@ function toast(msg) {
   toastTimer = setTimeout(function () { t.style.display = 'none'; }, 2200);
 }
 
-/* ============ ① 所属题库联动 ============ */
-function onLibToggle(val, el) {
-  // 线上为多选；此处切换 checkbox 视觉并联动 AISE级别
+/* ============ 所属题库联动 ============ */
+function onLibToggle(el) {
   var cb = el.querySelector('input');
   cb.checked = !cb.checked;
   el.className = cb.checked ? 'ant-checkbox-wrapper ant-checkbox-wrapper-checked' : 'ant-checkbox-wrapper';
@@ -597,13 +588,13 @@ function onLibToggle(val, el) {
   document.getElementById('aiseLevelItem').style.display = (aiseCb && aiseCb.checked) ? '' : 'none';
 }
 
-/* ============ ④ 题型切换 ============ */
+/* ============ 题型切换 ============ */
 var TYPE_BLOCKS = {
   single: ['optionArea'], multi: ['optionArea'], judge: ['optionArea'],
   gap: [], read: [], code: [], practice: [], text2text: [], text2img: [], text2video: [], line: [], workflow: [],
   oj: ['codeTypeItem','ojArea'], graphic: ['codeTypeItem','graphicArea']
 };
-var PROGRAM_TYPES = ['oj','graphic','code'];   // 编程类题型 → 显示编程语言+预览/测试
+var PROGRAM_TYPES = ['oj','graphic','code'];
 var OPTION_TYPES = ['single','multi','judge'];
 
 function onTypeChange(el) {
@@ -612,7 +603,6 @@ function onTypeChange(el) {
   el.classList.add('questionTypeActive');
   CURRENT_TYPE = el.getAttribute('data-qt');
 
-  // 显隐各区块
   var allBlocks = ['optionArea','codeTypeItem','ojArea','graphicArea'];
   for (var b = 0; b < allBlocks.length; b++) {
     document.getElementById(allBlocks[b]).style.display = 'none';
@@ -621,7 +611,7 @@ function onTypeChange(el) {
   for (var s = 0; s < show.length; s++) {
     document.getElementById(show[s]).style.display = '';
   }
-  // 答案解析：编程OJ(oj) 线上隐藏（questionType != 6 && != 8 规则，8=OJ）
+  // 编程OJ（线上规则：questionType != 6 && != 8 时显示答案解析，8=OJ 隐藏）
   document.getElementById('analysisItem').style.display = (CURRENT_TYPE === 'oj') ? 'none' : '';
   // 编程语言与预览/测试：仅编程类题型
   var isProg = PROGRAM_TYPES.indexOf(CURRENT_TYPE) >= 0;
@@ -633,14 +623,13 @@ function onTypeChange(el) {
   updateCopyBtnState();
 }
 
-/* ============ ⑤ 知识标签树（联动编程语言） ============ */
+/* ============ 知识标签树（联动编程语言） ============ */
 function onLangChange(el) {
   CURRENT_LANG = el.value;
   renderKpTree();
 }
 function renderKpTree() {
   var dd = document.getElementById('kpDropdown');
-  var showAll = !CURRENT_LANG;
   var html = '';
   if (CURRENT_LANG && !KP_TREE[CURRENT_LANG]) {
     html = '<div style="padding:12px 16px;color:#bfbfbf;font-size:13px;">该语言暂无知识标签</div>';
@@ -649,12 +638,12 @@ function renderKpTree() {
     for (var i = 0; i < keys.length; i++) {
       var tree = KP_TREE[keys[i]];
       if (!tree) continue;
-      html += '<div class="kp-cat" data-lang="' + keys[i] + '">' + tree.label + '</div>';
+      html += '<div class="kp-cat">' + tree.label + '</div>';
       for (var j = 0; j < tree.children.length; j++) {
         var cat = tree.children[j];
-        html += '<div class="kp-sub" style="padding-left:16px;">▸ ' + cat.label + '</div>';
+        html += '<div class="kp-sub">▸ ' + cat.label + '</div>';
         for (var k = 0; k < cat.children.length; k++) {
-          html += '<div class="kp-opt" style="padding-left:32px;" onclick="pickKp(this)">' + cat.children[k] + '</div>';
+          html += '<div class="kp-opt" onclick="pickKp(this)">' + cat.children[k] + '</div>';
         }
       }
     }
@@ -672,25 +661,24 @@ function pickKp(el) {
   ph.style.color = '#323335';
   document.getElementById('kpDropdown').style.display = 'none';
 }
-document.addEventListener('click', function () {
+document.addEventListener('click', function (e) {
   document.getElementById('kpDropdown').style.display = 'none';
   document.getElementById('codeTypeDropdown').style.display = 'none';
 });
 
 /* ============ 代码类型 ============ */
-function toggleCodeType() { var d = document.getElementById('codeTypeDropdown'); d.style.display = d.style.display === 'none' ? 'block' : 'none'; }
+function toggleCodeType(e) { e.stopPropagation(); var d = document.getElementById('codeTypeDropdown'); d.style.display = d.style.display === 'none' ? 'block' : 'none'; }
 function pickCodeType(v) {
   var ph = document.getElementById('codeTypePlaceholder');
   ph.textContent = v; ph.style.color = '#323335';
   document.getElementById('codeTypeDropdown').style.display = 'none';
 }
 
-/* ============ ⑧ 一键复制题干/选项（新增） ============ */
+/* ============ 一键复制题干/选项 ============ */
 function getStemText() {
   var ed = document.getElementById('stemEditor');
   var txt = ed.innerText.replace(/\u00a0/g, ' ').trim();
   if (!txt) return '';
-  // 图片占位
   txt = txt.replace(/\[图片[^\]]*\]/g, '[图片]');
   return txt;
 }
@@ -735,7 +723,7 @@ function updateCopyBtnState() {
   btn.title = disabled ? '本题无选项' : '按 A、xxx 格式复制选项文本';
 }
 
-/* ============ ⑭ 选项编辑 ============ */
+/* ============ 选项编辑 ============ */
 function renderOptions() {
   var list = document.getElementById('optionList');
   if (OPTION_TYPES.indexOf(CURRENT_TYPE) < 0) { list.innerHTML = ''; return; }
@@ -760,7 +748,7 @@ function delOption(el) {
   el.parentNode.parentNode.removeChild(el.parentNode);
 }
 
-/* ============ ⑨ 答案解析图片上传（新增） ============ */
+/* ============ 答案解析图片上传 ============ */
 function onAnalysisImgUpload(input) {
   var files = Array.prototype.slice.call(input.files || []);
   for (var i = 0; i < files.length; i++) {
@@ -795,7 +783,7 @@ function delAnalysisImg(i) {
   toast('已删除图片');
 }
 
-/* ============ ⑪ 预览/测试（新增） ============ */
+/* ============ 预览/测试 ============ */
 function openPreview() {
   var title = document.getElementById('qNameInput').value.trim() || '例：程序输出判断';
   var stem = getStemText() || '（题干预览：请在题干编辑器中输入内容）';
@@ -805,7 +793,6 @@ function openPreview() {
   if (OPTION_TYPES.indexOf(CURRENT_TYPE) >= 0) {
     var opts = getOptions();
     var html = '';
-    var letters = ['A','B','C','D','E','F','G','H'];
     for (var i = 0; i < opts.length; i++) html += '<div>' + opts[i] + '</div>';
     pvOpts.innerHTML = html || '<div style="color:#bfbfbf;">（暂无选项）</div>';
     pvOpts.style.display = '';
@@ -827,7 +814,7 @@ function openTest() {
   toast('已打开图形化编程操作页（新窗口）');
 }
 
-/* ============ ⑬ 积木区 ============ */
+/* ============ 积木区 ============ */
 function renderBlockCats() {
   var box = document.getElementById('blockCats');
   var html = '<div class="graphicLi' + (activeCat === 'all' ? ' active' : '') + '" onclick="setActiveCat(\'all\')"><span class="dot" style="background:#999;"></span>全部</div>';
@@ -851,7 +838,6 @@ function renderBlocks() {
     }
     html += '</div>';
   }
-  // 不可用积木
   var dis = [];
   for (var key in disabledBlocks) {
     if (disabledBlocks[key]) {
@@ -871,11 +857,8 @@ function renderBlocks() {
 function disableBlock(key) { disabledBlocks[key] = true; renderBlocks(); }
 function enableBlock(key) { disabledBlocks[key] = false; renderBlocks(); }
 function selectAllBlocks(all) {
-  for (var key in disabledBlocks) disabledBlocks[key] = all ? false : true;
-  if (all) {
-    // 全选=无禁用
-    disabledBlocks = {};
-  } else {
+  disabledBlocks = {};
+  if (!all) {
     for (var i = 0; i < BLOCKS.length; i++)
       for (var j = 0; j < BLOCKS[i].blocks.length; j++) disabledBlocks[BLOCKS[i].key + '|' + BLOCKS[i].blocks[j]] = true;
   }
