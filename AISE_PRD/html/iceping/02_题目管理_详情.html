@@ -1,662 +1,908 @@
 <!DOCTYPE html>
 <html lang="zh-CN">
-
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>爱测评 - 题目管理 - 题目详情</title>
-    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
-    <style>
-        :root {
-            --primary: #4F46E5;
-            --primary-hover: #4338CA;
-            --primary-light: #EEF2FF;
-            --bg-color: #F3F4F6;
-            --surface-color: #FFFFFF;
-            --text-primary: #111827;
-            --text-secondary: #4B5563;
-            --text-tertiary: #9CA3AF;
-            --border-color: #E5E7EB;
-            --danger: #EF4444;
-            --success: #10B981;
-            --process-blue: #0ea5e9;
-            --shadow-sm: 0 1px 2px 0 rgba(0, 0, 0, 0.05);
-            --shadow-md: 0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -1px rgba(0, 0, 0, 0.06);
-        }
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>爱测评 - 题目管理 - 录入题目</title>
+<link rel="stylesheet" href="爱测评线上样式.css">
+<style>
+/* ===== demo 骨架与新增功能补充样式（线上样式已由 爱测评线上样式.css 提供） ===== */
+html, body { margin: 0; padding: 0; background: #f0f2f5; font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", "PingFang SC", "Hiragino Sans GB", "Microsoft YaHei", sans-serif; }
+* { box-sizing: border-box; }
 
-        * {
-            margin: 0;
-            padding: 0;
-            box-sizing: border-box;
-        }
+.demo-badge {
+  display: inline-block; margin-left: 8px; padding: 0 8px; height: 20px; line-height: 20px;
+  border-radius: 10px; background: #2A55E5; color: #fff; font-size: 12px; font-weight: 400; vertical-align: middle;
+}
 
-        body {
-            font-family: 'Inter', -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
-            background-color: var(--bg-color);
-            color: var(--text-primary);
-            height: 100vh;
-            display: flex;
-            flex-direction: column;
-            overflow: hidden;
-        }
+/* 面包屑 */
+.positionSticky { position: sticky; top: 60px; z-index: 90; background: #f0f2f5; padding: 12px 24px; }
+.positionSticky .ant-row-flex { display: flex; align-items: center; gap: 8px; }
+.header_title { font-size: 15px; font-weight: 600; color: #323335; }
 
-        /* ===== Top Title Bar ===== */
-        .title-bar {
-            height: 56px;
-            background-color: var(--surface-color);
-            border-bottom: 1px solid var(--border-color);
-            display: flex;
-            align-items: center;
-            justify-content: space-between;
-            padding: 0 32px;
-            z-index: 20;
-            flex-shrink: 0;
-        }
+/* 侧边栏 */
+.sidebar { position: fixed; top: 60px; left: 0; bottom: 0; width: 200px; background: #fff; border-right: 1px solid #e8e8e8; padding-top: 12px; }
+.sidebar .ant-menu-inline { border-right: none; }
 
-        .title-bar-left {
-            display: flex;
-            align-items: center;
-            gap: 32px;
-        }
+/* 表单卡片 */
+.questionForm { padding-bottom: 20px; }
+.questionForm .questionCard { width: 90%; padding: 24px; background: #fff; border-radius: 12px; margin: 10px auto; }
+.questionForm .questionCard .cardTitle { font-weight: 600; font-size: 16px; color: #323335; line-height: 24px; padding-bottom: 20px; }
+.questionForm .questionCard .cardTips { font-size: 14px; color: #64666B; line-height: 22px; }
+.questionForm .questionCard .questionTypeTitle { font-size: 14px; color: #323335; line-height: 36px; }
+.questionForm .questionCard .questionTypeBox { width: 100%; padding: 8px; overflow: hidden; }
+.questionForm .questionCard .questionType { min-width: 76px; padding: 0 16px; height: 32px; background: #F4F4F5; border-radius: 16px; font-size: 14px; color: #323335; line-height: 32px; text-align: center; cursor: pointer; float: left; margin-right: 10px; }
+.questionForm .questionCard .questionTypeActive { background: #E5F5FF !important; color: #2A55E5 !important; }
+.questionForm .questionCard .ant-form-item { margin-bottom: 14px; }
+.questionForm .questionCard .ant-form-item-label { line-height: 36px; }
+.questionForm .questionCard .ant-form-item-label label { font-size: 14px; color: #323335; }
+.questionForm .questionCard .ant-input { border-radius: 4px; }
+.questionForm .questionCard .ant-checkbox-wrapper span { font-size: 14px; color: #323335; }
 
-        .site-name {
-            font-weight: 700;
-            font-size: 1.125rem;
-            color: var(--primary);
-            display: flex;
-            align-items: center;
-            gap: 8px;
-        }
+/* 读题文本配置 */
+.dtwb_label { display: flex; align-items: center; justify-content: space-between; margin-bottom: 8px; }
+.dtwb_label .label { font-size: 14px; color: #323335; margin: 0; }
+.dtwb_label .tts-actions { display: flex; align-items: center; gap: 4px; }
+.dtwb_label .tts-actions .ant-btn { margin-left: 0; }
 
-        .top-nav {
-            display: flex;
-            gap: 4px;
-        }
+/* 答案解析图片上传（新增） */
+.analysis-upload { margin-top: 10px; }
+.analysis-upload .upload-btn-row { display: flex; align-items: center; gap: 8px; }
+.analysis-imgs { display: flex; flex-wrap: wrap; gap: 10px; margin-top: 10px; }
+.analysis-imgs .img-item { position: relative; width: 96px; height: 96px; border: 1px solid #e8e8e8; border-radius: 4px; overflow: hidden; }
+.analysis-imgs .img-item img { width: 100%; height: 100%; object-fit: cover; }
+.analysis-imgs .img-item .del { position: absolute; top: 2px; right: 2px; width: 20px; height: 20px; border-radius: 50%; background: rgba(0,0,0,.55); color: #fff; font-size: 12px; line-height: 20px; text-align: center; cursor: pointer; }
+.analysis-imgs .img-item .del:hover { background: #ff4d4f; }
 
-        .top-nav-item {
-            padding: 8px 16px;
-            border-radius: 6px;
-            font-size: 0.875rem;
-            font-weight: 500;
-            color: var(--text-secondary);
-            cursor: pointer;
-            transition: all 0.2s;
-            text-decoration: none;
-        }
+/* 预览弹窗（学生端视图） */
+.preview-stem { background: #fff; border-radius: 8px; padding: 20px 24px; }
+.preview-stem .stemTitle { color: #323335; font-size: 14px; font-weight: 600; line-height: 25px; }
+.preview-stem .optionBox { font-size: 14px; color: #323335; line-height: 30px; }
+.preview-stem .analysisBox { background: linear-gradient(138deg, rgba(55,123,255,.07) 0%, rgba(55,195,255,.04) 100%); padding: 16px; font-size: 14px; color: #323335; margin-top: 12px; border-radius: 4px; }
 
-        .top-nav-item:hover {
-            background-color: #F9FAFB;
-            color: var(--text-primary);
-        }
+/* 积木区 */
+.graphicPage { overflow: hidden; }
+.graphicPage .cardTitle { font-weight: 600; font-size: 16px; color: #323335; line-height: 24px; padding-bottom: 20px; }
+.graphicPage .graphicMain { width: 100%; display: flex; }
+.graphicPage .graphicLeftBox { width: 80px; padding: 0; }
+.graphicPage .graphicLeftBox .graphicLi { width: 100%; height: 80px; padding: 10px; background: #fff; text-align: center; line-height: 25px; cursor: pointer; }
+.graphicPage .graphicLeftBox .graphicLi.active { background: #E5F5FF; color: #2A55E5; }
+.graphicPage .graphicImageBox { width: calc(100% - 90px); margin-left: 10px; }
+.graphicPage .graphicImageBox .graphicImageList { max-height: 520px; padding: 10px 15px; border: 1px solid #ccc; border-radius: 10px; overflow-y: auto; }
+.graphicPage .graphicImageBox .graphicImageList .p1 { line-height: 40px; color: #323335; font-weight: 600; }
+.block-cat-title { font-size: 14px; color: #64666B; line-height: 32px; }
+.blocks-row { display: flex; flex-wrap: wrap; gap: 8px; padding: 4px 0 8px; }
+.graphicBlock { position: relative; display: inline-block; padding: 8px 14px; border-radius: 10px; color: #fff; font-size: 13px; line-height: 18px; cursor: pointer; box-shadow: 0 2px 0 rgba(0,0,0,.15); }
+.graphicBlock .blk-del { position: absolute; top: -6px; right: -6px; width: 16px; height: 16px; border-radius: 50%; background: #ff4d4f; color: #fff; font-size: 10px; line-height: 16px; text-align: center; cursor: pointer; }
+.b-motion { background: #4C97FF; } .b-looks { background: #9966FF; } .b-sound { background: #CF63CF; }
+.b-event { background: #FFBF00; } .b-control { background: #FFAB19; } .b-sensing { background: #5CB1D6; }
+.b-operator { background: #59C059; } .b-variable { background: #FF8C1A; } .b-more { background: #FF6680; }
+.dot { display: inline-block; width: 14px; height: 14px; border-radius: 50%; margin-right: 6px; vertical-align: -2px; }
 
-        .top-nav-item.active {
-            background-color: var(--primary-light);
-            color: var(--primary);
-        }
+/* 新增：编程语言区 */
+.lang-row { display: flex; flex-wrap: wrap; gap: 0; }
+.lang-row .ant-radio-wrapper { margin-right: 16px; }
 
-        .title-bar-right {
-            display: flex;
-            align-items: center;
-            gap: 16px;
-        }
+/* 新增：答案解析图片上传拖拽提示 */
+.upload-hint { font-size: 12px; color: #969AA0; margin-top: 6px; }
 
-        .avatar {
-            width: 32px;
-            height: 32px;
-            border-radius: 16px;
-            background-color: var(--primary-light);
-            color: var(--primary);
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            font-size: 0.75rem;
-            font-weight: 600;
-            cursor: pointer;
-        }
+/* 底部按钮 */
+.questionCard.fotter { display: flex; justify-content: flex-end; gap: 12px; margin-top: 8px; }
 
-        /* ===== Layout Body ===== */
-        .layout-body {
-            flex: 1;
-            display: flex;
-            overflow: hidden;
-        }
+/* 内容区 */
+.main-content-area { margin-left: 200px; padding-bottom: 40px; }
 
-        .sidebar {
-            width: 220px;
-            background-color: var(--surface-color);
-            border-right: 1px solid var(--border-color);
-            display: flex;
-            flex-direction: column;
-            z-index: 10;
-        }
-
-        .sidebar-title {
-            padding: 20px 20px 12px;
-            font-size: 0.75rem;
-            font-weight: 600;
-            color: var(--text-tertiary);
-            text-transform: uppercase;
-            letter-spacing: 0.05em;
-        }
-
-        .nav-list {
-            list-style: none;
-            padding: 0 12px;
-            flex: 1;
-        }
-
-        .nav-item {
-            padding: 10px 16px;
-            border-radius: 8px;
-            margin-bottom: 2px;
-            cursor: pointer;
-            color: var(--text-secondary);
-            font-weight: 500;
-            font-size: 0.875rem;
-            transition: all 0.2s;
-            display: flex;
-            align-items: center;
-            gap: 10px;
-        }
-
-        .nav-item:hover {
-            background-color: #F9FAFB;
-        }
-
-        .nav-item.active {
-            background-color: var(--primary-light);
-            color: var(--primary);
-        }
-
-        /* ===== Main Content ===== */
-        .main-content {
-            flex: 1;
-            display: flex;
-            flex-direction: column;
-            overflow: hidden;
-        }
-
-        .content-header {
-            padding: 24px 32px 0;
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-        }
-
-        .breadcrumb {
-            font-size: 0.875rem;
-            color: var(--text-secondary);
-            display: flex;
-            align-items: center;
-            gap: 8px;
-        }
-
-        .breadcrumb a {
-            color: var(--primary);
-            text-decoration: none;
-        }
-
-        .breadcrumb a:hover {
-            text-decoration: underline;
-        }
-
-        .content-body {
-            flex: 1;
-            overflow-y: auto;
-            padding: 24px 32px 80px;
-        }
-
-        /* ===== Editor Card ===== */
-        .editor-card {
-            background: var(--surface-color);
-            border-radius: 12px;
-            box-shadow: var(--shadow-sm);
-            border: 1px solid var(--border-color);
-            max-width: 900px;
-            margin: 0 auto;
-        }
-
-        .editor-header {
-            padding: 20px 24px;
-            border-bottom: 1px solid var(--border-color);
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-            background-color: #F9FAFB;
-            border-top-left-radius: 12px;
-            border-top-right-radius: 12px;
-        }
-
-        .editor-title {
-            font-weight: 600;
-            font-size: 1.125rem;
-        }
-
-        .editor-body {
-            padding: 32px 24px;
-            display: flex;
-            flex-direction: column;
-            gap: 24px;
-        }
-
-        .editor-footer {
-            padding: 20px 24px;
-            border-top: 1px solid var(--border-color);
-            display: flex;
-            justify-content: flex-end;
-            gap: 12px;
-            background-color: #F9FAFB;
-            border-bottom-left-radius: 12px;
-            border-bottom-right-radius: 12px;
-        }
-
-        /* Forms */
-        .form-row {
-            display: flex;
-            gap: 24px;
-        }
-
-        .form-group {
-            flex: 1;
-        }
-
-        .form-label {
-            display: block;
-            font-size: 0.875rem;
-            font-weight: 600;
-            margin-bottom: 8px;
-            color: var(--text-primary);
-        }
-
-        .form-label span.req {
-            color: var(--danger);
-            margin-left: 4px;
-        }
-
-        .form-input,
-        .form-select,
-        .form-textarea {
-            width: 100%;
-            padding: 10px 12px;
-            border: 1px solid var(--border-color);
-            border-radius: 6px;
-            font-size: 0.875rem;
-            outline: none;
-            transition: border-color 0.2s;
-            font-family: inherit;
-            background-color: #fff;
-        }
-
-        .form-input:focus,
-        .form-select:focus,
-        .form-textarea:focus {
-            border-color: var(--primary);
-            box-shadow: 0 0 0 2px var(--primary-light);
-        }
-
-        .form-textarea {
-            resize: vertical;
-            min-height: 100px;
-        }
-
-        .helper-text {
-            font-size: 0.75rem;
-            color: var(--text-tertiary);
-            margin-top: 6px;
-            line-height: 1.5;
-        }
-
-        /* Rich Text Mock */
-        .rich-text-toolbar {
-            border: 1px solid var(--border-color);
-            border-bottom: none;
-            border-top-left-radius: 6px;
-            border-top-right-radius: 6px;
-            padding: 8px 12px;
-            background: #F8FAFC;
-            display: flex;
-            gap: 8px;
-        }
-
-        .rt-btn {
-            background: none;
-            border: none;
-            font-size: 1rem;
-            color: var(--text-secondary);
-            cursor: pointer;
-            padding: 4px 6px;
-            border-radius: 4px;
-        }
-
-        .rt-btn:hover {
-            background: #E2E8F0;
-            color: var(--text-primary);
-        }
-
-        .rich-text-editor {
-            border: 1px solid var(--border-color);
-            border-bottom-left-radius: 6px;
-            border-bottom-right-radius: 6px;
-            min-height: 120px;
-            padding: 12px;
-            font-size: 0.875rem;
-            line-height: 1.6;
-        }
-
-        .rich-text-editor:focus {
-            outline: none;
-            border-color: var(--primary);
-            box-shadow: 0 0 0 2px var(--primary-light);
-        }
-
-        /* Special TTS Section */
-        .tts-section {
-            background: #F0F9FF;
-            border: 1px solid #BAE6FD;
-            border-radius: 8px;
-            padding: 20px;
-            position: relative;
-        }
-
-        .tts-icon {
-            position: absolute;
-            top: 20px;
-            right: 20px;
-            color: var(--process-blue);
-            opacity: 0.5;
-        }
-
-        .tts-section .form-label {
-            color: #0369A1;
-            display: flex;
-            align-items: center;
-            gap: 6px;
-        }
-
-        .tts-section .form-textarea {
-            border-color: #BAE6FD;
-            min-height: 80px;
-        }
-
-        .tts-section .form-textarea:focus {
-            border-color: var(--process-blue);
-            box-shadow: 0 0 0 2px #E0F2FE;
-        }
-
-        .tts-tools {
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-            margin-top: 12px;
-        }
-
-        .btn-play-tts {
-            display: inline-flex;
-            align-items: center;
-            gap: 6px;
-            background-color: var(--surface-color);
-            border: 1px solid #BAE6FD;
-            color: var(--process-blue);
-            padding: 6px 12px;
-            border-radius: 6px;
-            font-size: 0.8rem;
-            font-weight: 500;
-            cursor: pointer;
-            transition: all 0.2s;
-        }
-
-        .btn-play-tts:hover {
-            background-color: #E0F2FE;
-            border-color: var(--process-blue);
-        }
-
-        /* Buttons */
-        button.btn {
-            padding: 8px 20px;
-            border-radius: 6px;
-            font-size: 0.875rem;
-            font-weight: 500;
-            cursor: pointer;
-            transition: all 0.2s;
-            border: 1px solid transparent;
-            display: inline-flex;
-            align-items: center;
-            justify-content: center;
-            height: 38px;
-            gap: 6px;
-        }
-
-        button.btn-primary {
-            background-color: var(--primary);
-            color: white;
-        }
-
-        button.btn-primary:hover {
-            background-color: var(--primary-hover);
-        }
-
-        button.btn-outline {
-            border-color: var(--border-color);
-            background-color: white;
-            color: var(--text-secondary);
-        }
-
-        button.btn-outline:hover {
-            border-color: var(--text-tertiary);
-            color: var(--text-primary);
-        }
-
-        /* Options Mock */
-        .options-list {
-            display: flex;
-            flex-direction: column;
-            gap: 12px;
-        }
-
-        .opt-item {
-            display: flex;
-            align-items: center;
-            gap: 12px;
-        }
-
-        .opt-char {
-            width: 32px;
-            height: 32px;
-            border-radius: 16px;
-            border: 1px solid var(--border-color);
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            font-weight: 600;
-            font-size: 0.875rem;
-            color: var(--text-secondary);
-            flex-shrink: 0;
-        }
-
-        .opt-item.is-correct .opt-char {
-            background-color: var(--success);
-            color: white;
-            border-color: var(--success);
-        }
-
-        svg.icon {
-            width: 16px;
-            height: 16px;
-            stroke: currentColor;
-            stroke-width: 2;
-            stroke-linecap: round;
-            stroke-linejoin: round;
-            fill: none;
-        }
-    </style>
+/* 简单 toast */
+.demo-toast { position: fixed; top: 80px; left: 50%; transform: translateX(-50%); background: rgba(0,0,0,.75); color: #fff; padding: 10px 20px; border-radius: 6px; font-size: 14px; z-index: 9999; display: none; }
+</style>
 </head>
-
 <body>
-
-    <header class="title-bar">
-        <div class="title-bar-left">
-            <div class="site-name">
-                <svg width="22" height="22" viewBox="0 0 24 24" fill="none">
-                    <path d="M12 2L2 7L12 12L22 7L12 2Z" fill="#4F46E5" />
-                    <path d="M2 17L12 22L22 17M2 12L12 17L22 12" stroke="#4F46E5" stroke-width="2"
-                        stroke-linecap="round" stroke-linejoin="round" />
-                </svg>
-                爱测评
-            </div>
-            <nav class="top-nav">
-                <a class="top-nav-item" href="#">首页</a>
-                <a class="top-nav-item active" href="#">测评管理</a>
-                <a class="top-nav-item" href="#">测评报告</a>
-            </nav>
-        </div>
-        <div class="title-bar-right">
-            <div class="avatar">我</div>
-        </div>
-    </header>
-
-    <div class="layout-body">
-        <aside class="sidebar">
-            <div class="sidebar-title">测评管理</div>
-            <ul class="nav-list">
-                <li class="nav-item active"><svg class="icon" viewBox="0 0 24 24">
-                        <path
-                            d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2">
-                        </path>
-                    </svg> 题目管理</li>
-                <li class="nav-item"><svg class="icon" viewBox="0 0 24 24">
-                        <path
-                            d="M12 6.253v13m0-13C10.832 5.477 9.246 5 7.5 5S4.168 5.477 3 6.253v13C4.168 18.477 5.754 18 7.5 18s3.332.477 4.5 1.253m0-13C13.168 5.477 14.754 5 16.5 5c1.747 0 3.332.477 4.5 1.253v13C19.832 18.477 18.247 18 16.5 18c-1.746 0-3.332.477-4.5 1.253">
-                        </path>
-                    </svg> 试卷库</li>
-                <li class="nav-item"><svg class="icon" viewBox="0 0 24 24">
-                        <path d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"></path>
-                    </svg> 考试任务</li>
+<div class="demo-toast" id="demoToast"></div>
+<div id="app">
+  <div class="container" data-v-5db88f50="">
+    <!-- ===== 顶部导航（线上同构） ===== -->
+    <div style="position: sticky; top: 0; z-index: 999;">
+      <div class="header">
+        <div class="ant-row-flex ant-row-flex-middle" style="display:flex;align-items:center;">
+          <div class="brand ant-col" style="flex: 0 0 300px; display:flex; align-items:center; padding-left:24px;">
+            <img src="assets/logo.png" alt="logo" style="height:36px;">
+            <div role="separator" class="ant-divider ant-divider-vertical"></div>
+            <div class="levelLogo"><img src="assets/level-logo.png" alt="" style="height:30px;"></div>
+          </div>
+          <div class="menu ant-col" style="flex: 1 1 0%;">
+            <ul role="menu" class="ant-menu ant-menu-horizontal ant-menu-root ant-menu-light">
+              <li role="menuitem" class="ant-menu-item"><a href="/index"><span>首页</span></a></li>
+              <li role="menuitem" class="ant-menu-submenu ant-menu-submenu-horizontal ant-menu-submenu-selected"><div class="ant-menu-submenu-title"><span style="display:flex;align-items:center;cursor:pointer;"><span>测评管理</span></span><i class="ant-menu-submenu-arrow"></i></div></li>
+              <li role="menuitem" class="ant-menu-item"><a href="/dataReport"><span>测评报告</span></a></li>
             </ul>
-        </aside>
-
-        <main class="main-content">
-            <div class="content-header">
-                <div class="breadcrumb">
-                    <a href="#">题目管理</a> <svg style="width:12px;height:12px;" fill="none" stroke="currentColor"
-                        viewBox="0 0 24 24">
-                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7"></path>
-                    </svg> <span>题目详情</span>
-                </div>
-            </div>
-
-            <div class="content-body">
-
-                <div class="editor-card">
-                    <div class="editor-header">
-                        <div class="editor-title">编辑题目 (ID: 10245)</div>
-                    </div>
-
-                    <div class="editor-body">
-
-                        <div class="form-row">
-                            <div class="form-group">
-                                <label class="form-label">题型<span class="req">*</span></label>
-                                <select class="form-select" disabled>
-                                    <option>单选题</option>
-                                </select>
-                            </div>
-                            <div class="form-group">
-                                <label class="form-label">难度<span class="req">*</span></label>
-                                <select class="form-select">
-                                    <option>中等</option>
-                                    <option>困难</option>
-                                    <option>简单</option>
-                                </select>
-                            </div>
-                            <div class="form-group">
-                                <label class="form-label">所属知识点</label>
-                                <input type="text" class="form-input" value="计算机基础 / 操作系统">
-                            </div>
-                        </div>
-
-                        <div class="form-group">
-                            <label class="form-label">题干内容<span class="req">*</span></label>
-                            <div>
-                                <div class="rich-text-toolbar">
-                                    <button class="rt-btn"><b>B</b></button>
-                                    <button class="rt-btn"><i>I</i></button>
-                                    <button class="rt-btn"><u>U</u></button>
-                                    <div style="width:1px; background:var(--border-color); margin:0 4px;"></div>
-                                    <button class="rt-btn"><svg class="icon">
-                                            <path
-                                                d="M4 16l4.586-4.586a2 2 0 012.828 0L16 16m-2-2l1.586-1.586a2 2 0 012.828 0L20 14m-6-6h.01M6 20h12a2 2 0 002-2V6a2 2 0 00-2-2H6a2 2 0 00-2 2v12a2 2 0 002 2z">
-                                            </path>
-                                        </svg></button>
-                                    <button class="rt-btn"><svg class="icon">
-                                            <path d="M10 20l4-16m4 4l4 4-4 4M6 16l-4-4 4-4"></path>
-                                        </svg></button>
-                                </div>
-                                <div class="rich-text-editor" contenteditable="true">
-                                    在早期的计算机系统中，哪一项资源的分配策略容易导致被进程“饿死”（Starvation）现象？
-                                </div>
-                            </div>
-                        </div>
-
-                        <div class="form-group">
-                            <label class="form-label">选项配置<span class="req">*</span></label>
-                            <div class="options-list">
-                                <div class="opt-item is-correct">
-                                    <div class="opt-char">A</div>
-                                    <input type="text" class="form-input" value="SJF 短作业优先调度"
-                                        style="border-color: var(--success); box-shadow: 0 0 0 1px var(--success);">
-                                </div>
-                                <div class="opt-item">
-                                    <div class="opt-char">B</div>
-                                    <input type="text" class="form-input" value="FCFS 先来先服务">
-                                </div>
-                                <div class="opt-item">
-                                    <div class="opt-char">C</div>
-                                    <input type="text" class="form-input" value="RR 时间片轮转">
-                                </div>
-                                <div class="opt-item">
-                                    <div class="opt-char">D</div>
-                                    <input type="text" class="form-input" value="HRRN 高响应比优先">
-                                </div>
-                            </div>
-                        </div>
-
-                        <div class="form-group">
-                            <label class="form-label">解析说明</label>
-                            <textarea class="form-textarea"
-                                placeholder="填写解析详情...">短作业优先（SJF）调度算法虽然能使得平均周转时间最短，但如果系统中不断有短作业到来，会导致长作业长时间得不到调度，从而产生“饥饿”或“饿死”现象。</textarea>
-                        </div>
-
-                        <!-- 读题文本 (TTS) -->
-                        <div class="form-group">
-                            <label class="form-label"
-                                style="display: flex; align-items: center; justify-content: space-between;">
-                                <span>读题文本配置 (TTS)</span>
-                                <button class="rt-btn" onclick="alert('🎧 [系统正在调用语音合成测试播放...]')"
-                                    style="font-size: 0.8rem; font-weight: normal; color: var(--primary); display: flex; align-items: center; gap: 4px;">
-                                    <svg class="icon" viewBox="0 0 24 24">
-                                        <path stroke="none" d="M0 0h24v24H0z" fill="none" />
-                                        <path d="M7 4v16l13 -8z" fill="currentColor" />
-                                    </svg>
-                                    试听发音
-                                </button>
-                            </label>
-                            <textarea class="form-textarea"
-                                placeholder="请在此输入系统朗读的文案，如果不填则默认直接朗读原题干文本。如果题干中有图片或代码，建议填写针对听觉优化的转述文案。">同学们请听题，在早期的计算机系统中，哪一项资源的分配策略，容易导致被进程“饿死”现象？A选项，短作业优先调度算法。B选项，先来先服务算法...</textarea>
-                            <p class="helper-text">学生在考试端点击“播放读题”时，系统将通过语音合成引擎朗读上方配置的纯文本内容。</p>
-                        </div>
-
-                    </div>
-
-                    <div class="editor-footer">
-                        <button class="btn btn-outline">取消并返回</button>
-                        <button class="btn btn-primary" onclick="alert('题目保存成功！')">保存题目</button>
-                    </div>
-                </div>
-
-            </div>
-        </main>
+          </div>
+          <div style="padding-right:24px; display:flex; align-items:center; gap:8px;">
+            <span class="ant-avatar" style="background:#2A55E5;">A</span>
+            <span style="font-size:14px;color:#323335;">AISE管理员</span>
+            <i class="anticon anticon-down" style="color:#999;"></i>
+          </div>
+        </div>
+      </div>
     </div>
 
-</body>
+    <!-- ===== 侧边栏（线上同构） ===== -->
+    <aside class="sidebar" style="top:0;padding-top:76px;">
+      <button type="button" class="ant-btn ant-btn-primary" style="border-radius:8px;background:rgb(42,85,229);width:184px;height:44px;margin:0 auto 12px;display:block;"><span>创建考试</span></button>
+      <ul role="menu" class="ant-menu ant-menu-inline ant-menu-root ant-menu-light" style="width:calc(100% - 16px);margin-left:8px;">
+        <li role="menuitem" class="ant-menu-item" style="padding-left:24px;"><a href="#"><i class="iconfont">🏠</i>首页</a></li>
+        <li role="menuitem" class="ant-menu-item ant-menu-item-selected" style="padding-left:24px;"><a href="01_题目管理.html"><i class="iconfont">📋</i>题目管理</a></li>
+        <li role="menuitem" class="ant-menu-item" style="padding-left:24px;"><a href="#"><i class="iconfont">📄</i>试卷管理</a></li>
+        <li role="menuitem" class="ant-menu-item" style="padding-left:24px;"><a href="#"><i class="iconfont">📝</i>考试管理</a></li>
+        <li role="menuitem" class="ant-menu-item" style="padding-left:24px;"><a href="#"><i class="iconfont">📚</i>日常作业</a></li>
+        <li role="menuitem" class="ant-menu-item" style="padding-left:24px;"><a href="#"><i class="iconfont">🏫</i>班级管理</a></li>
+        <li role="menuitem" class="ant-menu-item" style="padding-left:24px;"><a href="#"><i class="iconfont">👨‍🏫</i>教师管理</a></li>
+        <li role="menuitem" class="ant-menu-item" style="padding-left:24px;"><a href="#"><i class="iconfont">🧑‍🎓</i>学生管理</a></li>
+        <li role="menuitem" class="ant-menu-item" style="padding-left:24px;"><a href="#"><i class="iconfont">🏢</i>组织管理</a></li>
+        <li role="menuitem" class="ant-menu-item" style="padding-left:24px;"><a href="#"><i class="iconfont">🗑</i>回收站</a></li>
+      </ul>
+    </aside>
 
+    <!-- ===== 主内容 ===== -->
+    <main class="ant-layout-content main-content-area">
+      <div class="positionSticky" style="display:flex;align-items:center;gap:8px;">
+        <i class="anticon anticon-left" style="color:#323335;">←</i>
+        <span style="color:#323335;cursor:pointer;" onclick="history.back()">返回</span>
+        <div role="separator" class="ant-divider ant-divider-vertical"></div>
+        <span class="header_title">录入题目</span>
+      </div>
+
+      <div class="questionForm">
+        <div class="questionCard">
+          <p class="cardTitle">录入题目</p>
+          <form class="ant-form ant-form-horizontal" onsubmit="return false;">
+
+            <!-- ① 所属题库 -->
+            <div class="ant-row ant-form-item">
+              <div class="ant-col ant-col-xs-24 ant-col-sm-2 ant-form-item-label"><label title="所属题库" class="ant-form-item-required">所属题库</label></div>
+              <div class="ant-col ant-col-xs-24 ant-col-sm-14 ant-form-item-control-wrapper">
+                <div class="ant-form-item-control"><span class="ant-form-item-children">
+                  <div class="ant-checkbox-group">
+                    <label class="ant-checkbox-wrapper" onclick="onLibToggle(3,this)"><span class="ant-checkbox"><input type="checkbox" class="ant-checkbox-input" value="3"><span class="ant-checkbox-inner"></span></span><span>默认题库</span></label>
+                    <label class="ant-checkbox-wrapper" onclick="onLibToggle(1,this)"><span class="ant-checkbox"><input type="checkbox" class="ant-checkbox-input" value="1"><span class="ant-checkbox-inner"></span></span><span>我的题库</span></label>
+                    <label class="ant-checkbox-wrapper" onclick="onLibToggle(3,this)"><span class="ant-checkbox"><input type="checkbox" class="ant-checkbox-input" value="3"><span class="ant-checkbox-inner"></span></span><span>AISE题库</span></label>
+                  </div>
+                </span></div>
+              </div>
+            </div>
+
+            <!-- ② AISE级别（勾选 AISE题库后出现） -->
+            <div class="ant-row ant-form-item" id="aiseLevelItem" style="display:none;">
+              <div class="ant-col ant-col-xs-24 ant-col-sm-2 ant-form-item-label"><label title="AISE级别" class="ant-form-item-required">AISE级别</label></div>
+              <div class="ant-col ant-col-xs-24 ant-col-sm-14 ant-form-item-control-wrapper">
+                <div class="ant-form-item-control"><span class="ant-form-item-children">
+                  <div class="ant-radio-group ant-radio-group-outline" id="aiseLevelGroup">
+                    <label class="ant-radio-wrapper"><span class="ant-radio"><input type="radio" name="aiseLevel" class="ant-radio-input" value="1"><span class="ant-radio-inner"></span></span><span>一级</span></label>
+                    <label class="ant-radio-wrapper"><span class="ant-radio"><input type="radio" name="aiseLevel" class="ant-radio-input" value="2"><span class="ant-radio-inner"></span></span><span>二级</span></label>
+                    <label class="ant-radio-wrapper"><span class="ant-radio"><input type="radio" name="aiseLevel" class="ant-radio-input" value="3"><span class="ant-radio-inner"></span></span><span>三级</span></label>
+                    <label class="ant-radio-wrapper"><span class="ant-radio"><input type="radio" name="aiseLevel" class="ant-radio-input" value="4"><span class="ant-radio-inner"></span></span><span>四级</span></label>
+                    <label class="ant-radio-wrapper"><span class="ant-radio"><input type="radio" name="aiseLevel" class="ant-radio-input" value="5"><span class="ant-radio-inner"></span></span><span>五级</span></label>
+                    <label class="ant-radio-wrapper"><span class="ant-radio"><input type="radio" name="aiseLevel" class="ant-radio-input" value="6"><span class="ant-radio-inner"></span></span><span>六级</span></label>
+                    <label class="ant-radio-wrapper"><span class="ant-radio"><input type="radio" name="aiseLevel" class="ant-radio-input" value="7"><span class="ant-radio-inner"></span></span><span>七级</span></label>
+                    <label class="ant-radio-wrapper"><span class="ant-radio"><input type="radio" name="aiseLevel" class="ant-radio-input" value="8"><span class="ant-radio-inner"></span></span><span>八级</span></label>
+                  </div>
+                </span></div>
+              </div>
+            </div>
+
+            <!-- ③ 编程语言（新增：仅编程类题型显示且必选） -->
+            <div class="ant-row ant-form-item" id="langItem" style="display:none;">
+              <div class="ant-col ant-col-xs-24 ant-col-sm-2 ant-form-item-label"><label title="编程语言" class="ant-form-item-required">编程语言<span class="demo-badge">新增</span></label></div>
+              <div class="ant-col ant-col-xs-24 ant-col-sm-14 ant-form-item-control-wrapper">
+                <div class="ant-form-item-control"><span class="ant-form-item-children">
+                  <div class="ant-radio-group ant-radio-group-outline lang-row" id="langGroup">
+                    <label class="ant-radio-wrapper"><span class="ant-radio"><input type="radio" name="lang" class="ant-radio-input" value="scratch" onchange="onLangChange(this)"><span class="ant-radio-inner"></span></span><span>图形化（Scratch）</span></label>
+                    <label class="ant-radio-wrapper"><span class="ant-radio"><input type="radio" name="lang" class="ant-radio-input" value="python" onchange="onLangChange(this)"><span class="ant-radio-inner"></span></span><span>Python</span></label>
+                    <label class="ant-radio-wrapper"><span class="ant-radio"><input type="radio" name="lang" class="ant-radio-input" value="cpp" onchange="onLangChange(this)"><span class="ant-radio-inner"></span></span><span>C++</span></label>
+                    <label class="ant-radio-wrapper"><span class="ant-radio"><input type="radio" name="lang" class="ant-radio-input" value="c" onchange="onLangChange(this)"><span class="ant-radio-inner"></span></span><span>C</span></label>
+                  </div>
+                  <div class="upload-hint">选择语言后，下方知识标签仅展示该语言对应的知识树</div>
+                </span></div>
+              </div>
+            </div>
+
+            <!-- ④ 题型 -->
+            <div class="ant-row ant-form-item">
+              <div class="ant-col ant-col-xs-24 ant-col-sm-2 ant-form-item-label"><label title="题型" class="ant-form-item-required">题型</label></div>
+              <div class="ant-col ant-col-xs-24 ant-col-sm-16 ant-form-item-control-wrapper">
+                <div class="ant-form-item-control"><span class="ant-form-item-children">
+                  <p class="questionTypeTitle">客观题类-可以系统自动批改</p>
+                  <div class="questionTypeBox">
+                    <div class="questionType" data-qt="single" onclick="onTypeChange(this)">单选</div>
+                    <div class="questionType" data-qt="multi" onclick="onTypeChange(this)">多选</div>
+                    <div class="questionType" data-qt="judge" onclick="onTypeChange(this)">判断</div>
+                    <div class="questionType" data-qt="gap" onclick="onTypeChange(this)">填空</div>
+                    <div class="questionType" data-qt="oj" onclick="onTypeChange(this)">编程OJ
+                      <i class="anticon anticon-question-circle" title="编程OJ题型（Online Judge）是一种支持在线批改的题型，输入测试用例之后，系统根据测试用例结果自动判分。目前支持Python、C语言、C++。" style="color:#bfbfbf;">?</i>
+                    </div>
+                    <div class="questionType" data-qt="graphic" onclick="onTypeChange(this)">图形化编程
+                      <i class="anticon anticon-question-circle" title="使用Scratch图形化编程，通过拖拽积木块设计创意项目（如动画、游戏或互动程序），考察逻辑思维与实现能力。" style="color:#bfbfbf;">?</i>
+                    </div>
+                  </div>
+                  <p class="questionTypeTitle">主观题类-需手动批改</p>
+                  <div class="questionTypeBox">
+                    <div class="questionType" data-qt="read" onclick="onTypeChange(this)">阅读</div>
+                    <div class="questionType" data-qt="code" onclick="onTypeChange(this)">编程
+                      <i class="anticon anticon-question-circle" title="编程：编程题不支持在线批改，目前支持Scratch3、Python、C语言、C++。" style="color:#bfbfbf;">?</i>
+                    </div>
+                    <div class="questionType" data-qt="practice" onclick="onTypeChange(this)">实践</div>
+                    <div class="questionType" data-qt="text2text" onclick="onTypeChange(this)">文生文</div>
+                    <div class="questionType" data-qt="text2img" onclick="onTypeChange(this)">文生图</div>
+                    <div class="questionType" data-qt="text2video" onclick="onTypeChange(this)">文生视频</div>
+                    <div class="questionType" data-qt="line" onclick="onTypeChange(this)">划线题</div>
+                    <div class="questionType" data-qt="workflow" onclick="onTypeChange(this)">工作流题型</div>
+                  </div>
+                </span></div>
+              </div>
+            </div>
+
+            <!-- ⑤ 知识标签 -->
+            <div class="ant-row ant-form-item">
+              <div class="ant-col ant-col-xs-24 ant-col-sm-2 ant-form-item-label"><label title="知识标签">知识标签</label></div>
+              <div class="ant-col ant-col-xs-24 ant-col-sm-14 ant-form-item-control-wrapper">
+                <div class="ant-form-item-control"><span class="ant-form-item-children">
+                  <div class="ant-select ant-select-enabled ant-select-multiple" style="width:100%;" id="kpSelect">
+                    <div class="ant-select-selection ant-select-selection--multiple" tabindex="0">
+                      <ul class="ant-select-selection__rendered">
+                        <li class="ant-select-selection__placeholder" id="kpPlaceholder" onclick="toggleKpDropdown(event)">请选择知识标签</li>
+                      </ul>
+                    </div>
+                  </div>
+                  <div class="kp-dropdown" id="kpDropdown" style="display:none;position:absolute;z-index:100;background:#fff;border:1px solid #e8e8e8;border-radius:4px;box-shadow:0 2px 8px rgba(0,0,0,.15);max-height:320px;overflow:auto;padding:8px 0;min-width:320px;">
+                    <!-- JS 渲染知识树 -->
+                  </div>
+                </span></div>
+              </div>
+            </div>
+
+            <!-- ⑥ 题目标题 -->
+            <div class="ant-row ant-form-item">
+              <div class="ant-col ant-col-xs-24 ant-col-sm-2 ant-form-item-label"><label title="题目标题">题目标题</label></div>
+              <div class="ant-col ant-col-xs-24 ant-col-sm-14 ant-form-item-control-wrapper">
+                <div class="ant-form-item-control"><span class="ant-form-item-children">
+                  <input placeholder="例如：1.程序输出判断" type="text" class="ant-input" id="qNameInput" style="width:100%;">
+                </span></div>
+              </div>
+            </div>
+
+            <!-- ⑦ 题干（CKEditor 5 形态，线上同构工具栏） -->
+            <div class="ant-row ant-form-item">
+              <div class="ant-col ant-col-xs-24 ant-col-sm-2 ant-form-item-label"><label title="题干" class="ant-form-item-required">题干</label></div>
+              <div class="ant-col ant-col-xs-24 ant-col-sm-16 ant-form-item-control-wrapper">
+                <div class="ant-form-item-control"><span class="ant-form-item-children">
+                  <div class="ck-editor" style="border:1px solid #d9d9d9;border-radius:4px;">
+                    <div class="ck ck-toolbar" style="background:#fafafa;border-bottom:1px solid #d9d9d9;padding:6px 10px;display:flex;flex-wrap:wrap;gap:2px;align-items:center;">
+                      <span class="ck-btn" title="段落" style="border:1px solid #d9d9d9;background:#fff;border-radius:3px;padding:2px 8px;font-size:13px;cursor:pointer;">段落 ▾</span>
+                      <button type="button" class="ck-btn" title="加粗" style="border:none;background:transparent;font-weight:bold;padding:4px 8px;cursor:pointer;">B</button>
+                      <button type="button" class="ck-btn" title="斜体" style="border:none;background:transparent;font-style:italic;padding:4px 8px;cursor:pointer;">I</button>
+                      <button type="button" class="ck-btn" title="下划线" style="border:none;background:transparent;text-decoration:underline;padding:4px 8px;cursor:pointer;">U</button>
+                      <button type="button" class="ck-btn" title="删除线" style="border:none;background:transparent;text-decoration:line-through;padding:4px 8px;cursor:pointer;">S</button>
+                      <span style="width:1px;height:16px;background:#d9d9d9;margin:0 4px;"></span>
+                      <button type="button" class="ck-btn" title="无序列表" style="border:none;background:transparent;padding:4px 8px;cursor:pointer;">≣</button>
+                      <button type="button" class="ck-btn" title="有序列表" style="border:none;background:transparent;padding:4px 8px;cursor:pointer;">1.</button>
+                      <span style="width:1px;height:16px;background:#d9d9d9;margin:0 4px;"></span>
+                      <button type="button" class="ck-btn" title="对齐" style="border:none;background:transparent;padding:4px 8px;cursor:pointer;">☰</button>
+                      <button type="button" class="ck-btn" title="分割线" style="border:none;background:transparent;padding:4px 8px;cursor:pointer;">―</button>
+                      <button type="button" class="ck-btn" title="插入图片/视频" style="border:none;background:transparent;padding:4px 8px;cursor:pointer;">🖼</button>
+                      <button type="button" class="ck-btn" title="引用" style="border:none;background:transparent;padding:4px 8px;cursor:pointer;">❝</button>
+                      <button type="button" class="ck-btn" title="表格" style="border:none;background:transparent;padding:4px 8px;cursor:pointer;">▦</button>
+                      <span style="flex:1;"></span>
+                      <button type="button" class="ck-btn" title="撤销" style="border:none;background:transparent;padding:4px 8px;cursor:pointer;">↺</button>
+                      <button type="button" class="ck-btn" title="重做" style="border:none;background:transparent;padding:4px 8px;cursor:pointer;">↻</button>
+                      <button type="button" class="ck-btn" title="AI" style="border:none;background:transparent;padding:4px 8px;cursor:pointer;">✦AI</button>
+                      <button type="button" class="ck-btn" title="涂鸦" style="border:none;background:transparent;padding:4px 8px;cursor:pointer;">✏</button>
+                      <button type="button" class="ck-btn" title="字体颜色" style="border:none;background:transparent;padding:4px 8px;cursor:pointer;">A<u style="text-decoration-color:#f00;">■</u></button>
+                      <button type="button" class="ck-btn" title="背景色" style="border:none;background:transparent;padding:4px 8px;cursor:pointer;">A<u>■</u></button>
+                      <button type="button" class="ck-btn" title="公式" style="border:none;background:transparent;padding:4px 8px;cursor:pointer;">√x</button>
+                      <button type="button" class="ck-btn" title="源代码" style="border:none;background:transparent;padding:4px 8px;cursor:pointer;">源代码</button>
+                      <button type="button" class="ck-btn" title="预览" style="border:none;background:transparent;padding:4px 8px;cursor:pointer;">👁</button>
+                      <button type="button" class="ck-btn" title="代码编辑" style="border:none;background:transparent;padding:4px 8px;cursor:pointer;">&lt;/&gt;</button>
+                    </div>
+                    <div class="ck-content" contenteditable="true" id="stemEditor" data-placeholder="请输入内容" style="min-height:120px;padding:12px;font-size:14px;color:#323335;outline:none;"></div>
+                  </div>
+                </span></div>
+              </div>
+            </div>
+
+            <!-- ⑧ 读题文本配置 TTS + 一键复制（新增） -->
+            <div class="dtwb_label" style="width:83%;">
+              <p class="label">读题文本配置 (TTS)<span class="demo-badge">新增复制</span></p>
+              <div class="tts-actions">
+                <button type="button" class="ant-btn ant-btn-link" id="copyStemBtn" onclick="copyStem()" style="color:#2A55E5;">📋 复制题干</button>
+                <button type="button" class="ant-btn ant-btn-link" id="copyOptionBtn" onclick="copyOptions()" style="color:#2A55E5;">📋 复制选项</button>
+                <button type="button" class="ant-btn ant-btn-link" onclick="toast('🎧 系统正在调用语音合成测试播放...')" style="color:rgb(50,118,255);">▶ 试听发音</button>
+              </div>
+            </div>
+            <div class="ant-row ant-form-item">
+              <div class="ant-col ant-col-xs-24 ant-col-sm-2 ant-form-item-label"><label title="；">；</label></div>
+              <div class="ant-col ant-col-xs-24 ant-col-sm-14 ant-form-item-control-wrapper">
+                <div class="ant-form-item-control"><span class="ant-form-item-children">
+                  <textarea placeholder="请输入读题文本" class="ant-input" id="ttsText" style="height:94px;min-height:94px;max-height:136px;resize:vertical;"></textarea>
+                </span></div>
+              </div>
+            </div>
+
+            <!-- ⑨ 答案解析 + 图片上传（新增） -->
+            <div class="ant-row ant-form-item" id="analysisItem">
+              <div class="ant-col ant-col-xs-24 ant-col-sm-2 ant-form-item-label"><label title="答案解析">答案解析<span class="demo-badge">新增图片</span></label></div>
+              <div class="ant-col ant-col-xs-24 ant-col-sm-14 ant-form-item-control-wrapper">
+                <div class="ant-form-item-control"><span class="ant-form-item-children">
+                  <textarea placeholder="请输入答案解析" class="ant-input" id="analysisText" style="height:94px;min-height:94px;max-height:136px;resize:vertical;"></textarea>
+                  <div class="analysis-upload">
+                    <div class="upload-btn-row">
+                      <button type="button" class="ant-btn" onclick="document.getElementById('analysisFileInput').click()">
+                        <i class="anticon anticon-upload">⬆</i><span>上传图片</span>
+                      </button>
+                      <input type="file" id="analysisFileInput" accept="image/png,image/jpg,image/jpeg,image/gif,image/webp" multiple style="display:none;" onchange="onAnalysisImgUpload(this)">
+                    </div>
+                    <div class="analysis-imgs" id="analysisImgs"></div>
+                    <div class="upload-hint">支持 png / jpg / gif / webp，单图不超过 5MB（图片将随解析内容一并保存）</div>
+                  </div>
+                </span></div>
+              </div>
+            </div>
+
+            <!-- ⑩ 代码类型+模板文件（图形化编程/编程OJ 态） -->
+            <div class="ant-row ant-form-item" id="codeTypeItem" style="display:none;">
+              <div class="ant-col ant-col-xs-24 ant-col-sm-2 ant-form-item-label"><label title="代码类型">代码类型</label></div>
+              <div class="ant-col ant-col-xs-24 ant-col-sm-14 ant-form-item-control-wrapper">
+                <div class="ant-form-item-control"><span class="ant-form-item-children">
+                  <div class="ant-row" style="display:flex;gap:16px;align-items:center;">
+                    <div style="width:320px;">
+                      <div class="ant-select ant-select-enabled" style="width:100%;">
+                        <div class="ant-select-selection ant-select-selection--single" tabindex="0" id="codeTypeSelect" onclick="toggleCodeType()">
+                          <div class="ant-select-selection__rendered">
+                            <div class="ant-select-selection__placeholder" id="codeTypePlaceholder" style="display:block;user-select:none;">请选择代码类型</div>
+                          </div>
+                          <span class="ant-select-arrow">▾</span>
+                        </div>
+                      </div>
+                      <div class="kp-dropdown" id="codeTypeDropdown" style="display:none;position:absolute;z-index:100;background:#fff;border:1px solid #e8e8e8;border-radius:4px;box-shadow:0 2px 8px rgba(0,0,0,.15);min-width:320px;">
+                        <div class="kp-opt" onclick="pickCodeType('Scratch3')">Scratch3</div>
+                        <div class="kp-opt" onclick="pickCodeType('命令行Python')">命令行Python</div>
+                        <div class="kp-opt" onclick="pickCodeType('C语言')">C语言</div>
+                        <div class="kp-opt" onclick="pickCodeType('C++')">C++</div>
+                      </div>
+                    </div>
+                    <button type="button" class="ant-btn" onclick="toast('📎 模板文件上传（演示）')">⬆ 模板文件</button>
+                  </div>
+                </span></div>
+              </div>
+            </div>
+
+            <!-- ⑪ 预览/测试按钮（新增，编程类题型显示） -->
+            <div class="ant-row ant-form-item" id="previewTestItem" style="display:none;">
+              <div class="ant-col ant-col-xs-24 ant-col-sm-2 ant-form-item-label"><label>预览/测试<span class="demo-badge">新增</span></label></div>
+              <div class="ant-col ant-col-xs-24 ant-col-sm-14 ant-form-item-control-wrapper">
+                <div class="ant-form-item-control"><span class="ant-form-item-children">
+                  <button type="button" class="ant-btn" onclick="openPreview()">👁 预览</button>
+                  <button type="button" class="ant-btn ant-btn-primary" onclick="openTest()" style="margin-left:8px;">⚙ 测试</button>
+                  <span class="upload-hint" style="display:inline-block;margin-left:12px;">测试将在新页面打开图形化编程操作页（Scratch 编辑器）</span>
+                </span></div>
+              </div>
+            </div>
+
+            <!-- ⑫ OJ 专属区 -->
+            <div id="ojArea" style="display:none;">
+              <div class="ant-row ant-form-item">
+                <div class="ant-col ant-col-xs-24 ant-col-sm-2 ant-form-item-label"><label title="输入描述">输入描述</label></div>
+                <div class="ant-col ant-col-xs-24 ant-col-sm-14 ant-form-item-control-wrapper">
+                  <div class="ant-form-item-control"><span class="ant-form-item-children"><input placeholder="请输入输入描述" type="text" class="ant-input" style="width:100%;"></span></div>
+                </div>
+              </div>
+              <div class="ant-row ant-form-item">
+                <div class="ant-col ant-col-xs-24 ant-col-sm-2 ant-form-item-label"><label title="输入样例">输入样例</label></div>
+                <div class="ant-col ant-col-xs-24 ant-col-sm-14 ant-form-item-control-wrapper">
+                  <div class="ant-form-item-control"><span class="ant-form-item-children"><input placeholder="请输入输入样例" type="text" class="ant-input" style="width:100%;"></span></div>
+                </div>
+              </div>
+              <div class="ant-row ant-form-item">
+                <div class="ant-col ant-col-xs-24 ant-col-sm-2 ant-form-item-label"><label title="输出描述">输出描述</label></div>
+                <div class="ant-col ant-col-xs-24 ant-col-sm-14 ant-form-item-control-wrapper">
+                  <div class="ant-form-item-control"><span class="ant-form-item-children"><input placeholder="请输入输出描述" type="text" class="ant-input" style="width:100%;"></span></div>
+                </div>
+              </div>
+              <div class="ant-row ant-form-item">
+                <div class="ant-col ant-col-xs-24 ant-col-sm-2 ant-form-item-label"><label title="输出样例">输出样例</label></div>
+                <div class="ant-col ant-col-xs-24 ant-col-sm-14 ant-form-item-control-wrapper">
+                  <div class="ant-form-item-control"><span class="ant-form-item-children"><input placeholder="请输入输出样例" type="text" class="ant-input" style="width:100%;"></span></div>
+                </div>
+              </div>
+              <div class="ant-row ant-form-item">
+                <div class="ant-col ant-col-xs-24 ant-col-sm-2 ant-form-item-label"><label title="答题时长">答题时长</label></div>
+                <div class="ant-col ant-col-xs-24 ant-col-sm-14 ant-form-item-control-wrapper">
+                  <div class="ant-form-item-control"><span class="ant-form-item-children"><input placeholder="请输入答题时长" type="text" class="ant-input" style="width:120px;"> 秒</span></div>
+                </div>
+              </div>
+              <div class="ant-row ant-form-item">
+                <div class="ant-col ant-col-xs-24 ant-col-sm-2 ant-form-item-label"><label title="内存限制">内存限制</label></div>
+                <div class="ant-col ant-col-xs-24 ant-col-sm-14 ant-form-item-control-wrapper">
+                  <div class="ant-form-item-control"><span class="ant-form-item-children"><input placeholder="请输入内存限制" type="text" class="ant-input" style="width:120px;"> MB</span></div>
+                </div>
+              </div>
+              <div class="ant-row ant-form-item">
+                <div class="ant-col ant-col-xs-24 ant-col-sm-2 ant-form-item-label"><label title="参考答案">参考答案</label></div>
+                <div class="ant-col ant-col-xs-24 ant-col-sm-14 ant-form-item-control-wrapper">
+                  <div class="ant-form-item-control"><span class="ant-form-item-children">
+                    <p style="margin:0 0 8px;font-size:14px;color:#323335;">参考答案文件</p>
+                    <div style="border:1px dashed #d9d9d9;border-radius:4px;padding:20px;text-align:center;color:#64666B;font-size:13px;cursor:pointer;" onclick="toast('📎 参考答案文件上传（演示）')">
+                      点击或拖拽上传文件<br>
+                      <button type="button" class="ant-btn ant-btn-primary" style="margin-top:8px;">⬆ 上传参考答案</button>
+                      <p class="upload-hint">支持 .py / .java / .cpp / .js / .c / .go / .ts，重新上传将覆盖旧文件</p>
+                    </div>
+                    <p style="margin:8px 0;font-size:14px;color:#323335;">前5行预览</p>
+                    <div class="referenceAnswerPreview" style="min-height:110px;padding:14px;border-radius:4px;background:#323335;color:#F4F4F5;font-size:12px;line-height:20px;white-space:pre-wrap;">上传文件后将在此显示前 5 行内容</div>
+                  </span></div>
+                </div>
+              </div>
+              <div class="ant-row ant-form-item">
+                <div class="ant-col ant-col-xs-24 ant-col-sm-2 ant-form-item-label"><label class="ant-form-item-required" title="评分标准">评分标准</label></div>
+                <div class="ant-col ant-col-xs-24 ant-col-sm-16 ant-form-item-control-wrapper">
+                  <div class="ant-form-item-control"><span class="ant-form-item-children">
+                    <div class="tkTips" style="width:100%;background:#E5F5FF;line-height:34px;border-radius:4px;font-size:12px;color:#323335;margin-top:10px;padding:0 16px;">编程OJ题目按照测试用例通过数得分，每通过一条测试用例，即可获得「题目总分」*「得分占比」的分数</div>
+                    <div style="margin-top:12px;"><button type="button" class="ant-btn" onclick="toast('➕ 添加测试用例（演示）')">＋ 添加测试用例</button></div>
+                    <table class="ant-table" style="width:100%;margin-top:12px;">
+                      <thead><tr><th style="padding:8px;">序号</th><th style="padding:8px;">用例名称</th><th style="padding:8px;">权重值</th><th style="padding:8px;">得分占比</th><th style="padding:8px;">操作</th></tr></thead>
+                      <tbody><tr><td colspan="5" style="text-align:center;color:#bfbfbf;padding:24px;">暂无数据</td></tr></tbody>
+                    </table>
+                  </span></div>
+                </div>
+              </div>
+            </div>
+
+            <!-- ⑬ 图形化编程专属区：题目设置积木区 -->
+            <div id="graphicArea" style="display:none;">
+              <div class="ant-row ant-form-item">
+                <div class="ant-col ant-col-xs-24 ant-col-sm-2 ant-form-item-label"><label title="题目设置">题目设置</label></div>
+                <div class="ant-col ant-col-xs-24 ant-col-sm-16 ant-form-item-control-wrapper">
+                  <div class="ant-form-item-control"><span class="ant-form-item-children">
+                    <div class="graphicPage">
+                      <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:8px;">
+                        <span class="cardTitle" style="padding-bottom:0;">题目设置</span>
+                        <div>
+                          <button type="button" class="ant-btn ant-btn-primary" onclick="toast('✏ 编辑题目（线上为跳转 Scratch 编辑器）')">编辑题目</button>
+                          <button type="button" class="ant-btn ant-btn-primary" onclick="selectAllBlocks(true)" style="margin-left:8px;">全选积木</button>
+                          <button type="button" class="ant-btn" style="margin-left:8px;background:#ff4d4f;color:#fff;border-color:#ff4d4f;" onclick="selectAllBlocks(false)">清空积木</button>
+                        </div>
+                      </div>
+                      <div class="graphicMain">
+                        <div class="graphicLeftBox" id="blockCats"></div>
+                        <div class="graphicImageBox">
+                          <div class="graphicImageList scrollbarStyle" id="blockList"></div>
+                        </div>
+                      </div>
+                    </div>
+                  </span></div>
+                </div>
+              </div>
+            </div>
+
+            <!-- ⑭ 选项区（选择题型） -->
+            <div class="ant-row ant-form-item" id="optionArea" style="display:none;">
+              <div class="ant-col ant-col-xs-24 ant-col-sm-2 ant-form-item-label"><label class="ant-form-item-required" title="选项：">选项：</label></div>
+              <div class="ant-col ant-col-xs-24 ant-col-sm-16 ant-form-item-control-wrapper">
+                <div class="ant-form-item-control"><span class="ant-form-item-children">
+                  <div class="optionBox" style="width:100%;padding:10px;margin:0;">
+                    <div class="optionList" id="optionList"></div>
+                    <div class="addOption" onclick="addOption()">点击添加选项</div>
+                  </div>
+                </span></div>
+              </div>
+            </div>
+
+            <!-- ⑮ 可见范围 -->
+            <div class="ant-row ant-form-item">
+              <div class="ant-col ant-col-xs-24 ant-col-sm-2 ant-form-item-label"><label class="ant-form-item-required" title="可见范围">可见范围</label></div>
+              <div class="ant-col ant-col-xs-24 ant-col-sm-14 ant-form-item-control-wrapper">
+                <div class="ant-form-item-control"><span class="ant-form-item-children">
+                  <div class="ant-radio-group ant-radio-group-outline">
+                    <label class="ant-radio-wrapper"><span class="ant-radio"><input type="radio" name="visibility" class="ant-radio-input" value="1"><span class="ant-radio-inner"></span></span><span>本组织可见 - 仅您所在的学校或组织的老师可以查看并使用本题目</span></label><br>
+                    <label class="ant-radio-wrapper"><span class="ant-radio ant-radio-checked"><input type="radio" name="visibility" class="ant-radio-input" value="3" checked><span class="ant-radio-inner"></span></span><span>仅自己可见 - 仅当前账号可以查看和使用本题目</span></label>
+                  </div>
+                </span></div>
+              </div>
+            </div>
+
+            <!-- 底部按钮 -->
+            <div class="questionCard fotter">
+              <button type="button" class="ant-btn" onclick="toast('已取消')">取 消</button>
+              <button type="button" class="ant-btn ant-btn-primary" onclick="saveQ(0)">仅保存</button>
+              <button type="button" class="ant-btn ant-btn-primary" onclick="saveQ(2)">保存并提交</button>
+            </div>
+
+          </form>
+        </div>
+      </div>
+    </main>
+  </div>
+</div>
+
+<!-- 预览弹窗（学生端视图） -->
+<div class="ant-modal-wrap" id="previewModal" style="display:none;position:fixed;inset:0;background:rgba(0,0,0,.45);z-index:1000;display:none;">
+  <div class="ant-modal" style="position:absolute;left:50%;top:50%;transform:translate(-50%,-50%);width:640px;background:#fff;border-radius:4px;">
+    <div class="ant-modal-header" style="padding:16px 24px;border-bottom:1px solid #e8e8e8;"><div class="ant-modal-title" style="font-size:16px;font-weight:600;color:#323335;">题目预览（学生端）<span class="demo-badge">新增</span></div></div>
+    <div class="ant-modal-body" style="padding:24px;">
+      <div class="preview-stem">
+        <div class="stemTitle" id="pvTitle">例：程序输出判断</div>
+        <div style="margin-top:8px;" id="pvStem">题干内容预览……</div>
+        <div class="optionBox" id="pvOptions" style="margin-top:12px;"></div>
+        <div class="analysisBox" id="pvAnalysis" style="display:none;"></div>
+      </div>
+    </div>
+    <div class="ant-modal-footer" style="padding:10px 16px;border-top:1px solid #e8e8e8;text-align:right;">
+      <button type="button" class="ant-btn" onclick="closePreview()">关 闭</button>
+    </div>
+  </div>
+</div>
+
+<script>
+'use strict';
+/* ============ 数据 ============ */
+var CURRENT_TYPE = '';          // single/multi/judge/gap/oj/graphic/read/code/...
+var CURRENT_LANG = '';          // scratch/python/cpp/c
+var optionSeed = 0;
+var analysisImgs = [];
+
+/* 知识标签树（与线上 A02 分类一致） */
+var KP_TREE = {
+  scratch: { label: 'Scratch', children: [
+    { label: 'Scratch基础', children: ['添加角色','添加背景','运行/结束程序','IDE分区','基础按钮功能'] },
+    { label: '运动模块', children: ['滑行到和移到的区分','坐标','方向'] },
+    { label: '外观模块', children: ['说和说几秒的区分','思考和思考几秒的区分','造型切换','背景切换','图层','显示隐藏','特效','大小设置'] }
+  ]},
+  python: { label: 'Python', children: [
+    { label: 'Python基础', children: ['Python基础一级'] },
+    { label: 'Python进阶', children: ['Python进阶一级'] }
+  ]},
+  cpp: null,
+  c: null
+};
+
+/* 积木数据（与线上题目设置一致） */
+var BLOCKS = [
+  { key:'motion', name:'动作', color:'#4C97FF', cls:'b-motion', blocks:['移动 %1 步','右转 %1 度','左转 %1 度','移到 %1','移到 x: %1 y: %2','在 %1 秒内滑行到 %2','在 %1 秒内滑行到 x: %2 y: %3','面向 %1 方向','面向 %1','将x坐标增加 %1','将x坐标设为 %1','将y坐标增加 %1','将y坐标设为 %1','碰到边缘就反弹','将旋转方式设为 %1','x 坐标','y 坐标','方向'] },
+  { key:'looks', name:'外观', color:'#9966FF', cls:'b-looks', blocks:['说 %1 %2 秒','说 %1','思考 %1 %2 秒','思考 %1','换成 %1 背景','换成 %1 背景并等待','下一个背景','换成 %1 造型','下一个造型','将大小增加 %1','将大小设为 %1','将 %1 特效增加 %2','将 %1 特效设定为 %2','清除图形特效','显示','隐藏','移到最 前面|后面','前移|后移 %1 层','造型 编号|名称','背景 编号|名称','大小'] },
+  { key:'sound', name:'声音', color:'#CF63CF', cls:'b-sound', blocks:['播放声音 %1 等待播完','播放声音 %1','停止所有声音','将 %1 音效增加 %2','将 %1 音效设为 %2','清除音效','将音量增加 %1','将音量设为 %1','音量'] },
+  { key:'event', name:'事件', color:'#FFBF00', cls:'b-event', blocks:['当小绿旗被点击','当按下 %1 键','当舞台被点击','当角色被点击','当背景换成 %1','当 %1 > %2','当接收到 %1','广播 %1','广播 %1 并等待'] },
+  { key:'control', name:'控制', color:'#FFAB19', cls:'b-control', blocks:['等待 %1 秒','重复执行 %1 次','重复执行','如果 %1 那么','如果 %1 那么 否则','等待 %1','重复执行直到 %1','停止 1%','克隆 %1','删除此克隆体','当作为克隆体启动时'] },
+  { key:'sensing', name:'侦测', color:'#5CB1D6', cls:'b-sensing', blocks:['碰到 %1 ?','碰到颜色 %1 ?','颜色 %1 碰到 %2 ?','到 %1 的距离','询问 %1 并等待','回答','按下 %1 键?','按下鼠标?','鼠标的x坐标','鼠标的y坐标','将拖动模式设为 %1','响度','计时器','计时器归零','%2 的 %1','当前时间的 %1','2000年至今的天数','用户名'] },
+  { key:'operator', name:'运算', color:'#59C059', cls:'b-operator', blocks:['+','-','*','/','在 %1 和 %2 之间取随机数','>','<','=','与','或','%1 不成立','连接 %1 和 %2','%2 的第 %1 个字符','%1 的字符数','%1 包含 %2 ?','%1 除以 %2 的余数','四舍五入 %1','科学计算'] },
+  { key:'variable', name:'变量', color:'#FF8C1A', cls:'b-variable', blocks:['将 %1 设为 %2','将 %1 增加 %2','显示变量 %1','隐藏变量 %1'] },
+  { key:'more', name:'自制积木', color:'#FF6680', cls:'b-more', blocks:['定义 积木','使用 积木'] }
+];
+var disabledBlocks = {};  // key -> true 表示已移除到不可用
+var activeCat = 'all';
+
+/* ============ 工具 ============ */
+var toastTimer = null;
+function toast(msg) {
+  var t = document.getElementById('demoToast');
+  t.textContent = msg;
+  t.style.display = 'block';
+  if (toastTimer) clearTimeout(toastTimer);
+  toastTimer = setTimeout(function () { t.style.display = 'none'; }, 2200);
+}
+
+/* ============ ① 所属题库联动 ============ */
+function onLibToggle(val, el) {
+  // 线上为多选；此处切换 checkbox 视觉并联动 AISE级别
+  var cb = el.querySelector('input');
+  cb.checked = !cb.checked;
+  el.className = cb.checked ? 'ant-checkbox-wrapper ant-checkbox-wrapper-checked' : 'ant-checkbox-wrapper';
+  var aiseCb = document.querySelector('.ant-checkbox-group label:nth-child(3) input');
+  document.getElementById('aiseLevelItem').style.display = (aiseCb && aiseCb.checked) ? '' : 'none';
+}
+
+/* ============ ④ 题型切换 ============ */
+var TYPE_BLOCKS = {
+  single: ['optionArea'], multi: ['optionArea'], judge: ['optionArea'],
+  gap: [], read: [], code: [], practice: [], text2text: [], text2img: [], text2video: [], line: [], workflow: [],
+  oj: ['codeTypeItem','ojArea'], graphic: ['codeTypeItem','graphicArea']
+};
+var PROGRAM_TYPES = ['oj','graphic','code'];   // 编程类题型 → 显示编程语言+预览/测试
+var OPTION_TYPES = ['single','multi','judge'];
+
+function onTypeChange(el) {
+  var qts = document.querySelectorAll('.questionType');
+  for (var i = 0; i < qts.length; i++) qts[i].classList.remove('questionTypeActive');
+  el.classList.add('questionTypeActive');
+  CURRENT_TYPE = el.getAttribute('data-qt');
+
+  // 显隐各区块
+  var allBlocks = ['optionArea','codeTypeItem','ojArea','graphicArea'];
+  for (var b = 0; b < allBlocks.length; b++) {
+    document.getElementById(allBlocks[b]).style.display = 'none';
+  }
+  var show = TYPE_BLOCKS[CURRENT_TYPE] || [];
+  for (var s = 0; s < show.length; s++) {
+    document.getElementById(show[s]).style.display = '';
+  }
+  // 答案解析：编程OJ(oj) 线上隐藏（questionType != 6 && != 8 规则，8=OJ）
+  document.getElementById('analysisItem').style.display = (CURRENT_TYPE === 'oj') ? 'none' : '';
+  // 编程语言与预览/测试：仅编程类题型
+  var isProg = PROGRAM_TYPES.indexOf(CURRENT_TYPE) >= 0;
+  document.getElementById('langItem').style.display = isProg ? '' : 'none';
+  document.getElementById('previewTestItem').style.display = isProg ? '' : 'none';
+  if (!isProg) { CURRENT_LANG = ''; }
+  renderKpTree();
+  renderOptions();
+  updateCopyBtnState();
+}
+
+/* ============ ⑤ 知识标签树（联动编程语言） ============ */
+function onLangChange(el) {
+  CURRENT_LANG = el.value;
+  renderKpTree();
+}
+function renderKpTree() {
+  var dd = document.getElementById('kpDropdown');
+  var showAll = !CURRENT_LANG;
+  var html = '';
+  if (CURRENT_LANG && !KP_TREE[CURRENT_LANG]) {
+    html = '<div style="padding:12px 16px;color:#bfbfbf;font-size:13px;">该语言暂无知识标签</div>';
+  } else {
+    var keys = CURRENT_LANG ? [CURRENT_LANG] : ['scratch','python'];
+    for (var i = 0; i < keys.length; i++) {
+      var tree = KP_TREE[keys[i]];
+      if (!tree) continue;
+      html += '<div class="kp-cat" data-lang="' + keys[i] + '">' + tree.label + '</div>';
+      for (var j = 0; j < tree.children.length; j++) {
+        var cat = tree.children[j];
+        html += '<div class="kp-sub" style="padding-left:16px;">▸ ' + cat.label + '</div>';
+        for (var k = 0; k < cat.children.length; k++) {
+          html += '<div class="kp-opt" style="padding-left:32px;" onclick="pickKp(this)">' + cat.children[k] + '</div>';
+        }
+      }
+    }
+  }
+  dd.innerHTML = html;
+}
+function toggleKpDropdown(e) {
+  e.stopPropagation();
+  var dd = document.getElementById('kpDropdown');
+  dd.style.display = dd.style.display === 'none' ? 'block' : 'none';
+}
+function pickKp(el) {
+  var ph = document.getElementById('kpPlaceholder');
+  ph.textContent = el.textContent;
+  ph.style.color = '#323335';
+  document.getElementById('kpDropdown').style.display = 'none';
+}
+document.addEventListener('click', function () {
+  document.getElementById('kpDropdown').style.display = 'none';
+  document.getElementById('codeTypeDropdown').style.display = 'none';
+});
+
+/* ============ 代码类型 ============ */
+function toggleCodeType() { var d = document.getElementById('codeTypeDropdown'); d.style.display = d.style.display === 'none' ? 'block' : 'none'; }
+function pickCodeType(v) {
+  var ph = document.getElementById('codeTypePlaceholder');
+  ph.textContent = v; ph.style.color = '#323335';
+  document.getElementById('codeTypeDropdown').style.display = 'none';
+}
+
+/* ============ ⑧ 一键复制题干/选项（新增） ============ */
+function getStemText() {
+  var ed = document.getElementById('stemEditor');
+  var txt = ed.innerText.replace(/\u00a0/g, ' ').trim();
+  if (!txt) return '';
+  // 图片占位
+  txt = txt.replace(/\[图片[^\]]*\]/g, '[图片]');
+  return txt;
+}
+function getOptions() {
+  var opts = [];
+  var items = document.querySelectorAll('#optionList .opt-row');
+  var letters = ['A','B','C','D','E','F','G','H'];
+  for (var i = 0; i < items.length; i++) {
+    var v = items[i].querySelector('input').value.trim();
+    if (v) opts.push(letters[i] + '、' + v);
+  }
+  return opts;
+}
+function copyStem() {
+  var txt = getStemText();
+  if (!txt) { toast('题干为空，请先填写题干'); return; }
+  copyToClipboard(txt, '已复制题干文本');
+}
+function copyOptions() {
+  if (OPTION_TYPES.indexOf(CURRENT_TYPE) < 0) { toast('本题型无选项，无法复制'); return; }
+  var opts = getOptions();
+  if (!opts.length) { toast('暂无选项内容'); return; }
+  copyToClipboard(opts.join('\n'), '已复制选项文本');
+}
+function copyToClipboard(text, msg) {
+  if (navigator.clipboard && navigator.clipboard.writeText) {
+    navigator.clipboard.writeText(text).then(function () { toast(msg + '：' + text.replace(/\n/g,' / ')); })
+      .catch(function () { fallbackCopy(text, msg); });
+  } else { fallbackCopy(text, msg); }
+}
+function fallbackCopy(text, msg) {
+  var ta = document.createElement('textarea');
+  ta.value = text; document.body.appendChild(ta); ta.select();
+  try { document.execCommand('copy'); toast(msg); } catch (e) { toast('复制失败，请手动复制'); }
+  document.body.removeChild(ta);
+}
+function updateCopyBtnState() {
+  var btn = document.getElementById('copyOptionBtn');
+  var disabled = OPTION_TYPES.indexOf(CURRENT_TYPE) < 0;
+  btn.style.opacity = disabled ? '0.4' : '1';
+  btn.style.cursor = disabled ? 'not-allowed' : 'pointer';
+  btn.title = disabled ? '本题无选项' : '按 A、xxx 格式复制选项文本';
+}
+
+/* ============ ⑭ 选项编辑 ============ */
+function renderOptions() {
+  var list = document.getElementById('optionList');
+  if (OPTION_TYPES.indexOf(CURRENT_TYPE) < 0) { list.innerHTML = ''; return; }
+  if (list.children.length) return;
+  addOption(); addOption(); addOption(); addOption();
+}
+function addOption() {
+  var list = document.getElementById('optionList');
+  var letters = ['A','B','C','D','E','F','G','H'];
+  var idx = list.children.length;
+  if (idx >= letters.length) { toast('最多支持 8 个选项'); return; }
+  var row = document.createElement('div');
+  row.className = 'opt-row';
+  row.style.cssText = 'display:flex;align-items:center;gap:8px;margin-bottom:8px;';
+  row.innerHTML = '<span style="width:24px;height:24px;border-radius:50%;background:#F4F4F5;color:#323335;text-align:center;line-height:24px;font-size:13px;">' + letters[idx] + '</span>' +
+    '<input type="text" class="ant-input" placeholder="选项内容" style="flex:1;">' +
+    '<label class="ant-checkbox-wrapper" style="white-space:nowrap;"><span class="ant-checkbox"><input type="checkbox" class="ant-checkbox-input" ' + (CURRENT_TYPE==='judge' && idx===0 ? 'checked' : '') + '><span class="ant-checkbox-inner"></span></span><span>正确答案</span></label>' +
+    '<span style="color:#bfbfbf;cursor:pointer;" onclick="delOption(this)">✕</span>';
+  list.appendChild(row);
+}
+function delOption(el) {
+  el.parentNode.parentNode.removeChild(el.parentNode);
+}
+
+/* ============ ⑨ 答案解析图片上传（新增） ============ */
+function onAnalysisImgUpload(input) {
+  var files = Array.prototype.slice.call(input.files || []);
+  for (var i = 0; i < files.length; i++) {
+    var f = files[i];
+    var ext = (f.name.split('.').pop() || '').toLowerCase();
+    if (['png','jpg','jpeg','gif','webp'].indexOf(ext) < 0) { toast('不支持的图片格式：' + f.name); continue; }
+    if (f.size > 5 * 1024 * 1024) { toast('图片超过 5MB：' + f.name); continue; }
+    var reader = new FileReader();
+    reader.onload = (function (name) {
+      return function (e) {
+        analysisImgs.push({ name: name, data: e.target.result });
+        renderAnalysisImgs();
+        toast('图片已上传：' + name);
+      };
+    })(f.name);
+    reader.readAsDataURL(f);
+  }
+  input.value = '';
+}
+function renderAnalysisImgs() {
+  var box = document.getElementById('analysisImgs');
+  var html = '';
+  for (var i = 0; i < analysisImgs.length; i++) {
+    html += '<div class="img-item"><img src="' + analysisImgs[i].data + '" alt="' + analysisImgs[i].name + '">' +
+      '<span class="del" onclick="delAnalysisImg(' + i + ')">✕</span></div>';
+  }
+  box.innerHTML = html;
+}
+function delAnalysisImg(i) {
+  analysisImgs.splice(i, 1);
+  renderAnalysisImgs();
+  toast('已删除图片');
+}
+
+/* ============ ⑪ 预览/测试（新增） ============ */
+function openPreview() {
+  var title = document.getElementById('qNameInput').value.trim() || '例：程序输出判断';
+  var stem = getStemText() || '（题干预览：请在题干编辑器中输入内容）';
+  document.getElementById('pvTitle').textContent = title;
+  document.getElementById('pvStem').textContent = stem;
+  var pvOpts = document.getElementById('pvOptions');
+  if (OPTION_TYPES.indexOf(CURRENT_TYPE) >= 0) {
+    var opts = getOptions();
+    var html = '';
+    var letters = ['A','B','C','D','E','F','G','H'];
+    for (var i = 0; i < opts.length; i++) html += '<div>' + opts[i] + '</div>';
+    pvOpts.innerHTML = html || '<div style="color:#bfbfbf;">（暂无选项）</div>';
+    pvOpts.style.display = '';
+  } else { pvOpts.style.display = 'none'; }
+  var an = document.getElementById('analysisText').value.trim();
+  var pvAn = document.getElementById('pvAnalysis');
+  if (an || analysisImgs.length) {
+    var ah = '<b>答案解析：</b>' + (an || '');
+    for (var j = 0; j < analysisImgs.length; j++) ah += '<div style="margin-top:8px;"><img src="' + analysisImgs[j].data + '" style="max-width:200px;border-radius:4px;"></div>';
+    pvAn.innerHTML = ah;
+    pvAn.style.display = '';
+  } else { pvAn.style.display = 'none'; }
+  document.getElementById('previewModal').style.display = '';
+}
+function closePreview() { document.getElementById('previewModal').style.display = 'none'; }
+function openTest() {
+  // 线上真实行为：新页面打开图形化编程操作页（Scratch 编辑器）
+  window.open('/scratch3/index.html?scene=create&role=teacher', '_blank');
+  toast('已打开图形化编程操作页（新窗口）');
+}
+
+/* ============ ⑬ 积木区 ============ */
+function renderBlockCats() {
+  var box = document.getElementById('blockCats');
+  var html = '<div class="graphicLi' + (activeCat === 'all' ? ' active' : '') + '" onclick="setActiveCat(\'all\')"><span class="dot" style="background:#999;"></span>全部</div>';
+  for (var i = 0; i < BLOCKS.length; i++) {
+    html += '<div class="graphicLi' + (activeCat === BLOCKS[i].key ? ' active' : '') + '" onclick="setActiveCat(\'' + BLOCKS[i].key + '\')"><span class="dot" style="background:' + BLOCKS[i].color + ';"></span>' + BLOCKS[i].name + '</div>';
+  }
+  box.innerHTML = html;
+  renderBlocks();
+}
+function setActiveCat(key) { activeCat = key; renderBlockCats(); }
+function renderBlocks() {
+  var box = document.getElementById('blockList');
+  var html = '';
+  var cats = activeCat === 'all' ? BLOCKS : BLOCKS.filter(function (b) { return b.key === activeCat; });
+  for (var i = 0; i < cats.length; i++) {
+    var c = cats[i];
+    var avail = c.blocks.filter(function (b) { return !disabledBlocks[c.key + '|' + b]; });
+    html += '<p class="block-cat-title">' + c.name + '</p><div class="blocks-row">';
+    for (var j = 0; j < avail.length; j++) {
+      html += '<span class="graphicBlock ' + c.cls + '">' + c.blocks[j] + '<span class="blk-del" title="移入不可用" onclick="disableBlock(\'' + c.key + '|' + escapeHtml(c.blocks[j]) + '\')">✕</span></span>';
+    }
+    html += '</div>';
+  }
+  // 不可用积木
+  var dis = [];
+  for (var key in disabledBlocks) {
+    if (disabledBlocks[key]) {
+      var parts = key.split('|'); dis.push({ cat: parts[0], name: parts.slice(1).join('|') });
+    }
+  }
+  if (dis.length) {
+    html += '<p class="block-cat-title">不可用积木</p><div class="blocks-row">';
+    for (var d = 0; d < dis.length; d++) {
+      var cat = BLOCKS.filter(function (b) { return b.key === dis[d].cat; })[0] || { cls: 'b-motion' };
+      html += '<span class="graphicBlock ' + cat.cls + '" style="opacity:.45;">' + dis[d].name + '<span class="blk-del" title="恢复可用" onclick="enableBlock(\'' + dis[d].cat + '|' + escapeHtml(dis[d].name) + '\')">↺</span></span>';
+    }
+    html += '</div>';
+  }
+  box.innerHTML = html || '<p class="p1" style="color:#bfbfbf;">该分类暂无积木</p>';
+}
+function disableBlock(key) { disabledBlocks[key] = true; renderBlocks(); }
+function enableBlock(key) { disabledBlocks[key] = false; renderBlocks(); }
+function selectAllBlocks(all) {
+  for (var key in disabledBlocks) disabledBlocks[key] = all ? false : true;
+  if (all) {
+    // 全选=无禁用
+    disabledBlocks = {};
+  } else {
+    for (var i = 0; i < BLOCKS.length; i++)
+      for (var j = 0; j < BLOCKS[i].blocks.length; j++) disabledBlocks[BLOCKS[i].key + '|' + BLOCKS[i].blocks[j]] = true;
+  }
+  renderBlocks();
+  toast(all ? '已全选积木' : '已清空积木（全部移入不可用）');
+}
+function escapeHtml(s) { return s.replace(/'/g, '\\u0027').replace(/"/g, '&quot;'); }
+
+/* ============ 保存 ============ */
+function saveQ(flag) {
+  var aiseCb = document.querySelector('.ant-checkbox-group label:nth-child(3) input');
+  if (!aiseCb || !aiseCb.checked) { toast('请至少选择一个所属题库！'); return; }
+  var aiseLevel = document.querySelector('input[name="aiseLevel"]:checked');
+  if (aiseCb.checked && !aiseLevel) { toast('请选择 AISE 级别'); return; }
+  if (CURRENT_TYPE === '') { toast('请选择题目类型'); return; }
+  if (PROGRAM_TYPES.indexOf(CURRENT_TYPE) >= 0 && !CURRENT_LANG) { toast('请选择编程语言'); return; }
+  if (OPTION_TYPES.indexOf(CURRENT_TYPE) >= 0) {
+    var opts = getOptions();
+    if (opts.length < 2) { toast('请至少填写两个选项'); return; }
+  }
+  toast(flag === 0 ? '✅ 已保存（演示）' : '✅ 已保存并提交（演示）');
+}
+
+/* ============ 初始化 ============ */
+renderBlockCats();
+renderKpTree();
+updateCopyBtnState();
+</script>
+</body>
 </html>
