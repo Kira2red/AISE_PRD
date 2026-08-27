@@ -272,6 +272,11 @@
                     </div>
                 </div>
                 <div>
+                    <label class="block text-xs font-bold text-slate-500 mb-2">测评描述 <span class="text-slate-400 font-normal">(选填)</span></label>
+                    <textarea rows="2" placeholder="请输入测评描述"
+                        class="w-full px-3 py-2 rounded-lg border border-slate-200 text-xs outline-none focus:border-brand-500 resize-none bg-white"></textarea>
+                </div>
+                <div>
                     <div class="flex items-center justify-between mb-2"><label class="text-xs font-bold text-slate-500">模拟考配置</label>
                         <label class="relative inline-flex items-center cursor-pointer"><input type="checkbox" class="sr-only peer" checked onchange="document.getElementById('mock-sub').classList.toggle('hidden',!this.checked)"><div class="w-9 h-5 bg-brand-600 rounded-full peer after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:rounded-full after:h-4 after:w-4 after:transition-all peer-checked:after:translate-x-full"></div><span class="ml-2 text-xs font-medium text-slate-600">开启</span></label></div>
                     <div id="mock-sub" class="bg-purple-50/50 p-4 rounded-xl border border-purple-100 space-y-3">
