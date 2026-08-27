@@ -385,7 +385,7 @@ html, body { margin: 0; padding: 0; background: #fff; font-family: -apple-system
                     <div class="ant-form-item-control"><span class="ant-form-item-children">
                       <button type="button" class="ant-btn" onclick="openPreview()">👁 预览</button>
                       <button type="button" class="ant-btn ant-btn-primary" onclick="openTest()" style="margin-left:8px;">⚙ 测试</button>
-                      <span class="upload-hint" style="display:inline-block;margin-left:12px;margin-top:0;">测试将打开编程题答题页（学生端答题体验）</span>
+                      <span class="upload-hint" id="testHint" style="display:inline-block;margin-left:12px;margin-top:0;">测试将打开编程题答题页（学生端答题体验）</span>
                     </span></div>
                   </div>
                 </div>
@@ -550,25 +550,56 @@ html, body { margin: 0; padding: 0; background: #fff; font-family: -apple-system
 </div>
 
 <!-- 测试弹窗（学生端答题页模拟：线上对应 /examine 答题页） -->
-<div class="ant-modal-wrap" id="testModal" style="display:none;position:fixed;inset:0;background:rgba(0,0,0,.45);z-index:2000;" onclick="if(event.target===this)closeTest()">
-  <div class="ant-modal" style="position:absolute;left:50%;top:50%;transform:translate(-50%,-50%);width:720px;background:#fff;border-radius:4px;">
+<div class="ant-modal-wrap" id="blockPreviewModal" style="display:none;position:fixed;inset:0;background:rgba(0,0,0,.45);z-index:2000;" onclick="if(event.target===this)closeBlockPreview()">
+  <div class="ant-modal" style="position:absolute;left:50%;top:50%;transform:translate(-50%,-50%);width:760px;background:#fff;border-radius:4px;">
     <div class="ant-modal-header" style="padding:16px 24px;border-bottom:1px solid #e8e8e8;display:flex;justify-content:space-between;align-items:center;">
-      <div class="ant-modal-title" style="font-size:16px;font-weight:600;color:#323335;">编程题测试（学生端答题页）</div>
-      <span style="cursor:pointer;color:#969AA0;font-size:18px;line-height:1;" onclick="closeTest()">✕</span>
+      <div class="ant-modal-title" style="font-size:16px;font-weight:600;color:#323335;">预览预置积木（学生端可用积木）</div>
+      <span style="cursor:pointer;color:#969AA0;font-size:18px;line-height:1;" onclick="closeBlockPreview()">✕</span>
     </div>
-    <div class="ant-modal-body" style="padding:24px;">
+    <div class="ant-modal-body" style="padding:24px;max-height:70vh;overflow-y:auto;">
       <div class="preview-stem">
-        <div class="stemTitle" id="tvTitle">例：程序输出判断</div>
-        <div style="margin-top:8px;" id="tvStem">题干内容……</div>
-        <div style="margin-top:16px;border:1px solid #d9d9d9;border-radius:4px;background:#F9FAFB;padding:12px;text-align:center;color:#64666B;font-size:13px;">
-          作答区（编程环境）<br><span id="tvAnswerArea" style="color:#bfbfbf;">图形化编程：Scratch 积木编辑区 / 代码题：代码编辑器</span>
-        </div>
-        <div class="upload-hint" style="margin-top:8px;">线上对应页面：学生端答题页（/examine 路由），测试提交后按题型自动批改（客观题）或进入批改（主观题）</div>
+        <div class="stemTitle" id="bpTitle">例：程序输出判断</div>
+        <div style="margin-top:8px;" id="bpStem">题干内容……</div>
+        <div style="margin-top:16px;border:1px solid #ccc;border-radius:10px;padding:10px 15px;max-height:300px;overflow-y:auto;" id="bpBlockList"></div>
+        <div class="upload-hint" style="margin-top:8px;">学生端答题时 Scratch 编辑器仅提供以上积木；配置请到「题目设置」区调整</div>
       </div>
     </div>
     <div class="ant-modal-footer" style="padding:10px 16px;border-top:1px solid #e8e8e8;text-align:right;">
-      <button type="button" class="ant-btn ant-btn-primary" onclick="toast('✅ 已提交测试答卷（演示）')">提交测试</button>
-      <button type="button" class="ant-btn" onclick="closeTest()">关 闭</button>
+      <button type="button" class="ant-btn" onclick="closeBlockPreview()">关 闭</button>
+    </div>
+  </div>
+</div>
+<div class="ant-modal-wrap" id="judgeModal" style="display:none;position:fixed;inset:0;background:rgba(0,0,0,.45);z-index:2000;" onclick="if(event.target===this)closeJudge()">
+  <div class="ant-modal" style="position:absolute;left:50%;top:50%;transform:translate(-50%,-50%);width:760px;background:#fff;border-radius:4px;">
+    <div class="ant-modal-header" style="padding:16px 24px;border-bottom:1px solid #e8e8e8;display:flex;justify-content:space-between;align-items:center;">
+      <div class="ant-modal-title" style="font-size:16px;font-weight:600;color:#323335;">判分自测（测试用例得分情况）</div>
+      <span style="cursor:pointer;color:#969AA0;font-size:18px;line-height:1;" onclick="closeJudge()">✕</span>
+    </div>
+    <div class="ant-modal-body" style="padding:24px;">
+      <div class="preview-stem">
+        <div class="stemTitle" id="jdTitle">例：程序输出判断</div>
+        <div style="margin-top:8px;" id="jdStem">题干内容……</div>
+        <div id="jdStatus" style="margin-top:16px;border:1px solid #d9d9d9;border-radius:4px;background:#F9FAFB;padding:24px;text-align:center;color:#64666B;font-size:13px;">
+          ⏳ 判分中，正在运行参考答案与测试用例……
+        </div>
+        <div id="jdResult" style="display:none;margin-top:16px;">
+          <table class="ant-table">
+            <thead><tr><th style="width:8%;" class="ta-center">编号</th><th style="width:20%;">输入</th><th style="width:20%;">预期输出</th><th style="width:20%;">实际输出</th><th style="width:16%;" class="ta-center">结果</th><th style="width:16%;" class="ta-center">得分</th></tr></thead>
+            <tbody>
+              <tr><td class="ta-center">1</td><td>5 3</td><td>8</td><td>8</td><td class="ta-center"><span style="color:#00943E;">✓ 通过</span></td><td class="ta-center">10</td></tr>
+              <tr><td class="ta-center">2</td><td>10 20</td><td>30</td><td>30</td><td class="ta-center"><span style="color:#00943E;">✓ 通过</span></td><td class="ta-center">10</td></tr>
+              <tr><td class="ta-center">3</td><td>0 0</td><td>0</td><td>0</td><td class="ta-center"><span style="color:#00943E;">✓ 通过</span></td><td class="ta-center">10</td></tr>
+              <tr><td class="ta-center">4</td><td>-1 5</td><td>4</td><td>3</td><td class="ta-center"><span style="color:#E34949;">✗ 失败</span></td><td class="ta-center">0</td></tr>
+            </tbody>
+          </table>
+          <div style="margin-top:12px;font-size:13px;color:#323335;text-align:right;">通过 3 / 4 条，总分 <b style="color:#2A55E5;">30</b> / 40</div>
+          <div class="upload-hint" style="margin-top:6px;">判分依据：已上传的参考答案文件 + 题目测试用例（输入/预期输出/分值）；失败用例请检查参考答案或用例配置</div>
+        </div>
+      </div>
+    </div>
+    <div class="ant-modal-footer" style="padding:10px 16px;border-top:1px solid #e8e8e8;text-align:right;">
+      <button type="button" class="ant-btn ant-btn-primary" onclick="openJudgeTest()">重新判分</button>
+      <button type="button" class="ant-btn" onclick="closeJudge()">关 闭</button>
     </div>
   </div>
 </div>
@@ -657,6 +688,13 @@ function onTypeChange(el) {
   var isProg = PROGRAM_TYPES.indexOf(CURRENT_TYPE) >= 0;
   document.getElementById('langItem').style.display = isProg ? '' : 'none';
   document.getElementById('previewTestItem').style.display = isProg ? '' : 'none';
+  if (isProg) {
+    // 测试按钮提示（2026-08-27 运营口径）：图形化=预览预置积木；代码题=判分自测
+    var hint = document.getElementById('testHint');
+    hint.textContent = (CURRENT_TYPE === 'graphic')
+      ? '图形化：预览学生端可用积木范围（无判分）'
+      : '代码题：按测试用例判分，查看每个用例得分情况';
+  }
   if (!isProg) { CURRENT_LANG = ''; }
   renderKpTree();
   renderOptions();
@@ -843,16 +881,47 @@ function openPreview() {
 }
 function closePreview() { document.getElementById('previewModal').style.display = 'none'; }
 function openTest() {
-  // 测试 = 打开编程题答题页（学生端答题体验）。线上对应路由 /examine（学生答题页），
-  // 图形化编程题在答题页中以 Scratch 编辑器作答，代码题以代码编辑器作答。
-  var title = document.getElementById('qNameInput').value.trim() || '例：程序输出判断';
-  document.getElementById('tvTitle').textContent = title;
-  document.getElementById('tvStem').textContent = getStemText() || '（题干预览：请在题干编辑器中输入内容）';
-  var area = document.getElementById('tvAnswerArea');
-  area.textContent = CURRENT_TYPE === 'graphic' ? '图形化编程：Scratch 积木编辑区（答题页 /examine 内嵌 Scratch 编辑器）' : '代码题：代码编辑器（答题页 /examine）';
-  document.getElementById('testModal').style.display = '';
+  // 按题型分叉（2026-08-27 运营口径）：
+  // 图形化编程 → 预览预置积木（学生端可用积木范围，无判分）
+  // 编程OJ/编程（代码题）→ 判分自测（按测试用例逐条判分，老师查看每个用例得分）
+  if (CURRENT_TYPE === 'graphic') { openBlockPreview(); }
+  else { openJudgeTest(); }
 }
-function closeTest() { document.getElementById('testModal').style.display = 'none'; }
+function openBlockPreview() {
+  var title = document.getElementById('qNameInput').value.trim() || '例：程序输出判断';
+  document.getElementById('bpTitle').textContent = title;
+  document.getElementById('bpStem').textContent = getStemText() || '（题干预览：请在题干编辑器中输入内容）';
+  var box = document.getElementById('bpBlockList');
+  var html = '';
+  for (var i = 0; i < BLOCKS.length; i++) {
+    var c = BLOCKS[i];
+    var avail = c.blocks.filter(function (b) { return !disabledBlocks[c.key + '|' + b]; });
+    if (!avail.length) continue;
+    html += '<div class="txList"><p class="p2">' + c.name + '</p><div class="blocks-row">';
+    for (var j = 0; j < avail.length; j++) {
+      html += '<span class="custom-button ' + c.cls + '">' + avail[j] + '</span>';
+    }
+    html += '</div></div>';
+  }
+  box.innerHTML = html || '<div style="color:#bfbfbf;text-align:center;padding:24px;">暂无可用的积木（题目设置中未配置）</div>';
+  document.getElementById('blockPreviewModal').style.display = '';
+}
+function closeBlockPreview() { document.getElementById('blockPreviewModal').style.display = 'none'; }
+function openJudgeTest() {
+  var title = document.getElementById('qNameInput').value.trim() || '例：程序输出判断';
+  document.getElementById('jdTitle').textContent = title;
+  document.getElementById('jdStem').textContent = getStemText() || '（题干预览：请在题干编辑器中输入内容）';
+  document.getElementById('jdStatus').style.display = '';
+  document.getElementById('jdResult').style.display = 'none';
+  document.getElementById('judgeModal').style.display = '';
+  clearTimeout(window._jdTimer);
+  window._jdTimer = setTimeout(showJudgeResult, 900);
+}
+function showJudgeResult() {
+  document.getElementById('jdStatus').style.display = 'none';
+  document.getElementById('jdResult').style.display = '';
+}
+function closeJudge() { clearTimeout(window._jdTimer); document.getElementById('judgeModal').style.display = 'none'; }
 
 /* ============ 积木区（线上三栏） ============ */
 function renderBlockCats() {
