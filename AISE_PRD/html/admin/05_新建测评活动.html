@@ -51,6 +51,44 @@
             background-color: #f8fafc;
         }
 
+        /* 监考配置 分段选择器 */
+        .seg {
+            display: inline-flex;
+            border: 1px solid #cbd5e1;
+            border-radius: 8px;
+            overflow: hidden;
+            background: #fff;
+        }
+        .seg-item {
+            display: inline-flex;
+            align-items: center;
+            cursor: pointer;
+            margin: 0;
+        }
+        .seg-item + .seg-item {
+            border-left: 1px solid #cbd5e1;
+        }
+        .seg-item span {
+            display: inline-block;
+            padding: 5px 14px;
+            font-size: 12px;
+            color: #475569;
+            background: #fff;
+            transition: all .15s ease;
+        }
+        .seg-item input {
+            position: absolute;
+            opacity: 0;
+            pointer-events: none;
+        }
+        .seg-item input:not(:checked) + span:hover {
+            background: #eff6ff;
+        }
+        .seg-item input:checked + span {
+            background: #2563eb;
+            color: #fff;
+        }
+
         /* Modal Animation */
         .modal-enter {
             animation: modalFadeIn 0.2s ease-out forwards;
@@ -474,6 +512,88 @@
                             </div>
                         </div>
                     </div>
+                </div>
+
+                <div>
+                    <label class="block text-xs font-bold text-slate-500 mb-3">
+                        <i class="fa-solid fa-shield-halved text-brand-500 mr-1"></i> 监考配置
+                    </label>
+                    <div class="bg-slate-50/80 border border-slate-200 rounded-xl p-4">
+                        <div class="grid grid-cols-2 gap-x-6 gap-y-4">
+                            <div>
+                                <label class="block text-[10px] font-bold text-slate-500 mb-1.5"><span class="text-red-500">*</span> 摄像头监考</label>
+                                <div class="seg">
+                                    <label class="seg-item"><input type="radio" name="inv-cam" checked><span>强制开启</span></label>
+                                    <label class="seg-item"><input type="radio" name="inv-cam"><span>非强制开启</span></label>
+                                    <label class="seg-item"><input type="radio" name="inv-cam"><span>不开启</span></label>
+                                </div>
+                            </div>
+                            <div>
+                                <label class="block text-[10px] font-bold text-slate-500 mb-1.5"><span class="text-red-500">*</span> 录屏监考</label>
+                                <div class="seg">
+                                    <label class="seg-item"><input type="radio" name="inv-rec" checked><span>强制开启</span></label>
+                                    <label class="seg-item"><input type="radio" name="inv-rec"><span>非强制开启</span></label>
+                                    <label class="seg-item"><input type="radio" name="inv-rec"><span>不开启</span></label>
+                                </div>
+                            </div>
+                            <div>
+                                <label class="block text-[10px] font-bold text-slate-500 mb-1.5">手机监考</label>
+                                <div class="seg">
+                                    <label class="seg-item"><input type="radio" name="inv-phone"><span>开启</span></label>
+                                    <label class="seg-item"><input type="radio" name="inv-phone" checked><span>关闭</span></label>
+                                </div>
+                            </div>
+                            <div>
+                                <label class="block text-[10px] font-bold text-slate-500 mb-1.5">检录照片</label>
+                                <div class="seg">
+                                    <label class="seg-item"><input type="radio" name="inv-reg"><span>强制开启</span></label>
+                                    <label class="seg-item"><input type="radio" name="inv-reg" checked><span>非强制开启</span></label>
+                                    <label class="seg-item"><input type="radio" name="inv-reg"><span>不开启</span></label>
+                                </div>
+                            </div>
+                            <div>
+                                <label class="block text-[10px] font-bold text-slate-500 mb-1.5">成绩开关</label>
+                                <div class="seg">
+                                    <label class="seg-item"><input type="radio" name="inv-score" checked><span>开启</span></label>
+                                    <label class="seg-item"><input type="radio" name="inv-score"><span>关闭</span></label>
+                                </div>
+                            </div>
+                            <div>
+                                <label class="block text-[10px] font-bold text-slate-500 mb-1.5">分数开关</label>
+                                <div class="seg">
+                                    <label class="seg-item"><input type="radio" name="inv-frac" checked><span>开启</span></label>
+                                    <label class="seg-item"><input type="radio" name="inv-frac"><span>关闭</span></label>
+                                </div>
+                            </div>
+                            <div>
+                                <label class="block text-[10px] font-bold text-slate-500 mb-1.5">读题开关</label>
+                                <div class="seg">
+                                    <label class="seg-item"><input type="radio" name="inv-tts" checked><span>开启</span></label>
+                                    <label class="seg-item"><input type="radio" name="inv-tts"><span>关闭</span></label>
+                                </div>
+                            </div>
+                            <div>
+                                <label class="block text-[10px] font-bold text-slate-500 mb-1.5">候考时长</label>
+                                <div class="flex items-center gap-2">
+                                    <input type="number" min="0" max="120" placeholder="0"
+                                        class="w-20 px-3 py-2 rounded-lg border border-slate-200 text-xs outline-none focus:border-brand-500 bg-white">
+                                    <span class="text-xs text-slate-500">分钟</span>
+                                </div>
+                                <p class="text-[10px] text-slate-400 mt-1">留空或 0 = 不开启候考；上限 120 分钟</p>
+                            </div>
+                            <div class="col-span-2">
+                                <label class="block text-[10px] font-bold text-slate-500 mb-1.5">检录视频引导文案</label>
+                                <textarea rows="2" placeholder="不填写则使用系统默认引导文案"
+                                    class="w-full px-3 py-2 rounded-lg border border-slate-200 text-xs outline-none focus:border-brand-500 resize-none bg-white"></textarea>
+                            </div>
+                            <div class="col-span-2">
+                                <label class="block text-[10px] font-bold text-slate-500 mb-1.5">检录视频示意图</label>
+                                <button type="button" onclick="alert('Demo：唤起文件选择')"
+                                    class="w-full h-10 rounded-lg border-2 border-dashed border-slate-300 bg-white text-xs text-slate-400 hover:border-brand-400 hover:text-brand-600 transition">＋ 检录视频示意图上传（不传则使用系统默认示意图）</button>
+                            </div>
+                        </div>
+                    </div>
+                    <p class="text-[11px] text-slate-500 mt-2"><i class="fa-solid fa-circle-info mr-1"></i> 监考配置随考试自动创建一并下发爱测评，模拟考携带相同监考配置。</p>
                 </div>
 
                 <div>

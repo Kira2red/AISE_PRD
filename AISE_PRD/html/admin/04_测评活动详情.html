@@ -36,6 +36,15 @@
             width: 4px; height: 24px; background-color: #3b82f6; border-radius: 0 4px 4px 0;
         }
         tr.hover-row:hover td { background-color: #f8fafc; }
+
+        /* 监考配置 分段选择器 */
+        .seg { display: inline-flex; border: 1px solid #cbd5e1; border-radius: 8px; overflow: hidden; background: #fff; }
+        .seg-item { display: inline-flex; align-items: center; cursor: pointer; margin: 0; }
+        .seg-item + .seg-item { border-left: 1px solid #cbd5e1; }
+        .seg-item span { display: inline-block; padding: 5px 14px; font-size: 12px; color: #475569; background: #fff; transition: all .15s ease; }
+        .seg-item input { position: absolute; opacity: 0; pointer-events: none; }
+        .seg-item input:not(:checked) + span:hover { background: #eff6ff; }
+        .seg-item input:checked + span { background: #2563eb; color: #fff; }
         
         /* Modal Animation */
         .modal-enter { animation: modalFadeIn 0.2s ease-out forwards; }
@@ -272,6 +281,87 @@
                             <div class="flex items-center gap-4"><label class="flex items-center gap-2 cursor-pointer"><input type="radio" name="mock-limit" class="accent-purple-600" checked><span class="text-xs text-slate-700">无限次（默认）</span></label><label class="flex items-center gap-2 cursor-pointer"><input type="radio" name="mock-limit" class="accent-purple-600"><span class="text-xs text-slate-700">自定义</span><input type="number" class="w-16 px-2 py-1 rounded border border-slate-200 text-xs outline-none" placeholder="次数"></label></div>
                         </div>
                     </div>
+                </div>
+                <div>
+                    <label class="block text-xs font-bold text-slate-500 mb-3">
+                        <i class="fa-solid fa-shield-halved text-brand-500 mr-1"></i> 监考配置
+                    </label>
+                    <div class="bg-slate-50/80 border border-slate-200 rounded-xl p-4">
+                        <div class="grid grid-cols-2 gap-x-6 gap-y-4">
+                            <div>
+                                <label class="block text-[10px] font-bold text-slate-500 mb-1.5"><span class="text-red-500">*</span> 摄像头监考</label>
+                                <div class="seg">
+                                    <label class="seg-item"><input type="radio" name="edit-cam" checked><span>强制开启</span></label>
+                                    <label class="seg-item"><input type="radio" name="edit-cam"><span>非强制开启</span></label>
+                                    <label class="seg-item"><input type="radio" name="edit-cam"><span>不开启</span></label>
+                                </div>
+                            </div>
+                            <div>
+                                <label class="block text-[10px] font-bold text-slate-500 mb-1.5"><span class="text-red-500">*</span> 录屏监考</label>
+                                <div class="seg">
+                                    <label class="seg-item"><input type="radio" name="edit-rec" checked><span>强制开启</span></label>
+                                    <label class="seg-item"><input type="radio" name="edit-rec"><span>非强制开启</span></label>
+                                    <label class="seg-item"><input type="radio" name="edit-rec"><span>不开启</span></label>
+                                </div>
+                            </div>
+                            <div>
+                                <label class="block text-[10px] font-bold text-slate-500 mb-1.5">手机监考</label>
+                                <div class="seg">
+                                    <label class="seg-item"><input type="radio" name="edit-phone"><span>开启</span></label>
+                                    <label class="seg-item"><input type="radio" name="edit-phone" checked><span>关闭</span></label>
+                                </div>
+                            </div>
+                            <div>
+                                <label class="block text-[10px] font-bold text-slate-500 mb-1.5">检录照片</label>
+                                <div class="seg">
+                                    <label class="seg-item"><input type="radio" name="edit-reg"><span>强制开启</span></label>
+                                    <label class="seg-item"><input type="radio" name="edit-reg" checked><span>非强制开启</span></label>
+                                    <label class="seg-item"><input type="radio" name="edit-reg"><span>不开启</span></label>
+                                </div>
+                            </div>
+                            <div>
+                                <label class="block text-[10px] font-bold text-slate-500 mb-1.5">成绩开关</label>
+                                <div class="seg">
+                                    <label class="seg-item"><input type="radio" name="edit-score" checked><span>开启</span></label>
+                                    <label class="seg-item"><input type="radio" name="edit-score"><span>关闭</span></label>
+                                </div>
+                            </div>
+                            <div>
+                                <label class="block text-[10px] font-bold text-slate-500 mb-1.5">分数开关</label>
+                                <div class="seg">
+                                    <label class="seg-item"><input type="radio" name="edit-frac" checked><span>开启</span></label>
+                                    <label class="seg-item"><input type="radio" name="edit-frac"><span>关闭</span></label>
+                                </div>
+                            </div>
+                            <div>
+                                <label class="block text-[10px] font-bold text-slate-500 mb-1.5">读题开关</label>
+                                <div class="seg">
+                                    <label class="seg-item"><input type="radio" name="edit-tts" checked><span>开启</span></label>
+                                    <label class="seg-item"><input type="radio" name="edit-tts"><span>关闭</span></label>
+                                </div>
+                            </div>
+                            <div>
+                                <label class="block text-[10px] font-bold text-slate-500 mb-1.5">候考时长</label>
+                                <div class="flex items-center gap-2">
+                                    <input type="number" min="0" max="120" placeholder="0"
+                                        class="w-20 px-3 py-2 rounded-lg border border-slate-200 text-xs outline-none focus:border-brand-500 bg-white">
+                                    <span class="text-xs text-slate-500">分钟</span>
+                                </div>
+                                <p class="text-[10px] text-slate-400 mt-1">留空或 0 = 不开启候考；上限 120 分钟；考试已开考后修改不生效</p>
+                            </div>
+                            <div class="col-span-2">
+                                <label class="block text-[10px] font-bold text-slate-500 mb-1.5">检录视频引导文案</label>
+                                <textarea rows="2" placeholder="不填写则使用系统默认引导文案"
+                                    class="w-full px-3 py-2 rounded-lg border border-slate-200 text-xs outline-none focus:border-brand-500 resize-none bg-white"></textarea>
+                            </div>
+                            <div class="col-span-2">
+                                <label class="block text-[10px] font-bold text-slate-500 mb-1.5">检录视频示意图</label>
+                                <button type="button" onclick="alert('Demo：唤起文件选择')"
+                                    class="w-full h-10 rounded-lg border-2 border-dashed border-slate-300 bg-white text-xs text-slate-400 hover:border-brand-400 hover:text-brand-600 transition">＋ 检录视频示意图上传（不传则使用系统默认示意图）</button>
+                            </div>
+                        </div>
+                    </div>
+                    <p class="text-[11px] text-slate-500 mt-2"><i class="fa-solid fa-circle-info mr-1"></i> 监考配置随考试自动创建一并下发爱测评；修改后保存同步更新爱测评侧考试。</p>
                 </div>
                 <div class="pt-3 border-t border-slate-100 flex justify-end items-center gap-3">
                     <button onclick="closeEditModal()" class="px-4 py-2 text-sm text-slate-600 hover:bg-slate-50 rounded-lg transition">取消</button>
