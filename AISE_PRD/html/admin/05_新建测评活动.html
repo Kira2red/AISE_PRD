@@ -446,7 +446,114 @@
                         class="w-full px-3 py-2 rounded-lg border border-slate-200 text-xs outline-none focus:border-brand-500 resize-none bg-white"></textarea>
                 </div>
 
+                
+
                 <div>
+                    <label class="block text-xs font-bold text-slate-500 mb-3">
+                        <i class="fa-solid fa-shield-halved text-brand-500 mr-1"></i> 监考配置
+                    </label>
+                    <div class="bg-slate-50/80 border border-slate-200 rounded-xl p-4">
+                        <div class="grid grid-cols-2 gap-x-6 gap-y-4">
+                            <div>
+                                <label class="block text-[10px] font-bold text-slate-500 mb-1.5"><span class="text-red-500">*</span> 摄像头监考</label>
+                                <div class="seg">
+                                    <label class="seg-item"><input type="radio" name="inv-cam" checked><span>强制开启</span></label>
+                                    <label class="seg-item"><input type="radio" name="inv-cam"><span>非强制开启</span></label>
+                                    <label class="seg-item"><input type="radio" name="inv-cam"><span>不开启</span></label>
+                                </div>
+                            </div>
+                            <div>
+                                <label class="block text-[10px] font-bold text-slate-500 mb-1.5"><span class="text-red-500">*</span> 录屏监考</label>
+                                <div class="seg">
+                                    <label class="seg-item"><input type="radio" name="inv-rec" checked><span>强制开启</span></label>
+                                    <label class="seg-item"><input type="radio" name="inv-rec"><span>非强制开启</span></label>
+                                    <label class="seg-item"><input type="radio" name="inv-rec"><span>不开启</span></label>
+                                </div>
+                            </div>
+                            <div>
+                                <label class="block text-[10px] font-bold text-slate-500 mb-1.5">手机监考</label>
+                                <div class="seg">
+                                    <label class="seg-item"><input type="radio" name="inv-phone"><span>开启</span></label>
+                                    <label class="seg-item"><input type="radio" name="inv-phone" checked><span>关闭</span></label>
+                                </div>
+                            </div>
+                            <div>
+                                <label class="block text-[10px] font-bold text-slate-500 mb-1.5">检录照片</label>
+                                <div class="seg">
+                                    <label class="seg-item"><input type="radio" name="inv-reg"><span>强制开启</span></label>
+                                    <label class="seg-item"><input type="radio" name="inv-reg" checked><span>非强制开启</span></label>
+                                    <label class="seg-item"><input type="radio" name="inv-reg"><span>不开启</span></label>
+                                </div>
+                            </div>
+                            <div>
+                                <label class="block text-[10px] font-bold text-slate-500 mb-1.5">成绩开关</label>
+                                <div class="seg">
+                                    <label class="seg-item"><input type="radio" name="inv-score" checked><span>开启</span></label>
+                                    <label class="seg-item"><input type="radio" name="inv-score"><span>关闭</span></label>
+                                </div>
+                            </div>
+                            <div>
+                                <label class="block text-[10px] font-bold text-slate-500 mb-1.5">分数开关</label>
+                                <div class="seg">
+                                    <label class="seg-item"><input type="radio" name="inv-frac" checked><span>开启</span></label>
+                                    <label class="seg-item"><input type="radio" name="inv-frac"><span>关闭</span></label>
+                                </div>
+                            </div>
+                            <div>
+                                <label class="block text-[10px] font-bold text-slate-500 mb-1.5">读题开关</label>
+                                <div class="seg">
+                                    <label class="seg-item"><input type="radio" name="inv-tts" checked><span>开启</span></label>
+                                    <label class="seg-item"><input type="radio" name="inv-tts"><span>关闭</span></label>
+                                </div>
+                            </div>
+                            <div>
+                                <label class="block text-[10px] font-bold text-slate-500 mb-1.5">候考时长</label>
+                                <div class="flex items-center gap-2">
+                                    <input type="number" id="inv-wait" min="0" max="120" placeholder="0"
+                                        class="w-20 px-3 py-2 rounded-lg border border-slate-200 text-xs outline-none focus:border-brand-500 bg-white">
+                                    <span class="text-xs text-slate-500">分钟</span>
+                                </div>
+                                <p class="text-[10px] text-slate-400 mt-1">留空或 0 = 不开启候考；上限 120 分钟</p>
+                            </div>
+                            <div class="col-span-2">
+                                <label class="block text-[10px] font-bold text-slate-500 mb-1.5">检录视频引导文案</label>
+                                <textarea id="inv-guide" rows="2" placeholder="不填写则使用系统默认引导文案"
+                                    class="w-full px-3 py-2 rounded-lg border border-slate-200 text-xs outline-none focus:border-brand-500 resize-none bg-white"></textarea>
+                            </div>
+                            <div class="col-span-2">
+                                <label class="block text-[10px] font-bold text-slate-500 mb-1.5">检录视频示意图</label>
+                                <button type="button" onclick="alert('Demo：唤起文件选择')"
+                                    class="w-full h-10 rounded-lg border-2 border-dashed border-slate-300 bg-white text-xs text-slate-400 hover:border-brand-400 hover:text-brand-600 transition">＋ 检录视频示意图上传（不传则使用系统默认示意图）</button>
+                            </div>
+                        </div>
+                    </div>
+                    <p class="text-[11px] text-slate-500 mt-2"><i class="fa-solid fa-circle-info mr-1"></i> 监考配置随考试自动创建一并下发爱测评；模拟考监考配置默认读取正式考配置，可单独修改。</p>
+                </div>
+
+                <div>
+                    <label class="block text-xs font-bold text-slate-500 mb-3">证书落款时间配置</label>
+                    <div class="space-y-4 pl-1">
+                        <label class="flex items-start gap-3 cursor-pointer group">
+                            <div class="relative flex items-center mt-0.5">
+                                <input type="radio" name="cert-date"
+                                    class="peer h-4 w-4 border-slate-300 text-brand-600 focus:ring-brand-500" checked>
+                            </div>
+                            <div class="text-sm">
+                                <span class="font-medium text-slate-800 block">用户初次查看时间 (Dynamic)</span>
+                                <span class="text-slate-400 text-xs mt-0.5 block">以用户首次生成证书的时刻为准。</span>
+                            </div>
+                        </label>
+                        <label class="flex items-center gap-3 cursor-pointer group">
+                            <div class="relative flex items-center">
+                                <input type="radio" name="cert-date"
+                                    class="peer h-4 w-4 border-slate-300 text-brand-600 focus:ring-brand-500">
+                            </div>
+                            <div class="text-sm font-medium text-slate-800">指定日期</div>
+                        </label>
+                    </div>
+                </div>
+
+<div>
                     <div class="flex items-center justify-between mb-3">
                         <label class="block text-xs font-bold text-slate-500">
                             <i class="fa-solid fa-vial text-purple-500 mr-1"></i> 模拟考配置
@@ -599,111 +706,6 @@
                                 </div>
                             </div>
                         </div>
-                    </div>
-                </div>
-
-                <div>
-                    <label class="block text-xs font-bold text-slate-500 mb-3">
-                        <i class="fa-solid fa-shield-halved text-brand-500 mr-1"></i> 监考配置
-                    </label>
-                    <div class="bg-slate-50/80 border border-slate-200 rounded-xl p-4">
-                        <div class="grid grid-cols-2 gap-x-6 gap-y-4">
-                            <div>
-                                <label class="block text-[10px] font-bold text-slate-500 mb-1.5"><span class="text-red-500">*</span> 摄像头监考</label>
-                                <div class="seg">
-                                    <label class="seg-item"><input type="radio" name="inv-cam" checked><span>强制开启</span></label>
-                                    <label class="seg-item"><input type="radio" name="inv-cam"><span>非强制开启</span></label>
-                                    <label class="seg-item"><input type="radio" name="inv-cam"><span>不开启</span></label>
-                                </div>
-                            </div>
-                            <div>
-                                <label class="block text-[10px] font-bold text-slate-500 mb-1.5"><span class="text-red-500">*</span> 录屏监考</label>
-                                <div class="seg">
-                                    <label class="seg-item"><input type="radio" name="inv-rec" checked><span>强制开启</span></label>
-                                    <label class="seg-item"><input type="radio" name="inv-rec"><span>非强制开启</span></label>
-                                    <label class="seg-item"><input type="radio" name="inv-rec"><span>不开启</span></label>
-                                </div>
-                            </div>
-                            <div>
-                                <label class="block text-[10px] font-bold text-slate-500 mb-1.5">手机监考</label>
-                                <div class="seg">
-                                    <label class="seg-item"><input type="radio" name="inv-phone"><span>开启</span></label>
-                                    <label class="seg-item"><input type="radio" name="inv-phone" checked><span>关闭</span></label>
-                                </div>
-                            </div>
-                            <div>
-                                <label class="block text-[10px] font-bold text-slate-500 mb-1.5">检录照片</label>
-                                <div class="seg">
-                                    <label class="seg-item"><input type="radio" name="inv-reg"><span>强制开启</span></label>
-                                    <label class="seg-item"><input type="radio" name="inv-reg" checked><span>非强制开启</span></label>
-                                    <label class="seg-item"><input type="radio" name="inv-reg"><span>不开启</span></label>
-                                </div>
-                            </div>
-                            <div>
-                                <label class="block text-[10px] font-bold text-slate-500 mb-1.5">成绩开关</label>
-                                <div class="seg">
-                                    <label class="seg-item"><input type="radio" name="inv-score" checked><span>开启</span></label>
-                                    <label class="seg-item"><input type="radio" name="inv-score"><span>关闭</span></label>
-                                </div>
-                            </div>
-                            <div>
-                                <label class="block text-[10px] font-bold text-slate-500 mb-1.5">分数开关</label>
-                                <div class="seg">
-                                    <label class="seg-item"><input type="radio" name="inv-frac" checked><span>开启</span></label>
-                                    <label class="seg-item"><input type="radio" name="inv-frac"><span>关闭</span></label>
-                                </div>
-                            </div>
-                            <div>
-                                <label class="block text-[10px] font-bold text-slate-500 mb-1.5">读题开关</label>
-                                <div class="seg">
-                                    <label class="seg-item"><input type="radio" name="inv-tts" checked><span>开启</span></label>
-                                    <label class="seg-item"><input type="radio" name="inv-tts"><span>关闭</span></label>
-                                </div>
-                            </div>
-                            <div>
-                                <label class="block text-[10px] font-bold text-slate-500 mb-1.5">候考时长</label>
-                                <div class="flex items-center gap-2">
-                                    <input type="number" id="inv-wait" min="0" max="120" placeholder="0"
-                                        class="w-20 px-3 py-2 rounded-lg border border-slate-200 text-xs outline-none focus:border-brand-500 bg-white">
-                                    <span class="text-xs text-slate-500">分钟</span>
-                                </div>
-                                <p class="text-[10px] text-slate-400 mt-1">留空或 0 = 不开启候考；上限 120 分钟</p>
-                            </div>
-                            <div class="col-span-2">
-                                <label class="block text-[10px] font-bold text-slate-500 mb-1.5">检录视频引导文案</label>
-                                <textarea id="inv-guide" rows="2" placeholder="不填写则使用系统默认引导文案"
-                                    class="w-full px-3 py-2 rounded-lg border border-slate-200 text-xs outline-none focus:border-brand-500 resize-none bg-white"></textarea>
-                            </div>
-                            <div class="col-span-2">
-                                <label class="block text-[10px] font-bold text-slate-500 mb-1.5">检录视频示意图</label>
-                                <button type="button" onclick="alert('Demo：唤起文件选择')"
-                                    class="w-full h-10 rounded-lg border-2 border-dashed border-slate-300 bg-white text-xs text-slate-400 hover:border-brand-400 hover:text-brand-600 transition">＋ 检录视频示意图上传（不传则使用系统默认示意图）</button>
-                            </div>
-                        </div>
-                    </div>
-                    <p class="text-[11px] text-slate-500 mt-2"><i class="fa-solid fa-circle-info mr-1"></i> 监考配置随考试自动创建一并下发爱测评；模拟考监考配置默认读取正式考配置，可单独修改。</p>
-                </div>
-
-                <div>
-                    <label class="block text-xs font-bold text-slate-500 mb-3">证书落款时间配置</label>
-                    <div class="space-y-4 pl-1">
-                        <label class="flex items-start gap-3 cursor-pointer group">
-                            <div class="relative flex items-center mt-0.5">
-                                <input type="radio" name="cert-date"
-                                    class="peer h-4 w-4 border-slate-300 text-brand-600 focus:ring-brand-500" checked>
-                            </div>
-                            <div class="text-sm">
-                                <span class="font-medium text-slate-800 block">用户初次查看时间 (Dynamic)</span>
-                                <span class="text-slate-400 text-xs mt-0.5 block">以用户首次生成证书的时刻为准。</span>
-                            </div>
-                        </label>
-                        <label class="flex items-center gap-3 cursor-pointer group">
-                            <div class="relative flex items-center">
-                                <input type="radio" name="cert-date"
-                                    class="peer h-4 w-4 border-slate-300 text-brand-600 focus:ring-brand-500">
-                            </div>
-                            <div class="text-sm font-medium text-slate-800">指定日期</div>
-                        </label>
                     </div>
                 </div>
 
