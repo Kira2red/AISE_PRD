@@ -285,6 +285,86 @@
                         <div><label class="block text-[10px] font-bold text-slate-500 mb-1">考试次数限制</label>
                             <div class="flex items-center gap-4"><label class="flex items-center gap-2 cursor-pointer"><input type="radio" name="mock-limit" class="accent-purple-600" checked><span class="text-xs text-slate-700">无限次（默认）</span></label><label class="flex items-center gap-2 cursor-pointer"><input type="radio" name="mock-limit" class="accent-purple-600"><span class="text-xs text-slate-700">自定义</span><input type="number" class="w-16 px-2 py-1 rounded border border-slate-200 text-xs outline-none" placeholder="次数"></label></div>
                         </div>
+                        <div class="border-t border-purple-100 pt-3">
+                            <div class="flex items-center justify-between mb-1">
+                                <label class="block text-[10px] font-bold text-purple-600 uppercase">监考配置（模拟考）</label>
+                                <button type="button" onclick="syncMockInvigilation()" class="text-[10px] text-purple-600 hover:text-purple-800 underline">恢复默认（读取正式考配置）</button>
+                            </div>
+                            <p class="text-[10px] text-purple-500 mb-2">默认读取正式考监考配置，可单独修改；修改后仅对模拟考生效</p>
+                            <div class="grid grid-cols-2 gap-x-5 gap-y-3">
+                                <div>
+                                    <label class="block text-[10px] font-bold text-slate-500 mb-1.5">摄像头监考</label>
+                                    <div class="seg">
+                                        <label class="seg-item"><input type="radio" name="mock-edit-cam" checked><span>强制开启</span></label>
+                                        <label class="seg-item"><input type="radio" name="mock-edit-cam"><span>非强制开启</span></label>
+                                        <label class="seg-item"><input type="radio" name="mock-edit-cam"><span>不开启</span></label>
+                                    </div>
+                                </div>
+                                <div>
+                                    <label class="block text-[10px] font-bold text-slate-500 mb-1.5">录屏监考</label>
+                                    <div class="seg">
+                                        <label class="seg-item"><input type="radio" name="mock-edit-rec" checked><span>强制开启</span></label>
+                                        <label class="seg-item"><input type="radio" name="mock-edit-rec"><span>非强制开启</span></label>
+                                        <label class="seg-item"><input type="radio" name="mock-edit-rec"><span>不开启</span></label>
+                                    </div>
+                                </div>
+                                <div>
+                                    <label class="block text-[10px] font-bold text-slate-500 mb-1.5">手机监考</label>
+                                    <div class="seg">
+                                        <label class="seg-item"><input type="radio" name="mock-edit-phone"><span>开启</span></label>
+                                        <label class="seg-item"><input type="radio" name="mock-edit-phone" checked><span>关闭</span></label>
+                                    </div>
+                                </div>
+                                <div>
+                                    <label class="block text-[10px] font-bold text-slate-500 mb-1.5">检录照片</label>
+                                    <div class="seg">
+                                        <label class="seg-item"><input type="radio" name="mock-edit-reg"><span>强制开启</span></label>
+                                        <label class="seg-item"><input type="radio" name="mock-edit-reg" checked><span>非强制开启</span></label>
+                                        <label class="seg-item"><input type="radio" name="mock-edit-reg"><span>不开启</span></label>
+                                    </div>
+                                </div>
+                                <div>
+                                    <label class="block text-[10px] font-bold text-slate-500 mb-1.5">成绩开关</label>
+                                    <div class="seg">
+                                        <label class="seg-item"><input type="radio" name="mock-edit-score" checked><span>开启</span></label>
+                                        <label class="seg-item"><input type="radio" name="mock-edit-score"><span>关闭</span></label>
+                                    </div>
+                                </div>
+                                <div>
+                                    <label class="block text-[10px] font-bold text-slate-500 mb-1.5">分数开关</label>
+                                    <div class="seg">
+                                        <label class="seg-item"><input type="radio" name="mock-edit-frac" checked><span>开启</span></label>
+                                        <label class="seg-item"><input type="radio" name="mock-edit-frac"><span>关闭</span></label>
+                                    </div>
+                                </div>
+                                <div>
+                                    <label class="block text-[10px] font-bold text-slate-500 mb-1.5">读题开关</label>
+                                    <div class="seg">
+                                        <label class="seg-item"><input type="radio" name="mock-edit-tts" checked><span>开启</span></label>
+                                        <label class="seg-item"><input type="radio" name="mock-edit-tts"><span>关闭</span></label>
+                                    </div>
+                                </div>
+                                <div>
+                                    <label class="block text-[10px] font-bold text-slate-500 mb-1.5">候考时长</label>
+                                    <div class="flex items-center gap-2">
+                                        <input type="number" id="mock-edit-wait" min="0" max="120" placeholder="0"
+                                            class="w-20 px-3 py-2 rounded-lg border border-slate-200 text-xs outline-none focus:border-purple-500 bg-white">
+                                        <span class="text-xs text-slate-500">分钟</span>
+                                    </div>
+                                    <p class="text-[10px] text-slate-400 mt-1">留空或 0 = 不开启候考；上限 120 分钟</p>
+                                </div>
+                                <div class="col-span-2">
+                                    <label class="block text-[10px] font-bold text-slate-500 mb-1.5">检录视频引导文案</label>
+                                    <textarea id="mock-edit-guide" rows="2" placeholder="不填写则使用系统默认引导文案"
+                                        class="w-full px-3 py-2 rounded-lg border border-slate-200 text-xs outline-none focus:border-purple-500 resize-none bg-white"></textarea>
+                                </div>
+                                <div class="col-span-2">
+                                    <label class="block text-[10px] font-bold text-slate-500 mb-1.5">检录视频示意图</label>
+                                    <button type="button" onclick="alert('Demo：唤起文件选择')"
+                                        class="w-full h-10 rounded-lg border-2 border-dashed border-slate-300 bg-white text-xs text-slate-400 hover:border-purple-400 hover:text-purple-600 transition">＋ 检录视频示意图上传（不传则使用系统默认示意图）</button>
+                                </div>
+                            </div>
+                        </div>
                     </div>
                 </div>
                 <div>
@@ -348,7 +428,7 @@
                             <div>
                                 <label class="block text-[10px] font-bold text-slate-500 mb-1.5">候考时长</label>
                                 <div class="flex items-center gap-2">
-                                    <input type="number" min="0" max="120" placeholder="0"
+                                    <input type="number" id="edit-wait" min="0" max="120" placeholder="0"
                                         class="w-20 px-3 py-2 rounded-lg border border-slate-200 text-xs outline-none focus:border-brand-500 bg-white">
                                     <span class="text-xs text-slate-500">分钟</span>
                                 </div>
@@ -356,7 +436,7 @@
                             </div>
                             <div class="col-span-2">
                                 <label class="block text-[10px] font-bold text-slate-500 mb-1.5">检录视频引导文案</label>
-                                <textarea rows="2" placeholder="不填写则使用系统默认引导文案"
+                                <textarea id="edit-guide" rows="2" placeholder="不填写则使用系统默认引导文案"
                                     class="w-full px-3 py-2 rounded-lg border border-slate-200 text-xs outline-none focus:border-brand-500 resize-none bg-white"></textarea>
                             </div>
                             <div class="col-span-2">
@@ -484,6 +564,23 @@
         function closeEditModal() {
             editModal.classList.add('opacity-0');
             setTimeout(() => { editModal.classList.add('hidden'); editContent.classList.remove('modal-enter'); }, 200);
+        }
+
+        // 模拟考监考配置：默认读取正式考配置（同步当前值），可单独修改
+        function syncMockInvigilation() {
+            ['cam', 'rec', 'phone', 'reg', 'score', 'frac', 'tts'].forEach(k => {
+                const mains = document.querySelectorAll(`input[name="edit-${k}"]`);
+                const mocks = document.querySelectorAll(`input[name="mock-edit-${k}"]`);
+                for (let i = 0; i < mains.length; i++) {
+                    if (mains[i].checked) mocks[i].checked = true;
+                }
+            });
+            const wait = document.getElementById('edit-wait');
+            const mwait = document.getElementById('mock-edit-wait');
+            if (wait && mwait) mwait.value = wait.value;
+            const guide = document.getElementById('edit-guide');
+            const mguide = document.getElementById('mock-edit-guide');
+            if (guide && mguide) mguide.value = guide.value;
         }
 
         // 标签选择器
