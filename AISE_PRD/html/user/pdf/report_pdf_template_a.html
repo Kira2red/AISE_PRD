@@ -13,7 +13,7 @@ body { background:#F8F8F8; font-family:'PingFang SC','Hiragino Sans GB','Microso
 .head-card { background:#EEEEEE; border-radius:14px; padding:14px 14px 12px; margin-bottom:12px; }
 .report-head { text-align:center; margin-bottom:12px; }
 .report-head .kicker { font-size:12px; color:#666; margin-bottom:6px; }
-.report-head .title { font-size:24px; font-weight:800; color:#4E39BA; line-height:1.3; }
+.report-head .title { font-size:23px; font-weight:800; color:#4E39BA; line-height:1.3; }
 
 .stu-wrap { display:flex; align-items:center; justify-content:center; gap:12px; margin-bottom:10px; }
 .stu-avatar { width:80px; height:80px; border-radius:50%; background:linear-gradient(135deg,#8777D3,#705FD2); display:flex; align-items:center; justify-content:center; color:#fff; font-size:38px; flex-shrink:0; }
@@ -97,16 +97,16 @@ const SUMMARY={'待提升':'综合本次考级表现，本级基础正在逐步�
 const ADVICE={pass:{link:'建议继续学习列表、字典及循环分支嵌套，构建更复杂的程序逻辑，衔接五级。',course:'建议通过更完整的项目练习，提升复杂逻辑设计和问题解决能力。'},fail:{link:'建议先巩固四级，继续学习列表、字典及循环分支嵌套，练习构建复杂程序逻辑。',course:null}};
 const FULL_COMMENT='本题目作答达到要求，完整完成任务。太棒了！';
 const STUDENTS=[
-{id:'liming',name:'李明',age:'12岁',idNo:'ID:1103467994323',school:'所在学校/培训机构',level:'程序设计四级',date:'2026年6月',score:100,
+{id:'liming',name:'李明',age:'12岁',idNo:'ID:1103467994323',school:'所在学校/培训机构',level:'程序设计四级',date:'2026年8月',score:100,
  knowledge:[{mod:'Python运算',pts:[['比较运算',100],['布尔值',100],['算术运算',100]]},{mod:'流程控制',pts:[['条件分支',100],['循环',100],['IPO编程',100]]},{mod:'常用标准库',pts:[['模块导入',100]]},{mod:'编程基础',pts:[['变量',100],['数据类型转换',100],['数据类型',100],['input()语句',100],['print()语句',100]]}],
  performance:{full:true,coding:{no:'第13题',type:'编程题',title:'名字输入输出',kp:'IPO编程',stem:'编写程序，输入姓名和年龄，输出问候语和出生年份。',code:['name = input("请输入你的名字：")','age = int(input("请输入你的年龄："))','year = 2026 - age','print(name + "，你好！")','print("你大约出生于" + str(year) + "年")','print("欢迎参加 AISE 考级！")'],ref:['name = input("请输入你的名字：")','age = int(input("请输入你的年龄："))','year = 2026 - age','print(name + "，你好！")','print("你大约出生于" + str(year) + "年")','print("欢迎参加 AISE 考级！")']}}},
-{id:'wangfang',name:'王芳',age:'13岁',idNo:'ID:1103467994324',school:'所在学校/培训机构',level:'程序设计四级',date:'2026年6月',score:76,
+{id:'wangfang',name:'王芳',age:'13岁',idNo:'ID:1103467994324',school:'所在学校/培训机构',level:'程序设计四级',date:'2026年8月',score:76,
  knowledge:[{mod:'Python运算',pts:[['比较运算',45],['布尔值',100],['算术运算',80]]},{mod:'流程控制',pts:[['条件分支',50],['循环',75],['IPO编程',100]]},{mod:'常用标准库',pts:[['模块导入',100]]},{mod:'编程基础',pts:[['变量',100],['数据类型转换',60],['数据类型',100],['input()语句',100],['print()语句',100]]}],
  performance:{full:false,objective:{no:'第3题',type:'单选题',title:'输出判断',kp:'布尔值',scoreText:'0 / 4 分',stem:'在 Python 中，表达式 3 > 5 的运算结果是？',options:['True','False','3','5'],student:0,correct:1},coding:{no:'第12题',type:'编程题',title:'循环计数',kp:'循环',scoreText:'6 / 10 分',stem:'编写程序，使用 while 循环依次输出 0 到 4。',code:['count = 0','while count < 5:','    print(count)','print("循环结束")'],ref:['count = 0','while count < 5:','    print(count)','    count = count + 1','print("循环结束")']}}},
-{id:'zhangwei',name:'张伟',age:'12岁',idNo:'ID:1103467994325',school:'所在学校/培训机构',level:'程序设计四级',date:'2026年6月',score:45,
+{id:'zhangwei',name:'张伟',age:'12岁',idNo:'ID:1103467994325',school:'所在学校/培训机构',level:'程序设计四级',date:'2026年8月',score:45,
  knowledge:[{mod:'Python运算',pts:[['比较运算',40],['布尔值',50],['算术运算',100]]},{mod:'流程控制',pts:[['条件分支',30],['循环',45],['IPO编程',60]]},{mod:'常用标准库',pts:[['模块导入',0]]},{mod:'编程基础',pts:[['变量',100],['数据类型转换',40],['数据类型',80],['input()语句',50],['print()语句',100]]}],
  performance:{full:false,objective:{no:'第2题',type:'单选题',title:'条件判断关键字',kp:'条件分支',scoreText:'0 / 4 分',stem:'下列哪个关键字用于在 Python 中编写条件判断？',options:['for','if','print','input'],student:2,correct:1},coding:{no:'第11题',type:'编程题',title:'IPO输入输出',kp:'IPO编程',scoreText:'3 / 10 分',stem:'编写程序，读入一个数并原样输出。',code:['a = input()','print(a)'],ref:['a = input()','print(a)']}}},
-{id:'chenchen',name:'陈晨',age:'13岁',idNo:'ID:1103467994326',school:'所在学校/培训机构',level:'程序设计四级',date:'2026年6月',score:68,
+{id:'chenchen',name:'陈晨',age:'13岁',idNo:'ID:1103467994326',school:'所在学校/培训机构',level:'程序设计四级',date:'2026年8月',score:68,
  knowledge:null,
  performance:{full:false,objectiveOnly:true,objective:{no:'第5题',type:'单选题',title:'取余运算',kp:'算术运算',scoreText:'0 / 4 分',stem:'在 Python 中，表达式 7 % 3 的运算结果是？',options:['1','2','2.5','3'],student:2,correct:0},coding:null}}
 ];
@@ -137,8 +137,8 @@ function render(stu){
     const gc=GRADE_COLOR[g.grade];
 
     let html='<div class="head-card">'
-      +'<div class="report-head"><div class="kicker">AISE能力评定报告'+esc(stu.date)+'</div>'
-      +'<div class="title">AISE'+esc(stu.level)+'能力评定报告</div></div>'
+      +'<div class="report-head"><div class="kicker">AISE能力评定报告</div>'
+      +'<div class="title">'+esc(stu.date)+esc(stu.level)+'个人报告</div></div>'
       +'<div class="stu-wrap"><div class="stu-avatar">&#129302;</div><div class="stu-info">'
       +'<div class="stu-name">'+esc(stu.name)+'<span class="age">'+esc(stu.age)+'</span></div>'
       +'<div class="stu-id">'+esc(stu.idNo)+'</div>'
