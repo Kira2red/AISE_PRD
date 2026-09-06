@@ -108,6 +108,11 @@ html, body { margin: 0; padding: 0; background: #fff; font-family: -apple-system
 
 /* 简单 toast */
 .demo-toast { position: fixed; top: 80px; left: 50%; transform: translateX(-50%); background: rgba(0,0,0,.75); color: #fff; padding: 10px 20px; border-radius: 6px; font-size: 14px; z-index: 9999; display: none; }
+
+/* 知识标签下拉：占位文字垂直居中（antd3 多选占位 li 流内布局贴顶偏上且基线错位，改绝对定位铺满 selection 居中） */
+#kpSelect .ant-select-selection--multiple { position: relative; }
+#kpSelect .ant-select-selection--multiple .ant-select-selection__rendered { position: static; margin: 0; }
+#kpSelect #kpPlaceholder { position: absolute; left: 11px; right: 0; top: 0; bottom: 0; display: flex; align-items: center; height: auto; line-height: 1; margin: 0; color: #bfbfbf; pointer-events: none; }
 </style>
 </head>
 <body>
