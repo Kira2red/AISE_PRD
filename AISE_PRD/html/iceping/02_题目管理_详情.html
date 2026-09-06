@@ -113,6 +113,10 @@ html, body { margin: 0; padding: 0; background: #fff; font-family: -apple-system
 #kpSelect .ant-select-selection--multiple { position: relative; }
 #kpSelect .ant-select-selection--multiple .ant-select-selection__rendered { position: static; margin: 0; }
 #kpSelect #kpPlaceholder { position: absolute; left: 11px; right: 0; top: 0; bottom: 0; display: flex; align-items: center; height: auto; line-height: 1; margin: 0; color: #bfbfbf; pointer-events: none; }
+
+/* 代码类型行：内嵌 ant-row 的 clearfix 伪元素在 flex+gap 下变成首个 flex item，把下拉框右推 16px，禁用之使其与其它输入框左对齐 */
+#codeTypeItem .ant-row::before,
+#codeTypeItem .ant-row::after { display: none; }
 </style>
 </head>
 <body>
