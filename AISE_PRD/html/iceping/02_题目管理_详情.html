@@ -321,7 +321,7 @@ html, body { margin: 0; padding: 0; background: #fff; font-family: -apple-system
                   </div>
                 </div>
                 <div class="ant-row ant-form-item" style="margin-top:0;">
-                  <div class="ant-col ant-col-xs-24 ant-col-sm-2 ant-form-item-label"><label title="；">；</label></div>
+                  <div class="ant-col ant-col-xs-24 ant-col-sm-2 ant-form-item-label"><label title="读题文本">读题文本</label></div>
                   <div class="ant-col ant-col-xs-24 ant-col-sm-14 ant-form-item-control-wrapper">
                     <div class="ant-form-item-control"><span class="ant-form-item-children">
                       <textarea placeholder="请输入读题文本" class="ant-input" id="ttsText" style="height:94px;min-height:94px;max-height:136px;resize:vertical;"></textarea>
@@ -488,7 +488,7 @@ html, body { margin: 0; padding: 0; background: #fff; font-family: -apple-system
 
                 <!-- 选项区（选择题型） -->
                 <div class="ant-row ant-form-item" id="optionArea" style="display:none;">
-                  <div class="ant-col ant-col-xs-24 ant-col-sm-2 ant-form-item-label"><label class="ant-form-item-required" title="选项：">选项：</label></div>
+                  <div class="ant-col ant-col-xs-24 ant-col-sm-2 ant-form-item-label"><label class="ant-form-item-required" title="选项">选项</label></div>
                   <div class="ant-col ant-col-xs-24 ant-col-sm-16 ant-form-item-control-wrapper">
                     <div class="ant-form-item-control"><span class="ant-form-item-children">
                       <div class="optionBox">
@@ -505,7 +505,7 @@ html, body { margin: 0; padding: 0; background: #fff; font-family: -apple-system
                   <div class="ant-col ant-col-xs-24 ant-col-sm-14 ant-form-item-control-wrapper">
                     <div class="ant-form-item-control"><span class="ant-form-item-children">
                       <div class="ant-radio-group ant-radio-group-outline">
-                        <label class="ant-radio-wrapper"><span class="ant-radio"><input type="radio" name="visibility" class="ant-radio-input" value="1"><span class="ant-radio-inner"></span></span><span>本组织可见 - 仅您所在的学校或组织的老师可以查看并使用本题目</span></label><br>
+                        <label class="ant-radio-wrapper"><span class="ant-radio"><input type="radio" name="visibility" class="ant-radio-input" value="2"><span class="ant-radio-inner"></span></span><span>本组织可见 - 仅您所在的学校或组织的老师可以查看并使用本题目</span></label><br>
                         <label class="ant-radio-wrapper"><span class="ant-radio ant-radio-checked"><input type="radio" name="visibility" class="ant-radio-input" value="3" checked><span class="ant-radio-inner"></span></span><span>仅自己可见 - 仅当前账号可以查看和使用本题目</span></label>
                       </div>
                     </span></div>
@@ -661,12 +661,12 @@ function onLibToggle(el) {
 
 /* ============ 题型切换 ============ */
 var TYPE_BLOCKS = {
-  single: ['optionArea'], multi: ['optionArea'], judge: ['optionArea'],
-  gap: [], read: [], code: [], practice: [], text2text: [], text2img: [], text2video: [], line: [], workflow: [],
+  single: ['optionArea'], multi: ['optionArea'],
+  judge: [], gap: [], read: [], code: [], practice: [], text2text: [], text2img: [], text2video: [], line: [], workflow: [],
   oj: ['codeTypeItem','ojArea'], graphic: ['codeTypeItem','graphicArea']
 };
 var PROGRAM_TYPES = ['oj','graphic','code'];
-var OPTION_TYPES = ['single','multi','judge'];
+var OPTION_TYPES = ['single','multi'];
 
 function onTypeChange(el) {
   var qts = document.querySelectorAll('.questionType');
@@ -818,7 +818,7 @@ function addOption() {
   row.style.cssText = 'display:flex;align-items:center;gap:8px;margin-bottom:8px;';
   row.innerHTML = '<span style="width:24px;height:24px;border-radius:50%;background:#F4F4F5;color:#323335;text-align:center;line-height:24px;font-size:13px;">' + letters[idx] + '</span>' +
     '<input type="text" class="ant-input" placeholder="选项内容" style="flex:1;">' +
-    '<label class="ant-checkbox-wrapper" style="white-space:nowrap;"><span class="ant-checkbox"><input type="checkbox" class="ant-checkbox-input" ' + (CURRENT_TYPE==='judge' && idx===0 ? 'checked' : '') + '><span class="ant-checkbox-inner"></span></span><span>正确答案</span></label>' +
+    '<label class="ant-checkbox-wrapper" style="white-space:nowrap;"><span class="ant-checkbox"><input type="checkbox" class="ant-checkbox-input"><span class="ant-checkbox-inner"></span></span><span>正确答案</span></label>' +
     '<span style="color:#bfbfbf;cursor:pointer;" onclick="delOption(this)">✕</span>';
   list.appendChild(row);
 }
