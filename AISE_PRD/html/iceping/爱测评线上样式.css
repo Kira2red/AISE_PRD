@@ -22414,3 +22414,14 @@ p{
   color: #fff;
   cursor: pointer;
 }
+
+/* ==== 顶栏导航菜单透明化（线上 .header 透明毛玻璃实测：antd .ant-menu 默认 #fff 被该站点覆盖为透明，此处对齐线上最终样式） ==== */
+.header .ant-menu,
+.header .ant-menu-light {
+  background: transparent;
+  box-shadow: none;
+}
+.header .ant-menu-horizontal {
+  line-height: 30px;
+  border-bottom: 0;
+}
