@@ -86,11 +86,8 @@ input[type=checkbox].cb{width:15px;height:15px;accent-color:#2563eb;cursor:point
             <span class="text-xs text-slate-400 bg-slate-100 px-2 py-0.5 rounded">一行 = 渠道 × 活动</span>
         </div>
         <div class="flex items-center gap-3">
-            <button onclick="openImportModal()" class="bg-white border border-slate-200 hover:bg-slate-50 text-slate-600 text-sm font-medium px-3 py-1.5 rounded-lg transition flex items-center gap-2">
-                <i class="fa-solid fa-file-pen"></i> 批量导入修改
-            </button>
-            <button onclick="openUploadModal()" class="bg-brand-600 hover:bg-brand-700 text-white text-sm font-medium px-4 py-1.5 rounded-lg transition flex items-center gap-2">
-                <i class="fa-solid fa-file-arrow-up"></i> 批量上传新建
+            <button onclick="openImportModal()" class="bg-brand-600 hover:bg-brand-700 text-white text-sm font-medium px-4 py-1.5 rounded-lg transition flex items-center gap-2">
+                <i class="fa-solid fa-file-arrow-up"></i> 批量导入
             </button>
         </div>
     </header>
@@ -711,151 +708,132 @@ function doBatch(){
   save(); renderAll(); closeModal();
   toast('批量修改完成：' + applied + ' 行已应用' + (skipped ? '，' + skipped + ' 行因锁定字段被跳过' : ''));
 }
-/* ================= 批量上传新建（三步） ================= */
-let upFiles=null;
-function openUploadModal(){ upStep(1); }
-function upStep(n){
-  const steps=['下载模板','上传文件','校验预览'];
-  const bar=steps.map((s,i)=>'<div class="flex items-center '+(i?'':'')+'"><div class="step-dot '+(i+1<n?'bg-brand-600 text-white':i+1===n?'bg-brand-600 text-white':'bg-slate-100 text-slate-400')+'">'+(i+1<n?'<i class=\'fa-solid fa-check\'></i>':i+1)+'</div><span class="text-xs ml-2 '+(i+1<=n?'text-slate-700 font-medium':'text-slate-400')+'">'+s+'</span></div>').join('<div class="w-10 h-px bg-slate-200 mx-2"></div>');
-  let body='';
-  if(n===1) body='<div class="border-2 border-dashed border-slate-200 rounded-xl p-8 text-center">'
-      +'<i class="fa-solid fa-file-excel text-3xl text-emerald-500"></i>'
-      +'<div class="text-sm text-slate-600 mt-3 mb-4">模板含全部字段：活动基础 + 渠道关联 + 监考 + 模拟考；<br>一行 = 一场活动 + 一个渠道关联</div>'
-      +'<button onclick="downloadTpl(\'create\')" class="bg-emerald-500 hover:bg-emerald-600 text-white text-sm font-medium px-4 py-2 rounded-lg"><i class="fa-solid fa-download mr-1"></i>下载模板</button>'
-    +'</div>';
-  if(n===2) body='<div class="border-2 border-dashed border-slate-200 rounded-xl p-8 text-center">'
-      +'<i class="fa-solid fa-cloud-arrow-up text-3xl text-slate-300"></i>'
-      +'<div class="text-sm text-slate-600 mt-3 mb-4">支持 .xlsx / .csv，单次上限 200 行</div>'
-      +'<label class="bg-brand-600 hover:bg-brand-700 text-white text-sm font-medium px-4 py-2 rounded-lg cursor-pointer">选择文件<input type="file" accept=".xlsx,.csv" class="hidden" onchange="mockUploadParse(this)"></label>'
-      +'<div class="text-xs text-slate-400 mt-3">demo：选择任意文件即以内置示例数据演示校验流程</div>'
-    +'</div>';
-  openModalHtml('<div class="bg-white rounded-xl shadow-popover modal-enter w-[640px] max-h-[86vh] flex flex-col">'
-    +'<div class="px-6 py-4 border-b border-slate-100 flex items-center justify-between"><div class="font-bold">批量上传新建</div><button onclick="closeModal()" class="text-slate-400 hover:text-slate-600"><i class="fa-solid fa-xmark"></i></button></div>'
-    +'<div class="px-6 py-4 flex items-center justify-center gap-0 border-b border-slate-100">'+bar+'</div>'
-    +'<div class="flex-1 overflow-y-auto custom-scroll px-6 py-6">'+body+'</div></div>');
+/* ================= 批量导入（新建+修改合一） ================= */
+/* 一套模板一个入口：按「活动ID+渠道ID」是否已存在自动判定 新建/修改；空 ID = 新建 */
+let upFile = null;
+function openImportModal(){ impStep(1); }
+function impStep(n){
+  const steps = ['下载模板', '上传文件', '校验预览'];
+  const bar = steps.map((s, i) =>
+    '<div class="flex items-center"><div class="step-dot ' + (i+1 <= n ? 'bg-brand-600 text-white' : 'bg-slate-100 text-slate-400') + '">' + (i+1 < n ? '<i class="fa-solid fa-check"></i>' : i+1) + '</div><span class="text-xs ml-2 ' + (i+1 <= n ? 'text-slate-700 font-medium' : 'text-slate-400') + '">' + s + '</span></div>'
+  ).join('<div class="w-10 h-px bg-slate-200 mx-2"></div>');
+  let body = '';
+  if(n === 1) body =
+    '<div class="space-y-4">'
+    + '<div class="border-2 border-dashed border-slate-200 rounded-xl p-6 text-center">'
+      + '<i class="fa-solid fa-file-excel text-3xl text-emerald-500"></i>'
+      + '<div class="text-sm text-slate-600 mt-3 mb-1">空白模板（批量新建用）</div>'
+      + '<div class="text-xs text-slate-400 mb-4">活动ID/渠道ID 留空 = 新建活动 + 渠道关联；一行 = 一场活动 + 一个渠道关联</div>'
+      + '<button onclick="downloadTpl(\'blank\')" class="bg-emerald-500 hover:bg-emerald-600 text-white text-sm font-medium px-4 py-2 rounded-lg"><i class="fa-solid fa-download mr-1"></i>下载空白模板</button>'
+    + '</div>'
+    + '<div class="border-2 border-dashed border-slate-200 rounded-xl p-6 text-center">'
+      + '<i class="fa-solid fa-table text-3xl text-brand-500"></i>'
+      + '<div class="text-sm text-slate-600 mt-3 mb-1">回填模板（批量修改用）</div>'
+      + '<div class="text-xs text-slate-400 mb-4">导出当前筛选结果并回填现有值，改动列上传后生效（当前筛选 ' + filterRows().length + ' 行）</div>'
+      + '<button onclick="downloadTpl(\'update\')" class="bg-brand-600 hover:bg-brand-700 text-white text-sm font-medium px-4 py-2 rounded-lg"><i class="fa-solid fa-download mr-1"></i>下载回填修改表</button>'
+    + '</div>'
+    + '<div class="bg-slate-50 border border-slate-100 rounded-lg p-3 text-xs text-slate-500 leading-relaxed">'
+      + '<b class="text-slate-600">判定规则：</b>「活动ID + 渠道ID」已存在 = 修改该行配置（留空列保持原值）；活动ID/渠道ID 留空或组合不存在 = 新建。两类型可混填，校验预览会分别标注。'
+    + '</div>'
+    + '</div>';
+  if(n === 2) body =
+    '<div class="border-2 border-dashed border-slate-200 rounded-xl p-10 text-center">'
+    + '<i class="fa-solid fa-cloud-arrow-up text-3xl text-slate-300"></i>'
+    + '<div class="text-sm text-slate-600 mt-3 mb-4">支持 .xlsx / .csv，单次上限 200 行；新建与修改行可混合上传</div>'
+    + '<label class="bg-brand-600 hover:bg-brand-700 text-white text-sm font-medium px-4 py-2 rounded-lg cursor-pointer">选择文件<input type="file" accept=".xlsx,.csv" class="hidden" onchange="mockUploadParse(this)"></label>'
+    + '<div class="text-xs text-slate-400 mt-3">demo：选择任意文件即以内置示例数据演示（含新建行 + 修改行 + 失败行）</div>'
+    + '</div>';
+  openModalHtml('<div class="bg-white rounded-xl shadow-popover modal-enter w-[720px] max-h-[86vh] flex flex-col">'
+    + '<div class="px-6 py-4 border-b border-slate-100 flex items-center justify-between"><div class="font-bold">批量导入 <span class="text-sm font-normal text-slate-400">按活动ID+渠道ID自动判定新建 / 修改</span></div><button onclick="closeModal()" class="text-slate-400 hover:text-slate-600"><i class="fa-solid fa-xmark"></i></button></div>'
+    + '<div class="px-6 py-4 flex items-center justify-center border-b border-slate-100 flex-shrink-0">' + bar + '</div>'
+    + '<div class="flex-1 overflow-y-auto custom-scroll px-6 py-6">' + body + '</div>'
+    + (n === 1 ? '<div class="px-6 py-3 border-t border-slate-100 flex justify-end flex-shrink-0"><button onclick="impStep(2)" class="px-4 py-2 text-sm rounded-lg bg-brand-600 hover:bg-brand-700 text-white font-medium">下一步：上传文件</button></div>'
+               : '<div class="px-6 py-3 border-t border-slate-100 flex justify-between flex-shrink-0"><span class="text-xs text-slate-400 self-center">模板列 = 表格全字段（含监考 / 模拟考 / 模拟考监考 / 模拟考交卷限制）</span></div>')
+    + '</div>');
 }
-function mockUploadParse(inp){
-  const f=inp.files[0]; if(!f) return; upFiles=f;
-  upStep(3);
-  setTimeout(()=>{ renderUploadPreview(); }, 300);
-}
-const MOCK_UPLOAD_ROWS = [
- {aid:'(新)', name:'Python一级·12月考期', cid:'QD001', group:'3月批', paper:'PY-L1-2026春-A卷', examStart:'2026-12-19 09:00', examEnd:'2026-12-19 11:00', duration:120, submitLimit:100, fee:300, showStart:'2026-10-01', show:true,
-  pro:{cam:'强制开启',rec:'强制开启',phone:false,photo:'非强制开启',score:true,detail:true,read:true,wait:0,guide:'',pic:''}, mock:{on:false}, ok:true},
- {aid:'(新)', name:'图形化一级·12月考期', cid:'QD001', group:'3月批', paper:'', examStart:'2026-12-19 14:00', examEnd:'2026-12-19 15:30', duration:90, submitLimit:80, fee:280, showStart:'2026-10-01', show:true,
-  pro:{cam:'强制开启',rec:'不开启',phone:false,photo:'非强制开启',score:true,detail:true,read:true,wait:0,guide:'',pic:''}, mock:{on:false}, ok:false, err:'关联试卷为空：可保存为未关联，或补填试卷后重传'},
- {aid:'(新)', name:'Python二级·12月考期', cid:'QD001', group:'3月批', paper:'PY-L2-2026春-A卷', examStart:'2026-12-20 09:00', examEnd:'2026-12-20 11:30', duration:100, submitLimit:130, fee:320, showStart:'2026-10-01', show:true,
-  pro:{cam:'强制开启',rec:'强制开启',phone:false,photo:'非强制开启',score:true,detail:true,read:true,wait:0,guide:'',pic:''}, mock:{on:false}, ok:false, err:'时长(100分钟) < 交卷限制(130分钟)'},
-];
-function renderUploadPreview(){
-  const rs=MOCK_UPLOAD_ROWS;
-  const okN=rs.filter(r=>r.ok).length, badN=rs.length-okN;
-  const trs=rs.map((r,i)=>'<tr class="border-b border-slate-100 '+(r.ok?'':'bg-red-50/50')+'">'
-    +'<td class="py-2 px-2">'+(r.ok?'<i class=\'fa-solid fa-circle-check text-emerald-500\'></i>':'<i class=\'fa-solid fa-circle-xmark text-red-500\'></i>')+'</td>'
-    +'<td class="py-2 px-2 font-medium">'+esc(r.name)+'</td>'
-    +'<td class="py-2 px-2">'+esc(chName(r.cid))+'</td>'
-    +'<td class="py-2 px-2">'+esc(r.paper||'<span class=\'text-red-400\'>空</span>')+'</td>'
-    +'<td class="py-2 px-2 text-xs">'+esc(r.examStart)+'<br>'+esc(r.examEnd)+'</td>'
-    +'<td class="py-2 px-2">'+r.duration+'/'+r.submitLimit+'</td>'
-    +'<td class="py-2 px-2">¥'+r.fee+'</td>'
-    +'<td class="py-2 px-2 text-xs '+(r.ok?'text-slate-400':'text-red-500')+'">'+(r.ok?'—':esc(r.err))+'</td></tr>').join('');
-  openModalHtml('<div class="bg-white rounded-xl shadow-popover modal-enter w-[860px] max-h-[86vh] flex flex-col">'
-    +'<div class="px-6 py-4 border-b border-slate-100 flex items-center justify-between"><div class="font-bold">校验预览 <span class="text-sm font-normal text-slate-400">共 '+rs.length+' 行</span></div><button onclick="closeModal()" class="text-slate-400 hover:text-slate-600"><i class="fa-solid fa-xmark"></i></button></div>'
-    +'<div class="px-6 py-3 flex items-center gap-4 border-b border-slate-100 text-sm flex-shrink-0">'
-      +'<span class="text-emerald-600 font-medium"><i class="fa-solid fa-circle-check mr-1"></i>可创建 '+okN+' 行</span>'
-      +'<span class="text-red-500 font-medium"><i class="fa-solid fa-circle-xmark mr-1"></i>失败 '+badN+' 行</span>'
-      +'<span class="text-xs text-slate-400 ml-auto">失败行可修正后重新上传；确认创建仅创建可创建行</span></div>'
-    +'<div class="flex-1 overflow-auto custom-scroll"><table class="w-full text-xs">'
-      +'<thead class="bg-slate-50 sticky top-0 text-slate-500"><tr><th class="py-2 px-2 w-8"></th><th class="py-2 px-2 text-left">活动名称</th><th class="py-2 px-2 text-left">渠道</th><th class="py-2 px-2 text-left">试卷</th><th class="py-2 px-2 text-left">考试时间</th><th class="py-2 px-2 text-left">时长/交卷</th><th class="py-2 px-2 text-left">报名费</th><th class="py-2 px-2 text-left">失败原因</th></tr></thead>'
-      +'<tbody>'+trs+'</tbody></table></div>'
-    +'<div class="px-6 py-3 border-t border-slate-100 flex justify-between items-center flex-shrink-0">'
-      +'<button onclick="upStep(2)" class="text-sm text-slate-500 hover:text-brand-600"><i class="fa-solid fa-arrow-left mr-1"></i>重新上传</button>'
-      +'<button onclick="doCreate()" class="px-4 py-2 text-sm rounded-lg bg-brand-600 hover:bg-brand-700 text-white font-medium '+(okN?'':'opacity-50 pointer-events-none')+'">确认创建 '+okN+' 行</button></div></div>');
-}
-function doCreate(){
-  const okRows=MOCK_UPLOAD_ROWS.filter(r=>r.ok);
-  okRows.forEach((r,i)=>{
-    const aid='HD25'+(10+i);
-    rows.push({...r, aid, _k:aid+'|'+r.cid, status:'创建中', enrolled:0, tags:['Python','1级'], mock:{on:false,paper:'',start:'',end:'',limit:''}, desc:''});
-  });
-  save(); renderAll(); closeModal();
-  toast('已提交 '+okRows.length+' 行创建任务：先建活动与渠道关联，再自动创建爱测评考试；结果见消息中心');
-  setTimeout(()=>{ rows.filter(r=>r.aid==='HD2510').forEach(r=>r.status='已创建'); save(); renderAll(); }, 1800);
-}
+function mockUploadParse(inp){ upFile = inp.files[0] || 'demo'; setTimeout(renderImportPreview, 300); }
 
-/* ================= 批量导入修改 ================= */
-function openImportModal(){
-  openModalHtml('<div class="bg-white rounded-xl shadow-popover modal-enter w-[640px] max-h-[86vh] flex flex-col">'
-    +'<div class="px-6 py-4 border-b border-slate-100 flex items-center justify-between"><div class="font-bold">批量导入修改</div><button onclick="closeModal()" class="text-slate-400 hover:text-slate-600"><i class="fa-solid fa-xmark"></i></button></div>'
-    +'<div class="flex-1 overflow-y-auto custom-scroll px-6 py-6 space-y-4">'
-      +'<div class="border-2 border-dashed border-slate-200 rounded-xl p-6 text-center">'
-        +'<i class="fa-solid fa-file-arrow-down text-3xl text-brand-500"></i>'
-        +'<div class="text-sm text-slate-600 mt-3 mb-3">导出当前筛选结果为修改表（回填现有值，改动列标黄）<br><span class="text-xs text-slate-400">当前筛选：'+filterRows().length+' 行</span></div>'
-        +'<button onclick="downloadTpl(\'update\')" class="bg-brand-600 hover:bg-brand-700 text-white text-sm font-medium px-4 py-2 rounded-lg"><i class="fa-solid fa-download mr-1"></i>下载修改表</button>'
-      +'</div>'
-      +'<div class="border-2 border-dashed border-slate-200 rounded-xl p-6 text-center">'
-        +'<i class="fa-solid fa-cloud-arrow-up text-3xl text-slate-300"></i>'
-        +'<div class="text-sm text-slate-600 mt-3 mb-4">上传填好的修改表，按「活动ID+渠道ID」定位行，只更新填写的列</div>'
-        +'<label class="bg-brand-600 hover:bg-brand-700 text-white text-sm font-medium px-4 py-2 rounded-lg cursor-pointer">选择文件<input type="file" accept=".xlsx,.csv" class="hidden" onchange="mockImportParse(this)"></label>'
-      +'</div>'
-      +'<div class="bg-slate-50 border border-slate-100 rounded-lg p-3 text-xs text-slate-500 leading-relaxed">'
-        +'<b class="text-slate-600">修改规则：</b>① 定位：活动ID + 渠道ID（双 ID，模板自带）；② 留空列 = 保持原值；③ 考试已开始/结束的行，考试要素列（名称/时间/时长/交卷/试卷/监考/模拟考）锁定不改；④ 已有报名的行禁改考试起止时间；⑤ 校验失败行整行跳过并标注原因。'
-      +'</div>'
-    +'</div></div>');
-}
-function mockImportParse(inp){ const f=inp.files[0]; if(!f) return; setTimeout(renderImportPreview, 300); }
+/* 混合示例：2 新建 + 3 修改 + 2 失败 */
 const MOCK_IMPORT_ROWS = [
- {k:'HD2501|QD001', act:'报名费调价', from:'¥300', to:'¥280', ok:true},
- {k:'HD2503|QD001', act:'改分组', from:'6月批', to:'3月批', ok:true},
- {k:'HD2502|QD001', act:'改考试开始时间', from:'2026-03-21 14:00', to:'2026-03-22 14:00', ok:true},
- {k:'HD2505|QD001', act:'改关联试卷', from:'(空)', to:'C++-L1-基础卷', ok:true},
- {k:'HD2506|QD002', act:'改考试结束时间', from:'2026-03-28 11:00', to:'2026-03-29 11:00', ok:false, err:'该活动已有 145 人报名，禁改考试起止时间'},
- {k:'HD2504|QD001', act:'改时长', from:'90分钟', to:'120分钟', ok:false, err:'考试已开始/结束，考试要素已锁定（该行为演示锁定场景）'},
+ {type:'新建', aid:'', cid:'QD001', name:'Python一级·12月考期', group:'3月批', paper:'PY-L1-2026春-A卷', examStart:'2026-12-19 09:00', examEnd:'2026-12-19 11:00', duration:120, submitLimit:100, fee:300, ok:true},
+ {type:'新建', aid:'', cid:'QD001', name:'图形化一级·12月考期', group:'3月批', paper:'', examStart:'2026-12-19 14:00', examEnd:'2026-12-19 15:30', duration:90, submitLimit:80, fee:280, ok:false, err:'关联试卷为空：将保存为未关联状态（可后续补关联），如需直接创建请补填试卷'},
+ {type:'修改', k:'HD2501|QD001', act:'报名费调价', from:'¥300', to:'¥280', ok:true},
+ {type:'修改', k:'HD2503|QD001', act:'改分组 + 模拟考交卷限制', from:'6月批 / 不限', to:'3月批 / 90分钟', ok:true},
+ {type:'修改', k:'HD2505|QD001', act:'补关联试卷', from:'(空)', to:'C++-L1-基础卷', ok:true},
+ {type:'修改', k:'HD2506|QD002', act:'改考试结束时间', from:'2026-03-28 11:00', to:'2026-03-29 11:00', ok:false, err:'该活动已有 145 人报名，禁改考试起止时间'},
+ {type:'修改', k:'HD2504|QD001', act:'改时长', from:'90分钟', to:'120分钟', ok:false, err:'考试已开始/结束，考试要素已锁定'},
 ];
 function renderImportPreview(){
-  const rs=MOCK_IMPORT_ROWS.map(r=>({...r, row:rows.find(x=>x._k===r.k)}));
-  const okN=rs.filter(r=>r.ok).length;
-  const trs=rs.map(r=>'<tr class="border-b border-slate-100 '+(r.ok?'':'bg-red-50/50')+'">'
-    +'<td class="py-2 px-2">'+(r.ok?'<i class=\'fa-solid fa-circle-check text-emerald-500\'></i>':'<i class=\'fa-solid fa-circle-xmark text-red-500\'></i>')+'</td>'
-    +'<td class="py-2 px-2 font-mono text-[11px]">'+esc(r.k)+'</td>'
-    +'<td class="py-2 px-2">'+esc(r.row?r.row.name:'—')+'</td>'
-    +'<td class="py-2 px-2">'+esc(r.act)+'</td>'
-    +'<td class="py-2 px-2 text-slate-400">'+esc(r.from)+'</td>'
-    +'<td class="py-2 px-2 font-medium text-brand-700">'+esc(r.to)+'</td>'
-    +'<td class="py-2 px-2 text-xs '+(r.ok?'text-slate-400':'text-red-500')+'">'+(r.ok?'—':esc(r.err))+'</td></tr>').join('');
-  openModalHtml('<div class="bg-white rounded-xl shadow-popover modal-enter w-[860px] max-h-[86vh] flex flex-col">'
-    +'<div class="px-6 py-4 border-b border-slate-100 flex items-center justify-between"><div class="font-bold">修改校验预览 <span class="text-sm font-normal text-slate-400">共 '+rs.length+' 行</span></div><button onclick="closeModal()" class="text-slate-400 hover:text-slate-600"><i class="fa-solid fa-xmark"></i></button></div>'
+  const rs = MOCK_IMPORT_ROWS;
+  const okN = rs.filter(r=>r.ok).length, badN = rs.length - okN;
+  const newN = rs.filter(r=>r.type==='新建'&&r.ok).length, modN = rs.filter(r=>r.type==='修改'&&r.ok).length;
+  const typePill = r => r.type==='新建' ? '<span class="pill bg-blue-50 text-blue-600">新建</span>' : '<span class="pill bg-violet-50 text-violet-600">修改</span>';
+  const trs = rs.map(r=>{
+    const row = r.k ? rows.find(x=>x._k===r.k) : null;
+    if(r.type==='新建') return '<tr class="border-b border-slate-100 '+(r.ok?'':'bg-red-50/50')+'">'
+      +'<td class="py-2 px-2">'+(r.ok?'<i class="fa-solid fa-circle-check text-emerald-500"></i>':'<i class="fa-solid fa-circle-xmark text-red-500"></i>')+'</td>'
+      +'<td class="py-2 px-2">'+typePill(r)+'</td>'
+      +'<td class="py-2 px-2 font-medium">'+esc(r.name)+'</td>'
+      +'<td class="py-2 px-2">'+esc(chName(r.cid))+'</td>'
+      +'<td class="py-2 px-2 text-xs">'+esc(r.examStart)+'<br>'+esc(r.examEnd)+'</td>'
+      +'<td class="py-2 px-2">¥'+r.fee+'</td>'
+      +'<td class="py-2 px-2 text-xs '+(r.ok?'text-slate-400':'text-red-500')+'">'+(r.ok?'—（将自动创建爱测评考试）':esc(r.err))+'</td></tr>';
+    return '<tr class="border-b border-slate-100 '+(r.ok?'':'bg-red-50/50')+'">'
+      +'<td class="py-2 px-2">'+(r.ok?'<i class="fa-solid fa-circle-check text-emerald-500"></i>':'<i class="fa-solid fa-circle-xmark text-red-500"></i>')+'</td>'
+      +'<td class="py-2 px-2">'+typePill(r)+'</td>'
+      +'<td class="py-2 px-2 font-medium">'+esc(row?row.name:'—')+'<div class="text-[10px] font-mono text-slate-400">'+esc(r.k)+'</div></td>'
+      +'<td class="py-2 px-2">'+esc(chName(r.k.split('|')[1]))+'</td>'
+      +'<td class="py-2 px-2 text-xs">'+esc(r.act)+'</td>'
+      +'<td class="py-2 px-2 text-xs text-slate-400">'+esc(r.from)+' → <b class="text-brand-700">'+esc(r.to)+'</b></td>'
+      +'<td class="py-2 px-2 text-xs '+(r.ok?'text-slate-400':'text-red-500')+'">'+(r.ok?'—':esc(r.err))+'</td></tr>';
+  }).join('');
+  openModalHtml('<div class="bg-white rounded-xl shadow-popover modal-enter w-[920px] max-h-[88vh] flex flex-col">'
+    +'<div class="px-6 py-4 border-b border-slate-100 flex items-center justify-between"><div class="font-bold">校验预览 <span class="text-sm font-normal text-slate-400">共 '+rs.length+' 行 · 自动判定类型</span></div><button onclick="closeModal()" class="text-slate-400 hover:text-slate-600"><i class="fa-solid fa-xmark"></i></button></div>'
     +'<div class="px-6 py-3 flex items-center gap-4 border-b border-slate-100 text-sm flex-shrink-0">'
-      +'<span class="text-emerald-600 font-medium"><i class="fa-solid fa-circle-check mr-1"></i>可应用 '+okN+' 行</span>'
-      +'<span class="text-red-500 font-medium"><i class="fa-solid fa-circle-xmark mr-1"></i>跳过 '+(rs.length-okN)+' 行</span></div>'
+      +'<span class="text-blue-600 font-medium"><i class="fa-solid fa-plus mr-1"></i>新建 '+newN+'</span>'
+      +'<span class="text-violet-600 font-medium"><i class="fa-solid fa-pen mr-1"></i>修改 '+modN+'</span>'
+      +'<span class="text-red-500 font-medium"><i class="fa-solid fa-circle-xmark mr-1"></i>失败 '+badN+'</span>'
+      +'<span class="text-xs text-slate-400 ml-auto">失败行不影响其他行；确认导入仅执行可执行行</span></div>'
     +'<div class="flex-1 overflow-auto custom-scroll"><table class="w-full text-xs">'
-      +'<thead class="bg-slate-50 sticky top-0 text-slate-500"><tr><th class="py-2 px-2 w-8"></th><th class="py-2 px-2 text-left">活动ID｜渠道ID</th><th class="py-2 px-2 text-left">活动</th><th class="py-2 px-2 text-left">修改项</th><th class="py-2 px-2 text-left">原值</th><th class="py-2 px-2 text-left">新值</th><th class="py-2 px-2 text-left">原因</th></tr></thead>'
+      +'<thead class="bg-slate-50 sticky top-0 text-slate-500"><tr><th class="py-2 px-2 w-8"></th><th class="py-2 px-2 text-left">类型</th><th class="py-2 px-2 text-left">活动</th><th class="py-2 px-2 text-left">渠道</th><th class="py-2 px-2 text-left">考试时间 / 修改项</th><th class="py-2 px-2 text-left">值 / 变更</th><th class="py-2 px-2 text-left">失败原因</th></tr></thead>'
       +'<tbody>'+trs+'</tbody></table></div>'
     +'<div class="px-6 py-3 border-t border-slate-100 flex justify-between items-center flex-shrink-0">'
-      +'<span class="text-xs text-slate-400">跳过行不影响其他行应用</span>'
-      +'<button onclick="doImport()" class="px-4 py-2 text-sm rounded-lg bg-brand-600 hover:bg-brand-700 text-white font-medium '+(okN?'':'opacity-50 pointer-events-none')+'">确认应用 '+okN+' 行</button></div></div>');
+      +'<button onclick="impStep(2)" class="text-sm text-slate-500 hover:text-brand-600"><i class="fa-solid fa-arrow-left mr-1"></i>重新上传</button>'
+      +'<button onclick="doImport()" class="px-4 py-2 text-sm rounded-lg bg-brand-600 hover:bg-brand-700 text-white font-medium '+(okN?'':'opacity-50 pointer-events-none')+'">确认导入 '+okN+' 行（新建 '+newN+' · 修改 '+modN+'）</button></div></div>');
 }
 function doImport(){
-  let n=0;
-  MOCK_IMPORT_ROWS.forEach(r=>{ if(!r.ok) return;
-    const row=rows.find(x=>x._k===r.k); if(!row) return;
-    if(r.act==='报名费调价'){ row.fee=280; }
-    if(r.act==='改分组'){ row.group='3月批'; }
-    if(r.act==='改考试开始时间'){ row.examStart='2026-03-22 14:00'; }
-    if(r.act==='改关联试卷'){ row.paper='C++-L1-基础卷'; row.status='创建中'; setTimeout(()=>{ row.status='已创建'; save(); renderAll(); }, 1800); }
-    n++;
+  let created = 0, updated = 0;
+  MOCK_IMPORT_ROWS.forEach((r, i) => {
+    if(!r.ok) return;
+    if(r.type === '新建'){
+      const aid = 'HD25' + (20 + i);
+      rows.push({ ...r, aid, _k: aid + '|' + r.cid, status: r.paper ? '创建中' : '未关联', enrolled: 0,
+        tags: ['Python','1级'], desc: '', permanent: false, certDate: '首次查看', showStart: '2026-10-01', showEnd: '', show: true,
+        pro: {cam:'强制开启',rec:'强制开启',phone:false,photo:'非强制开启',score:true,detail:true,read:true,wait:0,guide:'',pic:''},
+        mock: {on:false,paper:'',start:'',end:'',limit:'',submitLimit:'',pro:null} });
+      created++;
+    } else {
+      const row = rows.find(x => x._k === r.k); if(!row) return;
+      if(r.act === '报名费调价') row.fee = 280;
+      if(r.act.includes('改分组')) { row.group = '3月批'; row.mock.submitLimit = '90'; }
+      if(r.act === '补关联试卷'){ row.paper = 'C++-L1-基础卷'; row.status = '创建中'; setTimeout(()=>{ row.status='已创建'; save(); renderAll(); }, 1800); }
+      updated++;
+    }
   });
+  // 新建行异步推进创建状态
+  const news = rows.filter(r => r.status === '创建中' && r.aid.startsWith('HD252'));
+  setTimeout(()=>{ news.forEach(r=>r.status='已创建'); save(); renderAll(); }, 1800);
   save(); renderAll(); closeModal();
-  toast('批量修改已应用 '+n+' 行；触发爱测评联动的行已进入更新队列，结果见消息中心');
+  toast('导入完成：新建 ' + created + ' 行、修改 ' + updated + ' 行；自动创建/联动更新已进入队列，结果见消息中心');
 }
 
 /* ================= 导出/模板下载 ================= */
 function dl(name, content, mime){ const b=new Blob(['\ufeff'+content],{type:mime||'text/csv'}); const a=document.createElement('a'); a.href=URL.createObjectURL(b); a.download=name; a.click(); }
 function csvCell(v){ v=String(v==null?'':v); return /[",\n]/.test(v)?'"'+v.replace(/"/g,'""')+'"':v; }
 function downloadTpl(t){
-  if(t==='create'){
-    const head=['测评名称','渠道ID','渠道名称','所属分组','关联试卷','考试开始时间','考试结束时间','时长(分钟)','交卷限制(分钟)','报名费(元)','展示开始日期','展示结束日期','永久有效','前端展示','摄像头监考','录屏监考','手机监考','检录照片','成绩开关','分数开关','读题开关','候考时长(分)','开启模拟考','模拟卷','模拟考开始','模拟考结束','模拟考次数','模拟考交卷限制(分钟)','模拟考监考'];
-    const demo=['Python一级·12月考期','QD001','猿编程','3月批','PY-L1-2026春-A卷','2026-12-19 09:00','2026-12-19 11:00','120','100','300','2026-10-01','','否','是','强制开启','强制开启','否','非强制开启','开','开','开','0','否','','','','','跟随正式考'];
+  if(t==='create' || t==='blank'){
+    const head=['活动ID(修改行填,新建留空)','渠道ID(修改行填,新建留空)','测评名称','渠道名称','所属分组','关联试卷','考试开始时间','考试结束时间','时长(分钟)','交卷限制(分钟)','报名费(元)','展示开始日期','展示结束日期','永久有效','前端展示','摄像头监考','录屏监考','手机监考','检录照片','成绩开关','分数开关','读题开关','候考时长(分)','开启模拟考','模拟卷','模拟考开始','模拟考结束','模拟考次数','模拟考交卷限制(分钟)','模拟考监考'];
+    const demo=['','QD001','Python一级·12月考期','猿编程','3月批','PY-L1-2026春-A卷','2026-12-19 09:00','2026-12-19 11:00','120','100','300','2026-10-01','','否','是','强制开启','强制开启','否','非强制开启','开','开','开','0','否','','','','','跟随正式考'];
     dl('考试管理看板_批量新建模板.csv', [head,demo].map(r=>r.map(csvCell).join(',')).join('\n'));
     toast('模板已下载：含监考与模拟考全字段');
   } else {
