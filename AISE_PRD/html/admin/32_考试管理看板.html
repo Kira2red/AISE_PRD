@@ -197,13 +197,13 @@ function seedRows(){
    // 渠道 猿编程: 分组 3月批
    {aid:'HD2501', name:'Python一级·3月考期', cid:'QD001', group:'3月批', paper:'PY-L1-2026春-A卷', examStart:'2026-03-21 09:00', examEnd:'2026-03-21 11:00', duration:120, submitLimit:100, fee:300, showStart:'2026-01-10', showEnd:'', feeNote:'', show:true,
     pro:{cam:'强制开启',rec:'强制开启',phone:false,photo:'非强制开启',score:true,detail:true,read:true,wait:0,guide:'',pic:''}, mock:{on:false,paper:'',start:'',end:'',limit:''}, desc:'面向零基础学员的 Python 等级认证',
-    status:'已创建', enrolled:186, tags:['Python','1级'], permanent:false},
+    status:'已创建', enrolled:186, tags:['Python','1级'], permanent:false, certDate:'首次查看'},
    {aid:'HD2502', name:'图形化一级·3月考期', cid:'QD001', group:'3月批', paper:'图形化-L1-3月卷', examStart:'2026-03-21 14:00', examEnd:'2026-03-21 15:30', duration:90, submitLimit:80, fee:280, showStart:'2026-01-10', showEnd:'', show:true,
     pro:{cam:'强制开启',rec:'不开启',phone:false,photo:'非强制开启',score:true,detail:true,read:true,wait:0,guide:'',pic:''}, mock:{on:false,paper:'',start:'',end:'',limit:''}, desc:'图形化编程入门等级认证',
     status:'已创建', enrolled:132, tags:['图形化','1级']},
    // 猿编程 6月批
    {aid:'HD2503', name:'Python二级·6月考期', cid:'QD001', group:'6月批', paper:'PY-L2-2026春-A卷', examStart:'2026-06-20 09:00', examEnd:'2026-06-20 11:30', duration:150, submitLimit:130, fee:320, showStart:'2026-04-01', showEnd:'', show:true,
-    pro:{cam:'强制开启',rec:'强制开启',phone:false,photo:'不开启',score:true,detail:true,read:true,wait:30,guide:'',pic:''}, mock:{on:true,paper:'PY-L2-模拟卷',start:'2026-06-06 09:00',end:'2026-06-08 18:00',limit:'2次',pro:null}, desc:'',
+    pro:{cam:'强制开启',rec:'强制开启',phone:false,photo:'不开启',score:true,detail:true,read:true,wait:30,guide:'',pic:''}, mock:{on:true,paper:'PY-L2-模拟卷',start:'2026-06-06 09:00',end:'2026-06-08 18:00',limit:'2次',submitLimit:'',pro:null}, desc:'',
     status:'已创建', enrolled:98, tags:['Python','2级']},
    {aid:'HD2504', name:'图形化二级·6月考期', cid:'QD001', group:'6月批', paper:'图形化-L2-6月卷', examStart:'2026-06-20 14:00', examEnd:'2026-06-20 15:30', duration:90, submitLimit:80, fee:300, showStart:'2026-04-01', showEnd:'', show:true,
     pro:{cam:'非强制开启',rec:'不开启',phone:false,photo:'不开启',score:true,detail:true,read:true,wait:0,guide:'',pic:''}, mock:{on:false,paper:'',start:'',end:'',limit:''}, desc:'',
@@ -225,11 +225,11 @@ function seedRows(){
     status:'已创建', enrolled:76, tags:['图形化','1级']},
    // 小码王
    {aid:'HD2508', name:'Python二级·暑期集训', cid:'QD004', group:'常规班', paper:'PY-L2-2026春-A卷', examStart:'2026-08-15 09:00', examEnd:'2026-08-15 11:30', duration:150, submitLimit:130, fee:320, showStart:'2026-06-01', showEnd:'', show:true,
-    pro:{cam:'强制开启',rec:'强制开启',phone:false,photo:'非强制开启',score:true,detail:true,read:true,wait:0,guide:'',pic:''}, mock:{on:true,paper:'PY-L2-模拟卷',start:'2026-08-01 09:00',end:'2026-08-03 18:00',limit:'无限次',pro:{cam:'不开启',rec:'不开启',phone:false,photo:'不开启',score:true,detail:true,read:true,wait:0,guide:'',pic:''}}, desc:'',
+    pro:{cam:'强制开启',rec:'强制开启',phone:false,photo:'非强制开启',score:true,detail:true,read:true,wait:0,guide:'',pic:''}, mock:{on:true,paper:'PY-L2-模拟卷',start:'2026-08-01 09:00',end:'2026-08-03 18:00',limit:'无限次',submitLimit:'90',pro:{cam:'不开启',rec:'不开启',phone:false,photo:'不开启',score:true,detail:true,read:true,wait:0,guide:'',pic:''}}, desc:'',
     status:'已创建', enrolled:64, tags:['Python','2级']},
    {aid:'HD2509', name:'Python三级·暑期冲刺', cid:'QD004', group:'常规班', paper:'PY-L3-冲刺卷', examStart:'2026-12-19 09:00', examEnd:'2026-12-19 12:00', duration:180, submitLimit:150, fee:360, showStart:'2026-10-01', showEnd:'', show:true,
     pro:{cam:'强制开启',rec:'强制开启',phone:false,photo:'不开启',score:true,detail:true,read:true,wait:0,guide:'',pic:''}, mock:{on:false,paper:'',start:'',end:'',limit:''}, desc:'',
-    status:'创建中', enrolled:12, tags:['Python','3级'], permanent:true},
+    status:'创建中', enrolled:12, tags:['Python','3级'], permanent:true, certDate:'2026-12-31'},
   ];
   return rows.map(r => ({...r, _k: r.aid + '|' + r.cid}));
 }
@@ -259,16 +259,18 @@ function proBrief(p){ if(!p) return '—';
 }
 function mockBrief(m){ if(!m||!m.on) return '<span class="text-slate-300">未开启</span>';
   const pro = m.pro ? '<span class="text-amber-600">监考:自定义</span>' : '<span class="text-slate-400">监考:同正式考</span>';
-  return '<span class="text-emerald-600 font-medium">已开启</span> · '+esc(m.paper)+' · '+esc(m.limit||'')+'<div class="mt-0.5">'+pro+'</div>'; }
+  const sub = m.submitLimit ? ' · 交卷≤'+esc(m.submitLimit)+'分' : '';
+  return '<span class="text-emerald-600 font-medium">已开启</span> · '+esc(m.paper)+' · '+esc(m.limit||'')+sub+'<div class="mt-0.5">'+pro+'</div>'; }
 function examPhase(r){ const n=Date.now(); const s=Date.parse(r.examStart.replace(' ','T')); const e=Date.parse(r.examEnd.replace(' ','T')); if(n<s) return 'notstart'; if(n>e) return 'ended'; return 'ongoing'; }
 function phaseText(p){ return {notstart:'未开考',ongoing:'进行中',ended:'已结束'}[p]; }
 function statusPill(s, failReason){ const map={'已创建':'bg-emerald-50 text-emerald-600','创建中':'bg-amber-50 text-amber-600','未关联':'bg-slate-100 text-slate-500','创建失败':'bg-red-50 text-red-600'}; return '<span class="pill '+map[s]+'">'+s+'</span>'; }
 function fmtExamTime(r){ const d1=r.examStart.slice(0,10), d2=r.examEnd.slice(0,10); if(d1===d2) return esc(d1)+' '+esc(r.examStart.slice(11))+'-'+esc(r.examEnd.slice(11)); return esc(r.examStart)+' 至 '+esc(r.examEnd); }
+function fmtCert(r){ if(r.certDate==='首次查看'||!r.certDate) return '用户初次查看时间'; return '指定日期：'+r.certDate; }
 function fmtShowTime(r){ if(r.permanent) return esc(r.showStart||'—')+' 起 · 永久有效'; if(!r.showStart && !r.showEnd) return '未设置'; if(r.showStart && !r.showEnd) return esc(r.showStart)+' 起'; if(!r.showStart && r.showEnd) return esc(r.showEnd)+' 止'; return esc(r.showStart)+' ~ '+esc(r.showEnd); }
 /** 考试开始后锁定的字段（含起止时间，已报名/未报名都锁，依据：20260825 §3.7 + 用户拍板2） */
 function lockedFields(r){
   if(examPhase(r)==='notstart') return [];
-  return ['name','examStart','examEnd','duration','submitLimit','paper','pro','mock'];
+  return ['name','examStart','examEnd','duration','submitLimit','paper','pro','mock','tags','desc','certDate'];
 }
 function fieldLockNote(){ return '考试已开始/结束，考试要素已锁定'; }
 function enrolledLock(r){ return r.enrolled>0 ? ['examStart','examEnd'] : []; } // 已报名禁改起止时间（即便未开考）
@@ -378,7 +380,9 @@ function viewRow(k){
         +li('关联试卷', r.paper?esc(r.paper):'未关联','paper')
         +li('考试时间', fmtExamTime(r)+'（'+phaseText(examPhase(r))+'）','examStart')
         +li('时长 / 交卷限制', r.duration+' 分钟 / '+r.submitLimit+' 分钟','duration')
-        +li('标签', (r.tags||[]).map(t=>'<span class="tag-chip">'+esc(t)+'</span>').join(' ')||'—')
+        +li('标签', (r.tags||[]).map(t=>'<span class="tag-chip">'+esc(t)+'</span>').join(' ')||'—','tags')
+        +li('测评描述', r.desc?esc(r.desc):'—','desc')
+        +li('证书落款时间', fmtCert(r),'certDate')
         +li('爱测评状态', statusPill(r.status)+(r.failReason?'<div class="text-xs text-red-400 mt-1">'+esc(r.failReason)+'</div>':''))
         +li('报名量', r.enrolled+' 人')
       +'</div>'
@@ -389,10 +393,12 @@ function viewRow(k){
         +li('检录照片', r.pro.photo,'pro')
         +li('成绩/分数/读题', (r.pro.score?'开':'关')+' / '+(r.pro.detail?'开':'关')+' / '+(r.pro.read?'开':'关'),'pro')
         +li('候考时长', r.pro.wait>0? r.pro.wait+' 分钟':'不开启','pro')
+        +li('检录视频引导文案', r.pro.guide?esc(r.pro.guide):'系统默认文案','pro')
+        +li('检录视频示意图', r.pro.pic?'已上传':'系统默认示意图','pro')
       +'</div>'
       +'<div><div class="text-xs font-bold text-slate-400 uppercase tracking-wider mb-2">模拟考</div>'
         +(r.mock&&r.mock.on
-          ? li('模拟卷', esc(r.mock.paper),'mock')+li('模拟考时间', esc(r.mock.start)+' 至 '+esc(r.mock.end),'mock')+li('次数限制', esc(r.mock.limit),'mock')
+          ? li('模拟卷', esc(r.mock.paper),'mock')+li('模拟考时间', esc(r.mock.start)+' 至 '+esc(r.mock.end),'mock')+li('次数限制', esc(r.mock.limit),'mock')+li('模拟考交卷时间限制', r.mock.submitLimit? esc(r.mock.submitLimit)+' 分钟':'不限','mock')
             +li('模拟考监考', r.mock.pro?'<span class=\'text-amber-600\'>自定义</span> <span class=\'text-xs text-slate-400\'>'+esc(proBrief(r.mock.pro))+'</span>':'跟随正式考配置','mock')
           : '<div class="text-sm text-slate-400 py-1.5">未开启</div>')
       +'</div>'
@@ -502,6 +508,10 @@ function openBatchModal(){
       + '<div class="'+gd('examEnd')+'">'+labEl('考试结束时间', isLocked('examEnd'))+'<input type="datetime-local" step="60" class="bf-ctrl '+IN+'" data-f="examEnd"></div>'
       + '<div class="'+gd('duration')+'">'+labEl('时长（分钟）', isLocked('duration'))+'<input type="number" min="1" class="bf-ctrl '+IN+'" data-f="duration" placeholder="不修改"></div>'
       + '<div class="'+gd('submitLimit')+'">'+labEl('交卷限制（分钟）', isLocked('submitLimit'))+'<input type="number" min="1" class="bf-ctrl '+IN+'" data-f="submitLimit" placeholder="不修改"></div>'
+      + '<div class="'+gd('tags')+'">'+labEl('标签（逗号分隔，覆盖式）', isLocked('tags'))+'<input type="text" class="bf-ctrl '+IN+'" data-f="tags" placeholder="如：Python,2级"></div>'
+      + '<div class="'+gd('desc')+'">'+labEl('测评描述', isLocked('desc'))+'<input type="text" class="bf-ctrl '+IN+'" data-f="desc" placeholder="不修改"></div>'
+      + '<div class="'+gd('certDate')+'">'+labEl('证书落款时间', isLocked('certDate'))+'<select class="bf-ctrl '+IN+'" data-f="certDate"><option value="">不修改</option><option value="首次查看">用户初次查看时间</option><option value="__custom__">指定日期 →</option></select></div>'
+      + '<div class="'+gd('certDate')+'">'+labEl('落款指定日期', isLocked('certDate'))+'<input type="date" class="bf-ctrl '+IN+'" data-f="certDateCustom"></div>'
     + '</div>'
 
     + segHead('fa-video','正式考监考配置','随考试创建/编辑联动下发爱测评', true)
@@ -510,6 +520,8 @@ function openBatchModal(){
       + seg3('录屏监考', ['强制开启','非强制开启','不开启'], '强制开启', isLocked('pro'), 'pro_rec')
       + seg3('检录照片', ['强制开启','非强制开启','不开启'], '非强制开启', isLocked('pro'), 'pro_photo')
       + '<div class="'+(isLocked('pro')?'opacity-50 pointer-events-none':'')+'">'+labEl('候考时长（分钟，0=不开启）', isLocked('pro'))+'<input type="number" min="0" max="120" class="bf-ctrl '+IN+'" data-f="pro_wait" value="0"></div>'
+      + '<div class="'+(isLocked('pro')?'opacity-50 pointer-events-none':'')+'">'+labEl('检录视频引导文案', isLocked('pro'))+'<input type="text" class="bf-ctrl '+IN+'" data-f="pro_guide" placeholder="不修改；清空=恢复系统默认"></div>'
+      + '<div class="'+(isLocked('pro')?'opacity-50 pointer-events-none':'')+'">'+labEl('检录视频示意图', isLocked('pro'))+'<select class="bf-ctrl '+IN+'" data-f="pro_pic"><option value="">不修改</option><option value="__reset__">恢复系统默认示意图</option><option value="__upload__">上传新示意图（应用后到单条编辑中上传）</option></select></div>'
       + '<div class="'+(isLocked('pro')?'opacity-50 pointer-events-none':'')+'">'
         + labEl('开关组', isLocked('pro'))
         + '<div class="flex flex-wrap gap-x-4 gap-y-1.5 pt-1.5">'
@@ -518,7 +530,7 @@ function openBatchModal(){
           + '<label class="flex items-center gap-1.5 text-xs text-slate-600"><input type="checkbox" class="cb bf-ctrl-static" data-f="pro_detail" checked> 分数开关</label>'
           + '<label class="flex items-center gap-1.5 text-xs text-slate-600"><input type="checkbox" class="cb bf-ctrl-static" data-f="pro_read" checked> 读题开关</label>'
         + '</div></div>'
-      + '<div class="text-xs text-slate-400 self-end leading-snug">检录视频引导文案 / 示意图不进批量配置，需单条编辑。</div>'
+      + '<div class="text-xs text-slate-400 self-end leading-snug">引导文案清空=恢复系统默认；示意图仅支持恢复默认，上传新图需单条编辑。</div>'
     + '</div>'
 
     + segHead('fa-clipboard-question','模拟考配置','默认读取正式考监考；可自定义（仅对模拟考生效）', true)
@@ -531,6 +543,7 @@ function openBatchModal(){
       + '<div class="'+(isLocked('mock')?'opacity-50 pointer-events-none':'')+'">'+labEl('模拟考开始时间', isLocked('mock'))+'<input type="datetime-local" step="60" class="bf-ctrl '+IN+'" data-f="mock_start"></div>'
       + '<div class="'+(isLocked('mock')?'opacity-50 pointer-events-none':'')+'">'+labEl('模拟考结束时间', isLocked('mock'))+'<input type="datetime-local" step="60" class="bf-ctrl '+IN+'" data-f="mock_end"></div>'
       + '<div class="'+(isLocked('mock')?'opacity-50 pointer-events-none':'')+'">'+labEl('次数限制', isLocked('mock'))+'<select class="bf-ctrl '+IN+'" data-f="mock_limit"><option value="">不修改</option>'+['无限次','1次','2次','3次'].map(o=>'<option>'+o+'</option>').join('')+'</select></div>'
+      + '<div class="'+(isLocked('mock')?'opacity-50 pointer-events-none':'')+'">'+labEl('模拟考交卷时间限制（分钟，空=不限）', isLocked('mock'))+'<input type="number" min="0" class="bf-ctrl '+IN+'" data-f="mock_submitLimit" placeholder="不修改"></div>'
     + '</div>'
 
     + segHead('fa-user-shield','模拟考监考配置','允许与正式考不同；未自定义时跟随正式考', true)
@@ -588,6 +601,12 @@ function bfCollect(){
     if(v === '' || v == null) return;
     sets[f] = v;
   });
+  // 证书落款：下拉选「指定日期」时取日期输入值；选「首次查看」直接生效
+  if(sets.certDate === '__custom__'){
+    const d = (document.querySelector('.bf-ctrl[data-f="certDateCustom"]')||{}).value;
+    sets.certDate = d || undefined; if(!d) delete sets.certDate;
+  }
+  if('pro_guide' in sets && sets.pro_guide === '') delete sets.pro_guide; // 空文案无意义，恢复默认走 __reset__
   document.querySelectorAll('.bf-ctrl-static').forEach(el => { sets[el.dataset.f] = el.checked; });
   document.querySelectorAll('.bseg').forEach(box => {
     if(!box.dataset.touched) return;
@@ -601,7 +620,7 @@ function bfCollect(){
 function bfUpdateSummary(){
   const sets = bfCollect();
   const parts = [];
-  const map = {group:'分组', fee:'报名费', showStart:'展示开始', showEnd:'展示结束/永久', show:'展示开关', name:'名称', paper:'试卷', examStart:'考试开始', examEnd:'考试结束', duration:'时长', submitLimit:'交卷限制', pro_cam:'摄像头', pro_rec:'录屏', pro_photo:'检录照片', pro_wait:'候考时长', pro_phone:'手机监考', pro_score:'成绩', pro_detail:'分数', pro_read:'读题', mock_on:'模拟考开关', mock_paper:'模拟卷', mock_start:'模拟考开始', mock_end:'模拟考结束', mock_limit:'模拟考次数', mpro_mode:'模拟监考口径', mpro_cam:'模拟摄像头', mpro_rec:'模拟录屏', mpro_photo:'模拟检录照片', mpro_wait:'模拟候考', mpro_phone:'模拟手机监考', mpro_score:'模拟成绩', mpro_detail:'模拟分数', mpro_read:'模拟读题'};
+  const map = {group:'分组', fee:'报名费', showStart:'展示开始', showEnd:'展示结束/永久', show:'展示开关', name:'名称', paper:'试卷', examStart:'考试开始', examEnd:'考试结束', duration:'时长', submitLimit:'交卷限制', pro_cam:'摄像头', pro_rec:'录屏', pro_photo:'检录照片', pro_wait:'候考时长', pro_phone:'手机监考', pro_score:'成绩', pro_detail:'分数', pro_read:'读题', mock_on:'模拟考开关', mock_paper:'模拟卷', mock_start:'模拟考开始', mock_end:'模拟考结束', mock_limit:'模拟考次数', mock_submitLimit:'模拟考交卷限制', mpro_mode:'模拟监考口径', mpro_cam:'模拟摄像头', mpro_rec:'模拟录屏', mpro_photo:'模拟检录照片', mpro_wait:'模拟候考', mpro_phone:'模拟手机监考', mpro_score:'模拟成绩', mpro_detail:'模拟分数', mpro_read:'模拟读题', tags:'标签', desc:'测评描述', certDate:'证书落款', certDateCustom:'落款日期', pro_guide:'检录引导文案', pro_pic:'检录示意图'};
   const BL = batchBaseline();
   Object.entries(sets).forEach(([f,v]) => {
     if(f in BL && String(v) === String(BL[f])) return;  // 等于弹窗初始默认值 → 未修改
@@ -634,19 +653,24 @@ function doBatch(){
     if('examEnd' in sets) setF('examEnd', () => r.examEnd = sets.examEnd.replace('T',' '));
     if('duration' in sets && sets.duration) setF('duration', () => r.duration = +sets.duration);
     if('submitLimit' in sets && sets.submitLimit) setF('submitLimit', () => r.submitLimit = +sets.submitLimit);
-    const proTouched = ['pro_cam','pro_rec','pro_photo','pro_wait','pro_phone','pro_score','pro_detail','pro_read'].filter(f => touchedF.includes(f));
+    if('tags' in sets && sets.tags) setF('tags', () => r.tags = sets.tags.split(/[,，]/).map(x=>x.trim()).filter(Boolean));
+    if('desc' in sets && sets.desc) setF('desc', () => r.desc = sets.desc);
+    if('certDate' in sets && sets.certDate) setF('certDate', () => r.certDate = sets.certDate);
+    const proTouched = ['pro_cam','pro_rec','pro_photo','pro_wait','pro_phone','pro_score','pro_detail','pro_read','pro_guide','pro_pic'].filter(f => touchedF.includes(f));
     if(proTouched.length) setF('pro', () => {
       r.pro = {...r.pro};
       if('pro_cam' in sets) r.pro.cam = sets.pro_cam;
       if('pro_rec' in sets) r.pro.rec = sets.pro_rec;
       if('pro_photo' in sets) r.pro.photo = sets.pro_photo;
       if('pro_wait' in sets) r.pro.wait = Math.max(0, Math.min(120, +sets.pro_wait || 0));
+      if('pro_guide' in sets && sets.pro_guide !== '') r.pro.guide = sets.pro_guide;
+      if(sets.pro_pic === '__reset__') r.pro.pic = '';
       if('pro_phone' in sets) r.pro.phone = sets.pro_phone;
       if('pro_score' in sets) r.pro.score = sets.pro_score;
       if('pro_detail' in sets) r.pro.detail = sets.pro_detail;
       if('pro_read' in sets) r.pro.read = sets.pro_read;
     });
-    const mockTouched = ['mock_on','mock_paper','mock_start','mock_end','mock_limit','mpro_follow','mpro_cam','mpro_rec','mpro_photo','mpro_wait','mpro_phone','mpro_score','mpro_detail','mpro_read'].filter(f => touchedF.includes(f));
+    const mockTouched = ['mock_on','mock_paper','mock_start','mock_end','mock_limit','mock_submitLimit','mpro_follow','mpro_cam','mpro_rec','mpro_photo','mpro_wait','mpro_phone','mpro_score','mpro_detail','mpro_read'].filter(f => touchedF.includes(f));
     if(mockTouched.length) setF('mock', () => {
       r.mock = {...r.mock, pro: r.mock.pro || null};
       if(sets.mock_on === true) r.mock.on = true;
@@ -655,6 +679,7 @@ function doBatch(){
       if('mock_start' in sets) r.mock.start = sets.mock_start.replace('T',' ');
       if('mock_end' in sets) r.mock.end = sets.mock_end.replace('T',' ');
       if('mock_limit' in sets && sets.mock_limit) r.mock.limit = sets.mock_limit;
+      if('mock_submitLimit' in sets) r.mock.submitLimit = sets.mock_submitLimit;
       if(touchedF.includes('mpro_follow') && sets.mpro_follow === true) r.mock.pro = null;
       if(touchedF.includes('mpro_follow') && sets.mpro_follow === false || ['mpro_cam','mpro_rec','mpro_photo','mpro_wait','mpro_phone','mpro_score','mpro_detail','mpro_read'].some(f=>touchedF.includes(f))){
         const cur = r.mock.pro || {cam:r.pro.cam, rec:r.pro.rec, phone:r.pro.phone, photo:r.pro.photo, score:r.pro.score, detail:r.pro.detail, read:r.pro.read, wait:r.pro.wait, guide:'', pic:''};
@@ -817,20 +842,20 @@ function dl(name, content, mime){ const b=new Blob(['\ufeff'+content],{type:mime
 function csvCell(v){ v=String(v==null?'':v); return /[",\n]/.test(v)?'"'+v.replace(/"/g,'""')+'"':v; }
 function downloadTpl(t){
   if(t==='create'){
-    const head=['测评名称','渠道ID','渠道名称','所属分组','关联试卷','考试开始时间','考试结束时间','时长(分钟)','交卷限制(分钟)','报名费(元)','展示开始日期','展示结束日期','永久有效','前端展示','摄像头监考','录屏监考','手机监考','检录照片','成绩开关','分数开关','读题开关','候考时长(分)','开启模拟考','模拟卷','模拟考开始','模拟考结束','模拟考次数','模拟考监考'];
-    const demo=['Python一级·12月考期','QD001','猿编程','3月批','PY-L1-2026春-A卷','2026-12-19 09:00','2026-12-19 11:00','120','100','300','2026-10-01','','否','是','强制开启','强制开启','否','非强制开启','开','开','开','0','否','','','','跟随正式考'];
+    const head=['测评名称','渠道ID','渠道名称','所属分组','关联试卷','考试开始时间','考试结束时间','时长(分钟)','交卷限制(分钟)','报名费(元)','展示开始日期','展示结束日期','永久有效','前端展示','摄像头监考','录屏监考','手机监考','检录照片','成绩开关','分数开关','读题开关','候考时长(分)','开启模拟考','模拟卷','模拟考开始','模拟考结束','模拟考次数','模拟考交卷限制(分钟)','模拟考监考'];
+    const demo=['Python一级·12月考期','QD001','猿编程','3月批','PY-L1-2026春-A卷','2026-12-19 09:00','2026-12-19 11:00','120','100','300','2026-10-01','','否','是','强制开启','强制开启','否','非强制开启','开','开','开','0','否','','','','','跟随正式考'];
     dl('考试管理看板_批量新建模板.csv', [head,demo].map(r=>r.map(csvCell).join(',')).join('\n'));
     toast('模板已下载：含监考与模拟考全字段');
   } else {
-    const head=['活动ID','渠道ID','测评名称','所属分组','报名费(元)','展示开始日期','展示结束日期','永久有效','前端展示','关联试卷','考试开始时间','考试结束时间','时长(分钟)','交卷限制(分钟)','摄像头监考','录屏监考','手机监考','检录照片','成绩开关','分数开关','读题开关','候考时长(分)','开启模拟考','模拟卷','模拟考开始','模拟考结束','模拟考次数','模拟考监考'];
-    const data=filterRows().map(r=>[r.aid,r.cid,r.name,r.group,r.fee,r.showStart,r.showEnd,r.permanent?'是':'否',r.show?'是':'否',r.paper||'',r.examStart,r.examEnd,r.duration,r.submitLimit,r.pro.cam,r.pro.rec,r.pro.phone?'开':'关',r.pro.photo,r.pro.score?'开':'关',r.pro.detail?'开':'关',r.pro.read?'开':'关',r.pro.wait,r.mock.on?'是':'否',r.mock.paper||'',r.mock.start||'',r.mock.end||'',r.mock.limit||'',r.mock.pro?'自定义':'跟随正式考']);
+    const head=['活动ID','渠道ID','测评名称','所属分组','报名费(元)','展示开始日期','展示结束日期','永久有效','前端展示','关联试卷','考试开始时间','考试结束时间','时长(分钟)','交卷限制(分钟)','摄像头监考','录屏监考','手机监考','检录照片','成绩开关','分数开关','读题开关','候考时长(分)','开启模拟考','模拟卷','模拟考开始','模拟考结束','模拟考次数','模拟考交卷限制(分钟)','模拟考监考'];
+    const data=filterRows().map(r=>[r.aid,r.cid,r.name,r.group,r.fee,r.showStart,r.showEnd,r.permanent?'是':'否',r.show?'是':'否',r.paper||'',r.examStart,r.examEnd,r.duration,r.submitLimit,r.pro.cam,r.pro.rec,r.pro.phone?'开':'关',r.pro.photo,r.pro.score?'开':'关',r.pro.detail?'开':'关',r.pro.read?'开':'关',r.pro.wait,r.mock.on?'是':'否',r.mock.paper||'',r.mock.start||'',r.mock.end||'',r.mock.limit||'',r.mock.submitLimit||'',r.mock.pro?'自定义':'跟随正式考']);
     dl('考试管理看板_修改表_当前筛选.csv', [head,...data].map(r=>r.map(csvCell).join(',')).join('\n'));
     toast('修改表已下载：'+data.length+' 行已回填当前值，改动列上传后生效');
   }
 }
 function exportCsv(){
-  const head=['渠道ID','渠道名称','分组','活动ID','测评名称','关联试卷','考试开始','考试结束','时长','交卷限制','报名费','展示时间','展示','爱测评状态','报名量','摄像头','录屏','手机监考','检录照片','候考','模拟考'];
-  const data=filterRows().map(r=>[r.cid,chName(r.cid),r.group,r.aid,r.name,r.paper||'',r.examStart,r.examEnd,r.duration,r.submitLimit,r.fee,(r.permanent?(r.showStart||'')+'~永久':(r.showStart||'')+'~'+(r.showEnd||'')),r.show?'是':'否',r.status,r.enrolled,r.pro.cam,r.pro.rec,r.pro.phone?'开':'关',r.pro.photo,r.pro.wait,r.mock.on?'是':'否']);
+  const head=['渠道ID','渠道名称','分组','活动ID','测评名称','关联试卷','考试开始','考试结束','时长','交卷限制','报名费','展示时间','展示','爱测评状态','报名量','摄像头','录屏','手机监考','检录照片','候考','模拟考','模拟考交卷限制'];
+  const data=filterRows().map(r=>[r.cid,chName(r.cid),r.group,r.aid,r.name,r.paper||'',r.examStart,r.examEnd,r.duration,r.submitLimit,r.fee,(r.permanent?(r.showStart||'')+'~永久':(r.showStart||'')+'~'+(r.showEnd||'')),r.show?'是':'否',r.status,r.enrolled,r.pro.cam,r.pro.rec,r.pro.phone?'开':'关',r.pro.photo,r.pro.wait,r.mock.on?'是':'否',r.mock.submitLimit||'']);
   dl('考试管理看板_导出.csv', [head,...data].map(r=>r.map(csvCell).join(',')).join('\n'));
   toast('已导出当前筛选结果：'+data.length+' 行');
 }
