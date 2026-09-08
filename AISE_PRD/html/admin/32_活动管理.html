@@ -1,0 +1,188 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>活动管理 - AISE 测评系统</title>
+<script src="https://cdn.tailwindcss.com"></script>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+<link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" rel="stylesheet">
+<script>
+tailwind.config = { theme: { extend: {
+    fontFamily: { sans: ['Inter','sans-serif'], mono: ['JetBrains Mono','monospace'] },
+    colors: { brand: { 50:'#eff6ff',100:'#dbeafe',500:'#3b82f6',600:'#2563eb',700:'#1d4ed8' } },
+    boxShadow: { 'card':'0 1px 3px 0 rgba(0,0,0,.1),0 1px 2px 0 rgba(0,0,0,.06)','popover':'0 10px 15px -3px rgba(0,0,0,.1),0 4px 6px -2px rgba(0,0,0,.05)' }
+} } }
+</script>
+<style>
+body { background-color:#F8FAFC; }
+.custom-scroll::-webkit-scrollbar{width:6px;height:6px}
+.custom-scroll::-webkit-scrollbar-thumb{background-color:#cbd5e1;border-radius:3px}
+.nav-item.active::before{content:'';position:absolute;left:0;top:50%;transform:translateY(-50%);width:4px;height:24px;background-color:#3b82f6;border-radius:0 4px 4px 0}
+tr.hover-row:hover td{background-color:#f8fafc}
+.modal-enter{animation:modalFadeIn .2s ease-out forwards}
+@keyframes modalFadeIn{from{opacity:0;transform:translateY(12px) scale(.98)}to{opacity:1;transform:translateY(0) scale(1)}}
+.pill{display:inline-flex;align-items:center;gap:4px;padding:2px 8px;border-radius:9999px;font-size:11px;font-weight:500;line-height:16px;white-space:nowrap}
+th.sortable{cursor:pointer;user-select:none}
+#toastBox{position:fixed;top:20px;right:20px;z-index:100;display:flex;flex-direction:column;gap:8px}
+</style>
+</head>
+<body class="flex h-screen overflow-hidden text-slate-800 font-sans">
+
+<aside class="w-64 bg-white border-r border-slate-200 flex flex-col flex-shrink-0 z-20">
+    <div class="h-16 flex items-center px-6 border-b border-slate-100">
+        <div class="w-8 h-8 bg-gradient-to-br from-brand-600 to-indigo-600 rounded-lg flex items-center justify-center text-white font-bold text-lg mr-3 shadow-sm">A</div>
+        <span class="font-bold text-lg text-slate-800 tracking-tight">AISE Admin</span>
+    </div>
+    <nav class="flex-1 overflow-y-auto py-4 space-y-1 custom-scroll">
+        <a href="03_测评活动列表.html" class="nav-item flex items-center gap-3 px-6 py-3 text-slate-500 hover:bg-slate-50 hover:text-brand-600 transition relative"><i class="fa-solid fa-graduation-cap w-5 text-center"></i><span class="font-medium text-sm">测评管理</span></a>
+        <a href="32_活动管理.html" class="nav-item active flex items-center gap-3 px-6 py-3 text-brand-600 bg-brand-50 transition relative"><i class="fa-solid fa-calendar-days w-5 text-center"></i><span class="font-medium text-sm">活动管理</span></a>
+        <a href="13_标签配置.html" class="nav-item flex items-center gap-3 px-6 py-3 text-slate-500 hover:bg-slate-50 hover:text-brand-600 transition relative"><i class="fa-solid fa-tags w-5 text-center"></i><span class="font-medium text-sm">标签配置</span></a>
+        <a href="06_测评组管理.html" class="nav-item flex items-center gap-3 px-6 py-3 text-slate-500 hover:bg-slate-50 hover:text-brand-600 transition relative"><i class="fa-solid fa-boxes-stacked w-5 text-center"></i><span class="font-medium text-sm">测评组管理</span></a>
+        <div class="px-6 py-2 mt-4 text-xs font-bold text-slate-400 uppercase tracking-wider">运营中心</div>
+        <a href="02_渠道管理.html" class="nav-item flex items-center gap-3 px-6 py-3 text-slate-500 hover:bg-slate-50 hover:text-brand-600 transition relative"><i class="fa-solid fa-handshake w-5 text-center"></i><span class="font-medium text-sm">渠道管理</span></a>
+        <div class="px-6 py-2 mt-4 text-xs font-bold text-slate-400 uppercase tracking-wider">考务与用户</div>
+        <a href="12_考生管理.html" class="nav-item flex items-center gap-3 px-6 py-3 text-slate-500 hover:bg-slate-50 hover:text-brand-600 transition relative"><i class="fa-solid fa-users w-5 text-center"></i><span class="font-medium text-sm">考生管理</span></a>
+        <a href="19_消息中心.html" class="nav-item flex items-center gap-3 px-6 py-3 text-slate-500 hover:bg-slate-50 hover:text-brand-600 transition relative"><i class="fa-solid fa-bell w-5 text-center"></i><span class="font-medium text-sm">消息中心</span></a>
+    </nav>
+</aside>
+
+<main class="flex-1 flex flex-col min-w-0 bg-slate-50/50 relative overflow-hidden">
+    <header class="h-16 bg-white border-b border-slate-200 flex items-center justify-between px-8 flex-shrink-0 z-10">
+        <div class="flex items-center gap-3">
+            <h1 class="text-xl font-bold text-slate-800">活动管理</h1>
+            <span class="text-xs text-slate-400 bg-slate-100 px-2 py-0.5 rounded">活动 = 一个时间段内的一组考试</span>
+        </div>
+        <div class="flex items-center gap-3">
+            <button onclick="resetDemo()" title="重置演示数据" class="bg-white border border-slate-200 hover:bg-slate-50 text-slate-400 text-sm px-3 py-1.5 rounded-lg transition"><i class="fa-solid fa-rotate-left"></i></button>
+            <button onclick="openNewAct()" class="bg-brand-600 hover:bg-brand-700 text-white text-sm font-medium px-4 py-1.5 rounded-lg transition flex items-center gap-2"><i class="fa-solid fa-plus"></i> 新建活动</button>
+        </div>
+    </header>
+
+    <div class="flex-1 flex flex-col overflow-hidden">
+        <div class="px-8 pt-6 flex-shrink-0"><div class="grid grid-cols-5 gap-4" id="statCards"></div></div>
+        <div class="px-8 py-4 flex-shrink-0">
+            <div class="bg-white rounded-xl shadow-card border border-slate-100 p-4 flex flex-wrap gap-3 items-center">
+                <div class="relative w-64">
+                    <i class="fa-solid fa-magnifying-glass absolute left-3 top-1/2 transform -translate-y-1/2 text-slate-400 text-sm"></i>
+                    <input id="fKw" oninput="renderTable()" type="text" placeholder="活动名称 / 活动ID" class="w-full pl-9 pr-4 py-2 rounded-lg border border-slate-200 text-sm focus:border-brand-500 outline-none transition">
+                </div>
+                <select id="fPhase" onchange="renderTable()" class="px-3 py-2 rounded-lg border border-slate-200 text-sm text-slate-600 bg-white focus:border-brand-500 outline-none">
+                    <option value="">活动状态：全部</option><option value="notstart">未开始</option><option value="ongoing">进行中</option><option value="ended">已结束</option>
+                </select>
+                <span class="text-xs text-slate-400">考试与渠道配置在活动详情内管理（含批量创建考试、批量修改）</span>
+            </div>
+        </div>
+        <div class="px-8 pb-6 flex-1 flex flex-col overflow-hidden min-h-0">
+            <div class="bg-white rounded-xl shadow-card border border-slate-100 flex-1 flex flex-col overflow-hidden">
+                <div class="flex-1 overflow-auto custom-scroll">
+                    <table class="w-full text-sm">
+                        <thead class="bg-slate-50/80 sticky top-0 z-10 text-xs text-slate-500">
+                            <tr class="border-b border-slate-200">
+                                <th class="py-3 px-4 text-left font-semibold">活动</th>
+                                <th class="py-3 px-3 text-left font-semibold">活动时间段</th>
+                                <th class="py-3 px-3 text-left font-semibold sortable" onclick="sortBy('exams')">考试场数 <i class="fa-solid fa-sort text-slate-300"></i></th>
+                                <th class="py-3 px-3 text-left font-semibold sortable" onclick="sortBy('chs')">参与渠道数 <i class="fa-solid fa-sort text-slate-300"></i></th>
+                                <th class="py-3 px-3 text-left font-semibold sortable" onclick="sortBy('enrolled')">报名量 <i class="fa-solid fa-sort text-slate-300"></i></th>
+                                <th class="py-3 px-3 text-left font-semibold">活动状态</th>
+                                <th class="py-3 px-3 text-left font-semibold">考试状态概览</th>
+                                <th class="py-3 px-3 text-left font-semibold">操作</th>
+                            </tr>
+                        </thead>
+                        <tbody id="tbody"></tbody>
+                    </table>
+                </div>
+                <div class="px-4 py-2 border-t border-slate-100 text-xs text-slate-400 flex-shrink-0" id="footInfo"></div>
+            </div>
+        </div>
+    </div>
+</main>
+<div id="toastBox"></div>
+<div id="modalRoot"></div>
+<script src="exam_board_data.js"></script>
+<script>
+function actStats(a){
+  const rs = rows.filter(r => r.actId === a.id);
+  return { exams: rs.length, chs: new Set(rs.map(r=>r.cid)).size, enrolled: rs.reduce((s,r)=>s+(+r.enrolled||0),0),
+    created: rs.filter(r=>r.status==='已创建').length, creating: rs.filter(r=>r.status==='创建中').length,
+    unlinked: rs.filter(r=>r.status==='未关联').length, failed: rs.filter(r=>r.status==='创建失败').length };
+}
+function renderStats(){
+  const exams = rows.length, chs = new Set(rows.map(r=>r.cid)).size, enrolled = rows.reduce((s,r)=>s+(+r.enrolled||0),0);
+  const ongoing = acts.filter(a=>actPhase(a)==='ongoing').length;
+  const cards = [
+    {label:'活动总数', v:acts.length, sub:'含筹备中', c:'text-slate-800'},
+    {label:'进行中活动', v:ongoing, sub:'当前时间段内', c:'text-blue-600'},
+    {label:'考试总场次', v:exams, sub:'全平台累计', c:'text-brand-600'},
+    {label:'参与渠道数', v:chs, sub:'有考试关联的渠道', c:'text-slate-800'},
+    {label:'总报名量', v:enrolled, sub:'全活动累计', c:'text-emerald-600'},
+  ];
+  $('statCards').innerHTML = cards.map(c=>`<div class="bg-white rounded-xl shadow-card border border-slate-100 p-4">
+    <div class="text-xs text-slate-400 mb-1">${c.label}</div><div class="text-2xl font-bold ${c.c}">${c.v}</div><div class="text-xs text-slate-400 mt-1">${c.sub}</div></div>`).join('');
+}
+let sortKey=null, sortDir=1;
+function sortBy(k){ if(sortKey===k){ sortDir*=-1; } else { sortKey=k; sortDir=1; } renderTable(); }
+function filteredActs(){
+  const kw = $('fKw').value.trim(), fp = $('fPhase').value;
+  return acts.filter(a=>{
+    if(fp && actPhase(a)!==fp) return false;
+    if(kw && !(a.name.includes(kw)||a.id.includes(kw))) return false;
+    return true;
+  }).map(a=>({a, s:actStats(a)}));
+}
+function renderTable(){
+  let list = filteredActs();
+  if(sortKey) list = [...list].sort((x,y)=>{
+    const va = sortKey==='exams'?x.s.exams:sortKey==='chs'?x.s.chs:x.s.enrolled;
+    const vb = sortKey==='exams'?y.s.exams:sortKey==='chs'?y.s.chs:y.s.enrolled;
+    return sortDir*(va-vb);
+  });
+  const phaseMap = {notstart:['未开始','bg-slate-100 text-slate-500'],ongoing:['进行中','bg-blue-50 text-blue-600'],ended:['已结束','bg-slate-100 text-slate-400']};
+  $('tbody').innerHTML = list.map(({a,s})=>{
+    const [pt,pc] = phaseMap[actPhase(a)];
+    const st = [];
+    if(s.created) st.push('<span class="pill bg-emerald-50 text-emerald-600">已创建 '+s.created+'</span>');
+    if(s.creating) st.push('<span class="pill bg-amber-50 text-amber-600">创建中 '+s.creating+'</span>');
+    if(s.unlinked) st.push('<span class="pill bg-slate-100 text-slate-500">未关联 '+s.unlinked+'</span>');
+    if(s.failed) st.push('<span class="pill bg-red-50 text-red-600">创建失败 '+s.failed+'</span>');
+    return '<tr class="border-b border-slate-100 hover-row">'
+      +'<td class="py-3 px-4"><div class="font-medium">'+esc(a.name)+'</div><div class="text-xs text-slate-400 font-mono">'+esc(a.id)+'</div></td>'
+      +'<td class="py-3 px-3 text-xs">'+esc(a.start)+' ~ '+esc(a.end)+'</td>'
+      +'<td class="py-3 px-3"><b>'+s.exams+'</b> 场</td>'
+      +'<td class="py-3 px-3"><b>'+s.chs+'</b> 个</td>'
+      +'<td class="py-3 px-3">'+(s.enrolled?'<b>'+s.enrolled+'</b>':'<span class="text-slate-300">0</span>')+'</td>'
+      +'<td class="py-3 px-3"><span class="pill '+pc+'">'+pt+'</span></td>'
+      +'<td class="py-3 px-3"><div class="flex flex-wrap gap-1 max-w-[220px]">'+(st.join('')||'<span class="text-xs text-slate-300">无考试</span>')+'</div></td>'
+      +'<td class="py-3 px-3 whitespace-nowrap"><a href="33_活动详情.html?act='+encodeURIComponent(a.id)+'" class="text-brand-600 hover:text-brand-700 text-xs font-medium"><i class="fa-solid fa-arrow-right-to-bracket"></i> 进入详情</a></td>'
+      +'</tr>';
+  }).join('') || '<tr><td colspan="8" class="text-center text-slate-400 py-12">当前筛选无匹配活动</td></tr>';
+  $('footInfo').textContent = '共 '+list.length+' 个活动';
+}
+function openNewAct(){
+  openModalHtml('<div class="max-w-md w-full bg-white rounded-xl shadow-popover modal-enter p-6">'
+    +'<div class="font-bold mb-4">新建活动</div>'
+    +'<div class="space-y-3">'
+    +'<div><div class="text-xs font-medium text-slate-500 mb-1">活动名称 *</div><input id="naName" class="w-full px-3 py-2 rounded-lg border border-slate-200 text-sm" placeholder="如：2027年3月考级"></div>'
+    +'<div class="grid grid-cols-2 gap-3">'
+    +'<div><div class="text-xs font-medium text-slate-500 mb-1">开始日期 *</div><input type="date" id="naStart" class="w-full px-3 py-2 rounded-lg border border-slate-200 text-sm"></div>'
+    +'<div><div class="text-xs font-medium text-slate-500 mb-1">结束日期 *</div><input type="date" id="naEnd" class="w-full px-3 py-2 rounded-lg border border-slate-200 text-sm"></div></div>'
+    +'<div class="text-xs text-slate-400">活动是组织主体：建成后进入活动详情批量创建考试、关联渠道。</div></div>'
+    +'<div class="flex justify-end gap-2 mt-5"><button onclick="closeModal()" class="px-4 py-2 text-sm rounded-lg border border-slate-200 hover:bg-slate-50">取消</button>'
+    +'<button onclick="doNewAct()" class="px-4 py-2 text-sm rounded-lg bg-brand-600 hover:bg-brand-700 text-white">创建</button></div></div>');
+}
+function doNewAct(){
+  const name=$('naName').value.trim(), s=$('naStart').value, e=$('naEnd').value;
+  if(!name||!s||!e){ toast('请填写完整活动名称与起止日期','error'); return; }
+  if(e<s){ toast('结束日期不能早于开始日期','error'); return; }
+  const id = 'ACT' + String(Date.now()).slice(-6);
+  acts.push({id, name, start:s, end:e}); saveData(); closeModal(); renderAll();
+  toast('活动已创建：'+name+'，进入详情配置考试');
+}
+function openModalHtml(h){ $('modalRoot').innerHTML = '<div class="fixed inset-0 z-50 flex items-center justify-center"><div class="absolute inset-0 bg-slate-900/40" onclick="closeModal()"></div>'+h+'</div>'; }
+function closeModal(){ $('modalRoot').innerHTML=''; }
+const $ = id => document.getElementById(id);
+loadData(); renderAll();
+function renderAll(){ renderStats(); renderTable(); }
+</script>
+</body>
+</html>
