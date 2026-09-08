@@ -197,7 +197,7 @@ function seedRows(){
    // 渠道 猿编程: 分组 3月批
    {aid:'HD2501', name:'Python一级·3月考期', cid:'QD001', group:'3月批', paper:'PY-L1-2026春-A卷', examStart:'2026-03-21 09:00', examEnd:'2026-03-21 11:00', duration:120, submitLimit:100, fee:300, showStart:'2026-01-10', showEnd:'', feeNote:'', show:true,
     pro:{cam:'强制开启',rec:'强制开启',phone:false,photo:'非强制开启',score:true,detail:true,read:true,wait:0,guide:'',pic:''}, mock:{on:false,paper:'',start:'',end:'',limit:''}, desc:'面向零基础学员的 Python 等级认证',
-    status:'已创建', enrolled:186, tags:['Python','1级']},
+    status:'已创建', enrolled:186, tags:['Python','1级'], permanent:false},
    {aid:'HD2502', name:'图形化一级·3月考期', cid:'QD001', group:'3月批', paper:'图形化-L1-3月卷', examStart:'2026-03-21 14:00', examEnd:'2026-03-21 15:30', duration:90, submitLimit:80, fee:280, showStart:'2026-01-10', showEnd:'', show:true,
     pro:{cam:'强制开启',rec:'不开启',phone:false,photo:'非强制开启',score:true,detail:true,read:true,wait:0,guide:'',pic:''}, mock:{on:false,paper:'',start:'',end:'',limit:''}, desc:'图形化编程入门等级认证',
     status:'已创建', enrolled:132, tags:['图形化','1级']},
@@ -229,7 +229,7 @@ function seedRows(){
     status:'已创建', enrolled:64, tags:['Python','2级']},
    {aid:'HD2509', name:'Python三级·暑期冲刺', cid:'QD004', group:'常规班', paper:'PY-L3-冲刺卷', examStart:'2026-12-19 09:00', examEnd:'2026-12-19 12:00', duration:180, submitLimit:150, fee:360, showStart:'2026-10-01', showEnd:'', show:true,
     pro:{cam:'强制开启',rec:'强制开启',phone:false,photo:'不开启',score:true,detail:true,read:true,wait:0,guide:'',pic:''}, mock:{on:false,paper:'',start:'',end:'',limit:''}, desc:'',
-    status:'创建中', enrolled:12, tags:['Python','3级']},
+    status:'创建中', enrolled:12, tags:['Python','3级'], permanent:true},
   ];
   return rows.map(r => ({...r, _k: r.aid + '|' + r.cid}));
 }
@@ -264,7 +264,7 @@ function examPhase(r){ const n=Date.now(); const s=Date.parse(r.examStart.replac
 function phaseText(p){ return {notstart:'未开考',ongoing:'进行中',ended:'已结束'}[p]; }
 function statusPill(s, failReason){ const map={'已创建':'bg-emerald-50 text-emerald-600','创建中':'bg-amber-50 text-amber-600','未关联':'bg-slate-100 text-slate-500','创建失败':'bg-red-50 text-red-600'}; return '<span class="pill '+map[s]+'">'+s+'</span>'; }
 function fmtExamTime(r){ const d1=r.examStart.slice(0,10), d2=r.examEnd.slice(0,10); if(d1===d2) return esc(d1)+' '+esc(r.examStart.slice(11))+'-'+esc(r.examEnd.slice(11)); return esc(r.examStart)+' 至 '+esc(r.examEnd); }
-function fmtShowTime(r){ if(!r.showStart && !r.showEnd) return '未设置'; if(r.showStart && !r.showEnd) return esc(r.showStart)+' 起'; if(!r.showStart && r.showEnd) return esc(r.showEnd)+' 止'; return esc(r.showStart)+' ~ '+esc(r.showEnd); }
+function fmtShowTime(r){ if(r.permanent) return esc(r.showStart||'—')+' 起 · 永久有效'; if(!r.showStart && !r.showEnd) return '未设置'; if(r.showStart && !r.showEnd) return esc(r.showStart)+' 起'; if(!r.showStart && r.showEnd) return esc(r.showEnd)+' 止'; return esc(r.showStart)+' ~ '+esc(r.showEnd); }
 /** 考试开始后锁定的字段（含起止时间，已报名/未报名都锁，依据：20260825 §3.7 + 用户拍板2） */
 function lockedFields(r){
   if(examPhase(r)==='notstart') return [];
@@ -371,7 +371,7 @@ function viewRow(k){
         +li('渠道', esc(chName(r.cid))+'（'+esc(r.cid)+'）')
         +li('所属分组', r.group==='默认'?'默认（系统分组）':esc(r.group))
         +li('报名费', '¥ '+r.fee)
-        +li('前端展示时间', fmtShowTime(r))
+        +li('前端展示时间', fmtShowTime(r)+(r.permanent?' <span class="pill bg-brand-50 text-brand-600">永久有效</span>':''))
         +li('前端展示开关', r.show?'展示中':'隐藏','show')
       +'</div>'
       +'<div><div class="text-xs font-bold text-slate-400 uppercase tracking-wider mb-2">考试要素</div>'
@@ -436,206 +436,244 @@ function openModalHtml(h){ $('modalRoot').innerHTML='<div class="fixed inset-0 z
 </script>
 
 <script>
-/* ================= 批量修改弹窗 ================= */
-const BATCH_FIELDS = [
- {f:'group',  lab:'所属分组',   type:'group'},
- {f:'fee',    lab:'报名费(元)', type:'number'},
- {f:'showStart', lab:'展示开始日期', type:'date'},
- {f:'show',   lab:'前端展示开关', type:'show'},
- {f:'name',   lab:'测评名称',   type:'text'},
- {f:'examStart', lab:'考试开始时间', type:'datetime', lock:true},
- {f:'examEnd',   lab:'考试结束时间', type:'datetime', lock:true},
- {f:'duration',  lab:'时长(分钟)', type:'number', lock:true},
- {f:'submitLimit', lab:'交卷限制(分钟)', type:'number', lock:true},
- {f:'paper',  lab:'关联试卷',   type:'paper', lock:true},
- {f:'pro',    lab:'监考配置',   type:'pro', lock:true},
- {f:'mock',   lab:'模拟考配置', type:'mock', lock:true},
-];
-function openBatchModal(){
-  const ks=selKeys();
-  const locks = ks.map(k=>lockSet(rows.find(x=>x._k===k)));
-  const intersect = locks.reduce((a,s)=>new Set([...a].filter(x=>s.has(x))), new Set(BATCH_FIELDS.map(x=>x.f)));
-  const items = BATCH_FIELDS.map(fd=>{
-    const dis = intersect.has(fd.f);
-    const ctrl = fd.type==='group' ? '<select class="bf-ctrl px-2 py-1.5 rounded-lg border border-slate-200 text-sm w-full" data-f="'+fd.f+'">'
-        +'<option value="">不修改</option>'+ uniqueGroups().map(g=>'<option>'+esc(g)+'</option>').join('') +'</select>'
-      : fd.type==='number' ? '<input type="number" class="bf-ctrl px-2 py-1.5 rounded-lg border border-slate-200 text-sm w-full" placeholder="不修改" data-f="'+fd.f+'">'
-      : fd.type==='date' ? '<input type="date" class="bf-ctrl px-2 py-1.5 rounded-lg border border-slate-200 text-sm w-full" data-f="'+fd.f+'">'
-      : fd.type==='datetime' ? '<input type="datetime-local" step="60" class="bf-ctrl px-2 py-1.5 rounded-lg border border-slate-200 text-sm w-full" placeholder="不修改" data-f="'+fd.f+'">'
-      : fd.type==='show' ? '<select class="bf-ctrl px-2 py-1.5 rounded-lg border border-slate-200 text-sm w-full" data-f="'+fd.f+'"><option value="">不修改</option><option value="1">展示中</option><option value="0">隐藏</option></select>'
-      : fd.type==='paper' ? '<select class="bf-ctrl px-2 py-1.5 rounded-lg border border-slate-200 text-sm w-full" data-f="'+fd.f+'"><option value="">不修改</option>'+PAPER_LIST.map(p=>'<option>'+p+'</option>').join('')+'</select>'
-      : fd.type==='text' ? '<input type="text" class="bf-ctrl px-2 py-1.5 rounded-lg border border-slate-200 text-sm w-full" placeholder="不修改" data-f="'+fd.f+'">'
-      : fd.type==='pro' ? '<button type="button" onclick="openProCfg(this)" class="bf-ctrl text-left px-2 py-1.5 rounded-lg border border-slate-200 text-sm w-full text-slate-400" data-f="pro" data-set="">点击配置（不修改）</button>'
-      : fd.type==='mock' ? '<button type="button" onclick="openMockCfg(this)" class="bf-ctrl text-left px-2 py-1.5 rounded-lg border border-slate-200 text-sm w-full text-slate-400" data-f="mock" data-set="">点击配置（不修改）</button>'
-      : '';
-    return '<div class="'+(dis?'opacity-50':'')+'">'
-      +'<div class="text-xs font-medium text-slate-500 mb-1 flex items-center gap-1">'+fd.lab+(dis?' <i class="fa-solid fa-lock text-amber-500 text-[10px]" title="所选行存在已开考/已报名行，该字段禁改"></i>':'')+'</div>'
-      +ctrl+'</div>';
-  }).join('');
-  openModalHtml('<div class="bg-white rounded-xl shadow-popover modal-enter w-[640px] max-h-[86vh] flex flex-col">'
-    +'<div class="px-6 py-4 border-b border-slate-100 flex items-center justify-between"><div class="font-bold">批量修改 <span class="text-sm font-normal text-slate-400">已选 '+ks.length+' 行</span></div><button onclick="closeModal()" class="text-slate-400 hover:text-slate-600"><i class="fa-solid fa-xmark"></i></button></div>'
-    +'<div class="flex-1 overflow-y-auto custom-scroll px-6 py-4">'
-      +'<div class="bg-amber-50 border border-amber-100 text-amber-600 text-xs rounded-lg px-3 py-2 mb-4"><i class="fa-solid fa-triangle-exclamation mr-1"></i>规则：留空/「不修改」的字段保持原值；带 <i class="fa-solid fa-lock text-amber-500 text-[10px]"></i> 字段在所选行中存在考试已开始/结束或已有报名的行，本次不可改，对应行将被跳过该字段。</div>'
-      +'<div class="grid grid-cols-2 gap-3">'+items+'</div>'
-    +'</div>'
-    +'<div class="px-6 py-3 border-t border-slate-100 flex justify-end gap-2 flex-shrink-0">'
-      +'<button onclick="closeModal()" class="px-4 py-2 text-sm rounded-lg border border-sslate-200 border-slate-200 hover:bg-slate-50">取消</button>'
-      +'<button onclick="doBatch()" class="px-4 py-2 text-sm rounded-lg bg-brand-600 hover:bg-brand-700 text-white font-medium">应用到 '+ks.length+' 行</button>'
-    +'</div></div>');
-}
+/* ================= 批量修改弹窗（分区全量版） ================= */
 function uniqueGroups(){ return [...new Set(rows.map(r=>r.group))].filter(g=>g!=='默认').concat(['默认']); }
-function collectProSet(btn){ return btn.dataset.set ? JSON.parse(btn.dataset.set) : null; }
-function openProCfg(btn){
-  const cur = btn.dataset.set ? JSON.parse(btn.dataset.set) : {cam:'强制开启',rec:'强制开启',phone:false,photo:'非强制开启',score:true,detail:true,read:true,wait:0,guide:'',pic:''};
-  const seg=(lab,opts,val,on)=>'<div class="mb-3"><div class="text-xs font-medium text-slate-500 mb-1">'+lab+'</div><div class="flex gap-1">'+opts.map(o=>'<button type="button" onclick="this.parentNode.querySelectorAll(\'button\').forEach(b=>b.className=b.className.replace(/ bg-brand-600 text-white/g,\'\'));this.className+=\' bg-brand-600 text-white\';this.closest(\'.pro-blk\').dataset[\''+on+'\']=\''+o+'\'" class="px-2.5 py-1 rounded-md text-xs border '+(o===val?'bg-brand-600 text-white border-brand-600':'border-slate-200 text-slate-600')+'">'+o+'</button>').join('')+'</div></div>';
-  openModalHtml('<div class="bg-white rounded-xl shadow-popover modal-enter w-[520px] max-h-[86vh] flex flex-col pro-blk" data-cam="'+cur.cam+'" data-rec="'+cur.rec+'" data-photo="'+cur.photo+'">'
-    +'<div class="px-6 py-4 border-b border-slate-100 font-bold flex items-center justify-between"><div>监考配置（批量）</div><button onclick="closeModal()" class="text-slate-400 hover:text-slate-600"><i class="fa-solid fa-xmark"></i></button></div>'
-    +'<div class="flex-1 overflow-y-auto custom-scroll px-6 py-4">'
-      +seg('摄像头监考*',['强制开启','非强制开启','不开启'],cur.cam,'cam')
-      +seg('录屏监考*',['强制开启','非强制开启','不开启'],cur.rec,'rec')
-      +'<div class="mb-3 flex items-center gap-6"><label class="text-xs font-medium text-slate-500 flex items-center gap-2"><input type="checkbox" class="cb pro-phone" '+(cur.phone?'checked':'')+'> 手机监考</label></div>'
-      +seg('检录照片',['强制开启','非强制开启','不开启'],cur.photo,'photo')
-      +'<div class="grid grid-cols-3 gap-3 mb-3">'
-        +'<label class="text-xs font-medium text-slate-500 flex items-center gap-2"><input type="checkbox" class="cb pro-score" '+(cur.score?'checked':'')+'> 成绩开关</label>'
-        +'<label class="text-xs font-medium text-slate-500 flex items-center gap-2"><input type="checkbox" class="cb pro-detail" '+(cur.detail?'checked':'')+'> 分数开关</label>'
-        +'<label class="text-xs font-medium text-slate-500 flex items-center gap-2"><input type="checkbox" class="cb pro-read" '+(cur.read?'checked':'')+'> 读题开关</label>'
-      +'</div>'
-      +'<div class="mb-2"><div class="text-xs font-medium text-slate-500 mb-1">候考时长（分钟，0=不开启，上限 120）</div><input type="number" min="0" max="120" value="'+cur.wait+'" class="pro-wait px-2 py-1.5 rounded-lg border border-slate-200 text-sm w-full"></div>'
-      +'<div class="text-xs text-slate-400">检录视频引导文案 / 示意图不进批量配置，需单条编辑。</div>'
-    +'</div>'
-    +'<div class="px-6 py-3 border-t border-slate-100 flex justify-end gap-2">'
-      +'<button onclick="openBatchModal()" class="px-4 py-2 text-sm rounded-lg border border-slate-200 hover:bg-slate-50">返回</button>'
-      +'<button onclick="saveProCfg()" class="px-4 py-2 text-sm rounded-lg bg-brand-600 hover:bg-brand-700 text-white">确定</button>'
-    +'</div></div>');
+/* 分区：①渠道关联 ②活动基础 ③正式考监考 ④模拟考 ⑤模拟考监考（允许与正式考不同，默认跟随） */
+function batchBaseline(){
+  return {pro_cam:'强制开启', pro_rec:'强制开启', pro_photo:'非强制开启', pro_wait:'0', pro_phone:false, pro_score:true, pro_detail:true, pro_read:true,
+          mpro_cam:'', mpro_rec:'', mpro_photo:'', mpro_wait:'0', mpro_phone:false, mpro_score:true, mpro_detail:true, mpro_read:true,
+          mock_on:null, mpro_follow:true};
 }
-function saveProCfg(){
-  const blk=document.querySelector('.pro-blk'); if(!blk) return;
-  const set={cam:blk.dataset.cam,rec:blk.dataset.rec,phone:!!document.querySelector('.pro-phone').checked,photo:blk.dataset.photo,
-    score:!!document.querySelector('.pro-score').checked,detail:!!document.querySelector('.pro-detail').checked,read:!!document.querySelector('.pro-read').checked,
-    wait:Math.max(0,Math.min(120,+document.querySelector('.pro-wait').value||0)),guide:'',pic:''};
-  applyCfgToBatchBtn('pro', set);
+function segHead(icon, title, note, lockable){
+  return '<div class="flex items-center gap-2 mt-5 mb-3 first:mt-0">'
+    +'<i class="fa-solid '+icon+' text-brand-500"></i><span class="text-sm font-bold text-slate-700">'+title+'</span>'
+    +(note?'<span class="text-xs text-slate-400">'+note+'</span>':'')
+    +(lockable?'<span class="lockable-flag text-xs text-amber-600 bg-amber-50 border border-amber-100 px-1.5 py-0.5 rounded"><i class="fa-solid fa-lock text-[10px] mr-0.5"></i>所选行含已开考/已结束行时不可改</span>':'')
+    +'</div>';
 }
-function openMockCfg(btn){
-  const cur = (btn && btn.dataset.set) ? JSON.parse(btn.dataset.set) : {on:false,paper:'',start:'',end:'',limit:'',pro:null};
-  if(!cur.pro) cur.pro=null;
-  openModalHtml('<div class="bg-white rounded-xl shadow-popover modal-enter w-[520px] max-h-[86vh] flex flex-col mock-blk">'
-    +'<div class="px-6 py-4 border-b border-slate-100 font-bold flex items-center justify-between"><div>模拟考配置（批量）</div><button onclick="closeModal()" class="text-slate-400 hover:text-slate-600"><i class="fa-solid fa-xmark"></i></button></div>'
-    +'<div class="flex-1 overflow-y-auto custom-scroll px-6 py-4">'
-      +'<div class="mb-3"><label class="text-sm flex items-center gap-2 font-medium"><input type="checkbox" class="cb mock-on" '+(cur.on?'checked':'')+'> 开启模拟考</label></div>'
-      +'<div class="grid grid-cols-2 gap-3">'
-        +'<div><div class="text-xs font-medium text-slate-500 mb-1">模拟卷</div><select class="mock-paper w-full px-2 py-1.5 rounded-lg border border-slate-200 text-sm"><option value="">请选择</option>'+PAPER_LIST.filter(p=>p.includes('模拟')).map(p=>'<option '+(cur.paper===p?'selected':'')+'>'+p+'</option>').join('')+'</select></div>'
-        +'<div><div class="text-xs font-medium text-slate-500 mb-1">次数限制</div><select class="mock-limit w-full px-2 py-1.5 rounded-lg border border-slate-200 text-sm">'+['无限次','1次','2次','3次'].map(o=>'<option '+(cur.limit===o?'selected':'')+'>'+o+'</option>').join('')+'</select></div>'
-        +'<div><div class="text-xs font-medium text-slate-500 mb-1">模拟考开始</div><input type="datetime-local" step="60" value="'+cur.start+'" class="mock-start w-full px-2 py-1.5 rounded-lg border border-slate-200 text-sm"></div>'
-        +'<div><div class="text-xs font-medium text-slate-500 mb-1">模拟考结束</div><input type="datetime-local" step="60" value="'+cur.end+'" class="mock-end w-full px-2 py-1.5 rounded-lg border border-slate-200 text-sm"></div>'
-      +'</div>'
-      +'<div class="text-xs text-slate-400 mt-3">未开启模拟考的行，其余模拟字段忽略。</div>'
-      +'<div class="mt-4 p-3 rounded-lg border border-slate-200 bg-slate-50">'
-        +'<div class="flex items-center justify-between mb-1"><div class="text-xs font-medium text-slate-600">模拟考监考配置 <span class="text-slate-400 font-normal">（允许与正式考不同）</span></div>'
-        +'<button type="button" onclick="openMockProCfg()" class="text-xs px-2 py-1 rounded-md border border-slate-200 bg-white text-slate-600 hover:border-brand-500 hover:text-brand-600" id="mockProBtn">配置</button></div>'
-        +'<div id="mockProState" class="text-xs text-slate-400">未设置：模拟考监考跟随正式考配置</div>'
-      +'</div>'
-    +'</div>'
-    +'<div class="px-6 py-3 border-t border-slate-100 flex justify-end gap-2">'
-      +'<button onclick="openBatchModal()" class="px-4 py-2 text-sm rounded-lg border border-slate-200 hover:bg-slate-50">返回</button>'
-      +'<button onclick="saveMockCfg()" class="px-4 py-2 text-sm rounded-lg bg-brand-600 hover:bg-brand-700 text-white">确定</button>'
-    +'</div></div>');
-  const st=document.getElementById('mockProState'); const b=document.getElementById('mockProBtn');
-  if(st && b && cur.pro){ st.textContent='已自定义：'+proBrief(cur.pro); st.className='text-xs text-amber-600'; b.textContent='调整'; }
+function labEl(lab, dis){
+  return '<div class="text-xs font-medium '+(dis?'text-slate-300':'text-slate-500')+' mb-1 flex items-center gap-1">'+lab+(dis?' <i class="fa-solid fa-lock text-amber-400 text-[10px]"></i>':'')+'</div>';
 }
-function saveMockCfg(){
-  const on=document.querySelector('.mock-on').checked;
-  const proEl=document.getElementById('mockProState');
-  const pro = proEl && proEl.dataset.set ? JSON.parse(proEl.dataset.set) : null;
-  const set={on, paper:on?document.querySelector('.mock-paper').value:'', start:on?document.querySelector('.mock-start').value:'', end:on?document.querySelector('.mock-end').value:'', limit:on?document.querySelector('.mock-limit').value:'', pro};
-  applyCfgToBatchBtn('mock', set);
+const IN = 'px-2.5 py-2 rounded-lg border border-slate-200 text-sm w-full bg-white focus:border-brand-500 outline-none transition';
+function openBatchModal(){
+  const ks = selKeys();
+  // 锁定交集：所选行里只要有一行锁定该字段 → 置灰
+  const locks = ks.map(k => lockSet(rows.find(x => x._k === k)));
+  const isLocked = f => locks.some(s => s.has(f));
+  const gd = f => isLocked(f) ? 'opacity-50 pointer-events-none' : '';
+  const groups = uniqueGroups();
+  const seg3 = (name, opts, cur, dis, col) =>
+    '<div class="'+(dis?'opacity-50 pointer-events-none':'')+'">'
+    + labEl(name, dis)
+    + '<div class="flex gap-1 bseg" data-f="'+col+'" data-v="'+cur+'">'
+    + opts.map(o => '<button type="button" data-o="'+o+'" onclick="bsegPick(this)" class="px-2.5 py-1.5 rounded-md text-xs border '+(o===cur?'bg-brand-600 text-white border-brand-600':'border-slate-200 text-slate-600 hover:border-brand-400')+'">'+o+'</button>').join('')
+    + '</div></div>';
+
+  const groupsOpts = '<option value="">不修改</option>' + groups.map(g => '<option>'+esc(g)+'</option>').join('');
+  const paperOpts = '<option value="">不修改</option>' + PAPER_LIST.map(p => '<option>'+p+'</option>').join('');
+
+  openModalHtml(
+  '<div class="bg-white rounded-xl shadow-popover modal-enter w-[1080px] max-w-[96vw] max-h-[92vh] flex flex-col">'
+  +'<div class="px-6 py-4 border-b border-slate-100 flex items-center justify-between flex-shrink-0">'
+    +'<div class="font-bold text-base">批量修改 <span class="text-sm font-normal text-slate-400 ml-1">已选 '+ks.length+' 行 · 留空 /「不修改」保持原值</span></div>'
+    +'<button onclick="closeModal()" class="text-slate-400 hover:text-slate-600 text-lg"><i class="fa-solid fa-xmark"></i></button></div>'
+  +'<div class="flex-1 overflow-y-auto custom-scroll px-6 py-4">'
+    +'<div class="bg-slate-50 border border-slate-100 rounded-lg px-3 py-2 text-xs text-slate-500 leading-relaxed mb-1">'
+      +'<i class="fa-solid fa-circle-info text-brand-500 mr-1"></i>规则：① 留空 /「不修改」的字段保持原值；② 带 <i class="fa-solid fa-lock text-amber-400 text-[10px]"></i> 的字段在所选行中存在考试已开始/结束或已有报名的行，本次对该批行跳过此项；③ 考试起止时间在<b>已有报名</b>时禁改（线上既有规则）；④ 修改考试要素（时间/时长/交卷/试卷/监考/模拟考）将按既有规则联动更新爱测评侧考试。</div>'
+
+    + segHead('fa-handshake','渠道关联','报名与展示相关')
+    + '<div class="grid grid-cols-4 gap-3">'
+      + '<div><div class="text-xs font-medium text-slate-500 mb-1">所属分组</div><select class="bf-ctrl '+IN+'" data-f="group">'+groupsOpts+'</select></div>'
+      + '<div><div class="text-xs font-medium text-slate-500 mb-1">报名费（元）</div><input type="number" min="0" step="0.01" class="bf-ctrl '+IN+'" data-f="fee" placeholder="不修改"></div>'
+      + '<div><div class="text-xs font-medium text-slate-500 mb-1">展示开始日期</div><input type="date" class="bf-ctrl '+IN+'" data-f="showStart"></div>'
+      + '<div><div class="text-xs font-medium text-slate-500 mb-1">展示结束日期</div>'
+        +'<div class="flex gap-1 items-center">'
+          +'<input type="date" class="bf-ctrl '+IN+'" data-f="showEnd" id="bfShowEnd">'
+          +'<label class="flex items-center gap-1 text-xs text-slate-500 whitespace-nowrap"><input type="checkbox" class="cb" id="bfPermanent" onchange="bfTogglePermanent(this)"> 永久有效</label>'
+        +'</div></div>'
+      + '<div><div class="text-xs font-medium text-slate-500 mb-1">前端展示开关</div><select class="bf-ctrl '+IN+'" data-f="show"><option value="">不修改</option><option value="1">展示中</option><option value="0">隐藏</option></select></div>'
+    + '</div>'
+
+    + segHead('fa-graduation-cap','活动基础','考试要素', true)
+    + '<div class="grid grid-cols-4 gap-3">'
+      + '<div class="'+gd('name')+'">'+labEl('测评名称', isLocked('name'))+'<input type="text" class="bf-ctrl '+IN+'" data-f="name" placeholder="不修改"></div>'
+      + '<div class="'+gd('paper')+'">'+labEl('关联试卷', isLocked('paper'))+'<select class="bf-ctrl '+IN+'" data-f="paper">'+paperOpts+'</select></div>'
+      + '<div class="'+gd('examStart')+'">'+labEl('考试开始时间', isLocked('examStart'))+'<input type="datetime-local" step="60" class="bf-ctrl '+IN+'" data-f="examStart"></div>'
+      + '<div class="'+gd('examEnd')+'">'+labEl('考试结束时间', isLocked('examEnd'))+'<input type="datetime-local" step="60" class="bf-ctrl '+IN+'" data-f="examEnd"></div>'
+      + '<div class="'+gd('duration')+'">'+labEl('时长（分钟）', isLocked('duration'))+'<input type="number" min="1" class="bf-ctrl '+IN+'" data-f="duration" placeholder="不修改"></div>'
+      + '<div class="'+gd('submitLimit')+'">'+labEl('交卷限制（分钟）', isLocked('submitLimit'))+'<input type="number" min="1" class="bf-ctrl '+IN+'" data-f="submitLimit" placeholder="不修改"></div>'
+    + '</div>'
+
+    + segHead('fa-video','正式考监考配置','随考试创建/编辑联动下发爱测评', true)
+    + '<div class="grid grid-cols-3 gap-x-6 gap-y-3 p-4 bg-slate-50/60 border border-slate-100 rounded-lg '+gd('pro')+'">'
+      + seg3('摄像头监考', ['强制开启','非强制开启','不开启'], '强制开启', isLocked('pro'), 'pro_cam')
+      + seg3('录屏监考', ['强制开启','非强制开启','不开启'], '强制开启', isLocked('pro'), 'pro_rec')
+      + seg3('检录照片', ['强制开启','非强制开启','不开启'], '非强制开启', isLocked('pro'), 'pro_photo')
+      + '<div class="'+(isLocked('pro')?'opacity-50 pointer-events-none':'')+'">'+labEl('候考时长（分钟，0=不开启）', isLocked('pro'))+'<input type="number" min="0" max="120" class="bf-ctrl '+IN+'" data-f="pro_wait" value="0"></div>'
+      + '<div class="'+(isLocked('pro')?'opacity-50 pointer-events-none':'')+'">'
+        + labEl('开关组', isLocked('pro'))
+        + '<div class="flex flex-wrap gap-x-4 gap-y-1.5 pt-1.5">'
+          + '<label class="flex items-center gap-1.5 text-xs text-slate-600"><input type="checkbox" class="cb bf-ctrl-static" data-f="pro_phone"> 手机监考</label>'
+          + '<label class="flex items-center gap-1.5 text-xs text-slate-600"><input type="checkbox" class="cb bf-ctrl-static" data-f="pro_score" checked> 成绩开关</label>'
+          + '<label class="flex items-center gap-1.5 text-xs text-slate-600"><input type="checkbox" class="cb bf-ctrl-static" data-f="pro_detail" checked> 分数开关</label>'
+          + '<label class="flex items-center gap-1.5 text-xs text-slate-600"><input type="checkbox" class="cb bf-ctrl-static" data-f="pro_read" checked> 读题开关</label>'
+        + '</div></div>'
+      + '<div class="text-xs text-slate-400 self-end leading-snug">检录视频引导文案 / 示意图不进批量配置，需单条编辑。</div>'
+    + '</div>'
+
+    + segHead('fa-clipboard-question','模拟考配置','默认读取正式考监考；可自定义（仅对模拟考生效）', true)
+    + '<div class="grid grid-cols-4 gap-3 p-4 bg-slate-50/60 border border-slate-100 rounded-lg '+gd('mock')+'">'
+      + '<div class="'+(isLocked('mock')?'opacity-50 pointer-events-none':'')+'">'+labEl('开启模拟考', isLocked('mock'))
+        +'<div class="flex gap-1 bseg" data-f="mock_on" data-v="否">'
+        +'<button type="button" data-o="是" onclick="bsegPick(this)" class="px-2.5 py-1.5 rounded-md text-xs border border-slate-200 text-slate-600 hover:border-brand-400">是</button>'
+        +'<button type="button" data-o="否" onclick="bsegPick(this)" class="px-2.5 py-1.5 rounded-md text-xs border bg-brand-600 text-white border-brand-600">否</button></div></div>'
+      + '<div class="'+(isLocked('mock')?'opacity-50 pointer-events-none':'')+'">'+labEl('模拟卷', isLocked('mock'))+'<select class="bf-ctrl '+IN+'" data-f="mock_paper"><option value="">不修改</option>'+PAPER_LIST.filter(p=>p.includes('模拟')).map(p=>'<option>'+p+'</option>').join('')+'</select></div>'
+      + '<div class="'+(isLocked('mock')?'opacity-50 pointer-events-none':'')+'">'+labEl('模拟考开始时间', isLocked('mock'))+'<input type="datetime-local" step="60" class="bf-ctrl '+IN+'" data-f="mock_start"></div>'
+      + '<div class="'+(isLocked('mock')?'opacity-50 pointer-events-none':'')+'">'+labEl('模拟考结束时间', isLocked('mock'))+'<input type="datetime-local" step="60" class="bf-ctrl '+IN+'" data-f="mock_end"></div>'
+      + '<div class="'+(isLocked('mock')?'opacity-50 pointer-events-none':'')+'">'+labEl('次数限制', isLocked('mock'))+'<select class="bf-ctrl '+IN+'" data-f="mock_limit"><option value="">不修改</option>'+['无限次','1次','2次','3次'].map(o=>'<option>'+o+'</option>').join('')+'</select></div>'
+    + '</div>'
+
+    + segHead('fa-user-shield','模拟考监考配置','允许与正式考不同；未自定义时跟随正式考', true)
+    + '<div class="grid grid-cols-3 gap-x-6 gap-y-3 p-4 bg-slate-50/60 border border-slate-100 rounded-lg '+gd('mock')+'">'
+      + '<div class="'+(isLocked('mock')?'opacity-50 pointer-events-none':'')+'">'+labEl('模拟考监考口径', isLocked('mock'))
+        +'<div class="flex gap-1 bseg" data-f="mpro_mode" data-v="follow">'
+        +'<button type="button" data-o="follow" onclick="bsegPick(this)" class="px-2.5 py-1.5 rounded-md text-xs border bg-brand-600 text-white border-brand-600">跟随正式考</button>'
+        +'<button type="button" data-o="custom" onclick="bsegPick(this)" class="px-2.5 py-1.5 rounded-md text-xs border border-slate-200 text-slate-600 hover:border-brand-400">自定义</button></div></div>'
+      + '<div class="'+(isLocked('mock')?'opacity-50 pointer-events-none':'')+'">'+labEl('摄像头监考（模拟考）', isLocked('mock'))
+        +'<select class="bf-ctrl '+IN+'" data-f="mpro_cam"><option value="">不修改</option><option>强制开启</option><option>非强制开启</option><option>不开启</option></select></div>'
+      + '<div class="'+(isLocked('mock')?'opacity-50 pointer-events-none':'')+'">'+labEl('录屏监考（模拟考）', isLocked('mock'))
+        +'<select class="bf-ctrl '+IN+'" data-f="mpro_rec"><option value="">不修改</option><option>强制开启</option><option>非强制开启</option><option>不开启</option></select></div>'
+      + '<div class="'+(isLocked('mock')?'opacity-50 pointer-events-none':'')+'">'+labEl('检录照片（模拟考）', isLocked('mock'))
+        +'<select class="bf-ctrl '+IN+'" data-f="mpro_photo"><option value="">不修改</option><option>强制开启</option><option>非强制开启</option><option>不开启</option></select></div>'
+      + '<div class="'+(isLocked('mock')?'opacity-50 pointer-events-none':'')+'">'+labEl('候考时长（分钟，0=不开启）', isLocked('mock'))+'<input type="number" min="0" max="120" class="bf-ctrl '+IN+'" data-f="mpro_wait" value="0"></div>'
+      + '<div class="'+(isLocked('mock')?'opacity-50 pointer-events-none':'')+'">'
+        + labEl('开关组（模拟考）', isLocked('mock'))
+        + '<div class="flex flex-wrap gap-x-4 gap-y-1.5 pt-1.5">'
+          + '<label class="flex items-center gap-1.5 text-xs text-slate-600"><input type="checkbox" class="cb bf-ctrl-static" data-f="mpro_phone"> 手机监考</label>'
+          + '<label class="flex items-center gap-1.5 text-xs text-slate-600"><input type="checkbox" class="cb bf-ctrl-static" data-f="mpro_score" checked> 成绩开关</label>'
+          + '<label class="flex items-center gap-1.5 text-xs text-slate-600"><input type="checkbox" class="cb bf-ctrl-static" data-f="mpro_detail" checked> 分数开关</label>'
+          + '<label class="flex items-center gap-1.5 text-xs text-slate-600"><input type="checkbox" class="cb bf-ctrl-static" data-f="mpro_read" checked> 读题开关</label>'
+        + '</div></div>'
+    + '</div>'
+  + '</div>'
+  +'<div class="px-6 py-3 border-t border-slate-100 flex items-center justify-between flex-shrink-0">'
+    +'<span id="bfSummary" class="text-xs text-slate-400">未填写修改项</span>'
+    +'<div class="flex gap-2">'
+      +'<button onclick="closeModal()" class="px-4 py-2 text-sm rounded-lg border border-slate-200 hover:bg-slate-50">取消</button>'
+      +'<button onclick="doBatch()" class="px-5 py-2 text-sm rounded-lg bg-brand-600 hover:bg-brand-700 text-white font-medium">应用到 '+ks.length+' 行</button>'
+    +'</div></div>'
+  +'</div>');
+  document.querySelectorAll('.bf-ctrl, .bseg').forEach(el => { el.addEventListener('change', bfUpdateSummary); el.addEventListener('click', bfUpdateSummary); });
+  bfUpdateSummary();
 }
-/* 模拟考监考配置弹窗（允许与正式考不同；null=跟随正式考） */
-function openMockProCfg(){
-  const st=document.getElementById('mockProState');
-  const cur = st && st.dataset.set ? JSON.parse(st.dataset.set) : {cam:'强制开启',rec:'强制开启',phone:false,photo:'非强制开启',score:true,detail:true,read:true,wait:0,guide:'',pic:''};
-  const seg=(lab,opts,val,on)=>'<div class="mb-3"><div class="text-xs font-medium text-slate-500 mb-1">'+lab+'</div><div class="flex gap-1">'+opts.map(o=>'<button type="button" onclick="this.parentNode.querySelectorAll(\'button\').forEach(b=>b.className=\'px-2.5 py-1 rounded-md text-xs border border-slate-200 text-slate-600\');this.className=\'px-2.5 py-1 rounded-md text-xs border border-brand-600 bg-brand-600 text-white\';this.closest(\'.mpro-blk\').dataset[\''+on+'\']=\''+o+'\'" class="px-2.5 py-1 rounded-md text-xs border '+(o===val?'bg-brand-600 text-white border-brand-600':'border-slate-200 text-slate-600')+'">'+o+'</button>').join('')+'</div></div>';
-  openModalHtml('<div class="bg-white rounded-xl shadow-popover modal-enter w-[520px] max-h-[86vh] flex flex-col mpro-blk" data-cam="'+cur.cam+'" data-rec="'+cur.rec+'" data-photo="'+cur.photo+'">'
-    +'<div class="px-6 py-4 border-b border-slate-100 font-bold flex items-center justify-between"><div>模拟考监考配置（批量）</div><button onclick="backMockCfg()" class="text-slate-400 hover:text-slate-600"><i class="fa-solid fa-xmark"></i></button></div>'
-    +'<div class="flex-1 overflow-y-auto custom-scroll px-6 py-4">'
-      +'<div class="bg-brand-50 border border-brand-100 text-brand-700 text-xs rounded-lg px-3 py-2 mb-4">模拟考监考允许与正式考不同：保存自定义后仅对模拟考生效；留空不保存则跟随各行的正式考配置。</div>'
-      +seg('摄像头监考（模拟考）',['强制开启','非强制开启','不开启'],cur.cam,'cam')
-      +seg('录屏监考（模拟考）',['强制开启','非强制开启','不开启'],cur.rec,'rec')
-      +'<div class="mb-3 flex items-center gap-6"><label class="text-xs font-medium text-slate-500 flex items-center gap-2"><input type="checkbox" class="cb mpro-phone" '+(cur.phone?'checked':'')+'> 手机监考</label></div>'
-      +seg('检录照片（模拟考）',['强制开启','非强制开启','不开启'],cur.photo,'photo')
-      +'<div class="grid grid-cols-3 gap-3 mb-3">'
-        +'<label class="text-xs font-medium text-slate-500 flex items-center gap-2"><input type="checkbox" class="cb mpro-score" '+(cur.score?'checked':'')+'> 成绩开关</label>'
-        +'<label class="text-xs font-medium text-slate-500 flex items-center gap-2"><input type="checkbox" class="cb mpro-detail" '+(cur.detail?'checked':'')+'> 分数开关</label>'
-        +'<label class="text-xs font-medium text-slate-500 flex items-center gap-2"><input type="checkbox" class="cb mpro-read" '+(cur.read?'checked':'')+'> 读题开关</label>'
-      +'</div>'
-      +'<div class="mb-2"><div class="text-xs font-medium text-slate-500 mb-1">候考时长（分钟，0=不开启，上限 120）</div><input type="number" min="0" max="120" value="'+cur.wait+'" class="mpro-wait px-2 py-1.5 rounded-lg border border-slate-200 text-sm w-full"></div>'
-    +'</div>'
-    +'<div class="px-6 py-3 border-t border-slate-100 flex justify-between flex-shrink-0">'
-      +'<button onclick="clearMockPro()" class="text-sm text-slate-500 hover:text-red-500"><i class="fa-solid fa-rotate-left mr-1"></i>清除自定义（跟随正式考）</button>'
-      +'<div class="flex gap-2"><button onclick="backMockCfg()" class="px-4 py-2 text-sm rounded-lg border border-slate-200 hover:bg-slate-50">返回</button>'
-      +'<button onclick="saveMockPro()" class="px-4 py-2 text-sm rounded-lg bg-brand-600 hover:bg-brand-700 text-white">保存自定义</button></div>'
-    +'</div></div>');
+function bsegPick(btn){
+  const box = btn.parentNode;
+  box.querySelectorAll('button').forEach(b => b.className = 'px-2.5 py-1.5 rounded-md text-xs border border-slate-200 text-slate-600 hover:border-brand-400');
+  btn.className = 'px-2.5 py-1.5 rounded-md text-xs border bg-brand-600 text-white border-brand-600';
+  box.dataset.v = btn.dataset.o;
+  box.dataset.touched = '1';
 }
-function backMockCfg(){ openMockCfg(null); restoreMockProState(); }
-function restoreMockProState(){
-  const btn=document.querySelector('.bf-ctrl[data-f="mock"]');
-  const set = btn && btn.dataset.set ? JSON.parse(btn.dataset.set) : null;
-  const st=document.getElementById('mockProState'); const b=document.getElementById('mockProBtn');
-  if(!st||!b) return;
-  if(set && set.pro){ st.dataset.set=JSON.stringify(set.pro); st.textContent='已自定义：'+proBrief(set.pro); st.className='text-xs text-amber-600'; b.textContent='调整'; }
-  else { delete st.dataset.set; st.textContent='未设置：模拟考监考跟随正式考配置'; st.className='text-xs text-slate-400'; b.textContent='配置'; }
+function bfTogglePermanent(cb){
+  const inp = document.getElementById('bfShowEnd');
+  if(cb.checked){ inp.value = ''; inp.disabled = true; inp.classList.add('opacity-50'); }
+  else { inp.disabled = false; inp.classList.remove('opacity-50'); }
 }
-function clearMockPro(){ const st=document.getElementById('mockProState'); if(st){ delete st.dataset.set; st.textContent='未设置：模拟考监考跟随正式考配置'; st.className='text-xs text-slate-400'; } const b=document.getElementById('mockProBtn'); if(b) b.textContent='配置'; backMockCfg(); }
-function saveMockPro(){
-  const blk=document.querySelector('.mpro-blk'); if(!blk) return;
-  const set={cam:blk.dataset.cam,rec:blk.dataset.rec,phone:!!document.querySelector('.mpro-phone').checked,photo:blk.dataset.photo,
-    score:!!document.querySelector('.mpro-score').checked,detail:!!document.querySelector('.mpro-detail').checked,read:!!document.querySelector('.mpro-read').checked,
-    wait:Math.max(0,Math.min(120,+document.querySelector('.mpro-wait').value||0)),guide:'',pic:''};
-  const btn=document.querySelector('.bf-ctrl[data-f="mock"]');
-  if(btn){ const cur=btn.dataset.set?JSON.parse(btn.dataset.set):{on:false}; cur.pro=set; btn.dataset.set=JSON.stringify(cur); }
-  openMockCfg(null); restoreMockProState();
-  toast('已保存模拟考监考自定义配置');
+function bfCollect(){
+  const sets = {};
+  document.querySelectorAll('.bf-ctrl').forEach(el => {
+    const f = el.dataset.f; if(!f) return;
+    if(f === 'showEnd' && document.getElementById('bfPermanent') && document.getElementById('bfPermanent').checked){ sets.showEnd = 'permanent'; return; }
+    if(el.disabled) return;
+    const v = el.value;
+    if(v === '' || v == null) return;
+    sets[f] = v;
+  });
+  document.querySelectorAll('.bf-ctrl-static').forEach(el => { sets[el.dataset.f] = el.checked; });
+  document.querySelectorAll('.bseg').forEach(box => {
+    if(!box.dataset.touched) return;
+    const f = box.dataset.f, v = box.dataset.v;
+    if(f === 'mock_on'){ if(v === '是') sets.mock_on = true; else if(v === '否') sets.mock_on = false; else if(!('mock_on' in sets)) sets.mock_on = null; }
+    else if(f === 'mpro_mode'){ if(v === 'follow') sets.mpro_follow = true; else if(v === 'custom') sets.mpro_follow = false; }
+    else { if(v) sets[f] = v; }
+  });
+  return sets;
 }
-function applyCfgToBatchBtn(f, set){
-  closeModal(); openBatchModal();
-  const btn=document.querySelector('.bf-ctrl[data-f="'+f+'"]');
-  if(btn){ btn.dataset.set=JSON.stringify(set);
-    btn.className='bf-ctrl text-left px-2 py-1.5 rounded-lg border border-brand-500 text-brand-700 text-sm w-full bg-brand-50';
-    btn.textContent = f==='pro' ? '已配置（点击调整）' : (set.on?('已开启模拟考'+(set.pro?'·监考自定义':'')+'（点击调整）'):'设置为不开启模拟考');
-  }
+function bfUpdateSummary(){
+  const sets = bfCollect();
+  const parts = [];
+  const map = {group:'分组', fee:'报名费', showStart:'展示开始', showEnd:'展示结束/永久', show:'展示开关', name:'名称', paper:'试卷', examStart:'考试开始', examEnd:'考试结束', duration:'时长', submitLimit:'交卷限制', pro_cam:'摄像头', pro_rec:'录屏', pro_photo:'检录照片', pro_wait:'候考时长', pro_phone:'手机监考', pro_score:'成绩', pro_detail:'分数', pro_read:'读题', mock_on:'模拟考开关', mock_paper:'模拟卷', mock_start:'模拟考开始', mock_end:'模拟考结束', mock_limit:'模拟考次数', mpro_mode:'模拟监考口径', mpro_cam:'模拟摄像头', mpro_rec:'模拟录屏', mpro_photo:'模拟检录照片', mpro_wait:'模拟候考', mpro_phone:'模拟手机监考', mpro_score:'模拟成绩', mpro_detail:'模拟分数', mpro_read:'模拟读题'};
+  const BL = batchBaseline();
+  Object.entries(sets).forEach(([f,v]) => {
+    if(f in BL && String(v) === String(BL[f])) return;  // 等于弹窗初始默认值 → 未修改
+    if(map[f]) parts.push(map[f]);
+  });
+  const el = document.getElementById('bfSummary');
+  if(el) el.textContent = parts.length ? '将修改：' + [...new Set(parts)].join('、') : '未填写修改项';
 }
 function doBatch(){
-  const ks=selKeys();
-  const sets={};
-  document.querySelectorAll('.bf-ctrl').forEach(el=>{
-    const f=el.dataset.f; if(!f) return;
-    let v;
-    if(f==='pro'||f==='mock'){ v = el.dataset.set ? JSON.parse(el.dataset.set) : null; }
-    else { v = el.value; }
-    if(v===null || v==='') return;
-    sets[f]=v;
-  });
-  if(!Object.keys(sets).length){ toast('未填写任何修改项','error'); return; }
-  let applied=0, skipped=0;
-  ks.forEach(k=>{
-    const r=rows.find(x=>x._k===k); if(!r) return;
-    const lock=lockSet(r); let touched=false;
-    Object.entries(sets).forEach(([f,v])=>{
-      if(lock.has(f)) return;
-      if(f==='show') r.show = v==='1';
-      else if(f==='pro') { r.pro={...r.pro,...v}; touched=true; }
-      else if(f==='mock'){ r.mock={...v}; touched=true; }
-      else if(f==='examStart'){ const t=v.replace('T',' '); r.examStart=t; }
-      else if(f==='examEnd'){ const t=v.replace('T',' '); r.examEnd=t; }
-      else r[f]=v;
-      if(f!=='pro'&&f!=='mock') touched=true;
+  const ks = selKeys();
+  const sets = bfCollect();
+  const BASELINE = batchBaseline();
+  const isDefault = (f,v) => (f in BASELINE) && String(v) === String(BASELINE[f]);
+  const touchedF = Object.keys(sets).filter(f => !isDefault(f, sets[f]));
+  if(!touchedF.length){ toast('未填写任何修改项','error'); return; }
+  let applied = 0, skipped = 0;
+  ks.forEach(k => {
+    const r = rows.find(x => x._k === k); if(!r) return;
+    const lock = lockSet(r); let touched = false;
+    const setF = (f, fn) => { if(lock.has(f)) return; fn(); touched = true; };
+    if('group' in sets && sets.group) setF('group', () => r.group = sets.group);
+    if('fee' in sets && sets.fee !== '') setF('fee', () => r.fee = +sets.fee);
+    if('showStart' in sets) r.showStart = sets.showStart, touched = true;
+    if(sets.showEnd === 'permanent') r.showEnd = '', r.permanent = true, touched = true;
+    else if('showEnd' in sets && sets.showEnd) r.showEnd = sets.showEnd, touched = true;
+    if('show' in sets && sets.show !== '') r.show = sets.show === '1', touched = true;
+    if('name' in sets && sets.name) setF('name', () => r.name = sets.name);
+    if('paper' in sets && sets.paper) setF('paper', () => { r.paper = sets.paper; if(r.status === '未关联') r.status = '创建中'; });
+    if('examStart' in sets) setF('examStart', () => r.examStart = sets.examStart.replace('T',' '));
+    if('examEnd' in sets) setF('examEnd', () => r.examEnd = sets.examEnd.replace('T',' '));
+    if('duration' in sets && sets.duration) setF('duration', () => r.duration = +sets.duration);
+    if('submitLimit' in sets && sets.submitLimit) setF('submitLimit', () => r.submitLimit = +sets.submitLimit);
+    const proTouched = ['pro_cam','pro_rec','pro_photo','pro_wait','pro_phone','pro_score','pro_detail','pro_read'].filter(f => touchedF.includes(f));
+    if(proTouched.length) setF('pro', () => {
+      r.pro = {...r.pro};
+      if('pro_cam' in sets) r.pro.cam = sets.pro_cam;
+      if('pro_rec' in sets) r.pro.rec = sets.pro_rec;
+      if('pro_photo' in sets) r.pro.photo = sets.pro_photo;
+      if('pro_wait' in sets) r.pro.wait = Math.max(0, Math.min(120, +sets.pro_wait || 0));
+      if('pro_phone' in sets) r.pro.phone = sets.pro_phone;
+      if('pro_score' in sets) r.pro.score = sets.pro_score;
+      if('pro_detail' in sets) r.pro.detail = sets.pro_detail;
+      if('pro_read' in sets) r.pro.read = sets.pro_read;
+    });
+    const mockTouched = ['mock_on','mock_paper','mock_start','mock_end','mock_limit','mpro_follow','mpro_cam','mpro_rec','mpro_photo','mpro_wait','mpro_phone','mpro_score','mpro_detail','mpro_read'].filter(f => touchedF.includes(f));
+    if(mockTouched.length) setF('mock', () => {
+      r.mock = {...r.mock, pro: r.mock.pro || null};
+      if(sets.mock_on === true) r.mock.on = true;
+      if(sets.mock_on === false) { r.mock.on = false; r.mock.pro = null; }
+      if('mock_paper' in sets && sets.mock_paper) r.mock.paper = sets.mock_paper;
+      if('mock_start' in sets) r.mock.start = sets.mock_start.replace('T',' ');
+      if('mock_end' in sets) r.mock.end = sets.mock_end.replace('T',' ');
+      if('mock_limit' in sets && sets.mock_limit) r.mock.limit = sets.mock_limit;
+      if(touchedF.includes('mpro_follow') && sets.mpro_follow === true) r.mock.pro = null;
+      if(touchedF.includes('mpro_follow') && sets.mpro_follow === false || ['mpro_cam','mpro_rec','mpro_photo','mpro_wait','mpro_phone','mpro_score','mpro_detail','mpro_read'].some(f=>touchedF.includes(f))){
+        const cur = r.mock.pro || {cam:r.pro.cam, rec:r.pro.rec, phone:r.pro.phone, photo:r.pro.photo, score:r.pro.score, detail:r.pro.detail, read:r.pro.read, wait:r.pro.wait, guide:'', pic:''};
+        r.mock.pro = {...cur};
+        if('mpro_cam' in sets && sets.mpro_cam) r.mock.pro.cam = sets.mpro_cam;
+        if('mpro_rec' in sets && sets.mpro_rec) r.mock.pro.rec = sets.mpro_rec;
+        if('mpro_photo' in sets && sets.mpro_photo) r.mock.pro.photo = sets.mpro_photo;
+        if('mpro_wait' in sets) r.mock.pro.wait = Math.max(0, Math.min(120, +sets.mpro_wait || 0));
+        if('mpro_phone' in sets) r.mock.pro.phone = sets.mpro_phone;
+        if('mpro_score' in sets) r.mock.pro.score = sets.mpro_score;
+        if('mpro_detail' in sets) r.mock.pro.detail = sets.mpro_detail;
+        if('mpro_read' in sets) r.mock.pro.read = sets.mpro_read;
+      }
     });
     if(touched) applied++; else skipped++;
   });
-  save(); renderAll();
-  closeModal();
-  toast('批量修改完成：'+applied+' 行已应用'+(skipped?'，'+skipped+' 行因锁定字段被跳过':''));
+  save(); renderAll(); closeModal();
+  toast('批量修改完成：' + applied + ' 行已应用' + (skipped ? '，' + skipped + ' 行因锁定字段被跳过' : ''));
 }
-
 /* ================= 批量上传新建（三步） ================= */
 let upFiles=null;
 function openUploadModal(){ upStep(1); }
@@ -779,20 +817,20 @@ function dl(name, content, mime){ const b=new Blob(['\ufeff'+content],{type:mime
 function csvCell(v){ v=String(v==null?'':v); return /[",\n]/.test(v)?'"'+v.replace(/"/g,'""')+'"':v; }
 function downloadTpl(t){
   if(t==='create'){
-    const head=['测评名称','渠道ID','渠道名称','所属分组','关联试卷','考试开始时间','考试结束时间','时长(分钟)','交卷限制(分钟)','报名费(元)','展示开始日期','展示结束日期','前端展示','摄像头监考','录屏监考','手机监考','检录照片','成绩开关','分数开关','读题开关','候考时长(分)','开启模拟考','模拟卷','模拟考开始','模拟考结束','模拟考次数','模拟考监考'];
-    const demo=['Python一级·12月考期','QD001','猿编程','3月批','PY-L1-2026春-A卷','2026-12-19 09:00','2026-12-19 11:00','120','100','300','2026-10-01','','是','强制开启','强制开启','否','非强制开启','开','开','开','0','否','','','','跟随正式考'];
+    const head=['测评名称','渠道ID','渠道名称','所属分组','关联试卷','考试开始时间','考试结束时间','时长(分钟)','交卷限制(分钟)','报名费(元)','展示开始日期','展示结束日期','永久有效','前端展示','摄像头监考','录屏监考','手机监考','检录照片','成绩开关','分数开关','读题开关','候考时长(分)','开启模拟考','模拟卷','模拟考开始','模拟考结束','模拟考次数','模拟考监考'];
+    const demo=['Python一级·12月考期','QD001','猿编程','3月批','PY-L1-2026春-A卷','2026-12-19 09:00','2026-12-19 11:00','120','100','300','2026-10-01','','否','是','强制开启','强制开启','否','非强制开启','开','开','开','0','否','','','','跟随正式考'];
     dl('考试管理看板_批量新建模板.csv', [head,demo].map(r=>r.map(csvCell).join(',')).join('\n'));
     toast('模板已下载：含监考与模拟考全字段');
   } else {
-    const head=['活动ID','渠道ID','测评名称','所属分组','报名费(元)','展示开始日期','展示结束日期','前端展示','关联试卷','考试开始时间','考试结束时间','时长(分钟)','交卷限制(分钟)','摄像头监考','录屏监考','手机监考','检录照片','成绩开关','分数开关','读题开关','候考时长(分)','开启模拟考','模拟卷','模拟考开始','模拟考结束','模拟考次数','模拟考监考'];
-    const data=filterRows().map(r=>[r.aid,r.cid,r.name,r.group,r.fee,r.showStart,r.showEnd,r.show?'是':'否',r.paper||'',r.examStart,r.examEnd,r.duration,r.submitLimit,r.pro.cam,r.pro.rec,r.pro.phone?'开':'关',r.pro.photo,r.pro.score?'开':'关',r.pro.detail?'开':'关',r.pro.read?'开':'关',r.pro.wait,r.mock.on?'是':'否',r.mock.paper||'',r.mock.start||'',r.mock.end||'',r.mock.limit||'',r.mock.pro?'自定义':'跟随正式考']);
+    const head=['活动ID','渠道ID','测评名称','所属分组','报名费(元)','展示开始日期','展示结束日期','永久有效','前端展示','关联试卷','考试开始时间','考试结束时间','时长(分钟)','交卷限制(分钟)','摄像头监考','录屏监考','手机监考','检录照片','成绩开关','分数开关','读题开关','候考时长(分)','开启模拟考','模拟卷','模拟考开始','模拟考结束','模拟考次数','模拟考监考'];
+    const data=filterRows().map(r=>[r.aid,r.cid,r.name,r.group,r.fee,r.showStart,r.showEnd,r.permanent?'是':'否',r.show?'是':'否',r.paper||'',r.examStart,r.examEnd,r.duration,r.submitLimit,r.pro.cam,r.pro.rec,r.pro.phone?'开':'关',r.pro.photo,r.pro.score?'开':'关',r.pro.detail?'开':'关',r.pro.read?'开':'关',r.pro.wait,r.mock.on?'是':'否',r.mock.paper||'',r.mock.start||'',r.mock.end||'',r.mock.limit||'',r.mock.pro?'自定义':'跟随正式考']);
     dl('考试管理看板_修改表_当前筛选.csv', [head,...data].map(r=>r.map(csvCell).join(',')).join('\n'));
     toast('修改表已下载：'+data.length+' 行已回填当前值，改动列上传后生效');
   }
 }
 function exportCsv(){
   const head=['渠道ID','渠道名称','分组','活动ID','测评名称','关联试卷','考试开始','考试结束','时长','交卷限制','报名费','展示时间','展示','爱测评状态','报名量','摄像头','录屏','手机监考','检录照片','候考','模拟考'];
-  const data=filterRows().map(r=>[r.cid,chName(r.cid),r.group,r.aid,r.name,r.paper||'',r.examStart,r.examEnd,r.duration,r.submitLimit,r.fee,(r.showStart||'')+'~'+(r.showEnd||''),r.show?'是':'否',r.status,r.enrolled,r.pro.cam,r.pro.rec,r.pro.phone?'开':'关',r.pro.photo,r.pro.wait,r.mock.on?'是':'否']);
+  const data=filterRows().map(r=>[r.cid,chName(r.cid),r.group,r.aid,r.name,r.paper||'',r.examStart,r.examEnd,r.duration,r.submitLimit,r.fee,(r.permanent?(r.showStart||'')+'~永久':(r.showStart||'')+'~'+(r.showEnd||'')),r.show?'是':'否',r.status,r.enrolled,r.pro.cam,r.pro.rec,r.pro.phone?'开':'关',r.pro.photo,r.pro.wait,r.mock.on?'是':'否']);
   dl('考试管理看板_导出.csv', [head,...data].map(r=>r.map(csvCell).join(',')).join('\n'));
   toast('已导出当前筛选结果：'+data.length+' 行');
 }
