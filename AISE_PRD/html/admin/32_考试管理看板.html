@@ -310,7 +310,19 @@ function filterRows(){
     return true;
   });
 }
-function onChannelFilter(){ const c=$('fChannel').value; const gs=[...new Set(rows.filter(r=>!c||r.cid===c).map(r=>r.group))]; $('fGroup').innerHTML='<option value="">全部分组</option>'+gs.map(g=>'<option>'+esc(g)+'</option>').join(''); }
+function fillChannelFilter(){
+  const cur = $('fChannel').value;
+  $('fChannel').innerHTML = '<option value="">全部渠道</option>'
+    + CHANNEL_LIST.map(c=>'<option value="'+c.id+'">'+esc(c.name)+'（'+c.id+'）</option>').join('');
+  const has = CHANNEL_LIST.some(c=>c.id===cur);
+  $('fChannel').value = has ? cur : '';
+}
+function onChannelFilter(){
+  fillChannelFilter();
+  const c=$('fChannel').value;
+  const gs=[...new Set(rows.filter(r=>!c||r.cid===c).map(r=>r.group))];
+  $('fGroup').innerHTML='<option value="">全部分组</option>'+gs.map(g=>'<option>'+esc(g)+'</option>').join('');
+}
 function sortBy(k){ if(sortKey===k){ sortDir*=-1; } else { sortKey=k; sortDir=1; } renderTable(); }
 function cmpVal(a,b){ if(a===b) return 0; return a>b?1:-1; }
 function renderTable(){
@@ -350,8 +362,8 @@ function renderTable(){
   $('footInfo').innerHTML = '<span>共 '+list.length+' 行（全平台 '+rows.length+' 行）</span><span>已选 <b id="footSel">'+selKeys().length+'</b> 行</span>';
   syncSelState();
 }
-function resetFilter(){ $('fKw').value=''; $('fChannel').value=''; onChannelFilter(); $('fStatus').value=''; $('fExam').value=''; renderTable(); }
-function renderAll(){ renderStats(); onChannelFilter(); renderTable(); }
+function resetFilter(){ $('fKw').value=''; $('fChannel').value=''; fillChannelFilter(); onChannelFilter(); $('fGroup').value=''; $('fStatus').value=''; $('fExam').value=''; renderTable(); }
+function renderAll(){ renderStats(); fillChannelFilter(); onChannelFilter(); renderTable(); }
 
 /* ================= 勾选 ================= */
 function selKeys(){ const out=[]; document.querySelectorAll('.rowcb').forEach(c=>{ if(c.checked) out.push(c.dataset.k); }); return out; }
