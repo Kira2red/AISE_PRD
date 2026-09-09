@@ -622,8 +622,7 @@ function renderBatchCreate(){
           +'<div><div class="text-xs font-medium text-slate-500 mb-1">模拟考交卷限制（空=不限）</div><input type="number" min="0" id="bcMockSub" class="'+IN+'"></div>'
         : '')
    +'</div>'
-   +'<div class="flex items-center gap-2 mt-5 mb-3"><i class="fa-solid fa-list-ol text-brand-500"></i><span class="text-sm font-bold text-slate-700">考试行（差异项）</span><span class="text-xs text-slate-400">每行一场考试；试卷默认同公共配置，可在行内单独指定</span>'
-   +'<button onclick="openCopyExamModal()" class="ml-auto text-xs px-2.5 py-1 rounded-md border border-brand-200 bg-brand-50 text-brand-700 hover:bg-brand-100 font-medium"><i class="fa-solid fa-clone mr-1"></i>复制考场</button></div>'
+   +'<div class="flex items-center gap-2 mt-5 mb-3"><i class="fa-solid fa-list-ol text-brand-500"></i><span class="text-sm font-bold text-slate-700">考试行（差异项）</span><span class="text-xs text-slate-400">每行一场考试；试卷默认同公共配置，可在行内单独指定</span></div>'
    +'<table class="w-full text-sm border border-slate-100 rounded-lg overflow-hidden"><thead class="bg-slate-50 text-xs text-slate-500"><tr>'
      +'<th class="py-2 px-2 w-8">#</th><th class="py-2 px-2 text-left">考试名称 *</th><th class="py-2 px-2 text-left">开始时间 *</th><th class="py-2 px-2 text-left">结束时间 *</th><th class="py-2 px-2 text-left">试卷</th><th class="py-2 px-2 w-20">操作</th>'
    +'</tr></thead><tbody>'+examRows+'</tbody></table>'
@@ -644,52 +643,7 @@ function bcUp(inp){ bcRows[+inp.dataset.i][inp.dataset.f] = inp.value; }
 function bcAdd(){ bcRows.push(bcRow()); renderBatchCreate(); }
 function bcDel(i){ if(bcRows.length<=1){ toast('至少保留一行考试','error'); return; } bcRows.splice(i,1); renderBatchCreate(); }
 function bcCopy(i){ const r = JSON.parse(JSON.stringify(bcRows[i])); bcRows.splice(i+1, 0, r); renderBatchCreate(); }
-/* 复制考场：选一行作为模板，复制 N 份；名称加序号后缀，时间可选自动顺延；试卷默认继承（含行内单独指定的试卷），复制后行内改试卷即完成"只改试卷" */
-function openCopyExamModal(){
-  if(bcRows.every(r=>!r.name)){ toast('请先至少填写一行考试作为复制模板','error'); return; }
-  const opts = bcRows.map((r,i)=>'<option value="'+i+'">'+(i+1)+'. '+esc(r.name||'(未命名)')+(r.paper?' · '+r.paper:'')+'</option>').join('');
-  openModalHtml('<div class="max-w-lg w-full bg-white rounded-xl shadow-popover modal-enter p-6">'
-   +'<div class="font-bold mb-1">复制考场</div>'
-   +'<div class="text-xs text-slate-400 mb-4">复制所选行的全部配置（名称、起止时间、试卷），生成 N 行副本；副本试卷默认继承，可创建后在行内单独更换</div>'
-   +'<div class="grid grid-cols-2 gap-3 mb-3">'
-     +'<div><div class="text-xs font-medium text-slate-500 mb-1">模板行</div><select id="ceRow" class="w-full px-3 py-2 rounded-lg border border-slate-200 text-sm">'+opts+'</select></div>'
-     +'<div><div class="text-xs font-medium text-slate-500 mb-1">复制份数</div><input type="number" id="ceN" min="1" max="50" value="5" class="w-full px-3 py-2 rounded-lg border border-slate-200 text-sm"></div>'
-     +'<div class="col-span-2"><div class="text-xs font-medium text-slate-500 mb-1">名称后缀规则</div>'
-       +'<div class="flex gap-1 bseg" id="ceNameMode" data-v="num">'
-       +'<button type="button" data-o="num" onclick="cePick(this)" class="px-2.5 py-1.5 rounded-md text-xs border bg-brand-600 text-white border-brand-600">第X场</button>'
-       +'<button type="button" data-o="copy" onclick="cePick(this)" class="px-2.5 py-1.5 rounded-md text-xs border border-slate-200 text-slate-600 hover:border-brand-400">副本X</button>'
-       +'<button type="button" data-o="none" onclick="cePick(this)" class="px-2.5 py-1.5 rounded-md text-xs border border-slate-200 text-slate-600 hover:border-brand-400">不加后缀（同名）</button></div></div>'
-     +'<div class="col-span-2"><label class="flex items-center gap-2 text-sm text-slate-600"><input type="checkbox" class="cb" id="ceShift" checked> 时间自动顺延（每份按模板时长依次向后排，间隔 30 分钟）</label></div>'
-   +'</div>'
-   +'<div class="flex justify-end gap-2 mt-2"><button onclick="closeModal();renderBatchCreate();" class="px-4 py-2 text-sm rounded-lg border border-slate-200 hover:bg-slate-50">取消</button>'
-   +'<button onclick="doCopyExam()" class="px-4 py-2 text-sm rounded-lg bg-brand-600 hover:bg-brand-700 text-white font-medium">复制</button></div></div>');
-}
-function cePick(btn){
-  const box = btn.parentNode;
-  box.querySelectorAll('button').forEach(b=>b.className='px-2.5 py-1.5 rounded-md text-xs border border-slate-200 text-slate-600 hover:border-brand-400');
-  btn.className='px-2.5 py-1.5 rounded-md text-xs border bg-brand-600 text-white border-brand-600';
-  box.dataset.v = btn.dataset.o;
-}
-function doCopyExam(){
-  const src = bcRows[+$('ceRow').value];
-  const N = Math.max(1, Math.min(50, +$('ceN').value || 1));
-  const mode = $('ceNameMode').dataset.v;
-  const shift = $('ceShift').checked;
-  const s = Date.parse(src.start), e = Date.parse(src.end);
-  if(isNaN(s) || isNaN(e)){ toast('模板行起止时间不完整，无法顺延','error'); return; }
-  const dur = e - s, gap = 30*60*1000;
-  const pad = x => String(x).padStart(2,'0');
-  const fmt = d => d.getFullYear()+'-'+pad(d.getMonth()+1)+'-'+pad(d.getDate())+'T'+pad(d.getHours())+':'+pad(d.getMinutes());
-  for(let i=1;i<=N;i++){
-    const r = { name: src.name, start: src.start, end: src.end, paper: src.paper || '' };
-    if(mode === 'num') r.name = src.name + '·第' + (i+1) + '场';
-    if(mode === 'copy') r.name = src.name + '-副本' + i;
-    if(shift){ const ns = s + i*(dur+gap); r.start = fmt(new Date(ns)); r.end = fmt(new Date(ns+dur)); }
-    bcRows.push(r);
-  }
-  closeModal(); renderBatchCreate();
-  toast('已复制 ' + N + ' 行考场副本，试卷默认继承，可在行内更换');
-}
+
 function bcChToggle(cid, on){
   if(!window._bcCh) window._bcCh = {};
   if(on){ const gs = (GROUPS[cid]||[]); window._bcCh[cid] = {groups: gs.length?[]:[], fee:''}; }
