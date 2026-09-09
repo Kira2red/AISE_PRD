@@ -407,19 +407,7 @@ function summaryOf(g){
     }
     return SUMMARY[g.grade] || SUMMARY['待提升'];
 }
-/* 右侧栏：本场等级规则来源（demo 演示用，正式版无） */
-function ruleCardHtml(){
-    const ex = EXAM_CONFIGS[currentExam];
-    if(ex.mode === 'fallback'){
-        return '<div class="side-card"><div class="t">等级规则（证书配置）</div>'
-          + '<div class="side-row"><span class="v" style="color:#999">本场考试未配置分数线规则，报告按固定映射表兜底</span></div></div>';
-    }
-    const rows = ex.tiers.map(function(t){
-        const line = ex.mode === 'ratio' ? ('TOP' + t.top + '% · ≥' + t.min + '分') : ('≥' + t.min + '分');
-        return '<div class="side-row"><span class="k">' + esc(t.name) + (t.cert ? '' : '（不发证）') + '</span><span class="v">' + line + '</span></div>';
-    }).join('');
-    return '<div class="side-card"><div class="t">等级规则（证书配置）</div>' + rows + '</div>';
-}
+
 function esc(t){ return String(t).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;'); }
 const GRADE_COLOR = { '待提升':'#FF9900', '合格':'#2A6CE0', '良好':'#00CC66', '优秀':'#4E39BA' };
 
@@ -614,8 +602,7 @@ function renderSideInfo(stu){
       + '<div class="side-row"><span class="k">正式总分</span><span class="v">' + stu.score + ' 分</span></div>'
       + '<div class="side-row"><span class="k">评定等级</span><span class="v">' + g.grade + ' · ' + (activeStages()[g.stage] ? activeStages()[g.stage].n : '') + '</span></div>'
       + '<div class="side-row"><span class="k">通过状态</span><span class="v" style="color:' + (g.pass ? '#00CC66' : '#FF9900') + '">' + (g.pass ? '已通过' : '未通过') + '</span></div>'
-      + '</div>'
-      + ruleCardHtml();
+      + '</div>';
 }
 
 function switchStudent(id){
