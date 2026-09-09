@@ -245,20 +245,16 @@ const ADVICE = {
 };
 const FULL_COMMENT = '本题目作答达到要求，完整完成任务。太棒了！';
 
-/* ===== 证书等级配置（20260909 报告等级关联证书配置）=====
-   正式版：配置来自活动证书管理的分数线规则（按分数/按比例划线），报告生成时取当时配置快照；
-   每档可选填「成长区间」「一句话总结」，未填写走兜底；未配置分数线规则的考试按固定映射表兜底。
-   demo：ratio 档的 min 为按比例划线在成绩发布后换算出的等效分数线（同分同权归上一档）。 */
+/* ===== 报告等级规则（20260909 改版：报告规则独立配置，与证书等级规则完全解耦）=====
+   正式版：配置来自「测评管理 → 管理报告」页（admin/34），只按分数划线；
+   每档可配：分数下限 / 等级名称 / 计入通过 / 成长区间 / 一句话总结（文案可选，留空走默认规则）；
+   通过判定：达到勾选「计入通过」的最低分数线 = 通过；未达任何档位线 = 等级「未通过」；
+   未配置报告规则的考试按固定映射表兜底（60 合格 / 70 良好 / 80 优秀）。 */
 const EXAM_CONFIGS = {
-    score: { label:'已配置 · 按分数划线', mode:'score', tiers:[
+    score: { label:'已配置报告规则', mode:'score', tiers:[
         { min:90, name:'优秀', cert:true,  stage:'出类拔萃', summary:'综合本次考级表现，你已高质量完成本级全部核心任务，展现出扎实的编程综合能力，可继续挑战更复杂的综合任务。' },
         { min:75, name:'良好', cert:true },
         { min:60, name:'合格', cert:true }
-    ]},
-    ratio: { label:'已配置 · 按比例划线', mode:'ratio', tiers:[
-        { top:15, min:92, name:'一等奖', cert:true,  stage:'名列前茅', summary:'综合本次考级表现，你在同级考生中表现突出，位居前列，可继续挑战更高目标。' },
-        { top:45, min:78, name:'二等奖', cert:true },
-        { top:80, min:60, name:'参与奖', cert:false }
     ]},
     fallback: { label:'未配置 · 固定表兜底', mode:'fallback' }
 };
@@ -358,7 +354,7 @@ function gradeOf(s){
         if(s < 80) return { pass:true,  grade:'良好',   stage:3, color:GRADE_COLOR['良好'],   align:'良好',   tier:null };
         return { pass:true, grade:'优秀', stage:4, color:GRADE_COLOR['优秀'], align:'优秀', tier:null };
     }
-    /* 已配置分数线规则：等级取命中的最高档；达到勾选「发放证书」的最低档 = 通过 */
+    /* 已配置报告规则：等级取命中的最高档；达到勾选「计入通过」的最低线 = 通过 */
     const tiers = ex.tiers;
     let hit = null, hitIdx = -1;
     for(var i = 0; i < tiers.length; i++){
@@ -371,7 +367,7 @@ function gradeOf(s){
     const align = alignOf(ex, hit);
     return { pass: s >= passLine, grade: hit.name, stage: ascIdx + 1, color: GRADE_COLOR[align] || '#FF9900', align: align, tier: hit };
 }
-/* 档位兜底对齐：勾选发证的档位按分数线从高到低对齐 优秀/良好/合格（第 4 档起沿用合格）；未勾选档位统一按「待提升」 */
+/* 档位默认对齐：勾选「计入通过」的档位按分数线从高到低对齐 优秀/良好/合格（第 4 档起沿用合格）；未勾选档位统一按「待提升」 */
 function checkedDesc(ex){ return ex.tiers.filter(function(t){ return t.cert; }).sort(function(a, b){ return b.min - a.min; }); }
 function alignOf(ex, tier){
     if(!tier.cert) return '待提升';
@@ -384,7 +380,7 @@ function stageOfTier(ex, tier){
     const k = checkedDesc(ex).indexOf(tier);
     return k < 0 ? '稳步接近' : ['高阶表现','熟练掌握','目标达成'][Math.min(k, 2)];
 }
-/* 成长区间段：已配置考试 = 未通过段 + 配置档升序（等宽）；未配置考试 = 固定五段不等宽 */
+/* 成长区间段：已配置报告规则 = 未通过段 + 规则档位升序（等宽）；未配置 = 固定五段不等宽 */
 function activeStages(){
     const ex = EXAM_CONFIGS[currentExam];
     if(ex.mode === 'fallback') return STAGES;

@@ -1,0 +1,258 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>报告管理 - AISE 后台</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <script>
+        tailwind.config = {
+            theme: {
+                extend: {
+                    colors: { brand: { 50:'#eef4ff',100:'#dce7fd',200:'#c0d4fc',300:'#96b8fa',400:'#6b93f6',500:'#4a72f0',600:'#0041c8',700:'#003bad',800:'#023292',900:'#0b2d76' } },
+                    boxShadow: { card: '0 1px 3px 0 rgb(0 0 0 / 0.08), 0 1px 2px -1px rgb(0 0 0 / 0.08)' }
+                }
+            }
+        }
+    </script>
+    <style>
+        body { font-family: -apple-system, BlinkMacSystemFont, "PingFang SC", "Microsoft YaHei", sans-serif; }
+    </style>
+</head>
+<body class="bg-slate-100 min-h-screen">
+
+    <!-- 侧边栏 -->
+    <aside class="fixed left-0 top-0 bottom-0 w-56 bg-white border-r border-slate-200 z-30 flex flex-col">
+        <div class="h-16 flex items-center gap-2.5 px-5 border-b border-slate-100 cursor-pointer">
+            <div class="w-9 h-9 bg-gradient-to-br from-brand-600 to-indigo-600 rounded-lg flex items-center justify-center text-white font-bold">A</div>
+            <div>
+                <p class="font-bold text-slate-800 text-sm leading-tight">AISE 运营后台</p>
+                <p class="text-[10px] text-slate-400">考级测评平台</p>
+            </div>
+        </div>
+        <nav class="flex-1 overflow-y-auto py-4 px-3 space-y-1 text-sm">
+            <a href="#" class="flex items-center gap-2.5 px-3 py-2 rounded-lg text-slate-500 hover:bg-slate-50 transition"><i class="fa-solid fa-gauge-high w-4 text-center"></i>工作台</a>
+            <p class="pt-3 px-3 text-[10px] font-bold text-slate-400 uppercase tracking-wider">教务中心</p>
+            <a href="07_试卷管理.html" class="flex items-center gap-2.5 px-3 py-2 rounded-lg text-slate-500 hover:bg-slate-50 transition"><i class="fa-solid fa-file-lines w-4 text-center"></i>试卷管理</a>
+            <a href="08_题目管理_列表.html" class="flex items-center gap-2.5 px-3 py-2 rounded-lg text-slate-500 hover:bg-slate-50 transition"><i class="fa-solid fa-circle-question w-4 text-center"></i>题目管理</a>
+            <a href="03_测评活动列表.html" class="flex items-center gap-2.5 px-3 py-2 rounded-lg bg-brand-50 text-brand-700 font-bold"><i class="fa-solid fa-clipboard-list w-4 text-center"></i>测评管理</a>
+            <a href="#" class="flex items-center gap-2.5 px-3 py-2 rounded-lg text-slate-500 hover:bg-slate-50 transition"><i class="fa-solid fa-tags w-4 text-center"></i>标签管理</a>
+            <p class="pt-3 px-3 text-[10px] font-bold text-slate-400 uppercase tracking-wider">考务与用户</p>
+            <a href="12_考生管理.html" class="flex items-center gap-2.5 px-3 py-2 rounded-lg text-slate-500 hover:bg-slate-50 transition"><i class="fa-solid fa-users w-4 text-center"></i>考生管理</a>
+            <a href="14_活动证书管理.html" class="flex items-center gap-2.5 px-3 py-2 rounded-lg text-slate-500 hover:bg-slate-50 transition"><i class="fa-solid fa-certificate w-4 text-center"></i>考试证书管理</a>
+        </nav>
+        <div class="p-3 border-t border-slate-100">
+            <div class="flex items-center gap-2.5 px-2 py-1.5 rounded-lg hover:bg-slate-50 cursor-pointer">
+                <div class="w-8 h-8 rounded-full bg-gradient-to-tr from-blue-500 to-purple-600 text-white flex items-center justify-center text-xs font-bold">管</div>
+                <div class="flex-1 min-w-0">
+                    <p class="text-xs font-bold text-slate-700 truncate">运营管理员</p>
+                </div>
+                <i class="fa-solid fa-right-from-bracket text-slate-300 text-xs"></i>
+            </div>
+        </div>
+    </aside>
+
+    <!-- 主区域 -->
+    <div class="ml-56">
+        <!-- 顶栏 -->
+        <header class="h-16 bg-white/80 backdrop-blur border-b border-slate-200 flex items-center justify-between px-6 sticky top-0 z-20">
+            <div class="flex items-center gap-3">
+                <button onclick="window.location.href='03_测评活动列表.html'" class="w-8 h-8 rounded-lg border border-slate-200 flex items-center justify-center text-slate-500 hover:bg-slate-50 transition"><i class="fa-solid fa-arrow-left text-sm"></i></button>
+                <div>
+                    <h1 class="text-lg font-bold text-slate-800 leading-tight">2025春季 Python 一级等级考试 · 报告管理</h1>
+                    <p class="text-xs text-slate-400">个人考级报告等级规则配置（与证书等级规则相互独立）</p>
+                </div>
+            </div>
+            <div class="flex items-center gap-2 text-xs">
+                <span class="px-2.5 py-1 rounded-md bg-slate-100 text-slate-500 font-medium">报告已开启</span>
+            </div>
+        </header>
+
+        <main class="p-6 max-w-5xl">
+            <!-- 报告等级规则配置 -->
+            <section class="bg-white rounded-xl shadow-card border border-slate-200 p-6">
+                <div class="flex justify-between items-center mb-4">
+                    <div>
+                        <h2 class="text-sm font-bold text-slate-800 flex items-center gap-2">
+                            <i class="fa-solid fa-sliders text-brand-500"></i> 报告等级规则配置
+                        </h2>
+                        <p class="text-xs text-slate-400 mt-1">只按分数划线；报告等级、通过判定、报告文案均以此处配置为准，不影响证书</p>
+                    </div>
+                    <div class="flex items-center gap-2">
+                        <span class="text-xs text-slate-400">报告开关</span>
+                        <label class="relative inline-flex items-center cursor-pointer">
+                            <input type="checkbox" checked class="sr-only peer" onchange="toggleReport(this)">
+                            <div class="w-9 h-5 bg-slate-200 peer-checked:bg-brand-600 rounded-full transition"></div>
+                            <div class="absolute left-0.5 top-0.5 w-4 h-4 bg-white rounded-full transition-transform peer-checked:translate-x-4 shadow"></div>
+                        </label>
+                    </div>
+                </div>
+
+                <div class="flex flex-col md:flex-row gap-6">
+                    <div class="flex-1 space-y-3">
+                        <div class="flex justify-between text-xs font-bold text-slate-400 px-2 uppercase">
+                            <span>分数 ≥</span>
+                            <span class="pl-10">等级名称</span>
+                            <span>计入通过</span>
+                        </div>
+
+                        <!-- 档位行 ×3 + 各自文案区 -->
+                        <div id="tier-0" class="tier-row"></div>
+                        <div id="tier-1" class="tier-row"></div>
+                        <div id="tier-2" class="tier-row"></div>
+
+                        <button onclick="addTier()" class="text-xs text-brand-600 font-medium hover:text-brand-700 bg-brand-50 px-3 py-2 rounded w-full border border-dashed border-brand-200 hover:border-brand-300 transition-colors">
+                            <i class="fa-solid fa-plus mr-1"></i> 添加等级档位
+                        </button>
+
+                        <div class="bg-amber-50 text-amber-800 text-xs p-2.5 rounded border border-amber-100 flex items-start gap-2">
+                            <i class="fa-solid fa-circle-info mt-0.5"></i>
+                            <p>规则说明：达到勾选「计入通过」的最低分数线 = 通过；未达到任何档位分数线的考生，报告等级显示「未通过」。留空的成长区间与一句话总结按默认规则展示。</p>
+                        </div>
+                    </div>
+
+                    <div class="w-full md:w-64 border-l border-slate-100 pl-0 md:pl-6 flex flex-col gap-3">
+                        <div class="p-3 bg-brand-50 rounded-lg border border-brand-100">
+                            <div class="flex justify-between items-baseline mb-1">
+                                <span class="text-xs font-bold text-brand-700">报告演示预览</span>
+                            </div>
+                            <div class="mt-2 space-y-2 text-xs" id="previewBox">
+                                <div class="flex justify-between"><span class="text-slate-500">92 分</span><span class="font-bold text-brand-700">优秀 · 出类拔萃</span></div>
+                                <div class="flex justify-between"><span class="text-slate-500">76 分</span><span class="font-bold text-blue-600">良好</span></div>
+                                <div class="flex justify-between"><span class="text-slate-500">68 分</span><span class="font-bold text-emerald-600">合格</span></div>
+                                <div class="flex justify-between"><span class="text-slate-500">45 分</span><span class="font-bold text-orange-500">未通过</span></div>
+                            </div>
+                        </div>
+                        <div class="p-3 bg-slate-50 rounded-lg border border-slate-100 text-xs text-slate-500 leading-relaxed">
+                            未配置报告等级规则时，报告按固定映射表生成：60 分合格、70 分良好、80 分优秀；60 分以下为未通过。
+                        </div>
+                    </div>
+                </div>
+
+                <div class="mt-4 pt-4 border-t border-slate-100 flex items-center justify-between">
+                    <p class="text-xs text-slate-400"><i class="fa-solid fa-rotate mr-1 text-blue-500"></i>保存后立即生效：本场已生成的在线报告与之后下载的 PDF 将按新规则展示；不影响证书</p>
+                    <button onclick="saveRules(this)" class="text-sm font-bold text-white bg-brand-600 hover:bg-brand-700 px-4 py-2 rounded-lg transition shadow">保存</button>
+                </div>
+            </section>
+        </main>
+    </div>
+
+    <!-- Toast -->
+    <div id="toast" class="fixed bottom-6 left-1/2 -translate-x-1/2 bg-slate-800 text-white text-sm px-4 py-2.5 rounded-lg shadow-lg opacity-0 transition-opacity pointer-events-none z-50">已保存</div>
+
+<script>
+/* 档位数据：分数下限 / 等级名 / 计入通过 / 成长区间 / 一句话总结（均可选，留空走默认） */
+let tiers = [
+    { min: 90, name: '优秀', pass: true,  stage: '出类拔萃', summary: '综合本次考级表现，你已高质量完成本级全部核心任务，展现出扎实的编程综合能力，可继续挑战更复杂的综合任务。' },
+    { min: 75, name: '良好', pass: true,  stage: '', summary: '' },
+    { min: 60, name: '合格', pass: true,  stage: '', summary: '' }
+];
+
+function tierRowHtml(i){
+    const t = tiers[i];
+    const copy = i === 0 ? 'inline-block' : 'none';
+    return `
+    <div class="bg-slate-50 p-3 rounded-lg border border-slate-100 flex items-center gap-3 text-sm">
+        <span class="font-mono text-xs font-bold text-slate-400 w-8">≥</span>
+        <input type="number" value="${t.min}" min="0" max="100" onchange="tiers[${i}].min = +this.value; renderPreview()" class="w-20 px-2 py-1.5 rounded border border-slate-200 text-slate-700 font-bold focus:border-brand-500 outline-none">
+        <span class="text-slate-400">分</span>
+        <i class="fa-solid fa-arrow-right text-slate-300 text-xs"></i>
+        <input type="text" value="${t.name}" onchange="tiers[${i}].name = this.value; renderPreview()" class="flex-1 px-2 py-1.5 rounded border border-slate-200 text-slate-700 focus:border-brand-500 outline-none">
+        <label class="flex items-center gap-2 cursor-pointer bg-white px-2 py-1 rounded border border-slate-200 hover:border-brand-300">
+            <input type="checkbox" ${t.pass ? 'checked' : ''} onchange="tiers[${i}].pass = this.checked; renderPreview()" class="accent-brand-600 w-4 h-4">
+        </label>
+        <button onclick="removeTier(${i})" class="text-slate-400 hover:text-red-500 w-6"><i class="fa-solid fa-trash"></i></button>
+    </div>
+    <div class="pl-12 pr-1 py-2 rounded-lg border border-dashed border-slate-200 bg-white/60 space-y-2 report-copy" style="display:${copy}" id="copy-${i}">
+        <div class="flex items-center gap-3">
+            <span class="text-xs text-slate-400 w-16 flex-shrink-0">成长区间</span>
+            <input type="text" value="${t.stage}" maxlength="10" placeholder="留空则按默认规则展示" onchange="tiers[${i}].stage = this.value" class="flex-1 px-2 py-1.5 rounded border border-slate-200 text-slate-600 text-xs focus:border-brand-500 outline-none">
+        </div>
+        <div class="flex items-center gap-3">
+            <span class="text-xs text-slate-400 w-16 flex-shrink-0">一句话总结</span>
+            <input type="text" value="${t.summary}" maxlength="60" placeholder="留空则按默认规则展示" onchange="tiers[${i}].summary = this.value" class="flex-1 px-2 py-1.5 rounded border border-slate-200 text-slate-600 text-xs focus:border-brand-500 outline-none">
+        </div>
+    </div>`;
+}
+
+function renderTiers(){
+    for(let i = 0; i < 3; i++){
+        const box = document.getElementById('tier-' + i);
+        if(box) box.innerHTML = tierRowHtml(i);
+    }
+    renderPreview();
+}
+
+function addTier(){
+    tiers.push({ min: 0, name: '', pass: false, stage: '', summary: '' });
+    const idx = tiers.length - 1;
+    const wrap = document.createElement('div');
+    wrap.id = 'tier-' + idx;
+    const anchor = document.querySelector('button[onclick="addTier()"]');
+    anchor.parentNode.insertBefore(wrap, anchor);
+    wrap.innerHTML = tierRowHtml(idx);
+    renderPreview();
+}
+
+function removeTier(i){
+    tiers.splice(i, 1);
+    document.querySelectorAll('.tier-row').forEach(function(el){ el.remove(); });
+    for(let k = 0; k < tiers.length; k++){
+        const wrap = document.createElement('div');
+        wrap.id = 'tier-' + k;
+        wrap.className = 'tier-row';
+        document.querySelector('button[onclick="addTier()"]').parentNode.insertBefore(wrap, document.querySelector('button[onclick="addTier()"]'));
+        wrap.innerHTML = tierRowHtml(k);
+    }
+    renderPreview();
+}
+
+/* 通过判定演示：达到勾选「计入通过」的最低线 = 通过 */
+function gradeDemo(score){
+    const sorted = tiers.slice().sort((a, b) => b.min - a.min);
+    let hit = null;
+    for(const t of sorted){ if(score >= t.min && t.name){ hit = t; break; } }
+    if(!hit) return { grade: '未通过', pass: false };
+    const passTiers = tiers.filter(t => t.pass && t.name);
+    const passLine = passTiers.length ? Math.min(...passTiers.map(t => t.min)) : Infinity;
+    return { grade: hit.name, pass: score >= passLine };
+}
+
+function renderPreview(){
+    const box = document.getElementById('previewBox');
+    if(!box) return;
+    const samples = [92, 76, 68, 45];
+    const colors = { '优秀': 'text-brand-700', '良好': 'text-blue-600', '合格': 'text-emerald-600', '未通过': 'text-orange-500' };
+    box.innerHTML = samples.map(function(s){
+        const g = gradeDemo(s);
+        const cls = colors[g.grade] || 'text-slate-700';
+        return `<div class="flex justify-between"><span class="text-slate-500">${s} 分</span><span class="font-bold ${cls}">${g.grade}${g.pass ? '' : ' · 未通过'}</span></div>`;
+    }).join('');
+}
+
+function toggleReport(cb){
+    showToast(cb.checked ? '报告已开启，成绩发布后将为考生生成报告' : '报告已关闭，不再生成新报告');
+}
+
+function saveRules(btn){
+    btn.disabled = true;
+    btn.innerHTML = '<i class="fa-solid fa-circle-notch fa-spin mr-1"></i>保存中…';
+    setTimeout(function(){
+        btn.disabled = false;
+        btn.textContent = '保存';
+        showToast('报告等级规则已保存，已生成报告立即按新规则展示');
+    }, 600);
+}
+
+function showToast(msg){
+    const t = document.getElementById('toast');
+    t.textContent = msg;
+    t.classList.remove('opacity-0');
+    setTimeout(function(){ t.classList.add('opacity-0'); }, 2200);
+}
+
+renderTiers();
+</script>
+</body>
+</html>
