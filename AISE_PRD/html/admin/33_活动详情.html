@@ -199,6 +199,7 @@ function renderTable(){
       +'<td class="py-2.5 px-3 whitespace-nowrap">'
         +(r.status==='创建失败'?'<button onclick="retryRow(\''+k+'\')" class="text-brand-600 hover:text-brand-700 text-xs font-medium mr-2"><i class="fa-solid fa-rotate-right"></i> 重试</button>':'')
         +(r.status==='未关联'?'<button onclick="linkPaper(\''+k+'\')" class="text-brand-600 hover:text-brand-700 text-xs font-medium mr-2"><i class="fa-solid fa-link"></i> 补关联</button>':'')
+        +(examPhase(r)==='notstart'?'<button onclick="openRowCopy(\''+k+'\')" class="text-slate-500 hover:text-brand-600 text-xs mr-2"><i class="fa-solid fa-clone"></i> 复制考试</button>':'')
         +'<button onclick="viewRow(\''+k+'\')" class="text-slate-500 hover:text-brand-600 text-xs mr-2"><i class="fa-solid fa-eye"></i> 详情</button>'
       +'</td></tr>';
   }).join('') || '<tr><td colspan="16" class="text-center text-slate-400 py-12">本活动暂无考试，点击右上角「批量创建考试」开始配置</td></tr>';
@@ -215,6 +216,97 @@ function syncSelState(){ const n=selKeys().length; $('selCount').textContent=n; 
 function toggleAll(v){ document.querySelectorAll('.rowcb').forEach(c=>c.checked=v); syncSelState(); }
 
 /* ============ 行操作 ============ */
+/* ============ 行级复制考试：以该行完整配置为基础批量创建 ============ */
+let rcBase = null, rcRows = [];
+function openRowCopy(k){
+  const r = rows.find(x=>x._k===k); if(!r) return;
+  rcBase = r;
+  rcRows = [];
+  renderRowCopy();
+}
+function rcRow(b){ return {name:b.name, start:b.examStart, end:b.examEnd, paper:b.paper||''}; }
+function renderRowCopy(){
+  const b = rcBase;
+  const trs = rcRows.map((r,i)=>{
+    const paperSel = '<select data-i="'+i+'" data-f="paper" onchange="rcUp(this)" class="w-full px-2 py-1.5 rounded-lg border border-slate-200 text-sm '+(r.paper?'border-brand-400 text-brand-700':'text-slate-400')+'"><option value="">同原考试（'+esc(b.paper||'未关联')+'）</option>'+PAPER_LIST.map(p=>'<option '+(r.paper===p?'selected':'')+'>'+p+'</option>').join('')+'</select>';
+    return '<tr class="border-b border-slate-100">'
+     +'<td class="py-2 px-2 text-xs text-slate-400">'+(i+1)+'</td>'
+     +'<td class="py-2 px-2"><input data-i="'+i+'" data-f="name" value="'+esc(r.name)+'" oninput="rcUp(this)" class="w-full px-2 py-1.5 rounded-lg border border-slate-200 text-sm"></td>'
+     +'<td class="py-2 px-2"><input type="datetime-local" step="60" data-i="'+i+'" data-f="start" value="'+r.start.replace(' ','T')+'" onchange="rcUp(this)" class="w-full px-2 py-1.5 rounded-lg border border-slate-200 text-sm"></td>'
+     +'<td class="py-2 px-2"><input type="datetime-local" step="60" data-i="'+i+'" data-f="end" value="'+r.end.replace(' ','T')+'" onchange="rcUp(this)" class="w-full px-2 py-1.5 rounded-lg border border-slate-200 text-sm"></td>'
+     +'<td class="py-2 px-2">'+paperSel+'</td>'
+     +'<td class="py-2 px-2 text-center"><button onclick="rcDel('+i+')" class="text-slate-400 hover:text-red-500"><i class="fa-solid fa-trash-can text-xs"></i></button></td></tr>';
+  }).join('') || '<tr><td colspan="6" class="text-center text-slate-300 py-6 text-xs">点击下方「生成副本行」开始</td></tr>';
+  openModalHtml('<div class="bg-white rounded-xl shadow-popover modal-enter w-[980px] max-w-[96vw] max-h-[90vh] flex flex-col">'
+   +'<div class="px-6 py-4 border-b border-slate-100 flex items-center justify-between flex-shrink-0">'
+     +'<div class="font-bold text-base">复制考试 <span class="text-sm font-normal text-slate-400">以「'+esc(b.name)+'」的全部配置为基础（考试要素 + 监考 + 模拟考），生成 N 条新考试</span></div>'
+     +'<button onclick="closeModal()" class="text-slate-400 hover:text-slate-600 text-lg"><i class="fa-solid fa-xmark"></i></button></div>'
+   +'<div class="flex-1 overflow-y-auto custom-scroll px-6 py-4">'
+     +'<div class="bg-brand-50 border border-brand-100 text-brand-700 text-xs rounded-lg px-3 py-2 mb-4 leading-relaxed">'
+       +'继承规则：时长 '+b.duration+' 分钟、交卷限制 '+b.submitLimit+' 分钟、标签、描述、证书落款、监考配置、模拟考配置（'+((b.mock&&b.mock.on)?'已开启':'未开启')+'）全部继承；渠道关联继承「'+esc(chName(b.cid))+' / '+(b.group==='默认'?'默认':esc(b.group))+'」，报名费 ¥'+b.fee+'；展示时间与开关继承。下方仅需调整名称、时间与试卷。</div>'
+     +'<div class="flex items-center gap-3 mb-3">'
+       +'<div class="w-40"><div class="text-xs font-medium text-slate-500 mb-1">复制条数</div><input type="number" id="rcN" min="1" max="50" value="'+(rcRows.length||3)+'" class="w-full px-2.5 py-2 rounded-lg border border-slate-200 text-sm"></div>'
+       +'<div class="flex items-end"><button onclick="rcGen()" class="px-3 py-2 text-sm rounded-lg border border-brand-200 bg-brand-50 text-brand-700 hover:bg-brand-100 font-medium"><i class="fa-solid fa-wand-magic-sparkles mr-1"></i>生成副本行</button></div>'
+       +'<div class="flex items-end"><label class="flex items-center gap-1.5 text-xs text-slate-500 pb-2"><input type="checkbox" class="cb" id="rcShift" checked> 生成时时间自动顺延（间隔 30 分钟）</label></div>'
+       +'<div class="flex items-end"><button onclick="rcAdd()" class="px-3 py-2 text-sm text-brand-600 hover:text-brand-700 font-medium"><i class="fa-solid fa-plus mr-1"></i>手动加一行</button></div>'
+     +'</div>'
+     +'<table class="w-full text-sm border border-slate-100 rounded-lg overflow-hidden"><thead class="bg-slate-50 text-xs text-slate-500"><tr>'
+       +'<th class="py-2 px-2 w-8">#</th><th class="py-2 px-2 text-left">考试名称 *</th><th class="py-2 px-2 text-left">开始时间 *</th><th class="py-2 px-2 text-left">结束时间 *</th><th class="py-2 px-2 text-left">试卷</th><th class="py-2 px-2 w-12">操作</th>'
+     +'</tr></thead><tbody id="rcBody">'+trs+'</tbody></table>'
+     +'<div id="rcErr" class="hidden mt-3 bg-red-50 border border-red-100 text-red-600 text-xs rounded-lg px-3 py-2"></div>'
+   +'</div>'
+   +'<div class="px-6 py-3 border-t border-slate-100 flex items-center justify-between flex-shrink-0">'
+     +'<span class="text-xs text-slate-400">确定后自动创建考试并关联渠道（爱测评考试同步自动创建）</span>'
+     +'<div class="flex gap-2"><button onclick="closeModal()" class="px-4 py-2 text-sm rounded-lg border border-slate-200 hover:bg-slate-50">取消</button>'
+     +'<button onclick="doRowCopy()" class="px-5 py-2 text-sm rounded-lg bg-brand-600 hover:bg-brand-700 text-white font-medium">创建 '+(rcRows.length||'N')+' 条考试</button></div></div>'
+   +'</div>');
+}
+function rcUp(inp){ rcRows[+inp.dataset.i][inp.dataset.f] = inp.value; }
+function rcAdd(){ rcRows.push(rcRow(rcBase)); renderRowCopy(); }
+function rcDel(i){ rcRows.splice(i,1); renderRowCopy(); }
+function rcGen(){
+  const N = Math.max(1, Math.min(50, +$('rcN').value || 1));
+  const shift = $('rcShift').checked;
+  const s = Date.parse(rcBase.examStart.replace(' ','T')), e = Date.parse(rcBase.examEnd.replace(' ','T'));
+  const dur = e - s, gap = 30*60*1000;
+  const pad = x => String(x).padStart(2,'0');
+  const fmt = d => d.getFullYear()+'-'+pad(d.getMonth()+1)+'-'+pad(d.getDate())+' '+pad(d.getHours())+':'+pad(d.getMinutes());
+  rcRows = [];
+  for(let i=1;i<=N;i++){
+    const r = rcRow(rcBase);
+    r.name = rcBase.name + '·第' + (i+1) + '场';
+    if(shift){ const ns = s + i*(dur+gap); r.start = fmt(new Date(ns)); r.end = fmt(new Date(ns+dur)); }
+    rcRows.push(r);
+  }
+  renderRowCopy();
+}
+function doRowCopy(){
+  const errs = [];
+  if(!rcRows.length) errs.push('请先生成或添加副本行');
+  rcRows.forEach((r,i)=>{
+    if(!r.name) errs.push('第'+(i+1)+'行：考试名称必填');
+    if(!r.start || !r.end) errs.push('第'+(i+1)+'行：起止时间必填');
+    else if(r.end <= r.start) errs.push('第'+(i+1)+'行：结束时间需晚于开始时间');
+  });
+  const names = rcRows.map(r=>r.name).filter(Boolean);
+  const dup = names.find((v,i)=>names.indexOf(v)!==i);
+  if(dup) errs.push('副本名称重复：'+dup);
+  if(errs.length){ const el=$('rcErr'); el.classList.remove('hidden'); el.innerHTML='<b>无法创建，请修正：</b><br>'+errs.map(x=>'· '+esc(x)).join('<br>'); return; }
+  const b = rcBase;
+  const created = [];
+  rcRows.forEach((r,i)=>{
+    const aid = 'HD27' + String(10 + i);
+    const nr = JSON.parse(JSON.stringify(b));
+    nr.aid = aid; nr._k = aid + '|' + b.cid + '|' + b.group;
+    nr.name = r.name; nr.examStart = String(r.start).replace('T',' '); nr.examEnd = String(r.end).replace('T',' ');
+    nr.paper = r.paper || b.paper;
+    nr.status = nr.paper ? '创建中' : '未关联'; nr.enrolled = 0; delete nr.failReason;
+    rows.push(nr); created.push(nr);
+  });
+  saveData(); renderAll(); closeModal();
+  toast('已创建 '+created.length+' 条考试（继承全部配置与渠道关联），正在自动创建爱测评考试');
+  setTimeout(()=>{ created.forEach(r=>{ if(r.status==='创建中') r.status='已创建'; }); saveData(); renderAll(); }, 2000);
+}
 function retryRow(k){ const r=rows.find(x=>x._k===k); if(!r) return; r.status='创建中'; saveData(); renderAll();
   setTimeout(()=>{ r.status='已创建'; delete r.failReason; saveData(); renderAll(); toast('重试成功：爱测评考试已创建（'+r.name+'）'); }, 1600); }
 function linkPaper(k){ const r=rows.find(x=>x._k===k); if(!r) return;

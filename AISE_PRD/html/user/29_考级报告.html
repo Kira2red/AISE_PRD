@@ -209,7 +209,9 @@
     <!-- 1. demo 调试浮球（正式版无） -->
     <div class="demo-fab">
         <div class="fab-panel" id="fabPanel">
-            <span class="demo-label"><i class="fa-solid fa-flask mr-1"></i>DEMO · 示例考生</span>
+            <span class="demo-label"><i class="fa-solid fa-sliders mr-1"></i>DEMO · 等级来源</span>
+            <div style="margin-top:6px;" id="examBtns"></div>
+            <span class="demo-label" style="display:block;margin-top:10px;"><i class="fa-solid fa-user-graduate mr-1"></i>DEMO · 示例考生</span>
             <div style="margin-top:6px;" id="studentBtns"></div>
         </div>
         <button class="fab-btn" id="fabBtn" onclick="toggleFab()"><i class="fa-solid fa-flask"></i></button>
@@ -242,6 +244,25 @@ const ADVICE = {
            course:null }
 };
 const FULL_COMMENT = '本题目作答达到要求，完整完成任务。太棒了！';
+
+/* ===== 证书等级配置（20260909 报告等级关联证书配置）=====
+   正式版：配置来自活动证书管理的分数线规则（按分数/按比例划线），报告生成时取当时配置快照；
+   每档可选填「成长区间」「一句话总结」，未填写走兜底；未配置分数线规则的考试按固定映射表兜底。
+   demo：ratio 档的 min 为按比例划线在成绩发布后换算出的等效分数线（同分同权归上一档）。 */
+const EXAM_CONFIGS = {
+    score: { label:'已配置 · 按分数划线', mode:'score', tiers:[
+        { min:90, name:'优秀', cert:true,  stage:'出类拔萃', summary:'综合本次考级表现，你已高质量完成本级全部核心任务，展现出扎实的编程综合能力，可继续挑战更复杂的综合任务。' },
+        { min:75, name:'良好', cert:true },
+        { min:60, name:'合格', cert:true }
+    ]},
+    ratio: { label:'已配置 · 按比例划线', mode:'ratio', tiers:[
+        { top:15, min:92, name:'一等奖', cert:true,  stage:'名列前茅', summary:'综合本次考级表现，你在同级考生中表现突出，位居前列，可继续挑战更高目标。' },
+        { top:45, min:78, name:'二等奖', cert:true },
+        { top:80, min:60, name:'参与奖', cert:false }
+    ]},
+    fallback: { label:'未配置 · 固定表兜底', mode:'fallback' }
+};
+let currentExam = 'score';
 
 const STUDENTS = [
 { id:'liming', name:'李明', age:'12岁', idNo:'ID:1103467994323', school:'所在学校/培训机构', level:'程序设计四级', date:'2026年8月', score:100,
@@ -328,11 +349,76 @@ const STUDENTS = [
 
 /* ===== 工具函数 ===== */
 function gradeOf(s){
-    if(s < 30) return { pass:false, grade:'待提升', stage:0 };
-    if(s < 60) return { pass:false, grade:'待提升', stage:1 };
-    if(s < 70) return { pass:true,  grade:'合格',   stage:2 };
-    if(s < 80) return { pass:true,  grade:'良好',   stage:3 };
-    return { pass:true, grade:'优秀', stage:4 };
+    const ex = EXAM_CONFIGS[currentExam];
+    if(ex.mode === 'fallback'){
+        /* 未配置分数线规则：固定映射表兜底（与 20260728 报告 PRD 5.1.3 一致） */
+        if(s < 30) return { pass:false, grade:'待提升', stage:0, color:GRADE_COLOR['待提升'], align:'待提升', tier:null };
+        if(s < 60) return { pass:false, grade:'待提升', stage:1, color:GRADE_COLOR['待提升'], align:'待提升', tier:null };
+        if(s < 70) return { pass:true,  grade:'合格',   stage:2, color:GRADE_COLOR['合格'],   align:'合格',   tier:null };
+        if(s < 80) return { pass:true,  grade:'良好',   stage:3, color:GRADE_COLOR['良好'],   align:'良好',   tier:null };
+        return { pass:true, grade:'优秀', stage:4, color:GRADE_COLOR['优秀'], align:'优秀', tier:null };
+    }
+    /* 已配置分数线规则：等级取命中的最高档；达到勾选「发放证书」的最低档 = 通过 */
+    const tiers = ex.tiers;
+    let hit = null, hitIdx = -1;
+    for(var i = 0; i < tiers.length; i++){
+        if(s >= tiers[i].min){ hit = tiers[i]; hitIdx = i; break; }
+    }
+    const checked = tiers.filter(function(t){ return t.cert; });
+    const passLine = checked.length ? Math.min.apply(null, checked.map(function(t){ return t.min; })) : Infinity;
+    if(!hit) return { pass:false, grade:'未通过', stage:0, color:'#FF9900', align:'待提升', tier:null };
+    const ascIdx = tiers.length - 1 - hitIdx;
+    const align = alignOf(ex, hit);
+    return { pass: s >= passLine, grade: hit.name, stage: ascIdx + 1, color: GRADE_COLOR[align] || '#FF9900', align: align, tier: hit };
+}
+/* 档位兜底对齐：勾选发证的档位按分数线从高到低对齐 优秀/良好/合格（第 4 档起沿用合格）；未勾选档位统一按「待提升」 */
+function checkedDesc(ex){ return ex.tiers.filter(function(t){ return t.cert; }).sort(function(a, b){ return b.min - a.min; }); }
+function alignOf(ex, tier){
+    if(!tier.cert) return '待提升';
+    const k = checkedDesc(ex).indexOf(tier);
+    return k < 0 ? '待提升' : ['优秀','良好','合格'][Math.min(k, 2)];
+}
+function stageOfTier(ex, tier){
+    if(tier.stage) return tier.stage;
+    if(!tier.cert) return '稳步接近';
+    const k = checkedDesc(ex).indexOf(tier);
+    return k < 0 ? '稳步接近' : ['高阶表现','熟练掌握','目标达成'][Math.min(k, 2)];
+}
+/* 成长区间段：已配置考试 = 未通过段 + 配置档升序（等宽）；未配置考试 = 固定五段不等宽 */
+function activeStages(){
+    const ex = EXAM_CONFIGS[currentExam];
+    if(ex.mode === 'fallback') return STAGES;
+    const segs = [{ n:'未通过', note:'尚未达到最低等级线' }];
+    ex.tiers.slice().reverse().forEach(function(t){ segs.push({ n: stageOfTier(ex, t) }); });
+    const w = 100 / segs.length;
+    segs.forEach(function(sg, i){ sg.w = w; sg.c = w * (i + 0.5); });
+    return segs;
+}
+function stageNoteOf(seg){
+    if(!seg) return '';
+    if(seg.note) return seg.note;
+    return STAGE_NOTE[seg.n] || ('处于' + seg.n + '的成长区间');
+}
+/* 一句话总结：命中档配置了文案取配置；否则按兜底对齐取固定文案（未达线用待提升文案） */
+function summaryOf(g){
+    if(g.tier){
+        if(g.tier.summary) return g.tier.summary;
+        return SUMMARY[g.align] || SUMMARY['待提升'];
+    }
+    return SUMMARY[g.grade] || SUMMARY['待提升'];
+}
+/* 右侧栏：本场等级规则来源（demo 演示用，正式版无） */
+function ruleCardHtml(){
+    const ex = EXAM_CONFIGS[currentExam];
+    if(ex.mode === 'fallback'){
+        return '<div class="side-card"><div class="t">等级规则（证书配置）</div>'
+          + '<div class="side-row"><span class="v" style="color:#999">本场考试未配置分数线规则，报告按固定映射表兜底</span></div></div>';
+    }
+    const rows = ex.tiers.map(function(t){
+        const line = ex.mode === 'ratio' ? ('TOP' + t.top + '% · ≥' + t.min + '分') : ('≥' + t.min + '分');
+        return '<div class="side-row"><span class="k">' + esc(t.name) + (t.cert ? '' : '（不发证）') + '</span><span class="v">' + line + '</span></div>';
+    }).join('');
+    return '<div class="side-card"><div class="t">等级规则（证书配置）</div>' + rows + '</div>';
 }
 function esc(t){ return String(t).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;'); }
 const GRADE_COLOR = { '待提升':'#FF9900', '合格':'#2A6CE0', '良好':'#00CC66', '优秀':'#4E39BA' };
@@ -340,7 +426,8 @@ const GRADE_COLOR = { '待提升':'#FF9900', '合格':'#2A6CE0', '良好':'#00CC
 /* ===== 分布图：起伏曲线（渐变填充）+ 中间位置圆点 + 垂直虚线 ===== */
 function curveSvg(stageIdx){
     let xAcc = 0;
-    const centers = STAGES.map(function(s){ const cx = xAcc + s.w * s.c / 100; xAcc += s.w; return cx; });
+    const stages = activeStages();
+    const centers = stages.map(function(s){ const cx = xAcc + s.w * s.c / 100; xAcc += s.w; return cx; });
     const pos = centers[stageIdx];
     /* 圆点放在曲线中部高度（不在峰顶），垂直虚线落到基线 */
     const cy = 27;
@@ -354,7 +441,7 @@ function curveSvg(stageIdx){
 }
 function stageLabels(stageIdx){
     let html = '';
-    STAGES.forEach(function(s, i){
+    activeStages().forEach(function(s, i){
         html += '<div style="width:' + s.w + '%" class="' + (i === stageIdx ? 'active' : '') + '">' + s.n + '</div>';
     });
     return html;
@@ -376,13 +463,15 @@ function renderHeadCard(stu, g){
       + '<div class="stu-school">' + esc(stu.school) + '</div>'
       + '</div></div>';
     /* 等级卡×2 */
-    const gc = GRADE_COLOR[g.grade];
+    const gc = g.color;
+    const stages = activeStages();
+    const stageName = stages[g.stage] ? stages[g.stage].n : '';
     html += '<div class="grade-card"><span class="lb">本次等级：</span><span class="v" style="color:' + gc + '">' + g.grade + '</span>'
       + '<span class="grade-note">' + (g.pass ? '已达到' + esc(stu.level) + '核心要求' : '未达到本级核心要求') + '</span></div>';
-    html += '<div class="grade-card"><span class="lb">同级参照：</span><span class="v" style="color:#FF9900">' + STAGES[g.stage].n + '</span>'
-      + '<span class="grade-note">' + STAGE_NOTE[STAGES[g.stage].n] + '</span></div>';
+    html += '<div class="grade-card"><span class="lb">同级参照：</span><span class="v" style="color:#FF9900">' + esc(stageName) + '</span>'
+      + '<span class="grade-note">' + stageNoteOf(stages[g.stage]) + '</span></div>';
     /* 总结条 */
-    html += '<div class="summary-bar">' + SUMMARY[g.grade] + '</div>';
+    html += '<div class="summary-bar">' + summaryOf(g) + '</div>';
     html += '</div>';
     return html;
 }
@@ -523,9 +612,10 @@ function renderSideInfo(stu){
       + '<div class="side-row"><span class="k">考试项目</span><span class="v">AISE ' + esc(stu.level) + '</span></div>'
       + '<div class="side-row"><span class="k">考试时间</span><span class="v">' + esc(stu.date) + '</span></div>'
       + '<div class="side-row"><span class="k">正式总分</span><span class="v">' + stu.score + ' 分</span></div>'
-      + '<div class="side-row"><span class="k">评定等级</span><span class="v">' + g.grade + ' · ' + STAGES[g.stage].n + '</span></div>'
+      + '<div class="side-row"><span class="k">评定等级</span><span class="v">' + g.grade + ' · ' + (activeStages()[g.stage] ? activeStages()[g.stage].n : '') + '</span></div>'
       + '<div class="side-row"><span class="k">通过状态</span><span class="v" style="color:' + (g.pass ? '#00CC66' : '#FF9900') + '">' + (g.pass ? '已通过' : '未通过') + '</span></div>'
-      + '</div>';
+      + '</div>'
+      + ruleCardHtml();
 }
 
 function switchStudent(id){
@@ -600,6 +690,30 @@ function initStudentBtns(){
     box.innerHTML = html;
 }
 
+function initExamBtns(){
+    const box = document.getElementById('examBtns');
+    let html = '';
+    Object.keys(EXAM_CONFIGS).forEach(function(k){
+        html += '<button class="stu-btn' + (k === currentExam ? ' active' : '') + '" data-exam="' + k + '" onclick="switchExam(\'' + k + '\')">'
+          + '<span class="n">' + esc(EXAM_CONFIGS[k].label) + '</span></button>';
+    });
+    box.innerHTML = html;
+}
+
+function switchExam(id){
+    if(!EXAM_CONFIGS[id]) return;
+    currentExam = id;
+    const stu = STUDENTS.find(function(s){ return s.id === currentId; }) || STUDENTS[0];
+    renderReport(stu);
+    renderSideInfo(stu);
+    initStudentBtns();
+    document.querySelectorAll('#examBtns .stu-btn').forEach(function(b){
+        b.classList.toggle('active', b.getAttribute('data-exam') === id);
+    });
+    resetPdfBtn();
+}
+
+initExamBtns();
 initStudentBtns();
 switchStudent('liming');
 </script>
