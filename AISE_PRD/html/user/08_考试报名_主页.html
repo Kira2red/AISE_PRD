@@ -144,7 +144,7 @@
                             </div>
 
                             <div id="group-select-wrapper" class="hidden">
-                                <label class="block text-xs font-bold text-slate-500 uppercase mb-1.5">活动分组 <span class="text-red-500">*</span></label>
+                                <label class="block text-xs font-bold text-slate-500 uppercase mb-1.5">考试分组 <span class="text-red-500">*</span></label>
                                 <div class="relative">
                                     <select id="select-group" class="w-full px-4 py-2.5 rounded-lg border border-slate-200 focus:border-slate-800 outline-none text-sm bg-white appearance-none" disabled onchange="onGroupChange()">
                                         <option value="">请选择分组...</option>
@@ -155,7 +155,7 @@
                         </div>
 
                         <div class="md:col-span-2" id="activity-cards-section">
-                            <label class="block text-xs font-bold text-slate-500 uppercase mb-1.5">选择测评活动 <span class="text-red-500">*</span></label>
+                            <label class="block text-xs font-bold text-slate-500 uppercase mb-1.5">选择考试 <span class="text-red-500">*</span></label>
                             <div id="act-cards" class="grid grid-cols-1 md:grid-cols-2 gap-3">
                                 <p class="col-span-2 text-center text-sm text-slate-400 py-8 border-2 border-dashed border-slate-200 rounded-xl">请先选择机构</p>
                             </div>
@@ -222,7 +222,7 @@
                                 <dd class="font-bold text-brand-700 text-lg" id="view-project">--</dd>
                             </div>
                             <div class="sm:col-span-2 border-b border-slate-200 pb-4 mb-2" id="view-group-row" style="display:none">
-                                <dt class="text-slate-400 text-xs mb-1">活动分组</dt>
+                                <dt class="text-slate-400 text-xs mb-1">考试分组</dt>
                                 <dd class="font-medium text-slate-800" id="view-group">--</dd>
                             </div>
                             <div><dt class="text-slate-400 text-xs mb-1">渠道/机构</dt><dd class="font-medium text-slate-800" id="view-agency">--</dd></div>
@@ -299,7 +299,7 @@
     </main>
 
     <script>
-        // 1. 模拟数据库（渠道 → 分组 → 活动）
+        // 1. 模拟数据库（渠道 → 分组 → 考试）
         const activityDB = {
             "2025春季 Python 程序设计（一级）": { examStart: "2025-03-16 08:00", examEnd: "2025-03-16 11:30", fee: 199, status: "open" },
             "2025春季 C++ 算法基础": { examStart: "2025-03-17 14:00", examEnd: "2025-03-17 16:00", fee: 199, status: "open" },
@@ -351,7 +351,7 @@
         function goToStep(step) {
             if (step === 3 || step === 4) {
                 const agency = document.getElementById('select-agency').value;
-                if (!agency || !selectedActId) { alert('请选择所属机构并选择测评活动'); return; }
+                if (!agency || !selectedActId) { alert('请选择所属机构并选择考试'); return; }
             }
             // 隐藏当前
             document.getElementById('step-content-' + currentStep).classList.add('hidden');
@@ -391,7 +391,7 @@
             }
         }
 
-        // 活动卡片渲染
+        // 考试卡片渲染
         function visibleActs(agency) {
             if (!agency) return [];
             const groupSel = document.getElementById('select-group');
@@ -415,7 +415,7 @@
         function renderActCards(acts, emptyText) {
             const container = document.getElementById('act-cards');
             if (!acts || acts.length === 0) {
-                container.innerHTML = '<p class="col-span-2 text-center text-sm text-slate-400 py-8 border-2 border-dashed border-slate-200 rounded-xl">' + (emptyText || '该分组暂无可报名活动') + '</p>';
+                container.innerHTML = '<p class="col-span-2 text-center text-sm text-slate-400 py-8 border-2 border-dashed border-slate-200 rounded-xl">' + (emptyText || '该分组暂无可报名考试') + '</p>';
                 return;
             }
             container.innerHTML = acts.map(a => {
@@ -485,7 +485,7 @@
             });
         }
 
-        // 机构变化时，联动分组下拉与活动卡片
+        // 机构变化时，联动分组下拉与考试卡片
         function onAgencyChange() {
             const agencyCode = document.getElementById('select-agency').value;
             const wrapper = document.getElementById('group-select-wrapper');
@@ -520,7 +520,7 @@
             } else {
                 wrapper.classList.add('hidden');
                 groupSel.disabled = true;
-                renderActCards(agency ? agency.activities : [], '该渠道暂无可报名活动');
+                renderActCards(agency ? agency.activities : [], '该渠道暂无可报名考试');
             }
         }
 
@@ -569,7 +569,7 @@
                 // 触发项目更新
                 onAgencyChange();
                 
-                // 视觉反馈：分组下拉框或活动卡片区高亮
+                // 视觉反馈：分组下拉框或考试卡片区高亮
                 const groupWrapper = document.getElementById('group-select-wrapper');
                 if (!groupWrapper.classList.contains('hidden')) {
                     groupWrapper.querySelector('select').classList.add('ring-2', 'ring-brand-200', 'bg-blue-50');

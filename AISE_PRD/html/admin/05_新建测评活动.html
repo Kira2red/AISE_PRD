@@ -4,7 +4,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>测评活动管理 - AISE 后台</title>
+    <title>考试管理 - AISE 后台</title>
     <script src="https://cdn.tailwindcss.com"></script>
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
@@ -125,7 +125,7 @@
         <nav class="flex-1 overflow-y-auto py-4 space-y-1">
             <a href="#"
                 class="nav-item active flex items-center gap-3 px-6 py-3 text-brand-600 bg-brand-50 transition relative">
-                <i class="fa-solid fa-graduation-cap w-5 text-center"></i><span class="font-medium text-sm">测评管理</span>
+                <i class="fa-solid fa-graduation-cap w-5 text-center"></i><span class="font-medium text-sm">考试管理</span>
             </a>
         </nav>
     </aside>
@@ -134,7 +134,7 @@
 
         <header
             class="h-16 bg-white border-b border-slate-200 flex items-center justify-between px-8 flex-shrink-0 z-10">
-            <h1 class="text-xl font-bold text-slate-800">测评活动管理</h1>
+            <h1 class="text-xl font-bold text-slate-800">考试管理</h1>
         </header>
 
         <div class="px-8 py-6">
@@ -143,7 +143,7 @@
 
                     <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-3 w-full xl:w-auto flex-1">
                         <div class="relative">
-                            <input type="text" placeholder="测评名称/ID"
+                            <input type="text" placeholder="考试名称/ID"
                                 class="w-full pl-3 pr-4 py-2 rounded-lg border border-slate-200 text-sm focus:border-brand-500 outline-none transition">
                         </div>
                         <select
@@ -173,7 +173,7 @@
 
                         <button onclick="openActivityModal(null, 'new')"
                             class="flex items-center gap-2 bg-brand-600 hover:bg-brand-700 text-white text-sm font-bold px-5 py-2 rounded-lg shadow-md transition ml-2">
-                            <i class="fa-solid fa-plus"></i> 新建测评活动
+                            <i class="fa-solid fa-plus"></i> 新建考试
                         </button>
                     </div>
                 </div>
@@ -185,7 +185,7 @@
                 <table class="w-full text-left border-collapse">
                     <thead>
                         <tr class="border-b border-slate-100 bg-slate-50 text-xs uppercase text-slate-500 font-bold">
-                            <th class="p-4 pl-6">活动名称</th>
+                            <th class="p-4 pl-6">考试名称</th>
                             <th class="p-4">数据来源 / 关联</th>
                             <th class="p-4">标签</th>
                             <th class="p-4">时间安排</th>
@@ -197,7 +197,7 @@
 
                         <tr class="hover-row transition group">
                             <td class="p-4 pl-6">
-                                <p class="font-bold text-slate-800">2025春季 Python 一级等级测评</p>
+                                <p class="font-bold text-slate-800">2025春季 Python 一级等级考试</p>
                                 <p class="text-xs text-slate-400 mt-0.5">ID: 1001</p>
                             </td>
                             <td class="p-4">
@@ -222,7 +222,7 @@
                             </td>
                             <td class="p-4 text-right pr-6">
                                 <div class="flex items-center justify-end gap-4">
-                                    <button onclick="openActivityModal('2025春季 Python 一级等级测评', 'edit_synced')"
+                                    <button onclick="openActivityModal('2025春季 Python 一级等级考试', 'edit_synced')"
                                         class="text-brand-600 hover:text-brand-800 text-xs font-medium transition">编辑</button>
                                     <button
                                         class="text-brand-600 hover:text-brand-800 text-xs font-medium transition">预览</button>
@@ -268,7 +268,7 @@
 
                         <tr class="hover-row transition group" id="row-unlinked">
                             <td class="p-4 pl-6">
-                                <p class="font-bold text-slate-800">2025夏季 AIGC 专项预热活动</p>
+                                <p class="font-bold text-slate-800">2025夏季 AIGC 专项预热考试</p>
                                 <p class="text-xs text-slate-400 mt-0.5">ID: 1004</p>
                             </td>
                             <td class="p-4">
@@ -289,7 +289,7 @@
                             <td class="p-4"><span class="text-slate-400 text-xs">● 草稿</span></td>
                             <td class="p-4 text-right pr-6">
                                 <div class="flex items-center justify-end gap-4">
-                                    <button onclick="openActivityModal('2025夏季 AIGC 专项预热活动', 'edit_unassociated')"
+                                    <button onclick="openActivityModal('2025夏季 AIGC 专项预热考试', 'edit_unassociated')"
                                         class="text-brand-600 hover:text-brand-800 text-xs font-bold transition">关联/编辑</button>
                                 </div>
                             </td>
@@ -308,7 +308,7 @@
 
             <div
                 class="px-6 py-4 border-b border-slate-100 flex justify-between items-center bg-slate-50 rounded-t-2xl">
-                <h3 class="font-bold text-slate-800 text-lg" id="modal-title">编辑测评信息</h3>
+                <h3 class="font-bold text-slate-800 text-lg" id="modal-title">编辑考试信息</h3>
                 <button onclick="closeActivityModal()" class="text-slate-400 hover:text-slate-600"><i
                         class="fa-solid fa-xmark"></i></button>
             </div>
@@ -333,8 +333,8 @@
                         <i
                             class="fa-solid fa-chevron-down absolute right-3 top-1/2 -translate-y-1/2 text-slate-400 text-xs pointer-events-none"></i>
                     </div>
-                    <p class="text-[11px] text-slate-500 mt-2"><i class="fa-solid fa-circle-info mr-1"></i>保存时系统将按本活动要素，自动在爱测评对应组织创建考试；未关联试卷时保存为「未关联」状态，之后补关联试卷并保存即自动创建。</p>
-                    <p class="text-[10px] text-slate-400 mt-1"><i class="fa-solid fa-shield-halved mr-1"></i>自动创建的爱测评考试名称：<b>AISE｜{测评名称}｜{4位码}</b>（模拟考前缀 AISE模；多考场追加考场名称，不嵌套）</p>
+                    <p class="text-[11px] text-slate-500 mt-2"><i class="fa-solid fa-circle-info mr-1"></i>保存时系统将按本场考试要素，自动在爱测评对应组织创建考试；未关联试卷时保存为「未关联」状态，之后补关联试卷并保存即自动创建。</p>
+                    <p class="text-[10px] text-slate-400 mt-1"><i class="fa-solid fa-shield-halved mr-1"></i>自动创建的爱测评考试名称：<b>AISE｜{考试名称}｜{4位码}</b>（模拟考前缀 AISE模；多考场追加考场名称，不嵌套）</p>
                     <label class="flex items-center gap-2 mt-2 cursor-pointer select-none">
                         <input type="checkbox" id="demo-fail-toggle" class="accent-red-500">
                         <span class="text-[11px] text-red-500 font-medium">演示开关：模拟自动创建失败</span>
@@ -346,7 +346,7 @@
                         测评名称</label>
                     <input type="text" id="activity-name"
                         class="w-full px-4 py-2.5 rounded-lg border border-slate-200 focus:border-brand-500 outline-none text-sm text-slate-800"
-                        placeholder="请输入活动名称">
+                        placeholder="请输入考试名称">
                 </div>
 
                 <div class="grid grid-cols-2 gap-6">
@@ -371,7 +371,7 @@
                 <div class="grid grid-cols-2 gap-6">
                     <div>
                         <label class="block text-xs font-bold text-slate-500 mb-2"><span class="text-red-500">*</span>
-                            测评时长
+                            考试时长
                             (分钟)</label>
                         <input type="number" id="activity-duration"
                             class="w-full px-4 py-2.5 rounded-lg border border-slate-200 focus:border-brand-500 outline-none text-sm text-slate-800"
@@ -442,8 +442,8 @@
                 </div>
 
                 <div>
-                    <label class="block text-xs font-bold text-slate-500 mb-2">测评描述 <span class="text-slate-400 font-normal">(选填)</span></label>
-                    <textarea rows="2" placeholder="请输入测评描述"
+                    <label class="block text-xs font-bold text-slate-500 mb-2">考试描述 <span class="text-slate-400 font-normal">(选填)</span></label>
+                    <textarea rows="2" placeholder="请输入考试描述"
                         class="w-full px-3 py-2 rounded-lg border border-slate-200 text-xs outline-none focus:border-brand-500 resize-none bg-white"></textarea>
                 </div>
 
@@ -727,7 +727,7 @@
         <div class="bg-white rounded-2xl shadow-2xl w-[420px] p-8 text-center modal-enter">
             <div id="co-icon" class="mx-auto w-12 h-12 rounded-full bg-blue-50 text-brand-600 flex items-center justify-center text-xl mb-4"><i class="fa-solid fa-spinner fa-spin"></i></div>
             <h3 class="font-bold text-slate-800 text-base mb-1" id="co-title">正在自动创建爱测评考试…</h3>
-            <p class="text-xs text-slate-400 mt-2" id="co-desc">系统正在按本活动要素，在爱测评对应组织生成考试，请稍候</p>
+            <p class="text-xs text-slate-400 mt-2" id="co-desc">系统正在按本场考试要素，在爱测评对应组织生成考试，请稍候</p>
             <div class="mt-6 flex justify-center gap-3" id="co-actions" style="display:none">
                 <button onclick="coRetry()" id="co-retry-btn" class="hidden px-5 py-2 text-sm font-bold text-white bg-brand-600 hover:bg-brand-700 rounded-lg transition">重试</button>
                 <button onclick="coSaveUnlinked()" id="co-unlink-btn" class="hidden px-5 py-2 text-sm font-bold text-slate-600 bg-white border border-slate-200 hover:bg-slate-50 rounded-lg transition">保存为未关联</button>
@@ -756,25 +756,25 @@
 
             // 2. 根据类型配置弹窗
             if (type === 'new') {
-                title.innerText = "新建测评活动";
+                title.innerText = "新建考试";
                 nameInput.value = "";
                 linkSection.style.display = 'block'; // 新建时显示关联选项
                 handleSourceLink();
             } else if (type === 'edit_unassociated') {
-                title.innerText = "关联 / 编辑测评活动";
+                title.innerText = "关联 / 编辑考试";
                 nameInput.value = existingName;
                 linkSection.style.display = 'block'; // 编辑未关联时显示，允许关联
                 coPendingRow = 'row-unlinked';
                 handleSourceLink();
             } else if (type === 'edit_unsynced') {
-                title.innerText = "编辑测评信息";
+                title.innerText = "编辑考试信息";
                 nameInput.value = existingName;
                 linkSection.style.display = 'block'; // 创建失败可重新关联试卷或保存为未关联
                 coPendingRow = 'row-unsynced';
                 handleSourceLink();
             } else {
-                // 已创建活动的普通编辑，隐藏关联选择（关联关系已确定）
-                title.innerText = "编辑测评信息";
+                // 已创建考试的普通编辑，隐藏关联选择（关联关系已确定）
+                title.innerText = "编辑考试信息";
                 nameInput.value = existingName;
                 linkSection.style.display = 'none';
                 saveBtn.innerText = "保存修改";
@@ -834,7 +834,7 @@
             document.getElementById('co-icon').className = 'mx-auto w-12 h-12 rounded-full bg-blue-50 text-brand-600 flex items-center justify-center text-xl mb-4';
             document.getElementById('co-icon').innerHTML = '<i class="fa-solid fa-spinner fa-spin"></i>';
             document.getElementById('co-title').innerText = '正在自动创建爱测评考试…';
-            document.getElementById('co-desc').innerText = '系统正在按本活动要素，在爱测评对应组织生成考试，请稍候';
+            document.getElementById('co-desc').innerText = '系统正在按本场考试要素，在爱测评对应组织生成考试，请稍候';
             document.getElementById('co-actions').style.display = 'none';
             document.getElementById('co-retry-btn').classList.add('hidden');
             document.getElementById('co-unlink-btn').classList.add('hidden');
@@ -853,7 +853,7 @@
                 icon.className = 'mx-auto w-12 h-12 rounded-full bg-red-50 text-red-500 flex items-center justify-center text-xl mb-4';
                 icon.innerHTML = '<i class="fa-solid fa-triangle-exclamation"></i>';
                 document.getElementById('co-title').innerText = '自动创建失败';
-                document.getElementById('co-desc').innerText = '爱测评考试未创建成功，本活动创建也不成功。可重试，或先保存为未关联状态';
+                document.getElementById('co-desc').innerText = '爱测评考试未创建成功，本场考试创建也不成功。可重试，或先保存为未关联状态';
                 document.getElementById('co-retry-btn').classList.remove('hidden');
                 document.getElementById('co-unlink-btn').classList.remove('hidden');
                 document.getElementById('co-actions').style.display = 'flex';

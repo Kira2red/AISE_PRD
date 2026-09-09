@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>测评管理 - AISE 后台</title>
+    <title>考试管理 - AISE 后台</title>
     <script src="https://cdn.tailwindcss.com"></script>
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
     <link href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
@@ -66,7 +66,7 @@
                 <i class="fa-solid fa-file-lines w-5 text-center"></i><span class="font-medium text-sm">试卷管理</span>
             </a>
             <a href="#" class="nav-item active flex items-center gap-3 px-6 py-3 text-brand-600 bg-brand-50 transition relative">
-                <i class="fa-solid fa-graduation-cap w-5 text-center"></i><span class="font-medium text-sm">测评管理</span>
+                <i class="fa-solid fa-graduation-cap w-5 text-center"></i><span class="font-medium text-sm">考试管理</span>
             </a>
             <div class="px-6 py-2 mt-4 text-xs font-bold text-slate-400 uppercase tracking-wider">考务与用户</div>
             <a href="#" class="nav-item flex items-center gap-3 px-6 py-3 text-slate-500 hover:bg-slate-50 hover:text-brand-600 transition relative">
@@ -78,7 +78,7 @@
     <main class="flex-1 flex flex-col min-w-0 bg-slate-50/50 relative">
 
         <header class="h-16 bg-white border-b border-slate-200 flex items-center justify-between px-8 flex-shrink-0 z-10">
-            <h1 class="text-xl font-bold text-slate-800">测评活动管理</h1>
+            <h1 class="text-xl font-bold text-slate-800">考试管理</h1>
             <div class="flex items-center gap-2 text-xs text-slate-500 bg-blue-50 px-3 py-1.5 rounded-lg border border-blue-100">
                 <i class="fa-solid fa-rotate text-brand-600"></i>
                 <span>数据源自：爱测评 - AISE 专项组织</span>
@@ -89,7 +89,7 @@
             <div class="bg-white rounded-xl shadow-card border border-slate-100 p-4 flex gap-4 items-center">
                 <div class="relative w-72">
                     <i class="fa-solid fa-magnifying-glass absolute left-3 top-1/2 transform -translate-y-1/2 text-slate-400 text-sm"></i>
-                    <input type="text" placeholder="搜索测评名称..." class="w-full pl-9 pr-4 py-2 rounded-lg border border-slate-200 text-sm focus:border-brand-500 outline-none transition">
+                    <input type="text" placeholder="搜索考试名称..." class="w-full pl-9 pr-4 py-2 rounded-lg border border-slate-200 text-sm focus:border-brand-500 outline-none transition">
                 </div>
                 <select class="px-3 py-2 rounded-lg border border-slate-200 text-sm text-slate-600 bg-white outline-none hover:border-slate-300 cursor-pointer">
                     <option value="">同步状态</option>
@@ -105,11 +105,11 @@
                 <table class="w-full text-left border-collapse">
                     <thead>
                         <tr class="border-b border-slate-100 bg-slate-50 text-xs uppercase text-slate-500 font-bold">
-                            <th class="p-4 pl-6">测评名称 / ID</th>
+                            <th class="p-4 pl-6">考试名称 / ID</th>
                             <th class="p-4">创建人</th>
                             <th class="p-4">起止时间</th>
                             <th class="p-4">时长</th>
-                            <th class="p-4">测评状态</th>
+                            <th class="p-4">考试状态</th>
                             <th class="p-4">同步状态</th>
                             <th class="p-4 text-right pr-6">操作</th>
                         </tr>
@@ -118,7 +118,7 @@
                         
                         <tr class="hover-row transition group" id="row-1001">
                             <td class="p-4 pl-6">
-                                <p class="font-bold text-slate-800">2025春季 Python 一级等级测评</p>
+                                <p class="font-bold text-slate-800">2025春季 Python 一级等级考试</p>
                                 <p class="text-xs text-slate-400 font-mono mt-0.5">ID: 1001</p>
                             </td>
                             <td class="p-4 text-slate-600">张教务</td>
@@ -139,7 +139,7 @@
                                 <div class="flex items-center justify-end gap-3 opacity-100">
                                     <button onclick="toggleSync(1001, true)" class="text-slate-400 hover:text-red-500 text-xs font-medium transition btn-sync">取消同步</button>
                                     <div class="w-px h-3 bg-slate-200"></div>
-                                    <button onclick="openEditModal('2025春季 Python 一级等级测评')" class="text-slate-400 hover:text-brand-600 text-xs font-medium transition">编辑</button>
+                                    <button onclick="openEditModal('2025春季 Python 一级等级考试')" class="text-slate-400 hover:text-brand-600 text-xs font-medium transition">编辑</button>
                                     <button onclick="openPreviewModal()" class="text-slate-400 hover:text-brand-600 text-xs font-medium transition">预览</button>
                                     <button onclick="window.open('assessment-exam.html', '_blank')" class="text-brand-600 hover:text-brand-700 text-xs font-bold border border-brand-200 bg-brand-50 px-2 py-1 rounded hover:bg-brand-100 transition">模拟考试</button>
                                 </div>
@@ -148,7 +148,7 @@
 
                         <tr class="hover-row transition group" id="row-1002">
                             <td class="p-4 pl-6">
-                                <p class="font-bold text-slate-800">2025夏季 AIGC 应用能力二级测评</p>
+                                <p class="font-bold text-slate-800">2025夏季 AIGC 应用能力二级考试</p>
                                 <p class="text-xs text-slate-400 font-mono mt-0.5">ID: 1002</p>
                             </td>
                             <td class="p-4 text-slate-600">李运营</td>
@@ -169,7 +169,7 @@
                                 <div class="flex items-center justify-end gap-3 opacity-100">
                                     <button onclick="openSyncModal(1002)" class="text-brand-600 hover:text-brand-800 text-xs font-bold transition btn-sync">立即同步</button>
                                     <div class="w-px h-3 bg-slate-200"></div>
-                                    <button onclick="openEditModal('2025夏季 AIGC 应用能力二级测评')" class="text-slate-400 hover:text-brand-600 text-xs font-medium transition">编辑</button>
+                                    <button onclick="openEditModal('2025夏季 AIGC 应用能力二级考试')" class="text-slate-400 hover:text-brand-600 text-xs font-medium transition">编辑</button>
                                     <button onclick="openPreviewModal()" class="text-slate-400 hover:text-brand-600 text-xs font-medium transition">预览</button>
                                     <button onclick="window.open('assessment-exam.html', '_blank')" class="text-slate-400 hover:text-brand-600 text-xs font-medium border border-slate-200 px-2 py-1 rounded hover:bg-slate-50 transition">模拟考试</button>
                                 </div>
@@ -189,7 +189,7 @@
                 <div class="w-12 h-12 bg-brand-50 rounded-full flex items-center justify-center mx-auto mb-4 text-brand-600 text-xl">
                     <i class="fa-solid fa-cloud-arrow-up"></i>
                 </div>
-                <h3 class="font-bold text-slate-800 text-lg">确认同步测评?</h3>
+                <h3 class="font-bold text-slate-800 text-lg">确认同步考试?</h3>
                 <p class="text-sm text-slate-500 mt-1">同步后将显示在 AISE 官网供用户报名。</p>
             </div>
             
@@ -212,7 +212,7 @@
     <div id="modal-edit" class="fixed inset-0 z-50 hidden flex items-center justify-center bg-slate-900/50 backdrop-blur-sm transition-opacity opacity-0">
         <div class="bg-white rounded-2xl shadow-xl w-[760px] max-h-[90vh] flex flex-col transform scale-95 transition-transform" id="modal-edit-content">
             <div class="flex justify-between items-center p-6 pb-4 flex-shrink-0">
-                <h3 class="font-bold text-slate-800 text-lg">编辑测评信息</h3>
+                <h3 class="font-bold text-slate-800 text-lg">编辑考试信息</h3>
                 <button onclick="closeEditModal()" class="text-slate-400 hover:text-slate-600"><i class="fa-solid fa-xmark"></i></button>
             </div>
             
@@ -223,7 +223,7 @@
                     <label class="block text-xs font-bold text-slate-600 mb-2"><i class="fa-solid fa-link text-brand-500 mr-1"></i> 关联爱测评源试卷 <span class="text-slate-400 font-normal">(当前关联)</span></label>
                     <select class="w-full px-3 py-2.5 rounded-lg border border-brand-200 focus:border-brand-500 outline-none text-sm bg-white"><option>程序设计一级【正式】</option></select>
                     <p class="text-[10px] text-brand-600 mt-2"><i class="fa-solid fa-circle-info"></i> 修改关联试卷并保存后，系统将自动在爱测评创建对应考试。</p>
-                    <p class="text-[10px] text-slate-400 mt-1"><i class="fa-solid fa-shield-halved"></i> 自动创建的爱测评考试名称：AISE｜{测评名称}｜{4位码}（模拟考前缀 AISE模；多考场追加考场名称，不嵌套）</p>
+                    <p class="text-[10px] text-slate-400 mt-1"><i class="fa-solid fa-shield-halved"></i> 自动创建的爱测评考试名称：AISE｜{考试名称}｜{4位码}（模拟考前缀 AISE模；多考场追加考场名称，不嵌套）</p>
                 </div>
                 <div>
                     <label class="block text-xs font-bold text-slate-500 mb-2"><span class="text-red-500">*</span> 测评名称</label>
@@ -234,7 +234,7 @@
                     <div><label class="block text-xs font-bold text-slate-500 mb-2"><span class="text-red-500">*</span> 结束时间</label><input type="datetime-local" class="w-full px-3 py-2.5 rounded-lg border border-slate-200 text-sm outline-none text-slate-600" id="edit-end"></div>
                 </div>
                 <div class="grid grid-cols-2 gap-4">
-                    <div><label class="block text-xs font-bold text-slate-500 mb-2"><span class="text-red-500">*</span> 测评时长 (分钟)</label><input type="number" id="edit-dur" class="w-full px-4 py-2.5 rounded-lg border border-slate-200 focus:border-brand-500 outline-none text-sm" value="120"></div>
+                    <div><label class="block text-xs font-bold text-slate-500 mb-2"><span class="text-red-500">*</span> 考试时长 (分钟)</label><input type="number" id="edit-dur" class="w-full px-4 py-2.5 rounded-lg border border-slate-200 focus:border-brand-500 outline-none text-sm" value="120"></div>
                     <div><label class="block text-xs font-bold text-slate-500 mb-2"><span class="text-red-500">*</span> 交卷时间限制 (分钟)</label><input type="number" id="edit-lim" class="w-full px-4 py-2.5 rounded-lg border border-slate-200 focus:border-brand-500 outline-none text-sm" value="1"></div>
                 </div>
                 <div><label class="block text-xs font-bold text-slate-500 mb-2">标签配置</label>
@@ -273,8 +273,8 @@
                     </div>
                 </div>
                 <div>
-                    <label class="block text-xs font-bold text-slate-500 mb-2">测评描述 <span class="text-slate-400 font-normal">(选填)</span></label>
-                    <textarea rows="2" placeholder="请输入测评描述"
+                    <label class="block text-xs font-bold text-slate-500 mb-2">考试描述 <span class="text-slate-400 font-normal">(选填)</span></label>
+                    <textarea rows="2" placeholder="请输入考试描述"
                         class="w-full px-3 py-2 rounded-lg border border-slate-200 text-xs outline-none focus:border-brand-500 resize-none bg-white"></textarea>
                 </div>
                 <div>
@@ -648,7 +648,7 @@
             icon.className='mx-auto w-12 h-12 rounded-full '+(ok?'bg-green-50 text-green-600':'bg-red-50 text-red-500')+' flex items-center justify-center text-xl mb-4';
             icon.innerHTML=ok?'<i class="fa-solid fa-check"></i>':'<i class="fa-solid fa-triangle-exclamation"></i>';
             document.getElementById('co-title').innerText=ok?'爱测评考试已自动创建':'自动创建失败';
-            document.getElementById('co-desc').innerText=ok?'该测评对应的爱测评考试已创建完成，活动可正常报名':'爱测评考试未创建成功，本测评创建也不成功，可重试或保存为未关联状态';
+            document.getElementById('co-desc').innerText=ok?'该测评对应的爱测评考试已创建完成，可正常报名':'爱测评考试未创建成功，本测评创建也不成功，可重试或保存为未关联状态';
             document.getElementById('co-close-btn').classList.remove('hidden');
             document.getElementById('co-retry-btn').classList.toggle('hidden', ok);
             document.getElementById('co-actions').style.display='flex';

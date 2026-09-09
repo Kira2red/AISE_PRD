@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>测评管理 - AISE 后台</title>
+    <title>考试管理 - AISE 后台</title>
     <script src="https://cdn.tailwindcss.com"></script>
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
     <link href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
@@ -65,7 +65,7 @@
                 <i class="fa-solid fa-file-lines w-5 text-center"></i><span class="font-medium text-sm">试卷管理</span>
             </a>
             <a href="#" class="nav-item active flex items-center gap-3 px-6 py-3 text-brand-600 bg-brand-50 transition relative">
-                <i class="fa-solid fa-graduation-cap w-5 text-center"></i><span class="font-medium text-sm">测评管理</span>
+                <i class="fa-solid fa-graduation-cap w-5 text-center"></i><span class="font-medium text-sm">考试管理</span>
             </a>
             <a href="#" class="nav-item flex items-center gap-3 px-6 py-3 text-slate-500 hover:bg-slate-50 hover:text-brand-600 transition relative">
                 <i class="fa-solid fa-tags w-5 text-center"></i><span class="font-medium text-sm">标签配置</span>
@@ -83,7 +83,7 @@
     <main class="flex-1 flex flex-col min-w-0 bg-slate-50/50 relative overflow-hidden">
 
         <header class="h-16 bg-white border-b border-slate-200 flex items-center justify-between px-8 flex-shrink-0 z-10">
-            <h1 class="text-xl font-bold text-slate-800">测评管理</h1>
+            <h1 class="text-xl font-bold text-slate-800">考试管理</h1>
             <div class="flex items-center gap-3">
                 <span class="text-xs text-slate-400">上次同步：10分钟前</span>
                 <button class="bg-white border border-slate-200 hover:bg-slate-50 text-slate-600 text-sm font-medium px-3 py-1.5 rounded-lg transition flex items-center gap-2">
@@ -99,7 +99,7 @@
                     <div class="flex flex-wrap gap-4 items-center">
                         <div class="relative w-64">
                             <i class="fa-solid fa-magnifying-glass absolute left-3 top-1/2 transform -translate-y-1/2 text-slate-400 text-sm"></i>
-                            <input type="text" placeholder="测评名称 / ID" class="w-full pl-9 pr-4 py-2 rounded-lg border border-slate-200 text-sm focus:border-brand-500 outline-none transition">
+                            <input type="text" placeholder="考试名称 / ID" class="w-full pl-9 pr-4 py-2 rounded-lg border border-slate-200 text-sm focus:border-brand-500 outline-none transition">
                         </div>
                         
                         <div class="relative group w-60">
@@ -152,7 +152,7 @@
                         <thead>
                             <tr class="border-b border-slate-100 bg-slate-50 text-xs uppercase text-slate-500 font-bold">
                                 <th class="p-4 pl-6 w-10"><input type="checkbox" class="rounded border-slate-300 text-brand-600 focus:ring-0 cursor-pointer"></th>
-                                <th class="p-4 w-1/4">测评名称 / ID</th>
+                                <th class="p-4 w-1/4">考试名称 / ID</th>
                                 <th class="p-4 w-1/5">标签 (Tags)</th> 
                                 <th class="p-4 w-1/6">所属分组</th> 
                                 <th class="p-4">时间 / 状态</th>
@@ -164,7 +164,7 @@
                             <tr class="hover-row transition">
                                 <td class="p-4 pl-6"><input type="checkbox" class="rounded border-slate-300 text-brand-600 focus:ring-0 cursor-pointer"></td>
                                 <td class="p-4">
-                                    <p class="font-bold text-slate-800">2025春季 Python 一级等级测评</p>
+                                    <p class="font-bold text-slate-800">2025春季 Python 一级等级考试</p>
                                     <p class="text-xs text-slate-400 font-mono mt-0.5">ID: 2025001</p>
                                 </td>
                                 <td class="p-4">
@@ -197,7 +197,7 @@
                                     </span>
                                 </td>
                                 <td class="p-4 text-right pr-6">
-                                    <button onclick="openEditModal('2025春季 Python 一级等级测评')" class="text-brand-600 hover:text-brand-800 text-xs font-bold mr-3 transition">编辑</button>
+                                    <button onclick="openEditModal('2025春季 Python 一级等级考试')" class="text-brand-600 hover:text-brand-800 text-xs font-bold mr-3 transition">编辑</button>
                                     <button class="text-slate-400 hover:text-brand-600 text-xs font-medium transition">下架</button>
                                 </td>
                             </tr>
@@ -239,7 +239,7 @@
     <div id="modal-edit" class="fixed inset-0 z-50 hidden flex items-center justify-center bg-slate-900/50 backdrop-blur-sm transition-opacity opacity-0">
         <div class="bg-white rounded-2xl shadow-xl w-[600px] p-6 transform scale-95 transition-transform flex flex-col" id="modal-edit-content" style="max-height: 90vh;">
             <div class="flex justify-between items-center mb-6 flex-shrink-0">
-                <h3 class="font-bold text-slate-800 text-lg">编辑测评信息</h3>
+                <h3 class="font-bold text-slate-800 text-lg">编辑考试信息</h3>
                 <button onclick="closeModal('modal-edit')" class="text-slate-400 hover:text-slate-600"><i class="fa-solid fa-xmark"></i></button>
             </div>
             

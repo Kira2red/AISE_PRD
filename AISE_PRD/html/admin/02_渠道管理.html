@@ -160,7 +160,7 @@
                             <th class="p-4">渠道推广入口 <span
                                     class="text-[10px] font-normal text-brand-600 bg-brand-50 px-1 rounded ml-1">聚合页</span>
                             </th>
-                            <th class="p-4">关联活动</th>
+                            <th class="p-4">关联考试</th>
                             <th class="p-4">创建时间</th>
                             <th class="p-4">组织后台状态</th>
                             <th class="p-4">前端展示</th>
@@ -196,7 +196,7 @@
                             <td class="p-4">
                                 <button onclick="openRelationModal('猿编程教育科技', 'YPB2025')"
                                     class="text-brand-600 hover:text-brand-800 hover:underline font-bold px-2 py-1 rounded hover:bg-brand-50 transition">
-                                    3 个活动
+                                    3 场考试
                                 </button>
                             </td>
                             <td class="p-4 text-slate-500 text-xs">2025-01-10 10:00</td>
@@ -254,7 +254,7 @@
                             <td class="p-4">
                                 <button onclick="openRelationModal('CodeBear 代码熊', 'CB888')"
                                     class="text-brand-600 hover:text-brand-800 hover:underline font-bold px-2 py-1 rounded hover:bg-brand-50 transition">
-                                    1 个活动
+                                    1 场考试
                                 </button>
                             </td>
                             <td class="p-4 text-slate-500 text-xs">2025-03-22 09:15</td>
@@ -344,7 +344,7 @@
             <div
                 class="px-6 py-4 border-b border-slate-100 flex justify-between items-center bg-slate-50 rounded-t-2xl">
                 <div>
-                    <h3 class="font-bold text-slate-800 text-lg">关联活动管理</h3>
+                    <h3 class="font-bold text-slate-800 text-lg">关联考试管理</h3>
                     <p class="text-xs text-slate-500 mt-1">当前渠道：<span class="font-bold text-brand-600"
                             id="relation-channel-name">猿编程</span></p>
                 </div>
@@ -366,7 +366,7 @@
 
             <div class="p-6 overflow-y-auto custom-scroll bg-white">
                 <div class="flex items-center gap-3 mb-4">
-                    <label class="text-xs font-bold text-slate-500">活动分组</label>
+                    <label class="text-xs font-bold text-slate-500">考试分组</label>
                     <select id="rel-group-filter" onchange="renderRelationTable()" class="px-3 py-1.5 rounded-lg border border-slate-200 text-sm bg-white outline-none focus:border-brand-500">
                         <option value="">全部分组</option>
                     </select>
@@ -412,7 +412,7 @@
                     <select id="rel-group-select" class="w-full px-3 py-2 rounded-lg border border-slate-200 text-sm focus:border-brand-500 outline-none bg-white">
                         <option value="">默认分组（不指定）</option>
                     </select>
-                    <p class="text-[10px] text-slate-400 mt-1">不指定时活动归入「默认」分组</p>
+                    <p class="text-[10px] text-slate-400 mt-1">不指定时考试归入「默认」分组</p>
                 </div>
 
                 <div class="grid grid-cols-2 gap-4">
@@ -499,7 +499,7 @@
                     <button onclick="addGroup()" class="px-4 py-2 bg-brand-600 hover:bg-brand-700 text-white text-xs font-bold rounded-lg transition whitespace-nowrap">新建分组</button>
                 </div>
                 <div class="space-y-2" id="group-list"></div>
-                <p class="text-xs text-slate-400 mt-4 flex items-center gap-1"><i class="fa-solid fa-circle-info"></i> 「默认」分组为系统分组：未指定分组的活动自动归入，不可重命名、删除或排序。</p>
+                <p class="text-xs text-slate-400 mt-4 flex items-center gap-1"><i class="fa-solid fa-circle-info"></i> 「默认」分组为系统分组：未指定分组的考试自动归入，不可重命名、删除或排序。</p>
             </div>
         </div>
     </div>
@@ -819,7 +819,7 @@
             // Set to Edit Mode
             editingRelName = name;
             populateGroupSelect('rel-group-select');
-            relTitle.innerText = "编辑活动配置";
+            relTitle.innerText = "编辑考试配置";
 
             // Allow selecting a different exam (Select is visible)
             relSelect.value = name;
@@ -893,7 +893,7 @@
             }
         }
 
-        // 关联活动展示开关联动
+        // 关联考试展示开关联动
         const relVisibleToggle = document.getElementById('rel-visible');
         const relVisibleText = document.getElementById('rel-visible-text');
         if (relVisibleToggle) {
@@ -967,7 +967,7 @@
             if (!ch) { tbody.innerHTML = ''; document.getElementById('rel-group-count').innerText = ''; return; }
             const filter = document.getElementById('rel-group-filter').value;
             const rows = filter ? ch.activities.filter(a => (a.group || '默认') === filter) : ch.activities;
-            document.getElementById('rel-group-count').innerText = '共 ' + rows.length + ' 个活动';
+            document.getElementById('rel-group-count').innerText = '共 ' + rows.length + ' 场考试';
             tbody.innerHTML = rows.map(a => {
                 const g = a.group || '默认';
                 const gChip = g === '默认'
@@ -1046,7 +1046,7 @@
             const ch = channelRelations[currentChannel];
             const list = document.getElementById('group-list');
             if (!ch || ch.groups.length === 0) {
-                list.innerHTML = '<p class="text-sm text-slate-400 text-center py-6 border-2 border-dashed border-slate-200 rounded-xl">尚未创建分组，所有活动将归入「默认」分组</p>';
+                list.innerHTML = '<p class="text-sm text-slate-400 text-center py-6 border-2 border-dashed border-slate-200 rounded-xl">尚未创建分组，所有考试将归入「默认」分组</p>';
                 return;
             }
             list.innerHTML = ch.groups.map((g, i) => {
@@ -1055,18 +1055,18 @@
                     '<div class="flex items-center gap-3">' +
                         '<i class="fa-solid fa-grip-vertical text-slate-300"></i>' +
                         '<span class="font-bold text-slate-800 text-sm">' + g.name + '</span>' +
-                        '<span class="text-[10px] text-slate-400">' + cnt + ' 个活动</span>' +
+                        '<span class="text-[10px] text-slate-400">' + cnt + ' 场考试</span>' +
                     '</div>' +
                     '<div class="flex items-center gap-1">' +
                         '<button onclick="moveGroup(' + i + ', -1)" class="p-1.5 text-slate-400 hover:text-brand-600 text-xs" title="上移"><i class="fa-solid fa-chevron-up"></i></button>' +
                         '<button onclick="moveGroup(' + i + ', 1)" class="p-1.5 text-slate-400 hover:text-brand-600 text-xs" title="下移"><i class="fa-solid fa-chevron-down"></i></button>' +
                         '<button onclick="renameGroup(\'' + g.name + '\')" class="p-1.5 text-slate-400 hover:text-brand-600 text-xs" title="重命名"><i class="fa-regular fa-pen-to-square"></i></button>' +
-                        '<button ' + (cnt > 0 ? 'disabled ' : 'onclick="deleteGroup(\'' + g.name + '\')" ') + 'class="p-1.5 ' + (cnt > 0 ? 'text-slate-200 cursor-not-allowed' : 'text-slate-400 hover:text-red-500') + ' text-xs" title="' + (cnt > 0 ? '组内有活动，不可删除' : '删除') + '"><i class="fa-solid fa-trash-can"></i></button>' +
+                        '<button ' + (cnt > 0 ? 'disabled ' : 'onclick="deleteGroup(\'' + g.name + '\')" ') + 'class="p-1.5 ' + (cnt > 0 ? 'text-slate-200 cursor-not-allowed' : 'text-slate-400 hover:text-red-500') + ' text-xs" title="' + (cnt > 0 ? '组内有考试，不可删除' : '删除') + '"><i class="fa-solid fa-trash-can"></i></button>' +
                     '</div></div>';
             }).join('')
             + '<div class="flex items-center justify-between bg-slate-50 border border-slate-100 rounded-lg px-4 py-3 opacity-70">' +
                 '<div class="flex items-center gap-3"><i class="fa-solid fa-lock text-slate-300"></i><span class="font-bold text-slate-600 text-sm">默认</span><span class="text-[10px] text-slate-400">系统分组</span></div>' +
-                '<span class="text-[10px] text-slate-400">未分组活动自动归入</span></div>';
+                '<span class="text-[10px] text-slate-400">未分组考试自动归入</span></div>';
         }
         function addGroup() {
             const input = document.getElementById('new-group-name');
@@ -1092,7 +1092,7 @@
         function deleteGroup(name) {
             const ch = channelRelations[currentChannel];
             const cnt = ch.activities.filter(a => a.group === name).length;
-            if (cnt > 0) { alert('该分组内有 ' + cnt + ' 个活动，请先将活动移至其他分组'); return; }
+            if (cnt > 0) { alert('该分组内有 ' + cnt + ' 场考试，请先将考试移至其他分组'); return; }
             if (!confirm('确定删除分组「' + name + '」吗？')) return;
             ch.groups = ch.groups.filter(g => g.name !== name);
             renderGroupList(); populateRelGroupFilter(); populateGroupSelect('rel-group-select');
