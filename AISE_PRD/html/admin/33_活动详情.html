@@ -206,7 +206,7 @@ function renderTable(){
       +'<td class="py-2.5 px-3 whitespace-nowrap">'
         +(r.status==='创建失败'?'<button onclick="retryRow(\''+k+'\')" class="text-brand-600 hover:text-brand-700 text-xs font-medium mr-2"><i class="fa-solid fa-rotate-right"></i> 重试</button>':'')
         +(r.status==='未关联'?'<button onclick="linkPaper(\''+k+'\')" class="text-brand-600 hover:text-brand-700 text-xs font-medium mr-2"><i class="fa-solid fa-link"></i> 补关联</button>':'')
-        +(examPhase(r)==='notstart'?'<button onclick="openRowCopy(\''+k+'\')" class="text-slate-500 hover:text-brand-600 text-xs mr-2"><i class="fa-solid fa-clone"></i> 复制考试</button>':'')
+        +'<button onclick="openRowCopy(\''+k+'\')" class="text-slate-500 hover:text-brand-600 text-xs mr-2"><i class="fa-solid fa-clone"></i> 复制考试</button>'
         +'<button onclick="gotoReport(\''+esc(r.aid)+'\')" class="text-slate-500 hover:text-brand-600 text-xs mr-2"><i class="fa-solid fa-chart-line"></i> 管理报告</button>'
         +'<button onclick="viewRow(\''+k+'\')" class="text-slate-500 hover:text-brand-600 text-xs mr-2"><i class="fa-solid fa-eye"></i> 详情</button>'
       +'</td></tr>';
@@ -251,7 +251,7 @@ function renderRowCopy(){
      +'<button onclick="closeModal()" class="text-slate-400 hover:text-slate-600 text-lg"><i class="fa-solid fa-xmark"></i></button></div>'
    +'<div class="flex-1 overflow-y-auto custom-scroll px-6 py-4">'
      +'<div class="bg-brand-50 border border-brand-100 text-brand-700 text-xs rounded-lg px-3 py-2 mb-4 leading-relaxed">'
-       +'继承规则：时长 '+b.duration+' 分钟、交卷限制 '+b.submitLimit+' 分钟、标签、描述、证书落款、监考配置、模拟考配置（'+((b.mock&&b.mock.on)?'已开启':'未开启')+'）全部继承；渠道关联继承「'+esc(chName(b.cid))+' / '+(b.group==='默认'?'默认':esc(b.group))+'」，报名费 ¥'+b.fee+'；展示时间与开关、报名可见性（'+(b.hidden?'隐藏报名':'正常报名')+'）继承。下方仅需调整名称、时间与试卷。</div>'
+       +'继承规则：时长 '+b.duration+' 分钟、交卷限制 '+b.submitLimit+' 分钟、标签、描述、证书落款、监考配置、模拟考配置（'+((b.mock&&b.mock.on)?'已开启':'未开启')+'）全部继承；渠道关联继承「'+esc(chName(b.cid))+' / '+(b.group==='默认'?'默认':esc(b.group))+'」，报名费 ¥'+b.fee+'；展示时间与开关、报名可见性（'+(b.hidden?'隐藏报名':'正常报名')+'）继承。任何状态的考试均可复制（含已开考 / 已结束，作配置模板）；副本时间为原时间'+(examPhase(b)==='notstart'?'':'（注意：原考试已开考/已结束，请把副本时间改为新的考试时间）')+'，可逐条修改。</div>'
      +'<div class="flex items-center gap-3 mb-3">'
        +'<div class="w-40"><div class="text-xs font-medium text-slate-500 mb-1">复制条数</div><input type="number" id="rcN" min="1" max="50" value="'+(rcRows.length||3)+'" class="w-full px-2.5 py-2 rounded-lg border border-slate-200 text-sm"></div>'
        +'<div class="flex items-end"><button onclick="rcGen()" class="px-3 py-2 text-sm rounded-lg border border-brand-200 bg-brand-50 text-brand-700 hover:bg-brand-100 font-medium"><i class="fa-solid fa-wand-magic-sparkles mr-1"></i>生成副本行</button></div>'
