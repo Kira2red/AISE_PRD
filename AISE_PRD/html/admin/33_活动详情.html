@@ -76,6 +76,9 @@ input[type=checkbox].cb{width:15px;height:15px;accent-color:#2563eb;cursor:point
                 <select id="fExam" onchange="renderTable()" class="px-3 py-2 rounded-lg border border-slate-200 text-sm text-slate-600 bg-white focus:border-brand-500 outline-none">
                     <option value="">考试进度：全部</option><option value="notstart">未开考</option><option value="ongoing">进行中</option><option value="ended">已结束</option>
                 </select>
+                <select id="fVis" onchange="renderTable()" class="px-3 py-2 rounded-lg border border-slate-200 text-sm text-slate-600 bg-white focus:border-brand-500 outline-none">
+                    <option value="">报名可见性：全部</option><option value="normal">正常报名</option><option value="hidden">隐藏报名</option>
+                </select>
                 <button onclick="resetFilter()" class="text-sm text-slate-400 hover:text-brand-600 px-2"><i class="fa-solid fa-rotate-left mr-1"></i>重置</button>
             </div>
         </div>
@@ -103,6 +106,7 @@ input[type=checkbox].cb{width:15px;height:15px;accent-color:#2563eb;cursor:point
                                 <th class="py-3 px-3 text-left font-semibold sortable" onclick="sortBy('fee')">报名费 <i class="fa-solid fa-sort text-slate-300"></i></th>
                                 <th class="py-3 px-3 text-left font-semibold">前端展示时间</th>
                                 <th class="py-3 px-3 text-left font-semibold">展示</th>
+                                <th class="py-3 px-3 text-left font-semibold">报名可见性</th>
                                 <th class="py-3 px-3 text-left font-semibold">监考配置</th>
                                 <th class="py-3 px-3 text-left font-semibold">模拟考</th>
                                 <th class="py-3 px-3 text-left font-semibold">爱测评状态</th>
@@ -162,12 +166,14 @@ function fillGroups(){
 let sortKey=null, sortDir=1;
 function sortBy(k){ if(sortKey===k){sortDir*=-1;}else{sortKey=k;sortDir=1;} renderTable(); }
 function filterRows(){
-  const fc=$('fChannel').value, fg=$('fGroup').value, fs=$('fStatus').value, fe=$('fExam').value;
+  const fc=$('fChannel').value, fg=$('fGroup').value, fs=$('fStatus').value, fe=$('fExam').value, fv=$('fVis').value;
   return actRows().filter(r=>{
     if(fc&&r.cid!==fc) return false;
     if(fg&&r.group!==fg) return false;
     if(fs&&r.status!==fs) return false;
     if(fe&&examPhase(r)!==fe) return false;
+    if(fv==='hidden'&&!r.hidden) return false;
+    if(fv==='normal'&&r.hidden) return false;
     return true;
   });
 }
@@ -192,6 +198,7 @@ function renderTable(){
       +'<td class="py-2.5 px-3 font-medium">¥'+r.fee+'</td>'
       +'<td class="py-2.5 px-3 text-xs">'+fmtShowTime(r)+'</td>'
       +'<td class="py-2.5 px-3">'+(r.show?'<span class="pill bg-emerald-50 text-emerald-600">展示中</span>':'<span class="pill bg-slate-100 text-slate-500">隐藏</span>')+'</td>'
+      +'<td class="py-2.5 px-3">'+(r.hidden?'<span class="pill bg-violet-50 text-violet-600">隐藏报名</span>':'<span class="text-xs text-slate-400">正常报名</span>')+'</td>'
       +'<td class="py-2.5 px-3 text-xs max-w-[220px]"><div class="truncate" title="'+esc(proBrief(r.pro))+'">'+esc(proBrief(r.pro))+'</div></td>'
       +'<td class="py-2.5 px-3 text-xs">'+mockBrief(r.mock)+'</td>'
       +'<td class="py-2.5 px-3">'+statusPill(r.status)+(r.status==='创建失败'?'<div class="text-xs text-red-400 mt-0.5">'+esc(r.failReason||'')+'</div>':'')+'</td>'
@@ -200,13 +207,14 @@ function renderTable(){
         +(r.status==='创建失败'?'<button onclick="retryRow(\''+k+'\')" class="text-brand-600 hover:text-brand-700 text-xs font-medium mr-2"><i class="fa-solid fa-rotate-right"></i> 重试</button>':'')
         +(r.status==='未关联'?'<button onclick="linkPaper(\''+k+'\')" class="text-brand-600 hover:text-brand-700 text-xs font-medium mr-2"><i class="fa-solid fa-link"></i> 补关联</button>':'')
         +(examPhase(r)==='notstart'?'<button onclick="openRowCopy(\''+k+'\')" class="text-slate-500 hover:text-brand-600 text-xs mr-2"><i class="fa-solid fa-clone"></i> 复制考试</button>':'')
+        +'<button onclick="gotoReport(\''+esc(r.aid)+'\')" class="text-slate-500 hover:text-brand-600 text-xs mr-2"><i class="fa-solid fa-chart-line"></i> 管理报告</button>'
         +'<button onclick="viewRow(\''+k+'\')" class="text-slate-500 hover:text-brand-600 text-xs mr-2"><i class="fa-solid fa-eye"></i> 详情</button>'
       +'</td></tr>';
-  }).join('') || '<tr><td colspan="16" class="text-center text-slate-400 py-12">本活动暂无考试，点击右上角「批量创建考试」开始配置</td></tr>';
+  }).join('') || '<tr><td colspan="17" class="text-center text-slate-400 py-12">本活动暂无考试，点击右上角「批量创建考试」开始配置</td></tr>';
   $('footInfo').innerHTML = '<span>共 '+list.length+' 行（本活动 '+actRows().length+' 行）</span><span>已选 <b id="footSel">'+selKeys().length+'</b> 行</span>';
   syncSelState();
 }
-function resetFilter(){ $('fChannel').value=''; fillGroups(); $('fStatus').value=''; $('fExam').value=''; renderTable(); }
+function resetFilter(){ $('fChannel').value=''; fillGroups(); $('fStatus').value=''; $('fExam').value=''; $('fVis').value=''; renderTable(); }
 function renderAll(){ renderHead(); renderStats(); fillChannel(); fillGroups(); renderTable(); }
 
 /* ============ 勾选 ============ */
@@ -243,7 +251,7 @@ function renderRowCopy(){
      +'<button onclick="closeModal()" class="text-slate-400 hover:text-slate-600 text-lg"><i class="fa-solid fa-xmark"></i></button></div>'
    +'<div class="flex-1 overflow-y-auto custom-scroll px-6 py-4">'
      +'<div class="bg-brand-50 border border-brand-100 text-brand-700 text-xs rounded-lg px-3 py-2 mb-4 leading-relaxed">'
-       +'继承规则：时长 '+b.duration+' 分钟、交卷限制 '+b.submitLimit+' 分钟、标签、描述、证书落款、监考配置、模拟考配置（'+((b.mock&&b.mock.on)?'已开启':'未开启')+'）全部继承；渠道关联继承「'+esc(chName(b.cid))+' / '+(b.group==='默认'?'默认':esc(b.group))+'」，报名费 ¥'+b.fee+'；展示时间与开关继承。下方仅需调整名称、时间与试卷。</div>'
+       +'继承规则：时长 '+b.duration+' 分钟、交卷限制 '+b.submitLimit+' 分钟、标签、描述、证书落款、监考配置、模拟考配置（'+((b.mock&&b.mock.on)?'已开启':'未开启')+'）全部继承；渠道关联继承「'+esc(chName(b.cid))+' / '+(b.group==='默认'?'默认':esc(b.group))+'」，报名费 ¥'+b.fee+'；展示时间与开关、报名可见性（'+(b.hidden?'隐藏报名':'正常报名')+'）继承。下方仅需调整名称、时间与试卷。</div>'
      +'<div class="flex items-center gap-3 mb-3">'
        +'<div class="w-40"><div class="text-xs font-medium text-slate-500 mb-1">复制条数</div><input type="number" id="rcN" min="1" max="50" value="'+(rcRows.length||3)+'" class="w-full px-2.5 py-2 rounded-lg border border-slate-200 text-sm"></div>'
        +'<div class="flex items-end"><button onclick="rcGen()" class="px-3 py-2 text-sm rounded-lg border border-brand-200 bg-brand-50 text-brand-700 hover:bg-brand-100 font-medium"><i class="fa-solid fa-wand-magic-sparkles mr-1"></i>生成副本行</button></div>'
@@ -307,6 +315,7 @@ function doRowCopy(){
   toast('已创建 '+created.length+' 条考试（继承全部配置与渠道关联），正在自动创建爱测评考试');
   setTimeout(()=>{ created.forEach(r=>{ if(r.status==='创建中') r.status='已创建'; }); saveData(); renderAll(); }, 2000);
 }
+function gotoReport(aid){ toast('跳转报告管理（demo 不实际跳转）：考试 '+aid); }
 function retryRow(k){ const r=rows.find(x=>x._k===k); if(!r) return; r.status='创建中'; saveData(); renderAll();
   setTimeout(()=>{ r.status='已创建'; delete r.failReason; saveData(); renderAll(); toast('重试成功：爱测评考试已创建（'+r.name+'）'); }, 1600); }
 function linkPaper(k){ const r=rows.find(x=>x._k===k); if(!r) return;
@@ -327,7 +336,7 @@ function viewRow(k){
    +'<div class="px-6 py-4 border-b border-slate-100 flex items-center justify-between"><div class="font-bold">'+esc(r.name)+'<span class="text-xs text-slate-400 font-mono ml-2">'+esc(r.aid)+'</span></div><button onclick="closeModal()" class="text-slate-400 hover:text-slate-600"><i class="fa-solid fa-xmark"></i></button></div>'
    +'<div class="flex-1 overflow-y-auto custom-scroll px-6 py-4 space-y-5">'
      +'<div><div class="text-xs font-bold text-slate-400 uppercase tracking-wider mb-2">渠道关联</div>'
-       +li('渠道', esc(chName(r.cid))+'（'+esc(r.cid)+'）')+li('所属分组', r.group==='默认'?'默认（系统分组）':esc(r.group))+li('报名费','¥ '+r.fee)+li('前端展示时间', fmtShowTime(r))+li('前端展示开关', r.show?'展示中':'隐藏','show')+'</div>'
+       +li('渠道', esc(chName(r.cid))+'（'+esc(r.cid)+'）')+li('所属分组', r.group==='默认'?'默认（系统分组）':esc(r.group))+li('报名费','¥ '+r.fee)+li('前端展示时间', fmtShowTime(r))+li('前端展示开关', r.show?'展示中':'隐藏','show')+li('报名可见性', r.hidden?'<span class=\'text-violet-600\'>隐藏报名</span>（仅定向链接可报）':'正常报名','show')+'</div>'
      +'<div><div class="text-xs font-bold text-slate-400 uppercase tracking-wider mb-2">考试要素</div>'
        +li('关联试卷', r.paper?esc(r.paper):'未关联','paper')+li('考试时间', fmtExamTime(r),'examStart')+li('时长 / 交卷限制', r.duration+' 分钟 / '+r.submitLimit+' 分钟','duration')
        +li('标签', (r.tags||[]).map(t=>'<span class="tag-chip">'+esc(t)+'</span>').join(' ')||'—','tags')
@@ -388,6 +397,7 @@ function openBatchModal(){
       + '<div><div class="text-xs font-medium text-slate-500 mb-1">展示开始日期</div><input type="date" class="bf-ctrl '+IN+'" data-f="showStart"></div>'
       + '<div><div class="text-xs font-medium text-slate-500 mb-1">展示结束日期</div><div class="flex gap-1 items-center"><input type="date" class="bf-ctrl '+IN+'" data-f="showEnd" id="bfShowEnd"><label class="flex items-center gap-1 text-xs text-slate-500 whitespace-nowrap"><input type="checkbox" class="cb" id="bfPermanent" onchange="bfTogglePermanent(this)"> 永久有效</label></div></div>'
       + '<div><div class="text-xs font-medium text-slate-500 mb-1">前端展示开关</div><select class="bf-ctrl '+IN+'" data-f="show"><option value="">不修改</option><option value="1">展示中</option><option value="0">隐藏</option></select></div>'
+      + '<div><div class="text-xs font-medium text-slate-500 mb-1">报名可见性</div><select class="bf-ctrl '+IN+'" data-f="hidden"><option value="">不修改</option><option value="0">正常报名</option><option value="1">隐藏报名</option></select><div class="text-[10px] text-slate-400 mt-0.5">隐藏报名：前端不可见不可报，仅定向链接可报</div></div>'
     + '</div>'
     + segHead('fa-graduation-cap','活动基础','考试要素', true)
     + '<div class="grid grid-cols-4 gap-3">'
@@ -489,7 +499,7 @@ function bfCollect(){
 }
 function bfUpdateSummary(){
   const sets = bfCollect();
-  const map = {group:'分组', fee:'报名费', showStart:'展示开始', showEnd:'展示结束/永久', show:'展示开关', name:'名称', paper:'试卷', examStart:'考试开始', examEnd:'考试结束', duration:'时长', submitLimit:'交卷限制', tags:'标签', desc:'测评描述', certDate:'证书落款', pro_cam:'摄像头', pro_rec:'录屏', pro_photo:'检录照片', pro_wait:'候考时长', pro_guide:'检录引导文案', pro_pic:'检录示意图', pro_phone:'手机监考', pro_score:'成绩', pro_detail:'分数', pro_read:'读题', mock_on:'模拟考开关', mock_paper:'模拟卷', mock_start:'模拟考开始', mock_end:'模拟考结束', mock_limit:'模拟考次数', mock_submitLimit:'模拟考交卷限制', mpro_mode:'模拟监考口径', mpro_cam:'模拟摄像头', mpro_rec:'模拟录屏', mpro_photo:'模拟检录照片', mpro_wait:'模拟候考', mpro_phone:'模拟手机监考', mpro_score:'模拟成绩', mpro_detail:'模拟分数', mpro_read:'模拟读题'};
+  const map = {group:'分组', fee:'报名费', showStart:'展示开始', showEnd:'展示结束/永久', show:'展示开关', hidden:'报名可见性', name:'名称', paper:'试卷', examStart:'考试开始', examEnd:'考试结束', duration:'时长', submitLimit:'交卷限制', tags:'标签', desc:'测评描述', certDate:'证书落款', pro_cam:'摄像头', pro_rec:'录屏', pro_photo:'检录照片', pro_wait:'候考时长', pro_guide:'检录引导文案', pro_pic:'检录示意图', pro_phone:'手机监考', pro_score:'成绩', pro_detail:'分数', pro_read:'读题', mock_on:'模拟考开关', mock_paper:'模拟卷', mock_start:'模拟考开始', mock_end:'模拟考结束', mock_limit:'模拟考次数', mock_submitLimit:'模拟考交卷限制', mpro_mode:'模拟监考口径', mpro_cam:'模拟摄像头', mpro_rec:'模拟录屏', mpro_photo:'模拟检录照片', mpro_wait:'模拟候考', mpro_phone:'模拟手机监考', mpro_score:'模拟成绩', mpro_detail:'模拟分数', mpro_read:'模拟读题'};
   const BL = batchBaseline();
   const parts = [];
   Object.entries(sets).forEach(([f,v]) => {
@@ -516,6 +526,7 @@ function doBatch(){
     if(sets.showEnd === 'permanent'){ r.showEnd=''; r.permanent=true; touched=true; }
     else if('showEnd' in sets && sets.showEnd){ r.showEnd = sets.showEnd; touched = true; }
     if('show' in sets && sets.show !== ''){ r.show = sets.show === '1'; touched = true; }
+    if('hidden' in sets && sets.hidden !== ''){ r.hidden = sets.hidden === '1'; touched = true; }
     if('name' in sets && sets.name) setF('name', () => r.name = sets.name);
     if('paper' in sets && sets.paper) setF('paper', () => { r.paper = sets.paper; if(r.status==='未关联') r.status='创建中'; });
     if('examStart' in sets) setF('examStart', () => r.examStart = sets.examStart.replace('T',' '));
@@ -708,8 +719,8 @@ function doBatchCreate(){
 function dl(name, content){ const b = new Blob(['\ufeff'+content], {type:'text/csv'}); const a = document.createElement('a'); a.href = URL.createObjectURL(b); a.download = name; a.click(); }
 function csvCell(v){ v = String(v==null?'':v); return /[",\n]/.test(v) ? '"'+v.replace(/"/g,'""')+'"' : v; }
 function exportCsv(){
-  const head = ['活动ID','活动名称','渠道ID','渠道名称','分组','考试ID','考试名称','关联试卷','考试开始','考试结束','时长','交卷限制','报名费','展示时间','展示','爱测评状态','报名量','摄像头','录屏','手机监考','检录照片','候考','模拟考','模拟考交卷限制'];
-  const data = filterRows().map(r=>[act().id, act().name, r.cid, chName(r.cid), r.group, r.aid, r.name, r.paper||'', r.examStart, r.examEnd, r.duration, r.submitLimit, r.fee, r.permanent?(r.showStart||'')+'~永久':(r.showStart||'')+'~'+(r.showEnd||''), r.show?'是':'否', r.status, r.enrolled, r.pro.cam, r.pro.rec, r.pro.phone?'开':'关', r.pro.photo, r.pro.wait, r.mock.on?'是':'否', r.mock.submitLimit||'']);
+  const head = ['活动ID','活动名称','渠道ID','渠道名称','分组','考试ID','考试名称','关联试卷','考试开始','考试结束','时长','交卷限制','报名费','展示时间','展示','报名可见性','爱测评状态','报名量','摄像头','录屏','手机监考','检录照片','候考','模拟考','模拟考交卷限制'];
+  const data = filterRows().map(r=>[act().id, act().name, r.cid, chName(r.cid), r.group, r.aid, r.name, r.paper||'', r.examStart, r.examEnd, r.duration, r.submitLimit, r.fee, r.permanent?(r.showStart||'')+'~永久':(r.showStart||'')+'~'+(r.showEnd||''), r.show?'是':'否', r.hidden?'隐藏报名':'正常', r.status, r.enrolled, r.pro.cam, r.pro.rec, r.pro.phone?'开':'关', r.pro.photo, r.pro.wait, r.mock.on?'是':'否', r.mock.submitLimit||'']);
   dl('活动考试配置_'+act().id+'.csv', [head,...data].map(r=>r.map(csvCell).join(',')).join('\n'));
   toast('已导出当前结果：'+data.length+' 行');
 }
