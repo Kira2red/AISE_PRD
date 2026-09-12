@@ -43,8 +43,12 @@ table.mtx{border-collapse:separate;border-spacing:0;width:100%;min-width:860px}
 .mtx thead th.stu{background:#f9fafc;z-index:3}
 .mtx td{padding:8px 10px;border-bottom:1px solid #f0f2f6;font-size:13px;text-align:center;vertical-align:middle}
 .zone-row td{background:#f4f7fb;font-weight:600;text-align:left;padding:8px 12px;font-size:13px;color:#33415c}
-.cell{display:inline-flex;align-items:center;gap:6px;border-radius:8px;padding:6px 12px;cursor:pointer;border:1px solid transparent;white-space:nowrap}
+.cell{display:inline-flex;align-items:center;justify-content:center;gap:6px;border-radius:8px;padding:6px 10px;cursor:pointer;border:1px solid transparent;white-space:nowrap;width:96px;box-sizing:border-box}
+.cell .fee{overflow:hidden;text-overflow:ellipsis}
 .cell.linked{background:#eef4ff;border-color:#d4e0f7;color:var(--primary);font-weight:600}
+.cell.linked.hiddenreg{background:#fdf3e3;border-color:#ecd9b0;color:#8a5a12}
+.cell.linked.hiddenreg .edit{color:#b08340}
+.cell.linked.hiddenreg:hover{border-color:#b45309}
 .cell.linked:hover{border-color:var(--primary)}
 .cell.empty{color:#9aa4b2;font-size:12px;border:1px dashed #d5dbe4}
 .cell.empty:hover{border-color:var(--primary);color:var(--primary)}
@@ -162,7 +166,7 @@ input[type=radio]{accent-color:var(--primary)}
       <tbody id="mtxBody"></tbody>
     </table>
   </div>
-  <div class="hint" style="margin-top:8px">🔒隐 = 隐藏报名（此时该渠道的前端展示开关与展示时间不参与控制，学员只能通过定向链接报名）。行尾「…」= 考试操作菜单（考试详情 / 解除全部渠道关联）。考试内容的编辑请回「活动管理」。</div>
+  <div class="hint" style="margin-top:8px">琥珀色格子 = 隐藏报名（此时该渠道的前端展示开关与展示时间不参与控制，学员只能通过定向链接报名）。行尾「…」= 考试操作菜单（考试详情 / 解除全部渠道关联）。考试内容的编辑请回「活动管理」。</div>
 </div>
 
 <!-- ========== 单格配置弹窗 ========== -->
@@ -352,7 +356,7 @@ function renderBody(){
       CHS.forEach(function(c,ci){
         var L=r.links[ci];
         if(L&&L.fail){tds+='<td><span class="cell linked" onclick="toast(\'创建失败：爱测评返回冲突，点击重试\')">创建失败<span class="badge fail">失败</span></span></td>';}
-        else if(L){tds+='<td><span class="cell linked" onclick="openCell('+i+','+ci+')">'+(L.hidden?'<span class="badge hidden">🔒</span>':'')+'<span class="fee">'+(L.fee===0?'免费':'¥'+L.fee)+'</span><span class="edit">编辑</span>'+(L.regs>0?'<span class="hint">'+L.regs+'人</span>':'')+'</span></td>';}
+        else if(L){tds+='<td><span class="cell linked'+(L.hidden?' hiddenreg':'')+'" onclick="openCell('+i+','+ci+')"><span class="fee">'+(L.fee===0?'免费':'¥'+L.fee)+'</span><span class="edit">编辑</span>'+(L.regs>0?'<span class="hint">'+L.regs+'人</span>':'')+'</span></td>';}
         else{tds+='<td><span class="cell empty" onclick="openCellNew('+i+','+ci+')">＋ 关联</span></td>';}
       });
       tr.innerHTML=tds;tb.appendChild(tr);
