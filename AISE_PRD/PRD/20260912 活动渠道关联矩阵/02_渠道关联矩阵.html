@@ -50,8 +50,8 @@ table.mtx{border-collapse:separate;border-spacing:0;width:100%;min-width:860px}
 .cell.empty:hover{border-color:var(--primary);color:var(--primary)}
 .cell .fee{font-size:13px}
 .cell .edit{font-size:11px;color:#7d93c4;font-weight:400}
-.badge{display:inline-block;font-size:10px;padding:0 5px;border-radius:8px;line-height:16px;vertical-align:middle}
-.badge.hidden{background:#3d465a;color:#fff}
+.badge{display:inline-block;font-size:11px;padding:1px 7px;border-radius:8px;line-height:16px;vertical-align:middle;font-weight:600}
+.badge.hidden{background:#8a5a12;color:#fff;background:#b45309}
 .badge.fail{background:#fbe6e2;color:var(--danger)}
 .exam-name{font-weight:600;font-size:13px}
 .exam-sub{font-size:11px;color:var(--muted);margin-top:2px}
@@ -97,6 +97,8 @@ input:focus,select:focus{outline:2px solid var(--primary-weak);border-color:var(
 #toast.show{opacity:.95}
 .muted{color:var(--muted)}
 .menu-wrap{position:relative;display:inline-block}
+.chip{display:inline-flex;align-items:center;gap:6px;border:1px solid var(--border);border-radius:16px;padding:5px 14px;font-size:13px;cursor:pointer;background:#fff;user-select:none}
+.chip.on{border-color:var(--primary);background:var(--primary-weak);color:var(--primary);font-weight:600}
 .menu{position:fixed;background:#fff;border:1px solid var(--border);border-radius:8px;box-shadow:0 8px 24px rgba(0,0,0,.18);padding:5px;display:none;z-index:2000;min-width:190px}
 .menu.show{display:block}
 .menu .mi{padding:7px 13px;font-size:13px;border-radius:6px;cursor:pointer;white-space:nowrap}
@@ -326,6 +328,7 @@ function renderHead(){
   tr.innerHTML=h;
 }
 function renderBody(){
+  var wrap=document.querySelector('.mtx-wrap');var sl=wrap?wrap.scrollLeft:0;
   var tb=$('mtxBody');tb.innerHTML='';
   var fG=$('fGroup').value,kw=$('fKw').value.trim();
   var zones=GROUPS.slice();zones.push('未分组');
@@ -357,6 +360,7 @@ function renderBody(){
       tr.innerHTML=tds;tb.appendChild(tr);
     });
   });
+  if(wrap)wrap.scrollLeft=sl;
   if(!shown){
     var tr=document.createElement('tr');
     tr.innerHTML='<td colspan="'+(CHS.length+1)+'" style="text-align:center;padding:48px" class="hint">尚未关联渠道，点击右上角「＋ 添加渠道」开始</td>';
@@ -418,7 +422,7 @@ function saveCell(){
   var L={fee:f,hidden:$('cHidden').classList.contains('on'),regs:cellCtx.isNew?0:ROWS[cellCtx.i].links[cellCtx.ci].regs};
   ROWS[cellCtx.i].links[cellCtx.ci]=L;
   hide('ovCell');renderHead();renderBody();
-  toast((cellCtx.isNew?'已关联 ':'已保存 ')+ROWS[cellCtx.i].name+' × '+CHS[cellCtx.ci]+(L.hidden?'（隐藏报名，链接已生成）':''));
+  toast((cellCtx.isNew?'已关联 ':'已保存 ')+ROWS[cellCtx.i].name+' × '+CHS[cellCtx.ci]+(L.hidden?'（隐藏报名 · 定向链接已生成 · 格子上显示🔒隐标）':''));
 }
 function delOne(){
   var r=ROWS[cellCtx.i],ci=cellCtx.ci,L=r.links[ci];
