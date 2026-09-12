@@ -774,6 +774,7 @@ function ckSync(){
   var n=document.querySelectorAll('.examck:checked').length;
   var b=$('btnBulkEdit');
   b.style.display=n>0?'inline-block':'none';
+  b.disabled=n===0;
   $('ckCount').textContent=n;
 }
 function checkedExams(){return [].slice.call(document.querySelectorAll('.examck:checked')).map(function(x){return parseInt(x.dataset.i)})}
