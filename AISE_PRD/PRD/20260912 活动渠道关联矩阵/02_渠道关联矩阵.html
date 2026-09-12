@@ -39,7 +39,7 @@ body{font-family:"PingFang SC","Microsoft YaHei",sans-serif;background:var(--bg)
 .mtx-wrap{overflow-x:auto;border:1px solid var(--border);border-radius:var(--radius);background:#fff}
 table.mtx{border-collapse:separate;border-spacing:0;width:100%;min-width:860px}
 .mtx th{font-size:12px;color:var(--muted);font-weight:600;padding:10px 12px;border-bottom:1px solid var(--border);background:#f9fafc;text-align:center;white-space:nowrap;position:sticky;top:0}
-.mtx th.stu,.stu-cell{padding:2px 0 2px 2px;display:flex;flex-direction:column;gap:3px}
+.mtx th.stu,.stu-cell{padding:2px 0 2px 18px;display:flex;flex-direction:column;gap:3px;border-left:3px solid #dfe6f0;margin-left:2px}
 .stu-l1{display:flex;align-items:center;gap:8px}
 .stu-l1 .exam-name{font-weight:600;font-size:13px}
 .stu-l1 .tag{flex:none}
@@ -50,10 +50,11 @@ table.mtx{border-collapse:separate;border-spacing:0;width:100%;min-width:860px}
 .lnk.red{color:var(--danger)}
 .lnk .sep,.stu-l3 .sep{color:#c3ccd9;font-size:10px}
 .zone-line{display:flex;align-items:center;gap:10px}
-.zone-line b{font-size:13px}
+.zone-line b{font-size:13px;letter-spacing:.5px}
 .mtx td.stu{text-align:left;position:sticky;left:0;background:inherit;background:#fff;z-index:2;min-width:250px;border-right:1px solid var(--border)}
 .mtx thead th.stu{background:#f9fafc;z-index:3}
 .mtx td{padding:8px 10px;border-bottom:1px solid #f0f2f6;font-size:13px;text-align:center;vertical-align:middle}
+.mtx tr.exam td{padding-top:9px;padding-bottom:9px}
 .zone-row td{background:#f4f7fb;font-weight:600;text-align:left;padding:8px 12px;font-size:13px;color:#33415c}
 .cell{display:inline-flex;flex-direction:column;align-items:stretch;justify-content:center;gap:2px;border-radius:8px;padding:7px 10px;cursor:pointer;border:1px solid transparent;width:150px;box-sizing:border-box}
 .cell .row1{display:flex;align-items:center;justify-content:space-between;gap:6px;white-space:nowrap}
@@ -371,7 +372,7 @@ function renderBody(){
     tb.appendChild(zr);
     list.forEach(function(o){
       var r=o.r,i=o.i;
-      var tr=document.createElement('tr');
+      var tr=document.createElement('tr');tr.className='exam';
       var sub=r.time+(r.mock?' · 含模拟考':'');
       var tds='<td class="stu"><div class="stu-cell">'+
         '<div class="stu-l1"><input type="checkbox" class="rowck" data-zone="'+z+'" data-i="'+i+'" onclick="selChk(this)"><span class="exam-name">'+r.name+'</span>'+(r.paperOk===false?'<span class="tag amber">待关联试卷</span>':(r.paper?'<span class="tag green">'+r.paper+'</span>':''))+'</div>'+
