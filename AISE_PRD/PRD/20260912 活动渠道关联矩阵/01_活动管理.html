@@ -49,6 +49,7 @@ input:focus,select:focus{outline:2px solid var(--primary-weak);border-color:var(
 .modal-body{padding:6px 24px 18px;overflow-y:auto}
 .modal-foot{padding:14px 24px;border-top:1px solid var(--border);display:flex;justify-content:flex-end;gap:10px;align-items:center}
 .sec-title{font-size:14px;font-weight:600;margin:16px 0 10px;display:flex;align-items:center;gap:8px}
+label .sub{font-size:11px;color:var(--muted);font-weight:400;margin-left:4px}
 .sec-title .sub{font-size:12px;color:var(--muted);font-weight:400}
 .switch{position:relative;width:38px;height:21px;background:#ccd3dd;border-radius:11px;cursor:pointer;transition:.15s;flex:none;display:inline-block}
 .switch::after{content:"";position:absolute;top:2px;left:2px;width:17px;height:17px;border-radius:50%;background:#fff;transition:.15s}
@@ -363,13 +364,13 @@ textarea{min-height:72px}
 
 <div class="sec-title">试卷与标签 <span class="sub">正式考</span></div>
       <div class="fline">
-        <div class="field w2"><label>关联试卷（选中即替换；清空 ✕ 表示不修改）</label><div class="msel" id="bePaperSel"></div></div>
-        <div class="field"><label>标签（选择后替换所选考试的标签；不选 = 不变）</label><div class="msel" id="beTagSel"></div></div>
+        <div class="field w2"><label>关联试卷 <span class="sub">选中即替换，不选不变</span></label><div class="msel" id="bePaperSel"></div></div>
+        <div class="field"><label>标签 <span class="sub">选择后替换，不选不变</span></label><div class="msel" id="beTagSel"></div></div>
       </div>
 
       <div class="sec-title">考试时间与要素 <span class="sub">正式考</span></div>
       <div class="fline">
-        <div class="field"><label>考试时间（整体平移，场次间隔不变）</label><input type="datetime-local" id="beTime" style="width:100%"></div>
+        <div class="field"><label>考试时间 <span class="sub">整体平移，间隔不变</span></label><input type="datetime-local" id="beTime" style="width:100%"></div>
         <div class="field"><label>考试时长（分钟）</label><input type="number" id="beDur" placeholder="不变" style="width:100%"></div>
         <div class="field"><label>交卷限制</label>
           <select id="beSubmit" style="width:100%">
