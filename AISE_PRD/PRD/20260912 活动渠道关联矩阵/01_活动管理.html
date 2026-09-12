@@ -119,6 +119,21 @@ tr.exam:hover td{background:#fafbfd}
 .mopt.on .ck::after{content:"✓"}
 .mopt .sub{margin-left:auto;font-size:11px;color:var(--muted)}
 .mopt.dis{opacity:.5;cursor:default}
+
+/* 可搜索单选下拉 */
+.ssel-box{border:1px solid var(--border);border-radius:8px;min-height:36px;padding:4px 30px 4px 10px;display:flex;align-items:center;gap:8px;cursor:pointer;background:#fff;position:relative}
+.ssel-box:hover{border-color:#b9c6dd}
+.ssel-box.open{border-color:var(--primary);outline:2px solid var(--primary-weak)}
+.ssel-box::after{content:"▾";position:absolute;right:10px;color:var(--muted);font-size:11px;pointer-events:none}
+.ssel-val{font-size:13px;background:var(--primary-weak);color:var(--primary);border-radius:6px;padding:3px 9px;font-weight:500}
+.ssel-x{cursor:pointer;color:var(--muted);font-size:12px;padding:2px}
+.ssel-x:hover{color:var(--danger)}
+.ssel-menu{padding:0}
+.ssel-searchwrap{padding:8px;border-bottom:1px solid var(--border);position:sticky;top:0;background:#fff}
+.ssel-search{width:100%;border:1px solid var(--border);border-radius:7px;padding:7px 10px;font-size:13px}
+.ssel-list{max-height:240px;overflow-y:auto;padding:6px}
+.ssel-list .mopt{padding:8px 10px}
+
 /* ===== 向导步骤条 ===== */
 .wiz-steps{display:flex;align-items:center;justify-content:center;gap:0;margin:6px 0 20px}
 .ws{display:flex;align-items:center;gap:8px;font-size:13px;color:var(--muted)}
@@ -238,7 +253,7 @@ tr.exam:hover td{background:#fafbfd}
         <div class="sec-title">正式考 <span class="sub">本批考试共用，个别考试可创建后再单独调整</span></div>
         <div class="card" style="margin-bottom:14px;padding:16px;border-radius:8px">
           <div class="grid3">
-            <div class="field"><label>关联试卷（可空）</label><select id="cfgPaper" style="width:100%"><option value="">— 暂不关联 —</option><option>Python一级 正式卷A</option><option>图形化一级 正式卷B</option><option>Python二级 正式卷A</option></select></div>
+            <div class="field"><label>关联试卷（可空，支持搜索）</label><div class="msel" id="paperSel"></div></div>
             <div class="field"><label class="req">考试时长（分钟）</label><input type="number" id="cfgDur" value="120" style="width:100%"></div>
             <div class="field"><label class="req">交卷限制</label><select id="cfgSubmit" style="width:100%"><option>到时自动交卷</option><option>允许提前 15 分钟交卷</option><option>不限</option></select></div>
           </div>
@@ -276,15 +291,17 @@ tr.exam:hover td{background:#fafbfd}
               <div class="field"><label class="req">次数限制</label><div style="display:flex;gap:8px;align-items:center" class="hint"><label><input type="radio" name="mc" checked> 限 <input type="number" value="2" style="width:48px"> 次</label><label><input type="radio" name="mc"> 无限次</label></div></div>
               <div class="field"><label>交卷时限（分钟，空 = 不限）</label><input type="number" placeholder="不限" style="width:100%"></div>
             </div>
-            <div class="field"><label class="req">监考口径</label>
-              <div style="display:flex;gap:8px">
-                <span class="btn on" id="mcFollow" style="background:var(--primary-weak);color:var(--primary);border-color:#c9d8f7;font-weight:600" onclick="mcMode(this)">跟随正式考</span>
-                <span class="btn" id="mcCustom" onclick="mcMode(this)">自定义</span>
-              </div>
+            <div class="sec-title" style="font-size:13px;margin-top:12px">模拟考监考 <span class="sub">已按正式考配置带入，可直接修改</span></div>
+            <div class="grid3">
+              <div class="field"><label>摄像头</label><select style="width:100%"><option>强制开启</option><option>考生自选</option><option>关闭</option></select></div>
+              <div class="field"><label>录屏</label><select style="width:100%"><option>强制开启</option><option>考生自选</option><option>关闭</option></select></div>
+              <div class="field"><label>检录照片</label><select style="width:100%"><option>强制开启</option><option>考生自选</option><option>关闭</option></select></div>
+              <div class="field"><label>候考时长（分钟）</label><input type="number" value="10" style="width:100%"></div>
+              <div class="field"><label>手机监考</label><div style="display:flex;align-items:center;gap:8px;padding-top:6px"><div class="switch" onclick="this.classList.toggle('on')"></div><span class="hint">要求第二设备</span></div></div>
+              <div class="field"><label>成绩 / 分数 / 读题</label><div style="display:flex;gap:12px;padding-top:8px" class="hint"><label><input type="checkbox" checked> 成绩</label><label><input type="checkbox" checked> 分数</label><label><input type="checkbox"> 读题</label></div></div>
             </div>
-            <div id="mcCustomBody" style="display:none" class="warnbox">
-              自定义监考（与正式考独立）：摄像头 / 录屏 / 检录照片 / 候考时长 / 手机监考 / 成绩 / 分数 / 读题，表单与正式考同构，可一键恢复跟随正式考。
-            </div>
+            <div class="hint" style="margin-top:4px">与正式考不同时可自由修改；如需恢复与正式考一致，点 <a style="color:var(--primary);cursor:pointer" onclick="toast('演示：已重置为与正式考一致')">重置为正式考配置</a>。</div>
+          
           </div>
         </div>
       </div>
@@ -325,7 +342,8 @@ var acts=[
   ],links:7},
  {id:2,name:'2026年12月冲刺班',start:'2026-12-01',end:'2026-12-31',groups:[],exams:[],links:0}
 ];
-var TAGS=['C语言','Python','图形化','一级','二级'];
+var TAGS=['图形化 1 级','图形化 2 级','图形化 3 级','Python 1 级','Python 2 级','Python 3 级','C++ 1 级','C++ 2 级','程序设置 1 级','程序设置 2 级','程序设置 3 级'];
+var PAPERS=['图形化一级 2026春 正式卷','图形化一级 2026春 备用卷','图形化二级 2026春 正式卷','图形化二级 2026春 备用卷','图形化三级 2026春 正式卷','Python一级 2026春 正式卷A','Python一级 2026春 正式卷B','Python二级 2026春 正式卷','Python三级 2026春 正式卷','C++一级 2026春 正式卷','C++二级 2026春 正式卷','程序设置1级 期末卷','程序设置2级 期末卷','程序设置3级 期末卷','回归测试专用考场卷','2026区赛选拔卷 A','2026区赛选拔卷 B','2026市赛模拟卷 一','2026市赛模拟卷 二','Scratch入门测评卷','EV3机器人测评卷','Arduino创意测评卷','无人机编程测评卷','信息学奥赛入门卷','信奥 CSP-J 模拟一','信奥 CSP-J 模拟二','信奥 CSP-S 模拟一','信奥 CSP-S 模拟二','等级考试样卷 2026','等级考试样卷 2025','等级考试样卷 2024'];
 var curAct=null, wizStep='A', createdCount=0, zoneOpen={}, allOpen=true, editingZone=null, newZoneMode=false;
 var wizZoneSel=[];
 
@@ -507,7 +525,10 @@ function toggleMenu(ev,btn){
   document.querySelectorAll('.menu').forEach(function(x){x.classList.remove('show')});
   if(!open)m.classList.add('show');
 }
-document.addEventListener('click',function(){document.querySelectorAll('.menu').forEach(function(x){x.classList.remove('show')});closeAllMsel()});
+document.addEventListener('click',function(ev){
+  document.querySelectorAll('.menu').forEach(function(x){x.classList.remove('show')});
+  if(!ev.target.closest('.msel'))closeAllMsel();
+});
 
 /* ================= 下拉多选组件 ================= */
 function renderMsel(boxId,options,selected,dataName,refreshName){
@@ -524,7 +545,7 @@ function renderMsel(boxId,options,selected,dataName,refreshName){
 function toggleMselMenu(boxId){
   var m=$(boxId+'-menu');var open=m.classList.contains('show');
   closeAllMsel();
-  if(!open){m.classList.add('show');$(boxId).querySelector('.msel-box').classList.add('open')}
+  if(!open){m.classList.add('show');$(boxId).querySelector('.msel-box').classList.add('open');var si=m.querySelector('.msel-search');if(si)si.focus()}
 }
 function closeAllMsel(){document.querySelectorAll('.msel-menu').forEach(function(x){x.classList.remove('show')});document.querySelectorAll('.msel-box').forEach(function(x){x.classList.remove('open')})}
 function mselToggle(boxId,dataName,refreshName,v){
@@ -532,6 +553,48 @@ function mselToggle(boxId,dataName,refreshName,v){
   var i=arr.indexOf(v);
   if(i>=0)arr.splice(i,1);else arr.push(v);
   window[refreshName]();
+}
+
+/* 可搜索下拉（单选） */
+var sselState={};
+function renderSsel(boxId,items,value,ph){
+  sselState[boxId]={items:items,q:''};
+  var box=$(boxId);
+  box.innerHTML=
+    '<div class="ssel-box'+(value?' has':'')+'" onclick="toggleSsel(\''+boxId+'\')">'+
+    (value?'<span class="ssel-val">'+esc(value)+'</span>':'<span class="ph">'+(ph||'搜索或选择')+'</span>')+
+    (value?'<span class="ssel-x" onclick="event.stopPropagation();sselClear(\''+boxId+'\')">✕</span>':'')+
+    '</div>'+
+    '<div class="msel-menu ssel-menu" id="'+boxId+'-menu">'+
+    '<div class="ssel-searchwrap" onclick="event.stopPropagation()"><input class="ssel-search" placeholder="输入关键字搜索…" oninput="sselFilter(\''+boxId+'\',this.value)"></div>'+
+    '<div class="ssel-list" id="'+boxId+'-list"></div></div>';
+  sselDraw(boxId);
+}
+function sselDraw(boxId){
+  var st=sselState[boxId];var list=$(boxId+'-list');
+  var q=st.q.trim().toLowerCase();
+  var hit=st.items.filter(function(x){return !q||x.toLowerCase().indexOf(q)>=0});
+  list.innerHTML=hit.length?hit.slice(0,30).map(function(x){
+    return '<div class="mopt" onclick="sselPick(\''+boxId+'\',\''+esc(x)+'\')">'+esc(x)+'</div>';
+  }).join(''):'<div class="hint" style="padding:14px;text-align:center">无匹配试卷</div>';
+}
+function toggleSsel(boxId){
+  var m=$(boxId+'-menu');var open=m.classList.contains('show');
+  closeAllMsel();
+  if(!open){m.classList.add('show');$(boxId).querySelector('.ssel-box').classList.add('open');
+    var si=m.querySelector('.ssel-search');si.value='';sselState[boxId].q='';sselDraw(boxId);si.focus()}
+}
+function sselFilter(boxId,q){sselState[boxId].q=q;sselDraw(boxId)}
+function sselPick(boxId,v){
+  sselState[boxId].value=v;
+  var box=$(boxId);
+  box.querySelector('.ssel-box').outerHTML='<div class="ssel-box has" onclick="toggleSsel(\''+boxId+'\')"><span class="ssel-val">'+esc(v)+'</span><span class="ssel-x" onclick="event.stopPropagation();sselClear(\''+boxId+'\')">✕</span></div>';
+  closeAllMsel();
+}
+function sselClear(boxId){
+  sselState[boxId].value='';
+  renderSsel(boxId,sselState[boxId].items,'');
+  toast('已清除试卷，本次创建的考试为「待关联试卷」');
 }
 
 /* ================= 向导 ================= */
@@ -548,7 +611,7 @@ function openWizard(zone){
   wizStep='A';wizZoneSel=zone?[zone]:[];wizTags=[];
   $('rowTable').querySelector('tbody').innerHTML='';
   addRow();
-  refreshWizGroups();refreshTags();
+  refreshWizGroups();refreshTags();renderSsel('paperSel',PAPERS,'','搜索试卷名称，可留空后补');
   wizShow('A');show('ovWizard');
 }
 function wizShow(s){
@@ -577,7 +640,7 @@ function wizNext(){
     getWizRows().forEach(function(r){
       var name=r.querySelector('input').value.trim();if(!name)return;
       gs.forEach(function(g){
-        curAct.exams.push({g:g,name:name,paper:$('cfgPaper').value,paperOk:!!$('cfgPaper').value,mock:$('mockSw').classList.contains('on'),time:'待定',chs:0});
+        curAct.exams.push({g:g,name:name,paper:(sselState['paperSel']&&sselState['paperSel'].value)||'',paperOk:!!(sselState['paperSel']&&sselState['paperSel'].value),mock:$('mockSw').classList.contains('on'),time:'待定',chs:0});
         createdCount++;
       });
     });
@@ -615,13 +678,7 @@ function toggleMock(){
   var s=$('mockSw');s.classList.toggle('on');
   $('mockBody').style.display=s.classList.contains('on')?'block':'none';
 }
-function mcMode(el){
-  $('mcFollow').classList.toggle('on',el.id==='mcFollow');
-  $('mcFollow').style.cssText=el.id==='mcFollow'?'background:var(--primary-weak);color:var(--primary);border-color:#c9d8f7;font-weight:600':'';
-  $('mcCustom').classList.toggle('on',el.id==='mcCustom');
-  $('mcCustom').style.cssText=el.id==='mcCustom'?'background:var(--primary-weak);color:var(--primary);border-color:#c9d8f7;font-weight:600':'';
-  $('mcCustomBody').style.display=el.id==='mcCustom'?'block':'none';
-}
+
 
 /* ================= 跳转 ================= */
 function gotoMatrix(){
