@@ -1,0 +1,527 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>渠道关联矩阵</title>
+<style>
+:root{--primary:#0041c8;--primary-weak:#e8eefc;--bg:#f5f7fa;--card:#fff;--border:#e3e8ef;--text:#1a2233;--muted:#66707f;--ok:#0a8f4e;--warn:#b45309;--danger:#c0392b;--radius:10px}
+*{box-sizing:border-box;margin:0;padding:0}
+body{font-family:"PingFang SC","Microsoft YaHei",sans-serif;background:var(--bg);color:var(--text);font-size:14px}
+header{background:var(--card);border-bottom:1px solid var(--border);padding:14px 28px;display:flex;align-items:center;gap:14px}
+header h1{font-size:17px;font-weight:600}
+.logo{width:26px;height:26px;border-radius:6px;background:var(--primary);color:#fff;display:flex;align-items:center;justify-content:center;font-size:13px;font-weight:700}
+.spacer{flex:1}
+main{max-width:1280px;margin:20px auto;padding:0 28px}
+.btn{border:1px solid var(--border);background:var(--card);border-radius:8px;padding:7px 16px;cursor:pointer;font-size:13px;color:var(--text)}
+.btn:hover{border-color:var(--primary);color:var(--primary)}
+.btn.primary{background:var(--primary);border-color:var(--primary);color:#fff}
+.btn.primary:hover{opacity:.9;color:#fff}
+.btn.danger{color:var(--danger);border-color:#f3c1ba}
+.btn.small{padding:3px 10px;font-size:12px}
+.btn:disabled{opacity:.45;cursor:not-allowed}
+.card{background:var(--card);border:1px solid var(--border);border-radius:var(--radius);padding:18px;margin-bottom:16px}
+.crumb{font-size:13px;color:var(--muted);margin-bottom:12px}
+.crumb a{color:var(--primary);cursor:pointer;text-decoration:none}
+.toolbar{display:flex;align-items:center;gap:10px;margin-bottom:14px;flex-wrap:wrap}
+.toolbar select,.toolbar input[type=text]{border:1px solid var(--border);border-radius:7px;padding:6px 10px;font-size:13px}
+.tag{display:inline-block;font-size:11px;padding:1px 8px;border-radius:10px}
+.tag.blue{background:var(--primary-weak);color:var(--primary)}
+.tag.gray{background:#eef1f5;color:var(--muted)}
+.tag.green{background:#e5f5ec;color:var(--ok)}
+.tag.amber{background:#fdf1e0;color:var(--warn)}
+.mtx-wrap{overflow-x:auto;border:1px solid var(--border);border-radius:var(--radius);background:#fff}
+table.mtx{border-collapse:separate;border-spacing:0;width:100%;min-width:860px}
+.mtx th{font-size:12px;color:var(--muted);font-weight:600;padding:10px 12px;border-bottom:1px solid var(--border);background:#f9fafc;text-align:center;white-space:nowrap;position:sticky;top:0}
+.mtx th.stu,.mtx td.stu{text-align:left;position:sticky;left:0;background:inherit;background:#fff;z-index:2;min-width:250px;border-right:1px solid var(--border)}
+.mtx thead th.stu{background:#f9fafc;z-index:3}
+.mtx td{padding:8px 10px;border-bottom:1px solid #f0f2f6;font-size:13px;text-align:center;vertical-align:middle}
+.zone-row td{background:#f4f7fb;font-weight:600;text-align:left;padding:8px 12px;font-size:13px;color:#33415c}
+.cell{display:inline-flex;align-items:center;gap:6px;border-radius:8px;padding:6px 12px;cursor:pointer;border:1px solid transparent;white-space:nowrap}
+.cell.linked{background:#eef4ff;border-color:#d4e0f7;color:var(--primary);font-weight:600}
+.cell.linked:hover{border-color:var(--primary)}
+.cell.empty{color:#9aa4b2;font-size:12px;border:1px dashed #d5dbe4}
+.cell.empty:hover{border-color:var(--primary);color:var(--primary)}
+.cell .fee{font-size:13px}
+.cell .edit{font-size:11px;color:#7d93c4;font-weight:400}
+.badge{display:inline-block;font-size:10px;padding:0 5px;border-radius:8px;line-height:16px;vertical-align:middle}
+.badge.hidden{background:#3d465a;color:#fff}
+.badge.fail{background:#fbe6e2;color:var(--danger)}
+.exam-name{font-weight:600;font-size:13px}
+.exam-sub{font-size:11px;color:var(--muted);margin-top:2px}
+input[type=checkbox]{width:15px;height:15px;accent-color:var(--primary);cursor:pointer}
+.overlay{position:fixed;inset:0;background:rgba(15,23,42,.45);display:none;align-items:center;justify-content:center;z-index:50}
+.overlay.show{display:flex}
+.modal{background:#fff;border-radius:14px;width:640px;max-width:94vw;max-height:88vh;display:flex;flex-direction:column;box-shadow:0 18px 50px rgba(0,0,0,.22)}
+.modal.wide{width:880px}
+.modal-head{padding:18px 24px 10px;display:flex;align-items:center}
+.modal-head b{font-size:16px}
+.modal-body{padding:6px 24px 18px;overflow-y:auto}
+.modal-foot{padding:14px 24px;border-top:1px solid var(--border);display:flex;justify-content:flex-end;gap:10px;align-items:center}
+.wizard-tabs{display:flex;margin-bottom:16px;border:1px solid var(--border);border-radius:8px;overflow:hidden}
+.wizard-tabs .wt{flex:1;text-align:center;padding:9px;font-size:13px;background:#f7f9fc;color:var(--muted)}
+.wizard-tabs .wt.on{background:var(--primary);color:#fff;font-weight:600}
+.ch-cards{display:grid;grid-template-columns:1fr 1fr;gap:10px}
+.ch-card{border:1px solid var(--border);border-radius:10px;padding:12px 14px;cursor:pointer;position:relative}
+.ch-card.on{border-color:var(--primary);background:#f6f9ff;box-shadow:0 0 0 1px var(--primary)}
+.ch-card.dis{opacity:.5;cursor:not-allowed}
+.ch-card b{font-size:13px}
+.ch-card .sub{font-size:11px;color:var(--muted);margin-top:3px}
+.ch-card .tick{position:absolute;top:10px;right:12px;color:var(--primary);font-weight:700;display:none}
+.ch-card.on .tick{display:block}
+.fee-cards{display:flex;flex-direction:column;gap:10px;margin-top:6px}
+.fee-card{border:1px solid var(--border);border-radius:10px;padding:14px}
+.fee-card .head{display:flex;align-items:center;gap:8px;margin-bottom:10px}
+.fee-card .head b{font-size:13px}
+.fee-card .head .hint{margin-left:auto}
+.field{margin-bottom:12px}
+.field label{display:block;font-size:12px;color:var(--muted);margin-bottom:5px}
+.grid2{display:grid;grid-template-columns:1fr 1fr;gap:0 14px}
+input[type=text],input[type=number],input[type=datetime-local],select{border:1px solid var(--border);border-radius:7px;padding:7px 10px;font-size:13px}
+input:focus,select:focus{outline:2px solid var(--primary-weak);border-color:var(--primary)}
+.switch{position:relative;width:38px;height:21px;background:#ccd3dd;border-radius:11px;cursor:pointer;transition:.15s;flex:none;display:inline-block}
+.switch::after{content:"";position:absolute;top:2px;left:2px;width:17px;height:17px;border-radius:50%;background:#fff;transition:.15s}
+.switch.on{background:var(--ok)}
+.switch.on::after{left:19px}
+.hint{font-size:12px;color:var(--muted);line-height:1.6}
+.warnbox{background:#fdf6ec;border:1px solid #f2ddbb;border-radius:8px;padding:10px 14px;font-size:12px;color:#8a5a12;line-height:1.7;margin:10px 0}
+.dangerbox{background:#fdf0ee;border:1px solid #f3c8c0;border-radius:8px;padding:12px 14px;font-size:12px;color:#8f2d20;line-height:1.8;margin:10px 0}
+.summary-bar{background:var(--primary-weak);border-radius:8px;padding:9px 14px;font-size:13px;color:#23407a;margin-bottom:14px}
+#toast{position:fixed;top:22px;left:50%;transform:translateX(-50%);background:#1a2233;color:#fff;padding:9px 22px;border-radius:8px;font-size:13px;opacity:0;transition:.25s;z-index:99;pointer-events:none}
+#toast.show{opacity:.95}
+.muted{color:var(--muted)}
+.menu-wrap{position:relative;display:inline-block}
+.menu{position:absolute;left:0;top:26px;background:#fff;border:1px solid var(--border);border-radius:8px;box-shadow:0 8px 24px rgba(0,0,0,.12);padding:5px;display:none;z-index:20;min-width:190px}
+.menu.show{display:block}
+.menu .mi{padding:7px 13px;font-size:13px;border-radius:6px;cursor:pointer;white-space:nowrap}
+.menu .mi:hover{background:#f2f5fa}
+.menu .mi.red{color:var(--danger)}
+.link-line{display:flex;align-items:center;gap:6px}
+input[type=radio]{accent-color:var(--primary)}
+</style>
+</head>
+<body>
+<header>
+  <div class="logo">考</div><h1>考务系统 · 渠道关联矩阵</h1>
+  <div class="spacer"></div>
+  <button class="btn" onclick="location.href='01_活动管理.html'">← 返回活动管理</button>
+</header>
+
+<main>
+  <div class="crumb"><a onclick="location.href='01_活动管理.html'">活动管理</a> / <span id="crumbAct">2026年9月常规考</span> / 阶段二 · 渠道关联</div>
+  <div class="card" style="padding:12px 18px">
+    <div class="hint" style="font-size:13px">
+      横轴 = 渠道，纵轴 = 分组下的考试。<b>点击单元格</b>配置该考试在该渠道的报名费 / 展示 / 隐藏报名；
+      <b>勾选行</b>后用工具条按钮批量添加、修改或解除渠道关联。各渠道看到的分组一致。
+    </div>
+  </div>
+
+  <div class="toolbar">
+    <select id="fGroup"><option value="">全部分组</option><option>3月批</option><option>6月批</option></select>
+    <input type="text" id="fKw" placeholder="搜索考试名称" style="width:200px">
+    <div class="spacer"></div>
+    <button class="btn" id="btnEdit" onclick="openBulkEdit()" disabled>修改渠道配置</button>
+    <button class="btn danger" id="btnDel" onclick="openBulkDel()" disabled>解除渠道关联</button>
+    <button class="btn primary" onclick="openBulkAdd()">＋ 添加渠道</button>
+  </div>
+
+  <div class="mtx-wrap">
+    <table class="mtx" id="mtx">
+      <thead><tr id="mtxHead"></tr></thead>
+      <tbody id="mtxBody"></tbody>
+    </table>
+  </div>
+  <div class="hint" style="margin-top:8px">🔒隐 = 隐藏报名（此时前端展示开关与展示时间不参与控制）。点击「…」查看考试详情。</div>
+</main>
+
+<!-- ========== 单格配置弹窗 ========== -->
+<div class="overlay" id="ovCell">
+  <div class="modal" style="width:560px">
+    <div class="modal-head"><b id="cellTitle">配置渠道关联</b></div>
+    <div class="modal-body">
+      <div class="summary-bar" id="cellSub"></div>
+      <div class="grid2">
+        <div class="field"><label class="req" style="color:var(--muted);font-size:12px;display:block;margin-bottom:5px">报名费（元）<span style="color:var(--danger)"> *</span></label><input type="number" id="cFee" value="300" style="width:100%"></div>
+        <div class="field"><label style="color:var(--muted);font-size:12px;display:block;margin-bottom:5px">前端展示</label>
+          <div style="display:flex;align-items:center;gap:10px"><div class="switch on" id="cShow" onclick="this.classList.toggle('on')"></div><span class="hint">开启后学员端可见</span></div>
+        </div>
+      </div>
+      <div class="grid2" id="cShowTimeBox">
+        <div class="field"><label>展示开始（选填）</label><input type="datetime-local" style="width:100%"></div>
+        <div class="field"><label>展示结束（选填，空 = 长期）</label><input type="datetime-local" style="width:100%"></div>
+      </div>
+      <div class="field"><label style="color:var(--muted);font-size:12px;display:block;margin-bottom:5px">报名可见性</label>
+        <div style="display:flex;gap:8px">
+          <span class="chip btn on" id="cNormal" onclick="cellVis(this)">正常报名</span>
+          <span class="chip btn" id="cHidden" onclick="cellVis(this)">隐藏报名</span>
+        </div>
+      </div>
+      <div id="cHiddenBox" style="display:none">
+        <div class="warnbox">开启隐藏报名后：<b>前端展示开关与展示时间不再参与控制</b>（区块已收起）；仅持定向链接可报名。改回「正常报名」后再隐藏将生成<b>新链接</b>，旧链接失效。</div>
+        <div class="field"><label>定向报名链接（只读）</label>
+          <div style="display:flex;gap:8px"><input type="text" value="https://aise.cn/reg/d/8f3kq2m9" readonly style="flex:1;background:#f7f9fc;color:var(--muted)"><button class="btn small" onclick="toast('已复制')">复制</button><button class="btn small" onclick="toast('已生成二维码（演示）')">二维码</button></div>
+        </div>
+      </div>
+      <div class="hint" id="cellReg"></div>
+    </div>
+    <div class="modal-foot">
+      <button class="btn danger" style="margin-right:auto" onclick="delOne()">解除此关联</button>
+      <button class="btn" onclick="hide('ovCell')">取消</button>
+      <button class="btn primary" onclick="saveCell()">保存</button>
+    </div>
+  </div>
+</div>
+
+<!-- ========== 批量添加渠道（两步弹窗） ========== -->
+<div class="overlay" id="ovAdd">
+  <div class="modal wide">
+    <div class="modal-head"><b>添加渠道</b><div class="spacer" style="flex:1"></div><button class="btn small" onclick="hide('ovAdd')">✕</button></div>
+    <div class="modal-body">
+      <div class="summary-bar" id="addSummary"></div>
+      <div class="wizard-tabs"><div class="wt on" id="awt1">第 1 步 · 选择渠道</div><div class="wt" id="awt2">第 2 步 · 配置报名</div></div>
+
+      <div id="addStep1">
+        <div class="ch-cards" id="chCards"></div>
+      </div>
+
+      <div id="addStep2" style="display:none">
+        <div class="warnbox">批量添加后<b>前端默认不展示</b>（活动常提前配置），请确认后到单元格或批量修改中开启展示。报名可见性统一为「正常报名」；<b>隐藏报名请稍后在单个单元格中设置</b>（涉及定向链接生成，防误伤）。</div>
+        <div class="fee-cards" id="feeCards"></div>
+        <div style="margin-top:10px"><label class="hint"><input type="checkbox" id="feeAll" onclick="feeAllToggle()"> 将第一个渠道的报名费应用到全部所选渠道</label></div>
+      </div>
+    </div>
+    <div class="modal-foot">
+      <span class="hint" style="margin-right:auto" id="addHint"></span>
+      <button class="btn" id="addPrev" onclick="addNav(1)" style="display:none">上一步</button>
+      <button class="btn primary" id="addNext">下一步：配置报名</button>
+    </div>
+  </div>
+</div>
+
+<!-- ========== 批量修改 ========== -->
+<div class="overlay" id="ovEdit">
+  <div class="modal" style="width:560px">
+    <div class="modal-head"><b>批量修改渠道配置</b></div>
+    <div class="modal-body">
+      <div class="summary-bar" id="editSummary"></div>
+      <div class="field"><label class="req">选择渠道（单选）</label>
+        <select id="editCh" style="width:100%"><option>猿编程</option><option>核桃编程</option><option>编程猫</option><option>小码王</option></select>
+      </div>
+      <div class="grid2">
+        <div class="field"><label>新报名费（元）</label><input type="number" id="editFee" value="300" style="width:100%"></div>
+        <div class="field"><label>前端展示</label><div style="display:flex;align-items:center;gap:10px"><div class="switch on" onclick="this.classList.toggle('on')"></div><span class="hint">开启后学员端可见</span></div></div>
+      </div>
+      <div class="grid2">
+        <div class="field"><label>展示开始（选填）</label><input type="datetime-local" style="width:100%"></div>
+        <div class="field"><label>展示结束（选填）</label><input type="datetime-local" style="width:100%"></div>
+      </div>
+      <div class="warnbox">报名费修改<b>不溯及已报名订单</b>：已有订单按原价结算，仅影响新报名。已隐藏报名的关联不受本次修改影响。</div>
+    </div>
+    <div class="modal-foot">
+      <button class="btn" onclick="hide('ovEdit')">取消</button>
+      <button class="btn primary" onclick="doEdit()">应用修改</button>
+    </div>
+  </div>
+</div>
+
+<!-- ========== 批量解除关联 ========== -->
+<div class="overlay" id="ovDel">
+  <div class="modal" style="width:600px">
+    <div class="modal-head"><b>解除渠道关联</b></div>
+    <div class="modal-body">
+      <div class="summary-bar" id="delSummary"></div>
+      <div class="field"><label class="req">选择渠道（可多选）</label>
+        <div style="display:flex;gap:8px;flex-wrap:wrap" id="delChips">
+          <span class="chip btn on" onclick="this.classList.toggle('on')">猿编程</span>
+          <span class="chip btn" onclick="this.classList.toggle('on')">核桃编程</span>
+          <span class="chip btn" onclick="this.classList.toggle('on')">编程猫</span>
+          <span class="chip btn" onclick="this.classList.toggle('on')">小码王</span>
+        </div>
+      </div>
+      <div class="dangerbox">
+        <b>影响确认：</b><br>
+        · 将删除 <b>8</b> 条关联（猿编程 5 条 / 核桃编程 3 条）<br>
+        · 其中 <b>3</b> 条已有报名记录：默认<b>跳过不删除</b><br>
+        · 其中 <b>1</b> 条为隐藏报名：删除后定向链接<b>永久失效</b>，已发出的链接将无法报名
+      </div>
+      <label class="hint"><input type="checkbox" id="delAck"> 我已知晓上述影响，确认执行</label>
+    </div>
+    <div class="modal-foot">
+      <button class="btn" onclick="hide('ovDel')">取消</button>
+      <button class="btn danger" id="delGo" onclick="doDel()" disabled>确认解除</button>
+    </div>
+  </div>
+</div>
+
+<!-- ========== 考试详情抽屉（演示简化为弹窗） ========== -->
+<div class="overlay" id="ovExam">
+  <div class="modal" style="width:560px">
+    <div class="modal-head"><b id="examTitle">考试详情</b></div>
+    <div class="modal-body" id="examBody"></div>
+    <div class="modal-foot"><button class="btn" onclick="hide('ovExam')">关闭</button></div>
+  </div>
+</div>
+
+<div id="toast"></div>
+
+<script>
+/* ================= 数据 ================= */
+var GROUPS=['3月批','6月批'];
+var CHS=['猿编程','核桃编程','编程猫','小码王'];
+/* rows: 每行一场考试; links[examIdx][chIdx] = null | {fee, hidden, regs} */
+var ROWS=[
+ {zone:'3月批',name:'Python一级-第1场',paper:'Python一级 正式卷A',time:'09-20 09:00',regs:[12,5,0,0],mock:true,
+  links:[{fee:300,hidden:false,regs:12},{fee:300,hidden:true,regs:5},null,null]},
+ {zone:'3月批',name:'图形化一级-第1场',paper:'',paperOk:false,time:'09-21 09:00',regs:[8,0,3,0],mock:true,
+  links:[{fee:280,hidden:false,regs:8},null,{fee:280,hidden:false,regs:3},null]},
+ {zone:'6月批',name:'Python二级-第1场',paper:'Python二级 正式卷A',time:'09-27 09:00',regs:[6,0,0,0],mock:false,
+  links:[{fee:320,hidden:false,regs:6},null,null,{fail:true}]},
+ {zone:'6月批',name:'图形化二级-第1场',paper:'图形化二级 正式卷B',time:'09-28 14:00',regs:[0,0,0,0],mock:false,
+  links:[null,null,null,null]}
+];
+var sel={};
+
+function $(id){return document.getElementById(id)}
+function show(id){$(id).classList.add('show')}
+function hide(id){$(id).classList.remove('show')}
+function toast(m){var t=$('toast');t.textContent=m;t.classList.add('show');setTimeout(function(){t.classList.remove('show')},2200)}
+
+/* ================= 矩阵渲染 ================= */
+function renderHead(){
+  var tr=$('mtxHead');
+  var h='<th class="stu"><input type="checkbox" onclick="selAll(this)" title="全选"> 考试 / 渠道</th>';
+  CHS.forEach(function(c,i){
+    var n=0;ROWS.forEach(function(r,ri){if(r.links[i]&&!r.links[i].fail)n++});
+    h+='<th>'+c+'<div class="hint">'+n+' 场已关联</div></th>';
+  });
+  tr.innerHTML=h;
+}
+function renderBody(){
+  var tb=$('mtxBody');tb.innerHTML='';
+  var fG=$('fGroup').value,kw=$('fKw').value.trim();
+  var zones=GROUPS.slice();zones.push('未分组');
+  var shown=false;
+  zones.forEach(function(z){
+    var list=ROWS.map(function(r,i){return {r:r,i:i}}).filter(function(o){return o.r.zone===z&&( !fG||z===fG)&&(!kw||o.r.name.indexOf(kw)>=0)});
+    if(!list.length)return;
+    shown=true;
+    var zr=document.createElement('tr');zr.className='zone-row';
+    zr.innerHTML='<td class="stu" colspan="'+(CHS.length+1)+'">【'+z+'】 '+list.length+' 场考试 <label class="hint" style="margin-left:14px;font-weight:400"><input type="checkbox" onclick="selZone(\''+z+'\',this)"> 选本组全部</label></td>';
+    tb.appendChild(zr);
+    list.forEach(function(o){
+      var r=o.r,i=o.i;
+      var tr=document.createElement('tr');
+      var sub=(r.paperOk===false?'<span class="tag amber">待关联试卷</span> · ':'')+r.time+(r.mock?' · 含模拟考':'');
+      var tds='<td class="stu"><div class="link-line"><input type="checkbox" class="rowck" data-zone="'+z+'" data-i="'+i+'" onclick="selChk(this)"><div><div class="exam-name">'+r.name+'</div><div class="exam-sub">'+sub+'</div></div>'+
+        '<span class="menu-wrap"><button class="btn small" onclick="toggleMenu(event,this)">…</button><div class="menu">'+
+        '<div class="mi" onclick="examDetail('+i+')">考试详情</div>'+
+        '<div class="mi" onclick="toast(\'演示：编辑考试（阶段一配置）\')">编辑考试</div>'+
+        '<div class="mi" onclick="toast(\'演示：复制考试\')">复制考试</div>'+
+        '<div class="mi red" onclick="toast(\'演示：解除全部渠道关联（二次确认）\')">解除全部渠道关联</div>'+
+        '</div></span></div></td>';
+      CHS.forEach(function(c,ci){
+        var L=r.links[ci];
+        if(L&&L.fail){tds+='<td><span class="cell linked" onclick="toast(\'创建失败：爱测评返回冲突，点击重试\')">创建失败<span class="badge fail">失败</span></span></td>';}
+        else if(L){tds+='<td><span class="cell linked" onclick="openCell('+i+','+ci+')"><span class="fee">¥'+L.fee+'</span><span class="edit">编辑</span>'+(L.hidden?'<span class="badge hidden">🔒隐</span>':'')+(L.regs>0?'<span class="hint">'+L.regs+'人</span>':'')+'</span></td>';}
+        else{tds+='<td><span class="cell empty" onclick="openCellNew('+i+','+ci+')">＋ 关联</span></td>';}
+      });
+      tr.innerHTML=tds;tb.appendChild(tr);
+    });
+  });
+  if(!shown){
+    var tr=document.createElement('tr');
+    tr.innerHTML='<td colspan="'+(CHS.length+1)+'" style="text-align:center;padding:48px" class="hint">尚未关联渠道，点击右上角「＋ 添加渠道」开始</td>';
+    tb.appendChild(tr);
+  }
+  selChk();
+}
+function selAll(cb){document.querySelectorAll('.rowck').forEach(function(c){c.checked=cb.checked});selChk()}
+function selZone(z,cb){document.querySelectorAll('.rowck[data-zone="'+z+'"]').forEach(function(c){c.checked=cb.checked});selChk()}
+function selChk(){
+  var n=document.querySelectorAll('.rowck:checked').length;
+  $('btnEdit').disabled=!n;$('btnDel').disabled=!n;
+}
+function toggleMenu(ev,btn){
+  ev.stopPropagation();
+  var m=btn.nextElementSibling;var open=m.classList.contains('show');
+  document.querySelectorAll('.menu').forEach(function(x){x.classList.remove('show')});
+  if(!open)m.classList.add('show');
+}
+document.addEventListener('click',function(){document.querySelectorAll('.menu').forEach(function(x){x.classList.remove('show')})});
+
+/* ================= 单格 ================= */
+var cellCtx={};
+function openCell(i,ci){
+  var L=ROWS[i].links[ci];
+  cellCtx={i:i,ci:ci,isNew:false};
+  $('cellTitle').textContent='配置渠道关联';
+  $('cellSub').textContent='「'+ROWS[i].name+'」 × '+CHS[ci];
+  $('cFee').value=L.fee;$('cShow').classList.toggle('on',!L.hidden);
+  $('cellReg').textContent=L.regs>0?'该关联已有 '+L.regs+' 人报名；修改报名费不溯及已有订单。':'暂无报名。';
+  visMode(L.hidden?'h':'n');show('ovCell');
+}
+function openCellNew(i,ci){
+  cellCtx={i:i,ci:ci,isNew:true};
+  $('cellTitle').textContent='新建渠道关联';
+  $('cellSub').textContent='「'+ROWS[i].name+'」 × '+CHS[ci];
+  $('cFee').value='';$('cShow').classList.add('on');
+  $('cellReg').textContent='';visMode('n');show('ovCell');
+}
+function visMode(m){
+  var h=m==='h';
+  $('cNormal').classList.toggle('on',!h);$('cHidden').classList.toggle('on',h);
+  $('cHiddenBox').style.display=h?'block':'none';
+  $('cShowTimeBox').style.display=h?'none':'grid';
+  $('cShow').style.visibility=h?'hidden':'visible';
+}
+function cellVis(el){visMode(el.id==='cHidden'?'h':'n')}
+function saveCell(){
+  var f=parseFloat($('cFee').value);
+  if(isNaN(f)||f<=0){toast('请填写正确的报名费');return}
+  var L={fee:f,hidden:$('cHidden').classList.contains('on'),regs:cellCtx.isNew?0:ROWS[cellCtx.i].links[cellCtx.ci].regs};
+  ROWS[cellCtx.i].links[cellCtx.ci]=L;
+  hide('ovCell');renderHead();renderBody();
+  toast((cellCtx.isNew?'已关联 ':'已保存 ')+ROWS[cellCtx.i].name+' × '+CHS[cellCtx.ci]+(L.hidden?'（隐藏报名，链接已生成）':''));
+}
+function delOne(){
+  var r=ROWS[cellCtx.i],ci=cellCtx.ci,L=r.links[ci];
+  if(L&&L.regs>0){toast('该关联已有 '+L.regs+' 人报名，默认跳过不删除');return}
+  if(L&&L.hidden){if(!confirm('该关联为隐藏报名，删除后定向链接永久失效，已发出的链接将无法报名。确认删除？'))return}
+  r.links[ci]=null;hide('ovCell');renderHead();renderBody();toast('已解除关联');
+}
+
+/* ================= 批量添加 ================= */
+var addSel=[];
+function openBulkAdd(){
+  var n=checkedRows().length;
+  $('addSummary').textContent='将为勾选的 '+n+' 场考试添加渠道关联'+(n===0?'（当前未勾选行，将作用于全部 '+ROWS.length+' 场）':'');
+  addSel=[];
+  var box=$('chCards');box.innerHTML='';
+  CHS.forEach(function(c,ci){
+    var all=ROWS.every(function(r){return r.links[ci]&&!r.links[ci].fail});
+    var d=document.createElement('div');d.className='ch-card'+(all?' dis':'');
+    d.innerHTML='<div class="tick">✓</div><b>'+c+'</b><div class="sub">'+(all?'已与全部勾选考试存在关联':'已关联 '+ROWS.filter(function(r){return r.links[ci]&&!r.links[ci].fail}).length+' 场')+'</div>';
+    if(!all)d.onclick=function(){d.classList.toggle('on');syncAdd()};
+    box.appendChild(d);
+  });
+  addNav(1);show('ovAdd');
+}
+function syncAdd(){
+  addSel=[].slice.call(document.querySelectorAll('#chCards .ch-card.on')).map(function(d){
+    return CHS[[].slice.call(d.parentNode.children).indexOf(d)]
+  });
+  $('addNext').disabled=addSel.length===0;
+  $('addHint').textContent=addSel.length?'已选 '+addSel.length+' 个渠道':'请选择渠道';
+}
+function feeCardsRender(){
+  var box=$('feeCards');box.innerHTML='';
+  addSel.forEach(function(c,k){
+    var d=document.createElement('div');d.className='fee-card';
+    d.innerHTML='<div class="head"><b>'+c+'</b><span class="hint">上次使用价 ¥280</span></div>'+
+      '<div class="grid2"><div class="field"><label class="req">报名费（元）</label><input type="number" value="280" class="feeInput" data-ch="'+c+'" style="width:100%"></div>'+
+      '<div class="field"><label>前端展示</label><div style="display:flex;align-items:center;gap:10px"><div class="switch" onclick="this.classList.toggle(\'on\')"></div><span class="hint">默认不展示</span></div></div></div>';
+    box.appendChild(d);
+  });
+}
+function feeAllToggle(){
+  var v=document.querySelector('.feeInput').value;
+  document.querySelectorAll('.feeInput').forEach(function(i){i.value=v});
+}
+function addNav(step){
+  if(step===2){
+    var on=[].slice.call(document.querySelectorAll('#chCards .ch-card.on'));
+    if(!on.length){toast('请至少选择一个渠道');return}
+    addSel=on.map(function(d){return d.querySelector('b').textContent});
+    feeCardsRender();
+    $('addStep1').style.display='none';$('addStep2').style.display='block';
+    $('awt1').classList.remove('on');$('awt2').classList.add('on');
+    $('addPrev').style.display='inline-block';$('addNext').textContent='确认添加';
+    $('addHint').textContent='将生成 '+checkedRows().length+' 场 × '+addSel.length+' 渠道 = '+(checkedRows().length*addSel.length)+' 条关联';
+  }else{
+    $('addStep1').style.display='block';$('addStep2').style.display='none';
+    $('awt1').classList.add('on');$('awt2').classList.remove('on');
+    $('addPrev').style.display='none';$('addNext').textContent='下一步：配置报名';$('addNext').disabled=false;
+  }
+}
+/* addNext 统一分派：第 1 步→进第 2 步；第 2 步→执行添加 */
+$('addNext').addEventListener('click',function(){
+  if($('addStep2').style.display==='block'){doAdd()}else{addNav(2)}
+});
+function doAdd(){
+  var rows=checkedRows().length?checkedRows():ROWS.map(function(_,i){return i});
+  var addN=0,skipN=0;
+  rows.forEach(function(ri){
+    addSel.forEach(function(c){
+      var ci=CHS.indexOf(c);
+      var L=ROWS[ri].links[ci];
+      if(L&&!L.fail){skipN++;return}
+      var fee=parseFloat(document.querySelector('.feeInput[data-ch="'+c+'"]').value)||0;
+      ROWS[ri].links[ci]={fee:fee,hidden:false,regs:0};addN++;
+    });
+  });
+  hide('ovAdd');renderHead();renderBody();
+  toast('新增 '+addN+' 条关联，跳过 '+skipN+' 条（已存在）。前端默认不展示，请确认后开启。');
+}
+function checkedRows(){
+  return [].slice.call(document.querySelectorAll('.rowck:checked')).map(function(c){return parseInt(c.dataset.i)});
+}
+
+/* ================= 批量修改 ================= */
+function openBulkEdit(){
+  var n=checkedRows().length;
+  $('editSummary').textContent='将修改勾选的 '+n+' 场考试在所选渠道上的报名费 / 展示配置';
+  show('ovEdit');
+}
+function doEdit(){
+  var c=$('editCh').value,ci=CHS.indexOf(c);
+  var fee=parseFloat($('editFee').value);if(isNaN(fee)||fee<=0){toast('请填写正确的报名费');return}
+  var rows=checkedRows();let mod=0,skip=0;
+  rows.forEach(function(ri){
+    var L=ROWS[ri].links[ci];
+    if(!L||L.fail){skip++;return}
+    L.fee=fee;L.hidden=false;mod++;
+  });
+  hide('ovEdit');renderHead();renderBody();
+  toast('已修改 '+mod+' 条关联'+(skip?'，跳过 '+skip+' 条（未关联或失败）':'')+'。报名费不溯及已报名订单。');
+}
+
+/* ================= 批量解除 ================= */
+function openBulkDel(){
+  $('delAck').checked=false;$('delGo').disabled=true;
+  var n=checkedRows().length;
+  $('delSummary').textContent='将解除勾选的 '+n+' 场考试在所选渠道上的关联';
+  show('ovDel');
+}
+$('delAck').addEventListener('change',function(){$('delGo').disabled=!this.checked});
+function doDel(){
+  hide('ovDel');toast('演示：已解除 5 条关联，跳过 3 条（有报名），1 条隐藏报名链接已失效');
+  document.querySelectorAll('.rowck').forEach(function(c){c.checked=false});selChk();
+}
+
+/* ================= 考试详情 ================= */
+function examDetail(i){
+  var r=ROWS[i];
+  $('examTitle').textContent=r.name;
+  var linkCells=CHS.map(function(c,ci){
+    var L=r.links[ci];if(!L)return '';
+    if(L.fail)return '<span class="tag amber">'+c+' · 创建失败</span> ';
+    return '<span class="tag '+(L.hidden?'gray':'blue')+'">'+c+' ¥'+L.fee+(L.hidden?' 🔒隐':'')+'</span> ';
+  }).join('');
+  $('examBody').innerHTML=
+    '<div class="field"><label>所属分组</label><div>'+r.zone+'</div></div>'+
+    '<div class="field"><label>试卷</label><div>'+(r.paperOk===false?'<span class="tag amber">待关联试卷</span>':r.paper)+' · 模拟考：'+(r.mock?'已开启（独立模拟卷/时间/监考）':'未开启')+'</div></div>'+
+    '<div class="field"><label>考试时间</label><div>'+r.time+'</div></div>'+
+    '<div class="field"><label>渠道关联（'+CHS.filter(function(_,ci){return r.links[ci]}).length+'）</label><div>'+linkCells+'</div></div>'+
+    '<div class="hint">编辑考试（阶段一配置）请返回活动管理页，在考试行「…」菜单操作。</div>';
+  show('ovExam');
+}
+
+/* ================= init ================= */
+var q=location.search.match(/act=([^&]+)/);
+if(q)try{$('crumbAct').textContent=decodeURIComponent(q[1])}catch(e){}
+$('fGroup').addEventListener('change',renderBody);
+$('fKw').addEventListener('input',renderBody);
+renderHead();renderBody();
+</script>
+</body>
+</html>

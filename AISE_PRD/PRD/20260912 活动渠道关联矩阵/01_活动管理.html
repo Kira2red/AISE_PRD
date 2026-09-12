@@ -1,0 +1,505 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>活动管理 · 考试模型</title>
+<style>
+:root{--primary:#0041c8;--primary-weak:#e8eefc;--bg:#f5f7fa;--card:#fff;--border:#e3e8ef;--text:#1a2233;--muted:#66707f;--ok:#0a8f4e;--warn:#b45309;--danger:#c0392b;--radius:10px}
+*{box-sizing:border-box;margin:0;padding:0}
+body{font-family:"PingFang SC","Microsoft YaHei",sans-serif;background:var(--bg);color:var(--text);font-size:14px}
+header{background:var(--card);border-bottom:1px solid var(--border);padding:14px 28px;display:flex;align-items:center;gap:14px}
+header h1{font-size:17px;font-weight:600}
+.logo{width:26px;height:26px;border-radius:6px;background:var(--primary);color:#fff;display:flex;align-items:center;justify-content:center;font-size:13px;font-weight:700}
+.spacer{flex:1}
+main{max-width:1180px;margin:24px auto;padding:0 28px}
+.btn{border:1px solid var(--border);background:var(--card);border-radius:8px;padding:7px 16px;cursor:pointer;font-size:13px;color:var(--text)}
+.btn:hover{border-color:var(--primary);color:var(--primary)}
+.btn.primary{background:var(--primary);border-color:var(--primary);color:#fff}
+.btn.primary:hover{opacity:.9;color:#fff}
+.btn.danger{color:var(--danger);border-color:#f3c1ba}
+.btn.small{padding:3px 10px;font-size:12px}
+.btn:disabled{opacity:.45;cursor:not-allowed}
+.card{background:var(--card);border:1px solid var(--border);border-radius:var(--radius);padding:20px;margin-bottom:16px}
+.banner{background:var(--primary-weak);border:1px solid #c9d8f7;border-radius:var(--radius);padding:12px 18px;margin-bottom:16px;color:#23407a;font-size:13px;line-height:1.7}
+table{width:100%;border-collapse:collapse}
+th{font-size:12px;color:var(--muted);font-weight:500;text-align:left;padding:9px 10px;border-bottom:1px solid var(--border)}
+td{padding:11px 10px;border-bottom:1px solid #f0f2f6;font-size:13px}
+tr:last-child td{border-bottom:none}
+.rowclick{cursor:pointer}
+.rowclick:hover td{background:#fafbfd}
+.tag{display:inline-block;font-size:11px;padding:1px 8px;border-radius:10px;margin-right:4px}
+.tag.blue{background:var(--primary-weak);color:var(--primary)}
+.tag.gray{background:#eef1f5;color:var(--muted)}
+.tag.green{background:#e5f5ec;color:var(--ok)}
+.tag.amber{background:#fdf1e0;color:var(--warn)}
+.crumb{font-size:13px;color:var(--muted);margin-bottom:14px}
+.crumb a{color:var(--primary);cursor:pointer;text-decoration:none}
+.steps{display:flex;align-items:center;margin-bottom:20px;background:var(--card);border:1px solid var(--border);border-radius:var(--radius);padding:16px 22px;gap:8px}
+.step{display:flex;align-items:center;gap:8px;font-size:13px;color:var(--muted);white-space:nowrap}
+.step .dot{width:22px;height:22px;border-radius:50%;border:2px solid #ccd3dd;display:flex;align-items:center;justify-content:center;font-size:11px;background:#fff}
+.step.done .dot{background:var(--ok);border-color:var(--ok);color:#fff}
+.step.done{color:var(--text)}
+.step.current .dot{border-color:var(--primary);color:var(--primary);font-weight:700}
+.step.current{color:var(--primary);font-weight:600}
+.step-link{cursor:pointer}
+.step-link:hover{text-decoration:underline}
+.arrow{color:#c3cad4;margin:0 4px}
+.group-head{display:flex;align-items:center;gap:10px;padding:13px 6px;border-bottom:1px solid var(--border)}
+.group-head b{font-size:14px}
+.group-head .cnt{font-size:12px;color:var(--muted)}
+input[type=text],input[type=number],input[type=datetime-local],input[type=date],select{border:1px solid var(--border);border-radius:7px;padding:7px 10px;font-size:13px;background:#fff;color:var(--text)}
+input:focus,select:focus{outline:2px solid var(--primary-weak);border-color:var(--primary)}
+.chip{display:inline-flex;align-items:center;gap:6px;border:1px solid var(--border);border-radius:16px;padding:5px 14px;font-size:13px;cursor:pointer;background:#fff;user-select:none}
+.chip.on{border-color:var(--primary);background:var(--primary-weak);color:var(--primary);font-weight:600}
+.chip .x{font-size:11px;color:var(--muted)}
+.field{margin-bottom:14px}
+.field label{display:block;font-size:12px;color:var(--muted);margin-bottom:5px}
+.field .req::after{content:" *";color:var(--danger)}
+.grid2{display:grid;grid-template-columns:1fr 1fr;gap:0 18px}
+.grid3{display:grid;grid-template-columns:1fr 1fr 1fr;gap:0 18px}
+.overlay{position:fixed;inset:0;background:rgba(15,23,42,.45);display:none;align-items:center;justify-content:center;z-index:50}
+.overlay.show{display:flex}
+.modal{background:#fff;border-radius:14px;width:680px;max-width:94vw;max-height:88vh;display:flex;flex-direction:column;box-shadow:0 18px 50px rgba(0,0,0,.22)}
+.modal.wide{width:860px}
+.modal-head{padding:18px 24px 12px;display:flex;align-items:center}
+.modal-head b{font-size:16px}
+.modal-body{padding:4px 24px 18px;overflow-y:auto}
+.modal-foot{padding:14px 24px;border-top:1px solid var(--border);display:flex;justify-content:flex-end;gap:10px;align-items:center}
+.wizard-tabs{display:flex;gap:0;margin-bottom:18px;border:1px solid var(--border);border-radius:8px;overflow:hidden}
+.wizard-tabs .wt{flex:1;text-align:center;padding:9px;font-size:13px;background:#f7f9fc;color:var(--muted)}
+.wizard-tabs .wt.on{background:var(--primary);color:#fff;font-weight:600}
+.sec-title{font-size:14px;font-weight:600;margin:18px 0 12px;display:flex;align-items:center;gap:8px}
+.sec-title:first-child{margin-top:0}
+.sec-title .sub{font-size:12px;color:var(--muted);font-weight:400}
+.switch{position:relative;width:38px;height:21px;background:#ccd3dd;border-radius:11px;cursor:pointer;transition:.15s;flex:none}
+.switch::after{content:"";position:absolute;top:2px;left:2px;width:17px;height:17px;border-radius:50%;background:#fff;transition:.15s}
+.switch.on{background:var(--ok)}
+.switch.on::after{left:19px}
+details.more{border:1px dashed var(--border);border-radius:8px;padding:10px 14px;margin-top:6px}
+details.more summary{font-size:13px;color:var(--muted);cursor:pointer}
+.hint{font-size:12px;color:var(--muted);line-height:1.6}
+.warnbox{background:#fdf6ec;border:1px solid #f2ddbb;border-radius:8px;padding:10px 14px;font-size:12px;color:#8a5a12;line-height:1.7;margin:10px 0}
+.done-hero{text-align:center;padding:16px 10px}
+.done-hero .ico{width:56px;height:56px;border-radius:50%;background:#e5f5ec;color:var(--ok);font-size:26px;display:flex;align-items:center;justify-content:center;margin:0 auto 14px}
+.done-hero b{font-size:16px;display:block;margin-bottom:8px}
+#toast{position:fixed;top:22px;left:50%;transform:translateX(-50%);background:#1a2233;color:#fff;padding:9px 22px;border-radius:8px;font-size:13px;opacity:0;transition:.25s;z-index:99;pointer-events:none}
+#toast.show{opacity:.95}
+.muted{color:var(--muted)}
+.gen{background:#f7f9fc;border:1px solid var(--border);border-radius:8px;padding:14px;display:flex;gap:10px;align-items:flex-end;flex-wrap:wrap;margin-bottom:14px}
+.gen .field{margin:0}
+.empty-inline{padding:26px;text-align:center;color:var(--muted);font-size:13px}
+a.link{color:var(--primary);cursor:pointer;text-decoration:none}
+.menu-wrap{position:relative;display:inline-block}
+.menu{position:absolute;right:0;top:26px;background:#fff;border:1px solid var(--border);border-radius:8px;box-shadow:0 8px 24px rgba(0,0,0,.12);padding:5px;display:none;z-index:20;min-width:150px}
+.menu.show{display:block}
+.menu .mi{padding:7px 13px;font-size:13px;border-radius:6px;cursor:pointer;white-space:nowrap}
+.menu .mi:hover{background:#f2f5fa}
+.menu .mi.red{color:var(--danger)}
+</style>
+</head>
+<body>
+<header>
+  <div class="logo">考</div><h1>考务系统 · 活动管理</h1>
+  <div class="spacer"></div>
+  <button class="btn primary" onclick="openCreateActivity()">＋ 新建活动</button>
+</header>
+
+<!-- ========== 列表视图 ========== -->
+<main id="viewList">
+  <div class="banner">
+    活动配置分两个阶段：<b>阶段一 · 建立考试模型</b>（建活动 → 建分组〔可选〕→ 批量创建考试）→
+    <b>阶段二 · 关联渠道</b>（渠道矩阵中批量配置报名费、展示、隐藏报名）。考试模型未关联渠道前，学员端不可见。
+  </div>
+  <div class="card" style="padding:6px 18px">
+    <table id="actTable">
+      <thead><tr><th>活动名称</th><th>起止日期</th><th>分组</th><th>考试</th><th>渠道关联</th><th>阶段状态</th><th style="width:90px">操作</th></tr></thead>
+      <tbody></tbody>
+    </table>
+  </div>
+</main>
+
+<!-- ========== 详情视图（阶段一） ========== -->
+<main id="viewDetail" style="display:none">
+  <div class="crumb"><a onclick="showList()">活动管理</a> / <span id="crumbName"></span></div>
+  <div class="steps" id="stepBar"></div>
+  <div class="card">
+    <div style="display:flex;align-items:center;margin-bottom:4px">
+      <b id="dName" style="font-size:16px"></b>
+      <span class="tag blue" id="dStageTag" style="margin-left:10px"></span>
+      <div class="spacer" style="flex:1"></div>
+      <a class="link" id="goMatrix" onclick="gotoMatrix()">阶段二 · 渠道关联矩阵 →</a>
+    </div>
+    <div class="hint" id="dDates"></div>
+  </div>
+
+  <div class="card">
+    <div class="sec-title">分组管理 <span class="sub">非必须；不建分组时考试归入「未分组」。所有渠道看到的分组一致。</span></div>
+    <div id="groupChips" style="display:flex;gap:8px;flex-wrap:wrap;align-items:center"></div>
+    <div style="display:flex;gap:8px;margin-top:12px">
+      <input type="text" id="newGroupInput" placeholder="输入分组名称" style="width:220px">
+      <button class="btn" onclick="addGroup()">＋ 新建分组</button>
+    </div>
+  </div>
+
+  <div class="card" id="examCard">
+    <div class="sec-title">考试清单 <span class="sub">按分组分区展示；考试含正式考与模拟考（可选），试卷可先留空后补。</span></div>
+    <div id="examSections"></div>
+  </div>
+</main>
+
+<!-- ========== 新建活动弹窗 ========== -->
+<div class="overlay" id="ovActivity">
+  <div class="modal" style="width:480px">
+    <div class="modal-head"><b>新建活动（第 1 步）</b></div>
+    <div class="modal-body">
+      <div class="field"><label class="req">活动名称</label><input type="text" id="actName" style="width:100%" placeholder="如：2026年12月冲刺班"></div>
+      <div class="grid2">
+        <div class="field"><label class="req">开始日期</label><input type="date" id="actStart" style="width:100%"></div>
+        <div class="field"><label class="req">结束日期</label><input type="date" id="actEnd" style="width:100%"></div>
+      </div>
+      <div class="hint">创建后进入活动详情：先建分组（可选），再批量创建考试。</div>
+    </div>
+    <div class="modal-foot">
+      <button class="btn" onclick="hide('ovActivity')">取消</button>
+      <button class="btn primary" onclick="createActivity()">创建活动</button>
+    </div>
+  </div>
+</div>
+
+<!-- ========== 批量创建考试向导 ========== -->
+<div class="overlay" id="ovWizard">
+  <div class="modal wide">
+    <div class="modal-head"><b id="wizTitle">批量创建考试</b><div class="spacer" style="flex:1"></div>
+      <button class="btn small" onclick="hide('ovWizard')">✕ 关闭</button></div>
+    <div class="modal-body">
+      <div class="wizard-tabs">
+        <div class="wt on" id="wtA">3a · 考试清单</div>
+        <div class="wt" id="wtB">3b · 考试配置（正式考 / 模拟考）</div>
+      </div>
+
+      <!-- Step A -->
+      <div id="stepA">
+        <div class="field"><label>目标分组（可多选 = 每组各生成一套；不选 = 归入「未分组」）</label>
+          <div id="wizGroups" style="display:flex;gap:8px;flex-wrap:wrap"></div>
+        </div>
+        <div class="gen">
+          <div class="field"><label>考试名称</label><input type="text" id="genName" placeholder="如：Python一级" style="width:150px"></div>
+          <div class="field"><label>场数</label><input type="number" id="genCount" value="2" min="1" max="10" style="width:70px"></div>
+          <div class="field"><label>首场开始</label><input type="datetime-local" id="genStart"></div>
+          <div class="field"><label>结束时间</label><input type="datetime-local" id="genEnd"></div>
+          <button class="btn primary" onclick="genRows()">生成考试行</button>
+          <div class="hint" style="flex-basis:100%">名称自动加「-第N场」后缀；后续场次按 <b>30 分钟</b> 固定间隔顺延（生成后可逐行修改）。</div>
+        </div>
+        <table id="rowTable">
+          <thead><tr><th style="width:34%">考试名称</th><th>开始时间</th><th>结束时间</th><th style="width:50px"></th></tr></thead>
+          <tbody></tbody>
+        </table>
+        <div style="margin-top:10px"><button class="btn small" onclick="addRow()">＋ 添加空行</button></div>
+        <div class="warnbox">试卷可留空：允许先创建「待关联试卷」的考试，试卷确定后在考试行菜单「补关联试卷」即可；无试卷考试同样可关联渠道并接受报名。</div>
+      </div>
+
+      <!-- Step B -->
+      <div id="stepB" style="display:none">
+        <div class="sec-title">正式考配置 <span class="sub">本批考试共用；个别考试可在行内再单独调整</span></div>
+        <div class="card" style="margin-bottom:14px;padding:16px">
+          <div class="grid3">
+            <div class="field"><label>关联试卷（可空）</label><select id="cfgPaper" style="width:100%"><option value="">— 暂不关联 —</option><option>Python一级 正式卷A</option><option>图形化一级 正式卷B</option><option>Python二级 正式卷A</option></select></div>
+            <div class="field"><label class="req">考试时长（分钟）</label><input type="number" id="cfgDur" value="120" style="width:100%"></div>
+            <div class="field"><label class="req">交卷限制</label><select id="cfgSubmit" style="width:100%"><option>到时自动交卷</option><option>允许提前 15 分钟交卷</option><option>不限</option></select></div>
+          </div>
+          <div class="field"><label>标签（下拉多选）</label>
+            <div style="display:flex;gap:8px;flex-wrap:wrap" id="cfgTags">
+              <span class="chip" onclick="chip(this)">C语言</span><span class="chip" onclick="chip(this)">Python</span><span class="chip" onclick="chip(this)">图形化</span><span class="chip" onclick="chip(this)">一级</span><span class="chip" onclick="chip(this)">二级</span>
+            </div>
+          </div>
+          <div class="sec-title" style="font-size:13px">监考配置</div>
+          <div class="grid3">
+            <div class="field"><label>摄像头</label><select style="width:100%"><option>强制开启</option><option>考生自选</option><option>关闭</option></select></div>
+            <div class="field"><label>录屏</label><select style="width:100%"><option>强制开启</option><option>考生自选</option><option>关闭</option></select></div>
+            <div class="field"><label>检录照片</label><select style="width:100%"><option>强制开启</option><option>考生自选</option><option>关闭</option></select></div>
+            <div class="field"><label>候考时长（分钟）</label><input type="number" value="10" style="width:100%"></div>
+            <div class="field"><label>手机监考</label><div style="display:flex;align-items:center;gap:8px;padding-top:6px"><div class="switch" onclick="sw(this)"></div><span class="hint">开启后要求第二设备</span></div></div>
+            <div class="field"><label>成绩 / 分数 / 读题开关</label><div style="display:flex;gap:14px;padding-top:8px" class="hint"><label><input type="checkbox" checked> 展示成绩</label><label><input type="checkbox" checked> 展示分数</label><label><input type="checkbox"> 允许读题</label></div></div>
+          </div>
+          <details class="more"><summary>更多设置（低频，单场可再精调）</summary>
+            <div class="grid2" style="margin-top:10px">
+              <div class="field"><label>检录视频引导文案</label><input type="text" placeholder="默认文案" style="width:100%"></div>
+              <div class="field"><label>检录视频示意图</label><input type="text" placeholder="上传示意图" style="width:100%"></div>
+              <div class="field"><label>测评描述</label><input type="text" placeholder="选填" style="width:100%"></div>
+              <div class="field"><label>证书落款时间</label><input type="date" style="width:100%"></div>
+            </div>
+          </details>
+        </div>
+
+        <div class="sec-title">模拟考配置 <span class="sub">试卷、时间、监考均可独立于正式考</span></div>
+        <div class="card" style="padding:16px">
+          <div style="display:flex;align-items:center;gap:10px;margin-bottom:6px">
+            <div class="switch on" id="mockSw" onclick="toggleMock()"></div><b style="font-size:13px">开启模拟考</b>
+            <span class="hint">关闭则本批考试不创建模拟考</span>
+          </div>
+          <div id="mockBody">
+            <div class="grid3" style="margin-top:10px">
+              <div class="field"><label class="req">模拟卷</label><select style="width:100%"><option>Python一级 模拟卷（通用）</option><option>图形化一级 模拟卷（通用）</option><option>— 与正式卷相同 —</option></select></div>
+              <div class="field"><label class="req">模拟考开始</label><input type="datetime-local" style="width:100%"></div>
+              <div class="field"><label class="req">模拟考结束</label><input type="datetime-local" style="width:100%"></div>
+              <div class="field"><label class="req">次数限制</label><div style="display:flex;gap:8px;align-items:center"><label class="hint"><input type="radio" name="mc" checked> 限 <input type="number" value="2" style="width:52px"> 次</label><label class="hint"><input type="radio" name="mc"> 无限次</label></div></div>
+              <div class="field"><label>交卷时限（分钟，空 = 不限）</label><input type="number" placeholder="不限" style="width:100%"></div>
+            </div>
+            <div class="field"><label class="req">监考口径</label>
+              <div style="display:flex;gap:8px">
+                <span class="chip on" id="mcFollow" onclick="mcMode(this)">跟随正式考</span>
+                <span class="chip" id="mcCustom" onclick="mcMode(this)">自定义</span>
+              </div>
+            </div>
+            <div id="mcCustomBody" style="display:none" class="warnbox">
+              自定义监考（8 项，与正式考独立）：摄像头 / 录屏 / 检录照片 / 候考时长 / 手机监考 / 成绩 / 分数 / 读题 —— 表单与正式考同构，可「一键恢复跟随正式考」。
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+    <div class="modal-foot">
+      <span class="hint" style="margin-right:auto" id="wizSummary"></span>
+      <button class="btn" id="wizPrev" onclick="wizPrev()" style="display:none">上一步</button>
+      <button class="btn primary" id="wizNext" onclick="wizNext()">下一步：考试配置</button>
+    </div>
+  </div>
+</div>
+
+<!-- ========== 就绪检查点 ========== -->
+<div class="overlay" id="ovDone">
+  <div class="modal" style="width:460px">
+    <div class="modal-body done-hero">
+      <div class="ico">✓</div>
+      <b>考试模型已就绪</b>
+      <span class="hint">已创建 <span id="doneCount">N</span> 场考试（含模拟考）。<br>当前<b>尚未关联渠道，学员端不可见</b>。<br>请进入阶段二完成渠道关联后开放报名。</span>
+    </div>
+    <div class="modal-foot" style="justify-content:center">
+      <button class="btn" onclick="hide('ovDone')">留在本页</button>
+      <button class="btn primary" onclick="gotoMatrix()">去关联渠道 →</button>
+    </div>
+  </div>
+</div>
+
+<div id="toast"></div>
+
+<script>
+/* ================= 数据 ================= */
+var acts=[
+ {id:1,name:'2026年9月常规考',start:'2026-09-01',end:'2026-09-30',groups:['3月批','6月批'],
+  exams:[
+   {g:'3月批',name:'Python一级-第1场',paper:'Python一级 正式卷A',paperOk:true,mock:true,time:'09-20 09:00 ~ 11:00',mockTime:'09-13 09:00 ~ 09-19 18:00'},
+   {g:'3月批',name:'图形化一级-第1场',paper:'',paperOk:false,mock:true,time:'09-21 09:00 ~ 11:00',mockTime:'09-14 09:00 ~ 09-20 18:00'},
+   {g:'6月批',name:'Python二级-第1场',paper:'Python二级 正式卷A',paperOk:true,mock:false,time:'09-27 09:00 ~ 11:30',mockTime:''}
+  ],links:7},
+ {id:2,name:'2026年12月冲刺班',start:'2026-12-01',end:'2026-12-31',groups:[],exams:[],links:0}
+];
+var curAct=null, wizStep='A', createdCount=0;
+
+/* ================= 通用 ================= */
+function $(id){return document.getElementById(id)}
+function show(id){$(id).classList.add('show')}
+function hide(id){$(id).classList.remove('show')}
+function toast(m){var t=$('toast');t.textContent=m;t.classList.add('show');setTimeout(function(){t.classList.remove('show')},2200)}
+function chip(el){el.classList.toggle('on')}
+function sw(el){el.classList.toggle('on')}
+
+/* ================= 列表 ================= */
+function renderActs(){
+  var tb=$('actTable').querySelector('tbody');tb.innerHTML='';
+  acts.forEach(function(a){
+    var tr=document.createElement('tr');tr.className='rowclick';
+    tr.onclick=function(){enterDetail(a.id)};
+    var stage=a.exams.length===0?'<span class="tag gray">待建考试模型</span>':(a.links===0?'<span class="tag amber">模型就绪 · 待关联渠道</span>':'<span class="tag green">已关联渠道</span>');
+    tr.innerHTML='<td><b>'+a.name+'</b></td><td>'+a.start+' ~ '+a.end+'</td><td>'+(a.groups.length||'<span class="muted">未分组</span>')+'</td><td>'+a.exams.length+'</td><td>'+a.links+'</td><td>'+stage+'</td>'+
+      '<td><button class="btn small" onclick="event.stopPropagation();enterDetail('+a.id+')">进入</button></td>';
+    tb.appendChild(tr);
+  });
+}
+function openCreateActivity(){show('ovActivity')}
+function createActivity(){
+  var n=$('actName').value.trim();
+  if(!n){toast('请填写活动名称');return}
+  var a={id:acts.length+1,name:n,start:$('actStart').value||'2026-12-01',end:$('actEnd').value||'2026-12-31',groups:[],exams:[],links:0};
+  acts.push(a);renderActs();hide('ovActivity');toast('活动已创建，进入阶段一');enterDetail(a.id);
+}
+
+/* ================= 详情 ================= */
+function enterDetail(id){
+  curAct=acts.find(function(a){return a.id===id});
+  $('viewList').style.display='none';$('viewDetail').style.display='block';
+  $('crumbName').textContent=curAct.name;$('dName').textContent=curAct.name;
+  $('dDates').textContent='活动起止：'+curAct.start+' ~ '+curAct.end;
+  $('dStageTag').textContent=curAct.links===0?'阶段一 · 考试模型':'两阶段均已完成';
+  renderSteps();renderGroups();renderExams();
+}
+function showList(){$('viewDetail').style.display='none';$('viewList').style.display='block';renderActs()}
+function renderSteps(){
+  var hasExam=curAct.exams.length>0;
+  var s='<div class="step done"><span class="dot">✓</span>① 建活动</div><span class="arrow">→</span>';
+  s+='<div class="step '+(curAct.groups.length?'done':'current')+'"><span class="dot">'+(curAct.groups.length?'✓':'②')+'</span>② 添加分组（可选）</div><span class="arrow">→</span>';
+  s+='<div class="step '+(hasExam?'done':'current')+'"><span class="dot">'+(hasExam?'✓':'③')+'</span>③ 批量创建考试</div><span class="arrow">→</span>';
+  s+='<div class="step step-link '+(hasExam?'current':'')+'" onclick="gotoMatrix()"><span class="dot">④</span>④ 关联渠道（阶段二）</div>';
+  $('stepBar').innerHTML=s;
+}
+function renderGroups(){
+  var box=$('groupChips');box.innerHTML='';
+  curAct.groups.forEach(function(g,i){
+    var c=document.createElement('span');c.className='chip on';
+    c.innerHTML=g+' <span class="x" title="上移" onclick="moveGroup('+i+',-1)">▲</span> <span class="x" title="下移" onclick="moveGroup('+i+',1)">▼</span> <span class="x" title="重命名" onclick="renameGroup('+i+')">✎</span> <span class="x" title="删除" onclick="delGroup('+i+')">✕</span>';
+    box.appendChild(c);
+  });
+  var d=document.createElement('span');d.className='chip';d.style.color='#98a1af';d.innerHTML='未分组 · 系统默认（不可改名/删除）';
+  box.appendChild(d);
+}
+function addGroup(){
+  var v=$('newGroupInput').value.trim();
+  if(!v){toast('请输入分组名称');return}
+  if(curAct.groups.indexOf(v)>=0){toast('分组名称已存在');return}
+  curAct.groups.push(v);$('newGroupInput').value='';renderGroups();renderExams();toast('分组「'+v+'」已创建');
+}
+function moveGroup(i,d){var g=curAct.groups,j=i+d;if(j<0||j>=g.length)return;var t=g[i];g[i]=g[j];g[j]=t;renderGroups();renderExams()}
+function renameGroup(i){
+  var v=prompt('重命名分组',curAct.groups[i]);
+  if(v&&v.trim()){curAct.groups[i]=v.trim();renderGroups();renderExams()}
+}
+function delGroup(i){
+  var g=curAct.groups[i];
+  var n=curAct.exams.filter(function(e){return e.g===g}).length;
+  if(n>0){toast('该分组内有 '+n+' 场考试，请先移出后再删除');return}
+  curAct.groups.splice(i,1);renderGroups();renderExams();
+}
+
+/* ================= 考试清单 ================= */
+function renderExams(){
+  var box=$('examSections');box.innerHTML='';
+  var zones=curAct.groups.slice();zones.push('未分组');
+  zones.forEach(function(z){
+    var list=curAct.exams.filter(function(e){return e.g===z});
+    var div=document.createElement('div');
+    var h='<div class="group-head"><b>'+(z==='未分组'&&curAct.groups.length?'未分组':z)+'</b><span class="cnt">'+list.length+' 场考试</span><div class="spacer" style="flex:1"></div><button class="btn small primary" onclick="openWizard(\''+z+'\')">＋ 批量创建考试</button></div>';
+    if(list.length===0){
+      h+='<div class="empty-inline">'+(z==='未分组'&&curAct.groups.length?'该活动使用分组，未分组区暂无考试':'暂无考试，点击右上角「批量创建考试」开始')+'</div>';
+    }else{
+      h+='<table><thead><tr><th>考试名称</th><th>试卷</th><th>考试时间</th><th>模拟考</th><th style="width:120px">操作</th></tr></thead><tbody>';
+      list.forEach(function(e,idx){
+        var paper=e.paperOk?'<span class="tag green">'+e.paper+'</span>':'<span class="tag amber">待关联试卷</span>';
+        var mock=e.mock?'<span class="tag blue">已开启 · '+e.mockTime+'</span>':'<span class="tag gray">未开启</span>';
+        h+='<tr><td><b>'+e.name+'</b></td><td>'+paper+'</td><td>'+e.time+'</td><td>'+mock+'</td>'+
+           '<td><span class="menu-wrap"><button class="btn small" onclick="toggleMenu(event,this)">…</button><div class="menu">'+
+           '<div class="mi" onclick="toast(\'演示：编辑考试（阶段一配置整体编辑）\')">编辑考试</div>'+
+           '<div class="mi" onclick="toast(\'演示：复制考试，名称时间顺延\')">复制考试</div>'+
+           (e.paperOk?'':'<div class="mi" onclick="toast(\'演示：补关联试卷后状态变为已关联\')">补关联试卷</div>')+
+           '<div class="mi red" onclick="toast(\'演示：删除考试（需二次确认）\')">删除考试</div>'+
+           '</div></span></td></tr>';
+      });
+      h+='</tbody></table>';
+    }
+    div.innerHTML=h;box.appendChild(div);
+  });
+  renderSteps();
+}
+function toggleMenu(ev,btn){
+  ev.stopPropagation();
+  var m=btn.nextElementSibling;var open=m.classList.contains('show');
+  document.querySelectorAll('.menu').forEach(function(x){x.classList.remove('show')});
+  if(!open)m.classList.add('show');
+}
+document.addEventListener('click',function(){document.querySelectorAll('.menu').forEach(function(x){x.classList.remove('show')})});
+
+/* ================= 向导 ================= */
+var wizZone='';
+function openWizard(zone){
+  wizZone=zone;wizStep='A';
+  $('wizTitle').textContent='批量创建考试 · 目标：'+(zone==='未分组'?'未分组（仍可勾选其他分组）':zone);
+  $('wizGroups').innerHTML='';
+  var zones=curAct.groups.slice();if(zones.indexOf('未分组')<0)zones.push('未分组');
+  zones.forEach(function(z){
+    var c=document.createElement('span');c.className='chip'+(z===zone?' on':'');c.textContent=z;
+    c.onclick=function(){c.classList.toggle('on')};
+    $('wizGroups').appendChild(c);
+  });
+  $('rowTable').querySelector('tbody').innerHTML='';
+  addRow();
+  wizShow('A');show('ovWizard');
+}
+function wizShow(s){
+  wizStep=s;
+  $('stepA').style.display=s==='A'?'block':'none';
+  $('stepB').style.display=s==='B'?'block':'none';
+  $('wtA').classList.toggle('on',s==='A');$('wtB').classList.toggle('on',s==='B');
+  $('wizPrev').style.display=s==='B'?'inline-block':'none';
+  $('wizNext').textContent=s==='A'?'下一步：考试配置':'提交创建';
+  $('wizSummary').textContent='';
+}
+function wizPrev(){wizShow('A')}
+function wizNext(){
+  if(wizStep==='A'){
+    var rows=[].slice.call($('rowTable').querySelector('tbody').querySelectorAll('tr'));
+    var ok=rows.filter(function(r){return r.querySelector('input').value.trim()});
+    if(!ok.length){toast('请至少填写一行考试名称');return}
+    var total=ok.length*Math.max(1,selGroups().length);
+    $('wizSummary').textContent='将为 '+selGroupsLabel()+' 创建 '+ok.length+' 场考试'+(selGroups().length>1?'（每组各一套，共 '+total+' 场）':'');
+    wizShow('B');
+  }else{
+    createdCount=0;
+    var rows=[].slice.call($('rowTable').querySelector('tbody').querySelectorAll('tr'));
+    var gs=selGroups();if(!gs.length)gs=['未分组'];
+    gs.forEach(function(g){rows.forEach(function(r){
+      var name=r.querySelector('input').value.trim();if(!name)return;
+      curAct.exams.push({g:g,name:name,paper:$('cfgPaper').value,paperOk:!!$('cfgPaper').value,mock:$('mockSw').classList.contains('on'),time:'待定',mockTime:$('mockSw').classList.contains('on')?'跟随模拟考时间':''});createdCount++;
+    })});
+    hide('ovWizard');enterDetail(curAct.id);
+    $('doneCount').textContent=createdCount;show('ovDone');
+  }
+}
+function selGroups(){return [].slice.call($('wizGroups').querySelectorAll('.chip.on')).map(function(c){return c.textContent})}
+function selGroupsLabel(){var g=selGroups();return g.length?g.join('、')+' 分组':'未分组'}
+function genRows(){
+  var n=$('genName').value.trim();
+  if(!n){toast('请填写考试名称');return}
+  var c=parseInt($('genCount').value)||1;
+  var s=$('genStart').value,e=$('genEnd').value;
+  var tb=$('rowTable').querySelector('tbody');
+  for(var i=1;i<=c;i++){
+    var tr=document.createElement('tr');
+    var name=c>1?n+'-第'+i+'场':n;
+    var sv=addMin(s,(i-1)*30),ev=addMin(e,(i-1)*30);
+    tr.innerHTML='<td><input type="text" value="'+name+'" style="width:95%"></td><td><input type="datetime-local" value="'+sv+'" style="width:95%"></td><td><input type="datetime-local" value="'+ev+'" style="width:95%"></td><td><button class="btn small" onclick="this.closest(\'tr\').remove()">删除</button></td>';
+    tb.appendChild(tr);
+  }
+  toast('已生成 '+c+' 行，可逐行修改');
+}
+function addMin(dt,m){
+  if(!dt)return'';
+  var d=new Date(dt);d.setMinutes(d.getMinutes()+m);
+  var p=function(x){return (x<10?'0':'')+x};
+  return d.getFullYear()+'-'+p(d.getMonth()+1)+'-'+p(d.getDate())+'T'+p(d.getHours())+':'+p(d.getMinutes());
+}
+function addRow(){
+  var tb=$('rowTable').querySelector('tbody');
+  var tr=document.createElement('tr');
+  tr.innerHTML='<td><input type="text" placeholder="考试名称" style="width:95%"></td><td><input type="datetime-local" style="width:95%"></td><td><input type="datetime-local" style="width:95%"></td><td><button class="btn small" onclick="this.closest(\'tr\').remove()">删除</button></td>';
+  tb.appendChild(tr);
+}
+function toggleMock(){
+  var s=$('mockSw');s.classList.toggle('on');
+  $('mockBody').style.display=s.classList.contains('on')?'block':'none';
+}
+function mcMode(el){
+  $('mcFollow').classList.toggle('on',el.id==='mcFollow');
+  $('mcCustom').classList.toggle('on',el.id==='mcCustom');
+  $('mcCustomBody').style.display=el.id==='mcCustom'?'block':'none';
+}
+
+/* ================= 跳转矩阵 ================= */
+function gotoMatrix(){
+  if(!curAct){toast('请先进入一个活动');return}
+  location.href='02_渠道关联矩阵.html?act='+encodeURIComponent(curAct.name);
+}
+
+renderActs();
+</script>
+</body>
+</html>
