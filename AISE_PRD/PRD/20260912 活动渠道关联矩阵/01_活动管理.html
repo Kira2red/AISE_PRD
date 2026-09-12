@@ -120,6 +120,20 @@ tr.exam:hover td{background:#fafbfd}
 .mopt .sub{margin-left:auto;font-size:11px;color:var(--muted)}
 .mopt.dis{opacity:.5;cursor:default}
 
+
+.radio-line{display:inline-flex;align-items:center;gap:6px;font-size:13px;color:var(--text);cursor:pointer}
+.radio-line input[type=radio]{margin:0;cursor:pointer}
+.upload{border:1.5px dashed #c3ccd9;border-radius:8px;padding:16px 14px;display:flex;align-items:center;gap:10px;cursor:pointer;transition:.15s;background:#fafbfd}
+.upload:hover{border-color:var(--primary);background:var(--primary-weak)}
+.up-ico{font-size:18px}
+.up-txt{font-size:12px;color:var(--muted)}
+textarea{border:1px solid var(--border);border-radius:7px;padding:8px 10px;font-size:13px;font-family:inherit;background:#fff;color:var(--text)}
+textarea:focus{outline:2px solid var(--primary-weak);border-color:var(--primary)}
+.ckline{display:inline-flex;align-items:center;gap:6px;font-size:12px;color:var(--muted);cursor:pointer;user-select:none}
+.ckline input{accent-color:var(--primary);cursor:pointer}
+
+.summary-bar{background:var(--primary-weak);border-radius:8px;padding:9px 14px;font-size:13px;color:#23407a;margin-bottom:14px}
+
 /* 可搜索单选下拉 */
 .ssel-box{border:1px solid var(--border);border-radius:8px;min-height:36px;padding:4px 30px 4px 10px;display:flex;align-items:center;gap:8px;cursor:pointer;background:#fff;position:relative}
 .ssel-box:hover{border-color:#b9c6dd}
@@ -186,11 +200,12 @@ tr.exam:hover td{background:#fafbfd}
       <input type="text" class="search" id="fKw" placeholder="搜索考试名称" oninput="renderTree()">
       <button class="btn small" id="btnExpand" onclick="toggleExpandAll()">收起全部</button>
       <div class="spacer"></div>
+      <button class="btn" id="btnBulkEdit" onclick="openBulkEditExam()" disabled style="display:none">✎ 批量修改 (<span id="ckCount">0</span>)</button>
       <button class="btn" onclick="newZoneInline()">＋ 新建分组</button>
       <button class="btn primary" onclick="openWizard(null)">＋ 创建考试</button>
     </div>
     <table class="tree">
-      <thead><tr><th style="padding-left:44px">考试名称</th><th style="width:180px">试卷</th><th style="width:190px">考试时间</th><th style="width:110px">模拟考</th><th style="width:80px">渠道</th><th style="width:60px"></th></tr></thead>
+      <thead><tr><th style="width:34px"><input type="checkbox" id="ckAll" onclick="ckAllToggle(this)"></th><th style="padding-left:10px">考试名称</th><th style="width:180px">试卷</th><th style="width:190px">考试时间</th><th style="width:110px">模拟考</th><th style="width:80px">渠道</th><th style="width:60px"></th></tr></thead>
       <tbody id="treeBody"></tbody>
     </table>
   </div>
@@ -270,8 +285,12 @@ tr.exam:hover td{background:#fafbfd}
           <details class="more"><summary>更多设置</summary>
             <div class="grid2" style="margin-top:10px">
               <div class="field"><label>检录视频引导文案</label><input type="text" placeholder="默认文案" style="width:100%"></div>
-              <div class="field"><label>检录视频示意图</label><input type="text" placeholder="上传示意图" style="width:100%"></div>
-              <div class="field"><label>测评描述</label><input type="text" placeholder="选填" style="width:100%"></div>
+              <div class="field"><label>检录视频示意图</label>
+                <div class="upload" onclick="toast('演示：选择图片文件上传')">
+                  <span class="up-ico">🖼</span><span class="up-txt">点击上传图片（jpg / png，建议 16:9）</span>
+                </div>
+              </div>
+              <div class="field"><label>测评描述</label><textarea rows="3" placeholder="选填，展示在学员端报名页，可写考试介绍、注意事项等" style="width:100%;resize:vertical"></textarea></div>
               <div class="field"><label>证书落款时间</label><input type="date" style="width:100%"></div>
             </div>
           </details>
@@ -288,7 +307,7 @@ tr.exam:hover td{background:#fafbfd}
               <div class="field"><label class="req">模拟卷</label><select style="width:100%"><option>Python一级 模拟卷（通用）</option><option>图形化一级 模拟卷（通用）</option><option>— 与正式卷相同 —</option></select></div>
               <div class="field"><label class="req">模拟考开始</label><input type="datetime-local" style="width:100%"></div>
               <div class="field"><label class="req">模拟考结束</label><input type="datetime-local" style="width:100%"></div>
-              <div class="field"><label class="req">次数限制</label><div style="display:flex;gap:8px;align-items:center" class="hint"><label><input type="radio" name="mc" checked> 限 <input type="number" value="2" style="width:48px"> 次</label><label><input type="radio" name="mc"> 无限次</label></div></div>
+              <div class="field"><label class="req">次数限制</label><div style="display:flex;gap:14px;align-items:center"><label class="radio-line"><input type="radio" name="mc" checked> 限 <input type="number" value="2" style="width:48px"> 次</label><label class="radio-line"><input type="radio" name="mc"> 无限次</label></div></div>
               <div class="field"><label>交卷时限（分钟，空 = 不限）</label><input type="number" placeholder="不限" style="width:100%"></div>
             </div>
             <div class="sec-title" style="font-size:13px;margin-top:12px">模拟考监考 <span class="sub">已按正式考配置带入，可直接修改</span></div>
@@ -310,6 +329,53 @@ tr.exam:hover td{background:#fafbfd}
       <span class="hint" style="margin-right:auto" id="wizSummary"></span>
       <button class="btn" id="wizPrev" onclick="wizPrev()" style="display:none">上一步</button>
       <button class="btn primary" id="wizNext" onclick="wizNext()">下一步：考试配置</button>
+    </div>
+  </div>
+</div>
+
+
+<!-- ========== 批量修改考试 ========== -->
+<div class="overlay" id="ovBulkEdit">
+  <div class="modal" style="width:720px">
+    <div class="modal-head"><b>批量修改考试</b><div class="spacer" style="flex:1"></div>
+      <button class="btn small" onclick="hide('ovBulkEdit')">✕</button></div>
+    <div class="modal-body">
+      <div class="summary-bar" id="bulkEditSummary"></div>
+      <div class="hint" style="margin-bottom:12px">勾选要修改的项才会应用；未勾选的项保持各考试原值不变。</div>
+      <div class="sec-title">基础</div>
+      <div class="card" style="padding:14px;margin-bottom:12px;border-radius:8px">
+        <label class="ckline"><input type="checkbox" id="bePaperOn"> 关联试卷</label>
+        <div class="msel" id="bePaperSel" style="margin:8px 0 12px;opacity:.5"></div>
+        <div class="grid2">
+          <div>
+            <label class="ckline"><input type="checkbox" id="beTagOn"> 标签（替换所选考试的标签）</label>
+            <div class="msel" id="beTagSel" style="margin-top:8px;opacity:.5"></div>
+          </div>
+          <div>
+            <label class="ckline" id="beMockWrap"><input type="checkbox" id="beMockOn"> 开启模拟考</label>
+            <div class="hint" style="margin-top:8px">勾选后所选考试的模拟考统一开启，试卷/时间/监考在弹窗内配置</div>
+          </div>
+        </div>
+      </div>
+      <div class="sec-title">考试要素 <span class="sub">只改勾选项，对所选考试全体生效</span></div>
+      <div class="card" style="padding:14px;border-radius:8px">
+        <div class="grid3">
+          <div class="field"><label class="ckline"><input type="checkbox" class="beOn"> 考试时长（分钟）</label><input type="number" value="120" style="width:100%;margin-top:6px"></div>
+          <div class="field"><label class="ckline"><input type="checkbox" class="beOn"> 交卷限制</label><select style="width:100%;margin-top:6px"><option>到时自动交卷</option><option>允许提前 15 分钟交卷</option><option>不限</option></select></div>
+          <div class="field"><label class="ckline"><input type="checkbox" class="beOn"> 考试时间（整体平移，场次间隔不变）</label><input type="datetime-local" style="width:100%;margin-top:6px"></div>
+          <div class="field"><label class="ckline"><input type="checkbox" class="beOn"> 摄像头</label><select style="width:100%;margin-top:6px"><option>强制开启</option><option>考生自选</option><option>关闭</option></select></div>
+          <div class="field"><label class="ckline"><input type="checkbox" class="beOn"> 录屏</label><select style="width:100%;margin-top:6px"><option>强制开启</option><option>考生自选</option><option>关闭</option></select></div>
+          <div class="field"><label class="ckline"><input type="checkbox" class="beOn"> 检录照片</label><select style="width:100%;margin-top:6px"><option>强制开启</option><option>考生自选</option><option>关闭</option></select></div>
+          <div class="field"><label class="ckline"><input type="checkbox" class="beOn"> 候考时长（分钟）</label><input type="number" value="10" style="width:100%;margin-top:6px"></div>
+          <div class="field"><label class="ckline"><input type="checkbox" class="beOn"> 手机监考</label><div class="switch" style="margin-top:8px" onclick="this.classList.toggle('on')"></div></div>
+        </div>
+        <div class="warnbox">已开始的考试不受修改影响（线上按考试开始时间锁定要素）；已有报名的考试修改报名费请到「渠道关联」中操作，此处不涉及费用。</div>
+      </div>
+    </div>
+    <div class="modal-foot">
+      <span class="hint" style="margin-right:auto" id="beApplied"></span>
+      <button class="btn" onclick="hide('ovBulkEdit')">取消</button>
+      <button class="btn primary" onclick="doBulkEdit()">应用修改</button>
     </div>
   </div>
 </div>
@@ -422,7 +488,7 @@ function renderTree(){
       '<button class="gbtn add" onclick="openWizard(\''+esc(z)+'\')">＋ 添加考试</button>'+
       '<button class="gbtn" title="删除分组" onclick="delZone(\''+esc(z)+'\')">🗑</button>'+
       '</span>';
-    tr.innerHTML='<td colspan="6"><div class="grp-line">'+
+    tr.innerHTML='<td colspan="7"><div class="grp-line">'+
       '<span class="tw'+(open?'':' closed')+'" onclick="toggleZone(\''+esc(z)+'\')">▼</span>'+
       gnameHtml+
       '<span class="gcount">'+zoneTotal+' 场考试</span>'+
@@ -432,7 +498,7 @@ function renderTree(){
     /* 新建分组编辑行（插在未分组前） */
     if(newZoneMode&&isSys){
       var ntr=document.createElement('tr');ntr.className='grp';
-      ntr.innerHTML='<td colspan="6"><div class="grp-line"><span class="tw closed">▼</span>'+
+      ntr.innerHTML='<td colspan="7"><div class="grp-line"><span class="tw closed">▼</span>'+
         '<input class="gname-input" id="newZoneInput" placeholder="输入分组名称" onkeydown="if(event.key===\'Enter\')saveNewZone();if(event.key===\'Escape\')cancelNewZone()" onblur="saveNewZone()">'+
         '<span class="hint">回车保存 · Esc 取消</span></div></td>';
       tb.appendChild(ntr);
@@ -444,7 +510,7 @@ function renderTree(){
         var etr=document.createElement('tr');etr.className='exam';
         var paper=e.paperOk?'<span class="tag green">'+esc(e.paper)+'</span>':'<span class="tag amber">待关联试卷</span>';
         var mock=e.mock?'<span class="tag blue">已开启</span>':'<span class="tag gray">未开启</span>';
-        etr.innerHTML='<td><div class="exam-name">'+esc(e.name)+'</div><div class="exam-sub">#EXAM-'+(1000+e._i+1)+'</div></td>'+
+        etr.innerHTML='<td style="padding-left:12px"><input type="checkbox" class="examck" data-i="'+e._i+'" onclick="event.stopPropagation();ckSync()"></td><td><div class="exam-name">'+esc(e.name)+'</div><div class="exam-sub">#EXAM-'+(1000+e._i+1)+'</div></td>'+
           '<td>'+paper+'</td><td>'+e.time+'</td><td>'+mock+'</td>'+
           '<td>'+(e.chs?e.chs+' 个':'<span class="muted">—</span>')+'</td>'+
           '<td><span class="menu-wrap"><button class="btn small" onclick="toggleMenu(event,this)">…</button><div class="menu">'+
@@ -457,7 +523,7 @@ function renderTree(){
       });
       if(!list.length&&!kw){
         var etr=document.createElement('tr');etr.className='exam';
-        etr.innerHTML='<td colspan="6" class="muted" style="font-size:12px">暂无考试，点击分组行「＋ 添加考试」</td>';
+        etr.innerHTML='<td colspan="7" class="muted" style="font-size:12px">暂无考试，点击分组行「＋ 添加考试」</td>';
         tb.appendChild(etr);
       }
     }
@@ -465,7 +531,7 @@ function renderTree(){
   /* 完全空的活动 */
   if(empty&&!curAct.groups.length&&!curAct.exams.length&&!newZoneMode){
     var tr=document.createElement('tr');
-    tr.innerHTML='<td colspan="6"><div class="empty-tree"><div class="big">还没有分组和考试</div><div class="hint" style="margin-bottom:14px">先新建分组，或直接创建考试（将归入「未分组」）</div>'+
+    tr.innerHTML='<td colspan="7"><div class="empty-tree"><div class="big">还没有分组和考试</div><div class="hint" style="margin-bottom:14px">先新建分组，或直接创建考试（将归入「未分组」）</div>'+
       '<button class="btn" onclick="newZoneInline()">＋ 新建分组</button>&nbsp;&nbsp;<button class="btn primary" onclick="openWizard(null)">＋ 创建考试</button></div></td>';
     tb.appendChild(tr);
   }
@@ -679,6 +745,51 @@ function toggleMock(){
   $('mockBody').style.display=s.classList.contains('on')?'block':'none';
 }
 
+
+
+/* ================= 批量修改考试 ================= */
+function ckAllToggle(cb){document.querySelectorAll('.examck').forEach(function(x){x.checked=cb.checked});ckSync()}
+function ckSync(){
+  var n=document.querySelectorAll('.examck:checked').length;
+  var b=$('btnBulkEdit');
+  b.style.display=n>0?'inline-block':'none';
+  $('ckCount').textContent=n;
+}
+function checkedExams(){return [].slice.call(document.querySelectorAll('.examck:checked')).map(function(x){return parseInt(x.dataset.i)})}
+function enableCk(onId, selId){
+  $(onId).addEventListener('change',function(){
+    var box=$(selId);
+    box.style.opacity=this.checked?'1':'.5';
+    box.style.pointerEvents=this.checked?'auto':'none';
+  });
+}
+function openBulkEditExam(){
+  var ids=checkedExams();
+  $('bulkEditSummary').textContent='将修改 '+ids.length+' 场考试：'+ids.slice(0,4).map(function(i){return curAct.exams[i].name}).join('、')+(ids.length>4?' 等':'');
+  window.beTagSel=window.beTagSel||[];
+  window.beTagSel=[];
+  renderSsel('bePaperSel',PAPERS,'','搜索试卷名称');
+  renderMsel('beTagSel',TAGS.map(function(t){return{name:t}}),window.beTagSel,'beTagSel','refreshBeTags');
+  enableCk('bePaperOn','bePaperSel');enableCk('beTagOn','beTagSel');
+  show('ovBulkEdit');
+}
+function refreshBeTags(){window.beTagSel=window.beTagSel||[];renderMsel('beTagSel',TAGS.map(function(t){return{name:t}}),window.beTagSel,'beTagSel','refreshBeTags')}
+function doBulkEdit(){
+  var ids=checkedExams();
+  var paperOn=$('bePaperOn').checked, paperV=(sselState['bePaperSel']&&sselState['bePaperSel'].value)||'';
+  var applied=0;
+  ids.forEach(function(i){
+    var e=curAct.exams[i];
+    if(paperOn&&paperV){e.paper=paperV;e.paperOk=true}
+    if($('beMockOn').checked)e.mock=true;
+    applied++;
+  });
+  hide('ovBulkEdit');renderTree();
+  var bits=[];
+  if(paperOn&&paperV)bits.push('试卷→'+paperV);
+  if($('beMockOn').checked)bits.push('开启模拟考');
+  toast('已修改 '+applied+' 场考试'+(bits.length?'（'+bits.join('，')+'）':''));
+}
 
 /* ================= 跳转 ================= */
 function gotoMatrix(){
