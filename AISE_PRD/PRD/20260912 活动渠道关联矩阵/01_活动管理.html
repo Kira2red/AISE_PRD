@@ -69,7 +69,7 @@ details.more summary{font-size:13px;color:var(--muted);cursor:pointer}
 #toast.show{opacity:.95}
 .muted{color:var(--muted)}
 .menu-wrap{position:relative;display:inline-block}
-.menu{position:absolute;right:0;top:26px;background:#fff;border:1px solid var(--border);border-radius:8px;box-shadow:0 8px 24px rgba(0,0,0,.12);padding:5px;display:none;z-index:20;min-width:150px}
+.menu{position:fixed;background:#fff;border:1px solid var(--border);border-radius:8px;box-shadow:0 8px 24px rgba(0,0,0,.18);padding:5px;display:none;z-index:2000;min-width:150px}
 .menu.show{display:block}
 .menu .mi{padding:7px 13px;font-size:13px;border-radius:6px;cursor:pointer;white-space:nowrap}
 .menu .mi:hover{background:#f2f5fa}
@@ -687,7 +687,15 @@ function toggleMenu(ev,btn){
   ev.stopPropagation();
   var m=btn.nextElementSibling;var open=m.classList.contains('show');
   document.querySelectorAll('.menu').forEach(function(x){x.classList.remove('show')});
-  if(!open)m.classList.add('show');
+  if(!open){
+    var r=btn.getBoundingClientRect();
+    m.classList.add('show');
+    var mw=m.offsetWidth,mh=m.offsetHeight;
+    var x=Math.min(r.right-mw+4,window.innerWidth-mw-8);
+    var y=r.bottom+6;
+    if(y+mh>window.innerHeight-8)y=r.top-mh-6;
+    m.style.left=Math.max(8,x)+'px';m.style.top=y+'px';
+  }
 }
 document.addEventListener('click',function(ev){
   document.querySelectorAll('.menu').forEach(function(x){x.classList.remove('show')});

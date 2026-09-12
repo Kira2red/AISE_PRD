@@ -97,7 +97,7 @@ input:focus,select:focus{outline:2px solid var(--primary-weak);border-color:var(
 #toast.show{opacity:.95}
 .muted{color:var(--muted)}
 .menu-wrap{position:relative;display:inline-block}
-.menu{position:absolute;left:0;top:26px;background:#fff;border:1px solid var(--border);border-radius:8px;box-shadow:0 8px 24px rgba(0,0,0,.12);padding:5px;display:none;z-index:20;min-width:190px}
+.menu{position:fixed;background:#fff;border:1px solid var(--border);border-radius:8px;box-shadow:0 8px 24px rgba(0,0,0,.18);padding:5px;display:none;z-index:2000;min-width:190px}
 .menu.show{display:block}
 .menu .mi{padding:7px 13px;font-size:13px;border-radius:6px;cursor:pointer;white-space:nowrap}
 .menu .mi:hover{background:#f2f5fa}
@@ -160,7 +160,7 @@ input[type=radio]{accent-color:var(--primary)}
       <tbody id="mtxBody"></tbody>
     </table>
   </div>
-  <div class="hint" style="margin-top:8px">🔒隐 = 隐藏报名（此时前端展示开关与展示时间不参与控制）。点击「…」查看考试详情。</div>
+  <div class="hint" style="margin-top:8px">🔒隐 = 隐藏报名（此时该渠道的前端展示开关与展示时间不参与控制，学员只能通过定向链接报名）。行尾「…」= 考试操作菜单（考试详情 / 编辑考试 / 复制考试 / 解除全部渠道关联）。</div>
 </div>
 
 <!-- ========== 单格配置弹窗 ========== -->
@@ -374,7 +374,15 @@ function toggleMenu(ev,btn){
   ev.stopPropagation();
   var m=btn.nextElementSibling;var open=m.classList.contains('show');
   document.querySelectorAll('.menu').forEach(function(x){x.classList.remove('show')});
-  if(!open)m.classList.add('show');
+  if(!open){
+    var r=btn.getBoundingClientRect();
+    m.classList.add('show');
+    var mw=m.offsetWidth,mh=m.offsetHeight;
+    var x=Math.min(r.right-mw+4,window.innerWidth-mw-8);
+    var y=r.bottom+6;
+    if(y+mh>window.innerHeight-8)y=r.top-mh-6;
+    m.style.left=Math.max(8,x)+'px';m.style.top=y+'px';
+  }
 }
 document.addEventListener('click',function(){document.querySelectorAll('.menu').forEach(function(x){x.classList.remove('show')})});
 
