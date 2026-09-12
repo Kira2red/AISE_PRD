@@ -162,7 +162,7 @@ input[type=radio]{accent-color:var(--primary)}
       <tbody id="mtxBody"></tbody>
     </table>
   </div>
-  <div class="hint" style="margin-top:8px">🔒隐 = 隐藏报名（此时该渠道的前端展示开关与展示时间不参与控制，学员只能通过定向链接报名）。行尾「…」= 考试操作菜单（考试详情 / 编辑考试 / 复制考试 / 解除全部渠道关联）。</div>
+  <div class="hint" style="margin-top:8px">🔒隐 = 隐藏报名（此时该渠道的前端展示开关与展示时间不参与控制，学员只能通过定向链接报名）。行尾「…」= 考试操作菜单（考试详情 / 解除全部渠道关联）。考试内容的编辑请回「活动管理」。</div>
 </div>
 
 <!-- ========== 单格配置弹窗 ========== -->
@@ -347,14 +347,12 @@ function renderBody(){
       var tds='<td class="stu"><div class="link-line"><input type="checkbox" class="rowck" data-zone="'+z+'" data-i="'+i+'" onclick="selChk(this)"><div><div class="exam-name">'+r.name+'</div><div class="exam-sub">'+sub+'</div></div>'+
         '<span class="menu-wrap"><button class="btn small" onclick="toggleMenu(event,this)">…</button><div class="menu">'+
         '<div class="mi" onclick="examDetail('+i+')">考试详情</div>'+
-        '<div class="mi" onclick="toast(\'演示：编辑考试配置（正式考 / 模拟考）\')">编辑考试</div>'+
-        '<div class="mi" onclick="toast(\'演示：复制考试\')">复制考试</div>'+
-        '<div class="mi red" onclick="toast(\'演示：解除全部渠道关联（二次确认）\')">解除全部渠道关联</div>'+
+        '<div class="mi red" onclick="unlinkAll('+i+')">解除全部渠道关联</div>'+
         '</div></span></div></td>';
       CHS.forEach(function(c,ci){
         var L=r.links[ci];
         if(L&&L.fail){tds+='<td><span class="cell linked" onclick="toast(\'创建失败：爱测评返回冲突，点击重试\')">创建失败<span class="badge fail">失败</span></span></td>';}
-        else if(L){tds+='<td><span class="cell linked" onclick="openCell('+i+','+ci+')"><span class="fee">¥'+L.fee+'</span><span class="edit">编辑</span>'+(L.hidden?'<span class="badge hidden">🔒隐</span>':'')+(L.regs>0?'<span class="hint">'+L.regs+'人</span>':'')+'</span></td>';}
+        else if(L){tds+='<td><span class="cell linked" onclick="openCell('+i+','+ci+')">'+(L.hidden?'<span class="badge hidden">🔒</span>':'')+'<span class="fee">'+(L.fee===0?'免费':'¥'+L.fee)+'</span><span class="edit">编辑</span>'+(L.regs>0?'<span class="hint">'+L.regs+'人</span>':'')+'</span></td>';}
         else{tds+='<td><span class="cell empty" onclick="openCellNew('+i+','+ci+')">＋ 关联</span></td>';}
       });
       tr.innerHTML=tds;tb.appendChild(tr);
@@ -421,7 +419,7 @@ function visMode(m){
 function cellVis(el){visMode(el.id==='cHidden'?'h':'n')}
 function saveCell(){
   var f=parseFloat($('cFee').value);
-  if(isNaN(f)||f<=0){toast('请填写正确的报名费');return}
+  if(isNaN(f)||f<0){toast('报名费需为 0 或正数（0 = 免费）');return}
   var L={fee:f,hidden:$('cHidden').classList.contains('on'),regs:cellCtx.isNew?0:ROWS[cellCtx.i].links[cellCtx.ci].regs};
   ROWS[cellCtx.i].links[cellCtx.ci]=L;
   hide('ovCell');renderHead();renderBody();
@@ -518,7 +516,7 @@ function openBulkEdit(){
 }
 function doEdit(){
   var c=$('editCh').value,ci=CHS.indexOf(c);
-  var fee=parseFloat($('editFee').value);if(isNaN(fee)||fee<=0){toast('请填写正确的报名费');return}
+  var fee=parseFloat($('editFee').value);if(isNaN(fee)||fee<0){toast('报名费需为 0 或正数（0 = 免费）');return}
   var rows=checkedRows();let mod=0,skip=0;
   rows.forEach(function(ri){
     var L=ROWS[ri].links[ci];
@@ -542,6 +540,21 @@ function doDel(){
   document.querySelectorAll('.rowck').forEach(function(c){c.checked=false});selChk();
 }
 
+/* ================= 解除全部关联 ================= */
+function unlinkAll(i){
+  var r=ROWS[i];
+  var n=CHS.filter(function(_,ci){return r.links[ci]}).length;
+  var regs=CHS.reduce(function(s,_,ci){var L=r.links[ci];return s+(L?L.regs||0:0)},0);
+  var hid=CHS.filter(function(_,ci){return r.links[ci]&&r.links[ci].hidden}).length;
+  if(!n){toast('该考试尚未关联渠道');return}
+  var msg='确认解除「'+r.name+'」的全部 '+n+' 个渠道关联？';
+  if(regs>0)msg+='\n其中已有报名 '+regs+' 人，解除后关联保留报名记录但前端不再展示。';
+  if(hid>0)msg+='\n含 '+hid+' 个隐藏报名关联，解除后定向链接永久失效。';
+  if(!confirm(msg))return;
+  CHS.forEach(function(_,ci){r.links[ci]=null});
+  renderHead();renderBody();selChk();
+  toast('已解除 '+r.name+' 的全部渠道关联');
+}
 /* ================= 考试详情 ================= */
 function examDetail(i){
   var r=ROWS[i];
