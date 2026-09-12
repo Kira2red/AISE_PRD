@@ -134,6 +134,19 @@ textarea:focus{outline:2px solid var(--primary-weak);border-color:var(--primary)
 
 .summary-bar{background:var(--primary-weak);border-radius:8px;padding:9px 14px;font-size:13px;color:#23407a;margin-bottom:14px}
 
+
+/* 高度统一：表单控件基准高 36px，长文本截断 */
+.msel-box{height:36px;overflow:hidden}
+.ssel-box{height:36px;overflow:hidden}
+.ssel-val{white-space:nowrap;overflow:hidden;text-overflow:ellipsis;max-width:100%}
+.ssel-x{flex:none}
+.field>input,.field>select{height:36px}
+textarea{min-height:72px}
+.field{margin-bottom:14px}
+.fline{display:flex;gap:16px;align-items:flex-start;margin-bottom:14px}
+.fline .field{flex:1;margin-bottom:0;min-width:0}
+.fline .field.w2{flex:2}
+
 /* 可搜索单选下拉 */
 .ssel-box{border:1px solid var(--border);border-radius:8px;min-height:36px;padding:4px 30px 4px 10px;display:flex;align-items:center;gap:8px;cursor:pointer;background:#fff;position:relative}
 .ssel-box:hover{border-color:#b9c6dd}
@@ -231,7 +244,7 @@ textarea:focus{outline:2px solid var(--primary-weak);border-color:var(--primary)
 
 <!-- ========== 创建考试向导 ========== -->
 <div class="overlay" id="ovWizard">
-  <div class="modal" style="width:760px">
+  <div class="modal" style="width:860px">
     <div class="modal-head"><b>创建考试</b><div class="spacer" style="flex:1"></div>
       <button class="btn small" onclick="hide('ovWizard')">✕</button></div>
     <div class="modal-body">
@@ -267,8 +280,8 @@ textarea:focus{outline:2px solid var(--primary-weak);border-color:var(--primary)
       <div id="stepB" style="display:none">
         <div class="sec-title">正式考 <span class="sub">本批考试共用，个别考试可创建后再单独调整</span></div>
         <div class="card" style="margin-bottom:14px;padding:16px;border-radius:8px">
-          <div class="grid3">
-            <div class="field"><label>关联试卷（可空，支持搜索）</label><div class="msel" id="paperSel"></div></div>
+          <div class="fline">
+            <div class="field w2"><label>关联试卷（可空，支持搜索）</label><div class="msel" id="paperSel"></div></div>
             <div class="field"><label class="req">考试时长（分钟）</label><input type="number" id="cfgDur" value="120" style="width:100%"></div>
             <div class="field"><label class="req">交卷限制</label><select id="cfgSubmit" style="width:100%"><option>到时自动交卷</option><option>允许提前 15 分钟交卷</option><option>不限</option></select></div>
           </div>
@@ -283,15 +296,15 @@ textarea:focus{outline:2px solid var(--primary-weak);border-color:var(--primary)
             <div class="field"><label>成绩 / 分数 / 读题</label><div style="display:flex;gap:12px;padding-top:8px" class="hint"><label><input type="checkbox" checked> 成绩</label><label><input type="checkbox" checked> 分数</label><label><input type="checkbox"> 读题</label></div></div>
           </div>
           <details class="more"><summary>更多设置</summary>
-            <div class="grid2" style="margin-top:10px">
+            <div class="grid2" style="margin-top:10px;align-items:start">
               <div class="field"><label>检录视频引导文案</label><input type="text" placeholder="默认文案" style="width:100%"></div>
+              <div class="field"><label>证书落款时间</label><input type="date" style="width:100%"></div>
               <div class="field"><label>检录视频示意图</label>
                 <div class="upload" onclick="toast('演示：选择图片文件上传')">
                   <span class="up-ico">🖼</span><span class="up-txt">点击上传图片（jpg / png，建议 16:9）</span>
                 </div>
               </div>
-              <div class="field"><label>测评描述</label><textarea rows="3" placeholder="选填，展示在学员端报名页，可写考试介绍、注意事项等" style="width:100%;resize:vertical"></textarea></div>
-              <div class="field"><label>证书落款时间</label><input type="date" style="width:100%"></div>
+              <div class="field"><label>测评描述（展示在学员端报名页）</label><textarea rows="3" placeholder="可写考试介绍、注意事项等" style="width:100%;resize:vertical"></textarea></div>
             </div>
           </details>
         </div>
@@ -606,7 +619,9 @@ function renderMsel(boxId,options,selected,dataName,refreshName){
       var dis=o.dis?' dis':'',on=selected.indexOf(o.name)>=0?' on':'';
       return '<div class="mopt'+on+dis+'" '+(o.dis?'':'onclick="mselToggle(\''+boxId+'\',\''+dataName+'\',\''+refreshName+'\',\''+esc(o.name)+'\')"')+'><span class="ck"></span>'+esc(o.name)+(o.sub?'<span class="sub">'+o.sub+'</span>':'')+'</div>';
     }).join('')+'</div>';
+  var wasOpen=$(boxId+'-menu')&&$(boxId+'-menu').classList.contains('show');
   box.innerHTML=html;
+  if(wasOpen)$(boxId+'-menu').classList.add('show');
 }
 function toggleMselMenu(boxId){
   var m=$(boxId+'-menu');var open=m.classList.contains('show');
@@ -619,6 +634,12 @@ function mselToggle(boxId,dataName,refreshName,v){
   var i=arr.indexOf(v);
   if(i>=0)arr.splice(i,1);else arr.push(v);
   window[refreshName]();
+  /* 多选：选项点击后菜单保持展开，仅重绘；焦点回搜索框 */
+  var m=$(boxId+'-menu');
+  if(m&&m.classList.contains('show')){
+    var si=m.querySelector('.msel-search');
+    if(si){si.focus()}else{m.scrollIntoViewIfNeeded&&m.scrollIntoViewIfNeeded()}
+  }
 }
 
 /* 可搜索下拉（单选） */
