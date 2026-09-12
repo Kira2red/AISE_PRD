@@ -361,10 +361,34 @@ textarea{min-height:72px}
         只改你要改的项：<b>未修改 / 留空的项自动保持各考试原值</b>，无需勾选。改完点「应用修改」即生效。
       </div>
 
-      <div class="sec-title">试卷与标签 <span class="sub">正式考</span></div>
+<div class="sec-title">试卷与标签 <span class="sub">正式考</span></div>
       <div class="fline">
         <div class="field w2"><label>关联试卷（选中即替换；清空 ✕ 表示不修改）</label><div class="msel" id="bePaperSel"></div></div>
         <div class="field"><label>标签（选择后替换所选考试的标签；不选 = 不变）</label><div class="msel" id="beTagSel"></div></div>
+      </div>
+
+      <div class="sec-title">考试时间与要素 <span class="sub">正式考</span></div>
+      <div class="fline">
+        <div class="field"><label>考试时间（整体平移，场次间隔不变）</label><input type="datetime-local" id="beTime" style="width:100%"></div>
+        <div class="field"><label>考试时长（分钟）</label><input type="number" id="beDur" placeholder="不变" style="width:100%"></div>
+        <div class="field"><label>交卷限制</label>
+          <select id="beSubmit" style="width:100%">
+            <option value="">不变</option>
+            <option>到时自动交卷</option><option>允许提前 15 分钟交卷</option><option>不限</option>
+          </select>
+        </div>
+      </div>
+
+      <div class="sec-title">正式考监考 <span class="sub">留空保持原值</span></div>
+      <div class="fline">
+        <div class="field"><label>摄像头</label><select id="beCam" style="width:100%"><option value="">不变</option><option>强制开启</option><option>考生自选</option><option>关闭</option></select></div>
+        <div class="field"><label>录屏</label><select id="beRec" style="width:100%"><option value="">不变</option><option>强制开启</option><option>考生自选</option><option>关闭</option></select></div>
+        <div class="field"><label>检录照片</label><select id="bePho" style="width:100%"><option value="">不变</option><option>强制开启</option><option>考生自选</option><option>关闭</option></select></div>
+      </div>
+      <div class="fline">
+        <div class="field"><label>候考时长（分钟）</label><input type="number" id="beWait" placeholder="不变" style="width:100%"></div>
+        <div class="field"><label>手机监考</label><select id="bePhone" style="width:100%"><option value="">不变</option><option>开启</option><option>关闭</option></select></div>
+        <div class="field"><label class="muted" style="font-size:12px"></label><div class="hint" style="padding-top:9px">考试开始后要素线上自动锁定，不受此处修改影响</div></div>
       </div>
 
       <div class="sec-title">模拟考 <span class="sub">与正式考相互独立，留空保持原值</span></div>
@@ -395,30 +419,6 @@ textarea{min-height:72px}
           <div class="field"><label>手机监考</label><select id="beMPhone" style="width:100%"><option value="">不变</option><option>开启</option><option>关闭</option></select></div>
           <div class="field"><label class="muted" style="font-size:12px"></label><div class="hint" style="padding-top:9px">留空全部保持原值</div></div>
         </div>
-      </div>
-
-      <div class="sec-title">考试时间与要素 <span class="sub">正式考</span></div>
-      <div class="fline">
-        <div class="field"><label>考试时间（整体平移，场次间隔不变）</label><input type="datetime-local" id="beTime" style="width:100%"></div>
-        <div class="field"><label>考试时长（分钟）</label><input type="number" id="beDur" placeholder="不变" style="width:100%"></div>
-        <div class="field"><label>交卷限制</label>
-          <select id="beSubmit" style="width:100%">
-            <option value="">不变</option>
-            <option>到时自动交卷</option><option>允许提前 15 分钟交卷</option><option>不限</option>
-          </select>
-        </div>
-      </div>
-
-      <div class="sec-title">正式考监考 <span class="sub">留空保持原值</span></div>
-      <div class="fline">
-        <div class="field"><label>摄像头</label><select id="beCam" style="width:100%"><option value="">不变</option><option>强制开启</option><option>考生自选</option><option>关闭</option></select></div>
-        <div class="field"><label>录屏</label><select id="beRec" style="width:100%"><option value="">不变</option><option>强制开启</option><option>考生自选</option><option>关闭</option></select></div>
-        <div class="field"><label>检录照片</label><select id="bePho" style="width:100%"><option value="">不变</option><option>强制开启</option><option>考生自选</option><option>关闭</option></select></div>
-      </div>
-      <div class="fline">
-        <div class="field"><label>候考时长（分钟）</label><input type="number" id="beWait" placeholder="不变" style="width:100%"></div>
-        <div class="field"><label>手机监考</label><select id="bePhone" style="width:100%"><option value="">不变</option><option>开启</option><option>关闭</option></select></div>
-        <div class="field"><label class="muted" style="font-size:12px"></label><div class="hint" style="padding-top:9px">考试开始后要素线上自动锁定，不受此处修改影响</div></div>
       </div>
 
             <div class="warnbox" style="margin-top:6px">报名费、前端展示时间、隐藏报名链接属于<b>渠道关联配置</b>，不在此处——请到「渠道关联」页的矩阵单元格里修改（不同渠道可配不同展示时间与费用）。</div>
