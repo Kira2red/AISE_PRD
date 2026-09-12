@@ -99,7 +99,7 @@ input:focus,select:focus{outline:2px solid var(--primary-weak);border-color:var(
 .menu-wrap{position:relative;display:inline-block}
 .chip{display:inline-flex;align-items:center;gap:6px;border:1px solid var(--border);border-radius:16px;padding:5px 14px;font-size:13px;cursor:pointer;background:#fff;user-select:none}
 .chip.on{border-color:var(--primary);background:var(--primary-weak);color:var(--primary);font-weight:600}
-.menu{position:fixed;background:#fff;border:1px solid var(--border);border-radius:8px;box-shadow:0 8px 24px rgba(0,0,0,.18);padding:5px;display:none;z-index:2000;min-width:190px}
+.menu{position:fixed;background:#fff;border:1px solid var(--border);border-radius:8px;box-shadow:0 8px 24px rgba(0,0,0,.18);padding:5px;display:none;z-index:3000;min-width:190px}
 .menu.show{display:block}
 .menu .mi{padding:7px 13px;font-size:13px;border-radius:6px;cursor:pointer;white-space:nowrap}
 .menu .mi:hover{background:#f2f5fa}
@@ -377,14 +377,17 @@ function selChk(){
 function toggleMenu(ev,btn){
   ev.stopPropagation();
   var m=btn.nextElementSibling;var open=m.classList.contains('show');
-  document.querySelectorAll('.menu').forEach(function(x){x.classList.remove('show')});
+  document.querySelectorAll('.menu').forEach(function(x){x.classList.remove('show');if(x.parentNode!==x._home&&x._home)x._home.appendChild(x)});
   if(!open){
+    if(!m._home)m._home=m.parentNode;      /* 记住原位置，关菜单后归位 */
+    document.body.appendChild(m);          /* 提到 body：脱离表格一切层叠上下文 */
     var r=btn.getBoundingClientRect();
     m.classList.add('show');
     var mw=m.offsetWidth,mh=m.offsetHeight;
     var x=Math.min(r.right-mw+4,window.innerWidth-mw-8);
     var y=r.bottom+6;
     if(y+mh>window.innerHeight-8)y=r.top-mh-6;
+    if(y<8)y=Math.max(8,r.bottom+6);
     m.style.left=Math.max(8,x)+'px';m.style.top=y+'px';
   }
 }
