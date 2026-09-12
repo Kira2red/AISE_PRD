@@ -43,8 +43,13 @@ table.mtx{border-collapse:separate;border-spacing:0;width:100%;min-width:860px}
 .mtx thead th.stu{background:#f9fafc;z-index:3}
 .mtx td{padding:8px 10px;border-bottom:1px solid #f0f2f6;font-size:13px;text-align:center;vertical-align:middle}
 .zone-row td{background:#f4f7fb;font-weight:600;text-align:left;padding:8px 12px;font-size:13px;color:#33415c}
-.cell{display:inline-flex;align-items:center;justify-content:center;gap:6px;border-radius:8px;padding:6px 10px;cursor:pointer;border:1px solid transparent;white-space:nowrap;width:96px;box-sizing:border-box}
-.cell .fee{overflow:hidden;text-overflow:ellipsis}
+.cell{display:inline-flex;flex-direction:column;align-items:stretch;justify-content:center;gap:2px;border-radius:8px;padding:7px 10px;cursor:pointer;border:1px solid transparent;width:150px;box-sizing:border-box}
+.cell .row1{display:flex;align-items:center;justify-content:space-between;gap:6px;white-space:nowrap}
+.cell .fee{font-size:14px;overflow:hidden;text-overflow:ellipsis}
+.cell .regs{font-size:11px;opacity:.75}
+.cell .row2{display:flex;align-items:center;justify-content:space-between;gap:6px;font-size:11px;white-space:nowrap}
+.cell .edit{font-size:11px}
+.cell.linked.hiddenreg .row2 .edit{color:#b08340}
 .cell.linked{background:#eef4ff;border-color:#d4e0f7;color:var(--primary);font-weight:600}
 .cell.linked.hiddenreg{background:#fdf3e3;border-color:#ecd9b0;color:#8a5a12}
 .cell.linked.hiddenreg .edit{color:#b08340}
@@ -356,7 +361,7 @@ function renderBody(){
       CHS.forEach(function(c,ci){
         var L=r.links[ci];
         if(L&&L.fail){tds+='<td><span class="cell linked" onclick="toast(\'创建失败：爱测评返回冲突，点击重试\')">创建失败<span class="badge fail">失败</span></span></td>';}
-        else if(L){tds+='<td><span class="cell linked'+(L.hidden?' hiddenreg':'')+'" onclick="openCell('+i+','+ci+')"><span class="fee">'+(L.fee===0?'免费':'¥'+L.fee)+'</span><span class="edit">编辑</span>'+(L.regs>0?'<span class="hint">'+L.regs+'人</span>':'')+'</span></td>';}
+        else if(L){tds+='<td><span class="cell linked'+(L.hidden?' hiddenreg':'')+'" onclick="openCell('+i+','+ci+')"><span class="row1"><span class="fee">'+(L.fee===0?'免费':'¥'+L.fee)+'</span>'+(L.regs>0?'<span class="regs">'+L.regs+'人报名</span>':'')+'</span><span class="row2"><span class="edit">编辑 · 展示 · 隐藏设置</span></span></span></td>';}
         else{tds+='<td><span class="cell empty" onclick="openCellNew('+i+','+ci+')">＋ 关联</span></td>';}
       });
       tr.innerHTML=tds;tb.appendChild(tr);
