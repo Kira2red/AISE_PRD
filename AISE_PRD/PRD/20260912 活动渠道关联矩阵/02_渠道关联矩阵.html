@@ -40,8 +40,9 @@ body{font-family:"PingFang SC","Microsoft YaHei",sans-serif;background:var(--bg)
 table.mtx{border-collapse:separate;border-spacing:0;width:100%;min-width:860px}
 .mtx th{font-size:12px;color:var(--muted);font-weight:600;padding:10px 12px;border-bottom:1px solid var(--border);background:#f9fafc;text-align:center;white-space:nowrap;position:sticky;top:0}
 .mtx th .th-main{display:block;font-size:13px;color:#33415c;line-height:20px}
-.mtx th .hint{white-space:normal;line-height:16px}
-.mtx th.stu,.stu-cell{padding:2px 0 2px 18px;display:flex;flex-direction:column;gap:3px;border-left:3px solid #dfe6f0;margin-left:2px}
+.mtx th .hint{line-height:16px;overflow:hidden;text-overflow:ellipsis;max-width:100%}
+.mtx td.stu .stu-cell{padding:2px 0 2px 18px;display:flex;flex-direction:column;gap:3px}
+.mtx td.stu .stu-cell{border-left:3px solid #dfe6f0;margin-left:2px}
 .stu-l1{display:flex;align-items:center;gap:8px}
 .stu-l1 .exam-name{font-weight:600;font-size:13px}
 .stu-l1 .tag{flex:none}
@@ -352,7 +353,7 @@ function toggleSelAll(){
 /* ================= 矩阵渲染 ================= */
 function renderHead(){
   var tr=$('mtxHead');
-  var h='<th class="stu"><span class="th-main">考试 × 渠道</span><div class="hint">勾选行后在工具条批量操作 · 点格子配置单项</div></th>';
+  var h='<th class="stu"><span class="th-main">考试 × 渠道</span><div class="hint">勾选行后可批量操作</div></th>';
   CHS.forEach(function(c,i){
     var n=0;ROWS.forEach(function(r,ri){if(r.links[i]&&!r.links[i].fail)n++});
     h+='<th><span class="th-main">'+c+'</span><div class="hint">'+n+' 场已关联</div></th>';
