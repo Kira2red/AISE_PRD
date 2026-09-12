@@ -110,7 +110,7 @@ tr.exam:hover td{background:#fafbfd}
 .token{display:inline-flex;align-items:center;gap:5px;background:var(--primary-weak);color:var(--primary);border-radius:6px;padding:2px 8px;font-size:12px;font-weight:500}
 .token .tx{cursor:pointer;font-size:11px;opacity:.7}
 .token .tx:hover{opacity:1}
-.msel-menu{position:absolute;top:calc(100% + 4px);left:0;right:0;background:#fff;border:1px solid var(--border);border-radius:10px;box-shadow:0 10px 30px rgba(0,0,0,.14);padding:6px;display:none;z-index:30;max-height:220px;overflow-y:auto}
+.msel-menu{position:absolute;background:#fff;opacity:1 !important;top:calc(100% + 4px);left:0;right:0;background:#fff;border:1px solid var(--border);border-radius:10px;box-shadow:0 10px 30px rgba(0,0,0,.14);padding:6px;display:none;z-index:30;max-height:220px;overflow-y:auto}
 .msel-menu.show{display:block}
 .mopt{display:flex;align-items:center;gap:9px;padding:8px 10px;border-radius:7px;cursor:pointer;font-size:13px}
 .mopt:hover{background:#f2f5fa}
@@ -260,11 +260,11 @@ textarea{min-height:72px}
         </div>
         <div class="gen">
           <div class="gen-row">
-            <div class="field"><label>考试名称</label><input type="text" id="genName" placeholder="如：Python一级" style="width:150px"></div>
+            <div class="field"><label>考试名称</label><input type="text" id="genName" placeholder="如：Python一级" style="width:160px"></div>
             <div class="field"><label>场数</label><input type="number" id="genCount" value="2" min="1" max="10" style="width:64px"></div>
-            <div class="field"><label>首场开始</label><input type="datetime-local" id="genStart"></div>
-            <div class="field"><label>首场结束</label><input type="datetime-local" id="genEnd"></div>
-            <button class="btn primary" onclick="genRows()">生成</button>
+            <div class="field"><label>首场开始</label><input type="datetime-local" id="genStart" style="min-width:210px"></div>
+            <div class="field"><label>首场结束</label><input type="datetime-local" id="genEnd" style="min-width:210px"></div>
+            <div class="field" style="padding-top:18px"><button class="btn primary" onclick="genRows()">生成</button></div>
           </div>
           <div class="hint" style="margin-top:8px">多场同名考试自动加「-第N场」，后续场次开始时间顺延 30 分钟；生成后可逐行修改。</div>
         </div>
@@ -349,44 +349,61 @@ textarea{min-height:72px}
 
 <!-- ========== 批量修改考试 ========== -->
 <div class="overlay" id="ovBulkEdit">
-  <div class="modal" style="width:720px">
+  <div class="modal" style="width:860px">
     <div class="modal-head"><b>批量修改考试</b><div class="spacer" style="flex:1"></div>
       <button class="btn small" onclick="hide('ovBulkEdit')">✕</button></div>
     <div class="modal-body">
       <div class="summary-bar" id="bulkEditSummary"></div>
-      <div class="hint" style="margin-bottom:12px">勾选要修改的项才会应用；未勾选的项保持各考试原值不变。</div>
-      <div class="sec-title">基础</div>
-      <div class="card" style="padding:14px;margin-bottom:12px;border-radius:8px">
-        <label class="ckline"><input type="checkbox" id="bePaperOn"> 关联试卷</label>
-        <div class="msel" id="bePaperSel" style="margin:8px 0 12px;opacity:.5"></div>
-        <div class="grid2">
-          <div>
-            <label class="ckline"><input type="checkbox" id="beTagOn"> 标签（替换所选考试的标签）</label>
-            <div class="msel" id="beTagSel" style="margin-top:8px;opacity:.5"></div>
-          </div>
-          <div>
-            <label class="ckline" id="beMockWrap"><input type="checkbox" id="beMockOn"> 开启模拟考</label>
-            <div class="hint" style="margin-top:8px">勾选后所选考试的模拟考统一开启，试卷/时间/监考在弹窗内配置</div>
-          </div>
+      <div class="hint" style="margin-bottom:14px;padding:8px 12px;background:#f6f8fb;border-radius:8px">
+        只改你要改的项：<b>未修改 / 留空的项自动保持各考试原值</b>，无需勾选。改完点「应用修改」即生效。
+      </div>
+
+      <div class="sec-title">试卷与标签</div>
+      <div class="fline">
+        <div class="field w2"><label>关联试卷（选中即替换；清空 ✕ 表示不修改）</label><div class="msel" id="bePaperSel"></div></div>
+        <div class="field"><label>标签（选择后替换所选考试的标签；不选 = 不变）</label><div class="msel" id="beTagSel"></div></div>
+      </div>
+
+      <div class="sec-title">模拟考</div>
+      <div class="fline">
+        <div class="field"><label>模拟考开关</label>
+          <select id="beMockSel" style="width:100%">
+            <option value="">保持原值</option>
+            <option value="on">统一开启</option>
+            <option value="off">统一关闭</option>
+          </select>
+        </div>
+        <div class="field w2"><label class="muted" style="font-size:12px">模拟考的时间、次数、监考在弹窗下半部分配置，同样留空保持原值</label></div>
+      </div>
+
+      <div class="sec-title">考试时间与要素</div>
+      <div class="fline">
+        <div class="field"><label>考试时间（整体平移，场次间隔不变）</label><input type="datetime-local" id="beTime" style="width:100%"></div>
+        <div class="field"><label>考试时长（分钟）</label><input type="number" id="beDur" placeholder="不变" style="width:100%"></div>
+        <div class="field"><label>交卷限制</label>
+          <select id="beSubmit" style="width:100%">
+            <option value="">不变</option>
+            <option>到时自动交卷</option><option>允许提前 15 分钟交卷</option><option>不限</option>
+          </select>
         </div>
       </div>
-      <div class="sec-title">考试要素 <span class="sub">只改勾选项，对所选考试全体生效</span></div>
-      <div class="card" style="padding:14px;border-radius:8px">
-        <div class="grid3">
-          <div class="field"><label class="ckline"><input type="checkbox" class="beOn"> 考试时长（分钟）</label><input type="number" value="120" style="width:100%;margin-top:6px"></div>
-          <div class="field"><label class="ckline"><input type="checkbox" class="beOn"> 交卷限制</label><select style="width:100%;margin-top:6px"><option>到时自动交卷</option><option>允许提前 15 分钟交卷</option><option>不限</option></select></div>
-          <div class="field"><label class="ckline"><input type="checkbox" class="beOn"> 考试时间（整体平移，场次间隔不变）</label><input type="datetime-local" style="width:100%;margin-top:6px"></div>
-          <div class="field"><label class="ckline"><input type="checkbox" class="beOn"> 摄像头</label><select style="width:100%;margin-top:6px"><option>强制开启</option><option>考生自选</option><option>关闭</option></select></div>
-          <div class="field"><label class="ckline"><input type="checkbox" class="beOn"> 录屏</label><select style="width:100%;margin-top:6px"><option>强制开启</option><option>考生自选</option><option>关闭</option></select></div>
-          <div class="field"><label class="ckline"><input type="checkbox" class="beOn"> 检录照片</label><select style="width:100%;margin-top:6px"><option>强制开启</option><option>考生自选</option><option>关闭</option></select></div>
-          <div class="field"><label class="ckline"><input type="checkbox" class="beOn"> 候考时长（分钟）</label><input type="number" value="10" style="width:100%;margin-top:6px"></div>
-          <div class="field"><label class="ckline"><input type="checkbox" class="beOn"> 手机监考</label><div class="switch" style="margin-top:8px" onclick="this.classList.toggle('on')"></div></div>
-        </div>
-        <div class="warnbox">已开始的考试不受修改影响（线上按考试开始时间锁定要素）；已有报名的考试修改报名费请到「渠道关联」中操作，此处不涉及费用。</div>
+
+      <div class="sec-title">监考配置</div>
+      <div class="fline">
+        <div class="field"><label>摄像头</label><select id="beCam" style="width:100%"><option value="">不变</option><option>强制开启</option><option>考生自选</option><option>关闭</option></select></div>
+        <div class="field"><label>录屏</label><select id="beRec" style="width:100%"><option value="">不变</option><option>强制开启</option><option>考生自选</option><option>关闭</option></select></div>
+        <div class="field"><label>检录照片</label><select id="bePho" style="width:100%"><option value="">不变</option><option>强制开启</option><option>考生自选</option><option>关闭</option></select></div>
       </div>
+      <div class="fline">
+        <div class="field"><label>候考时长（分钟）</label><input type="number" id="beWait" placeholder="不变" style="width:100%"></div>
+        <div class="field"><label>手机监考</label><select id="bePhone" style="width:100%"><option value="">不变</option><option>开启</option><option>关闭</option></select></div>
+        <div class="field"><label class="muted" style="font-size:12px"></label><div class="hint" style="padding-top:9px">考试开始后要素线上自动锁定，不受此处修改影响</div></div>
+      </div>
+
+      <div class="warnbox" style="margin-top:6px">报名费、前端展示时间、隐藏报名链接属于<b>渠道关联配置</b>，不在此处——请到「渠道关联」页的矩阵单元格里修改（不同渠道可配不同展示时间与费用）。</div>
     </div>
     <div class="modal-foot">
-      <span class="hint" style="margin-right:auto" id="beApplied"></span>
+      <span class="hint" style="margin-right:auto" id="beChanges"></span>
       <button class="btn" onclick="hide('ovBulkEdit')">取消</button>
       <button class="btn primary" onclick="doBulkEdit()">应用修改</button>
     </div>
@@ -778,39 +795,56 @@ function ckSync(){
   $('ckCount').textContent=n;
 }
 function checkedExams(){return [].slice.call(document.querySelectorAll('.examck:checked')).map(function(x){return parseInt(x.dataset.i)})}
-function enableCk(onId, selId){
-  $(onId).addEventListener('change',function(){
-    var box=$(selId);
-    box.style.opacity=this.checked?'1':'.5';
-    box.style.pointerEvents=this.checked?'auto':'none';
-  });
-}
 function openBulkEditExam(){
   var ids=checkedExams();
   $('bulkEditSummary').textContent='将修改 '+ids.length+' 场考试：'+ids.slice(0,4).map(function(i){return curAct.exams[i].name}).join('、')+(ids.length>4?' 等':'');
-  window.beTagSel=window.beTagSel||[];
   window.beTagSel=[];
-  renderSsel('bePaperSel',PAPERS,'','搜索试卷名称');
+  renderSsel('bePaperSel',PAPERS,'','搜索试卷名称（不选 = 不变）');
   renderMsel('beTagSel',TAGS.map(function(t){return{name:t}}),window.beTagSel,'beTagSel','refreshBeTags');
-  enableCk('bePaperOn','bePaperSel');enableCk('beTagOn','beTagSel');
+  ['beMockSel','beTime','beDur','beSubmit','beCam','beRec','bePho','beWait','bePhone'].forEach(function(id){
+    var el=$(id);if(el)el.value='';
+  });
+  countChanges();bindChangeCount();
   show('ovBulkEdit');
 }
-function refreshBeTags(){window.beTagSel=window.beTagSel||[];renderMsel('beTagSel',TAGS.map(function(t){return{name:t}}),window.beTagSel,'beTagSel','refreshBeTags')}
+function refreshBeTags(){renderMsel('beTagSel',TAGS.map(function(t){return{name:t}}),window.beTagSel,'beTagSel','refreshBeTags');countChanges()}
+var _beBound=false;
+function bindChangeCount(){
+  if(_beBound)return;_beBound=true;
+  ['beMockSel','beTime','beDur','beSubmit','beCam','beRec','bePho','beWait','bePhone'].forEach(function(id){
+    var el=$(id);if(el)el.addEventListener('input',countChanges);if(el)el.addEventListener('change',countChanges);
+  });
+}
+function countChanges(){
+  var n=0;
+  if(sselState['bePaperSel']&&sselState['bePaperSel'].value)n++;
+  if(window.beTagSel&&window.beTagSel.length)n++;
+  if($('beMockSel').value)n++;
+  ['beTime','beDur','beWait'].forEach(function(id){if($(id).value)n++});
+  ['beSubmit','beCam','beRec','bePho','bePhone'].forEach(function(id){if($(id).value)n++});
+  $('beChanges').textContent=n?('将修改 '+n+' 个设置项'):'尚未修改任何项（全部保持原值）';
+  return n;
+}
 function doBulkEdit(){
   var ids=checkedExams();
-  var paperOn=$('bePaperOn').checked, paperV=(sselState['bePaperSel']&&sselState['bePaperSel'].value)||'';
-  var applied=0;
+  var n=countChanges();
+  if(!n){toast('未修改任何项，无需应用');return}
+  var paperV=(sselState['bePaperSel']&&sselState['bePaperSel'].value)||'';
+  var tagV=(window.beTagSel||[]).slice();
+  var mockV=$('beMockSel').value;
+  var bits=[];
   ids.forEach(function(i){
     var e=curAct.exams[i];
-    if(paperOn&&paperV){e.paper=paperV;e.paperOk=true}
-    if($('beMockOn').checked)e.mock=true;
-    applied++;
+    if(paperV){e.paper=paperV;e.paperOk=true}
+    if(tagV.length)e.tags=tagV.slice();
+    if(mockV==='on')e.mock=true;
+    if(mockV==='off')e.mock=false;
   });
+  if(paperV)bits.push('试卷');
+  if(tagV.length)bits.push('标签');
+  if(mockV)bits.push('模拟考'+(mockV==='on'?'开':'关'));
   hide('ovBulkEdit');renderTree();
-  var bits=[];
-  if(paperOn&&paperV)bits.push('试卷→'+paperV);
-  if($('beMockOn').checked)bits.push('开启模拟考');
-  toast('已修改 '+applied+' 场考试'+(bits.length?'（'+bits.join('，')+'）':''));
+  toast('已修改 '+ids.length+' 场考试（'+bits.join('、')+'），其余保持原值');
 }
 
 /* ================= 跳转 ================= */
