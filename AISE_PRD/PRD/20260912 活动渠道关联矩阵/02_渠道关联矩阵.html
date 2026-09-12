@@ -3,7 +3,16 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
-<title>渠道关联矩阵</title>
+<title>渠道关联</title>
+<script src="https://cdn.tailwindcss.com"></script>
+<script>
+tailwind.config = { theme: { extend: {
+    fontFamily: { sans: ['Inter','sans-serif'] },
+    colors: { brand: { 50:'#eff6ff',100:'#dbeafe',500:'#3b82f6',600:'#2563eb',700:'#1d4ed8' } },
+    boxShadow: { 'card':'0 1px 3px 0 rgba(0,0,0,.1),0 1px 2px 0 rgba(0,0,0,.06)','popover':'0 10px 15px -3px rgba(0,0,0,.1),0 4px 6px -2px rgba(0,0,0,.05)' }
+} } }
+</script>
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
 <style>
 :root{--primary:#0041c8;--primary-weak:#e8eefc;--bg:#f5f7fa;--card:#fff;--border:#e3e8ef;--text:#1a2233;--muted:#66707f;--ok:#0a8f4e;--warn:#b45309;--danger:#c0392b;--radius:10px}
 *{box-sizing:border-box;margin:0;padding:0}
@@ -100,14 +109,38 @@ input:focus,select:focus{outline:2px solid var(--primary-weak);border-color:var(
 input[type=radio]{accent-color:var(--primary)}
 </style>
 </head>
-<body>
-<header>
-  <div class="logo">考</div><h1>渠道关联</h1>
-  <div class="spacer"></div>
-  <button class="btn" onclick="location.href='01_活动管理.html'">← 返回活动管理</button>
+<body class="flex h-screen overflow-hidden text-slate-800 font-sans" style="font-family:'PingFang SC','Microsoft YaHei',sans-serif">
+<aside class="w-64 bg-white border-r border-slate-200 flex flex-col flex-shrink-0 z-20">
+    <div class="h-16 flex items-center px-6 border-b border-slate-100">
+        <div class="w-8 h-8 bg-gradient-to-br from-brand-600 to-indigo-600 rounded-lg flex items-center justify-center text-white font-bold text-lg mr-3 shadow-sm">A</div>
+        <span class="font-bold text-lg text-slate-800 tracking-tight">AISE Admin</span>
+    </div>
+    <nav class="flex-1 overflow-y-auto py-4 space-y-1">
+        <a href="#" class="nav-item flex items-center gap-3 px-6 py-3 text-slate-500 hover:bg-slate-50 hover:text-brand-600 transition"><i class="fa-solid fa-graduation-cap w-5 text-center"></i><span class="font-medium text-sm">考试管理</span></a>
+        <a href="01_活动管理.html" class="nav-item flex items-center gap-3 px-6 py-3 text-slate-500 hover:bg-slate-50 hover:text-brand-600 transition"><i class="fa-solid fa-calendar-days w-5 text-center"></i><span class="font-medium text-sm">活动管理</span></a>
+        <a href="02_渠道关联矩阵.html" class="nav-item active flex items-center gap-3 px-6 py-3 text-brand-600 bg-brand-50 transition"><i class="fa-solid fa-table-cells w-5 text-center"></i><span class="font-medium text-sm">渠道关联</span></a>
+        <a href="#" class="nav-item flex items-center gap-3 px-6 py-3 text-slate-500 hover:bg-slate-50 hover:text-brand-600 transition"><i class="fa-solid fa-tags w-5 text-center"></i><span class="font-medium text-sm">标签配置</span></a>
+        <div class="px-6 py-2 mt-4 text-xs font-bold text-slate-400 uppercase tracking-wider">运营中心</div>
+        <a href="#" class="nav-item flex items-center gap-3 px-6 py-3 text-slate-500 hover:bg-slate-50 hover:text-brand-600 transition"><i class="fa-solid fa-handshake w-5 text-center"></i><span class="font-medium text-sm">渠道管理</span></a>
+        <a href="#" class="nav-item flex items-center gap-3 px-6 py-3 text-slate-500 hover:bg-slate-50 hover:text-brand-600 transition"><i class="fa-solid fa-clipboard-check w-5 text-center"></i><span class="font-medium text-sm">报名管理</span></a>
+        <div class="px-6 py-2 mt-4 text-xs font-bold text-slate-400 uppercase tracking-wider">考务与用户</div>
+        <a href="#" class="nav-item flex items-center gap-3 px-6 py-3 text-slate-500 hover:bg-slate-50 hover:text-brand-600 transition"><i class="fa-solid fa-users w-5 text-center"></i><span class="font-medium text-sm">考生管理</span></a>
+        <a href="#" class="nav-item flex items-center gap-3 px-6 py-3 text-slate-500 hover:bg-slate-50 hover:text-brand-600 transition"><i class="fa-solid fa-bell w-5 text-center"></i><span class="font-medium text-sm">消息中心</span></a>
+    </nav>
+</aside>
+<main class="flex-1 flex flex-col min-w-0 bg-slate-50 relative">
+<header class="h-16 bg-white border-b border-slate-200 flex items-center justify-between px-8 flex-shrink-0 z-10">
+    <div class="flex items-center gap-3">
+        <a onclick="location.href='01_活动管理.html'" class="text-slate-400 hover:text-brand-600 cursor-pointer"><i class="fa-solid fa-arrow-left"></i></a>
+        <h1 class="text-xl font-bold text-slate-800">渠道关联</h1>
+        <span class="text-xs text-slate-400 bg-slate-100 px-2 py-0.5 rounded" id="crumbAct2"></span>
+    </div>
+    <button onclick="openBulkAdd()" class="bg-brand-600 hover:bg-brand-700 text-white text-sm font-medium px-5 py-2.5 rounded-lg shadow-sm transition flex items-center gap-2"><i class="fa-solid fa-plus"></i> 添加渠道</button>
 </header>
+<div class="flex-1 overflow-y-auto px-8 py-6">
 
-<main>
+
+<div>
   <div class="crumb"><a onclick="location.href='01_活动管理.html'">活动管理</a> / <span id="crumbAct">2026年9月常规考</span> / 渠道关联</div>
   <div class="card" style="padding:12px 18px">
     <div class="hint" style="font-size:13px">
@@ -132,7 +165,7 @@ input[type=radio]{accent-color:var(--primary)}
     </table>
   </div>
   <div class="hint" style="margin-top:8px">🔒隐 = 隐藏报名（此时前端展示开关与展示时间不参与控制）。点击「…」查看考试详情。</div>
-</main>
+</div>
 
 <!-- ========== 单格配置弹窗 ========== -->
 <div class="overlay" id="ovCell">
@@ -518,10 +551,12 @@ function examDetail(i){
 
 /* ================= init ================= */
 var q=location.search.match(/act=([^&]+)/);
-if(q)try{$('crumbAct').textContent=decodeURIComponent(q[1])}catch(e){}
+if(q)try{var an=decodeURIComponent(q[1]);$('crumbAct').textContent=an;$('crumbAct2').textContent=an}catch(e){}
 $('fGroup').addEventListener('change',renderBody);
 $('fKw').addEventListener('input',renderBody);
 renderHead();renderBody();
 </script>
+</div>
+</main>
 </body>
 </html>

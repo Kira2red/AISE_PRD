@@ -4,6 +4,15 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
 <title>活动管理</title>
+<script src="https://cdn.tailwindcss.com"></script>
+<script>
+tailwind.config = { theme: { extend: {
+    fontFamily: { sans: ['Inter','sans-serif'], mono: ['JetBrains Mono','monospace'] },
+    colors: { brand: { 50:'#eff6ff',100:'#dbeafe',500:'#3b82f6',600:'#2563eb',700:'#1d4ed8' } },
+    boxShadow: { 'card':'0 1px 3px 0 rgba(0,0,0,.1),0 1px 2px 0 rgba(0,0,0,.06)','popover':'0 10px 15px -3px rgba(0,0,0,.1),0 4px 6px -2px rgba(0,0,0,.05)' }
+} } }
+</script>
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
 <style>
 :root{--primary:#0041c8;--primary-weak:#e8eefc;--bg:#f5f7fa;--card:#fff;--border:#e3e8ef;--text:#1a2233;--muted:#66707f;--ok:#0a8f4e;--warn:#b45309;--danger:#c0392b;--radius:10px}
 *{box-sizing:border-box;margin:0;padding:0}
@@ -181,25 +190,55 @@ textarea{min-height:72px}
 .done-hero b{font-size:16px;display:block;margin-bottom:8px}
 </style>
 </head>
-<body>
-<header>
-  <div class="logo">考</div><h1>活动管理</h1>
-  <div class="spacer"></div>
-  <button class="btn primary" onclick="openCreateActivity()">＋ 新建活动</button>
+<body class="flex h-screen overflow-hidden text-slate-800 font-sans" style="font-family:'PingFang SC','Microsoft YaHei',sans-serif">
+<aside class="w-64 bg-white border-r border-slate-200 flex flex-col flex-shrink-0 z-20">
+    <div class="h-16 flex items-center px-6 border-b border-slate-100">
+        <div class="w-8 h-8 bg-gradient-to-br from-brand-600 to-indigo-600 rounded-lg flex items-center justify-center text-white font-bold text-lg mr-3 shadow-sm">A</div>
+        <span class="font-bold text-lg text-slate-800 tracking-tight">AISE Admin</span>
+    </div>
+    <nav class="flex-1 overflow-y-auto py-4 space-y-1">
+        <a href="#" class="nav-item flex items-center gap-3 px-6 py-3 text-slate-500 hover:bg-slate-50 hover:text-brand-600 transition"><i class="fa-solid fa-graduation-cap w-5 text-center"></i><span class="font-medium text-sm">考试管理</span></a>
+        <a href="01_活动管理.html" class="nav-item active flex items-center gap-3 px-6 py-3 text-brand-600 bg-brand-50 transition"><i class="fa-solid fa-calendar-days w-5 text-center"></i><span class="font-medium text-sm">活动管理</span></a>
+        <a href="02_渠道关联矩阵.html" class="nav-item flex items-center gap-3 px-6 py-3 text-slate-500 hover:bg-slate-50 hover:text-brand-600 transition"><i class="fa-solid fa-table-cells w-5 text-center"></i><span class="font-medium text-sm">渠道关联</span></a>
+        <a href="#" class="nav-item flex items-center gap-3 px-6 py-3 text-slate-500 hover:bg-slate-50 hover:text-brand-600 transition"><i class="fa-solid fa-tags w-5 text-center"></i><span class="font-medium text-sm">标签配置</span></a>
+        <div class="px-6 py-2 mt-4 text-xs font-bold text-slate-400 uppercase tracking-wider">运营中心</div>
+        <a href="#" class="nav-item flex items-center gap-3 px-6 py-3 text-slate-500 hover:bg-slate-50 hover:text-brand-600 transition"><i class="fa-solid fa-handshake w-5 text-center"></i><span class="font-medium text-sm">渠道管理</span></a>
+        <a href="#" class="nav-item flex items-center gap-3 px-6 py-3 text-slate-500 hover:bg-slate-50 hover:text-brand-600 transition"><i class="fa-solid fa-clipboard-check w-5 text-center"></i><span class="font-medium text-sm">报名管理</span></a>
+        <div class="px-6 py-2 mt-4 text-xs font-bold text-slate-400 uppercase tracking-wider">考务与用户</div>
+        <a href="#" class="nav-item flex items-center gap-3 px-6 py-3 text-slate-500 hover:bg-slate-50 hover:text-brand-600 transition"><i class="fa-solid fa-users w-5 text-center"></i><span class="font-medium text-sm">考生管理</span></a>
+        <a href="#" class="nav-item flex items-center gap-3 px-6 py-3 text-slate-500 hover:bg-slate-50 hover:text-brand-600 transition"><i class="fa-solid fa-bell w-5 text-center"></i><span class="font-medium text-sm">消息中心</span></a>
+    </nav>
+</aside>
+<main class="flex-1 flex flex-col min-w-0 bg-slate-50 relative">
+
+<header class="h-16 bg-white border-b border-slate-200 flex items-center justify-between px-8 flex-shrink-0 z-10">
+    <div class="flex items-center gap-3">
+        <a onclick="showList()" id="backLink" class="text-slate-400 hover:text-brand-600 cursor-pointer hidden"><i class="fa-solid fa-arrow-left"></i></a>
+        <h1 class="text-xl font-bold text-slate-800" id="pageTitle">活动管理</h1>
+        <span class="text-xs text-slate-400 bg-slate-100 px-2 py-0.5 rounded" id="pageSub">活动 = 一个时间段内的一组考试</span>
+    </div>
+    <div class="flex items-center gap-3">
+        <button onclick="openBulkEditExam()" id="headBulkBtn" class="bg-white border border-slate-200 hover:bg-slate-50 text-slate-600 text-sm px-4 py-2 rounded-lg hidden">✎ 批量修改</button>
+        <button onclick="gotoMatrix()" id="headMatrixBtn" class="bg-white border border-slate-200 hover:bg-slate-50 text-slate-600 text-sm px-4 py-2 rounded-lg hidden">渠道关联</button>
+        <button onclick="openCreateActivity()" id="headCreateBtn" class="bg-brand-600 hover:bg-brand-700 text-white text-sm font-medium px-5 py-2.5 rounded-lg shadow-sm transition flex items-center gap-2"><i class="fa-solid fa-plus"></i> 新建活动</button>
+    </div>
 </header>
 
+<div class="flex-1 overflow-y-auto px-8 py-6">
+
+
 <!-- ========== 活动列表 ========== -->
-<main id="viewList">
+<div id="viewList">
   <div class="card" style="padding:6px 18px">
     <table id="actTable">
       <thead><tr><th>活动名称</th><th>起止日期</th><th>分组</th><th>考试</th><th>渠道</th><th>状态</th><th style="width:90px">操作</th></tr></thead>
       <tbody></tbody>
     </table>
   </div>
-</main>
+</div>
 
 <!-- ========== 活动详情 ========== -->
-<main id="viewDetail" style="display:none">
+<div id="viewDetail" style="display:none">
   <div class="crumb"><a onclick="showList()">活动管理</a> / <span id="crumbName"></span></div>
 
   <div class="card">
@@ -208,7 +247,6 @@ textarea{min-height:72px}
       <span class="muted" id="dDates"></span>
       <span class="state-pill amber" id="dState"></span>
       <div class="spacer"></div>
-      <button class="btn primary" onclick="gotoMatrix()">渠道关联 →</button>
     </div>
   </div>
 
@@ -217,7 +255,6 @@ textarea{min-height:72px}
       <input type="text" class="search" id="fKw" placeholder="搜索考试名称" oninput="renderTree()">
       <button class="btn small" id="btnExpand" onclick="toggleExpandAll()">收起全部</button>
       <div class="spacer"></div>
-      <button class="btn" id="btnBulkEdit" onclick="openBulkEditExam()" disabled style="display:none">✎ 批量修改 (<span id="ckCount">0</span>)</button>
       <button class="btn" onclick="newZoneInline()">＋ 新建分组</button>
       <button class="btn primary" onclick="openWizard(null)">＋ 创建考试</button>
     </div>
@@ -226,7 +263,7 @@ textarea{min-height:72px}
       <tbody id="treeBody"></tbody>
     </table>
   </div>
-</main>
+</div>
 
 <!-- ========== 新建活动 ========== -->
 <div class="overlay" id="ovActivity">
@@ -496,6 +533,12 @@ function createActivity(){
 function enterDetail(id){
   curAct=acts.filter(function(a){return a.id===id})[0];
   $('viewList').style.display='none';$('viewDetail').style.display='block';
+  $('pageTitle').textContent=curAct.name;
+  $('pageSub').textContent=curAct.start+' ~ '+curAct.end;
+  $('backLink').classList.remove('hidden');
+  $('headCreateBtn').classList.add('hidden');
+  $('headMatrixBtn').classList.remove('hidden');
+  $('headBulkBtn').classList.remove('hidden');
   $('crumbName').textContent=curAct.name;$('dName').textContent=curAct.name;
   $('dDates').textContent=curAct.start+' ~ '+curAct.end;
   renderTop();renderTree();
@@ -506,7 +549,14 @@ function renderTop(){
   else if(curAct.links===0){p.className='state-pill amber';p.textContent='未关联渠道'}
   else{p.className='state-pill green';p.textContent='报名中 · '+curAct.links+' 个渠道关联'}
 }
-function showList(){$('viewDetail').style.display='none';$('viewList').style.display='block';renderActs()}
+function showList(){$('viewDetail').style.display='none';$('viewList').style.display='block';
+  $('pageTitle').textContent='活动管理';
+  $('pageSub').textContent='活动 = 一个时间段内的一组考试';
+  $('backLink').classList.add('hidden');
+  $('headCreateBtn').classList.remove('hidden');
+  $('headMatrixBtn').classList.add('hidden');
+  $('headBulkBtn').classList.add('hidden');
+  renderActs()}
 
 /* ================= 树状表格：分组 × 考试 ================= */
 function zones(){return curAct.groups.concat(['未分组'])}
@@ -811,10 +861,8 @@ function toggleMock(){
 function ckAllToggle(cb){document.querySelectorAll('.examck').forEach(function(x){x.checked=cb.checked});ckSync()}
 function ckSync(){
   var n=document.querySelectorAll('.examck:checked').length;
-  var b=$('btnBulkEdit');
-  b.style.display=n>0?'inline-block':'none';
-  b.disabled=n===0;
-  $('ckCount').textContent=n;
+  var b=$('headBulkBtn');
+  if(b){b.classList.toggle('hidden',n===0);b.textContent='✎ 批量修改 ('+n+')'}
 }
 function checkedExams(){return [].slice.call(document.querySelectorAll('.examck:checked')).map(function(x){return parseInt(x.dataset.i)})}
 function openBulkEditExam(){
@@ -882,5 +930,7 @@ function gotoMatrix(){
 
 renderActs();
 </script>
+</div>
+</main>
 </body>
 </html>
