@@ -39,7 +39,19 @@ body{font-family:"PingFang SC","Microsoft YaHei",sans-serif;background:var(--bg)
 .mtx-wrap{overflow-x:auto;border:1px solid var(--border);border-radius:var(--radius);background:#fff}
 table.mtx{border-collapse:separate;border-spacing:0;width:100%;min-width:860px}
 .mtx th{font-size:12px;color:var(--muted);font-weight:600;padding:10px 12px;border-bottom:1px solid var(--border);background:#f9fafc;text-align:center;white-space:nowrap;position:sticky;top:0}
-.mtx th.stu,.mtx td.stu{text-align:left;position:sticky;left:0;background:inherit;background:#fff;z-index:2;min-width:250px;border-right:1px solid var(--border)}
+.mtx th.stu,.stu-cell{padding:2px 0 2px 2px;display:flex;flex-direction:column;gap:3px}
+.stu-l1{display:flex;align-items:center;gap:8px}
+.stu-l1 .exam-name{font-weight:600;font-size:13px}
+.stu-l1 .tag{flex:none}
+.stu-l2{font-size:11px;color:var(--muted);padding-left:23px}
+.stu-l3{display:flex;align-items:center;gap:8px;padding-left:23px}
+.lnk{font-size:11px;color:var(--primary);cursor:pointer;text-decoration:none}
+.lnk:hover{text-decoration:underline}
+.lnk.red{color:var(--danger)}
+.lnk .sep,.stu-l3 .sep{color:#c3ccd9;font-size:10px}
+.zone-line{display:flex;align-items:center;gap:10px}
+.zone-line b{font-size:13px}
+.mtx td.stu{text-align:left;position:sticky;left:0;background:inherit;background:#fff;z-index:2;min-width:250px;border-right:1px solid var(--border)}
 .mtx thead th.stu{background:#f9fafc;z-index:3}
 .mtx td{padding:8px 10px;border-bottom:1px solid #f0f2f6;font-size:13px;text-align:center;vertical-align:middle}
 .zone-row td{background:#f4f7fb;font-weight:600;text-align:left;padding:8px 12px;font-size:13px;color:#33415c}
@@ -157,6 +169,7 @@ input[type=radio]{accent-color:var(--primary)}
   </div>
 
   <div class="toolbar">
+    <button class="btn small" onclick="toggleSelAll()" id="btnSelAll">全选</button>
     <select id="fGroup"><option value="">全部分组</option><option>3月批</option><option>6月批</option></select>
     <input type="text" id="fKw" placeholder="搜索考试名称" style="width:200px">
     <div class="spacer"></div>
@@ -171,7 +184,7 @@ input[type=radio]{accent-color:var(--primary)}
       <tbody id="mtxBody"></tbody>
     </table>
   </div>
-  <div class="hint" style="margin-top:8px">琥珀色格子 = 隐藏报名（此时该渠道的前端展示开关与展示时间不参与控制，学员只能通过定向链接报名）。行尾「…」= 考试操作菜单（考试详情 / 解除全部渠道关联）。考试内容的编辑请回「活动管理」。</div>
+  <div class="hint" style="margin-top:8px">琥珀色格子 = 隐藏报名（此时该渠道的前端展示开关与展示时间不参与控制，学员只能通过定向链接报名）。考试行内可直接点「详情」「解除全部关联」；考试内容的编辑请回「活动管理」。</div>
 </div>
 
 <!-- ========== 单格配置弹窗 ========== -->
@@ -326,10 +339,17 @@ function show(id){$(id).classList.add('show')}
 function hide(id){$(id).classList.remove('show')}
 function toast(m){var t=$('toast');t.textContent=m;t.classList.add('show');setTimeout(function(){t.classList.remove('show')},2200)}
 
+function toggleSelAll(){
+  var cks=[].slice.call(document.querySelectorAll('.rowck'));
+  var all=cks.every(function(x){return x.checked});
+  cks.forEach(function(x){x.checked=!all});
+  selChk();
+  $('btnSelAll').textContent=all?'全选':'取消全选';
+}
 /* ================= 矩阵渲染 ================= */
 function renderHead(){
   var tr=$('mtxHead');
-  var h='<th class="stu"><input type="checkbox" onclick="selAll(this)" title="全选"> 考试 / 渠道</th>';
+  var h='<th class="stu">考试 × 渠道（点格子配置）</th>';
   CHS.forEach(function(c,i){
     var n=0;ROWS.forEach(function(r,ri){if(r.links[i]&&!r.links[i].fail)n++});
     h+='<th>'+c+'<div class="hint">'+n+' 场已关联</div></th>';
@@ -347,17 +367,17 @@ function renderBody(){
     if(!list.length)return;
     shown=true;
     var zr=document.createElement('tr');zr.className='zone-row';
-    zr.innerHTML='<td class="stu" colspan="'+(CHS.length+1)+'">【'+z+'】 '+list.length+' 场考试 <label class="hint" style="margin-left:14px;font-weight:400"><input type="checkbox" onclick="selZone(\''+z+'\',this)"> 选本组全部</label></td>';
+    zr.innerHTML='<td class="stu" colspan="'+(CHS.length+1)+'"><div class="zone-line"><input type="checkbox" onclick="selZone(\''+z+'\',this)" title="选中本组全部考试"> <b>【'+z+'】</b> <span class="hint">'+list.length+' 场考试</span></div></td>';
     tb.appendChild(zr);
     list.forEach(function(o){
       var r=o.r,i=o.i;
       var tr=document.createElement('tr');
-      var sub=(r.paperOk===false?'<span class="tag amber">待关联试卷</span> · ':'')+r.time+(r.mock?' · 含模拟考':'');
-      var tds='<td class="stu"><div class="link-line"><input type="checkbox" class="rowck" data-zone="'+z+'" data-i="'+i+'" onclick="selChk(this)"><div><div class="exam-name">'+r.name+'</div><div class="exam-sub">'+sub+'</div></div>'+
-        '<span class="menu-wrap"><button class="btn small" onclick="toggleMenu(event,this)">…</button><div class="menu">'+
-        '<div class="mi" onclick="examDetail('+i+')">考试详情</div>'+
-        '<div class="mi red" onclick="unlinkAll('+i+')">解除全部渠道关联</div>'+
-        '</div></span></div></td>';
+      var sub=r.time+(r.mock?' · 含模拟考':'');
+      var tds='<td class="stu"><div class="stu-cell">'+
+        '<div class="stu-l1"><input type="checkbox" class="rowck" data-zone="'+z+'" data-i="'+i+'" onclick="selChk(this)"><span class="exam-name">'+r.name+'</span>'+(r.paperOk===false?'<span class="tag amber">待关联试卷</span>':(r.paper?'<span class="tag green">'+r.paper+'</span>':''))+'</div>'+
+        '<div class="stu-l2">'+sub+'</div>'+
+        '<div class="stu-l3"><a class="lnk" onclick="examDetail('+i+')">详情</a><span class="sep">·</span><a class="lnk red" onclick="unlinkAll('+i+')">解除全部关联</a></div>'+
+        '</div></td>';
       CHS.forEach(function(c,ci){
         var L=r.links[ci];
         if(L&&L.fail){tds+='<td><span class="cell linked" onclick="toast(\'创建失败：爱测评返回冲突，点击重试\')">创建失败<span class="badge fail">失败</span></span></td>';}
