@@ -102,13 +102,13 @@ input[type=radio]{accent-color:var(--primary)}
 </head>
 <body>
 <header>
-  <div class="logo">考</div><h1>考务系统 · 渠道关联矩阵</h1>
+  <div class="logo">考</div><h1>渠道关联</h1>
   <div class="spacer"></div>
   <button class="btn" onclick="location.href='01_活动管理.html'">← 返回活动管理</button>
 </header>
 
 <main>
-  <div class="crumb"><a onclick="location.href='01_活动管理.html'">活动管理</a> / <span id="crumbAct">2026年9月常规考</span> / 阶段二 · 渠道关联</div>
+  <div class="crumb"><a onclick="location.href='01_活动管理.html'">活动管理</a> / <span id="crumbAct">2026年9月常规考</span> / 渠道关联</div>
   <div class="card" style="padding:12px 18px">
     <div class="hint" style="font-size:13px">
       横轴 = 渠道，纵轴 = 分组下的考试。<b>点击单元格</b>配置该考试在该渠道的报名费 / 展示 / 隐藏报名；
@@ -315,7 +315,7 @@ function renderBody(){
       var tds='<td class="stu"><div class="link-line"><input type="checkbox" class="rowck" data-zone="'+z+'" data-i="'+i+'" onclick="selChk(this)"><div><div class="exam-name">'+r.name+'</div><div class="exam-sub">'+sub+'</div></div>'+
         '<span class="menu-wrap"><button class="btn small" onclick="toggleMenu(event,this)">…</button><div class="menu">'+
         '<div class="mi" onclick="examDetail('+i+')">考试详情</div>'+
-        '<div class="mi" onclick="toast(\'演示：编辑考试（阶段一配置）\')">编辑考试</div>'+
+        '<div class="mi" onclick="toast(\'演示：编辑考试配置（正式考 / 模拟考）\')">编辑考试</div>'+
         '<div class="mi" onclick="toast(\'演示：复制考试\')">复制考试</div>'+
         '<div class="mi red" onclick="toast(\'演示：解除全部渠道关联（二次确认）\')">解除全部渠道关联</div>'+
         '</div></span></div></td>';
@@ -512,7 +512,7 @@ function examDetail(i){
     '<div class="field"><label>试卷</label><div>'+(r.paperOk===false?'<span class="tag amber">待关联试卷</span>':r.paper)+' · 模拟考：'+(r.mock?'已开启（独立模拟卷/时间/监考）':'未开启')+'</div></div>'+
     '<div class="field"><label>考试时间</label><div>'+r.time+'</div></div>'+
     '<div class="field"><label>渠道关联（'+CHS.filter(function(_,ci){return r.links[ci]}).length+'）</label><div>'+linkCells+'</div></div>'+
-    '<div class="hint">编辑考试（阶段一配置）请返回活动管理页，在考试行「…」菜单操作。</div>';
+    '<div class="hint">编辑考试配置请返回活动管理页，在考试行「…」菜单操作。</div>';
   show('ovExam');
 }
 
