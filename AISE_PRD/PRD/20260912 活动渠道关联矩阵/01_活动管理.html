@@ -147,6 +147,9 @@ textarea{min-height:72px}
 .fline .field{flex:1;margin-bottom:0;min-width:0}
 .fline .field.w2{flex:2}
 
+.subblock{background:#f8fafd;border:1px solid #e6ebf3;border-radius:10px;padding:14px 16px 4px;margin:10px 0 14px}
+.subblock-title{font-size:13px;font-weight:600;color:#33415c;margin-bottom:10px}
+
 /* 可搜索单选下拉 */
 .ssel-box{border:1px solid var(--border);border-radius:8px;min-height:36px;padding:4px 30px 4px 10px;display:flex;align-items:center;gap:8px;cursor:pointer;background:#fff;position:relative}
 .ssel-box:hover{border-color:#b9c6dd}
@@ -358,13 +361,13 @@ textarea{min-height:72px}
         只改你要改的项：<b>未修改 / 留空的项自动保持各考试原值</b>，无需勾选。改完点「应用修改」即生效。
       </div>
 
-      <div class="sec-title">试卷与标签</div>
+      <div class="sec-title">试卷与标签 <span class="sub">正式考</span></div>
       <div class="fline">
         <div class="field w2"><label>关联试卷（选中即替换；清空 ✕ 表示不修改）</label><div class="msel" id="bePaperSel"></div></div>
         <div class="field"><label>标签（选择后替换所选考试的标签；不选 = 不变）</label><div class="msel" id="beTagSel"></div></div>
       </div>
 
-      <div class="sec-title">模拟考</div>
+      <div class="sec-title">模拟考 <span class="sub">与正式考相互独立，留空保持原值</span></div>
       <div class="fline">
         <div class="field"><label>模拟考开关</label>
           <select id="beMockSel" style="width:100%">
@@ -373,10 +376,28 @@ textarea{min-height:72px}
             <option value="off">统一关闭</option>
           </select>
         </div>
-        <div class="field w2"><label class="muted" style="font-size:12px">模拟考的时间、次数、监考在弹窗下半部分配置，同样留空保持原值</label></div>
+        <div class="field w2"><label>模拟卷（选中即替换；不选 = 不变）</label><div class="msel" id="beMockPaperSel"></div></div>
+      </div>
+      <div class="fline">
+        <div class="field"><label>模拟考开始</label><input type="datetime-local" id="beMockStart" style="width:100%"></div>
+        <div class="field"><label>模拟考结束</label><input type="datetime-local" id="beMockEnd" style="width:100%"></div>
+        <div class="field"><label>次数限制</label><select id="beMockTimes" style="width:100%"><option value="">不变</option><option>1 次</option><option>2 次</option><option>3 次</option><option>无限次</option></select></div>
+      </div>
+      <div class="subblock">
+        <div class="subblock-title">模拟考监考</div>
+        <div class="fline">
+          <div class="field"><label>摄像头</label><select id="beMCam" style="width:100%"><option value="">不变</option><option>强制开启</option><option>考生自选</option><option>关闭</option></select></div>
+          <div class="field"><label>录屏</label><select id="beMRec" style="width:100%"><option value="">不变</option><option>强制开启</option><option>考生自选</option><option>关闭</option></select></div>
+          <div class="field"><label>检录照片</label><select id="beMPho" style="width:100%"><option value="">不变</option><option>强制开启</option><option>考生自选</option><option>关闭</option></select></div>
+        </div>
+        <div class="fline">
+          <div class="field"><label>候考时长（分钟）</label><input type="number" id="beMWait" placeholder="不变" style="width:100%"></div>
+          <div class="field"><label>手机监考</label><select id="beMPhone" style="width:100%"><option value="">不变</option><option>开启</option><option>关闭</option></select></div>
+          <div class="field"><label class="muted" style="font-size:12px"></label><div class="hint" style="padding-top:9px">留空全部保持原值</div></div>
+        </div>
       </div>
 
-      <div class="sec-title">考试时间与要素</div>
+      <div class="sec-title">考试时间与要素 <span class="sub">正式考</span></div>
       <div class="fline">
         <div class="field"><label>考试时间（整体平移，场次间隔不变）</label><input type="datetime-local" id="beTime" style="width:100%"></div>
         <div class="field"><label>考试时长（分钟）</label><input type="number" id="beDur" placeholder="不变" style="width:100%"></div>
@@ -388,7 +409,7 @@ textarea{min-height:72px}
         </div>
       </div>
 
-      <div class="sec-title">监考配置</div>
+      <div class="sec-title">正式考监考 <span class="sub">留空保持原值</span></div>
       <div class="fline">
         <div class="field"><label>摄像头</label><select id="beCam" style="width:100%"><option value="">不变</option><option>强制开启</option><option>考生自选</option><option>关闭</option></select></div>
         <div class="field"><label>录屏</label><select id="beRec" style="width:100%"><option value="">不变</option><option>强制开启</option><option>考生自选</option><option>关闭</option></select></div>
@@ -400,7 +421,7 @@ textarea{min-height:72px}
         <div class="field"><label class="muted" style="font-size:12px"></label><div class="hint" style="padding-top:9px">考试开始后要素线上自动锁定，不受此处修改影响</div></div>
       </div>
 
-      <div class="warnbox" style="margin-top:6px">报名费、前端展示时间、隐藏报名链接属于<b>渠道关联配置</b>，不在此处——请到「渠道关联」页的矩阵单元格里修改（不同渠道可配不同展示时间与费用）。</div>
+            <div class="warnbox" style="margin-top:6px">报名费、前端展示时间、隐藏报名链接属于<b>渠道关联配置</b>，不在此处——请到「渠道关联」页的矩阵单元格里修改（不同渠道可配不同展示时间与费用）。</div>
     </div>
     <div class="modal-foot">
       <span class="hint" style="margin-right:auto" id="beChanges"></span>
@@ -799,9 +820,10 @@ function openBulkEditExam(){
   var ids=checkedExams();
   $('bulkEditSummary').textContent='将修改 '+ids.length+' 场考试：'+ids.slice(0,4).map(function(i){return curAct.exams[i].name}).join('、')+(ids.length>4?' 等':'');
   window.beTagSel=[];
-  renderSsel('bePaperSel',PAPERS,'','搜索试卷名称（不选 = 不变）');
+  renderSsel('bePaperSel',PAPERS,'','搜索正式卷（不选 = 不变）');
+  renderSsel('beMockPaperSel',PAPERS,'','搜索模拟卷（不选 = 不变）');
   renderMsel('beTagSel',TAGS.map(function(t){return{name:t}}),window.beTagSel,'beTagSel','refreshBeTags');
-  ['beMockSel','beTime','beDur','beSubmit','beCam','beRec','bePho','beWait','bePhone'].forEach(function(id){
+  ['beMockSel','beMockStart','beMockEnd','beMockTimes','beMCam','beMRec','beMPho','beMWait','beMPhone','beTime','beDur','beSubmit','beCam','beRec','bePho','beWait','bePhone'].forEach(function(id){
     var el=$(id);if(el)el.value='';
   });
   countChanges();bindChangeCount();
@@ -811,7 +833,7 @@ function refreshBeTags(){renderMsel('beTagSel',TAGS.map(function(t){return{name:
 var _beBound=false;
 function bindChangeCount(){
   if(_beBound)return;_beBound=true;
-  ['beMockSel','beTime','beDur','beSubmit','beCam','beRec','bePho','beWait','bePhone'].forEach(function(id){
+  ['beMockSel','beMockStart','beMockEnd','beMockTimes','beMCam','beMRec','beMPho','beMWait','beMPhone','beTime','beDur','beSubmit','beCam','beRec','bePho','beWait','bePhone'].forEach(function(id){
     var el=$(id);if(el)el.addEventListener('input',countChanges);if(el)el.addEventListener('change',countChanges);
   });
 }
@@ -819,7 +841,8 @@ function countChanges(){
   var n=0;
   if(sselState['bePaperSel']&&sselState['bePaperSel'].value)n++;
   if(window.beTagSel&&window.beTagSel.length)n++;
-  if($('beMockSel').value)n++;
+  if(sselState['beMockPaperSel']&&sselState['beMockPaperSel'].value)n++;
+  ['beMockSel','beMockStart','beMockEnd','beMockTimes','beMCam','beMRec','beMPho','beMWait','beMPhone'].forEach(function(id){if($(id).value)n++});
   ['beTime','beDur','beWait'].forEach(function(id){if($(id).value)n++});
   ['beSubmit','beCam','beRec','bePho','bePhone'].forEach(function(id){if($(id).value)n++});
   $('beChanges').textContent=n?('将修改 '+n+' 个设置项'):'尚未修改任何项（全部保持原值）';
@@ -830,6 +853,7 @@ function doBulkEdit(){
   var n=countChanges();
   if(!n){toast('未修改任何项，无需应用');return}
   var paperV=(sselState['bePaperSel']&&sselState['bePaperSel'].value)||'';
+  var mockPaperV=(sselState['beMockPaperSel']&&sselState['beMockPaperSel'].value)||'';
   var tagV=(window.beTagSel||[]).slice();
   var mockV=$('beMockSel').value;
   var bits=[];
@@ -839,10 +863,12 @@ function doBulkEdit(){
     if(tagV.length)e.tags=tagV.slice();
     if(mockV==='on')e.mock=true;
     if(mockV==='off')e.mock=false;
+    if(mockPaperV)e.mockPaper=mockPaperV;
   });
-  if(paperV)bits.push('试卷');
+  if(paperV)bits.push('正式卷');
   if(tagV.length)bits.push('标签');
   if(mockV)bits.push('模拟考'+(mockV==='on'?'开':'关'));
+  if(mockPaperV)bits.push('模拟卷');
   hide('ovBulkEdit');renderTree();
   toast('已修改 '+ids.length+' 场考试（'+bits.join('、')+'），其余保持原值');
 }
