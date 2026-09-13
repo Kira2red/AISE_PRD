@@ -138,6 +138,19 @@ input:focus,select:focus{outline:2px solid var(--primary-weak);border-color:var(
 .link-line{display:flex;align-items:center;gap:6px}
 input[type=radio]{accent-color:var(--primary)}
 </style>
+<style>
+.perm-line{display:flex;align-items:center;gap:8px;margin-bottom:8px}
+.perm-line input[type=checkbox]{width:15px;height:15px;accent-color:var(--primary);cursor:pointer}
+.perm-line span{font-size:12px;color:#33415c;cursor:pointer;user-select:none}
+.time-box.off{opacity:.45;pointer-events:none}
+</style>
+<script>
+function permToggle(cb,boxId){
+  var box=document.getElementById(boxId);
+  box.classList.toggle('off',cb.checked);
+  if(cb.checked){[].slice.call(box.querySelectorAll('input')).forEach(function(i){i.value=''})}
+}
+</script>
 </head>
 <body class="flex h-screen overflow-hidden text-slate-800 font-sans" style="font-family:'PingFang SC','Microsoft YaHei',sans-serif">
 <aside class="w-64 bg-white border-r border-slate-200 flex flex-col flex-shrink-0 z-20">
@@ -210,9 +223,10 @@ input[type=radio]{accent-color:var(--primary)}
           <div style="display:flex;align-items:center;gap:10px"><div class="switch on" id="cShow" onclick="this.classList.toggle('on')"></div><span class="hint">开启后学员端可见</span></div>
         </div>
       </div>
-      <div class="grid2" id="cShowTimeBox">
+      <div class="perm-line"><input type="checkbox" id="cPerm" onchange="permToggle(this,'cShowTimeBox')"><span onclick="document.getElementById('cPerm').click()">永久展示（不用填起止时间）</span></div>
+      <div class="grid2 time-box" id="cShowTimeBox">
         <div class="field"><label>展示开始（选填）</label><input type="datetime-local" style="width:100%"></div>
-        <div class="field"><label>展示结束（选填，空 = 长期）</label><input type="datetime-local" style="width:100%"></div>
+        <div class="field"><label>展示结束（选填）</label><input type="datetime-local" style="width:100%"></div>
       </div>
       <div class="field"><label style="color:var(--muted);font-size:12px;display:block;margin-bottom:5px">报名可见性</label>
         <div style="display:flex;gap:8px">
@@ -277,7 +291,8 @@ input[type=radio]{accent-color:var(--primary)}
         <div class="field"><label>新报名费（元）</label><input type="number" id="editFee" value="300" style="width:100%"></div>
         <div class="field"><label>前端展示</label><div style="display:flex;align-items:center;gap:10px"><div class="switch on" onclick="this.classList.toggle('on')"></div><span class="hint">开启后学员端可见</span></div></div>
       </div>
-      <div class="grid2">
+      <div class="perm-line"><input type="checkbox" id="editPerm" onchange="permToggle(this,'editTimeBox')" checked><span onclick="document.getElementById('editPerm').click()">永久展示（不用填起止时间）</span></div>
+      <div class="grid2 time-box off" id="editTimeBox">
         <div class="field"><label>展示开始（选填）</label><input type="datetime-local" style="width:100%"></div>
         <div class="field"><label>展示结束（选填）</label><input type="datetime-local" style="width:100%"></div>
       </div>
@@ -529,8 +544,9 @@ function feeCardsRender(){
     d.innerHTML='<div class="head"><b>'+c+'</b><span class="hint">上次使用价 ¥280</span></div>'+
       '<div class="grid2 fc-show"><div class="field"><label class="req">报名费（元）</label><input type="number" value="280" class="feeInput" data-ch="'+c+'" style="width:100%"></div>'+
       '<div class="field"><label>前端展示</label><div style="display:flex;align-items:center;gap:10px"><div class="switch" onclick="this.classList.toggle(\'on\')"></div><span class="hint">默认不展示</span></div></div></div>'+
-      '<div class="grid2 fc-show"><div class="field"><label>展示开始（选填）</label><input type="datetime-local" style="width:100%"></div>'+
-      '<div class="field"><label>展示结束（选填，空 = 长期）</label><input type="datetime-local" style="width:100%"></div></div>'+
+      '<div class="fc-show"><div class="perm-line"><input type="checkbox" class="permck" checked><span>永久展示（不用填起止时间）</span></div>'+
+      '<div class="grid2 time-box off"><div class="field"><label>展示开始（选填）</label><input type="datetime-local" style="width:100%"></div>'+
+      '<div class="field"><label>展示结束（选填）</label><input type="datetime-local" style="width:100%"></div></div></div>'+
       '<div class="field"><label>报名可见性</label><div style="display:flex;gap:8px"><span class="chip btn on">正常报名</span><span class="chip btn">隐藏报名</span></div></div>'+
       '<div class="fc-hidden" style="display:none"><div class="warnbox">开启隐藏报名后：<b>前端展示开关与展示时间不再参与控制</b>（相关配置已收起）；仅持定向链接可报名，每个考试×渠道生成独立链接，切换或删除关联会使链接失效。</div></div>';
     box.appendChild(d);
@@ -538,6 +554,13 @@ function feeCardsRender(){
   bindVisChips();
 }
 function bindVisChips(){
+  [].slice.call(document.querySelectorAll('#feeCards .permck')).forEach(function(cb){
+    cb.onchange=function(){
+      var box=cb.closest('.fc-show').querySelector('.time-box');
+      box.classList.toggle('off',cb.checked);
+      if(cb.checked){[].slice.call(box.querySelectorAll('input')).forEach(function(i){i.value=''})}
+    };
+  });
   [].slice.call(document.querySelectorAll('#feeCards .chip.btn')).forEach(function(ch){
     ch.onclick=function(){
       [].slice.call(ch.parentNode.querySelectorAll('.chip.btn')).forEach(function(x){x.classList.remove('on')});
