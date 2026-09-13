@@ -177,7 +177,6 @@ function permToggle(cb,boxId){
         <a onclick="location.href='32_活动管理.html'" class="text-sm text-slate-400 hover:text-brand-600 cursor-pointer">活动管理</a><i class="fa-solid fa-chevron-right text-[10px] text-slate-300"></i><h1 class="text-xl font-bold text-slate-800">渠道关联</h1>
         <span class="text-xs text-slate-400 bg-slate-100 px-2 py-0.5 rounded" id="crumbAct2"></span>
     </div>
-    <button onclick="openBulkAdd()" id="btnAdd" disabled class="bg-brand-600 hover:bg-brand-700 text-white text-sm font-medium px-5 py-2.5 rounded-lg shadow-sm transition flex items-center gap-2 disabled:opacity-40 disabled:cursor-not-allowed disabled:hover:bg-brand-600"><i class="fa-solid fa-plus"></i> 添加渠道</button>
 </header>
 <div class="flex-1 overflow-y-auto px-8 py-6">
 
@@ -198,7 +197,7 @@ function permToggle(cb,boxId){
     <div class="spacer"></div>
     <button class="btn" id="btnEdit" onclick="openBulkEdit()" disabled>修改渠道配置</button>
     <button class="btn danger" id="btnDel" onclick="openBulkDel()" disabled>解除渠道关联</button>
-    <button class="btn primary" onclick="openBulkAdd()">＋ 添加渠道</button>
+    <button class="btn primary" id="btnAdd" onclick="openBulkAdd()" disabled>＋ 添加渠道</button>
   </div>
 
   <div class="mtx-wrap">
