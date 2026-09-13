@@ -92,8 +92,11 @@ input[type=checkbox]{width:15px;height:15px;accent-color:var(--primary);cursor:p
 .wizard-tabs{display:flex;margin-bottom:16px;border:1px solid var(--border);border-radius:8px;overflow:hidden}
 .wizard-tabs .wt{flex:1;text-align:center;padding:9px;font-size:13px;background:#f7f9fc;color:var(--muted)}
 .wizard-tabs .wt.on{background:var(--primary);color:#fff;font-weight:600}
-.ch-cards{display:grid;grid-template-columns:1fr 1fr;gap:10px}
-.ch-card{border:1px solid var(--border);border-radius:10px;padding:12px 14px;cursor:pointer;position:relative}
+.ch-cards{display:flex;flex-direction:column;gap:6px;max-height:340px;overflow-y:auto;padding-right:4px}
+.ch-list-search{position:relative;margin-bottom:10px}
+.ch-list-search input{width:100%;box-sizing:border-box;border:1px solid var(--border);border-radius:8px;padding:9px 12px 9px 34px;font-size:13px}
+.ch-list-search i{position:absolute;left:12px;top:50%;transform:translateY(-50%);color:var(--muted);font-size:12px}
+.ch-card{border:1px solid var(--border);border-radius:9px;padding:9px 12px;cursor:pointer;position:relative;display:flex;align-items:center;gap:10px}
 .ch-card.on{border-color:var(--primary);background:#f6f9ff;box-shadow:0 0 0 1px var(--primary)}
 .ch-card.dis{opacity:.5;cursor:not-allowed}
 .ch-card b{font-size:13px}
@@ -239,6 +242,7 @@ input[type=radio]{accent-color:var(--primary)}
       <div class="wizard-tabs"><div class="wt on" id="awt1">第 1 步 · 选择渠道</div><div class="wt" id="awt2">第 2 步 · 配置报名</div></div>
 
       <div id="addStep1">
+        <div class="ch-list-search"><i class="fa-solid fa-magnifying-glass"></i><input type="text" id="chSearch" placeholder="搜索渠道名称" oninput="chFilter()"></div>
         <div class="ch-cards" id="chCards"></div>
       </div>
 
@@ -325,21 +329,21 @@ input[type=radio]{accent-color:var(--primary)}
 <script>
 /* ================= 数据 ================= */
 var GROUPS=['3月批','6月批'];
-var CHS=['猿编程','核桃编程','编程猫','小码王'];
+var CHS=['猿编程','核桃编程','编程猫','小码王','VIPCODE','童程童美','小码精灵','码高教育','乐高活动中心','斯坦星球','极客晨星','西瓜创客'];
 /* rows: 每行一场考试; links[examIdx][chIdx] = null | {fee, hidden, regs} */
 var ROWS=[
  {zone:'3月批',name:'Python一级-第1场',paper:'Python一级 正式卷A',time:'09-20 09:00',regs:[12,5,0,0],mock:true,
   tags:'Python 1级',
-  links:[{fee:300,hidden:false,regs:12},{fee:300,hidden:true,regs:5},null,null]},
+  links:[{fee:300,hidden:false,regs:12},{fee:300,hidden:true,regs:5},null,null,null,null,null,null,null,null,null,null]},
  {zone:'3月批',name:'图形化一级-第1场',paper:'',paperOk:false,time:'09-21 09:00',regs:[8,0,3,0],mock:true,
   tags:'图形化 1级',
-  links:[{fee:280,hidden:false,regs:8},null,{fee:280,hidden:false,regs:3},null]},
+  links:[{fee:280,hidden:false,regs:8},null,{fee:280,hidden:false,regs:3},null,null,null,null,null,null,null,null,null]},
  {zone:'6月批',name:'Python二级-第1场',paper:'Python二级 正式卷A',time:'09-27 09:00',regs:[6,0,0,0],mock:false,
   tags:'Python 2级',
-  links:[{fee:320,hidden:false,regs:6},null,null,{fail:true}]},
+  links:[{fee:320,hidden:false,regs:6},null,null,{fail:true},null,null,null,null,null,null,null,null]},
  {zone:'6月批',name:'图形化二级-第1场',paper:'图形化二级 正式卷B',time:'09-28 14:00',regs:[0,0,0,0],mock:false,
   tags:'图形化 2级',
-  links:[null,null,null,null]}
+  links:[null,null,null,null,null,null,null,null,null,null,null,null]}
 ];
 var sel={};
 
@@ -491,12 +495,21 @@ function openBulkAdd(){
   var box=$('chCards');box.innerHTML='';
   CHS.forEach(function(c,ci){
     var all=ROWS.every(function(r){return r.links[ci]&&!r.links[ci].fail});
+    var linked=ROWS.filter(function(r){return r.links[ci]&&!r.links[ci].fail}).length;
     var d=document.createElement('div');d.className='ch-card'+(all?' dis':'');
-    d.innerHTML='<div class="tick">✓</div><b>'+c+'</b><div class="sub">'+(all?'已与全部勾选考试存在关联':'已关联 '+ROWS.filter(function(r){return r.links[ci]&&!r.links[ci].fail}).length+' 场')+'</div>';
+    d.setAttribute('data-name',c.toLowerCase());
+    d.innerHTML='<div class="tick">✓</div><b style="flex:1">'+c+'</b><span class="sub">'+(all?'已全部关联':'已关联 '+linked+' 场')+'</span>';
     if(!all)d.onclick=function(){d.classList.toggle('on');syncAdd()};
     box.appendChild(d);
   });
+  $('chSearch').value='';
   addNav(1);show('ovAdd');
+}
+function chFilter(){
+  var kw=$('chSearch').value.trim().toLowerCase();
+  [].slice.call(document.querySelectorAll('#chCards .ch-card')).forEach(function(d){
+    d.style.display=(!kw||d.getAttribute('data-name').indexOf(kw)>=0)?'':'none';
+  });
 }
 function syncAdd(){
   addSel=[].slice.call(document.querySelectorAll('#chCards .ch-card.on')).map(function(d){
