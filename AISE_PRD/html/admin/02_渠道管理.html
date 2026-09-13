@@ -338,17 +338,17 @@
 
     <div id="modal-relation"
         class="fixed inset-0 z-50 hidden flex items-center justify-center bg-slate-900/50 backdrop-blur-sm transition-opacity opacity-0">
-        <div class="bg-white rounded-2xl shadow-2xl w-[960px] max-h-[80vh] flex flex-col transform scale-95 transition-transform"
+        <div class="bg-white rounded-2xl shadow-2xl w-[1180px] max-h-[85vh] flex flex-col transform scale-95 transition-transform"
             id="modal-relation-content">
 
             <div
                 class="px-6 py-4 border-b border-slate-100 flex justify-between items-center bg-slate-50 rounded-t-2xl">
                 <div>
                     <h3 class="font-bold text-slate-800 text-lg">关联测评管理</h3>
-                    <p class="text-xs text-slate-500 mt-1">当前渠道：<span class="font-bold text-brand-600" id="relation-channel-name">猿编程</span> · 关联由运营在「活动管理 → 渠道关联」中配置；此处可编辑单场测评在本渠道的费用 / 展示 / 报名可见性</p>
+                    <p class="text-xs text-slate-500 mt-1">当前渠道：<span class="font-bold text-brand-600" id="relation-channel-name">猿编程</span></p>
                 </div>
                 <div class="flex items-center gap-4">
-                    <span class="text-[11px] text-slate-400 bg-slate-50 border border-slate-200 rounded-lg px-3 py-2">添加 / 批量关联请由运营在「活动管理 → 渠道关联」中配置</span>
+                    <button onclick="location.href='35_渠道关联矩阵.html'" class="bg-brand-600 hover:bg-brand-700 text-white text-xs font-bold px-4 py-2 rounded-lg shadow-sm transition flex items-center gap-2"><i class="fa-solid fa-table-cells"></i> 渠道关联</button>
                     <button onclick="closeRelationModal()"
                         class="w-8 h-8 rounded-full hover:bg-slate-200 flex items-center justify-center text-slate-400 transition">
                         <i class="fa-solid fa-xmark"></i>
@@ -367,14 +367,14 @@
                 <table class="w-full text-left border-collapse">
                     <thead>
                         <tr class="border-b border-slate-100 text-xs uppercase text-slate-500 font-bold">
-                            <th class="pb-3 w-1/3">测评名称</th>
-                            <th class="pb-3">分组</th>
-                            <th class="pb-3">时间信息</th>
-                            <th class="pb-3">报名费 (元)</th>
-                            <th class="pb-3">报名</th>
-                            <th class="pb-3">已报名</th>
-                            <th class="pb-3">前端展示</th>
-                            <th class="pb-3 text-right w-44">操作</th>
+                            <th class="pb-3" style="width:240px">测评名称</th>
+                            <th class="pb-3" style="width:88px">分组</th>
+                            <th class="pb-3" style="width:150px">时间信息</th>
+                            <th class="pb-3" style="width:92px">报名费 (元)</th>
+                            <th class="pb-3" style="width:96px">报名</th>
+                            <th class="pb-3" style="width:72px">已报名</th>
+                            <th class="pb-3" style="width:96px">前端展示</th>
+                            <th class="pb-3 text-right" style="width:150px">操作</th>
                         </tr>
                     </thead>
                     <tbody class="text-sm text-slate-700 divide-y divide-slate-50" id="rel-tbody"></tbody>
