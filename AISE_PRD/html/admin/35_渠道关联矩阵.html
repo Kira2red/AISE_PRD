@@ -44,7 +44,7 @@ table.mtx{border-collapse:separate;border-spacing:0;width:100%;min-width:860px}
 .mtx td.stu .stu-cell{padding:2px 0 2px 18px;display:flex;flex-direction:column;gap:3px}
 .mtx td.stu .stu-cell{border-left:3px solid #dfe6f0;margin-left:2px}
 .stu-l1{display:flex;align-items:center;gap:8px}
-.stu-l1 .exam-name{font-weight:600;font-size:13px}
+.stu-l1 .exam-name{font-weight:600;font-size:13px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
 .stu-l1 .tag{flex:none}
 .stu-l2{font-size:11px;color:var(--muted);padding-left:23px}
 .stu-l3{display:flex;align-items:center;gap:8px;padding-left:23px}
@@ -54,8 +54,8 @@ table.mtx{border-collapse:separate;border-spacing:0;width:100%;min-width:860px}
 .lnk .sep,.stu-l3 .sep{color:#c3ccd9;font-size:10px}
 .zone-line{display:flex;align-items:center;gap:10px}
 .zone-line b{font-size:13px;letter-spacing:.5px}
-.mtx td.stu{text-align:left;position:sticky;left:0;background:inherit;background:#fff;z-index:2;min-width:250px;border-right:1px solid var(--border)}
-.mtx thead th.stu{background:#f9fafc;z-index:4;position:sticky;left:0}
+.mtx td.stu{text-align:left;position:sticky;left:0;background:inherit;background:#fff;z-index:2;min-width:320px;max-width:360px;border-right:1px solid var(--border)}
+.mtx thead th.stu{background:#f9fafc;z-index:4;position:sticky;left:0;min-width:320px;max-width:360px}
 .mtx td{padding:8px 10px;border-bottom:1px solid #f0f2f6;font-size:13px;text-align:center;vertical-align:middle}
 .mtx tr.exam td{padding-top:9px;padding-bottom:9px}
 .zone-row td{background:#f4f7fb;font-weight:600;text-align:left;padding:8px 12px;font-size:13px;color:#33415c}
@@ -208,7 +208,7 @@ function permToggle(cb,boxId){
       <tbody id="mtxBody"></tbody>
     </table>
   </div>
-  <div class="hint" style="margin-top:8px">琥珀色格子 = 隐藏报名（此时该渠道的前端展示开关与展示时间不参与控制，学员只能通过定向链接报名）。测评行内可直接点「详情」「解除全部关联」；测评内容的编辑请回「活动管理」。</div>
+  <div class="hint" style="margin-top:8px">琥珀色格子 = 隐藏报名（此时该渠道的前端展示开关与展示时间不参与控制，学员只能通过定向链接报名）。测评行内可直接点「解除全部关联」；测评内容的编辑请回「活动管理」。</div>
 </div>
 
 <!-- ========== 单格配置弹窗 ========== -->
@@ -420,7 +420,7 @@ function renderBody(){
       var tds='<td class="stu"><div class="stu-cell">'+
         '<div class="stu-l1"><input type="checkbox" class="rowck" data-zone="'+z+'" data-i="'+i+'" onclick="selChk(this)"><span class="exam-name">'+r.name+'</span>'+(r.paperOk===false?'<span class="tag amber">待关联试卷</span>':(r.paper?'<span class="tag green">'+r.paper+'</span>':''))+'</div>'+
         '<div class="stu-l2">'+sub+'</div>'+
-        '<div class="stu-l3"><a class="lnk" onclick="examDetail('+i+')">详情</a><span class="sep">·</span><a class="lnk red" onclick="unlinkAll('+i+')">解除全部关联</a></div>'+
+        '<div class="stu-l3"><a class="lnk red" onclick="unlinkAll('+i+')">解除全部关联</a></div>'+
         '</div></td>';
       CHS.forEach(function(c,ci){
         var L=r.links[ci];
