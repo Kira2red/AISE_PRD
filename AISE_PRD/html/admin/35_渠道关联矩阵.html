@@ -278,12 +278,12 @@ function permToggle(cb,boxId){
 
 <!-- ========== 批量修改 ========== -->
 <div class="overlay" id="ovEdit">
-  <div class="modal" style="width:560px">
+  <div class="modal" style="width:760px">
     <div class="modal-head"><b>批量修改渠道配置</b></div>
     <div class="modal-body">
       <div class="summary-bar" id="editSummary"></div>
-      <div class="field"><label class="req">选择渠道（单选）</label>
-        <select id="editCh" style="width:100%"><option>猿编程</option><option>核桃编程</option><option>编程猫</option><option>小码王</option></select>
+      <div class="field"><label class="req">选择渠道（可多选，将修改勾选测评行在这些渠道下的配置）</label>
+        <div class="ch-cards" id="editChCards" style="max-height:200px"></div>
       </div>
       <div class="grid2">
         <div class="field"><label>新报名费（元）</label><input type="number" id="editFee" value="300" style="width:100%"></div>
@@ -299,6 +299,21 @@ function permToggle(cb,boxId){
     <div class="modal-foot">
       <button class="btn" onclick="hide('ovEdit')">取消</button>
       <button class="btn primary" onclick="doEdit()">应用修改</button>
+    </div>
+  </div>
+</div>
+
+<!-- ========== 修改二次确认 ========== -->
+<div class="overlay" id="ovEditConfirm">
+  <div class="modal" style="width:520px">
+    <div class="modal-head"><b>确认应用修改</b></div>
+    <div class="modal-body">
+      <div class="summary-bar" id="editConfirmSummary"></div>
+      <div class="warnbox">报名费修改<b>不溯及已报名订单</b>：已有订单按原价结算，仅影响新报名。已隐藏报名的关联不受本次修改影响。</div>
+    </div>
+    <div class="modal-foot">
+      <button class="btn" onclick="hide('ovEditConfirm')">再想想</button>
+      <button class="btn primary" onclick="doEditConfirm()">确认修改</button>
     </div>
   </div>
 </div>
@@ -627,22 +642,40 @@ function checkedRows(){
 
 /* ================= 批量修改 ================= */
 function openBulkEdit(){
-  var n=checkedRows().length;
-  $('editSummary').textContent='将修改勾选的 '+n+' 场测评在所选渠道上的报名费 / 展示配置';
+  var idxs=checkedRows();
+  var rows=idxs.map(function(i){return ROWS[i]});
+  $('editSummary').textContent='将修改勾选的 '+rows.length+' 场测评在所选渠道上的报名费 / 展示配置';
+  var box=$('editChCards');box.innerHTML='';
+  var chSet={};
+  rows.forEach(function(r){CHS.forEach(function(c2,ci){if(r.links[ci]&&!r.links[ci].fail)chSet[ci]=true})});
+  Object.keys(chSet).forEach(function(ci){
+    var ci2=parseInt(ci,10);
+    var linked=rows.filter(function(r){return r.links[ci2]&&!r.links[ci2].fail}).length;
+    var d=document.createElement('div');d.className='ch-card';d.setAttribute('data-ci',ci);
+    d.innerHTML='<div style="display:flex;align-items:center;gap:8px"><span class="tick">✓</span><b>'+CHS[ci2]+'</b></div><div class="sub" style="margin-top:3px">已关联 '+linked+' 场</div>';
+    d.onclick=function(){d.classList.toggle('on')};
+    box.appendChild(d);
+  });
   show('ovEdit');
 }
-function doEdit(){
-  var c=$('editCh').value,ci=CHS.indexOf(c);
-  var fee=parseFloat($('editFee').value);if(isNaN(fee)||fee<0){toast('报名费需为 0 或正数（0 = 免费）');return}
-  var rows=checkedRows();let mod=0,skip=0;
-  rows.forEach(function(ri){
-    var L=ROWS[ri].links[ci];
-    if(!L||L.fail){skip++;return}
-    L.fee=fee;L.hidden=false;mod++;
-  });
-  hide('ovEdit');renderHead();renderBody();
-  toast('已修改 '+mod+' 条关联'+(skip?'，跳过 '+skip+' 条（未关联或失败）':'')+'。报名费不溯及已报名订单。');
+function editSelChannels(){
+  return [].slice.call(document.querySelectorAll('#editChCards .ch-card.on')).map(function(d){return parseInt(d.getAttribute('data-ci'),10)});
 }
+function doEdit(){
+  var chs=editSelChannels();
+  if(!chs.length){toast('请至少选择一个渠道');return}
+  var rows=checkedRows().map(function(i){return ROWS[i]});
+  var n=0;chs.forEach(function(ci){n+=rows.filter(function(r){return r.links[ci]&&!r.links[ci].fail}).length});
+  $('editConfirmSummary').innerHTML='将修改 <b>'+chs.length+' 个渠道 × '+n+' 条测评关联</b> 的报名费 / 展示配置：'+
+    '<div style="margin-top:6px">'+chs.map(function(ci){return CHS[ci]}).join('、')+'</div>';
+  show('ovEditConfirm');
+}
+function doEditConfirm(){
+  hide('ovEditConfirm');hide('ovEdit');
+  toast('已应用修改（演示）');
+}
+
+
 
 /* ================= 批量解除 ================= */
 function openBulkDel(){
