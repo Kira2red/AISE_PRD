@@ -89,7 +89,12 @@
             color: #94A3B8;
             cursor: not-allowed;
         }
-    </style>
+    
+/* 渠道列表首列固定：横向滚动时渠道名称列不随滚动 */
+.ch-table th:first-child, .ch-table td:first-child { position: sticky; left: 0; background: #fff; z-index: 2; white-space: nowrap; min-width: 180px; max-width: 220px; }
+.ch-table thead th:first-child { z-index: 3; }
+.ch-table td:first-child > div { white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+</style>
 </head>
 
 <body class="flex h-screen overflow-hidden text-slate-800 font-sans">
@@ -151,8 +156,8 @@
         </div>
 
         <div class="flex-1 overflow-y-auto px-8 pb-8 custom-scroll">
-            <div class="bg-white rounded-xl shadow-card border border-slate-200 overflow-hidden">
-                <table class="w-full text-left border-collapse">
+            <div class="bg-white rounded-xl shadow-card border border-slate-200 overflow-x-auto custom-scroll">
+                <table class="ch-table w-full text-left border-collapse">
                     <thead>
                         <tr class="border-b border-slate-100 bg-slate-50 text-xs uppercase text-slate-500 font-bold">
                             <th class="p-4 pl-6">渠道名称</th>
