@@ -47,6 +47,7 @@ table.mtx{border-collapse:separate;border-spacing:0;width:100%;min-width:860px}
 .stu-l1 .exam-name{font-weight:600;font-size:13px}
 .stu-l1 .tag{flex:none}
 .stu-l2{font-size:11px;color:var(--muted);padding-left:23px}
+.stu-lm{font-size:11px;color:#64748b;padding-left:23px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;max-width:250px;cursor:help}
 .stu-l3{display:flex;align-items:center;gap:8px;padding-left:23px}
 .lnk{font-size:11px;color:var(--primary);cursor:pointer;text-decoration:none}
 .lnk:hover{text-decoration:underline}
@@ -329,12 +330,16 @@ var CHS=['猿编程','核桃编程','编程猫','小码王'];
 /* rows: 每行一场考试; links[examIdx][chIdx] = null | {fee, hidden, regs} */
 var ROWS=[
  {zone:'3月批',name:'Python一级-第1场',paper:'Python一级 正式卷A',time:'09-20 09:00',regs:[12,5,0,0],mock:true,
+  tags:'Python 1级',moni:{cam:'强',rec:'开',photo:'开',wait:'10分钟',phone:'开',mockSame:true},
   links:[{fee:300,hidden:false,regs:12},{fee:300,hidden:true,regs:5},null,null]},
  {zone:'3月批',name:'图形化一级-第1场',paper:'',paperOk:false,time:'09-21 09:00',regs:[8,0,3,0],mock:true,
+  tags:'图形化 1级',moni:{cam:'强',rec:'关',photo:'开',wait:'10分钟',phone:'关',mockSame:false,mockNote:'模拟考：摄像头关 · 手机开'},
   links:[{fee:280,hidden:false,regs:8},null,{fee:280,hidden:false,regs:3},null]},
  {zone:'6月批',name:'Python二级-第1场',paper:'Python二级 正式卷A',time:'09-27 09:00',regs:[6,0,0,0],mock:false,
+  tags:'Python 2级',moni:{cam:'强',rec:'开',photo:'关',wait:'15分钟',phone:'开'},
   links:[{fee:320,hidden:false,regs:6},null,null,{fail:true}]},
  {zone:'6月批',name:'图形化二级-第1场',paper:'图形化二级 正式卷B',time:'09-28 14:00',regs:[0,0,0,0],mock:false,
+  tags:'图形化 2级',moni:{cam:'中',rec:'关',photo:'关',wait:'10分钟',phone:'关'},
   links:[null,null,null,null]}
 ];
 var sel={};
@@ -384,12 +389,22 @@ function renderBody(){
       var r=o.r,i=o.i;
       var tr=document.createElement('tr');tr.className='exam';
       var sub=r.time+(r.mock?' · 含模拟考':'');
+      var m=r.moni||{};
+      var moniLine='';var moniTip='';
+      if(m.cam){
+        moniLine='监考 摄像'+m.cam+'·录屏'+m.rec+'·检录'+m.photo+'·手机'+m.phone;
+        if(m.mock===true&&m.mockSame===false&&m.mockNote){moniLine+='　'+m.mockNote;}
+        else if(m.mock===true){moniLine+='（模拟考同正式考）';}
+        moniTip='摄像头 '+m.cam+'｜录屏 '+(m.rec==='开'?'开启':'关闭')+'｜检录照片 '+(m.photo==='开'?'开启':'关闭')+'｜候考时长 '+m.wait+'｜手机监考 '+(m.phone==='开'?'开启':'关闭');
+        if(m.mock===true&&m.mockSame===false&&m.mockNote){moniTip+='\n'+m.mockNote;}
+      }
       var tds='<td class="stu"><div class="stu-cell">'+
         '<div class="stu-l1"><input type="checkbox" class="rowck" data-zone="'+z+'" data-i="'+i+'" onclick="selChk(this)"><span class="exam-name">'+r.name+'</span>'+(r.paperOk===false?'<span class="tag amber">待关联试卷</span>':(r.paper?'<span class="tag green">'+r.paper+'</span>':''))+'</div>'+
         '<div class="stu-l2">'+sub+'</div>'+
+        (moniLine?'<div class="stu-lm" title="'+moniTip+'">'+moniLine+'</div>':'')+
         '<div class="stu-l3"><a class="lnk" onclick="examDetail('+i+')">详情</a><span class="sep">·</span><a class="lnk red" onclick="unlinkAll('+i+')">解除全部关联</a></div>'+
         '</div></td>';
-      CHS.forEach(function(c,ci){
+      (function(c,ci){
         var L=r.links[ci];
         if(L&&L.fail){tds+='<td><span class="cell linked" onclick="toast(\'创建失败：爱测评返回冲突，点击重试\')">创建失败<span class="badge fail">失败</span></span></td>';}
         else if(L){tds+='<td><span class="cell linked'+(L.hidden?' hiddenreg':'')+'" onclick="openCell('+i+','+ci+')"><span class="row1"><span class="fee">'+(L.fee===0?'免费':'¥'+L.fee)+'</span>'+(L.regs>0?'<span class="regs">'+L.regs+'人报名</span>':'')+'</span><span class="row2"><span class="edit">编辑 · 展示 · 隐藏</span></span></span></td>';}
