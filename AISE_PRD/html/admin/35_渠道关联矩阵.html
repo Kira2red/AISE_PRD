@@ -247,7 +247,7 @@ input[type=radio]{accent-color:var(--primary)}
       </div>
 
       <div id="addStep2" style="display:none">
-        <div class="warnbox">批量添加后<b>前端默认不展示</b>（活动常提前配置），请确认后到单元格或批量修改中开启展示。报名可见性统一为「正常报名」；<b>隐藏报名请稍后在单个单元格中设置</b>（涉及定向链接生成，防误伤）。</div>
+        <div class="warnbox">批量添加后<b>前端默认不展示</b>（活动常提前配置），请确认后到单元格或批量修改中开启展示。各渠道可独立配置报名费 / 展示 / 可见性；默认前端不展示（活动常提前配置）。</div>
         <div class="fee-cards" id="feeCards"></div>
         <div style="margin-top:10px"><label class="hint"><input type="checkbox" id="feeAll" onclick="feeAllToggle()"> 将第一个渠道的报名费应用到全部所选渠道</label></div>
       </div>
@@ -524,8 +524,20 @@ function feeCardsRender(){
     var d=document.createElement('div');d.className='fee-card';
     d.innerHTML='<div class="head"><b>'+c+'</b><span class="hint">上次使用价 ¥280</span></div>'+
       '<div class="grid2"><div class="field"><label class="req">报名费（元）</label><input type="number" value="280" class="feeInput" data-ch="'+c+'" style="width:100%"></div>'+
-      '<div class="field"><label>前端展示</label><div style="display:flex;align-items:center;gap:10px"><div class="switch" onclick="this.classList.toggle(\'on\')"></div><span class="hint">默认不展示</span></div></div></div>';
+      '<div class="field"><label>前端展示</label><div style="display:flex;align-items:center;gap:10px"><div class="switch" onclick="this.classList.toggle(\'on\')"></div><span class="hint">默认不展示</span></div></div></div>'+
+      '<div class="grid2"><div class="field"><label>展示开始（选填）</label><input type="datetime-local" style="width:100%"></div>'+
+      '<div class="field"><label>展示结束（选填，空 = 长期）</label><input type="datetime-local" style="width:100%"></div></div>'+
+      '<div class="field"><label>报名可见性</label><div style="display:flex;gap:8px"><span class="chip btn on">正常报名</span><span class="chip btn">隐藏报名</span></div><div class="hint" style="margin-top:5px">隐藏报名：每个考试×渠道生成独立定向链接；切换或删除关联会使链接失效</div></div>';
     box.appendChild(d);
+  });
+  bindVisChips();
+}
+function bindVisChips(){
+  [].slice.call(document.querySelectorAll('#feeCards .chip.btn')).forEach(function(ch){
+    ch.onclick=function(){
+      [].slice.call(ch.parentNode.querySelectorAll('.chip.btn')).forEach(function(x){x.classList.remove('on')});
+      ch.classList.add('on');
+    };
   });
 }
 function feeAllToggle(){
