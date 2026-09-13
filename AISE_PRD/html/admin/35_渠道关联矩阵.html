@@ -196,7 +196,6 @@ function permToggle(cb,boxId){
     <select id="fGroup"><option value="">全部分组</option><option>3月批</option><option>6月批</option></select>
     <input type="text" id="fKw" placeholder="搜索测评名称" style="width:200px">
     <div class="spacer"></div>
-    <button class="btn" onclick="openBulkAll()">关联整个活动</button>
     <button class="btn" id="btnEdit" onclick="openBulkEdit()" disabled>修改渠道配置</button>
     <button class="btn danger" id="btnDel" onclick="openBulkDel()" disabled>解除渠道关联</button>
     <button class="btn primary" onclick="openBulkAdd()">＋ 添加渠道</button>
@@ -378,12 +377,6 @@ function toggleSelAll(){
   selChk();
   $('btnSelAll').textContent=all?'全选':'取消全选';
 }
-function openBulkAll(){
-  var cks=[].slice.call(document.querySelectorAll('.rowck'));
-  cks.forEach(function(x){x.checked=true});
-  selChk();
-  openBulkAdd();
-}
 function goBackDetail(){
   var q=new URLSearchParams(location.search);
   var act=q.get('act')||'2026年9月常规考';
@@ -509,7 +502,8 @@ function delOne(){
 var addSel=[];
 function openBulkAdd(){
   var n=checkedRows().length;
-  $('addSummary').textContent='将为勾选的 '+n+' 场测评添加渠道关联'+(n===0?'（当前未勾选行，将作用于全部 '+ROWS.length+' 场）':'');
+  if(n===0){toast('请先勾选要关联的测评（整组可勾分组行，全部可点「全选」）');return}
+  $('addSummary').textContent='将为勾选的 '+n+' 场测评添加渠道关联';
   addSel=[];
   var box=$('chCards');box.innerHTML='';
   CHS.forEach(function(c,ci){
