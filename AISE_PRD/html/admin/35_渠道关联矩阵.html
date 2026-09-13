@@ -249,7 +249,8 @@ input[type=radio]{accent-color:var(--primary)}
       <div id="addStep2" style="display:none">
         <div class="warnbox">批量添加后<b>前端默认不展示</b>（活动常提前配置），请确认后到单元格或批量修改中开启展示。各渠道可独立配置报名费 / 展示 / 可见性；默认前端不展示（活动常提前配置）。</div>
         <div class="fee-cards" id="feeCards"></div>
-        <div style="margin-top:10px"><label class="hint"><input type="checkbox" id="feeAll" onclick="feeAllToggle()"> 将第一个渠道的报名费应用到全部所选渠道</label></div>
+        <div class="fee-uniform"><label class="hint" style="display:flex;align-items:center;gap:8px;cursor:pointer"><input type="checkbox" id="feeAll" onclick="feeAllToggle()"> <span>统一配置：所有渠道使用第一个渠道的配置</span></label></div>
+      <div id="feeUnified" class="warnbox" style="display:none">已开启统一配置——以下配置将应用到全部所选渠道。</div>
       </div>
     </div>
     <div class="modal-foot">
@@ -541,8 +542,22 @@ function bindVisChips(){
   });
 }
 function feeAllToggle(){
-  var v=document.querySelector('.feeInput').value;
-  document.querySelectorAll('.feeInput').forEach(function(i){i.value=v});
+  var on=$('feeAll').checked;
+  var cards=[].slice.call(document.querySelectorAll('#feeCards .fee-card'));
+  $('feeUnified').style.display=on?'block':'none';
+  cards.forEach(function(d,idx){
+    if(on){
+      if(idx>0){d.style.display='none';}
+      else{
+        d.querySelector('.head b').textContent='全部所选渠道';
+        d.querySelector('.head .hint').textContent='以下配置应用到 '+addSel.length+' 个渠道';
+      }
+    }else{
+      d.style.display='';
+      d.querySelector('.head b').textContent=addSel[idx]||d.querySelector('.head b').textContent;
+      d.querySelector('.head .hint').textContent='上次使用价 ¥280';
+    }
+  });
 }
 function addNav(step){
   if(step===2){
