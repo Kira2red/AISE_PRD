@@ -348,7 +348,7 @@
                     <p class="text-xs text-slate-500 mt-1">当前渠道：<span class="font-bold text-brand-600" id="relation-channel-name">猿编程</span></p>
                 </div>
                 <div class="flex items-center gap-4">
-                    <button onclick="location.href='35_渠道关联矩阵.html'" class="bg-brand-600 hover:bg-brand-700 text-white text-xs font-bold px-4 py-2 rounded-lg shadow-sm transition flex items-center gap-2"><i class="fa-solid fa-table-cells"></i> 渠道关联</button>
+                    <button onclick="location.href='32_活动管理.html'" class="bg-brand-600 hover:bg-brand-700 text-white text-xs font-bold px-4 py-2 rounded-lg shadow-sm transition flex items-center gap-2"><i class="fa-solid fa-list-check"></i> 活动管理</button>
                     <button onclick="closeRelationModal()"
                         class="w-8 h-8 rounded-full hover:bg-slate-200 flex items-center justify-center text-slate-400 transition">
                         <i class="fa-solid fa-xmark"></i>
@@ -357,11 +357,16 @@
             </div>
 
             <div class="p-6 overflow-y-auto custom-scroll bg-white">
-                <div class="flex items-center gap-3 mb-4">
-                    <label class="text-xs font-bold text-slate-500">测评分组</label>
-                    <select id="rel-group-filter" onchange="renderRelationTable()" class="px-3 py-1.5 rounded-lg border border-slate-200 text-sm bg-white outline-none focus:border-brand-500">
+                <div class="flex items-center gap-3 mb-4 flex-wrap">
+                    <label class="text-xs font-bold text-slate-500">活动</label>
+                    <select id="rel-act-filter" onchange="onActFilterChange()" class="px-3 py-1.5 rounded-lg border border-slate-200 text-sm bg-white outline-none focus:border-brand-500" style="min-width:150px">
+                        <option value="">全部活动</option>
+                    </select>
+                    <label class="text-xs font-bold text-slate-500">分组</label>
+                    <select id="rel-group-filter" onchange="renderRelationTable()" class="px-3 py-1.5 rounded-lg border border-slate-200 text-sm bg-white outline-none focus:border-brand-500" style="min-width:120px">
                         <option value="">全部分组</option>
                     </select>
+                    <input type="text" id="rel-kw-filter" oninput="renderRelationTable()" placeholder="搜索测评名称" class="px-3 py-1.5 rounded-lg border border-slate-200 text-sm bg-white outline-none focus:border-brand-500" style="width:200px">
                     <span class="text-xs text-slate-400" id="rel-group-count"></span>
                 </div>
                 <table class="w-full text-left border-collapse">
@@ -789,6 +794,7 @@
             document.getElementById('relation-channel-name').innerText = name;
             currentChannel = id;
             editingRelName = null;
+            populateActFilter();
             populateRelGroupFilter();
             renderRelationTable();
             relModal.classList.remove('hidden');
@@ -1037,29 +1043,51 @@
             });
         }
 
+        function populateActFilter() {
+            const sel = document.getElementById('rel-act-filter');
+            const ch = channelRelations[currentChannel];
+            sel.innerHTML = '<option value="">全部活动</option>';
+            if (!ch) return;
+            [...new Set(ch.activities.map(a => a.activity).filter(Boolean))].forEach(a => {
+                const o = document.createElement('option');
+                o.value = a; o.text = a;
+                sel.appendChild(o);
+            });
+        }
         function populateRelGroupFilter() {
             const sel = document.getElementById('rel-group-filter');
             const ch = channelRelations[currentChannel];
+            const act = document.getElementById('rel-act-filter') ? document.getElementById('rel-act-filter').value : '';
             sel.innerHTML = '<option value="">全部分组</option>';
             if (!ch) return;
-            [...new Set(ch.activities.map(a => a.group).filter(Boolean))].forEach(g => {
+            const pool = act ? ch.activities.filter(a => a.activity === act) : ch.activities;
+            [...new Set(pool.map(a => a.group).filter(Boolean))].forEach(g => {
                 const o = document.createElement('option');
                 o.value = g; o.text = g;
                 sel.appendChild(o);
             });
-            if (ch.activities.some(a => !a.group)) {
+            if (pool.some(a => !a.group)) {
                 const o = document.createElement('option');
                 o.value = '默认'; o.text = '默认';
                 sel.appendChild(o);
             }
         }
-
+        function onActFilterChange() {
+            populateRelGroupFilter();
+            renderRelationTable();
+        }
         function renderRelationTable() {
             const ch = channelRelations[currentChannel];
             const tbody = document.getElementById('rel-tbody');
             if (!ch) { tbody.innerHTML = ''; document.getElementById('rel-group-count').innerText = ''; return; }
-            const filter = document.getElementById('rel-group-filter').value;
-            const rows = filter ? ch.activities.filter(a => (a.group || '默认') === filter) : ch.activities;
+            const actF = document.getElementById('rel-act-filter') ? document.getElementById('rel-act-filter').value : '';
+            const grpF = document.getElementById('rel-group-filter').value;
+            const kw = document.getElementById('rel-kw-filter') ? document.getElementById('rel-kw-filter').value.trim() : '';
+            const rows = ch.activities.filter(a =>
+                (!actF || a.activity === actF) &&
+                (!grpF || (a.group || '默认') === grpF) &&
+                (!kw || a.name.indexOf(kw) >= 0)
+            );
             document.getElementById('rel-group-count').innerText = '共 ' + rows.length + ' 场测评';
             tbody.innerHTML = rows.map(a => {
                 const g = a.group || '默认';
