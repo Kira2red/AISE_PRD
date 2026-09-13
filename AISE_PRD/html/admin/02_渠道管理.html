@@ -363,21 +363,22 @@
                         <option value="">全部活动</option>
                     </select>
                     <label class="text-xs font-bold text-slate-500">分组</label>
-                    <select id="rel-group-filter" onchange="renderRelationTable()" class="px-3 py-1.5 rounded-lg border border-slate-200 text-sm bg-white outline-none focus:border-brand-500" style="min-width:120px">
+                    <select id="rel-group-filter" disabled class="px-3 py-1.5 rounded-lg border border-slate-200 text-sm bg-white outline-none focus:border-brand-500 disabled:bg-slate-50 disabled:text-slate-400" style="min-width:120px">
                         <option value="">全部分组</option>
                     </select>
-                    <input type="text" id="rel-kw-filter" oninput="renderRelationTable()" placeholder="搜索测评名称" class="px-3 py-1.5 rounded-lg border border-slate-200 text-sm bg-white outline-none focus:border-brand-500" style="width:200px">
+                    <input type="text" id="rel-kw-filter" placeholder="搜索测评名称" class="px-3 py-1.5 rounded-lg border border-slate-200 text-sm bg-white outline-none focus:border-brand-500" style="width:200px">
+                    <button onclick="renderRelationTable()" class="bg-brand-600 hover:bg-brand-700 text-white text-xs font-bold px-4 py-1.5 rounded-lg transition">筛选</button>
                     <span class="text-xs text-slate-400" id="rel-group-count"></span>
                 </div>
                 <table class="w-full text-left border-collapse">
                     <thead>
                         <tr class="border-b border-slate-100 text-xs uppercase text-slate-500 font-bold">
-                            <th class="pb-3" style="width:240px">测评名称</th>
+                            <th class="pb-3" style="width:210px">测评名称</th>
+                            <th class="pb-3" style="width:140px">活动名称</th>
                             <th class="pb-3" style="width:88px">分组</th>
                             <th class="pb-3" style="width:150px">时间信息</th>
                             <th class="pb-3" style="width:92px">报名费 (元)</th>
                             <th class="pb-3" style="width:96px">报名</th>
-                            <th class="pb-3" style="width:72px">已报名</th>
                             <th class="pb-3" style="width:96px">前端展示</th>
                             <th class="pb-3 text-right" style="width:150px">操作</th>
                         </tr>
@@ -1058,7 +1059,7 @@
             const sel = document.getElementById('rel-group-filter');
             const ch = channelRelations[currentChannel];
             const act = document.getElementById('rel-act-filter') ? document.getElementById('rel-act-filter').value : '';
-            sel.innerHTML = '<option value="">全部分组</option>';
+            sel.innerHTML = '<option value="">该活动全部分组</option>';
             if (!ch) return;
             const pool = act ? ch.activities.filter(a => a.activity === act) : ch.activities;
             [...new Set(pool.map(a => a.group).filter(Boolean))].forEach(g => {
@@ -1073,8 +1074,11 @@
             }
         }
         function onActFilterChange() {
-            populateRelGroupFilter();
-            renderRelationTable();
+            const act = document.getElementById('rel-act-filter').value;
+            const grpSel = document.getElementById('rel-group-filter');
+            grpSel.value = '';
+            if (act) { populateRelGroupFilter(); grpSel.disabled = false; }
+            else { grpSel.innerHTML = '<option value="">全部分组（先选活动）</option>'; grpSel.disabled = true; }
         }
         function renderRelationTable() {
             const ch = channelRelations[currentChannel];
@@ -1104,13 +1108,13 @@
                                    : "'" + a.name + "', " + a.fee + ", false, " + a.visible + ", '" + (a.displayStart || '') + "', '" + (a.displayEnd || '') + "', " + !!a.hiddenReg;
                 return '<tr class="group hover:bg-slate-50 transition">' +
                     '<td class="py-4 pr-4 font-medium text-slate-800 align-top">' + a.name +
-                        '<div class="mt-1 text-[10px] text-slate-400">' + (a.activity || '未挂活动') + (a.group ? ' › ' + a.group : '') + '</div>' +
                         '<div class="mt-1 text-xs text-brand-600 bg-brand-50 inline-block px-1.5 py-0.5 rounded">展示中</div></td>' +
+                    '<td class="py-4 text-sm text-slate-600 align-top">' + (a.activity || '—') + '</td>' +
                     '<td class="py-4 align-top">' + gChip + '</td>' +
                     '<td class="py-4 text-xs align-top"><div class="mb-1"><span class="text-slate-400 w-8 inline-block">测评:</span> ' + a.examDate + '</div><div><span class="text-slate-400 w-8 inline-block">展示:</span> ' + a.display + '</div></td>' +
                     '<td class="py-4 font-mono font-bold text-slate-700 align-top">¥ ' + a.fee.toFixed(2) + '</td>' +
                     '<td class="py-4 align-top">' + regChip + '</td>' +
-                    '<td class="py-4 align-top"><span class="' + (a.enrolled > 0 ? 'bg-green-50 text-green-700' : 'bg-slate-100 text-slate-500') + ' px-2 py-0.5 rounded text-xs font-bold">' + a.enrolled + '</span></td>' +
+                    
                     '<td class="py-4 align-top">' + visChip + '</td>' +
                     '<td class="py-4 text-right align-top"><div class="flex justify-end gap-2">' +
                         '<button onclick="openEditRelationModal(' + args + ')" class="text-slate-400 hover:text-brand-600 p-1.5 rounded border border-slate-200 hover:border-brand-300 bg-white transition text-xs" title="编辑配置"><i class="fa-regular fa-pen-to-square"></i></button>' +
