@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>家庭考生管理 - AISE 人工智能应用创新人才培养工程</title>
+    <title>家庭学员管理 - AISE 人工智能应用创新人才培养工程</title>
     <script src="https://cdn.tailwindcss.com"></script>
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
@@ -96,7 +96,7 @@
                     <div class="flex items-center gap-3 py-1.5 px-3 rounded-full border border-slate-100 bg-white hover:bg-slate-50 transition shadow-sm">
                         <div class="w-8 h-8 rounded-full bg-gradient-to-tr from-blue-500 to-purple-600 text-white flex items-center justify-center text-xs font-bold">张</div>
                         <div class="hidden sm:flex flex-col items-start justify-center">
-                            <span class="text-[10px] text-slate-400 leading-tight">当前考生</span>
+                            <span class="text-[10px] text-slate-400 leading-tight">当前学员</span>
                             <span class="text-sm font-bold text-slate-700 leading-tight">张三</span>
                         </div>
                         <i class="fa-solid fa-chevron-down text-xs opacity-50 ml-1 transition-transform group-hover:rotate-180"></i>
@@ -109,7 +109,7 @@
                         </div>
                         
                         <div class="p-2">
-                            <p class="px-3 py-2 text-[10px] font-bold text-slate-400 uppercase tracking-wider">切换考生视角</p>
+                            <p class="px-3 py-2 text-[10px] font-bold text-slate-400 uppercase tracking-wider">切换学员视角</p>
                             
                             <div class="flex items-center gap-3 px-3 py-2 bg-brand-50 rounded-lg mb-1 cursor-default">
                                 <div class="w-8 h-8 rounded-full bg-brand-200 text-brand-700 flex items-center justify-center text-xs font-bold"><i class="fa-solid fa-check"></i></div>
@@ -167,7 +167,7 @@
                         </a>
                         
                         <a href="#" class="flex-shrink-0 px-4 py-3 rounded-lg bg-brand-50 text-brand-600 font-bold text-sm flex items-center gap-3 shadow-sm border border-brand-100 md:border-transparent">
-                            <i class="fa-solid fa-users w-5 text-center"></i> 家庭考生管理
+                            <i class="fa-solid fa-users w-5 text-center"></i> 家庭学员管理
                         </a>
 
                         <a href="#" class="flex-shrink-0 px-4 py-3 rounded-lg text-slate-600 hover:bg-slate-50 hover:text-slate-900 font-medium text-sm flex items-center gap-3 transition">
@@ -185,8 +185,8 @@
                 
                 <div class="mb-6 flex justify-between items-end">
                     <div>
-                        <h1 class="text-2xl font-bold text-slate-900">家庭考生管理</h1>
-                        <p class="text-sm text-slate-500 mt-1">您可以添加并管理多位考生的报考档案，点击下方卡片即可管理详细信息。</p>
+                        <h1 class="text-2xl font-bold text-slate-900">家庭学员管理</h1>
+                        <p class="text-sm text-slate-500 mt-1">您可以添加并管理多位学员的报考档案，点击下方卡片即可管理详细信息。</p>
                     </div>
                 </div>
 
@@ -241,7 +241,7 @@
                         <div class="w-12 h-12 rounded-full bg-slate-50 group-hover:bg-brand-100 text-slate-400 group-hover:text-brand-600 flex items-center justify-center transition-colors mb-3">
                             <i class="fa-solid fa-plus text-lg"></i>
                         </div>
-                        <h3 class="text-sm font-bold text-slate-600 group-hover:text-brand-700">添加新考生</h3>
+                        <h3 class="text-sm font-bold text-slate-600 group-hover:text-brand-700">添加新学员</h3>
                         <p class="text-xs text-slate-400 mt-1">添加子女或其他需要报考的亲属</p>
                     </button>
 
@@ -255,7 +255,7 @@
         
         <div class="relative w-full max-w-lg bg-white rounded-2xl shadow-2xl overflow-hidden modal-enter z-10 mx-4">
             <div class="p-6 border-b border-slate-100 flex justify-between items-center bg-slate-50/50">
-                <h3 class="text-lg font-bold text-slate-900">添加新考生</h3>
+                <h3 class="text-lg font-bold text-slate-900">添加新学员</h3>
                 <button onclick="closeModal()" class="text-slate-400 hover:text-slate-600 transition"><i class="fa-solid fa-xmark text-lg"></i></button>
             </div>
             
@@ -263,13 +263,13 @@
                 <div class="bg-blue-50 border border-blue-100 rounded-lg p-3 flex gap-3 mb-6">
                     <i class="fa-solid fa-circle-info text-blue-500 mt-0.5 text-sm"></i>
                     <p class="text-xs text-blue-700 leading-relaxed">
-                        为了保障考试公平及证书有效性，根据国家相关规定，新增中国大陆考生必须通过公安实名校验。
+                        为了保障测评公平及证书有效性，根据国家相关规定，新增中国大陆学员必须通过公安实名校验。
                     </p>
                 </div>
 
                 <div class="mb-5">
                     <label class="block text-xs font-bold text-slate-500 uppercase mb-2">真实姓名</label>
-                    <input type="text" id="input-name" class="w-full px-4 py-3 rounded-xl border border-slate-200 focus:border-brand-500 focus:ring-2 focus:ring-brand-100 outline-none text-sm font-medium text-slate-800 transition" placeholder="请填写考生真实姓名">
+                    <input type="text" id="input-name" class="w-full px-4 py-3 rounded-xl border border-slate-200 focus:border-brand-500 focus:ring-2 focus:ring-brand-100 outline-none text-sm font-medium text-slate-800 transition" placeholder="请填写学员真实姓名">
                 </div>
 
                 <div class="mb-8">
@@ -362,7 +362,7 @@
                     showToast('error', '认证失败', '真实姓名与身份证号不匹配（公安库校验未通过）。');
                 } else {
                     // 模拟：成功
-                    showToast('success', '添加成功', '新考生档案已建立，正在刷新列表...');
+                    showToast('success', '添加成功', '新学员档案已建立，正在刷新列表...');
                     closeModal();
                     addStudentToGrid(name, idNumber);
                 }

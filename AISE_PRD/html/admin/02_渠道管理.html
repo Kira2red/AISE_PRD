@@ -160,7 +160,7 @@
                             <th class="p-4">渠道推广入口 <span
                                     class="text-[10px] font-normal text-brand-600 bg-brand-50 px-1 rounded ml-1">聚合页</span>
                             </th>
-                            <th class="p-4">关联考试</th>
+                            <th class="p-4">关联测评</th>
                             <th class="p-4">创建时间</th>
                             <th class="p-4">组织后台状态</th>
                             <th class="p-4">前端展示</th>
@@ -196,7 +196,7 @@
                             <td class="p-4">
                                 <button onclick="openRelationModal('猿编程教育科技', 'YPB2025')"
                                     class="text-brand-600 hover:text-brand-800 hover:underline font-bold px-2 py-1 rounded hover:bg-brand-50 transition">
-                                    3 场考试
+                                    3 场测评
                                 </button>
                             </td>
                             <td class="p-4 text-slate-500 text-xs">2025-01-10 10:00</td>
@@ -254,7 +254,7 @@
                             <td class="p-4">
                                 <button onclick="openRelationModal('CodeBear 代码熊', 'CB888')"
                                     class="text-brand-600 hover:text-brand-800 hover:underline font-bold px-2 py-1 rounded hover:bg-brand-50 transition">
-                                    1 场考试
+                                    1 场测评
                                 </button>
                             </td>
                             <td class="p-4 text-slate-500 text-xs">2025-03-22 09:15</td>
@@ -344,19 +344,11 @@
             <div
                 class="px-6 py-4 border-b border-slate-100 flex justify-between items-center bg-slate-50 rounded-t-2xl">
                 <div>
-                    <h3 class="font-bold text-slate-800 text-lg">关联考试管理</h3>
-                    <p class="text-xs text-slate-500 mt-1">当前渠道：<span class="font-bold text-brand-600"
-                            id="relation-channel-name">猿编程</span></p>
+                    <h3 class="font-bold text-slate-800 text-lg">关联测评管理</h3>
+                    <p class="text-xs text-slate-500 mt-1">当前渠道：<span class="font-bold text-brand-600" id="relation-channel-name">猿编程</span> · 关联由运营在「活动管理 → 渠道关联」中配置；此处可编辑单场测评在本渠道的费用 / 展示 / 报名可见性</p>
                 </div>
                 <div class="flex items-center gap-4">
-                    <button onclick="openGroupManageModal()"
-                        class="bg-white border border-brand-200 text-brand-600 hover:bg-brand-50 text-xs font-bold px-4 py-2 rounded-lg transition flex items-center gap-2">
-                        <i class="fa-solid fa-folder-tree"></i> 分组管理
-                    </button>
-                    <button onclick="openAddRelationModal()"
-                        class="bg-brand-600 hover:bg-brand-700 text-white text-xs font-bold px-4 py-2 rounded-lg shadow-sm transition flex items-center gap-2">
-                        <i class="fa-solid fa-link"></i> 关联新测评
-                    </button>
+                    <span class="text-[11px] text-slate-400 bg-slate-50 border border-slate-200 rounded-lg px-3 py-2">添加 / 批量关联请由运营在「活动管理 → 渠道关联」中配置</span>
                     <button onclick="closeRelationModal()"
                         class="w-8 h-8 rounded-full hover:bg-slate-200 flex items-center justify-center text-slate-400 transition">
                         <i class="fa-solid fa-xmark"></i>
@@ -366,7 +358,7 @@
 
             <div class="p-6 overflow-y-auto custom-scroll bg-white">
                 <div class="flex items-center gap-3 mb-4">
-                    <label class="text-xs font-bold text-slate-500">考试分组</label>
+                    <label class="text-xs font-bold text-slate-500">测评分组</label>
                     <select id="rel-group-filter" onchange="renderRelationTable()" class="px-3 py-1.5 rounded-lg border border-slate-200 text-sm bg-white outline-none focus:border-brand-500">
                         <option value="">全部分组</option>
                     </select>
@@ -415,7 +407,7 @@
                         <select id="rel-group-select" class="w-full px-3 py-2 rounded-lg border border-slate-200 text-sm focus:border-brand-500 outline-none bg-white">
                             <option value="">默认分组（不指定）</option>
                         </select>
-                        <p class="text-[10px] text-slate-400 mt-1">不指定时考试归入「默认」分组</p>
+                        <p class="text-[10px] text-slate-400 mt-1">不指定时测评归入「默认」分组</p>
                     </div>
                     <div>
                         <label class="block text-xs font-bold text-slate-500 uppercase mb-1.5">配置报名费</label>
@@ -533,7 +525,7 @@
                     <button onclick="addGroup()" class="px-4 py-2 bg-brand-600 hover:bg-brand-700 text-white text-xs font-bold rounded-lg transition whitespace-nowrap">新建分组</button>
                 </div>
                 <div class="space-y-2" id="group-list"></div>
-                <p class="text-xs text-slate-400 mt-4 flex items-center gap-1"><i class="fa-solid fa-circle-info"></i> 「默认」分组为系统分组：未指定分组的考试自动归入，不可重命名、删除或排序。</p>
+                <p class="text-xs text-slate-400 mt-4 flex items-center gap-1"><i class="fa-solid fa-circle-info"></i> 「默认」分组为系统分组：未指定分组的测评自动归入，不可重命名、删除或排序。</p>
             </div>
         </div>
     </div>
@@ -854,7 +846,7 @@
             // Set to Edit Mode
             editingRelName = name;
             populateGroupSelect('rel-group-select');
-            relTitle.innerText = "编辑考试配置";
+            relTitle.innerText = "编辑测评配置";
 
             // Allow selecting a different exam (Select is visible)
             relSelect.value = name;
@@ -929,7 +921,7 @@
             }
         }
 
-        // 关联考试展示开关联动
+        // 关联测评展示开关联动
         const relVisibleToggle = document.getElementById('rel-visible');
         const relVisibleText = document.getElementById('rel-visible-text');
         if (relVisibleToggle) {
@@ -1020,21 +1012,16 @@
         let editingRelName = null;
         const channelRelations = {
             YPB2025: {
-                groups: [
-                    { name: '3月考期' },
-                    { name: '6月考期' },
-                ],
                 activities: [
-                    { name: '2025春季 Python 一级等级测评', group: '3月考期', examDate: '2025-05-20', display: '永久有效', fee: 199, enrolled: 156, visible: true, perm: true },
-                    { name: '回归测试专用考场', group: '3月考期', examDate: '2026-09-13', display: '永久有效', fee: 0.01, enrolled: 2, visible: true, perm: true, hiddenReg: true, directLink: 'https://aise.cn/reg/d/X7kQ9mPz' },
-                    { name: '2025夏季 AIGC 应用能力二级', group: '6月考期', examDate: '2025-06-15', display: '06-01 至 06-15', fee: 0, enrolled: 0, visible: true, perm: false, displayStart: '2025-06-01T10:00', displayEnd: '2025-06-15T22:00' },
-                    { name: '2024冬季 Scratch 图形化一级', group: null, examDate: '2024-12-21', display: '永久有效', fee: 199, enrolled: 89, visible: true, perm: true },
+                    { activity: '2026年9月常规考', name: 'Python一级-第1场', group: '3月批', examDate: '2026-09-20', display: '永久有效', fee: 300, enrolled: 12, visible: true, perm: true },
+                    { activity: '2026年9月常规考', name: '图形化一级-第1场', group: '3月批', examDate: '2026-09-21', display: '永久有效', fee: 280, enrolled: 8, visible: true, perm: true },
+                    { activity: '2026年9月常规考', name: 'Python二级-第1场', group: '6月批', examDate: '2026-09-27', display: '永久有效', fee: 320, enrolled: 6, visible: true, perm: true, hiddenReg: true, directLink: 'https://aise.cn/reg/d/X7kQ9mPz' },
+                    { activity: '2026年12月冲刺班', name: 'Scratch 图形化一级', group: null, examDate: '2026-12-19', display: '永久有效', fee: 199, enrolled: 0, visible: true, perm: true },
                 ],
             },
             CB888: {
-                groups: [],
                 activities: [
-                    { name: '2025夏季 AIGC 应用能力二级', group: null, examDate: '2025-06-15', display: '永久有效', fee: 0, enrolled: 3, visible: true, perm: true },
+                    { activity: '2026年9月常规考', name: '图形化一级-第1场', group: '3月批', examDate: '2026-09-21', display: '永久有效', fee: 280, enrolled: 3, visible: true, perm: true },
                 ],
             },
         };
@@ -1043,9 +1030,9 @@
             const sel = document.getElementById(selId);
             const ch = channelRelations[currentChannel];
             sel.innerHTML = '<option value="">默认分组（不指定）</option>';
-            if (ch) ch.groups.forEach(g => {
+            if (ch) [...new Set(ch.activities.map(a => a.group).filter(Boolean))].forEach(g => {
                 const o = document.createElement('option');
-                o.value = g.name; o.text = g.name;
+                o.value = g; o.text = g;
                 sel.appendChild(o);
             });
         }
@@ -1055,9 +1042,9 @@
             const ch = channelRelations[currentChannel];
             sel.innerHTML = '<option value="">全部分组</option>';
             if (!ch) return;
-            ch.groups.forEach(g => {
+            [...new Set(ch.activities.map(a => a.group).filter(Boolean))].forEach(g => {
                 const o = document.createElement('option');
-                o.value = g.name; o.text = g.name;
+                o.value = g; o.text = g;
                 sel.appendChild(o);
             });
             if (ch.activities.some(a => !a.group)) {
@@ -1073,7 +1060,7 @@
             if (!ch) { tbody.innerHTML = ''; document.getElementById('rel-group-count').innerText = ''; return; }
             const filter = document.getElementById('rel-group-filter').value;
             const rows = filter ? ch.activities.filter(a => (a.group || '默认') === filter) : ch.activities;
-            document.getElementById('rel-group-count').innerText = '共 ' + rows.length + ' 场考试';
+            document.getElementById('rel-group-count').innerText = '共 ' + rows.length + ' 场测评';
             tbody.innerHTML = rows.map(a => {
                 const g = a.group || '默认';
                 const gChip = g === '默认'
@@ -1089,9 +1076,10 @@
                                    : "'" + a.name + "', " + a.fee + ", false, " + a.visible + ", '" + (a.displayStart || '') + "', '" + (a.displayEnd || '') + "', " + !!a.hiddenReg;
                 return '<tr class="group hover:bg-slate-50 transition">' +
                     '<td class="py-4 pr-4 font-medium text-slate-800 align-top">' + a.name +
+                        '<div class="mt-1 text-[10px] text-slate-400">' + (a.activity || '未挂活动') + (a.group ? ' › ' + a.group : '') + '</div>' +
                         '<div class="mt-1 text-xs text-brand-600 bg-brand-50 inline-block px-1.5 py-0.5 rounded">展示中</div></td>' +
                     '<td class="py-4 align-top">' + gChip + '</td>' +
-                    '<td class="py-4 text-xs align-top"><div class="mb-1"><span class="text-slate-400 w-8 inline-block">考试:</span> ' + a.examDate + '</div><div><span class="text-slate-400 w-8 inline-block">展示:</span> ' + a.display + '</div></td>' +
+                    '<td class="py-4 text-xs align-top"><div class="mb-1"><span class="text-slate-400 w-8 inline-block">测评:</span> ' + a.examDate + '</div><div><span class="text-slate-400 w-8 inline-block">展示:</span> ' + a.display + '</div></td>' +
                     '<td class="py-4 font-mono font-bold text-slate-700 align-top">¥ ' + a.fee.toFixed(2) + '</td>' +
                     '<td class="py-4 align-top">' + regChip + '</td>' +
                     '<td class="py-4 align-top"><span class="' + (a.enrolled > 0 ? 'bg-green-50 text-green-700' : 'bg-slate-100 text-slate-500') + ' px-2 py-0.5 rounded text-xs font-bold">' + a.enrolled + '</span></td>' +
@@ -1159,8 +1147,8 @@
         function renderGroupList() {
             const ch = channelRelations[currentChannel];
             const list = document.getElementById('group-list');
-            if (!ch || ch.groups.length === 0) {
-                list.innerHTML = '<p class="text-sm text-slate-400 text-center py-6 border-2 border-dashed border-slate-200 rounded-xl">尚未创建分组，所有考试将归入「默认」分组</p>';
+            if (!ch || !(ch.groups||[]).length) {
+                list.innerHTML = '<p class="text-sm text-slate-400 text-center py-6 border-2 border-dashed border-slate-200 rounded-xl">尚未创建分组，所有测评将归入「默认」分组</p>';
                 return;
             }
             list.innerHTML = ch.groups.map((g, i) => {
@@ -1169,26 +1157,26 @@
                     '<div class="flex items-center gap-3">' +
                         '<i class="fa-solid fa-grip-vertical text-slate-300"></i>' +
                         '<span class="font-bold text-slate-800 text-sm">' + g.name + '</span>' +
-                        '<span class="text-[10px] text-slate-400">' + cnt + ' 场考试</span>' +
+                        '<span class="text-[10px] text-slate-400">' + cnt + ' 场测评</span>' +
                     '</div>' +
                     '<div class="flex items-center gap-1">' +
                         '<button onclick="moveGroup(' + i + ', -1)" class="p-1.5 text-slate-400 hover:text-brand-600 text-xs" title="上移"><i class="fa-solid fa-chevron-up"></i></button>' +
                         '<button onclick="moveGroup(' + i + ', 1)" class="p-1.5 text-slate-400 hover:text-brand-600 text-xs" title="下移"><i class="fa-solid fa-chevron-down"></i></button>' +
                         '<button onclick="renameGroup(\'' + g.name + '\')" class="p-1.5 text-slate-400 hover:text-brand-600 text-xs" title="重命名"><i class="fa-regular fa-pen-to-square"></i></button>' +
-                        '<button ' + (cnt > 0 ? 'disabled ' : 'onclick="deleteGroup(\'' + g.name + '\')" ') + 'class="p-1.5 ' + (cnt > 0 ? 'text-slate-200 cursor-not-allowed' : 'text-slate-400 hover:text-red-500') + ' text-xs" title="' + (cnt > 0 ? '组内有考试，不可删除' : '删除') + '"><i class="fa-solid fa-trash-can"></i></button>' +
+                        '<button ' + (cnt > 0 ? 'disabled ' : 'onclick="deleteGroup(\'' + g.name + '\')" ') + 'class="p-1.5 ' + (cnt > 0 ? 'text-slate-200 cursor-not-allowed' : 'text-slate-400 hover:text-red-500') + ' text-xs" title="' + (cnt > 0 ? '组内有测评，不可删除' : '删除') + '"><i class="fa-solid fa-trash-can"></i></button>' +
                     '</div></div>';
             }).join('')
             + '<div class="flex items-center justify-between bg-slate-50 border border-slate-100 rounded-lg px-4 py-3 opacity-70">' +
                 '<div class="flex items-center gap-3"><i class="fa-solid fa-lock text-slate-300"></i><span class="font-bold text-slate-600 text-sm">默认</span><span class="text-[10px] text-slate-400">系统分组</span></div>' +
-                '<span class="text-[10px] text-slate-400">未分组考试自动归入</span></div>';
+                '<span class="text-[10px] text-slate-400">未分组测评自动归入</span></div>';
         }
         function addGroup() {
             const input = document.getElementById('new-group-name');
             const name = input.value.trim();
             if (!name) { alert('请输入分组名称'); return; }
             const ch = channelRelations[currentChannel];
-            if (ch.groups.some(g => g.name === name)) { alert('分组名称已存在'); return; }
-            ch.groups.push({ name: name });
+            if ((ch.groups||[]).some(g => g.name === name)) { alert('分组名称已存在'); return; }
+            (ch.groups=ch.groups||[]).push({ name: name });
             input.value = '';
             renderGroupList(); populateRelGroupFilter(); populateGroupSelect('rel-group-select');
         }
@@ -1198,23 +1186,23 @@
             if (!newName || newName.trim() === name) return;
             const nn = newName.trim();
             if (!nn) return;
-            if (ch.groups.some(g => g.name === nn)) { alert('分组名称已存在'); return; }
-            ch.groups.find(g => g.name === name).name = nn;
+            if ((ch.groups||[]).some(g => g.name === nn)) { alert('分组名称已存在'); return; }
+            (ch.groups||[]).find(g => g.name === name).name = nn;
             ch.activities.forEach(a => { if (a.group === name) a.group = nn; });
             renderGroupList(); populateRelGroupFilter(); renderRelationTable();
         }
         function deleteGroup(name) {
             const ch = channelRelations[currentChannel];
             const cnt = ch.activities.filter(a => a.group === name).length;
-            if (cnt > 0) { alert('该分组内有 ' + cnt + ' 场考试，请先将考试移至其他分组'); return; }
+            if (cnt > 0) { alert('该分组内有 ' + cnt + ' 场测评，请先将测评移至其他分组'); return; }
             if (!confirm('确定删除分组「' + name + '」吗？')) return;
-            ch.groups = ch.groups.filter(g => g.name !== name);
+            ch.groups = (ch.groups||[]).filter(g => g.name !== name);
             renderGroupList(); populateRelGroupFilter(); populateGroupSelect('rel-group-select');
         }
         function moveGroup(i, dir) {
             const ch = channelRelations[currentChannel];
             const j = i + dir;
-            if (j < 0 || j >= ch.groups.length) return;
+            if (j < 0 || j >= (ch.groups||[]).length) return;
             const t = ch.groups[i]; ch.groups[i] = ch.groups[j]; ch.groups[j] = t;
             renderGroupList(); populateRelGroupFilter();
         }

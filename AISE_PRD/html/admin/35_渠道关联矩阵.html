@@ -159,14 +159,14 @@ function permToggle(cb,boxId){
         <span class="font-bold text-lg text-slate-800 tracking-tight">AISE Admin</span>
     </div>
     <nav class="flex-1 overflow-y-auto py-4 space-y-1">
-        <a href="#" class="nav-item flex items-center gap-3 px-6 py-3 text-slate-500 hover:bg-slate-50 hover:text-brand-600 transition"><i class="fa-solid fa-graduation-cap w-5 text-center"></i><span class="font-medium text-sm">考试管理</span></a>
+        <a href="#" class="nav-item flex items-center gap-3 px-6 py-3 text-slate-500 hover:bg-slate-50 hover:text-brand-600 transition"><i class="fa-solid fa-graduation-cap w-5 text-center"></i><span class="font-medium text-sm">测评管理</span></a>
         <a href="32_活动管理.html" class="nav-item active flex items-center gap-3 px-6 py-3 text-brand-600 bg-brand-50 transition"><i class="fa-solid fa-calendar-days w-5 text-center"></i><span class="font-medium text-sm">活动管理</span></a>
         <a href="#" class="nav-item flex items-center gap-3 px-6 py-3 text-slate-500 hover:bg-slate-50 hover:text-brand-600 transition"><i class="fa-solid fa-tags w-5 text-center"></i><span class="font-medium text-sm">标签配置</span></a>
         <div class="px-6 py-2 mt-4 text-xs font-bold text-slate-400 uppercase tracking-wider">运营中心</div>
         <a href="#" class="nav-item flex items-center gap-3 px-6 py-3 text-slate-500 hover:bg-slate-50 hover:text-brand-600 transition"><i class="fa-solid fa-handshake w-5 text-center"></i><span class="font-medium text-sm">渠道管理</span></a>
         <a href="#" class="nav-item flex items-center gap-3 px-6 py-3 text-slate-500 hover:bg-slate-50 hover:text-brand-600 transition"><i class="fa-solid fa-clipboard-check w-5 text-center"></i><span class="font-medium text-sm">报名管理</span></a>
         <div class="px-6 py-2 mt-4 text-xs font-bold text-slate-400 uppercase tracking-wider">考务与用户</div>
-        <a href="#" class="nav-item flex items-center gap-3 px-6 py-3 text-slate-500 hover:bg-slate-50 hover:text-brand-600 transition"><i class="fa-solid fa-users w-5 text-center"></i><span class="font-medium text-sm">考生管理</span></a>
+        <a href="#" class="nav-item flex items-center gap-3 px-6 py-3 text-slate-500 hover:bg-slate-50 hover:text-brand-600 transition"><i class="fa-solid fa-users w-5 text-center"></i><span class="font-medium text-sm">学员管理</span></a>
         <a href="#" class="nav-item flex items-center gap-3 px-6 py-3 text-slate-500 hover:bg-slate-50 hover:text-brand-600 transition"><i class="fa-solid fa-bell w-5 text-center"></i><span class="font-medium text-sm">消息中心</span></a>
     </nav>
 </aside>
@@ -186,7 +186,7 @@ function permToggle(cb,boxId){
   <div class="crumb"><a onclick="location.href='32_活动管理.html'">活动管理</a> / <a onclick="goBackDetail()">活动详情</a> / <span id="crumbAct">2026年9月常规考</span> / 渠道关联</div>
   <div class="card" style="padding:12px 18px">
     <div class="hint" style="font-size:13px">
-      横轴 = 渠道，纵轴 = 分组下的考试。<b>点击单元格</b>配置该考试在该渠道的报名费 / 展示 / 隐藏报名；
+      横轴 = 渠道，纵轴 = 分组下的测评。<b>点击单元格</b>配置该测评在该渠道的报名费 / 展示 / 隐藏报名；
       <b>勾选行</b>后用工具条按钮批量添加、修改或解除渠道关联。各渠道看到的分组一致。
     </div>
   </div>
@@ -194,7 +194,7 @@ function permToggle(cb,boxId){
   <div class="toolbar">
     <button class="btn small" onclick="toggleSelAll()" id="btnSelAll">全选</button>
     <select id="fGroup"><option value="">全部分组</option><option>3月批</option><option>6月批</option></select>
-    <input type="text" id="fKw" placeholder="搜索考试名称" style="width:200px">
+    <input type="text" id="fKw" placeholder="搜索测评名称" style="width:200px">
     <div class="spacer"></div>
     <button class="btn" onclick="openBulkAll()">关联整个活动</button>
     <button class="btn" id="btnEdit" onclick="openBulkEdit()" disabled>修改渠道配置</button>
@@ -208,7 +208,7 @@ function permToggle(cb,boxId){
       <tbody id="mtxBody"></tbody>
     </table>
   </div>
-  <div class="hint" style="margin-top:8px">琥珀色格子 = 隐藏报名（此时该渠道的前端展示开关与展示时间不参与控制，学员只能通过定向链接报名）。考试行内可直接点「详情」「解除全部关联」；考试内容的编辑请回「活动管理」。</div>
+  <div class="hint" style="margin-top:8px">琥珀色格子 = 隐藏报名（此时该渠道的前端展示开关与展示时间不参与控制，学员只能通过定向链接报名）。测评行内可直接点「详情」「解除全部关联」；测评内容的编辑请回「活动管理」。</div>
 </div>
 
 <!-- ========== 单格配置弹窗 ========== -->
@@ -334,10 +334,10 @@ function permToggle(cb,boxId){
   </div>
 </div>
 
-<!-- ========== 考试详情抽屉（演示简化为弹窗） ========== -->
+<!-- ========== 测评详情抽屉（演示简化为弹窗） ========== -->
 <div class="overlay" id="ovExam">
   <div class="modal" style="width:560px">
-    <div class="modal-head"><b id="examTitle">考试详情</b></div>
+    <div class="modal-head"><b id="examTitle">测评详情</b></div>
     <div class="modal-body" id="examBody"></div>
     <div class="modal-foot"><button class="btn" onclick="hide('ovExam')">关闭</button></div>
   </div>
@@ -349,7 +349,7 @@ function permToggle(cb,boxId){
 /* ================= 数据 ================= */
 var GROUPS=['3月批','6月批'];
 var CHS=['猿编程','核桃编程','编程猫','小码王','VIPCODE','童程童美','小码精灵','码高教育','乐高活动中心','斯坦星球','极客晨星','西瓜创客'];
-/* rows: 每行一场考试; links[examIdx][chIdx] = null | {fee, hidden, regs} */
+/* rows: 每行一场测评; links[examIdx][chIdx] = null | {fee, hidden, regs} */
 var ROWS=[
  {zone:'3月批',name:'Python一级-第1场',paper:'Python一级 正式卷A',time:'09-20 09:00',regs:[12,5,0,0],mock:true,
   tags:'Python 1级',
@@ -393,7 +393,7 @@ function goBackDetail(){
 /* ================= 矩阵渲染 ================= */
 function renderHead(){
   var tr=$('mtxHead');
-  var h='<th class="stu"><span class="th-main">考试 × 渠道</span><div class="hint">勾选行后可批量操作</div></th>';
+  var h='<th class="stu"><span class="th-main">测评 × 渠道</span><div class="hint">勾选行后可批量操作</div></th>';
   CHS.forEach(function(c,i){
     var n=0;ROWS.forEach(function(r,ri){if(r.links[i]&&!r.links[i].fail)n++});
     h+='<th><span class="th-main">'+c+'</span><div class="hint">'+n+' 场已关联</div></th>';
@@ -411,7 +411,7 @@ function renderBody(){
     if(!list.length)return;
     shown=true;
     var zr=document.createElement('tr');zr.className='zone-row';
-    zr.innerHTML='<td class="stu" colspan="'+(CHS.length+1)+'"><div class="zone-line"><input type="checkbox" onclick="selZone(\''+z+'\',this)" title="选中本组全部考试"> <b>【'+z+'】</b> <span class="hint">'+list.length+' 场考试</span></div></td>';
+    zr.innerHTML='<td class="stu" colspan="'+(CHS.length+1)+'"><div class="zone-line"><input type="checkbox" onclick="selZone(\''+z+'\',this)" title="选中本组全部测评"> <b>【'+z+'】</b> <span class="hint">'+list.length+' 场测评</span></div></td>';
     tb.appendChild(zr);
     list.forEach(function(o){
       var r=o.r,i=o.i;
@@ -509,7 +509,7 @@ function delOne(){
 var addSel=[];
 function openBulkAdd(){
   var n=checkedRows().length;
-  $('addSummary').textContent='将为勾选的 '+n+' 场考试添加渠道关联'+(n===0?'（当前未勾选行，将作用于全部 '+ROWS.length+' 场）':'');
+  $('addSummary').textContent='将为勾选的 '+n+' 场测评添加渠道关联'+(n===0?'（当前未勾选行，将作用于全部 '+ROWS.length+' 场）':'');
   addSel=[];
   var box=$('chCards');box.innerHTML='';
   CHS.forEach(function(c,ci){
@@ -548,7 +548,7 @@ function feeCardsRender(){
       '<div class="grid2 time-box off"><div class="field"><label>展示开始（选填）</label><input type="datetime-local" style="width:100%"></div>'+
       '<div class="field"><label>展示结束（选填）</label><input type="datetime-local" style="width:100%"></div></div></div>'+
       '<div class="field"><label>报名可见性</label><div style="display:flex;gap:8px"><span class="chip btn on">正常报名</span><span class="chip btn">隐藏报名</span></div></div>'+
-      '<div class="fc-hidden" style="display:none"><div class="warnbox">开启隐藏报名后：<b>前端展示开关与展示时间不再参与控制</b>（相关配置已收起）；仅持定向链接可报名，每个考试×渠道生成独立链接，切换或删除关联会使链接失效。</div></div>';
+      '<div class="fc-hidden" style="display:none"><div class="warnbox">开启隐藏报名后：<b>前端展示开关与展示时间不再参与控制</b>（相关配置已收起）；仅持定向链接可报名，每个测评×渠道生成独立链接，切换或删除关联会使链接失效。</div></div>';
     box.appendChild(d);
   });
   bindVisChips();
@@ -632,7 +632,7 @@ function checkedRows(){
 /* ================= 批量修改 ================= */
 function openBulkEdit(){
   var n=checkedRows().length;
-  $('editSummary').textContent='将修改勾选的 '+n+' 场考试在所选渠道上的报名费 / 展示配置';
+  $('editSummary').textContent='将修改勾选的 '+n+' 场测评在所选渠道上的报名费 / 展示配置';
   show('ovEdit');
 }
 function doEdit(){
@@ -652,7 +652,7 @@ function doEdit(){
 function openBulkDel(){
   $('delAck').checked=false;$('delGo').disabled=true;
   var n=checkedRows().length;
-  $('delSummary').textContent='将解除勾选的 '+n+' 场考试在所选渠道上的关联';
+  $('delSummary').textContent='将解除勾选的 '+n+' 场测评在所选渠道上的关联';
   show('ovDel');
 }
 $('delAck').addEventListener('change',function(){$('delGo').disabled=!this.checked});
@@ -667,7 +667,7 @@ function unlinkAll(i){
   var n=CHS.filter(function(_,ci){return r.links[ci]}).length;
   var regs=CHS.reduce(function(s,_,ci){var L=r.links[ci];return s+(L?L.regs||0:0)},0);
   var hid=CHS.filter(function(_,ci){return r.links[ci]&&r.links[ci].hidden}).length;
-  if(!n){toast('该考试尚未关联渠道');return}
+  if(!n){toast('该测评尚未关联渠道');return}
   var msg='确认解除「'+r.name+'」的全部 '+n+' 个渠道关联？';
   if(regs>0)msg+='\n其中已有报名 '+regs+' 人，解除后关联保留报名记录但前端不再展示。';
   if(hid>0)msg+='\n含 '+hid+' 个隐藏报名关联，解除后定向链接永久失效。';
@@ -676,7 +676,7 @@ function unlinkAll(i){
   renderHead();renderBody();selChk();
   toast('已解除 '+r.name+' 的全部渠道关联');
 }
-/* ================= 考试详情 ================= */
+/* ================= 测评详情 ================= */
 function examDetail(i){
   var r=ROWS[i];
   $('examTitle').textContent=r.name;
@@ -688,9 +688,9 @@ function examDetail(i){
   $('examBody').innerHTML=
     '<div class="field"><label>所属分组</label><div>'+r.zone+'</div></div>'+
     '<div class="field"><label>试卷</label><div>'+(r.paperOk===false?'<span class="tag amber">待关联试卷</span>':r.paper)+' · 模拟考：'+(r.mock?'已开启（独立模拟卷/时间/监考）':'未开启')+'</div></div>'+
-    '<div class="field"><label>考试时间</label><div>'+r.time+'</div></div>'+
+    '<div class="field"><label>测评时间</label><div>'+r.time+'</div></div>'+
     '<div class="field"><label>渠道关联（'+CHS.filter(function(_,ci){return r.links[ci]}).length+'）</label><div>'+linkCells+'</div></div>'+
-    '<div class="hint">编辑考试配置请返回活动管理页，在考试行「…」菜单操作。</div>';
+    '<div class="hint">编辑测评配置请返回活动管理页，在测评行「…」菜单操作。</div>';
   show('ovExam');
 }
 

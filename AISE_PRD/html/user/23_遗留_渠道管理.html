@@ -95,7 +95,7 @@
                             <th class="p-4 pl-6">渠道名称</th>
                             <th class="p-4">渠道号 (ID)</th>
                             <th class="p-4">渠道推广入口 <span class="text-[10px] font-normal text-brand-600 bg-brand-50 px-1 rounded ml-1">聚合页</span></th>
-                            <th class="p-4">关联考试</th>
+                            <th class="p-4">关联测评</th>
                             <th class="p-4">创建时间</th>
                             <th class="p-4 text-right pr-6">操作</th>
                         </tr>
@@ -123,7 +123,7 @@
                             </td>
                             <td class="p-4">
                                 <button onclick="openRelationModal('猿编程教育科技', 'YPB2025')" class="text-brand-600 hover:text-brand-800 hover:underline font-bold px-2 py-1 rounded hover:bg-brand-50 transition">
-                                    3 场考试
+                                    3 场测评
                                 </button>
                             </td>
                             <td class="p-4 text-slate-500 text-xs">2025-01-10 10:00</td>
@@ -155,7 +155,7 @@
                             </td>
                             <td class="p-4">
                                 <button onclick="openRelationModal('CodeBear 代码熊', 'CB888')" class="text-brand-600 hover:text-brand-800 hover:underline font-bold px-2 py-1 rounded hover:bg-brand-50 transition">
-                                    1 场考试
+                                    1 场测评
                                 </button>
                             </td>
                             <td class="p-4 text-slate-500 text-xs">2025-03-22 09:15</td>
@@ -201,7 +201,7 @@
             
             <div class="px-6 py-4 border-b border-slate-100 flex justify-between items-center bg-slate-50 rounded-t-2xl">
                 <div>
-                    <h3 class="font-bold text-slate-800 text-lg">关联考试管理</h3>
+                    <h3 class="font-bold text-slate-800 text-lg">关联测评管理</h3>
                     <p class="text-xs text-slate-500 mt-1">当前渠道：<span class="font-bold text-brand-600" id="relation-channel-name">猿编程</span></p>
                 </div>
                 <div class="flex items-center gap-4">
@@ -232,7 +232,7 @@
                                 <div class="mt-1 text-xs text-brand-600 bg-brand-50 inline-block px-1.5 py-0.5 rounded">展示中</div>
                             </td>
                             <td class="py-4 text-xs align-top">
-                                <div class="mb-1"><span class="text-slate-400 w-8 inline-block">考试:</span> 2025-05-20</div>
+                                <div class="mb-1"><span class="text-slate-400 w-8 inline-block">测评:</span> 2025-05-20</div>
                                 <div><span class="text-slate-400 w-8 inline-block">展示:</span> 永久有效</div>
                             </td>
                             <td class="py-4 font-mono font-bold text-slate-700 align-top">¥ 199.00</td>
@@ -259,7 +259,7 @@
                                 <div class="mt-1 text-xs text-slate-400 bg-slate-100 inline-block px-1.5 py-0.5 rounded">未开始展示</div>
                             </td>
                             <td class="py-4 text-xs align-top">
-                                <div class="mb-1"><span class="text-slate-400 w-8 inline-block">考试:</span> 2025-06-15</div>
+                                <div class="mb-1"><span class="text-slate-400 w-8 inline-block">测评:</span> 2025-06-15</div>
                                 <div><span class="text-slate-400 w-8 inline-block">展示:</span> 06-01 至 06-15</div>
                             </td>
                             <td class="py-4 font-mono font-bold text-slate-700 align-top">¥ 0.00</td>
@@ -425,7 +425,7 @@
         // New Function: Open Modal in Edit Mode
         function openEditRelationModal(name, price, isPermanent, start, end) {
             // Set to Edit Mode
-            relTitle.innerText = "编辑考试配置";
+            relTitle.innerText = "编辑测评配置";
             
             // Allow selecting a different exam (Select is visible)
             relSelect.value = name; 

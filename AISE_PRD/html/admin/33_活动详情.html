@@ -197,14 +197,14 @@ textarea{min-height:72px}
         <span class="font-bold text-lg text-slate-800 tracking-tight">AISE Admin</span>
     </div>
     <nav class="flex-1 overflow-y-auto py-4 space-y-1">
-        <a href="#" class="nav-item flex items-center gap-3 px-6 py-3 text-slate-500 hover:bg-slate-50 hover:text-brand-600 transition"><i class="fa-solid fa-graduation-cap w-5 text-center"></i><span class="font-medium text-sm">考试管理</span></a>
+        <a href="#" class="nav-item flex items-center gap-3 px-6 py-3 text-slate-500 hover:bg-slate-50 hover:text-brand-600 transition"><i class="fa-solid fa-graduation-cap w-5 text-center"></i><span class="font-medium text-sm">测评管理</span></a>
         <a href="32_活动管理.html" class="nav-item active flex items-center gap-3 px-6 py-3 text-brand-600 bg-brand-50 transition"><i class="fa-solid fa-calendar-days w-5 text-center"></i><span class="font-medium text-sm">活动管理</span></a>
         <a href="#" class="nav-item flex items-center gap-3 px-6 py-3 text-slate-500 hover:bg-slate-50 hover:text-brand-600 transition"><i class="fa-solid fa-tags w-5 text-center"></i><span class="font-medium text-sm">标签配置</span></a>
         <div class="px-6 py-2 mt-4 text-xs font-bold text-slate-400 uppercase tracking-wider">运营中心</div>
         <a href="#" class="nav-item flex items-center gap-3 px-6 py-3 text-slate-500 hover:bg-slate-50 hover:text-brand-600 transition"><i class="fa-solid fa-handshake w-5 text-center"></i><span class="font-medium text-sm">渠道管理</span></a>
         <a href="#" class="nav-item flex items-center gap-3 px-6 py-3 text-slate-500 hover:bg-slate-50 hover:text-brand-600 transition"><i class="fa-solid fa-clipboard-check w-5 text-center"></i><span class="font-medium text-sm">报名管理</span></a>
         <div class="px-6 py-2 mt-4 text-xs font-bold text-slate-400 uppercase tracking-wider">考务与用户</div>
-        <a href="#" class="nav-item flex items-center gap-3 px-6 py-3 text-slate-500 hover:bg-slate-50 hover:text-brand-600 transition"><i class="fa-solid fa-users w-5 text-center"></i><span class="font-medium text-sm">考生管理</span></a>
+        <a href="#" class="nav-item flex items-center gap-3 px-6 py-3 text-slate-500 hover:bg-slate-50 hover:text-brand-600 transition"><i class="fa-solid fa-users w-5 text-center"></i><span class="font-medium text-sm">学员管理</span></a>
         <a href="#" class="nav-item flex items-center gap-3 px-6 py-3 text-slate-500 hover:bg-slate-50 hover:text-brand-600 transition"><i class="fa-solid fa-bell w-5 text-center"></i><span class="font-medium text-sm">消息中心</span></a>
     </nav>
 </aside>
@@ -240,14 +240,14 @@ textarea{min-height:72px}
 
   <div class="card">
     <div class="toolbar">
-      <input type="text" class="search" id="fKw" placeholder="搜索考试名称" oninput="renderTree()">
+      <input type="text" class="search" id="fKw" placeholder="搜索测评名称" oninput="renderTree()">
       <button class="btn small" id="btnExpand" onclick="toggleExpandAll()">收起全部</button>
       <div class="spacer"></div>
       <button class="btn" onclick="newZoneInline()">＋ 新建分组</button>
-      <button class="btn primary" onclick="openWizard(null)">＋ 创建考试</button>
+      <button class="btn primary" onclick="openWizard(null)">＋ 创建测评</button>
     </div>
     <table class="tree">
-      <thead><tr><th style="width:34px"><input type="checkbox" id="ckAll" onclick="ckAllToggle(this)"></th><th style="padding-left:10px;width:190px">考试名称</th><th style="width:130px">考试时间</th><th style="width:250px">正式考配置</th><th style="width:230px">模拟考配置</th><th style="width:170px">渠道操作</th></tr></thead>
+      <thead><tr><th style="width:34px"><input type="checkbox" id="ckAll" onclick="ckAllToggle(this)"></th><th style="padding-left:10px;width:190px">测评名称</th><th style="width:130px">测评时间</th><th style="width:250px">正式考配置</th><th style="width:230px">模拟考配置</th><th style="width:170px">渠道操作</th></tr></thead>
       <tbody id="treeBody"></tbody>
     </table>
   </div>
@@ -271,15 +271,15 @@ textarea{min-height:72px}
   </div>
 </div>
 
-<!-- ========== 创建考试向导 ========== -->
+<!-- ========== 创建测评向导 ========== -->
 <div class="overlay" id="ovWizard">
   <div class="modal" style="width:860px">
-    <div class="modal-head"><b>创建考试</b><div class="spacer" style="flex:1"></div>
+    <div class="modal-head"><b>创建测评</b><div class="spacer" style="flex:1"></div>
       <button class="btn small" onclick="hide('ovWizard')">✕</button></div>
     <div class="modal-body">
       <div class="wiz-steps">
-        <div class="ws on" id="ws1"><span class="d">1</span>填写考试</div><div class="ws-line"></div>
-        <div class="ws" id="ws2"><span class="d">2</span>考试配置</div>
+        <div class="ws on" id="ws1"><span class="d">1</span>填写测评</div><div class="ws-line"></div>
+        <div class="ws" id="ws2"><span class="d">2</span>测评配置</div>
       </div>
 
       <!-- 第 1 步 -->
@@ -289,37 +289,37 @@ textarea{min-height:72px}
         </div>
         <div class="gen">
           <div class="gen-row">
-            <div class="field"><label>考试名称</label><input type="text" id="genName" placeholder="如：Python一级" style="width:160px"></div>
+            <div class="field"><label>测评名称</label><input type="text" id="genName" placeholder="如：Python一级" style="width:160px"></div>
             <div class="field"><label>场数</label><input type="number" id="genCount" value="2" min="1" max="10" style="width:64px"></div>
             <div class="field"><label>首场开始</label><input type="datetime-local" id="genStart" style="min-width:210px"></div>
             <div class="field"><label>首场结束</label><input type="datetime-local" id="genEnd" style="min-width:210px"></div>
             <div class="field" style="padding-top:18px"><button class="btn primary" onclick="genRows()">生成</button></div>
           </div>
-          <div class="hint" style="margin-top:8px">多场同名考试自动加「-第N场」，后续场次开始时间顺延 30 分钟（模拟考时间同步顺延）；生成后可逐行修改。</div>
+          <div class="hint" style="margin-top:8px">多场同名测评自动加「-第N场」，后续场次开始时间顺延 30 分钟（模拟考时间同步顺延）；生成后可逐行修改。</div>
         </div>
         <table id="rowTable">
-          <thead><tr><th style="width:28%">考试名称</th><th>正式考开始</th><th>正式考结束</th><th>模拟考开始</th><th>模拟考结束</th><th style="width:56px"></th></tr></thead>
+          <thead><tr><th style="width:28%">测评名称</th><th>正式考开始</th><th>正式考结束</th><th>模拟考开始</th><th>模拟考结束</th><th style="width:56px"></th></tr></thead>
           <tbody></tbody>
         </table>
         <div style="margin-top:10px"><button class="btn small" onclick="addRow()">＋ 添加一行</button></div>
-        <div class="warnbox" style="margin-top:14px">试卷可稍后关联：先创建考试占位，确定后在考试行「…」菜单中补关联；未关联试卷的考试同样可关联渠道并接受报名。</div>
+        <div class="warnbox" style="margin-top:14px">试卷可稍后关联：先创建测评占位，确定后在测评行「…」菜单中补关联；未关联试卷的测评同样可关联渠道并接受报名。</div>
       </div>
 
       <!-- 第 2 步 -->
       <div id="stepB" style="display:none">
-        <div class="sec-title">正式考 <span class="sub">本批考试共用，个别考试可创建后再单独调整</span></div>
+        <div class="sec-title">正式考 <span class="sub">本批测评共用，个别测评可创建后再单独调整</span></div>
         <div class="card" style="margin-bottom:14px;padding:16px;border-radius:8px">
           <div class="fline">
             <div class="field w2"><label>关联试卷（可空，支持搜索）</label><div class="msel" id="paperSel"></div></div>
-            <div class="field"><label class="req">考试时长（分钟）</label><input type="number" id="cfgDur" value="120" style="width:100%"></div>
+            <div class="field"><label class="req">测评时长（分钟）</label><input type="number" id="cfgDur" value="120" style="width:100%"></div>
             <div class="field"><label class="req">交卷限制</label><select id="cfgSubmit" style="width:100%"><option>到时自动交卷</option><option>允许提前 15 分钟交卷</option><option>不限</option></select></div>
           </div>
           <div class="field"><label>标签</label><div class="msel" id="tagSel"></div></div>
           <div class="sec-title" style="font-size:13px;margin-top:8px">监考配置</div>
           <div class="grid3">
-            <div class="field"><label>摄像头</label><select style="width:100%"><option>强制开启</option><option>考生自选</option><option>关闭</option></select></div>
-            <div class="field"><label>录屏</label><select style="width:100%"><option>强制开启</option><option>考生自选</option><option>关闭</option></select></div>
-            <div class="field"><label>检录照片</label><select style="width:100%"><option>强制开启</option><option>考生自选</option><option>关闭</option></select></div>
+            <div class="field"><label>摄像头</label><select style="width:100%"><option>强制开启</option><option>学员自选</option><option>关闭</option></select></div>
+            <div class="field"><label>录屏</label><select style="width:100%"><option>强制开启</option><option>学员自选</option><option>关闭</option></select></div>
+            <div class="field"><label>检录照片</label><select style="width:100%"><option>强制开启</option><option>学员自选</option><option>关闭</option></select></div>
             <div class="field"><label>候考时长（分钟）</label><input type="number" value="10" style="width:100%"></div>
             <div class="field"><label>手机监考</label><div style="display:flex;align-items:center;gap:8px;padding-top:6px"><div class="switch" onclick="this.classList.toggle('on')"></div><span class="hint">要求第二设备</span></div></div>
             <div class="field"><label>成绩 / 分数 / 读题</label><div style="display:flex;gap:12px;padding-top:8px" class="hint"><label><input type="checkbox" checked> 成绩</label><label><input type="checkbox" checked> 分数</label><label><input type="checkbox"> 读题</label></div></div>
@@ -333,16 +333,16 @@ textarea{min-height:72px}
                   <span class="up-ico">🖼</span><span class="up-txt">点击上传图片（jpg / png，建议 16:9）</span>
                 </div>
               </div>
-              <div class="field"><label>测评描述（展示在学员端报名页）</label><textarea rows="3" placeholder="可写考试介绍、注意事项等" style="width:100%;resize:vertical"></textarea></div>
+              <div class="field"><label>测评描述（展示在学员端报名页）</label><textarea rows="3" placeholder="可写测评介绍、注意事项等" style="width:100%;resize:vertical"></textarea></div>
             </div>
           </details>
         </div>
 
-        <div class="sec-title">模拟考 <span class="sub">考试时间已在第一步逐场配置；此处配置试卷、次数与监考</span></div>
+        <div class="sec-title">模拟考 <span class="sub">测评时间已在第一步逐场配置；此处配置试卷、次数与监考</span></div>
         <div class="card" style="padding:16px;border-radius:8px">
           <div style="display:flex;align-items:center;gap:10px">
             <div class="switch on" id="mockSw" onclick="toggleMock()"></div><b style="font-size:13px">开启模拟考</b>
-            <span class="hint">关闭则本批考试不带模拟考</span>
+            <span class="hint">关闭则本批测评不带模拟考</span>
           </div>
           <div id="mockBody">
             <div class="grid3" style="margin-top:12px">
@@ -354,9 +354,9 @@ textarea{min-height:72px}
             </div>
             <div class="sec-title" style="font-size:13px;margin-top:12px">模拟考监考 <span class="sub">已按正式考配置带入，可直接修改</span></div>
             <div class="grid3">
-              <div class="field"><label>摄像头</label><select style="width:100%"><option>强制开启</option><option>考生自选</option><option>关闭</option></select></div>
-              <div class="field"><label>录屏</label><select style="width:100%"><option>强制开启</option><option>考生自选</option><option>关闭</option></select></div>
-              <div class="field"><label>检录照片</label><select style="width:100%"><option>强制开启</option><option>考生自选</option><option>关闭</option></select></div>
+              <div class="field"><label>摄像头</label><select style="width:100%"><option>强制开启</option><option>学员自选</option><option>关闭</option></select></div>
+              <div class="field"><label>录屏</label><select style="width:100%"><option>强制开启</option><option>学员自选</option><option>关闭</option></select></div>
+              <div class="field"><label>检录照片</label><select style="width:100%"><option>强制开启</option><option>学员自选</option><option>关闭</option></select></div>
               <div class="field"><label>候考时长（分钟）</label><input type="number" value="10" style="width:100%"></div>
               <div class="field"><label>手机监考</label><div style="display:flex;align-items:center;gap:8px;padding-top:6px"><div class="switch" onclick="this.classList.toggle('on')"></div><span class="hint">要求第二设备</span></div></div>
               <div class="field"><label>成绩 / 分数 / 读题</label><div style="display:flex;gap:12px;padding-top:8px" class="hint"><label><input type="checkbox" checked> 成绩</label><label><input type="checkbox" checked> 分数</label><label><input type="checkbox"> 读题</label></div></div>
@@ -370,21 +370,21 @@ textarea{min-height:72px}
     <div class="modal-foot">
       <span class="hint" style="margin-right:auto" id="wizSummary"></span>
       <button class="btn" id="wizPrev" onclick="wizPrev()" style="display:none">上一步</button>
-      <button class="btn primary" id="wizNext" onclick="wizNext()">下一步：考试配置</button>
+      <button class="btn primary" id="wizNext" onclick="wizNext()">下一步：测评配置</button>
     </div>
   </div>
 </div>
 
 
-<!-- ========== 批量修改考试 ========== -->
+<!-- ========== 批量修改测评 ========== -->
 <div class="overlay" id="ovBulkEdit">
   <div class="modal" style="width:860px">
-    <div class="modal-head"><b>批量修改考试</b><div class="spacer" style="flex:1"></div>
+    <div class="modal-head"><b>批量修改测评</b><div class="spacer" style="flex:1"></div>
       <button class="btn small" onclick="hide('ovBulkEdit')">✕</button></div>
     <div class="modal-body">
       <div class="summary-bar" id="bulkEditSummary"></div>
       <div class="hint" style="margin-bottom:14px;padding:8px 12px;background:#f6f8fb;border-radius:8px">
-        只改你要改的项：<b>未修改 / 留空的项自动保持各考试原值</b>，无需勾选。改完点「应用修改」即生效。
+        只改你要改的项：<b>未修改 / 留空的项自动保持各测评原值</b>，无需勾选。改完点「应用修改」即生效。
       </div>
 
 <div class="sec-title">试卷与标签 <span class="sub">正式考</span></div>
@@ -393,10 +393,10 @@ textarea{min-height:72px}
         <div class="field"><label>标签 <span class="sub">选择后替换，不选不变</span></label><div class="msel" id="beTagSel"></div></div>
       </div>
 
-      <div class="sec-title">考试时间与要素 <span class="sub">正式考</span></div>
+      <div class="sec-title">测评时间与要素 <span class="sub">正式考</span></div>
       <div class="fline">
-        <div class="field"><label>考试时间 <span class="sub">整体平移，间隔不变</span></label><input type="datetime-local" id="beTime" style="width:100%"></div>
-        <div class="field"><label>考试时长（分钟）</label><input type="number" id="beDur" placeholder="不变" style="width:100%"></div>
+        <div class="field"><label>测评时间 <span class="sub">整体平移，间隔不变</span></label><input type="datetime-local" id="beTime" style="width:100%"></div>
+        <div class="field"><label>测评时长（分钟）</label><input type="number" id="beDur" placeholder="不变" style="width:100%"></div>
         <div class="field"><label>交卷限制</label>
           <select id="beSubmit" style="width:100%">
             <option value="">不变</option>
@@ -407,14 +407,14 @@ textarea{min-height:72px}
 
       <div class="sec-title">正式考监考 <span class="sub">留空保持原值</span></div>
       <div class="fline">
-        <div class="field"><label>摄像头</label><select id="beCam" style="width:100%"><option value="">不变</option><option>强制开启</option><option>考生自选</option><option>关闭</option></select></div>
-        <div class="field"><label>录屏</label><select id="beRec" style="width:100%"><option value="">不变</option><option>强制开启</option><option>考生自选</option><option>关闭</option></select></div>
-        <div class="field"><label>检录照片</label><select id="bePho" style="width:100%"><option value="">不变</option><option>强制开启</option><option>考生自选</option><option>关闭</option></select></div>
+        <div class="field"><label>摄像头</label><select id="beCam" style="width:100%"><option value="">不变</option><option>强制开启</option><option>学员自选</option><option>关闭</option></select></div>
+        <div class="field"><label>录屏</label><select id="beRec" style="width:100%"><option value="">不变</option><option>强制开启</option><option>学员自选</option><option>关闭</option></select></div>
+        <div class="field"><label>检录照片</label><select id="bePho" style="width:100%"><option value="">不变</option><option>强制开启</option><option>学员自选</option><option>关闭</option></select></div>
       </div>
       <div class="fline">
         <div class="field"><label>候考时长（分钟）</label><input type="number" id="beWait" placeholder="不变" style="width:100%"></div>
         <div class="field"><label>手机监考</label><select id="bePhone" style="width:100%"><option value="">不变</option><option>开启</option><option>关闭</option></select></div>
-        <div class="field"><label class="muted" style="font-size:12px"></label><div class="hint" style="padding-top:9px">考试开始后要素线上自动锁定，不受此处修改影响</div></div>
+        <div class="field"><label class="muted" style="font-size:12px"></label><div class="hint" style="padding-top:9px">测评开始后要素线上自动锁定，不受此处修改影响</div></div>
       </div>
 
       <div class="sec-title">模拟考 <span class="sub">与正式考相互独立，留空保持原值</span></div>
@@ -436,9 +436,9 @@ textarea{min-height:72px}
       <div class="subblock">
         <div class="subblock-title">模拟考监考</div>
         <div class="fline">
-          <div class="field"><label>摄像头</label><select id="beMCam" style="width:100%"><option value="">不变</option><option>强制开启</option><option>考生自选</option><option>关闭</option></select></div>
-          <div class="field"><label>录屏</label><select id="beMRec" style="width:100%"><option value="">不变</option><option>强制开启</option><option>考生自选</option><option>关闭</option></select></div>
-          <div class="field"><label>检录照片</label><select id="beMPho" style="width:100%"><option value="">不变</option><option>强制开启</option><option>考生自选</option><option>关闭</option></select></div>
+          <div class="field"><label>摄像头</label><select id="beMCam" style="width:100%"><option value="">不变</option><option>强制开启</option><option>学员自选</option><option>关闭</option></select></div>
+          <div class="field"><label>录屏</label><select id="beMRec" style="width:100%"><option value="">不变</option><option>强制开启</option><option>学员自选</option><option>关闭</option></select></div>
+          <div class="field"><label>检录照片</label><select id="beMPho" style="width:100%"><option value="">不变</option><option>强制开启</option><option>学员自选</option><option>关闭</option></select></div>
         </div>
         <div class="fline">
           <div class="field"><label>候考时长（分钟）</label><input type="number" id="beMWait" placeholder="不变" style="width:100%"></div>
@@ -462,7 +462,7 @@ textarea{min-height:72px}
   <div class="modal" style="width:460px">
     <div class="modal-body done-hero">
       <div class="ico">✓</div>
-      <b>已创建 <span id="doneCount">N</span> 场考试</b>
+      <b>已创建 <span id="doneCount">N</span> 场测评</b>
       <span class="hint">尚未关联渠道，学员端暂不可见。<br>关联渠道后即可开放报名。</span>
     </div>
     <div class="modal-foot" style="justify-content:center">
@@ -487,7 +487,7 @@ var acts=[
  {id:2,name:'2026年12月冲刺班',start:'2026-12-01',end:'2026-12-31',groups:[],exams:[],links:0}
 ];
 var TAGS=['图形化 1 级','图形化 2 级','图形化 3 级','Python 1 级','Python 2 级','Python 3 级','C++ 1 级','C++ 2 级','程序设置 1 级','程序设置 2 级','程序设置 3 级'];
-var PAPERS=['图形化一级 2026春 正式卷','图形化一级 2026春 备用卷','图形化二级 2026春 正式卷','图形化二级 2026春 备用卷','图形化三级 2026春 正式卷','Python一级 2026春 正式卷A','Python一级 2026春 正式卷B','Python二级 2026春 正式卷','Python三级 2026春 正式卷','C++一级 2026春 正式卷','C++二级 2026春 正式卷','程序设置1级 期末卷','程序设置2级 期末卷','程序设置3级 期末卷','回归测试专用考场卷','2026区赛选拔卷 A','2026区赛选拔卷 B','2026市赛模拟卷 一','2026市赛模拟卷 二','Scratch入门测评卷','EV3机器人测评卷','Arduino创意测评卷','无人机编程测评卷','信息学奥赛入门卷','信奥 CSP-J 模拟一','信奥 CSP-J 模拟二','信奥 CSP-S 模拟一','信奥 CSP-S 模拟二','等级考试样卷 2026','等级考试样卷 2025','等级考试样卷 2024'];
+var PAPERS=['图形化一级 2026春 正式卷','图形化一级 2026春 备用卷','图形化二级 2026春 正式卷','图形化二级 2026春 备用卷','图形化三级 2026春 正式卷','Python一级 2026春 正式卷A','Python一级 2026春 正式卷B','Python二级 2026春 正式卷','Python三级 2026春 正式卷','C++一级 2026春 正式卷','C++二级 2026春 正式卷','程序设置1级 期末卷','程序设置2级 期末卷','程序设置3级 期末卷','回归测试专用考场卷','2026区赛选拔卷 A','2026区赛选拔卷 B','2026市赛模拟卷 一','2026市赛模拟卷 二','Scratch入门测评卷','EV3机器人测评卷','Arduino创意测评卷','无人机编程测评卷','信息学奥赛入门卷','信奥 CSP-J 模拟一','信奥 CSP-J 模拟二','信奥 CSP-S 模拟一','信奥 CSP-S 模拟二','等级测评样卷 2026','等级测评样卷 2025','等级测评样卷 2024'];
 var curAct=null, wizStep='A', createdCount=0, zoneOpen={}, allOpen=true, editingZone=null, newZoneMode=false;
 var wizZoneSel=[];
 
@@ -535,7 +535,7 @@ function renderTop(){
 }
 function showList(){location.href='32_活动管理.html';}
 
-/* ================= 树状表格：分组 × 考试 ================= */
+/* ================= 树状表格：分组 × 测评 ================= */
 function zones(){return curAct.groups.concat(['未分组'])}
 function renderTree(){
   var tb=$('treeBody');tb.innerHTML='';
@@ -564,13 +564,13 @@ function renderTree(){
       '<span class="gact">'+
       '<button class="gbtn" title="上移" onclick="moveZone('+zi+',-1)">↑</button>'+
       '<button class="gbtn" title="下移" onclick="moveZone('+zi+',1)">↓</button>'+
-      '<button class="gbtn add" onclick="openWizard(\''+esc(z)+'\')">＋ 添加考试</button>'+
+      '<button class="gbtn add" onclick="openWizard(\''+esc(z)+'\')">＋ 添加测评</button>'+
       '<button class="gbtn" title="删除分组" onclick="delZone(\''+esc(z)+'\')">🗑</button>'+
       '</span>';
     tr.innerHTML='<td colspan="6"><div class="grp-line">'+
       '<span class="tw'+(open?'':' closed')+'" onclick="toggleZone(\''+esc(z)+'\')">▼</span>'+
       gnameHtml+
-      '<span class="gcount">'+zoneTotal+' 场考试</span>'+
+      '<span class="gcount">'+zoneTotal+' 场测评</span>'+
       (isSys?'<span class="gsys">系统默认</span>':'')+
       '<span style="flex:1"></span>'+act+'</div></td>';
     tb.appendChild(tr);
@@ -583,7 +583,7 @@ function renderTree(){
       tb.appendChild(ntr);
       setTimeout(function(){var el=$('newZoneInput');if(el)el.focus()},30);
     }
-    /* 考试行 */
+    /* 测评行 */
     if(open){
       list.forEach(function(e){
         var etr=document.createElement('tr');etr.className='exam';
@@ -600,17 +600,17 @@ function renderTree(){
           '<td>'+e.time+'</td>'+
           '<td class="cfg-cell">'+fMoni+'</td>'+
           '<td class="cfg-cell">'+fMockLine+mMock+'</td>'+
-          '<td><div style="display:flex;align-items:center;justify-content:space-between;gap:8px"><span style="white-space:nowrap">'+(e.chs?e.chs+' 渠道':'<span class="muted">—</span>')+'</span><span style="display:flex;gap:6px"><button class="btn small" style="width:52px;justify-content:center" onclick="toast(\'演示：编辑考试配置（正式考 / 模拟考）\')">编辑</button><span class="menu-wrap"><button class="btn small" style="width:36px;justify-content:center" onclick="toggleMenu(event,this)">…</button><div class="menu">'+
-          '<div class="mi" onclick="toast(\'演示：编辑考试配置（正式考 / 模拟考）\')">编辑考试</div>'+
-          '<div class="mi" onclick="toast(\'演示：复制考试，名称与时间顺延\')">复制考试</div>'+
+          '<td><div style="display:flex;align-items:center;justify-content:space-between;gap:8px"><span style="white-space:nowrap">'+(e.chs?e.chs+' 渠道':'<span class="muted">—</span>')+'</span><span style="display:flex;gap:6px"><button class="btn small" style="width:52px;justify-content:center" onclick="toast(\'演示：编辑测评配置（正式考 / 模拟考）\')">编辑</button><span class="menu-wrap"><button class="btn small" style="width:36px;justify-content:center" onclick="toggleMenu(event,this)">…</button><div class="menu">'+
+          '<div class="mi" onclick="toast(\'演示：编辑测评配置（正式考 / 模拟考）\')">编辑测评</div>'+
+          '<div class="mi" onclick="toast(\'演示：复制测评，名称与时间顺延\')">复制测评</div>'+
           (e.paperOk?'':'<div class="mi" onclick="toast(\'演示：选择试卷后变为已关联\')">补关联试卷</div>')+
-          '<div class="mi red" onclick="delExam('+e._i+')">删除考试</div>'+
+          '<div class="mi red" onclick="delExam('+e._i+')">删除测评</div>'+
           '</div></span></span></div></td>';
         tb.appendChild(etr);
       });
       if(!list.length&&!kw){
         var etr=document.createElement('tr');etr.className='exam';
-        etr.innerHTML='<td colspan="6" class="muted" style="font-size:12px">暂无考试，点击分组行「＋ 添加考试」</td>';
+        etr.innerHTML='<td colspan="6" class="muted" style="font-size:12px">暂无测评，点击分组行「＋ 添加测评」</td>';
         tb.appendChild(etr);
       }
     }
@@ -618,8 +618,8 @@ function renderTree(){
   /* 完全空的活动 */
   if(empty&&!curAct.groups.length&&!curAct.exams.length&&!newZoneMode){
     var tr=document.createElement('tr');
-    tr.innerHTML='<td colspan="6"><div class="empty-tree"><div class="big">还没有分组和考试</div><div class="hint" style="margin-bottom:14px">先新建分组，或直接创建考试（将归入「未分组」）</div>'+
-      '<button class="btn" onclick="newZoneInline()">＋ 新建分组</button>&nbsp;&nbsp;<button class="btn primary" onclick="openWizard(null)">＋ 创建考试</button></div></td>';
+    tr.innerHTML='<td colspan="6"><div class="empty-tree"><div class="big">还没有分组和测评</div><div class="hint" style="margin-bottom:14px">先新建分组，或直接创建测评（将归入「未分组」）</div>'+
+      '<button class="btn" onclick="newZoneInline()">＋ 新建分组</button>&nbsp;&nbsp;<button class="btn primary" onclick="openWizard(null)">＋ 创建测评</button></div></td>';
     tb.appendChild(tr);
   }
   renderTop();
@@ -655,7 +655,7 @@ function moveZone(i,d){
 }
 function delZone(z){
   var n=curAct.exams.filter(function(e){return e.g===z}).length;
-  if(n>0){toast('该分组内有 '+n+' 场考试，请先移动或删除');return}
+  if(n>0){toast('该分组内有 '+n+' 场测评，请先移动或删除');return}
   curAct.groups.splice(curAct.groups.indexOf(z),1);renderTree();toast('分组已删除');
 }
 function newZoneInline(){newZoneMode=true;renderTree()}
@@ -669,8 +669,8 @@ function saveNewZone(){
 }
 function cancelNewZone(){newZoneMode=false;renderTree()}
 function delExam(i){
-  if(!confirm('确认删除考试「'+curAct.exams[i].name+'」？已产生的报名不受影响。'))return;
-  curAct.exams.splice(i,1);renderTree();toast('考试已删除');
+  if(!confirm('确认删除测评「'+curAct.exams[i].name+'」？已产生的报名不受影响。'))return;
+  curAct.exams.splice(i,1);renderTree();toast('测评已删除');
 }
 function toggleMenu(ev,btn){
   ev.stopPropagation();
@@ -766,7 +766,7 @@ function sselPick(boxId,v){
 function sselClear(boxId){
   sselState[boxId].value='';
   renderSsel(boxId,sselState[boxId].items,'');
-  toast('已清除试卷，本次创建的考试为「待关联试卷」');
+  toast('已清除试卷，本次创建的测评为「待关联试卷」');
 }
 
 /* ================= 向导 ================= */
@@ -794,7 +794,7 @@ function wizShow(s){
   $('ws2').className='ws'+(s==='B'?' on':'');
   $('ws1').querySelector('.d').textContent=s==='A'?'1':'✓';
   $('wizPrev').style.display=s==='B'?'inline-block':'none';
-  $('wizNext').textContent=s==='A'?'下一步：考试配置':'提交创建';
+  $('wizNext').textContent=s==='A'?'下一步：测评配置':'提交创建';
   $('wizSummary').textContent='';
 }
 function wizPrev(){wizShow('A')}
@@ -802,7 +802,7 @@ function getWizRows(){return [].slice.call($('rowTable').querySelector('tbody').
 function wizNext(){
   if(wizStep==='A'){
     var ok=getWizRows().filter(function(r){return r.querySelector('input').value.trim()});
-    if(!ok.length){toast('请至少填写一行考试名称');return}
+    if(!ok.length){toast('请至少填写一行测评名称');return}
     var gs=wizZoneSel.length?wizZoneSel.length:1;
     $('wizSummary').textContent='共 '+ok.length+' 场'+(wizZoneSel.length>1?' × '+wizZoneSel.length+' 个分组 = '+(ok.length*gs)+' 场':'');
     wizShow('B');
@@ -822,7 +822,7 @@ function wizNext(){
 }
 function genRows(){
   var n=$('genName').value.trim();
-  if(!n){toast('请填写考试名称');return}
+  if(!n){toast('请填写测评名称');return}
   var c=parseInt($('genCount').value)||1;
   var s=$('genStart').value,e=$('genEnd').value;
   var tb=$('rowTable').querySelector('tbody');
@@ -843,7 +843,7 @@ function addMin(dt,m){
 function addRow(){
   var tb=$('rowTable').querySelector('tbody');
   var tr=document.createElement('tr');
-  tr.innerHTML='<td><input type="text" placeholder="考试名称" style="width:95%"></td><td><input type="datetime-local" style="width:95%"></td><td><input type="datetime-local" style="width:95%"></td><td><input type="datetime-local" style="width:95%"></td><td><input type="datetime-local" style="width:95%"></td><td><button class="btn small" onclick="this.closest(\'tr\').remove()">删</button></td>';
+  tr.innerHTML='<td><input type="text" placeholder="测评名称" style="width:95%"></td><td><input type="datetime-local" style="width:95%"></td><td><input type="datetime-local" style="width:95%"></td><td><input type="datetime-local" style="width:95%"></td><td><input type="datetime-local" style="width:95%"></td><td><button class="btn small" onclick="this.closest(\'tr\').remove()">删</button></td>';
   tb.appendChild(tr);
 }
 function toggleMock(){
@@ -853,7 +853,7 @@ function toggleMock(){
 
 
 
-/* ================= 批量修改考试 ================= */
+/* ================= 批量修改测评 ================= */
 function ckAllToggle(cb){document.querySelectorAll('.examck').forEach(function(x){x.checked=cb.checked});ckSync()}
 function ckSync(){
   var n=document.querySelectorAll('.examck:checked').length;
@@ -863,7 +863,7 @@ function ckSync(){
 function checkedExams(){return [].slice.call(document.querySelectorAll('.examck:checked')).map(function(x){return parseInt(x.dataset.i)})}
 function openBulkEditExam(){
   var ids=checkedExams();
-  $('bulkEditSummary').textContent='将修改 '+ids.length+' 场考试：'+ids.slice(0,4).map(function(i){return curAct.exams[i].name}).join('、')+(ids.length>4?' 等':'');
+  $('bulkEditSummary').textContent='将修改 '+ids.length+' 场测评：'+ids.slice(0,4).map(function(i){return curAct.exams[i].name}).join('、')+(ids.length>4?' 等':'');
   window.beTagSel=[];
   renderSsel('bePaperSel',PAPERS,'','搜索正式卷（不选 = 不变）');
   renderSsel('beMockPaperSel',PAPERS,'','搜索模拟卷（不选 = 不变）');
@@ -915,7 +915,7 @@ function doBulkEdit(){
   if(mockV)bits.push('模拟考'+(mockV==='on'?'开':'关'));
   if(mockPaperV)bits.push('模拟卷');
   hide('ovBulkEdit');renderTree();
-  toast('已修改 '+ids.length+' 场考试（'+bits.join('、')+'），其余保持原值');
+  toast('已修改 '+ids.length+' 场测评（'+bits.join('、')+'），其余保持原值');
 }
 
 /* ================= 跳转 ================= */

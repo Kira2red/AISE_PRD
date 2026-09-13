@@ -66,7 +66,7 @@
         .countdown-num .unit { font-size: 22px; color: #9ca3af; margin-left: 4px; font-weight: 400; }
         .start-time { font-size: 13px; color: #6b7280; margin-top: 10px; }
 
-        /* 考试信息 */
+        /* 测评信息 */
         .info-grid {
             display: grid; grid-template-columns: 1fr 1fr; gap: 10px 24px;
             margin-bottom: 20px;
@@ -75,7 +75,7 @@
         .info-item .k { color: #9ca3af; flex-shrink: 0; }
         .info-item .v { color: #374151; font-weight: 500; }
 
-        /* 考生须知 */
+        /* 学员须知 */
         .notice {
             background: #f8fafc; border: 1px solid #eef2f7;
             border-radius: 10px; padding: 14px 16px; margin-bottom: 20px;
@@ -92,7 +92,7 @@
             border-radius: 8px; padding: 8px 12px; margin-bottom: 22px;
         }
 
-        /* 开始考试按钮 */
+        /* 开始测评按钮 */
         .start-btn {
             display: none; width: 100%;
             padding: 14px 0; border: none; border-radius: 10px;
@@ -150,19 +150,19 @@
             <div class="countdown-box">
                 <div class="countdown-label">距离开考还有</div>
                 <div class="countdown-num"><span id="cd-num">09:59</span></div>
-                <div class="start-time">考试开始时间：2026-08-09 20:00:00</div>
+                <div class="start-time">测评开始时间：2026-08-09 20:00:00</div>
             </div>
 
             <div class="info-grid">
-                <div class="info-item"><span class="k">考试时长</span><span class="v">60 分钟</span></div>
+                <div class="info-item"><span class="k">测评时长</span><span class="v">60 分钟</span></div>
                 <div class="info-item"><span class="k">交卷限制</span><span class="v">开考 15 分钟后可交卷</span></div>
             </div>
 
             <div class="notice">
-                <div class="t">考生须知</div>
+                <div class="t">学员须知</div>
                 <ul>
-                    <li>考试期间请保持摄像头和录屏开启，不要离开答题页面</li>
-                    <li>开考后点击「开始考试」直接进入答题，无需重复检测设备</li>
+                    <li>测评期间请保持摄像头和录屏开启，不要离开答题页面</li>
+                    <li>开考后点击「开始测评」直接进入答题，无需重复检测设备</li>
                     <li>如遇设备异常，请及时联系客服处理</li>
                 </ul>
             </div>
@@ -173,7 +173,7 @@
             </div>
 
             <button class="start-btn" id="start-btn" onclick="startExam()">
-                <i class="fa-solid fa-arrow-right"></i> 开始考试
+                <i class="fa-solid fa-arrow-right"></i> 开始测评
             </button>
             <div class="waiting-tip" id="waiting-tip">等待开考，请勿离开</div>
 

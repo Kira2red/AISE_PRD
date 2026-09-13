@@ -1,4 +1,4 @@
-/* 考试管理看板数据层 v3：活动/考试/渠道关联（32 活动管理 + 33 活动详情 共用） */
+/* 测评管理看板数据层 v3：活动/测评/渠道关联（32 活动管理 + 33 活动详情 共用） */
 const LS_KEY = 'aise_exam_board_v4';
 const PAPER_LIST = ['PY-L1-2026春-A卷','PY-L2-2026春-A卷','图形化-L1-3月卷','图形化-L2-6月卷','C++-L1-基础卷','PY-L3-冲刺卷','图形化-L1-模拟卷','PY-L2-模拟卷'];
 const CHANNEL_LIST = [
@@ -30,7 +30,7 @@ function seedRows(){
   mk({actId:'ACT2603', aid:'HD2501', name:'Python一级·3月考期', cid:'QD001', group:'3月批', paper:'PY-L1-2026春-A卷', examStart:'2026-03-21 09:00', examEnd:'2026-03-21 11:00', duration:120, submitLimit:100, fee:300, showStart:'2026-01-10', enrolled:186, tags:['Python','1级'], desc:'面向零基础学员的 Python 等级认证', certDate:'首次查看', hidden:true}),
   mk({actId:'ACT2603', aid:'HD2502', name:'图形化一级·3月考期', cid:'QD001', group:'3月批', paper:'图形化-L1-3月卷', examStart:'2026-03-21 14:00', examEnd:'2026-03-21 15:30', duration:90, submitLimit:80, fee:280, showStart:'2026-01-10', enrolled:132, tags:['图形化','1级']}),
   mk({actId:'ACT2606', aid:'HD2503', name:'Python二级·6月考期', cid:'QD001', group:'6月批', paper:'PY-L2-2026春-A卷', examStart:'2026-06-20 09:00', examEnd:'2026-06-20 11:30', duration:150, submitLimit:130, fee:320, showStart:'2026-04-01', enrolled:98, tags:['Python','2级'], mock:{on:true,paper:'PY-L2-模拟卷',start:'2026-06-06 09:00',end:'2026-06-08 18:00',limit:'2次',submitLimit:'',pro:null}}),
-  mk({actId:'ACT2606', aid:'HD2504', name:'图形化二级·6月考期', cid:'QD001', group:'6月批', paper:'图形化-L2-6月卷', examStart:'2026-06-20 14:00', examEnd:'2026-06-20 15:30', duration:90, submitLimit:80, fee:300, showStart:'2026-04-01', status:'创建失败', failReason:'爱测评接口超时，创建考试失败', tags:['图形化','2级']}),
+  mk({actId:'ACT2606', aid:'HD2504', name:'图形化二级·6月考期', cid:'QD001', group:'6月批', paper:'图形化-L2-6月卷', examStart:'2026-06-20 14:00', examEnd:'2026-06-20 15:30', duration:90, submitLimit:80, fee:300, showStart:'2026-04-01', status:'创建失败', failReason:'爱测评接口超时，创建测评失败', tags:['图形化','2级']}),
   mk({actId:'ACT2609', aid:'HD2505', name:'C++一级·常规', cid:'QD001', group:'默认', paper:'', examStart:'2026-09-19 09:00', examEnd:'2026-09-19 11:00', duration:120, submitLimit:100, fee:300, showStart:'2026-07-01', status:'未关联', tags:['C++','1级'], mock:{on:false,paper:'',start:'',end:'',limit:'',submitLimit:'',pro:null}, pro:{cam:'强制开启',rec:'强制开启',phone:true,photo:'非强制开启',score:true,detail:true,read:true,wait:0,guide:'',pic:''}}),
   mk({actId:'ACT2609', aid:'HD2506', name:'Python一级·常规场', cid:'QD002', group:'2026春季', paper:'PY-L1-2026春-A卷', examStart:'2026-09-26 09:00', examEnd:'2026-09-26 11:00', duration:120, submitLimit:100, fee:300, showStart:'2026-07-15', enrolled:145, tags:['Python','1级'], hidden:true}),
   mk({actId:'ACT2609', aid:'HD2506', name:'Python一级·常规场', cid:'QD003', group:'默认', paper:'PY-L1-2026春-A卷', examStart:'2026-09-26 09:00', examEnd:'2026-09-26 11:00', duration:120, submitLimit:100, fee:260, showStart:'2026-07-15', enrolled:87, tags:['Python','1级']}),

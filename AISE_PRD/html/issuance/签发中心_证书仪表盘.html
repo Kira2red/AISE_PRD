@@ -83,7 +83,7 @@
                 </label>
                 <div>
                     <p class="text-sm font-semibold text-[#1F2329]" id="toggle-label">签发运行中</p>
-                    <p class="text-[11px] text-[#8F959E]" id="toggle-sub">所有考试正常签发</p>
+                    <p class="text-[11px] text-[#8F959E]" id="toggle-sub">所有测评正常签发</p>
                 </div>
             </div>
             <div class="flex items-center gap-5">
@@ -375,17 +375,17 @@
             const label = document.getElementById('toggle-label');
             const sub = document.getElementById('toggle-sub');
             if (!checked) {
-                if (!confirm('确认停止签发？\n\n停止后所有考试将不再生成新证书，正在签发中的任务将继续完成。')) {
+                if (!confirm('确认停止签发？\n\n停止后所有测评将不再生成新证书，正在签发中的任务将继续完成。')) {
                     document.getElementById('global-toggle').checked = true;
                     return;
                 }
                 label.innerText = '签发已停止';
                 label.style.color = '#F54A45';
-                sub.innerText = '所有考试暂停签发新证书';
+                sub.innerText = '所有测评暂停签发新证书';
             } else {
                 label.innerText = '签发运行中';
                 label.style.color = '#1F2329';
-                sub.innerText = '所有考试正常签发';
+                sub.innerText = '所有测评正常签发';
             }
         }
 

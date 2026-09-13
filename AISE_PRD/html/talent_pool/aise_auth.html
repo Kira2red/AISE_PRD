@@ -86,7 +86,7 @@
     .form-switch { text-align: center; margin-top: 16px; font-size: 14px; color: var(--text-gray); }
     .form-switch a { color: var(--primary); font-weight: 600; cursor: pointer; }
 
-    /* ===== 选择考生身份 ===== */
+    /* ===== 选择学员身份 ===== */
     .cand-list { display: flex; flex-direction: column; gap: 12px; margin-top: 8px; }
     .cand-item {
         display: flex; align-items: center; gap: 14px; padding: 16px 18px;
@@ -154,12 +154,12 @@
         <button class="dp-btn" id="dp-login-no" onclick="setDemo('aiseLoggedIn', false)">未登录</button>
     </div>
     <div class="dp-row">
-        <span class="dp-label">账号下考生数</span>
+        <span class="dp-label">账号下学员数</span>
         <button class="dp-btn active" id="dp-cand-1" onclick="setDemo('multiCandidate', false)">1 个</button>
         <button class="dp-btn" id="dp-cand-2" onclick="setDemo('multiCandidate', true)">2 个（演示选身份）</button>
     </div>
     <div class="dp-row">
-        <span class="dp-label">该考生在人才库</span>
+        <span class="dp-label">该学员在人才库</span>
         <button class="dp-btn active" id="dp-acc-0" onclick="setDemo('hasAccount', false)">无账号 → 自动建档</button>
         <button class="dp-btn" id="dp-acc-1" onclick="setDemo('hasAccount', true)">已有账号 → 授权失败</button>
     </div>
@@ -197,11 +197,11 @@
         <div class="form-switch">没有账号？<a>注册新账号</a></div>
     </div>
 
-    <!-- 视图1：选择考生身份 -->
+    <!-- 视图1：选择学员身份 -->
     <div class="view" id="view-select">
         <a class="back-link" style="display:inline-block;margin-bottom:14px;color:var(--text-gray);font-size:13px;cursor:pointer" onclick="showView('login')"><i class="fa-solid fa-arrow-left"></i> 返回登录</a>
-        <h2>选择考生身份</h2>
-        <p class="sub">您的 AISE 账号下关联多个考生，请选择本次登录人才库的身份</p>
+        <h2>选择学员身份</h2>
+        <p class="sub">您的 AISE 账号下关联多个学员，请选择本次登录人才库的身份</p>
         <div class="cand-list" id="cand-list"></div>
     </div>
 
@@ -209,7 +209,7 @@
     <div class="view" id="view-auth">
         <h2>授权登录人才库</h2>
         <p class="auth-intro">
-            人工智能人才资源库将获取您 <b id="auth-name">该考生</b> 的以下信息，
+            人工智能人才资源库将获取您 <b id="auth-name">该学员</b> 的以下信息，
             用于<b>建立或关联您的人才档案</b>。请您确认后单独同意。
         </p>
         <table class="field-table">
@@ -253,7 +253,7 @@ var CANDIDATES = [
 ];
 
 // ===== localStorage 模拟后端 =====
-var LS_AUTH = 'talent_aise_authorized'; // 已授权考生组合键数组
+var LS_AUTH = 'talent_aise_authorized'; // 已授权学员组合键数组
 
 function bridgeKey(c) { return c.idTypeKey + ':' + c.idNo; }
 
@@ -265,7 +265,7 @@ function isAuthorized(c) { return getAuthorized().indexOf(bridgeKey(c)) >= 0; }
 
 // ===== 演示控制 =====
 var DEMO = { aiseLoggedIn: true, multiCandidate: false, hasAccount: false };
-var currentCandidate = null; // 当前选中考生
+var currentCandidate = null; // 当前选中学员
 
 function setDemo(key, val) {
     DEMO[key] = val;
@@ -323,7 +323,7 @@ function selectCandidate(i) {
     proceedAfterIdentity();
 }
 
-// 选中/确定考生身份后：已授权→静默登录；未授权→弹授权窗
+// 选中/确定学员身份后：已授权→静默登录；未授权→弹授权窗
 function proceedAfterIdentity() {
     if (isAuthorized(currentCandidate)) {
         renderResult('created', true);

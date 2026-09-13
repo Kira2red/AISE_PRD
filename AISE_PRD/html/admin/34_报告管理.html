@@ -36,11 +36,11 @@
             <p class="pt-3 px-3 text-[10px] font-bold text-slate-400 uppercase tracking-wider">教务中心</p>
             <a href="07_试卷管理.html" class="flex items-center gap-2.5 px-3 py-2 rounded-lg text-slate-500 hover:bg-slate-50 transition"><i class="fa-solid fa-file-lines w-4 text-center"></i>试卷管理</a>
             <a href="08_题目管理_列表.html" class="flex items-center gap-2.5 px-3 py-2 rounded-lg text-slate-500 hover:bg-slate-50 transition"><i class="fa-solid fa-circle-question w-4 text-center"></i>题目管理</a>
-            <a href="03_测评活动列表.html" class="flex items-center gap-2.5 px-3 py-2 rounded-lg bg-brand-50 text-brand-700 font-bold"><i class="fa-solid fa-clipboard-list w-4 text-center"></i>测评管理</a>
+            <a href="03_测评列表.html" class="flex items-center gap-2.5 px-3 py-2 rounded-lg bg-brand-50 text-brand-700 font-bold"><i class="fa-solid fa-clipboard-list w-4 text-center"></i>测评管理</a>
             <a href="#" class="flex items-center gap-2.5 px-3 py-2 rounded-lg text-slate-500 hover:bg-slate-50 transition"><i class="fa-solid fa-tags w-4 text-center"></i>标签管理</a>
             <p class="pt-3 px-3 text-[10px] font-bold text-slate-400 uppercase tracking-wider">考务与用户</p>
-            <a href="12_考生管理.html" class="flex items-center gap-2.5 px-3 py-2 rounded-lg text-slate-500 hover:bg-slate-50 transition"><i class="fa-solid fa-users w-4 text-center"></i>考生管理</a>
-            <a href="14_活动证书管理.html" class="flex items-center gap-2.5 px-3 py-2 rounded-lg text-slate-500 hover:bg-slate-50 transition"><i class="fa-solid fa-certificate w-4 text-center"></i>考试证书管理</a>
+            <a href="12_学员管理.html" class="flex items-center gap-2.5 px-3 py-2 rounded-lg text-slate-500 hover:bg-slate-50 transition"><i class="fa-solid fa-users w-4 text-center"></i>学员管理</a>
+            <a href="14_测评证书管理.html" class="flex items-center gap-2.5 px-3 py-2 rounded-lg text-slate-500 hover:bg-slate-50 transition"><i class="fa-solid fa-certificate w-4 text-center"></i>测评证书管理</a>
         </nav>
         <div class="p-3 border-t border-slate-100">
             <div class="flex items-center gap-2.5 px-2 py-1.5 rounded-lg hover:bg-slate-50 cursor-pointer">
@@ -58,9 +58,9 @@
         <!-- 顶栏 -->
         <header class="h-16 bg-white/80 backdrop-blur border-b border-slate-200 flex items-center justify-between px-6 sticky top-0 z-20">
             <div class="flex items-center gap-3">
-                <button onclick="window.location.href='03_测评活动列表.html'" class="w-8 h-8 rounded-lg border border-slate-200 flex items-center justify-center text-slate-500 hover:bg-slate-50 transition"><i class="fa-solid fa-arrow-left text-sm"></i></button>
+                <button onclick="window.location.href='03_测评列表.html'" class="w-8 h-8 rounded-lg border border-slate-200 flex items-center justify-center text-slate-500 hover:bg-slate-50 transition"><i class="fa-solid fa-arrow-left text-sm"></i></button>
                 <div>
-                    <h1 class="text-lg font-bold text-slate-800 leading-tight">2025春季 Python 一级等级考试 · 报告管理</h1>
+                    <h1 class="text-lg font-bold text-slate-800 leading-tight">2025春季 Python 一级等级测评 · 报告管理</h1>
                     <p class="text-xs text-slate-400">个人考级报告等级规则配置（与证书等级规则相互独立）</p>
                 </div>
             </div>
@@ -108,7 +108,7 @@
 
                         <div class="bg-amber-50 text-amber-800 text-xs p-2.5 rounded border border-amber-100 flex items-start gap-2">
                             <i class="fa-solid fa-circle-info mt-0.5"></i>
-                            <p>规则说明：达到勾选「计入通过」的最低分数线 = 通过；未达到任何档位分数线的考生，报告等级显示「未通过」。留空的成长区间与一句话总结按默认规则展示。</p>
+                            <p>规则说明：达到勾选「计入通过」的最低分数线 = 通过；未达到任何档位分数线的学员，报告等级显示「未通过」。留空的成长区间与一句话总结按默认规则展示。</p>
                         </div>
                     </div>
 
@@ -232,7 +232,7 @@ function renderPreview(){
 }
 
 function toggleReport(cb){
-    showToast(cb.checked ? '报告已开启，成绩发布后将为考生生成报告' : '报告已关闭，不再生成新报告');
+    showToast(cb.checked ? '报告已开启，成绩发布后将为学员生成报告' : '报告已关闭，不再生成新报告');
 }
 
 function saveRules(btn){

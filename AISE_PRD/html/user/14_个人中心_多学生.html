@@ -95,7 +95,7 @@
                 </div>
                 
                 <button onclick="toggleMode()" class="mt-4 w-full py-2 bg-slate-800 text-white text-xs rounded-lg opacity-50 hover:opacity-100 transition">
-                    <i class="fa-solid fa-arrows-rotate"></i> 模拟：切换单/多考生状态
+                    <i class="fa-solid fa-arrows-rotate"></i> 模拟：切换单/多学员状态
                 </button>
             </aside>
 
@@ -104,7 +104,7 @@
                 <div class="mb-6 flex justify-between items-end">
                     <div>
                         <h1 class="text-2xl font-bold text-slate-900" id="page-title">家庭档案管理</h1>
-                        <p class="text-sm text-slate-500 mt-1">管理您关联的考生档案信息。</p>
+                        <p class="text-sm text-slate-500 mt-1">管理您关联的学员档案信息。</p>
                     </div>
                 </div>
 
@@ -187,7 +187,7 @@
                             </div>
                             <div>
                                 <label class="block text-xs font-bold text-slate-500 uppercase mb-2">联系电话</label>
-                                <input type="tel" value="13900000000" class="w-full px-4 py-3 rounded-xl border border-slate-200 focus:border-brand-500 outline-none text-sm font-medium text-slate-800 transition" placeholder="请输入考生或家长电话">
+                                <input type="tel" value="13900000000" class="w-full px-4 py-3 rounded-xl border border-slate-200 focus:border-brand-500 outline-none text-sm font-medium text-slate-800 transition" placeholder="请输入学员或家长电话">
                             </div>
                             <div>
                                 <label class="block text-xs font-bold text-slate-500 uppercase mb-2">监护人姓名</label>
@@ -236,7 +236,7 @@
                         <div class="flex flex-col-reverse sm:flex-row justify-end gap-4 pt-4 border-t border-slate-50 mt-8 relative">
                             
                             <button type="button" id="btn-add-student-bottom" onclick="openModal()" class="w-full sm:w-auto px-6 py-3.5 rounded-xl border border-slate-200 text-slate-600 font-bold text-sm hover:bg-slate-50 hover:text-brand-600 transition flex items-center justify-center gap-2">
-                                <i class="fa-solid fa-plus"></i> 关联新考生
+                                <i class="fa-solid fa-plus"></i> 关联新学员
                             </button>
 
                             <div class="relative w-full sm:w-auto flex flex-col justify-center">
@@ -259,17 +259,17 @@
         <div class="absolute inset-0 bg-slate-900/60 backdrop-blur-sm transition-opacity" onclick="closeModal()"></div>
         <div class="relative w-full max-w-lg bg-white rounded-2xl shadow-2xl overflow-hidden modal-enter z-10 mx-4">
             <div class="p-6 border-b border-slate-100 flex justify-between items-center bg-slate-50/50">
-                <h3 class="text-lg font-bold text-slate-900">添加新考生</h3>
+                <h3 class="text-lg font-bold text-slate-900">添加新学员</h3>
                 <button onclick="closeModal()" class="text-slate-400 hover:text-slate-600 transition"><i class="fa-solid fa-xmark text-lg"></i></button>
             </div>
             <form class="p-6 sm:p-8" onsubmit="event.preventDefault(); handleAddStudent();">
                 <div class="bg-blue-50 border border-blue-100 rounded-lg p-3 flex gap-3 mb-6">
                     <i class="fa-solid fa-circle-info text-blue-500 mt-0.5 text-sm"></i>
-                    <p class="text-xs text-blue-700 leading-relaxed">新增中国大陆考生必须通过公安实名校验。</p>
+                    <p class="text-xs text-blue-700 leading-relaxed">新增中国大陆学员必须通过公安实名校验。</p>
                 </div>
                 <div class="mb-5">
                     <label class="block text-xs font-bold text-slate-500 uppercase mb-2">真实姓名</label>
-                    <input type="text" id="input-new-name" class="w-full px-4 py-3 rounded-xl border border-slate-200 focus:border-brand-500 outline-none text-sm" placeholder="请填写考生真实姓名">
+                    <input type="text" id="input-new-name" class="w-full px-4 py-3 rounded-xl border border-slate-200 focus:border-brand-500 outline-none text-sm" placeholder="请填写学员真实姓名">
                 </div>
                 <div class="mb-8">
                     <label class="block text-xs font-bold text-slate-500 uppercase mb-2">证件信息</label>
@@ -307,7 +307,7 @@
             photoIdx = (photoIdx + 1) % photoStates.length;
             const s = photoStates[photoIdx];
             const card = document.getElementById('photo-review-card');
-            const name = document.getElementById('form-name').value || '当前考生';
+            const name = document.getElementById('form-name').value || '当前学员';
             card.className = s.cardBg + ' rounded-xl p-4 mb-6 flex items-start gap-4';
             document.getElementById('photo-review-icon').className = 'w-10 h-10 rounded-full ' + s.iconBg + ' flex items-center justify-center flex-shrink-0 mt-0.5';
             document.getElementById('photo-review-icon').innerHTML = s.iconEl;
@@ -332,7 +332,7 @@
         function toggleMode() {
             isMultipleMode = !isMultipleMode;
             renderPage();
-            alert(isMultipleMode ? "已切换为：多考生模式" : "已切换为：单考生模式");
+            alert(isMultipleMode ? "已切换为：多学员模式" : "已切换为：单学员模式");
         }
 
         function updateFormPlaceholder() {
@@ -375,7 +375,7 @@
                         <span class="text-xs font-bold ${s.id === currentStudentId ? 'text-brand-700' : 'text-slate-600'}">${s.name}</span>
                     </div>
                 `).join('') + `
-                    <button onclick="openModal()" class="w-8 h-8 rounded-full border border-dashed border-slate-300 flex items-center justify-center text-slate-400 hover:text-brand-600 hover:border-brand-500 hover:bg-brand-50 transition ml-1" title="添加新考生">
+                    <button onclick="openModal()" class="w-8 h-8 rounded-full border border-dashed border-slate-300 flex items-center justify-center text-slate-400 hover:text-brand-600 hover:border-brand-500 hover:bg-brand-50 transition ml-1" title="添加新学员">
                         <i class="fa-solid fa-plus text-xs"></i>
                     </button>
                 `;
@@ -415,7 +415,7 @@
                 renderPage();
                 closeModal();
                 btn.innerHTML = '立即添加';
-                alert("添加成功！页面已自动更新为多考生管理视图。");
+                alert("添加成功！页面已自动更新为多学员管理视图。");
             }, 800);
         }
 

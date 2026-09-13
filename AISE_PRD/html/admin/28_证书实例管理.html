@@ -66,7 +66,7 @@
             </a>
             <div class="px-6 py-2 mt-4 text-xs font-bold text-slate-400 uppercase tracking-wider">证书管理</div>
             <a href="#" class="nav-item flex items-center gap-3 px-6 py-3 text-slate-500 hover:bg-slate-50 hover:text-brand-600 transition relative">
-                <i class="fa-solid fa-certificate w-5 text-center"></i><span class="font-medium text-sm">考试证书管理</span>
+                <i class="fa-solid fa-certificate w-5 text-center"></i><span class="font-medium text-sm">测评证书管理</span>
             </a>
             <a href="#" class="nav-item flex items-center gap-3 px-6 py-3 text-slate-500 hover:bg-slate-50 hover:text-brand-600 transition relative">
                 <i class="fa-solid fa-user-graduate w-5 text-center"></i><span class="font-medium text-sm">学生证书管理</span>
@@ -79,7 +79,7 @@
             </a>
             <div class="px-6 py-2 mt-4 text-xs font-bold text-slate-400 uppercase tracking-wider">考务与用户</div>
             <a href="#" class="nav-item flex items-center gap-3 px-6 py-3 text-slate-500 hover:bg-slate-50 hover:text-brand-600 transition relative">
-                <i class="fa-solid fa-users w-5 text-center"></i><span class="font-medium text-sm">考生管理</span>
+                <i class="fa-solid fa-users w-5 text-center"></i><span class="font-medium text-sm">学员管理</span>
             </a>
         </nav>
     </aside>
@@ -351,7 +351,7 @@
 
                 <!-- AISE 测评 Tab -->
                 <div id="tab-aise">
-                    <h4 class="text-sm font-bold text-slate-800 mb-3">选择已有 AISE 考试</h4>
+                    <h4 class="text-sm font-bold text-slate-800 mb-3">选择已有 AISE 测评</h4>
                     <div class="relative mb-3">
                         <i class="fa-solid fa-magnifying-glass absolute left-3 top-3 text-slate-400 text-sm"></i>
                         <input type="text" placeholder="搜索测评名称或 ID..." class="w-full pl-9 pr-4 py-2.5 rounded-lg border border-slate-200 text-sm focus:border-brand-500 outline-none bg-white">
@@ -483,7 +483,7 @@
             <div id="step-3" class="hidden">
                 <div id="step-3-aise">
                     <h4 class="text-sm font-bold text-slate-800 mb-1">字段映射（AISE 测评）</h4>
-                    <p class="text-xs text-slate-400 mb-4">系统自动从 AISE 考试记录中提取数据，无需手动映射。</p>
+                    <p class="text-xs text-slate-400 mb-4">系统自动从 AISE 测评记录中提取数据，无需手动映射。</p>
                     <table class="w-full text-left border-collapse rounded-lg overflow-hidden border border-slate-200">
                         <thead>
                             <tr class="bg-slate-50 text-xs uppercase text-slate-500 font-bold">
@@ -494,8 +494,8 @@
                         </thead>
                         <tbody class="text-xs text-slate-600 divide-y divide-slate-100">
                             <tr><td class="p-3 pl-4 font-medium">姓名</td><td class="p-3">AISE 用户信息</td><td class="p-3 font-mono text-slate-400">user.profile.name</td></tr>
-                            <tr><td class="p-3 pl-4 font-medium">测评名称</td><td class="p-3">AISE 考试记录</td><td class="p-3 font-mono text-slate-400">exam.title</td></tr>
-                            <tr><td class="p-3 pl-4 font-medium">成绩</td><td class="p-3">AISE 考试记录</td><td class="p-3 font-mono text-slate-400">exam.totalScore</td></tr>
+                            <tr><td class="p-3 pl-4 font-medium">测评名称</td><td class="p-3">AISE 测评记录</td><td class="p-3 font-mono text-slate-400">exam.title</td></tr>
+                            <tr><td class="p-3 pl-4 font-medium">成绩</td><td class="p-3">AISE 测评记录</td><td class="p-3 font-mono text-slate-400">exam.totalScore</td></tr>
                             <tr><td class="p-3 pl-4 font-medium">等级</td><td class="p-3">证书分数线规则</td><td class="p-3 font-mono text-slate-400">cert.grade</td></tr>
                             <tr><td class="p-3 pl-4 font-medium">证书编号</td><td class="p-3">系统自动生成</td><td class="p-3 font-mono text-slate-400">system.certNo</td></tr>
                             <tr><td class="p-3 pl-4 font-medium">签发日期</td><td class="p-3">系统自动生成</td><td class="p-3 font-mono text-slate-400">system.issueDate</td></tr>
@@ -749,11 +749,11 @@
                 if (selectedExamType === 'pre') {
                     if (!preExamData) { alert('请先填写并确认预备测信息'); return; }
                 } else if (selectedExamType !== 'aise') {
-                    alert('请先选择一场考试或切换到预备测填写信息');
+                    alert('请先选择一场测评或切换到预备测填写信息');
                     return;
                 } else {
                     const checked = document.querySelector('.exam-radio.border-brand-500');
-                    if (!checked) { alert('请先选择一场考试'); return; }
+                    if (!checked) { alert('请先选择一场测评'); return; }
                 }
             }
             if (currentStep < 3) goToStep(currentStep + 1);

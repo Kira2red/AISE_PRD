@@ -152,7 +152,7 @@
                         </div>
                         <div>
                             <p class="font-bold text-slate-900">张三</p>
-                            <p class="text-xs text-slate-500">考生 ID: 20258899</p>
+                            <p class="text-xs text-slate-500">学员 ID: 20258899</p>
                         </div>
                     </div>
 
@@ -163,7 +163,7 @@
                         </a>
                         <a href="#"
                             class="flex-shrink-0 px-4 py-3 rounded-lg bg-brand-50 text-brand-600 font-bold text-sm flex items-center gap-3 shadow-sm border border-brand-100 md:border-transparent">
-                            <i class="fa-solid fa-ticket w-5 text-center"></i> 我的考试
+                            <i class="fa-solid fa-ticket w-5 text-center"></i> 我的测评
                         </a>
                         <a href="#"
                             class="flex-shrink-0 px-4 py-3 rounded-lg text-slate-600 hover:bg-slate-50 hover:text-slate-900 font-medium text-sm flex items-center gap-3 transition">
@@ -175,13 +175,13 @@
 
             <div class="flex-1 min-w-0">
                 <div class="mb-6">
-                    <h1 class="text-2xl font-bold text-slate-900">我的考试</h1>
+                    <h1 class="text-2xl font-bold text-slate-900">我的测评</h1>
                     <p class="text-sm text-slate-500 mt-1">查看准考证信息，或在规定时间内进入考场。</p>
                 </div>
 
                 <!-- 候考功能演示说明 -->
                 <div class="mb-6 px-4 py-3 bg-blue-50 border border-blue-100 rounded-xl text-xs text-brand-700 leading-relaxed">
-                    <b>候考功能演示：</b>Python 程序设计 = 候考窗口内（入口「准备考试」）｜AIGC 应用能力 = 未开始（入口「考试未开始」，点击查看最早可候考时间）｜Scratch 创意编程 = 已开考（入口恢复「开始考试」）。模拟测评随时可进，检测检录后直接进入模拟测。
+                    <b>候考功能演示：</b>Python 程序设计 = 候考窗口内（入口「准备测评」）｜AIGC 应用能力 = 未开始（入口「测评未开始」，点击查看最早可候考时间）｜Scratch 创意编程 = 已开考（入口恢复「开始测评」）。模拟测评随时可进，检测检录后直接进入模拟测。
                 </div>
 
                 <div class="flex flex-col gap-4">
@@ -208,7 +208,7 @@
                                     <span class="hidden sm:block text-slate-300">|</span>
                                     <span class="text-brand-600 font-semibold flex items-center gap-1">
                                         <span class="w-1.5 h-1.5 bg-green-500 rounded-full animate-pulse"></span>
-                                        考试时间：2025-05-20 14:00-16:00
+                                        测评时间：2025-05-20 14:00-16:00
                                     </span>
                                 </div>
                             </div>
@@ -227,10 +227,10 @@
                                 <i class="fa-solid fa-vial text-xs group-hover:animate-bounce"></i> 模拟测评
                             </button>
 
-                            <!-- 候考窗口内：入口显示「准备考试」 -->
+                            <!-- 候考窗口内：入口显示「准备测评」 -->
                             <button onclick="window.location.href='../iceping/09_设备检测.html'"
                                 class="flex-1 md:flex-none px-5 py-2.5 bg-brand-600 text-white rounded-lg text-sm font-bold hover:bg-brand-700 transition shadow-lg shadow-brand-500/30 btn-active-pulse flex items-center justify-center gap-2 whitespace-nowrap">
-                                准备考试 <i class="fa-solid fa-arrow-right text-xs"></i>
+                                准备测评 <i class="fa-solid fa-arrow-right text-xs"></i>
                             </button>
                         </div>
                     </div>
@@ -255,7 +255,7 @@
                                     class="flex flex-col sm:flex-row sm:items-center gap-1 sm:gap-4 text-xs text-slate-500">
                                     <span><i class="fa-regular fa-clock mr-1.5"></i>报名时间：2025-05-10</span>
                                     <span class="hidden sm:block text-slate-300">|</span>
-                                    <span>考试时间：2025-06-15 09:00-11:00</span>
+                                    <span>测评时间：2025-06-15 09:00-11:00</span>
                                 </div>
                             </div>
                         </div>
@@ -267,15 +267,15 @@
                                 查看准考证
                             </button>
 
-                            <!-- 未开始：入口显示「考试未开始」，点击提示最早可候考时间 -->
+                            <!-- 未开始：入口显示「测评未开始」，点击提示最早可候考时间 -->
                             <button onclick="showNotOpenTip('AIGC 应用能力', '2025-06-15 09:00', '2025-06-15 08:30')"
                                 class="flex-1 md:flex-none px-5 py-2.5 bg-slate-100 text-slate-400 rounded-lg text-sm font-semibold border border-slate-100 whitespace-nowrap cursor-pointer hover:bg-slate-200 transition">
-                                考试未开始
+                                测评未开始
                             </button>
                         </div>
                     </div>
 
-                    <!-- 状态演示：已开考（候考窗口结束，入口恢复「开始考试」） -->
+                    <!-- 状态演示：已开考（候考窗口结束，入口恢复「开始测评」） -->
                     <div
                         class="bg-white rounded-2xl shadow-card border border-slate-100 p-5 sm:p-6 flex flex-col md:flex-row items-start md:items-center gap-5 md:gap-0 transition hover:shadow-md group">
                         <div class="flex items-start gap-4 flex-1 w-full md:w-auto">
@@ -298,7 +298,7 @@
                                     <span class="hidden sm:block text-slate-300">|</span>
                                     <span class="text-amber-600 font-semibold flex items-center gap-1">
                                         <span class="w-1.5 h-1.5 bg-amber-500 rounded-full animate-pulse"></span>
-                                        考试时间：2025-09-14 09:00-11:00 (进行中)
+                                        测评时间：2025-09-14 09:00-11:00 (进行中)
                                     </span>
                                 </div>
                             </div>
@@ -311,10 +311,10 @@
                                 查看准考证
                             </button>
 
-                            <!-- 开考后：入口恢复「开始考试」，走原流程（检测→检录→直接进考试） -->
+                            <!-- 开考后：入口恢复「开始测评」，走原流程（检测→检录→直接进测评） -->
                             <button onclick="window.location.href='../iceping/09_设备检测.html'"
                                 class="flex-1 md:flex-none px-5 py-2.5 bg-brand-600 text-white rounded-lg text-sm font-bold hover:bg-brand-700 transition shadow-lg shadow-brand-500/30 flex items-center justify-center gap-2 whitespace-nowrap">
-                                开始考试 <i class="fa-solid fa-arrow-right text-xs"></i>
+                                开始测评 <i class="fa-solid fa-arrow-right text-xs"></i>
                             </button>
                         </div>
                     </div>
@@ -340,9 +340,9 @@
                                     class="flex flex-col sm:flex-row sm:items-center gap-1 sm:gap-4 text-xs text-slate-500">
                                     <span><i class="fa-regular fa-clock mr-1.5"></i>报名时间：2025-04-15</span>
                                     <span class="hidden sm:block text-slate-300">|</span>
-                                    <!-- 即使考试时间未结束，也可能已交卷 -->
+                                    <!-- 即使测评时间未结束，也可能已交卷 -->
                                     <span class="text-slate-500">
-                                        考试时间：2025-05-20 14:00-18:00 (进行中)
+                                        测评时间：2025-05-20 14:00-18:00 (进行中)
                                     </span>
                                 </div>
                             </div>
@@ -414,10 +414,10 @@
                     </table>
 
                     <div class="mt-5 p-4 bg-slate-50 rounded-lg border border-slate-100 text-xs text-slate-500 leading-relaxed">
-                        <p class="font-bold text-slate-700 mb-2">考生须知</p>
+                        <p class="font-bold text-slate-700 mb-2">学员须知</p>
                         <p>1. 完成报名后学生需提前下载并打印准考证，考前 30 分钟完成答题系统的环境监测与检录。</p>
-                        <p>2. 参评期间，考生不允许离开摄像头拍摄区域，指导教师或家长不允许出现在摄像头拍摄区域内。</p>
-                        <p>3. 参评期间，如非必要，考生不允许离开答题系统，监考系统将自动记录跳出答题系统页面次数。</p>
+                        <p>2. 参评期间，学员不允许离开摄像头拍摄区域，指导教师或家长不允许出现在摄像头拍摄区域内。</p>
+                        <p>3. 参评期间，如非必要，学员不允许离开答题系统，监考系统将自动记录跳出答题系统页面次数。</p>
                         <p>4. 如无法进行答题系统的环境监测，请联系官网人工客服。</p>
                     </div>
                 </div>
@@ -434,7 +434,7 @@
     <script>
         // 候考功能演示：未开始入口点击提示（展示开始时间与最早可候考时间）
         function showNotOpenTip(examName, startTime, waitStartTime) {
-            alert(examName + ' 尚未开始\n\n考试开始时间：' + startTime + '\n最早可进入考场（候考）时间：' + waitStartTime + '\n\n请于候考时间开放后进入完成设备检测与检录');
+            alert(examName + ' 尚未开始\n\n测评开始时间：' + startTime + '\n最早可进入考场（候考）时间：' + waitStartTime + '\n\n请于候考时间开放后进入完成设备检测与检录');
         }
 
         function openTicketModal(projectName, examTime, duration) {

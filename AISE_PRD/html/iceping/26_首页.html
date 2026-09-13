@@ -68,7 +68,7 @@ h1, h2, h3, h4, h5, h6 { margin-top: 0; margin-bottom: 0.5em; color: rgba(0, 0, 
 .see-more { color: #666; text-align: right; font-family: PingFang SC; font-size: 12px; line-height: 30px; font-style: normal; font-weight: 400; float: right; display: flex; align-items: center; justify-content: space-between; }
 .see-more:hover { color: #2A55E5; }
 
-/* 下次考试 */
+/* 下次测评 */
 .next-exam { height: 218px; overflow: hidden; }
 .next-exam .exam-name { color: #1d303f; font-family: PingFang SC; font-size: 16px; font-style: normal; font-weight: 600; }
 .next-exam .exam-desc { color: #7e93a5; font-family: PingFang SC; font-size: 16px; font-style: normal; font-weight: 400; }
@@ -141,16 +141,16 @@ h1, h2, h3, h4, h5, h6 { margin-top: 0; margin-bottom: 0.5em; color: rgba(0, 0, 
       <div class="ant-row-flex" style="margin: -12px;">
         <!-- 左列 -->
         <div class="ant-col ant-col-xs-17 ant-col-sm-17 ant-col-md-17 ant-col-lg-17 ant-col-xl-17" style="padding: 12px;">
-          <!-- 下次考试 -->
+          <!-- 下次测评 -->
           <div class="common-radius next-exam ant-card">
             <div class="ant-card-body">
               <div class="ant-row-flex ant-row-flex-space-between">
                 <div class="ant-col" style="flex: 1 1 auto;">
                   <div>
                     <div>
-                      <h1 class="sec-title"><img src="assets/sec-title-flag.png" alt="">下次考试</h1>
+                      <h1 class="sec-title"><img src="assets/sec-title-flag.png" alt="">下次测评</h1>
                       <h3 class="exam-name">aica测评2025</h3>
-                      <div class="exam-desc"><span>考试时间：2025-11-30 19:52:32 至 2026-12-31 19:52:32</span><br></div>
+                      <div class="exam-desc"><span>测评时间：2025-11-30 19:52:32 至 2026-12-31 19:52:32</span><br></div>
                       <button type="button" class="btn-enger-exam ant-btn ant-btn-primary ant-btn-sm" onclick="enterExam()">
                         <i aria-label="图标: arrow-right" class="anticon anticon-arrow-right"><svg viewBox="64 64 896 896" data-icon="arrow-right" width="1em" height="1em" fill="currentColor" aria-hidden="true" focusable="false" class=""><path d="M869 487.8L491.2 159.9c-2.9-2.5-6.6-3.9-10.5-3.9h-88.5c-7.4 0-10.8 9.2-5.2 14l350.2 304H152c-4.4 0-8 3.6-8 8v60c0 4.4 3.6 8 8 8h585.1L386.9 854c-5.6 4.9-2.2 14 5.2 14h91.5c1.9 0 3.8-.7 5.2-2L869 536.2c14.7-12.8 14.7-35.6 0-48.4z"></path></svg></i>
                         <span>进入测评</span>
@@ -297,7 +297,7 @@ function toast(msg) {
   toastTimer = setTimeout(function () { t.style.display = 'none'; }, 2200);
 }
 
-/* ============ 下次考试：进入测评 ============ */
+/* ============ 下次测评：进入测评 ============ */
 function enterExam() { location.href = '09_设备检测.html'; }
 
 /* ============ 我的练习表格渲染 ============ */

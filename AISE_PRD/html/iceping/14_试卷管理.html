@@ -93,12 +93,12 @@ html, body { margin: 0; padding: 0; background: #fff; font-family: -apple-system
 
   <!-- ===== 侧边栏 ===== -->
   <aside class="sidebar">
-    <button type="button" class="ant-btn ant-btn-primary" onclick="toast('创建考试（演示）')" style="border-radius:8px;background:rgb(42,85,229);width:184px;height:44px;margin:0 auto 12px;display:block;"><span>创建考试</span></button>
+    <button type="button" class="ant-btn ant-btn-primary" onclick="toast('创建测评（演示）')" style="border-radius:8px;background:rgb(42,85,229);width:184px;height:44px;margin:0 auto 12px;display:block;"><span>创建测评</span></button>
     <ul role="menu" class="ant-menu ant-menu-inline ant-menu-root ant-menu-light" style="width:calc(100% - 16px);margin-left:8px;">
       <li role="menuitem" class="ant-menu-item" style="padding-left:24px;"><a href="#"><i class="iconfont">🏠</i>首页</a></li>
       <li role="menuitem" class="ant-menu-item" style="padding-left:24px;"><a href="01_题目管理.html"><i class="iconfont">📋</i>题目管理</a></li>
       <li role="menuitem" class="ant-menu-item ant-menu-item-selected" style="padding-left:24px;"><a href="14_试卷管理.html"><i class="iconfont">📄</i>试卷管理</a></li>
-      <li role="menuitem" class="ant-menu-item" style="padding-left:24px;"><a href="16_考试管理.html"><i class="iconfont">📝</i>考试管理</a></li>
+      <li role="menuitem" class="ant-menu-item" style="padding-left:24px;"><a href="16_测评管理.html"><i class="iconfont">📝</i>测评管理</a></li>
       <li role="menuitem" class="ant-menu-item" style="padding-left:24px;"><a href="#"><i class="iconfont">📚</i>日常作业</a></li>
       <li role="menuitem" class="ant-menu-item" style="padding-left:24px;"><a href="#"><i class="iconfont">🏫</i>班级管理</a></li>
       <li role="menuitem" class="ant-menu-item" style="padding-left:24px;"><a href="#"><i class="iconfont">👨‍🏫</i>教师管理</a></li>
@@ -189,7 +189,7 @@ var ROWS = [
   { name: '测试考中考后修改', difficulty: '简单', count: '1题', score: '100分', id: 'PAPER20260512000002', submitter: 'adminAica' },
   { name: '评分维度测试', difficulty: '简单', count: '1题', score: '100分', id: 'PAPER20260508000001', submitter: 'adminAica' },
   { name: '【LW】维度测试', difficulty: '简单', count: '1题', score: '100分', id: 'PAPER20260512000001', submitter: 'adminAica' },
-  { name: '测试模拟考试', difficulty: '简单', count: '5题', score: '2分', id: 'PAPER20260509000001', submitter: 'adminAica' },
+  { name: '测试模拟测评', difficulty: '简单', count: '5题', score: '2分', id: 'PAPER20260509000001', submitter: 'adminAica' },
   { name: '试卷一', difficulty: '简单', count: '1题', score: '0分', id: 'PAPER20260427000005', submitter: 'adminAica' },
   { name: '图形化2', difficulty: '简单', count: '1题', score: '100分', id: 'PAPER20260427000001', submitter: 'adminAica' },
   { name: '测试实践题赋分增强功能', difficulty: '简单', count: '3题', score: '100分', id: 'PAPER20251130000001', submitter: 'adminAica' },
@@ -248,7 +248,7 @@ function cardHtml(r) {
           '<button type="button" class="ant-btn ant-btn-link" style="color:red;" onclick="deletePaper(\'' + esc(r.id) + '\')"><span>删除试卷</span></button>' +
           '<button type="button" class="ant-btn ant-btn-link" onclick="editPaper(\'' + esc(r.id) + '\')"><span>修改试卷</span></button>' +
           '<button type="button" class="ant-btn ant-btn-link" onclick="toast(\'预览试卷（演示）\')"><span>预览</span></button>' +
-          '<button type="button" class="ks_primary ant-btn ant-btn-primary" onclick="toast(\'考试安排（演示）\')"><span>考试安排</span></button>' +
+          '<button type="button" class="ks_primary ant-btn ant-btn-primary" onclick="toast(\'测评安排（演示）\')"><span>测评安排</span></button>' +
         '</div>' +
       '</div>' +
     '</div>' +

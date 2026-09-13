@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>考试报名 - AISE 人工智能应用创新人才培养工程</title>
+    <title>测评报名 - AISE 人工智能应用创新人才培养工程</title>
     <script src="https://cdn.tailwindcss.com"></script>
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
@@ -94,8 +94,8 @@
                     <h2 class="text-2xl font-bold text-slate-900 mb-6">报名须知与协议</h2>
                     <div class="bg-slate-50 p-6 rounded-xl border border-slate-200 h-80 overflow-y-auto text-sm text-slate-600 leading-relaxed mb-6">
                         <p class="mb-4 font-bold text-slate-800">欢迎参加 AISE 人工智能应用创新人才培养工程测评。</p>
-                        <p class="mb-4">一、考生应保证填写的报名信息真实、准确。因信息填写错误导致的证书信息错误、无法参加考试等后果，由考生本人承担。</p>
-                        <p class="mb-4">二、数据使用：AISE 将严格保护您的个人隐私信息，相关数据仅用于考试管理、证书制作及相关服务。</p>
+                        <p class="mb-4">一、学员应保证填写的报名信息真实、准确。因信息填写错误导致的证书信息错误、无法参加测评等后果，由学员本人承担。</p>
+                        <p class="mb-4">二、数据使用：AISE 将严格保护您的个人隐私信息，相关数据仅用于测评管理、证书制作及相关服务。</p>
                         <p>（此处省略更多法律条款...）</p>
                     </div>
                     <div class="flex items-center mb-8">
@@ -144,7 +144,7 @@
                             </div>
 
                             <div id="group-select-wrapper" class="hidden">
-                                <label class="block text-xs font-bold text-slate-500 uppercase mb-1.5">考试分组 <span class="text-red-500">*</span></label>
+                                <label class="block text-xs font-bold text-slate-500 uppercase mb-1.5">测评分组 <span class="text-red-500">*</span></label>
                                 <div class="relative">
                                     <select id="select-group" class="w-full px-4 py-2.5 rounded-lg border border-slate-200 focus:border-slate-800 outline-none text-sm bg-white appearance-none" disabled onchange="onGroupChange()">
                                         <option value="">请选择分组...</option>
@@ -155,7 +155,7 @@
                         </div>
 
                         <div class="md:col-span-2" id="activity-cards-section">
-                            <label class="block text-xs font-bold text-slate-500 uppercase mb-1.5">选择考试 <span class="text-red-500">*</span></label>
+                            <label class="block text-xs font-bold text-slate-500 uppercase mb-1.5">选择测评 <span class="text-red-500">*</span></label>
                             <div id="act-cards" class="grid grid-cols-1 md:grid-cols-2 gap-3">
                                 <p class="col-span-2 text-center text-sm text-slate-400 py-8 border-2 border-dashed border-slate-200 rounded-xl">请先选择机构</p>
                             </div>
@@ -165,7 +165,7 @@
                         </div>
 
                         <div>
-                            <label class="block text-xs font-bold text-slate-600 uppercase mb-1.5">考生姓名 <span class="text-red-500">*</span></label>
+                            <label class="block text-xs font-bold text-slate-600 uppercase mb-1.5">学员姓名 <span class="text-red-500">*</span></label>
                             <input type="text" id="input-name" value="张三" class="w-full px-4 py-2.5 rounded-lg border border-slate-200 focus:border-slate-800 outline-none text-sm">
                         </div>
                         <div>
@@ -222,11 +222,11 @@
                                 <dd class="font-bold text-brand-700 text-lg" id="view-project">--</dd>
                             </div>
                             <div class="sm:col-span-2 border-b border-slate-200 pb-4 mb-2" id="view-group-row" style="display:none">
-                                <dt class="text-slate-400 text-xs mb-1">考试分组</dt>
+                                <dt class="text-slate-400 text-xs mb-1">测评分组</dt>
                                 <dd class="font-medium text-slate-800" id="view-group">--</dd>
                             </div>
                             <div><dt class="text-slate-400 text-xs mb-1">渠道/机构</dt><dd class="font-medium text-slate-800" id="view-agency">--</dd></div>
-                            <div><dt class="text-slate-400 text-xs mb-1">考生姓名</dt><dd class="font-medium text-slate-800" id="view-name">--</dd></div>
+                            <div><dt class="text-slate-400 text-xs mb-1">学员姓名</dt><dd class="font-medium text-slate-800" id="view-name">--</dd></div>
                             <div><dt class="text-slate-400 text-xs mb-1">身份证号</dt><dd class="font-medium text-slate-800 font-mono" id="view-id">--</dd></div>
                             <div><dt class="text-slate-400 text-xs mb-1">性别</dt><dd class="font-medium text-slate-800" id="view-gender">--</dd></div>
                             <div class="sm:col-span-2 pt-2"><dt class="text-slate-400 text-xs mb-1">寄送地址</dt><dd class="font-medium text-slate-800" id="view-address">--</dd></div>
@@ -240,7 +240,7 @@
 
                 <div id="step-content-4" class="p-6 sm:p-10 hidden">
                     <div class="text-center mb-6">
-                        <p class="text-slate-500 text-sm mb-2">需支付考试费用</p>
+                        <p class="text-slate-500 text-sm mb-2">需支付测评费用</p>
                         <h2 class="text-4xl font-bold text-slate-900" id="pay-amount">¥ 199.00</h2>
                     </div>
 
@@ -299,7 +299,7 @@
     </main>
 
     <script>
-        // 1. 模拟数据库（渠道 → 分组 → 考试）
+        // 1. 模拟数据库（渠道 → 分组 → 测评）
         const activityDB = {
             "2025春季 Python 程序设计（一级）": { examStart: "2025-03-16 08:00", examEnd: "2025-03-16 11:30", fee: 199, status: "open" },
             "2025春季 C++ 算法基础": { examStart: "2025-03-17 14:00", examEnd: "2025-03-17 16:00", fee: 199, status: "open" },
@@ -326,7 +326,7 @@
                 ]
             },
             {
-                code: "DEFAULT", name: "社会考生通道",
+                code: "DEFAULT", name: "社会学员通道",
                 groups: [],
                 activities: [
                     { name: "2025春季 Python 程序设计（一级）", group: null },
@@ -351,7 +351,7 @@
         function goToStep(step) {
             if (step === 3 || step === 4) {
                 const agency = document.getElementById('select-agency').value;
-                if (!agency || !selectedActId) { alert('请选择所属机构并选择考试'); return; }
+                if (!agency || !selectedActId) { alert('请选择所属机构并选择测评'); return; }
             }
             // 隐藏当前
             document.getElementById('step-content-' + currentStep).classList.add('hidden');
@@ -391,7 +391,7 @@
             }
         }
 
-        // 考试卡片渲染
+        // 测评卡片渲染
         function visibleActs(agency) {
             if (!agency) return [];
             const groupSel = document.getElementById('select-group');
@@ -402,7 +402,7 @@
             return agency.activities;
         }
 
-        // 考试时间格式化：同日省略第二个日期，跨日保留完整区间
+        // 测评时间格式化：同日省略第二个日期，跨日保留完整区间
         function fmtExamTime(d) {
             if (!d || !d.examStart || !d.examEnd) return '';
             const d1 = d.examStart.split(' ')[0];
@@ -415,7 +415,7 @@
         function renderActCards(acts, emptyText) {
             const container = document.getElementById('act-cards');
             if (!acts || acts.length === 0) {
-                container.innerHTML = '<p class="col-span-2 text-center text-sm text-slate-400 py-8 border-2 border-dashed border-slate-200 rounded-xl">' + (emptyText || '该分组暂无可报名考试') + '</p>';
+                container.innerHTML = '<p class="col-span-2 text-center text-sm text-slate-400 py-8 border-2 border-dashed border-slate-200 rounded-xl">' + (emptyText || '该分组暂无可报名测评') + '</p>';
                 return;
             }
             container.innerHTML = acts.map(a => {
@@ -429,7 +429,7 @@
                         ${ended ? '<span class="px-2 py-0.5 rounded text-xs font-bold bg-slate-100 text-slate-500 border border-slate-200 whitespace-nowrap ml-2">已结束</span>' : isSel ? '<span class="px-2 py-0.5 rounded text-xs font-bold bg-brand-50 text-brand-600 border border-brand-200 whitespace-nowrap ml-2"><i class="fa-solid fa-check"></i> 已选</span>' : '<span class="px-2 py-0.5 rounded text-xs font-bold bg-green-50 text-green-600 border border-green-100 whitespace-nowrap ml-2">报名中</span>'}
                     </div>
                     <div class="text-xs text-slate-500 space-y-1 mt-1">
-                        <p><i class="fa-regular fa-calendar mr-1.5"></i>考试时间：${fmtExamTime(d)}</p>
+                        <p><i class="fa-regular fa-calendar mr-1.5"></i>测评时间：${fmtExamTime(d)}</p>
                         <p><i class="fa-solid fa-yen-sign mr-1.5"></i>报名费：¥ ${d.fee.toFixed(2)}</p>
                     </div>
                 </div>`;
@@ -485,7 +485,7 @@
             });
         }
 
-        // 机构变化时，联动分组下拉与考试卡片
+        // 机构变化时，联动分组下拉与测评卡片
         function onAgencyChange() {
             const agencyCode = document.getElementById('select-agency').value;
             const wrapper = document.getElementById('group-select-wrapper');
@@ -520,7 +520,7 @@
             } else {
                 wrapper.classList.add('hidden');
                 groupSel.disabled = true;
-                renderActCards(agency ? agency.activities : [], '该渠道暂无可报名考试');
+                renderActCards(agency ? agency.activities : [], '该渠道暂无可报名测评');
             }
         }
 
@@ -569,7 +569,7 @@
                 // 触发项目更新
                 onAgencyChange();
                 
-                // 视觉反馈：分组下拉框或考试卡片区高亮
+                // 视觉反馈：分组下拉框或测评卡片区高亮
                 const groupWrapper = document.getElementById('group-select-wrapper');
                 if (!groupWrapper.classList.contains('hidden')) {
                     groupWrapper.querySelector('select').classList.add('ring-2', 'ring-brand-200', 'bg-blue-50');

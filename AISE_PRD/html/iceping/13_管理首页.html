@@ -38,7 +38,7 @@ html, body { margin: 0; padding: 0; background: #fff; font-family: -apple-system
 .all-func .all-panel.active { border: 1px solid #2A55E5; background: #DCE9FF; }
 .sec-title { color: #323335; font-family: "PingFang SC"; font-size: 18px; font-style: normal; font-weight: 600; margin-bottom: 16px; }
 
-/* 视图卡片（考试卡片/班级卡片） */
+/* 视图卡片（测评卡片/班级卡片） */
 .view-card-grid { display: flex; flex-wrap: wrap; margin: -6px; }
 .view-card-grid .ant-col-8 { width: 33.3333%; padding: 6px; }
 .func-card { background: #fff; border: 1px solid #E8E8E8; border-radius: 8px; padding: 16px; cursor: pointer; transition: border-color .2s; }
@@ -101,12 +101,12 @@ html, body { margin: 0; padding: 0; background: #fff; font-family: -apple-system
 
   <!-- ===== 侧边栏 ===== -->
   <aside class="sidebar">
-    <button type="button" class="ant-btn ant-btn-primary" style="border-radius:8px;background:rgb(42,85,229);width:184px;height:44px;margin:0 auto 12px;display:block;"><span>创建考试</span></button>
+    <button type="button" class="ant-btn ant-btn-primary" style="border-radius:8px;background:rgb(42,85,229);width:184px;height:44px;margin:0 auto 12px;display:block;"><span>创建测评</span></button>
     <ul role="menu" class="ant-menu ant-menu-inline ant-menu-root ant-menu-light" style="width:calc(100% - 16px);margin-left:8px;">
       <li role="menuitem" class="ant-menu-item ant-menu-item-selected" style="padding-left:24px;"><a href="13_管理首页.html"><i class="iconfont">🏠</i>首页</a></li>
       <li role="menuitem" class="ant-menu-item" style="padding-left:24px;"><a href="01_题目管理.html"><i class="iconfont">📋</i>题目管理</a></li>
       <li role="menuitem" class="ant-menu-item" style="padding-left:24px;"><a href="03_试卷编辑_列表.html"><i class="iconfont">📄</i>试卷管理</a></li>
-      <li role="menuitem" class="ant-menu-item" style="padding-left:24px;"><a href="12_考试管理_候考配置.html"><i class="iconfont">📝</i>考试管理</a></li>
+      <li role="menuitem" class="ant-menu-item" style="padding-left:24px;"><a href="12_测评管理_候考配置.html"><i class="iconfont">📝</i>测评管理</a></li>
       <li role="menuitem" class="ant-menu-item" style="padding-left:24px;"><a href="18_日常作业.html"><i class="iconfont">📚</i>日常作业</a></li>
       <li role="menuitem" class="ant-menu-item" style="padding-left:24px;"><a href="#"><i class="iconfont">🏫</i>班级管理</a></li>
       <li role="menuitem" class="ant-menu-item" style="padding-left:24px;"><a href="#"><i class="iconfont">👨‍🏫</i>教师管理</a></li>
@@ -124,7 +124,7 @@ html, body { margin: 0; padding: 0; background: #fff; font-family: -apple-system
         <div class="sec-title"><span>全部功能</span></div>
         <div class="ant-row view-card-grid">
           <div class="ant-col ant-col-6" style="padding: 6px; width: 25%;">
-            <div class="all-panel active" data-view="exam" onclick="switchView('exam', this)"><span>所有考试</span><i class="iconfont">📝</i></div>
+            <div class="all-panel active" data-view="exam" onclick="switchView('exam', this)"><span>所有测评</span><i class="iconfont">📝</i></div>
           </div>
           <div class="ant-col ant-col-6" style="padding: 6px; width: 25%;">
             <div class="all-panel" data-view="paper" onclick="switchView('paper', this)"><span>所有试卷</span><i class="iconfont">📄</i></div>
@@ -139,10 +139,10 @@ html, body { margin: 0; padding: 0; background: #fff; font-family: -apple-system
       </div>
     </div>
 
-    <!-- 所有考试（卡片） -->
+    <!-- 所有测评（卡片） -->
     <div class="common-radius exam-list ant-card" id="viewExam" style="display:none;">
       <div class="ant-card-body">
-        <div class="sec-title"><span>所有考试</span></div>
+        <div class="sec-title"><span>所有测评</span></div>
         <div class="ant-row view-card-grid" id="examCards"></div>
       </div>
     </div>
@@ -199,7 +199,7 @@ var PAPERS = [
   { name: '测试考中考后修改', q: 1, score: 100, id: 'PAPER20260512000002' },
   { name: '评分维度测试', q: 1, score: 100, id: 'PAPER20260508000001' },
   { name: '【LW】维度测试', q: 1, score: 100, id: 'PAPER20260512000001' },
-  { name: '测试模拟考试', q: 5, score: 2, id: 'PAPER20260509000001' },
+  { name: '测试模拟测评', q: 5, score: 2, id: 'PAPER20260509000001' },
   { name: '试卷一', q: 1, score: 0, id: 'PAPER20260427000005' },
   { name: '图形化2', q: 1, score: 100, id: 'PAPER20260427000001' },
   { name: '测试实践题赋分增强功能', q: 3, score: 100, id: 'PAPER20251130000001' },
@@ -213,7 +213,7 @@ var EXAMS = [
   { name: '候场0815', time: '2026-08-15 14:30~2026-08-15 14:50', dur: 20, status: '已结束' },
   { name: '0814测试', time: '2026-08-14 17:06~2026-08-14 18:06', dur: 20, status: '已结束' },
   { name: '0818测试', time: '2026-08-01 22:50~2026-08-25 22:18', dur: 60, status: '已结束' },
-  { name: 'aica测试考试2024', time: '2026-08-01 18:07~2026-12-31 18:07', dur: 1800, status: '进行中' }
+  { name: 'aica测试测评2024', time: '2026-08-01 18:07~2026-12-31 18:07', dur: 1800, status: '进行中' }
 ];
 var CLASSES = [
   { name: 'AI创新实验1班', grade: '四年级', count: 32, teacher: '王老师' },
@@ -242,16 +242,16 @@ function switchView(view, el) {
   });
 }
 
-/* ============ 考试卡片 / 班级卡片 ============ */
+/* ============ 测评卡片 / 班级卡片 ============ */
 function renderExamCards() {
   var html = '';
   for (var i = 0; i < EXAMS.length; i++) {
     var e = EXAMS[i];
     var green = e.status === '进行中';
-    html += '<div class="ant-col ant-col-8"><div class="func-card" onclick="toast(\'📝 查看考试「' + esc(e.name) + '」详情（演示）\')">' +
+    html += '<div class="ant-col ant-col-8"><div class="func-card" onclick="toast(\'📝 查看测评「' + esc(e.name) + '」详情（演示）\')">' +
       '<p class="fc-name">' + esc(e.name) + '</p>' +
       '<div class="fc-row">起止时间：<b>' + esc(e.time) + '</b></div>' +
-      '<div class="fc-row">考试时长：<b>' + e.dur + '</b> 分钟　状态：<span class="status-dot ' + (green ? 'green' : 'red') + '">● ' + esc(e.status) + '</span></div>' +
+      '<div class="fc-row">测评时长：<b>' + e.dur + '</b> 分钟　状态：<span class="status-dot ' + (green ? 'green' : 'red') + '">● ' + esc(e.status) + '</span></div>' +
       '</div></div>';
   }
   document.getElementById('examCards').innerHTML = html;
@@ -293,7 +293,7 @@ function renderPaper() {
       '<td>' + r.q + '</td>' +
       '<td>' + r.score + '</td>' +
       '<td>' + r.id + '</td>' +
-      '<td style="text-align:center;"><span class="op-link" onclick="toast(\'👁 预览试卷「' + esc(r.name) + '」（演示）\')">预览</span><span class="divider-v"></span><span class="op-link" onclick="toast(\'📅 安排考试（演示）\')">安排考试</span></td>' +
+      '<td style="text-align:center;"><span class="op-link" onclick="toast(\'👁 预览试卷「' + esc(r.name) + '」（演示）\')">预览</span><span class="divider-v"></span><span class="op-link" onclick="toast(\'📅 安排测评（演示）\')">安排测评</span></td>' +
       '</tr>';
   }
   document.getElementById('paperBody').innerHTML = html;

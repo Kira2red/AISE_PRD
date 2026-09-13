@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>考试管理 - 爱测评（候考时长配置）</title>
+    <title>测评管理 - 爱测评（候考时长配置）</title>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     <style>
         * { margin: 0; padding: 0; box-sizing: border-box; }
@@ -130,7 +130,7 @@
         .radio-solid label:last-child { border-right: none; }
         .radio-solid label.checked { background: #2A55E5; color: #fff; }
 
-        /* 数字输入框 + 单位后缀（考试时长同款 input-group） */
+        /* 数字输入框 + 单位后缀（测评时长同款 input-group） */
         .input-group { display: inline-flex; align-items: stretch; margin-top: 4px; }
         .input-group input {
             width: 140px; height: 32px; border: 1px solid #d1d5db; border-radius: 4px 0 0 4px;
@@ -217,7 +217,7 @@
         <!-- 侧边栏（线上样式：半透明白底 + 菜单 + 底部操作按钮） -->
         <aside class="sider">
             <ul class="side-menu">
-                <li class="active" data-target="base" onclick="switchMenu(this)"><i class="fa-solid fa-circle"></i>基础考试信息</li>
+                <li class="active" data-target="base" onclick="switchMenu(this)"><i class="fa-solid fa-circle"></i>基础测评信息</li>
                 <li data-target="invigilate" onclick="switchMenu(this)"><i class="fa-solid fa-circle"></i>监考信息</li>
                 <li data-target="students" onclick="switchMenu(this)"><i class="fa-solid fa-circle"></i>学生管理</li>
             </ul>
@@ -231,10 +231,10 @@
         <div class="content">
             <div class="form">
 
-                <h2 class="section-title" id="base">基础考试信息</h2>
+                <h2 class="section-title" id="base">基础测评信息</h2>
 
                 <div class="form-item">
-                    <div class="label"><span class="req">*</span>考试名称<span class="colon">:</span></div>
+                    <div class="label"><span class="req">*</span>测评名称<span class="colon">:</span></div>
                     <div class="control">
                         <div class="input-group">
                             <input type="text" value="0730 test" style="width: 300px;">
@@ -244,7 +244,7 @@
                 </div>
 
                 <div class="form-item">
-                    <div class="label"><span class="req">*</span>考试时间<span class="colon">:</span></div>
+                    <div class="label"><span class="req">*</span>测评时间<span class="colon">:</span></div>
                     <div class="control">
                         <div class="input-group">
                             <input type="text" value="2026-07-30 20:01:10 ~ 2027-08-31 20:01:10" style="width: 300px;" disabled>
@@ -254,7 +254,7 @@
                 </div>
 
                 <div class="form-item">
-                    <div class="label"><span class="req">*</span>考试时长<span class="colon">:</span></div>
+                    <div class="label"><span class="req">*</span>测评时长<span class="colon">:</span></div>
                     <div class="control">
                         <div class="input-group">
                             <input type="number" value="60" min="0">
@@ -264,10 +264,10 @@
                 </div>
 
                 <div class="form-item">
-                    <div class="label">考试地点<span class="colon">:</span></div>
+                    <div class="label">测评地点<span class="colon">:</span></div>
                     <div class="control">
                         <div class="input-group">
-                            <input type="text" placeholder="请输入考试地点" style="width: 300px;">
+                            <input type="text" placeholder="请输入测评地点" style="width: 300px;">
                         </div>
                     </div>
                 </div>
@@ -374,7 +374,7 @@
                     </div>
                 </div>
 
-                <!-- 新增：候考时长（与考试时长同款 input-group，无高亮） -->
+                <!-- 新增：候考时长（与测评时长同款 input-group，无高亮） -->
                 <div class="form-item">
                     <div class="label">候考时长<span class="colon">:</span></div>
                     <div class="control">
@@ -382,7 +382,7 @@
                             <input type="number" id="wait-minutes" value="30" min="0" max="120" oninput="validateWait(this)">
                             <div class="addon">分钟</div>
                         </div>
-                        <div class="field-hint">留空或 0 = 不开启候考；开启后开考前 30 分钟入口显示「准备考试」，考生可提前完成设备检测和检录并等待开考（上限 120 分钟；考试已开考后修改不生效）</div>
+                        <div class="field-hint">留空或 0 = 不开启候考；开启后开考前 30 分钟入口显示「准备测评」，学员可提前完成设备检测和检录并等待开考（上限 120 分钟；测评已开考后修改不生效）</div>
                     </div>
                 </div>
 

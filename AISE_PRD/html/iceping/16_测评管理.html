@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>爱测评 - 考试管理</title>
+<title>爱测评 - 测评管理</title>
 <link rel="stylesheet" href="爱测评线上样式.css">
 <style>
 html, body { margin: 0; padding: 0; background: #fff; font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", "PingFang SC", "Hiragino Sans GB", "Microsoft YaHei", sans-serif; }
@@ -103,12 +103,12 @@ html, body { margin: 0; padding: 0; background: #fff; font-family: -apple-system
 
   <!-- ===== 侧边栏 ===== -->
   <aside class="sidebar">
-    <button type="button" class="ant-btn ant-btn-primary" onclick="toast('创建考试（演示）')" style="border-radius:8px;background:rgb(42,85,229);width:184px;height:44px;margin:0 auto 12px;display:block;"><span>创建考试</span></button>
+    <button type="button" class="ant-btn ant-btn-primary" onclick="toast('创建测评（演示）')" style="border-radius:8px;background:rgb(42,85,229);width:184px;height:44px;margin:0 auto 12px;display:block;"><span>创建测评</span></button>
     <ul role="menu" class="ant-menu ant-menu-inline ant-menu-root ant-menu-light" style="width:calc(100% - 16px);margin-left:8px;">
       <li role="menuitem" class="ant-menu-item" style="padding-left:24px;"><a href="#"><i class="iconfont">🏠</i>首页</a></li>
       <li role="menuitem" class="ant-menu-item" style="padding-left:24px;"><a href="01_题目管理.html"><i class="iconfont">📋</i>题目管理</a></li>
       <li role="menuitem" class="ant-menu-item" style="padding-left:24px;"><a href="14_试卷管理.html"><i class="iconfont">📄</i>试卷管理</a></li>
-      <li role="menuitem" class="ant-menu-item ant-menu-item-selected" style="padding-left:24px;"><a href="16_考试管理.html"><i class="iconfont">📝</i>考试管理</a></li>
+      <li role="menuitem" class="ant-menu-item ant-menu-item-selected" style="padding-left:24px;"><a href="16_测评管理.html"><i class="iconfont">📝</i>测评管理</a></li>
       <li role="menuitem" class="ant-menu-item" style="padding-left:24px;"><a href="#"><i class="iconfont">📚</i>日常作业</a></li>
       <li role="menuitem" class="ant-menu-item" style="padding-left:24px;"><a href="#"><i class="iconfont">🏫</i>班级管理</a></li>
       <li role="menuitem" class="ant-menu-item" style="padding-left:24px;"><a href="#"><i class="iconfont">👨‍🏫</i>教师管理</a></li>
@@ -122,7 +122,7 @@ html, body { margin: 0; padding: 0; background: #fff; font-family: -apple-system
   <main class="ant-layout-content main-content-area">
     <!-- 筛选卡片 -->
     <div class="common-radius table-page-search-wrapper ant-card" style="padding:24px;">
-      <div class="cardHeader"><h2 class="title">考试管理</h2></div>
+      <div class="cardHeader"><h2 class="title">测评管理</h2></div>
       <div role="separator" class="ant-divider ant-divider-horizontal"></div>
       <form class="ant-form ant-form-inline">
         <div class="ant-row" style="margin-left:-12px;margin-right:-12px;">
@@ -140,11 +140,11 @@ html, body { margin: 0; padding: 0; background: #fff; font-family: -apple-system
           </div>
           <div class="ant-col ant-col-sm-24 ant-col-md-8 ant-col-lg-7 ant-col-xl-6" style="padding-left:12px;padding-right:12px;">
             <div class="acp_form ant-row ant-form-item" style="display:flex;margin-bottom:16px;">
-              <div class="ant-col ant-form-item-label"><label title="考试ID" class="">考试ID</label></div>
+              <div class="ant-col ant-form-item-label"><label title="测评ID" class="">测评ID</label></div>
               <div class="ant-col ant-form-item-control-wrapper" style="flex:1;">
                 <div class="ant-form-item-control">
                   <span class="ant-form-item-children">
-                    <input placeholder="请输入考试ID" type="text" class="ant-input" id="idInput" oninput="applyFilters()" style="width:100%;">
+                    <input placeholder="请输入测评ID" type="text" class="ant-input" id="idInput" oninput="applyFilters()" style="width:100%;">
                   </span>
                 </div>
               </div>
@@ -159,7 +159,7 @@ html, body { margin: 0; padding: 0; background: #fff; font-family: -apple-system
                     <div tabindex="0" class="ant-select ant-select-enabled" style="position:relative;height:32px;border:1px solid #d9d9d9;border-radius:0 4px 4px 0;cursor:pointer;" onclick="toggleDropdown('statusDropdown')">
                       <div role="combobox" aria-autocomplete="list" aria-haspopup="true" class="ant-select-selection ant-select-selection--single" style="border:none;height:30px;">
                         <div class="ant-select-selection__rendered" style="line-height:30px;padding:0 8px;">
-                          <div unselectable="on" class="ant-select-selection__placeholder" id="statusVal" style="display:block;user-select:none;color:#bfbfbf;">请选择考试状态</div>
+                          <div unselectable="on" class="ant-select-selection__placeholder" id="statusVal" style="display:block;user-select:none;color:#bfbfbf;">请选择测评状态</div>
                         </div>
                         <span unselectable="on" class="ant-select-arrow" style="position:absolute;right:8px;top:50%;transform:translateY(-50%);color:#bfbfbf;font-size:12px;">▾</span>
                       </div>
@@ -183,12 +183,12 @@ html, body { margin: 0; padding: 0; background: #fff; font-family: -apple-system
       </form>
     </div>
 
-    <!-- 考试列表卡片 -->
+    <!-- 测评列表卡片 -->
     <div class="common-radius list ant-card" style="margin-top:16px;">
       <div class="ant-card-body" style="padding:24px;">
         <div class="table-operator">
-          <button type="button" class="ant-btn ant-btn-primary" onclick="toast('创建考试（演示）')">
-            <i aria-label="图标: plus" class="anticon anticon-plus" style="margin-right:4px;">＋</i><span>创建考试</span>
+          <button type="button" class="ant-btn ant-btn-primary" onclick="toast('创建测评（演示）')">
+            <i aria-label="图标: plus" class="anticon anticon-plus" style="margin-right:4px;">＋</i><span>创建测评</span>
           </button>
         </div>
         <div class="j-table-force-nowrap ant-table-wrapper">
@@ -207,12 +207,12 @@ html, body { margin: 0; padding: 0; background: #fff; font-family: -apple-system
                         </colgroup>
                         <thead class="ant-table-thead">
                           <tr>
-                            <th class="ant-table-row-cell-break-word"><span class="ant-table-header-column"><div><span class="ant-table-column-title">考试ID</span></div></span></th>
-                            <th class=""><span class="ant-table-header-column"><div><span class="ant-table-column-title">考试名称</span></div></span></th>
+                            <th class="ant-table-row-cell-break-word"><span class="ant-table-header-column"><div><span class="ant-table-column-title">测评ID</span></div></span></th>
+                            <th class=""><span class="ant-table-header-column"><div><span class="ant-table-column-title">测评名称</span></div></span></th>
                             <th class="ant-table-row-cell-break-word"><span class="ant-table-header-column"><div><span class="ant-table-column-title">创建人</span></div></span></th>
                             <th class="ant-table-row-cell-break-word"><span class="ant-table-header-column"><div><span class="ant-table-column-title">起止时间</span></div></span></th>
-                            <th class="ant-table-row-cell-break-word"><span class="ant-table-header-column"><div><span class="ant-table-column-title">考试时长(分钟)</span></div></span></th>
-                            <th class="ant-table-align-center ant-table-row-cell-break-word ta-center"><span class="ant-table-header-column"><div><span class="ant-table-column-title">考试状态</span></div></span></th>
+                            <th class="ant-table-row-cell-break-word"><span class="ant-table-header-column"><div><span class="ant-table-column-title">测评时长(分钟)</span></div></span></th>
+                            <th class="ant-table-align-center ant-table-row-cell-break-word ta-center"><span class="ant-table-header-column"><div><span class="ant-table-column-title">测评状态</span></div></span></th>
                             <th class="ant-table-align-center ant-table-row-cell-break-word ta-center"><span class="ant-table-header-column"><div><span class="ant-table-column-title">操作</span></div></span></th>
                           </tr>
                         </thead>
@@ -265,10 +265,10 @@ var ROWS = [
   { id: '2087846878828367873', name: '候场0813', creator: 'adminAica', time: '2026-08-14 05:05~2026-08-14 19:59', duration: '60', status: '已结束' },
   { id: '2087412826438701058', name: '侯考测试', creator: 'adminAica', time: '2026-08-13 19:35~2026-08-15 13:35', duration: '20', status: '已结束' },
   { id: '2089726847699456001', name: '0818测试', creator: 'adminAica', time: '2026-08-01 22:50~2026-08-25 22:18', duration: '60', status: '已结束' },
-  { id: '1994709955930329089', name: 'aica测试考试2024', creator: 'adminAica', time: '2026-08-01 18:07~2026-12-31 18:07', duration: '1800', status: '进行中' }
+  { id: '1994709955930329089', name: 'aica测试测评2024', creator: 'adminAica', time: '2026-08-01 18:07~2026-12-31 18:07', duration: '1800', status: '进行中' }
 ];
 
-var FILTERS = { kw: '', id: '', status: '请选择考试状态' };
+var FILTERS = { kw: '', id: '', status: '请选择测评状态' };
 var toastTimer = null;
 function toast(msg) {
   var t = document.getElementById('demoToast');
@@ -306,17 +306,17 @@ function applyFilters() {
   var rows = ROWS.filter(function (r) {
     if (FILTERS.kw && r.name.indexOf(FILTERS.kw) < 0 && r.creator.indexOf(FILTERS.kw) < 0) return false;
     if (FILTERS.id && r.id.indexOf(FILTERS.id) < 0) return false;
-    if (FILTERS.status !== '请选择考试状态' && r.status !== FILTERS.status) return false;
+    if (FILTERS.status !== '请选择测评状态' && r.status !== FILTERS.status) return false;
     return true;
   });
   renderTable(rows);
 }
 function resetFilters() {
-  FILTERS = { kw: '', id: '', status: '请选择考试状态' };
+  FILTERS = { kw: '', id: '', status: '请选择测评状态' };
   document.getElementById('kwInput').value = '';
   document.getElementById('idInput').value = '';
   var val = document.getElementById('statusVal');
-  val.textContent = '请选择考试状态';
+  val.textContent = '请选择测评状态';
   val.style.color = '#bfbfbf';
   document.getElementById('statusDropdown').querySelectorAll('.kp-opt').forEach(function (o) { o.classList.remove('active'); });
   applyFilters();
@@ -330,14 +330,14 @@ function renderTable(rows) {
     var statusCls = r.status === '进行中' ? 'status-doing' : 'status-done';
     html += '<tr class="ant-table-row ant-table-row-level-0" data-row-key="' + esc(r.id) + '">' +
       '<td class="ant-table-row-cell-break-word">' + esc(r.id) + '</td>' +
-      '<td class=""><span><a class="exam-name" onclick="toast(\'考试详情（演示）\')">' + esc(r.name) + '</a></span></td>' +
+      '<td class=""><span><a class="exam-name" onclick="toast(\'测评详情（演示）\')">' + esc(r.name) + '</a></span></td>' +
       '<td class="ant-table-row-cell-break-word">' + esc(r.creator) + '</td>' +
       '<td class="ant-table-row-cell-break-word">' + esc(r.time) + '</td>' +
       '<td class="ant-table-row-cell-break-word">' + esc(r.duration) + '</td>' +
       '<td class="ant-table-row-cell-break-word ta-center"><span class="' + statusCls + '">● ' + esc(r.status) + '</span></td>' +
       '<td class="ant-table-row-cell-break-word ta-center">' +
-        '<span class="op-link" onclick="toast(\'考试详情（演示）\')">详情</span><span class="op-divider"></span>' +
-        '<span class="op-link" onclick="toast(\'编辑考试（演示）\')">编辑</span><span class="op-divider"></span>' +
+        '<span class="op-link" onclick="toast(\'测评详情（演示）\')">详情</span><span class="op-divider"></span>' +
+        '<span class="op-link" onclick="toast(\'编辑测评（演示）\')">编辑</span><span class="op-divider"></span>' +
         '<span class="op-more" onclick="toast(\'更多操作（演示）\')">⋯</span>' +
       '</td>' +
       '</tr>';

@@ -122,8 +122,8 @@
                     <h2 class="text-2xl font-bold text-slate-900 mb-6">元创S营报名须知</h2>
                     <div class="bg-slate-50 p-6 rounded-xl border border-slate-200 h-80 overflow-y-auto text-sm text-slate-600 leading-relaxed mb-6">
                         <p class="mb-4 font-bold text-slate-800">欢迎参加元创S营。</p>
-                        <p class="mb-4">元创S营是AISE与企业合作体系下的线下训练营项目，面向青少年考生群体。报名审核通过后，您将获得统一笔试资格。</p>
-                        <p class="mb-4">一、考生应保证填写的报名信息及上传材料真实、准确。因信息填写错误或材料造假导致的审核不通过等后果，由考生本人承担。</p>
+                        <p class="mb-4">元创S营是AISE与企业合作体系下的线下训练营项目，面向青少年学员群体。报名审核通过后，您将获得统一笔试资格。</p>
+                        <p class="mb-4">一、学员应保证填写的报名信息及上传材料真实、准确。因信息填写错误或材料造假导致的审核不通过等后果，由学员本人承担。</p>
                         <p class="mb-4">二、本次报名需提交以下材料：学生个人简历（必传）、个人相关作品（必传）、导师推荐信（非必传）。请提前准备好相关文件。</p>
                         <p class="mb-4">三、报名提交后将进入审核流程。审核结果将通过AISE站内消息通知您，请在个人中心留意通知。</p>
                         <p class="mb-4">四、审核通过后，您将获得笔试资格。笔试相关信息将在审核通过通知中说明。</p>
@@ -167,7 +167,7 @@
                         </div>
 
                         <div>
-                            <label class="block text-xs font-bold text-slate-600 uppercase mb-1.5">考生姓名 <span class="text-red-500">*</span></label>
+                            <label class="block text-xs font-bold text-slate-600 uppercase mb-1.5">学员姓名 <span class="text-red-500">*</span></label>
                             <input type="text" id="input-name" value="张三" class="w-full px-4 py-2.5 rounded-lg border border-slate-200 focus:border-slate-800 outline-none text-sm">
                         </div>
                         <div>
@@ -292,7 +292,7 @@
                                 <dd class="font-bold text-brand-700 text-lg">元创S营</dd>
                             </div>
                             <div><dt class="text-slate-400 text-xs mb-1">渠道/机构</dt><dd class="font-medium text-slate-800">中国软件行业协会</dd></div>
-                            <div><dt class="text-slate-400 text-xs mb-1">考生姓名</dt><dd class="font-medium text-slate-800" id="view-name">--</dd></div>
+                            <div><dt class="text-slate-400 text-xs mb-1">学员姓名</dt><dd class="font-medium text-slate-800" id="view-name">--</dd></div>
                             <div><dt class="text-slate-400 text-xs mb-1">身份证号</dt><dd class="font-medium text-slate-800 font-mono" id="view-id">--</dd></div>
                             <div><dt class="text-slate-400 text-xs mb-1">性别</dt><dd class="font-medium text-slate-800" id="view-gender">--</dd></div>
                             <div><dt class="text-slate-400 text-xs mb-1">电子邮箱</dt><dd class="font-medium text-slate-800" id="view-email">--</dd></div>
@@ -396,7 +396,7 @@
                 const name = document.getElementById('input-name').value.trim();
                 const id = document.getElementById('input-id').value.trim();
                 if (!name || !id) {
-                    alert('请填写考生姓名和身份证号');
+                    alert('请填写学员姓名和身份证号');
                     return;
                 }
                 // Validate required uploads

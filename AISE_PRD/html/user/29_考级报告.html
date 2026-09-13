@@ -159,7 +159,7 @@
 </head>
 <body class="font-sans">
 
-    <!-- 顶栏（glass-nav，与 16_我的考试/18_我的准考证 通用顶栏一致） -->
+    <!-- 顶栏（glass-nav，与 16_我的测评/18_我的准考证 通用顶栏一致） -->
     <nav class="glass-nav fixed w-full z-40 top-0 transition-all duration-300">
         <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
             <div class="flex justify-between items-center h-20">
@@ -189,7 +189,7 @@
             <div class="report-col">
                 <div id="reportStrip"></div>
             </div>
-            <!-- 2. 右侧栏（仅 PC）：学生信息 + 考试信息 + 下载按钮 -->
+            <!-- 2. 右侧栏（仅 PC）：学生信息 + 测评信息 + 下载按钮 -->
             <aside class="side-col">
                 <div id="sideInfo"></div>
                 <button class="pdf-btn" id="pdfBtn" onclick="downloadPdf()">
@@ -211,7 +211,7 @@
         <div class="fab-panel" id="fabPanel">
             <span class="demo-label"><i class="fa-solid fa-sliders mr-1"></i>DEMO · 等级来源</span>
             <div style="margin-top:6px;" id="examBtns"></div>
-            <span class="demo-label" style="display:block;margin-top:10px;"><i class="fa-solid fa-user-graduate mr-1"></i>DEMO · 示例考生</span>
+            <span class="demo-label" style="display:block;margin-top:10px;"><i class="fa-solid fa-user-graduate mr-1"></i>DEMO · 示例学员</span>
             <div style="margin-top:6px;" id="studentBtns"></div>
         </div>
         <button class="fab-btn" id="fabBtn" onclick="toggleFab()"><i class="fa-solid fa-flask"></i></button>
@@ -249,7 +249,7 @@ const FULL_COMMENT = '本题目作答达到要求，完整完成任务。太棒�
    正式版：配置来自「测评管理 → 管理报告」页（admin/34），只按分数划线；
    每档可配：分数下限 / 等级名称 / 计入通过 / 成长区间 / 一句话总结（文案可选，留空走默认规则）；
    通过判定：达到勾选「计入通过」的最低分数线 = 通过；未达任何档位线 = 等级「未通过」；
-   未配置报告规则的考试按固定映射表兜底（60 合格 / 70 良好 / 80 优秀）。 */
+   未配置报告规则的测评按固定映射表兜底（60 合格 / 70 良好 / 80 优秀）。 */
 const EXAM_CONFIGS = {
     score: { label:'已配置报告规则', mode:'score', tiers:[
         { min:90, name:'优秀', cert:true,  stage:'出类拔萃', summary:'综合本次考级表现，你已高质量完成本级全部核心任务，展现出扎实的编程综合能力，可继续挑战更复杂的综合任务。' },
@@ -434,7 +434,7 @@ function stageLabels(stageIdx){
 /* ===== 渲染 ===== */
 function renderHeadCard(stu, g){
     let html = '<div class="head-card">';
-    /* 页眉标题：主标题 = 考试年月 + 级别 + 个人报告（如「2026年8月程序设计四级个人报告」） */
+    /* 页眉标题：主标题 = 测评年月 + 级别 + 个人报告（如「2026年8月程序设计四级个人报告」） */
     html += '<div class="report-head">'
       + '<div class="kicker">AISE能力评定报告</div>'
       + '<div class="title">' + esc(stu.date) + esc(stu.level) + '个人报告</div></div>';
@@ -470,7 +470,7 @@ function renderViolinBlock(g){
 function renderKnowledgeBlock(stu){
     let inner = '';
     if(!stu.knowledge){
-        inner = '<div class="empty">本场考试题目暂未配置知识点标签，暂无知识点掌握数据。</div>';
+        inner = '<div class="empty">本场测评题目暂未配置知识点标签，暂无知识点掌握数据。</div>';
     } else {
         stu.knowledge.forEach(function(m){
             const hasBad = m.pts.some(function(p){ return p[1] < 60; });
@@ -582,19 +582,19 @@ function renderReport(stu){
 let currentId = 'liming';
 let pdfTimer = null;
 
-/* 右侧栏：学生信息 + 考试信息（仅 PC 显示） */
+/* 右侧栏：学生信息 + 测评信息（仅 PC 显示） */
 function renderSideInfo(stu){
     const g = gradeOf(stu.score);
     document.getElementById('sideInfo').innerHTML =
-      '<div class="side-card"><div class="t">考生信息</div>'
+      '<div class="side-card"><div class="t">学员信息</div>'
       + '<div class="side-row"><span class="k">姓名</span><span class="v">' + esc(stu.name) + '</span></div>'
       + '<div class="side-row"><span class="k">年龄</span><span class="v">' + esc(stu.age) + '</span></div>'
-      + '<div class="side-row"><span class="k">考生ID</span><span class="v">' + esc(stu.idNo.replace('ID:','')) + '</span></div>'
+      + '<div class="side-row"><span class="k">学员ID</span><span class="v">' + esc(stu.idNo.replace('ID:','')) + '</span></div>'
       + '<div class="side-row"><span class="k">所在学校/机构</span><span class="v">' + esc(stu.school) + '</span></div>'
       + '</div>'
-      + '<div class="side-card"><div class="t">考试信息</div>'
-      + '<div class="side-row"><span class="k">考试项目</span><span class="v">AISE ' + esc(stu.level) + '</span></div>'
-      + '<div class="side-row"><span class="k">考试时间</span><span class="v">' + esc(stu.date) + '</span></div>'
+      + '<div class="side-card"><div class="t">测评信息</div>'
+      + '<div class="side-row"><span class="k">测评项目</span><span class="v">AISE ' + esc(stu.level) + '</span></div>'
+      + '<div class="side-row"><span class="k">测评时间</span><span class="v">' + esc(stu.date) + '</span></div>'
       + '<div class="side-row"><span class="k">正式总分</span><span class="v">' + stu.score + ' 分</span></div>'
       + '<div class="side-row"><span class="k">评定等级</span><span class="v">' + g.grade + ' · ' + (activeStages()[g.stage] ? activeStages()[g.stage].n : '') + '</span></div>'
       + '<div class="side-row"><span class="k">通过状态</span><span class="v" style="color:' + (g.pass ? '#00CC66' : '#FF9900') + '">' + (g.pass ? '已通过' : '未通过') + '</span></div>'

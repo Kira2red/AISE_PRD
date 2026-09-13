@@ -186,7 +186,7 @@
 
                     <!-- Description -->
                     <p class="text-sm text-slate-500 leading-relaxed flex-grow">
-                        已持有AISE等级证书的考生快捷通道。输入身份证号验证后快速进入报名。
+                        已持有AISE等级证书的学员快捷通道。输入身份证号验证后快速进入报名。
                     </p>
 
                     <!-- Action hint -->
@@ -442,9 +442,9 @@
             // Simulate verification success — close modal and jump to registration form
             closeModal('modal-talent');
             showToast('验证通过，即将跳转至报名表单');
-            // In production: redirect to 09_考试报名_填写信息_定制报名.html with talent source param
+            // In production: redirect to 09_测评报名_填写信息_定制报名.html with talent source param
             setTimeout(function() {
-                window.location.href = '09_考试报名_填写信息_定制报名.html';
+                window.location.href = '09_测评报名_填写信息_定制报名.html';
             }, 800);
         }
 

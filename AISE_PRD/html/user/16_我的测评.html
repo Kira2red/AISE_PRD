@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>我的考试 - AISE</title>
+    <title>我的测评 - AISE</title>
     <script src="https://cdn.tailwindcss.com"></script>
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
@@ -88,7 +88,7 @@
                          </div>
                          <div>
                              <p class="font-bold text-slate-900">张三</p>
-                             <p class="text-xs text-slate-500">考生 ID: 20258899</p>
+                             <p class="text-xs text-slate-500">学员 ID: 20258899</p>
                          </div>
                     </div>
 
@@ -97,7 +97,7 @@
                             <i class="fa-regular fa-id-card w-5 text-center text-slate-400"></i> 个人中心
                         </a>
                         <a href="#" class="flex-shrink-0 px-4 py-3 rounded-lg bg-brand-50 text-brand-600 font-bold text-sm flex items-center gap-3 shadow-sm border border-brand-100 md:border-transparent">
-                            <i class="fa-solid fa-file-pen w-5 text-center"></i> 我的考试
+                            <i class="fa-solid fa-file-pen w-5 text-center"></i> 我的测评
                         </a>
                         <a href="#" class="flex-shrink-0 px-4 py-3 rounded-lg text-slate-600 hover:bg-slate-50 hover:text-slate-900 font-medium text-sm flex items-center gap-3 transition">
                             <i class="fa-solid fa-award w-5 text-center text-slate-400"></i> 成绩与证书
@@ -108,13 +108,13 @@
 
             <div class="flex-1 min-w-0">
                 <div class="mb-6">
-                    <h1 class="text-2xl font-bold text-slate-900">我的考试</h1>
-                    <p class="text-sm text-slate-500 mt-1">查看所有报名的考试及当前的证书处理状态。</p>
+                    <h1 class="text-2xl font-bold text-slate-900">我的测评</h1>
+                    <p class="text-sm text-slate-500 mt-1">查看所有报名的测评及当前的证书处理状态。</p>
                 </div>
 
                 <div class="flex flex-col gap-4">
 
-                    <!-- 候考演示：待考-候考窗口内（入口「准备考试」） -->
+                    <!-- 候考演示：待考-候考窗口内（入口「准备测评」） -->
                     <div class="bg-white rounded-2xl shadow-card border border-slate-100 p-5 sm:p-6 flex flex-col md:flex-row items-start md:items-center gap-5 md:gap-0 transition hover:shadow-md">
                         <div class="flex items-start gap-4 flex-1 w-full md:w-auto">
                             <div class="w-14 h-14 bg-green-50 rounded-xl flex items-center justify-center text-green-500 text-2xl flex-shrink-0 mt-1 md:mt-0">
@@ -128,7 +128,7 @@
                                     </span>
                                 </div>
                                 <div class="flex flex-col sm:flex-row sm:items-center gap-1 sm:gap-4 text-xs text-slate-500">
-                                    <span>考试时间：2025-10-18 09:00-11:00</span>
+                                    <span>测评时间：2025-10-18 09:00-11:00</span>
                                     <span class="text-brand-600 font-semibold flex items-center gap-1">
                                         <span class="w-1.5 h-1.5 bg-green-500 rounded-full animate-pulse"></span>
                                         候考已开启（考前 30 分钟）
@@ -141,12 +141,12 @@
                                 查看准考证
                             </button>
                             <button onclick="window.location.href='../iceping/09_设备检测.html'" class="flex-1 md:w-40 px-4 py-2.5 bg-brand-600 text-white rounded-lg text-sm font-bold hover:bg-brand-700 transition shadow-lg shadow-brand-500/30 whitespace-nowrap flex items-center justify-center gap-2">
-                                准备考试 <i class="fa-solid fa-arrow-right text-xs"></i>
+                                准备测评 <i class="fa-solid fa-arrow-right text-xs"></i>
                             </button>
                         </div>
                     </div>
 
-                    <!-- 候考演示：未开始（入口「考试未开始」，点击查看最早可候考时间） -->
+                    <!-- 候考演示：未开始（入口「测评未开始」，点击查看最早可候考时间） -->
                     <div class="bg-white rounded-2xl shadow-card border border-slate-100 p-5 sm:p-6 flex flex-col md:flex-row items-start md:items-center gap-5 md:gap-0 transition hover:shadow-md">
                         <div class="flex items-start gap-4 flex-1 w-full md:w-auto">
                             <div class="w-14 h-14 bg-slate-50 rounded-xl flex items-center justify-center text-slate-400 text-2xl flex-shrink-0 mt-1 md:mt-0">
@@ -160,7 +160,7 @@
                                     </span>
                                 </div>
                                 <div class="flex flex-col sm:flex-row sm:items-center gap-1 sm:gap-4 text-xs text-slate-500">
-                                    <span>考试时间：2025-12-20 14:00-16:00</span>
+                                    <span>测评时间：2025-12-20 14:00-16:00</span>
                                 </div>
                             </div>
                         </div>
@@ -169,7 +169,7 @@
                                 查看准考证
                             </button>
                             <button onclick="showNotOpenTip('C++ 算法设计', '2025-12-20 14:00', '2025-12-20 13:30')" class="flex-1 md:w-40 px-4 py-2.5 bg-slate-100 text-slate-400 rounded-lg text-sm font-semibold border border-slate-100 whitespace-nowrap cursor-pointer hover:bg-slate-200 transition flex items-center justify-center">
-                                考试未开始
+                                测评未开始
                             </button>
                         </div>
                     </div>
@@ -187,7 +187,7 @@
                                     </span>
                                 </div>
                                 <div class="flex flex-col sm:flex-row sm:items-center gap-1 sm:gap-4 text-xs text-slate-500">
-                                    <span>考试时间：2025-05-20 14:00-16:00</span>
+                                    <span>测评时间：2025-05-20 14:00-16:00</span>
                                 </div>
                             </div>
                         </div>
@@ -214,7 +214,7 @@
                                     </span>
                                 </div>
                                 <div class="flex flex-col sm:flex-row sm:items-center gap-1 sm:gap-4 text-xs text-slate-500">
-                                    <span>考试时间：2025-05-21 09:00-11:00</span>
+                                    <span>测评时间：2025-05-21 09:00-11:00</span>
                                 </div>
                             </div>
                         </div>
@@ -241,7 +241,7 @@
                                     </span>
                                 </div>
                                 <div class="flex flex-col sm:flex-row sm:items-center gap-1 sm:gap-4 text-xs text-slate-500">
-                                    <span>考试时间：2025-06-15 09:00-11:00</span>
+                                    <span>测评时间：2025-06-15 09:00-11:00</span>
                                 </div>
                             </div>
                         </div>
@@ -268,7 +268,7 @@
                                     </span>
                                 </div>
                                 <div class="flex flex-col sm:flex-row sm:items-center gap-1 sm:gap-4 text-xs text-slate-500">
-                                    <span>考试时间：2024-12-20 10:00-12:00</span>
+                                    <span>测评时间：2024-12-20 10:00-12:00</span>
                                 </div>
                             </div>
                         </div>
@@ -295,7 +295,7 @@
                                     </span>
                                 </div>
                                 <div class="flex flex-col sm:flex-row sm:items-center gap-1 sm:gap-4 text-xs text-slate-500">
-                                    <span>考试时间：2024-10-15 14:00-16:00</span>
+                                    <span>测评时间：2024-10-15 14:00-16:00</span>
                                 </div>
                             </div>
                         </div>
@@ -363,7 +363,7 @@
                                 
                                 <div class="grid grid-cols-2 gap-4 border-t border-dashed border-slate-100 pt-4">
                                     <div>
-                                        <p class="text-xs text-slate-400 uppercase font-bold mb-1">考生姓名</p>
+                                        <p class="text-xs text-slate-400 uppercase font-bold mb-1">学员姓名</p>
                                         <p class="text-sm font-semibold text-slate-800">张三</p>
                                     </div>
                                     <div>
@@ -385,7 +385,7 @@
                                         <span class="text-[10px] text-red-500/50 font-bold">AISE CERTIFIED</span>
                                     </div>
                                 </div>
-                                <p class="text-center text-[10px] text-slate-400 mt-2">考生照片</p>
+                                <p class="text-center text-[10px] text-slate-400 mt-2">学员照片</p>
                             </div>
                         </div>
 
@@ -414,7 +414,7 @@
     <script>
         // 候考功能演示：未开始入口点击提示（展示开始时间与最早可候考时间）
         function showNotOpenTip(examName, startTime, waitStartTime) {
-            alert(examName + ' 尚未开始\n\n考试开始时间：' + startTime + '\n最早可进入考场（候考）时间：' + waitStartTime + '\n\n请于候考时间开放后进入完成设备检测与检录');
+            alert(examName + ' 尚未开始\n\n测评开始时间：' + startTime + '\n最早可进入考场（候考）时间：' + waitStartTime + '\n\n请于候考时间开放后进入完成设备检测与检录');
         }
 
         function openTicketModal(projectName, examName) {
