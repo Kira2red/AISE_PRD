@@ -294,7 +294,14 @@ function permToggle(cb,boxId){
         <div class="field"><label>展示开始（选填）</label><input type="datetime-local" style="width:100%"></div>
         <div class="field"><label>展示结束（选填）</label><input type="datetime-local" style="width:100%"></div>
       </div>
-      <div class="warnbox">报名费修改<b>不溯及已报名订单</b>：已有订单按原价结算，仅影响新报名。已隐藏报名的关联不受本次修改影响。</div>
+      <div class="field" id="editVisBox"><label>报名可见性</label>
+        <div style="display:flex;gap:8px">
+          <span class="chip btn on" id="editVisNormal" onclick="editVisToggle('n')">正常报名</span>
+          <span class="chip btn" id="editVisHidden" onclick="editVisToggle('h')">隐藏报名</span>
+        </div>
+      </div>
+      <div class="warnbox" id="editVisWarn" style="display:none">切为隐藏报名后：<b>前端展示开关与展示时间不再参与控制</b>（相关配置已收起）；仅持定向链接可报名。改回「正常报名」将恢复展示控制。</div>
+      <div class="warnbox">报名费修改<b>不溯及已报名订单</b>：已有订单按原价结算，仅影响新报名。</div>
     </div>
     <div class="modal-foot">
       <button class="btn" onclick="hide('ovEdit')">取消</button>
@@ -658,6 +665,16 @@ function openBulkEdit(){
   });
   show('ovEdit');
 }
+function editVisToggle(mode){
+  var n=$('editVisNormal'),h=$('editVisHidden');
+  n.classList.toggle('on',mode==='n');
+  h.classList.toggle('on',mode==='h');
+  var hidden=mode==='h';
+  $('editTimeBox').style.display=hidden?'none':'';
+  document.querySelector('#ovEdit .perm-line').style.display=hidden?'none':'';
+  document.querySelector('#ovEdit .grid2 .field:nth-child(2)').style.visibility=hidden?'hidden':'';
+  $('editVisWarn').style.display=hidden?'block':'none';
+}
 function editSelChannels(){
   return [].slice.call(document.querySelectorAll('#editChCards .ch-card.on')).map(function(d){return parseInt(d.getAttribute('data-ci'),10)});
 }
@@ -666,7 +683,8 @@ function doEdit(){
   if(!chs.length){toast('请至少选择一个渠道');return}
   var rows=checkedRows().map(function(i){return ROWS[i]});
   var n=0;chs.forEach(function(ci){n+=rows.filter(function(r){return r.links[ci]&&!r.links[ci].fail}).length});
-  $('editConfirmSummary').innerHTML='将修改 <b>'+chs.length+' 个渠道 × '+n+' 条测评关联</b> 的报名费 / 展示配置：'+
+  var hidden=$('editVisHidden').classList.contains('on');
+  $('editConfirmSummary').innerHTML='将修改 <b>'+chs.length+' 个渠道 × '+n+' 条测评关联</b> 的报名费 / 展示 / 报名可见性（<b>'+(hidden?'隐藏报名':'正常报名')+'</b>）：'+
     '<div style="margin-top:6px">'+chs.map(function(ci){return CHS[ci]}).join('、')+'</div>';
   show('ovEditConfirm');
 }
