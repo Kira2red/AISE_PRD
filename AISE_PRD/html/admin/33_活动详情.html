@@ -334,14 +334,14 @@ textarea{min-height:72px}
           </div>
           <details class="more"><summary>更多设置</summary>
             <div class="grid2" style="margin-top:10px;align-items:start">
-              <div class="field"><label>检录视频引导文案</label><input type="text" placeholder="默认文案" style="width:100%"></div>
-              <div class="field"><label>证书落款时间</label><input type="date" style="width:100%"></div>
+              <div class="field"><label>检录视频引导文案</label><textarea rows="2" placeholder="默认文案" style="width:100%;height:61px;min-height:61px;box-sizing:border-box;resize:vertical;font-family:inherit;padding:8px 12px;line-height:1.4;align-self:start"></textarea></div>
               <div class="field"><label>检录视频示意图</label>
                 <div class="upload" onclick="toast('演示：选择图片文件上传')">
                   <span class="up-ico">🖼</span><span class="up-txt">点击上传图片（jpg / png，建议 16:9）</span>
                 </div>
               </div>
-              <div class="field"><label>测评描述（展示在学员端报名页）</label><textarea rows="3" placeholder="可写测评介绍、注意事项等" style="width:100%;resize:vertical"></textarea></div>
+              <div class="field"><label>证书落款时间</label><input type="date" style="width:100%;height:61px;box-sizing:border-box"></div>
+              <div class="field"><label>测评描述（展示在学员端报名页）</label><textarea rows="2" placeholder="可写测评介绍、注意事项等" style="width:100%;height:61px;min-height:61px;box-sizing:border-box;resize:vertical;font-family:inherit;padding:8px 12px;line-height:1.4;align-self:start"></textarea></div>
             </div>
           </details>
         </div>
@@ -365,6 +365,14 @@ textarea{min-height:72px}
               <div class="field"><label>摄像头</label><select style="width:100%"><option>强制开启</option><option>学员自选</option><option>关闭</option></select></div>
               <div class="field"><label>录屏</label><select style="width:100%"><option>强制开启</option><option>学员自选</option><option>关闭</option></select></div>
               <div class="field"><label>检录照片</label><select style="width:100%"><option>强制开启</option><option>学员自选</option><option>关闭</option></select></div>
+            </div>
+            <div class="grid2" style="margin-top:12px;align-items:start">
+              <div class="field"><label>检录视频引导文案</label><textarea rows="2" placeholder="默认文案" style="width:100%;height:61px;min-height:61px;box-sizing:border-box;resize:vertical;font-family:inherit;padding:8px 12px;line-height:1.4;align-self:start"></textarea></div>
+              <div class="field"><label>检录视频示意图</label>
+                <div class="upload" onclick="toast('演示：选择图片文件上传')"><span class="up-ico">🖼</span><span class="up-txt">点击上传图片（jpg / png，建议 16:9）</span></div>
+              </div>
+            </div>
+            <div class="grid3" style="margin-top:12px">
               <div class="field"><label>候考时长（分钟）</label><input type="number" value="10" style="width:100%"></div>
               <div class="field"><label>手机监考</label><div style="display:flex;align-items:center;gap:8px;padding-top:6px"><div class="switch" onclick="this.classList.toggle('on')"></div><span class="hint">要求第二设备</span></div></div>
               <div class="field"><label>成绩 / 分数 / 读题</label><div style="display:flex;gap:12px;padding-top:8px" class="hint"><label><input type="checkbox" checked> 成绩</label><label><input type="checkbox" checked> 分数</label><label><input type="checkbox"> 读题</label></div></div>
