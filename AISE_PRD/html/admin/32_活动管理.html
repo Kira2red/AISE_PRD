@@ -2,11 +2,9 @@
 <html lang="zh-CN">
 <head>
 <meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>活动管理 - AISE 测评系统</title>
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>活动管理</title>
 <script src="https://cdn.tailwindcss.com"></script>
-<link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
-<link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" rel="stylesheet">
 <script>
 tailwind.config = { theme: { extend: {
     fontFamily: { sans: ['Inter','sans-serif'], mono: ['JetBrains Mono','monospace'] },
@@ -14,175 +12,932 @@ tailwind.config = { theme: { extend: {
     boxShadow: { 'card':'0 1px 3px 0 rgba(0,0,0,.1),0 1px 2px 0 rgba(0,0,0,.06)','popover':'0 10px 15px -3px rgba(0,0,0,.1),0 4px 6px -2px rgba(0,0,0,.05)' }
 } } }
 </script>
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
 <style>
-body { background-color:#F8FAFC; }
-.custom-scroll::-webkit-scrollbar{width:6px;height:6px}
-.custom-scroll::-webkit-scrollbar-thumb{background-color:#cbd5e1;border-radius:3px}
-.nav-item.active::before{content:'';position:absolute;left:0;top:50%;transform:translateY(-50%);width:4px;height:24px;background-color:#3b82f6;border-radius:0 4px 4px 0}
-tr.hover-row:hover td{background-color:#f8fafc}
-.modal-enter{animation:modalFadeIn .2s ease-out forwards}
-@keyframes modalFadeIn{from{opacity:0;transform:translateY(12px) scale(.98)}to{opacity:1;transform:translateY(0) scale(1)}}
-.pill{display:inline-flex;align-items:center;gap:4px;padding:2px 8px;border-radius:9999px;font-size:11px;font-weight:500;line-height:16px;white-space:nowrap}
-th.sortable{cursor:pointer;user-select:none}
-#toastBox{position:fixed;top:20px;right:20px;z-index:100;display:flex;flex-direction:column;gap:8px}
+:root{--primary:#0041c8;--primary-weak:#e8eefc;--bg:#f5f7fa;--card:#fff;--border:#e3e8ef;--text:#1a2233;--muted:#66707f;--ok:#0a8f4e;--warn:#b45309;--danger:#c0392b;--radius:10px}
+*{box-sizing:border-box;margin:0;padding:0}
+body{font-family:"PingFang SC","Microsoft YaHei",sans-serif;background:var(--bg);color:var(--text);font-size:14px}
+.logo{width:26px;height:26px;border-radius:6px;background:var(--primary);color:#fff;display:flex;align-items:center;justify-content:center;font-size:13px;font-weight:700}
+.spacer{flex:1}
+.btn{border:1px solid var(--border);background:var(--card);border-radius:8px;padding:7px 16px;cursor:pointer;font-size:13px;color:var(--text);transition:.12s}
+.btn:hover{border-color:var(--primary);color:var(--primary)}
+.btn.primary{background:var(--primary);border-color:var(--primary);color:#fff}
+.btn.primary:hover{opacity:.92;color:#fff}
+.btn.danger{color:var(--danger);border-color:#f3c1ba}
+.btn.small{padding:3px 10px;font-size:12px}
+.btn:disabled{opacity:.45;cursor:not-allowed}
+.card{background:var(--card);border:1px solid var(--border);border-radius:var(--radius);padding:18px;margin-bottom:16px}
+table{width:100%;border-collapse:collapse}
+th{font-size:12px;color:var(--muted);font-weight:500;text-align:left;padding:9px 12px;border-bottom:1px solid var(--border)}
+td{padding:11px 12px;border-bottom:1px solid #f0f2f6;font-size:13px}
+tr:last-child td{border-bottom:none}
+.rowclick{cursor:pointer}
+.rowclick:hover td{background:#fafbfd}
+.tag{display:inline-block;font-size:11px;padding:1px 8px;border-radius:10px}
+.tag.blue{background:var(--primary-weak);color:var(--primary)}
+.tag.gray{background:#eef1f5;color:var(--muted)}
+.tag.green{background:#e5f5ec;color:var(--ok)}
+.tag.amber{background:#fdf1e0;color:var(--warn)}
+.crumb{font-size:13px;color:var(--muted);margin-bottom:14px}
+.crumb a{color:var(--primary);cursor:pointer;text-decoration:none}
+input[type=text],input[type=number],input[type=datetime-local],input[type=date],select{border:1px solid var(--border);border-radius:7px;padding:7px 10px;font-size:13px;background:#fff;color:var(--text)}
+input:focus,select:focus{outline:2px solid var(--primary-weak);border-color:var(--primary)}
+.field{margin-bottom:14px}
+.field>label{display:block;font-size:12px;color:var(--muted);margin-bottom:5px}
+.field .req::after{content:" *";color:var(--danger)}
+.grid2{display:grid;grid-template-columns:1fr 1fr;gap:0 16px}
+.grid3{display:grid;grid-template-columns:1fr 1fr 1fr;gap:0 16px}
+.overlay{position:fixed;inset:0;background:rgba(15,23,42,.45);display:none;align-items:center;justify-content:center;z-index:50}
+.overlay.show{display:flex}
+.modal{background:#fff;border-radius:14px;width:720px;max-width:94vw;max-height:88vh;display:flex;flex-direction:column;box-shadow:0 18px 50px rgba(0,0,0,.22)}
+.modal-head{padding:18px 24px 10px;display:flex;align-items:center}
+.modal-head b{font-size:16px}
+.modal-body{padding:6px 24px 18px;overflow-y:auto}
+.modal-foot{padding:14px 24px;border-top:1px solid var(--border);display:flex;justify-content:flex-end;gap:10px;align-items:center}
+.sec-title{font-size:14px;font-weight:600;margin:16px 0 10px;display:flex;align-items:center;gap:8px}
+label .sub{font-size:11px;color:var(--muted);font-weight:400;margin-left:4px}
+.sec-title .sub{font-size:12px;color:var(--muted);font-weight:400}
+.switch{position:relative;width:38px;height:21px;background:#ccd3dd;border-radius:11px;cursor:pointer;transition:.15s;flex:none;display:inline-block}
+.switch::after{content:"";position:absolute;top:2px;left:2px;width:17px;height:17px;border-radius:50%;background:#fff;transition:.15s}
+.switch.on{background:var(--ok)}
+.switch.on::after{left:19px}
+details.more{border:1px dashed var(--border);border-radius:8px;padding:10px 14px;margin-top:6px}
+details.more summary{font-size:13px;color:var(--muted);cursor:pointer}
+.hint{font-size:12px;color:var(--muted);line-height:1.6}
+.warnbox{background:#fdf6ec;border:1px solid #f2ddbb;border-radius:8px;padding:10px 14px;font-size:12px;color:#8a5a12;line-height:1.7;margin:10px 0}
+#toast{position:fixed;top:22px;left:50%;transform:translateX(-50%);background:#1a2233;color:#fff;padding:9px 22px;border-radius:8px;font-size:13px;opacity:0;transition:.25s;z-index:99;pointer-events:none}
+#toast.show{opacity:.95}
+.muted{color:var(--muted)}
+.menu-wrap{position:relative;display:inline-block}
+.menu{position:fixed;background:#fff;border:1px solid var(--border);border-radius:8px;box-shadow:0 8px 24px rgba(0,0,0,.18);padding:5px;display:none;z-index:3000;min-width:150px}
+.menu.show{display:block}
+.menu .mi{padding:7px 13px;font-size:13px;border-radius:6px;cursor:pointer;white-space:nowrap}
+.menu .mi:hover{background:#f2f5fa}
+.menu .mi.red{color:var(--danger)}
+/* ===== 顶部活动信息卡 ===== */
+.act-head{display:flex;align-items:center;gap:12px;flex-wrap:wrap}
+.act-head h2{font-size:18px;font-weight:700}
+.state-pill{font-size:12px;padding:3px 12px;border-radius:14px}
+.state-pill.gray{background:#eef1f5;color:var(--muted)}
+.state-pill.amber{background:#fdf1e0;color:var(--warn)}
+.state-pill.green{background:#e5f5ec;color:var(--ok)}
+/* ===== 树状表格 ===== */
+.toolbar{display:flex;align-items:center;gap:10px;margin-bottom:6px;flex-wrap:wrap}
+.toolbar .search{width:220px}
+table.tree{margin-top:8px}
+tr.grp td{background:#f6f8fb;border-top:1px solid var(--border);border-bottom:1px solid var(--border);padding:9px 12px}
+tr.grp.first td{border-top:none}
+.grp-line{display:flex;align-items:center;gap:10px;min-height:26px}
+.tw{display:inline-flex;width:18px;height:18px;align-items:center;justify-content:center;cursor:pointer;color:var(--muted);transition:transform .15s;user-select:none;font-size:10px}
+.tw.closed{transform:rotate(-90deg)}
+.gname{font-weight:600;font-size:13.5px;cursor:text;padding:2px 6px;border-radius:5px}
+.gname:hover{background:#e9eef6}
+.gname-input{font-size:13.5px;font-weight:600;padding:2px 6px;border:1px solid var(--primary);border-radius:5px;width:160px}
+.gcount{font-size:12px;color:var(--muted);background:#e8edf5;border-radius:10px;padding:1px 9px}
+.gsys{font-size:11px;color:#98a1af}
+.gact{display:flex;gap:2px;opacity:.55;transition:.15s}
+tr.grp:hover .gact{opacity:1}
+.gbtn{border:none;background:none;cursor:pointer;font-size:12px;color:var(--muted);padding:4px 7px;border-radius:5px;transition:.1s}
+.gbtn:hover{background:#e2e9f4;color:var(--text)}
+.gbtn.add{color:var(--primary);font-weight:600}
+tr.exam td{padding:9px 12px;border-bottom:1px solid #f2f4f8}
+tr.exam td:first-child{padding-left:44px}
+tr.exam:hover td{background:#fafbfd}
+.exam-name{font-weight:600;font-size:13px}
+.exam-sub{font-size:11px;color:var(--muted);margin-top:2px}
+.empty-tree{padding:42px 20px;text-align:center}
+.empty-tree .big{font-size:14px;color:var(--text);margin-bottom:6px}
+/* ===== 下拉多选（分组/标签） ===== */
+.msel{position:relative}
+.msel-box{border:1px solid var(--border);border-radius:8px;min-height:36px;padding:4px 30px 4px 8px;display:flex;flex-wrap:wrap;gap:6px;align-items:center;cursor:pointer;background:#fff}
+.msel-box:hover{border-color:#b9c6dd}
+.msel-box.open{border-color:var(--primary);outline:2px solid var(--primary-weak)}
+.msel-box .ph{color:#9aa4b2;font-size:13px}
+.msel-box::after{content:"▾";position:absolute;right:10px;top:50%;transform:translateY(-50%);color:var(--muted);font-size:11px;pointer-events:none}
+.token{display:inline-flex;align-items:center;gap:5px;background:var(--primary-weak);color:var(--primary);border-radius:6px;padding:2px 8px;font-size:12px;font-weight:500}
+.token .tx{cursor:pointer;font-size:11px;opacity:.7}
+.token .tx:hover{opacity:1}
+.msel-menu{position:absolute;background:#fff;opacity:1 !important;top:calc(100% + 4px);left:0;right:0;background:#fff;border:1px solid var(--border);border-radius:10px;box-shadow:0 10px 30px rgba(0,0,0,.14);padding:6px;display:none;z-index:30;max-height:220px;overflow-y:auto}
+.msel-menu.show{display:block}
+.mopt{display:flex;align-items:center;gap:9px;padding:8px 10px;border-radius:7px;cursor:pointer;font-size:13px}
+.mopt:hover{background:#f2f5fa}
+.mopt .ck{width:16px;height:16px;border:1.5px solid #c3ccd9;border-radius:4px;display:inline-flex;align-items:center;justify-content:center;font-size:11px;color:#fff;flex:none}
+.mopt.on .ck{background:var(--primary);border-color:var(--primary)}
+.mopt.on .ck::after{content:"✓"}
+.mopt .sub{margin-left:auto;font-size:11px;color:var(--muted)}
+.mopt.dis{opacity:.5;cursor:default}
+
+
+.radio-line{display:inline-flex;align-items:center;gap:6px;font-size:13px;color:var(--text);cursor:pointer}
+.radio-line input[type=radio]{margin:0;cursor:pointer}
+.upload{border:1.5px dashed #c3ccd9;border-radius:8px;padding:16px 14px;display:flex;align-items:center;gap:10px;cursor:pointer;transition:.15s;background:#fafbfd}
+.upload:hover{border-color:var(--primary);background:var(--primary-weak)}
+.up-ico{font-size:18px}
+.up-txt{font-size:12px;color:var(--muted)}
+textarea{border:1px solid var(--border);border-radius:7px;padding:8px 10px;font-size:13px;font-family:inherit;background:#fff;color:var(--text)}
+textarea:focus{outline:2px solid var(--primary-weak);border-color:var(--primary)}
+.ckline{display:inline-flex;align-items:center;gap:6px;font-size:12px;color:var(--muted);cursor:pointer;user-select:none}
+.ckline input{accent-color:var(--primary);cursor:pointer}
+
+.summary-bar{background:var(--primary-weak);border-radius:8px;padding:9px 14px;font-size:13px;color:#23407a;margin-bottom:14px}
+
+
+/* 高度统一：表单控件基准高 36px，长文本截断 */
+.msel-box{height:36px;overflow:hidden}
+.ssel-box{height:36px;overflow:hidden}
+.ssel-val{white-space:nowrap;overflow:hidden;text-overflow:ellipsis;max-width:100%}
+.ssel-x{flex:none}
+.field>input,.field>select{height:36px}
+textarea{min-height:72px}
+.field{margin-bottom:14px}
+.fline{display:flex;gap:16px;align-items:flex-start;margin-bottom:14px}
+.fline .field{flex:1;margin-bottom:0;min-width:0}
+.fline .field.w2{flex:2}
+
+.subblock{background:#f8fafd;border:1px solid #e6ebf3;border-radius:10px;padding:14px 16px 4px;margin:10px 0 14px}
+.subblock-title{font-size:13px;font-weight:600;color:#33415c;margin-bottom:10px}
+
+/* 可搜索单选下拉 */
+.ssel-box{border:1px solid var(--border);border-radius:8px;min-height:36px;padding:4px 30px 4px 10px;display:flex;align-items:center;gap:8px;cursor:pointer;background:#fff;position:relative}
+.ssel-box:hover{border-color:#b9c6dd}
+.ssel-box.open{border-color:var(--primary);outline:2px solid var(--primary-weak)}
+.ssel-box::after{content:"▾";position:absolute;right:10px;color:var(--muted);font-size:11px;pointer-events:none}
+.ssel-val{font-size:13px;background:var(--primary-weak);color:var(--primary);border-radius:6px;padding:3px 9px;font-weight:500}
+.ssel-x{cursor:pointer;color:var(--muted);font-size:12px;padding:2px}
+.ssel-x:hover{color:var(--danger)}
+.ssel-menu{padding:0}
+.ssel-searchwrap{padding:8px;border-bottom:1px solid var(--border);position:sticky;top:0;background:#fff}
+.ssel-search{width:100%;border:1px solid var(--border);border-radius:7px;padding:7px 10px;font-size:13px}
+.ssel-list{max-height:240px;overflow-y:auto;padding:6px}
+.ssel-list .mopt{padding:8px 10px}
+
+/* ===== 向导步骤条 ===== */
+.wiz-steps{display:flex;align-items:center;justify-content:center;gap:0;margin:6px 0 20px}
+.ws{display:flex;align-items:center;gap:8px;font-size:13px;color:var(--muted)}
+.ws .d{width:24px;height:24px;border-radius:50%;border:1.5px solid #ccd3dd;display:flex;align-items:center;justify-content:center;font-size:12px;background:#fff}
+.ws.on{color:var(--primary);font-weight:600}
+.ws.on .d{border-color:var(--primary);background:var(--primary);color:#fff}
+.ws.done .d{border-color:var(--ok);background:var(--ok);color:#fff}
+.ws-line{width:70px;height:1.5px;background:#d8dfe9;margin:0 12px}
+.gen{background:#f7f9fc;border:1px solid var(--border);border-radius:10px;padding:14px 14px 10px;margin-bottom:14px}
+.gen-row{display:flex;gap:10px;align-items:flex-end;flex-wrap:wrap}
+.gen-row .field{margin:0}
+.done-hero{text-align:center;padding:16px 10px}
+.done-hero .ico{width:56px;height:56px;border-radius:50%;background:#e5f5ec;color:var(--ok);font-size:26px;display:flex;align-items:center;justify-content:center;margin:0 auto 14px}
+.done-hero b{font-size:16px;display:block;margin-bottom:8px}
 </style>
 </head>
-<body class="flex h-screen overflow-hidden text-slate-800 font-sans">
-
+<body class="flex h-screen overflow-hidden text-slate-800 font-sans" style="font-family:'PingFang SC','Microsoft YaHei',sans-serif">
 <aside class="w-64 bg-white border-r border-slate-200 flex flex-col flex-shrink-0 z-20">
     <div class="h-16 flex items-center px-6 border-b border-slate-100">
         <div class="w-8 h-8 bg-gradient-to-br from-brand-600 to-indigo-600 rounded-lg flex items-center justify-center text-white font-bold text-lg mr-3 shadow-sm">A</div>
         <span class="font-bold text-lg text-slate-800 tracking-tight">AISE Admin</span>
     </div>
-    <nav class="flex-1 overflow-y-auto py-4 space-y-1 custom-scroll">
-        <a href="03_测评活动列表.html" class="nav-item flex items-center gap-3 px-6 py-3 text-slate-500 hover:bg-slate-50 hover:text-brand-600 transition relative"><i class="fa-solid fa-graduation-cap w-5 text-center"></i><span class="font-medium text-sm">考试管理</span></a>
-        <a href="32_活动管理.html" class="nav-item active flex items-center gap-3 px-6 py-3 text-brand-600 bg-brand-50 transition relative"><i class="fa-solid fa-calendar-days w-5 text-center"></i><span class="font-medium text-sm">活动管理</span></a>
-        <a href="13_标签配置.html" class="nav-item flex items-center gap-3 px-6 py-3 text-slate-500 hover:bg-slate-50 hover:text-brand-600 transition relative"><i class="fa-solid fa-tags w-5 text-center"></i><span class="font-medium text-sm">标签配置</span></a>
-        <a href="06_测评组管理.html" class="nav-item flex items-center gap-3 px-6 py-3 text-slate-500 hover:bg-slate-50 hover:text-brand-600 transition relative"><i class="fa-solid fa-boxes-stacked w-5 text-center"></i><span class="font-medium text-sm">测评组管理</span></a>
+    <nav class="flex-1 overflow-y-auto py-4 space-y-1">
+        <a href="#" class="nav-item flex items-center gap-3 px-6 py-3 text-slate-500 hover:bg-slate-50 hover:text-brand-600 transition"><i class="fa-solid fa-graduation-cap w-5 text-center"></i><span class="font-medium text-sm">考试管理</span></a>
+        <a href="32_活动管理.html" class="nav-item active flex items-center gap-3 px-6 py-3 text-brand-600 bg-brand-50 transition"><i class="fa-solid fa-calendar-days w-5 text-center"></i><span class="font-medium text-sm">活动管理</span></a>
+        <a href="#" class="nav-item flex items-center gap-3 px-6 py-3 text-slate-500 hover:bg-slate-50 hover:text-brand-600 transition"><i class="fa-solid fa-tags w-5 text-center"></i><span class="font-medium text-sm">标签配置</span></a>
         <div class="px-6 py-2 mt-4 text-xs font-bold text-slate-400 uppercase tracking-wider">运营中心</div>
-        <a href="02_渠道管理.html" class="nav-item flex items-center gap-3 px-6 py-3 text-slate-500 hover:bg-slate-50 hover:text-brand-600 transition relative"><i class="fa-solid fa-handshake w-5 text-center"></i><span class="font-medium text-sm">渠道管理</span></a>
+        <a href="#" class="nav-item flex items-center gap-3 px-6 py-3 text-slate-500 hover:bg-slate-50 hover:text-brand-600 transition"><i class="fa-solid fa-handshake w-5 text-center"></i><span class="font-medium text-sm">渠道管理</span></a>
+        <a href="#" class="nav-item flex items-center gap-3 px-6 py-3 text-slate-500 hover:bg-slate-50 hover:text-brand-600 transition"><i class="fa-solid fa-clipboard-check w-5 text-center"></i><span class="font-medium text-sm">报名管理</span></a>
         <div class="px-6 py-2 mt-4 text-xs font-bold text-slate-400 uppercase tracking-wider">考务与用户</div>
-        <a href="12_考生管理.html" class="nav-item flex items-center gap-3 px-6 py-3 text-slate-500 hover:bg-slate-50 hover:text-brand-600 transition relative"><i class="fa-solid fa-users w-5 text-center"></i><span class="font-medium text-sm">考生管理</span></a>
-        <a href="19_消息中心.html" class="nav-item flex items-center gap-3 px-6 py-3 text-slate-500 hover:bg-slate-50 hover:text-brand-600 transition relative"><i class="fa-solid fa-bell w-5 text-center"></i><span class="font-medium text-sm">消息中心</span></a>
+        <a href="#" class="nav-item flex items-center gap-3 px-6 py-3 text-slate-500 hover:bg-slate-50 hover:text-brand-600 transition"><i class="fa-solid fa-users w-5 text-center"></i><span class="font-medium text-sm">考生管理</span></a>
+        <a href="#" class="nav-item flex items-center gap-3 px-6 py-3 text-slate-500 hover:bg-slate-50 hover:text-brand-600 transition"><i class="fa-solid fa-bell w-5 text-center"></i><span class="font-medium text-sm">消息中心</span></a>
     </nav>
 </aside>
+<main class="flex-1 flex flex-col min-w-0 bg-slate-50 relative">
 
-<main class="flex-1 flex flex-col min-w-0 bg-slate-50/50 relative overflow-hidden">
-    <header class="h-16 bg-white border-b border-slate-200 flex items-center justify-between px-8 flex-shrink-0 z-10">
-        <div class="flex items-center gap-3">
-            <h1 class="text-xl font-bold text-slate-800">活动管理</h1>
-            <span class="text-xs text-slate-400 bg-slate-100 px-2 py-0.5 rounded">活动 = 一个时间段内的一组考试</span>
-        </div>
-        <div class="flex items-center gap-3">
-            <button onclick="resetDemo()" title="重置演示数据" class="bg-white border border-slate-200 hover:bg-slate-50 text-slate-400 text-sm px-3 py-1.5 rounded-lg transition"><i class="fa-solid fa-rotate-left"></i></button>
-            <button onclick="openNewAct()" class="bg-brand-600 hover:bg-brand-700 text-white text-sm font-medium px-4 py-1.5 rounded-lg transition flex items-center gap-2"><i class="fa-solid fa-plus"></i> 新建活动</button>
-        </div>
-    </header>
-
-    <div class="flex-1 flex flex-col overflow-hidden">
-        <div class="px-8 pt-6 flex-shrink-0"><div class="grid grid-cols-5 gap-4" id="statCards"></div></div>
-        <div class="px-8 py-4 flex-shrink-0">
-            <div class="bg-white rounded-xl shadow-card border border-slate-100 p-4 flex flex-wrap gap-3 items-center">
-                <div class="relative w-64">
-                    <i class="fa-solid fa-magnifying-glass absolute left-3 top-1/2 transform -translate-y-1/2 text-slate-400 text-sm"></i>
-                    <input id="fKw" oninput="renderTable()" type="text" placeholder="活动名称 / 活动ID" class="w-full pl-9 pr-4 py-2 rounded-lg border border-slate-200 text-sm focus:border-brand-500 outline-none transition">
-                </div>
-                <select id="fPhase" onchange="renderTable()" class="px-3 py-2 rounded-lg border border-slate-200 text-sm text-slate-600 bg-white focus:border-brand-500 outline-none">
-                    <option value="">活动状态：全部</option><option value="notstart">未开始</option><option value="ongoing">进行中</option><option value="ended">已结束</option>
-                </select>
-                <span class="text-xs text-slate-400">考试与渠道配置在活动详情内管理（含批量创建考试、批量修改）</span>
-            </div>
-        </div>
-        <div class="px-8 pb-6 flex-1 flex flex-col overflow-hidden min-h-0">
-            <div class="bg-white rounded-xl shadow-card border border-slate-100 flex-1 flex flex-col overflow-hidden">
-                <div class="flex-1 overflow-auto custom-scroll">
-                    <table class="w-full text-sm">
-                        <thead class="bg-slate-50/80 sticky top-0 z-10 text-xs text-slate-500">
-                            <tr class="border-b border-slate-200">
-                                <th class="py-3 px-4 text-left font-semibold">活动</th>
-                                <th class="py-3 px-3 text-left font-semibold">活动时间段</th>
-                                <th class="py-3 px-3 text-left font-semibold sortable" onclick="sortBy('exams')">考试场数 <i class="fa-solid fa-sort text-slate-300"></i></th>
-                                <th class="py-3 px-3 text-left font-semibold sortable" onclick="sortBy('chs')">参与渠道数 <i class="fa-solid fa-sort text-slate-300"></i></th>
-                                <th class="py-3 px-3 text-left font-semibold sortable" onclick="sortBy('enrolled')">报名量 <i class="fa-solid fa-sort text-slate-300"></i></th>
-                                <th class="py-3 px-3 text-left font-semibold">活动状态</th>
-                                <th class="py-3 px-3 text-left font-semibold">考试状态概览</th>
-                                <th class="py-3 px-3 text-left font-semibold">操作</th>
-                            </tr>
-                        </thead>
-                        <tbody id="tbody"></tbody>
-                    </table>
-                </div>
-                <div class="px-4 py-2 border-t border-slate-100 text-xs text-slate-400 flex-shrink-0" id="footInfo"></div>
-            </div>
-        </div>
+<header class="h-16 bg-white border-b border-slate-200 flex items-center justify-between px-8 flex-shrink-0 z-10">
+    <div class="flex items-center gap-3">
+        <a onclick="showList()" id="backLink" class="text-slate-400 hover:text-brand-600 cursor-pointer hidden"><i class="fa-solid fa-arrow-left"></i></a>
+        <h1 class="text-xl font-bold text-slate-800" id="pageTitle">活动管理</h1>
+        <span class="text-xs text-slate-400 bg-slate-100 px-2 py-0.5 rounded" id="pageSub">活动 = 一个时间段内的一组考试</span>
     </div>
-</main>
-<div id="toastBox"></div>
-<div id="modalRoot"></div>
-<script src="exam_board_data.js"></script>
+    <div class="flex items-center gap-3">
+        <button onclick="openBulkEditExam()" id="headBulkBtn" class="bg-white border border-slate-200 hover:bg-slate-50 text-slate-600 text-sm px-4 py-2 rounded-lg hidden">✎ 批量修改</button>
+        <button onclick="gotoMatrix()" id="headMatrixBtn" class="bg-white border border-slate-200 hover:bg-slate-50 text-slate-600 text-sm px-4 py-2 rounded-lg hidden">渠道关联</button>
+        <button onclick="openCreateActivity()" id="headCreateBtn" class="bg-brand-600 hover:bg-brand-700 text-white text-sm font-medium px-5 py-2.5 rounded-lg shadow-sm transition flex items-center gap-2"><i class="fa-solid fa-plus"></i> 新建活动</button>
+    </div>
+</header>
+
+<div class="flex-1 overflow-y-auto px-8 py-6">
+
+
+<!-- ========== 活动列表 ========== -->
+<div id="viewList">
+  <div class="card" style="padding:6px 18px">
+    <table id="actTable">
+      <thead><tr><th>活动名称</th><th>起止日期</th><th>分组</th><th>考试</th><th>渠道</th><th>状态</th><th style="width:90px">操作</th></tr></thead>
+      <tbody></tbody>
+    </table>
+  </div>
+</div>
+
+<!-- ========== 活动详情 ========== -->
+<div id="viewDetail" style="display:none">
+  <div class="crumb"><a onclick="showList()">活动管理</a> / <span id="crumbName"></span></div>
+
+  <div class="card">
+    <div class="act-head">
+      <h2 id="dName"></h2>
+      <span class="muted" id="dDates"></span>
+      <span class="state-pill amber" id="dState"></span>
+      <div class="spacer"></div>
+    </div>
+  </div>
+
+  <div class="card">
+    <div class="toolbar">
+      <input type="text" class="search" id="fKw" placeholder="搜索考试名称" oninput="renderTree()">
+      <button class="btn small" id="btnExpand" onclick="toggleExpandAll()">收起全部</button>
+      <div class="spacer"></div>
+      <button class="btn" onclick="newZoneInline()">＋ 新建分组</button>
+      <button class="btn primary" onclick="openWizard(null)">＋ 创建考试</button>
+    </div>
+    <table class="tree">
+      <thead><tr><th style="width:34px"><input type="checkbox" id="ckAll" onclick="ckAllToggle(this)"></th><th style="padding-left:10px">考试名称</th><th style="width:180px">试卷</th><th style="width:190px">考试时间</th><th style="width:110px">模拟考</th><th style="width:80px">渠道</th><th style="width:60px"></th></tr></thead>
+      <tbody id="treeBody"></tbody>
+    </table>
+  </div>
+</div>
+
+<!-- ========== 新建活动 ========== -->
+<div class="overlay" id="ovActivity">
+  <div class="modal" style="width:480px">
+    <div class="modal-head"><b>新建活动</b></div>
+    <div class="modal-body">
+      <div class="field"><label class="req">活动名称</label><input type="text" id="actName" style="width:100%" placeholder="如：2026年12月冲刺班"></div>
+      <div class="grid2">
+        <div class="field"><label class="req">开始日期</label><input type="date" id="actStart" style="width:100%"></div>
+        <div class="field"><label class="req">结束日期</label><input type="date" id="actEnd" style="width:100%"></div>
+      </div>
+    </div>
+    <div class="modal-foot">
+      <button class="btn" onclick="hide('ovActivity')">取消</button>
+      <button class="btn primary" onclick="createActivity()">创建</button>
+    </div>
+  </div>
+</div>
+
+<!-- ========== 创建考试向导 ========== -->
+<div class="overlay" id="ovWizard">
+  <div class="modal" style="width:860px">
+    <div class="modal-head"><b>创建考试</b><div class="spacer" style="flex:1"></div>
+      <button class="btn small" onclick="hide('ovWizard')">✕</button></div>
+    <div class="modal-body">
+      <div class="wiz-steps">
+        <div class="ws on" id="ws1"><span class="d">1</span>填写考试</div><div class="ws-line"></div>
+        <div class="ws" id="ws2"><span class="d">2</span>考试配置</div>
+      </div>
+
+      <!-- 第 1 步 -->
+      <div id="stepA">
+        <div class="field"><label class="req">添加到分组（可多选，每组各创建一套）</label>
+          <div class="msel" id="wizGroupSel"></div>
+        </div>
+        <div class="gen">
+          <div class="gen-row">
+            <div class="field"><label>考试名称</label><input type="text" id="genName" placeholder="如：Python一级" style="width:160px"></div>
+            <div class="field"><label>场数</label><input type="number" id="genCount" value="2" min="1" max="10" style="width:64px"></div>
+            <div class="field"><label>首场开始</label><input type="datetime-local" id="genStart" style="min-width:210px"></div>
+            <div class="field"><label>首场结束</label><input type="datetime-local" id="genEnd" style="min-width:210px"></div>
+            <div class="field" style="padding-top:18px"><button class="btn primary" onclick="genRows()">生成</button></div>
+          </div>
+          <div class="hint" style="margin-top:8px">多场同名考试自动加「-第N场」，后续场次开始时间顺延 30 分钟；生成后可逐行修改。</div>
+        </div>
+        <table id="rowTable">
+          <thead><tr><th style="width:36%">考试名称</th><th>开始时间</th><th>结束时间</th><th style="width:56px"></th></tr></thead>
+          <tbody></tbody>
+        </table>
+        <div style="margin-top:10px"><button class="btn small" onclick="addRow()">＋ 添加一行</button></div>
+        <div class="warnbox" style="margin-top:14px">试卷可稍后关联：先创建考试占位，确定后在考试行「…」菜单中补关联；未关联试卷的考试同样可关联渠道并接受报名。</div>
+      </div>
+
+      <!-- 第 2 步 -->
+      <div id="stepB" style="display:none">
+        <div class="sec-title">正式考 <span class="sub">本批考试共用，个别考试可创建后再单独调整</span></div>
+        <div class="card" style="margin-bottom:14px;padding:16px;border-radius:8px">
+          <div class="fline">
+            <div class="field w2"><label>关联试卷（可空，支持搜索）</label><div class="msel" id="paperSel"></div></div>
+            <div class="field"><label class="req">考试时长（分钟）</label><input type="number" id="cfgDur" value="120" style="width:100%"></div>
+            <div class="field"><label class="req">交卷限制</label><select id="cfgSubmit" style="width:100%"><option>到时自动交卷</option><option>允许提前 15 分钟交卷</option><option>不限</option></select></div>
+          </div>
+          <div class="field"><label>标签</label><div class="msel" id="tagSel"></div></div>
+          <div class="sec-title" style="font-size:13px;margin-top:8px">监考配置</div>
+          <div class="grid3">
+            <div class="field"><label>摄像头</label><select style="width:100%"><option>强制开启</option><option>考生自选</option><option>关闭</option></select></div>
+            <div class="field"><label>录屏</label><select style="width:100%"><option>强制开启</option><option>考生自选</option><option>关闭</option></select></div>
+            <div class="field"><label>检录照片</label><select style="width:100%"><option>强制开启</option><option>考生自选</option><option>关闭</option></select></div>
+            <div class="field"><label>候考时长（分钟）</label><input type="number" value="10" style="width:100%"></div>
+            <div class="field"><label>手机监考</label><div style="display:flex;align-items:center;gap:8px;padding-top:6px"><div class="switch" onclick="this.classList.toggle('on')"></div><span class="hint">要求第二设备</span></div></div>
+            <div class="field"><label>成绩 / 分数 / 读题</label><div style="display:flex;gap:12px;padding-top:8px" class="hint"><label><input type="checkbox" checked> 成绩</label><label><input type="checkbox" checked> 分数</label><label><input type="checkbox"> 读题</label></div></div>
+          </div>
+          <details class="more"><summary>更多设置</summary>
+            <div class="grid2" style="margin-top:10px;align-items:start">
+              <div class="field"><label>检录视频引导文案</label><input type="text" placeholder="默认文案" style="width:100%"></div>
+              <div class="field"><label>证书落款时间</label><input type="date" style="width:100%"></div>
+              <div class="field"><label>检录视频示意图</label>
+                <div class="upload" onclick="toast('演示：选择图片文件上传')">
+                  <span class="up-ico">🖼</span><span class="up-txt">点击上传图片（jpg / png，建议 16:9）</span>
+                </div>
+              </div>
+              <div class="field"><label>测评描述（展示在学员端报名页）</label><textarea rows="3" placeholder="可写考试介绍、注意事项等" style="width:100%;resize:vertical"></textarea></div>
+            </div>
+          </details>
+        </div>
+
+        <div class="sec-title">模拟考 <span class="sub">试卷、时间、监考均可与正式考不同</span></div>
+        <div class="card" style="padding:16px;border-radius:8px">
+          <div style="display:flex;align-items:center;gap:10px">
+            <div class="switch on" id="mockSw" onclick="toggleMock()"></div><b style="font-size:13px">开启模拟考</b>
+            <span class="hint">关闭则本批考试不带模拟考</span>
+          </div>
+          <div id="mockBody">
+            <div class="grid3" style="margin-top:12px">
+              <div class="field"><label class="req">模拟卷</label><select style="width:100%"><option>Python一级 模拟卷（通用）</option><option>图形化一级 模拟卷（通用）</option><option>— 与正式卷相同 —</option></select></div>
+              <div class="field"><label class="req">模拟考开始</label><input type="datetime-local" style="width:100%"></div>
+              <div class="field"><label class="req">模拟考结束</label><input type="datetime-local" style="width:100%"></div>
+              <div class="field"><label class="req">次数限制</label><div style="display:flex;gap:14px;align-items:center"><label class="radio-line"><input type="radio" name="mc" checked> 限 <input type="number" value="2" style="width:48px"> 次</label><label class="radio-line"><input type="radio" name="mc"> 无限次</label></div></div>
+              <div class="field"><label>交卷时限（分钟，空 = 不限）</label><input type="number" placeholder="不限" style="width:100%"></div>
+            </div>
+            <div class="sec-title" style="font-size:13px;margin-top:12px">模拟考监考 <span class="sub">已按正式考配置带入，可直接修改</span></div>
+            <div class="grid3">
+              <div class="field"><label>摄像头</label><select style="width:100%"><option>强制开启</option><option>考生自选</option><option>关闭</option></select></div>
+              <div class="field"><label>录屏</label><select style="width:100%"><option>强制开启</option><option>考生自选</option><option>关闭</option></select></div>
+              <div class="field"><label>检录照片</label><select style="width:100%"><option>强制开启</option><option>考生自选</option><option>关闭</option></select></div>
+              <div class="field"><label>候考时长（分钟）</label><input type="number" value="10" style="width:100%"></div>
+              <div class="field"><label>手机监考</label><div style="display:flex;align-items:center;gap:8px;padding-top:6px"><div class="switch" onclick="this.classList.toggle('on')"></div><span class="hint">要求第二设备</span></div></div>
+              <div class="field"><label>成绩 / 分数 / 读题</label><div style="display:flex;gap:12px;padding-top:8px" class="hint"><label><input type="checkbox" checked> 成绩</label><label><input type="checkbox" checked> 分数</label><label><input type="checkbox"> 读题</label></div></div>
+            </div>
+            <div class="hint" style="margin-top:4px">与正式考不同时可自由修改；如需恢复与正式考一致，点 <a style="color:var(--primary);cursor:pointer" onclick="toast('演示：已重置为与正式考一致')">重置为正式考配置</a>。</div>
+          
+          </div>
+        </div>
+      </div>
+    </div>
+    <div class="modal-foot">
+      <span class="hint" style="margin-right:auto" id="wizSummary"></span>
+      <button class="btn" id="wizPrev" onclick="wizPrev()" style="display:none">上一步</button>
+      <button class="btn primary" id="wizNext" onclick="wizNext()">下一步：考试配置</button>
+    </div>
+  </div>
+</div>
+
+
+<!-- ========== 批量修改考试 ========== -->
+<div class="overlay" id="ovBulkEdit">
+  <div class="modal" style="width:860px">
+    <div class="modal-head"><b>批量修改考试</b><div class="spacer" style="flex:1"></div>
+      <button class="btn small" onclick="hide('ovBulkEdit')">✕</button></div>
+    <div class="modal-body">
+      <div class="summary-bar" id="bulkEditSummary"></div>
+      <div class="hint" style="margin-bottom:14px;padding:8px 12px;background:#f6f8fb;border-radius:8px">
+        只改你要改的项：<b>未修改 / 留空的项自动保持各考试原值</b>，无需勾选。改完点「应用修改」即生效。
+      </div>
+
+<div class="sec-title">试卷与标签 <span class="sub">正式考</span></div>
+      <div class="fline">
+        <div class="field w2"><label>关联试卷 <span class="sub">选中即替换，不选不变</span></label><div class="msel" id="bePaperSel"></div></div>
+        <div class="field"><label>标签 <span class="sub">选择后替换，不选不变</span></label><div class="msel" id="beTagSel"></div></div>
+      </div>
+
+      <div class="sec-title">考试时间与要素 <span class="sub">正式考</span></div>
+      <div class="fline">
+        <div class="field"><label>考试时间 <span class="sub">整体平移，间隔不变</span></label><input type="datetime-local" id="beTime" style="width:100%"></div>
+        <div class="field"><label>考试时长（分钟）</label><input type="number" id="beDur" placeholder="不变" style="width:100%"></div>
+        <div class="field"><label>交卷限制</label>
+          <select id="beSubmit" style="width:100%">
+            <option value="">不变</option>
+            <option>到时自动交卷</option><option>允许提前 15 分钟交卷</option><option>不限</option>
+          </select>
+        </div>
+      </div>
+
+      <div class="sec-title">正式考监考 <span class="sub">留空保持原值</span></div>
+      <div class="fline">
+        <div class="field"><label>摄像头</label><select id="beCam" style="width:100%"><option value="">不变</option><option>强制开启</option><option>考生自选</option><option>关闭</option></select></div>
+        <div class="field"><label>录屏</label><select id="beRec" style="width:100%"><option value="">不变</option><option>强制开启</option><option>考生自选</option><option>关闭</option></select></div>
+        <div class="field"><label>检录照片</label><select id="bePho" style="width:100%"><option value="">不变</option><option>强制开启</option><option>考生自选</option><option>关闭</option></select></div>
+      </div>
+      <div class="fline">
+        <div class="field"><label>候考时长（分钟）</label><input type="number" id="beWait" placeholder="不变" style="width:100%"></div>
+        <div class="field"><label>手机监考</label><select id="bePhone" style="width:100%"><option value="">不变</option><option>开启</option><option>关闭</option></select></div>
+        <div class="field"><label class="muted" style="font-size:12px"></label><div class="hint" style="padding-top:9px">考试开始后要素线上自动锁定，不受此处修改影响</div></div>
+      </div>
+
+      <div class="sec-title">模拟考 <span class="sub">与正式考相互独立，留空保持原值</span></div>
+      <div class="fline">
+        <div class="field"><label>模拟考开关</label>
+          <select id="beMockSel" style="width:100%">
+            <option value="">保持原值</option>
+            <option value="on">统一开启</option>
+            <option value="off">统一关闭</option>
+          </select>
+        </div>
+        <div class="field w2"><label>模拟卷（选中即替换；不选 = 不变）</label><div class="msel" id="beMockPaperSel"></div></div>
+      </div>
+      <div class="fline">
+        <div class="field"><label>模拟考开始</label><input type="datetime-local" id="beMockStart" style="width:100%"></div>
+        <div class="field"><label>模拟考结束</label><input type="datetime-local" id="beMockEnd" style="width:100%"></div>
+        <div class="field"><label>次数限制</label><select id="beMockTimes" style="width:100%"><option value="">不变</option><option>1 次</option><option>2 次</option><option>3 次</option><option>无限次</option></select></div>
+      </div>
+      <div class="subblock">
+        <div class="subblock-title">模拟考监考</div>
+        <div class="fline">
+          <div class="field"><label>摄像头</label><select id="beMCam" style="width:100%"><option value="">不变</option><option>强制开启</option><option>考生自选</option><option>关闭</option></select></div>
+          <div class="field"><label>录屏</label><select id="beMRec" style="width:100%"><option value="">不变</option><option>强制开启</option><option>考生自选</option><option>关闭</option></select></div>
+          <div class="field"><label>检录照片</label><select id="beMPho" style="width:100%"><option value="">不变</option><option>强制开启</option><option>考生自选</option><option>关闭</option></select></div>
+        </div>
+        <div class="fline">
+          <div class="field"><label>候考时长（分钟）</label><input type="number" id="beMWait" placeholder="不变" style="width:100%"></div>
+          <div class="field"><label>手机监考</label><select id="beMPhone" style="width:100%"><option value="">不变</option><option>开启</option><option>关闭</option></select></div>
+          <div class="field"><label class="muted" style="font-size:12px"></label><div class="hint" style="padding-top:9px">留空全部保持原值</div></div>
+        </div>
+      </div>
+
+            <div class="warnbox" style="margin-top:6px">报名费、前端展示时间、隐藏报名链接属于<b>渠道关联配置</b>，不在此处——请到「渠道关联」页的矩阵单元格里修改（不同渠道可配不同展示时间与费用）。</div>
+    </div>
+    <div class="modal-foot">
+      <span class="hint" style="margin-right:auto" id="beChanges"></span>
+      <button class="btn" onclick="hide('ovBulkEdit')">取消</button>
+      <button class="btn primary" onclick="doBulkEdit()">应用修改</button>
+    </div>
+  </div>
+</div>
+
+<!-- ========== 创建完成 ========== -->
+<div class="overlay" id="ovDone">
+  <div class="modal" style="width:460px">
+    <div class="modal-body done-hero">
+      <div class="ico">✓</div>
+      <b>已创建 <span id="doneCount">N</span> 场考试</b>
+      <span class="hint">尚未关联渠道，学员端暂不可见。<br>关联渠道后即可开放报名。</span>
+    </div>
+    <div class="modal-foot" style="justify-content:center">
+      <button class="btn" onclick="hide('ovDone')">留在本页</button>
+      <button class="btn primary" onclick="gotoMatrix()">去关联渠道 →</button>
+    </div>
+  </div>
+</div>
+
+<div id="toast"></div>
+
 <script>
-function actStats(a){
-  const rs = rows.filter(r => r.actId === a.id);
-  return { exams: rs.length, chs: new Set(rs.map(r=>r.cid)).size, enrolled: rs.reduce((s,r)=>s+(+r.enrolled||0),0),
-    created: rs.filter(r=>r.status==='已创建').length, creating: rs.filter(r=>r.status==='创建中').length,
-    unlinked: rs.filter(r=>r.status==='未关联').length, failed: rs.filter(r=>r.status==='创建失败').length };
-}
-function renderStats(){
-  const exams = rows.length, chs = new Set(rows.map(r=>r.cid)).size, enrolled = rows.reduce((s,r)=>s+(+r.enrolled||0),0);
-  const ongoing = acts.filter(a=>actPhase(a)==='ongoing').length;
-  const cards = [
-    {label:'活动总数', v:acts.length, sub:'含筹备中', c:'text-slate-800'},
-    {label:'进行中活动', v:ongoing, sub:'当前时间段内', c:'text-blue-600'},
-    {label:'考试总场次', v:exams, sub:'全平台累计', c:'text-brand-600'},
-    {label:'参与渠道数', v:chs, sub:'有考试关联的渠道', c:'text-slate-800'},
-    {label:'总报名量', v:enrolled, sub:'全活动累计', c:'text-emerald-600'},
-  ];
-  $('statCards').innerHTML = cards.map(c=>`<div class="bg-white rounded-xl shadow-card border border-slate-100 p-4">
-    <div class="text-xs text-slate-400 mb-1">${c.label}</div><div class="text-2xl font-bold ${c.c}">${c.v}</div><div class="text-xs text-slate-400 mt-1">${c.sub}</div></div>`).join('');
-}
-let sortKey=null, sortDir=1;
-function sortBy(k){ if(sortKey===k){ sortDir*=-1; } else { sortKey=k; sortDir=1; } renderTable(); }
-function filteredActs(){
-  const kw = $('fKw').value.trim(), fp = $('fPhase').value;
-  return acts.filter(a=>{
-    if(fp && actPhase(a)!==fp) return false;
-    if(kw && !(a.name.includes(kw)||a.id.includes(kw))) return false;
-    return true;
-  }).map(a=>({a, s:actStats(a)}));
-}
-function renderTable(){
-  let list = filteredActs();
-  if(sortKey) list = [...list].sort((x,y)=>{
-    const va = sortKey==='exams'?x.s.exams:sortKey==='chs'?x.s.chs:x.s.enrolled;
-    const vb = sortKey==='exams'?y.s.exams:sortKey==='chs'?y.s.chs:y.s.enrolled;
-    return sortDir*(va-vb);
+/* ================= 数据 ================= */
+var acts=[
+ {id:1,name:'2026年9月常规考',start:'2026-09-01',end:'2026-09-30',groups:['3月批','6月批'],
+  exams:[
+   {g:'3月批',name:'Python一级-第1场',paper:'Python一级 正式卷A',paperOk:true,mock:true,time:'09-20 09:00 ~ 11:00',chs:2},
+   {g:'3月批',name:'图形化一级-第1场',paper:'',paperOk:false,mock:true,time:'09-21 09:00 ~ 11:00',chs:2},
+   {g:'6月批',name:'Python二级-第1场',paper:'Python二级 正式卷A',paperOk:true,mock:false,time:'09-27 09:00 ~ 11:30',chs:1}
+  ],links:7},
+ {id:2,name:'2026年12月冲刺班',start:'2026-12-01',end:'2026-12-31',groups:[],exams:[],links:0}
+];
+var TAGS=['图形化 1 级','图形化 2 级','图形化 3 级','Python 1 级','Python 2 级','Python 3 级','C++ 1 级','C++ 2 级','程序设置 1 级','程序设置 2 级','程序设置 3 级'];
+var PAPERS=['图形化一级 2026春 正式卷','图形化一级 2026春 备用卷','图形化二级 2026春 正式卷','图形化二级 2026春 备用卷','图形化三级 2026春 正式卷','Python一级 2026春 正式卷A','Python一级 2026春 正式卷B','Python二级 2026春 正式卷','Python三级 2026春 正式卷','C++一级 2026春 正式卷','C++二级 2026春 正式卷','程序设置1级 期末卷','程序设置2级 期末卷','程序设置3级 期末卷','回归测试专用考场卷','2026区赛选拔卷 A','2026区赛选拔卷 B','2026市赛模拟卷 一','2026市赛模拟卷 二','Scratch入门测评卷','EV3机器人测评卷','Arduino创意测评卷','无人机编程测评卷','信息学奥赛入门卷','信奥 CSP-J 模拟一','信奥 CSP-J 模拟二','信奥 CSP-S 模拟一','信奥 CSP-S 模拟二','等级考试样卷 2026','等级考试样卷 2025','等级考试样卷 2024'];
+var curAct=null, wizStep='A', createdCount=0, zoneOpen={}, allOpen=true, editingZone=null, newZoneMode=false;
+var wizZoneSel=[];
+
+/* ================= 通用 ================= */
+function $(id){return document.getElementById(id)}
+function show(id){$(id).classList.add('show')}
+function hide(id){$(id).classList.remove('show')}
+function toast(m){var t=$('toast');t.textContent=m;t.classList.add('show');setTimeout(function(){t.classList.remove('show')},2200)}
+function esc(s){return String(s).replace(/&/g,'&amp;').replace(/</g,'&lt;')}
+
+/* ================= 列表 ================= */
+function renderActs(){
+  var tb=$('actTable').querySelector('tbody');tb.innerHTML='';
+  acts.forEach(function(a){
+    var tr=document.createElement('tr');tr.className='rowclick';
+    tr.onclick=function(){enterDetail(a.id)};
+    var state=a.exams.length===0?'<span class="tag gray">未配置</span>':(a.links===0?'<span class="tag amber">未关联渠道</span>':'<span class="tag green">报名中</span>');
+    tr.innerHTML='<td><b>'+esc(a.name)+'</b></td><td>'+a.start+' ~ '+a.end+'</td><td>'+(a.groups.length||'<span class="muted">—</span>')+'</td><td>'+a.exams.length+'</td><td>'+(a.links?a.links+' 个':'—')+'</td><td>'+state+'</td>'+
+      '<td><button class="btn small" onclick="event.stopPropagation();enterDetail('+a.id+')">进入</button></td>';
+    tb.appendChild(tr);
   });
-  const phaseMap = {notstart:['未开始','bg-slate-100 text-slate-500'],ongoing:['进行中','bg-blue-50 text-blue-600'],ended:['已结束','bg-slate-100 text-slate-400']};
-  $('tbody').innerHTML = list.map(({a,s})=>{
-    const [pt,pc] = phaseMap[actPhase(a)];
-    const st = [];
-    if(s.created) st.push('<span class="pill bg-emerald-50 text-emerald-600">已创建 '+s.created+'</span>');
-    if(s.creating) st.push('<span class="pill bg-amber-50 text-amber-600">创建中 '+s.creating+'</span>');
-    if(s.unlinked) st.push('<span class="pill bg-slate-100 text-slate-500">未关联 '+s.unlinked+'</span>');
-    if(s.failed) st.push('<span class="pill bg-red-50 text-red-600">创建失败 '+s.failed+'</span>');
-    return '<tr class="border-b border-slate-100 hover-row">'
-      +'<td class="py-3 px-4"><div class="font-medium">'+esc(a.name)+'</div><div class="text-xs text-slate-400 font-mono">'+esc(a.id)+'</div></td>'
-      +'<td class="py-3 px-3 text-xs">'+esc(a.start)+' ~ '+esc(a.end)+'</td>'
-      +'<td class="py-3 px-3"><b>'+s.exams+'</b> 场</td>'
-      +'<td class="py-3 px-3"><b>'+s.chs+'</b> 个</td>'
-      +'<td class="py-3 px-3">'+(s.enrolled?'<b>'+s.enrolled+'</b>':'<span class="text-slate-300">0</span>')+'</td>'
-      +'<td class="py-3 px-3"><span class="pill '+pc+'">'+pt+'</span></td>'
-      +'<td class="py-3 px-3"><div class="flex flex-wrap gap-1 max-w-[220px]">'+(st.join('')||'<span class="text-xs text-slate-300">无考试</span>')+'</div></td>'
-      +'<td class="py-3 px-3 whitespace-nowrap"><a href="33_活动详情.html?act='+encodeURIComponent(a.id)+'" class="text-brand-600 hover:text-brand-700 text-xs font-medium"><i class="fa-solid fa-arrow-right-to-bracket"></i> 进入详情</a></td>'
-      +'</tr>';
-  }).join('') || '<tr><td colspan="8" class="text-center text-slate-400 py-12">当前筛选无匹配活动</td></tr>';
-  $('footInfo').textContent = '共 '+list.length+' 个活动';
 }
-function openNewAct(){
-  openModalHtml('<div class="max-w-md w-full bg-white rounded-xl shadow-popover modal-enter p-6">'
-    +'<div class="font-bold mb-4">新建活动</div>'
-    +'<div class="space-y-3">'
-    +'<div><div class="text-xs font-medium text-slate-500 mb-1">活动名称 *</div><input id="naName" class="w-full px-3 py-2 rounded-lg border border-slate-200 text-sm" placeholder="如：2027年3月考级"></div>'
-    +'<div class="grid grid-cols-2 gap-3">'
-    +'<div><div class="text-xs font-medium text-slate-500 mb-1">开始日期 *</div><input type="date" id="naStart" class="w-full px-3 py-2 rounded-lg border border-slate-200 text-sm"></div>'
-    +'<div><div class="text-xs font-medium text-slate-500 mb-1">结束日期 *</div><input type="date" id="naEnd" class="w-full px-3 py-2 rounded-lg border border-slate-200 text-sm"></div></div>'
-    +'<div class="text-xs text-slate-400">活动是组织主体：建成后进入活动详情批量创建考试、关联渠道。</div></div>'
-    +'<div class="flex justify-end gap-2 mt-5"><button onclick="closeModal()" class="px-4 py-2 text-sm rounded-lg border border-slate-200 hover:bg-slate-50">取消</button>'
-    +'<button onclick="doNewAct()" class="px-4 py-2 text-sm rounded-lg bg-brand-600 hover:bg-brand-700 text-white">创建</button></div></div>');
+function openCreateActivity(){show('ovActivity')}
+function createActivity(){
+  var n=$('actName').value.trim();
+  if(!n){toast('请填写活动名称');return}
+  var a={id:acts.length+1,name:n,start:$('actStart').value||'2026-12-01',end:$('actEnd').value||'2026-12-31',groups:[],exams:[],links:0};
+  acts.push(a);hide('ovActivity');toast('活动已创建');enterDetail(a.id);
 }
-function doNewAct(){
-  const name=$('naName').value.trim(), s=$('naStart').value, e=$('naEnd').value;
-  if(!name||!s||!e){ toast('请填写完整活动名称与起止日期','error'); return; }
-  if(e<s){ toast('结束日期不能早于开始日期','error'); return; }
-  const id = 'ACT' + String(Date.now()).slice(-6);
-  acts.push({id, name, start:s, end:e}); saveData(); closeModal(); renderAll();
-  toast('活动已创建：'+name+'，进入详情配置考试');
+
+/* ================= 详情 ================= */
+function enterDetail(id){
+  curAct=acts.filter(function(a){return a.id===id})[0];
+  $('viewList').style.display='none';$('viewDetail').style.display='block';
+  $('pageTitle').textContent=curAct.name;
+  $('pageSub').textContent=curAct.start+' ~ '+curAct.end;
+  $('backLink').classList.remove('hidden');
+  $('headCreateBtn').classList.add('hidden');
+  $('headMatrixBtn').classList.remove('hidden');
+  $('headBulkBtn').classList.remove('hidden');
+  $('crumbName').textContent=curAct.name;$('dName').textContent=curAct.name;
+  $('dDates').textContent=curAct.start+' ~ '+curAct.end;
+  renderTop();renderTree();
 }
-function openModalHtml(h){ $('modalRoot').innerHTML = '<div class="fixed inset-0 z-50 flex items-center justify-center"><div class="absolute inset-0 bg-slate-900/40" onclick="closeModal()"></div>'+h+'</div>'; }
-function closeModal(){ $('modalRoot').innerHTML=''; }
-const $ = id => document.getElementById(id);
-loadData(); renderAll();
-function renderAll(){ renderStats(); renderTable(); }
+function renderTop(){
+  var p=$('dState');
+  if(curAct.exams.length===0){p.className='state-pill gray';p.textContent='未配置'}
+  else if(curAct.links===0){p.className='state-pill amber';p.textContent='未关联渠道'}
+  else{p.className='state-pill green';p.textContent='报名中 · '+curAct.links+' 个渠道关联'}
+}
+function showList(){$('viewDetail').style.display='none';$('viewList').style.display='block';
+  $('pageTitle').textContent='活动管理';
+  $('pageSub').textContent='活动 = 一个时间段内的一组考试';
+  $('backLink').classList.add('hidden');
+  $('headCreateBtn').classList.remove('hidden');
+  $('headMatrixBtn').classList.add('hidden');
+  $('headBulkBtn').classList.add('hidden');
+  renderActs()}
+
+/* ================= 树状表格：分组 × 考试 ================= */
+function zones(){return curAct.groups.concat(['未分组'])}
+function renderTree(){
+  var tb=$('treeBody');tb.innerHTML='';
+  var kw=$('fKw').value.trim();
+  var empty=true;
+  zones().forEach(function(z,zi){
+    var isSys=z==='未分组';
+    var list=curAct.exams.filter(function(e,i){e._i=i;return e.g===z&&(!kw||e.name.indexOf(kw)>=0)});
+    var zoneTotal=curAct.exams.filter(function(e){return e.g===z}).length;
+    if(kw&&!list.length&&!(newZoneMode&&z==='_new'))return;
+    if(z==='_new')return;
+    empty=false;
+    var open=allOpen||!!kw;
+    /* 分组行 */
+    var tr=document.createElement('tr');tr.className='grp'+(zi===0?' first':'');
+    if(newZoneMode&&zi===curAct.groups.length&&isSys){ /* 新建分组行插在未分组前 */}
+    var gnameHtml;
+    if(editingZone===z){
+      gnameHtml='<input class="gname-input" id="gnameInput" value="'+esc(editingZone==='__new__'?'':z)+'" onkeydown="if(event.key===\'Enter\')saveGName(\''+z+'\');if(event.key===\'Escape\')cancelGName()" onblur="saveGName(\''+z+'\')" autofocus>';
+    }else if(editingZone==='__new__'&&zi===curAct.groups.length){
+      /* 新建行单独处理，见下 */
+    }
+    if(z==='__new__'){return}
+    gnameHtml=gnameHtml||('<span class="gname" onclick="startEditZone(\''+esc(z)+'\')">'+esc(z)+'</span>');
+    var act=isSys?'':
+      '<span class="gact">'+
+      '<button class="gbtn" title="上移" onclick="moveZone('+zi+',-1)">↑</button>'+
+      '<button class="gbtn" title="下移" onclick="moveZone('+zi+',1)">↓</button>'+
+      '<button class="gbtn add" onclick="openWizard(\''+esc(z)+'\')">＋ 添加考试</button>'+
+      '<button class="gbtn" title="删除分组" onclick="delZone(\''+esc(z)+'\')">🗑</button>'+
+      '</span>';
+    tr.innerHTML='<td colspan="7"><div class="grp-line">'+
+      '<span class="tw'+(open?'':' closed')+'" onclick="toggleZone(\''+esc(z)+'\')">▼</span>'+
+      gnameHtml+
+      '<span class="gcount">'+zoneTotal+' 场考试</span>'+
+      (isSys?'<span class="gsys">系统默认</span>':'')+
+      '<span style="flex:1"></span>'+act+'</div></td>';
+    tb.appendChild(tr);
+    /* 新建分组编辑行（插在未分组前） */
+    if(newZoneMode&&isSys){
+      var ntr=document.createElement('tr');ntr.className='grp';
+      ntr.innerHTML='<td colspan="7"><div class="grp-line"><span class="tw closed">▼</span>'+
+        '<input class="gname-input" id="newZoneInput" placeholder="输入分组名称" onkeydown="if(event.key===\'Enter\')saveNewZone();if(event.key===\'Escape\')cancelNewZone()" onblur="saveNewZone()">'+
+        '<span class="hint">回车保存 · Esc 取消</span></div></td>';
+      tb.appendChild(ntr);
+      setTimeout(function(){var el=$('newZoneInput');if(el)el.focus()},30);
+    }
+    /* 考试行 */
+    if(open){
+      list.forEach(function(e){
+        var etr=document.createElement('tr');etr.className='exam';
+        var paper=e.paperOk?'<span class="tag green">'+esc(e.paper)+'</span>':'<span class="tag amber">待关联试卷</span>';
+        var mock=e.mock?'<span class="tag blue">已开启</span>':'<span class="tag gray">未开启</span>';
+        etr.innerHTML='<td style="padding-left:12px"><input type="checkbox" class="examck" data-i="'+e._i+'" onclick="event.stopPropagation();ckSync()"></td><td><div class="exam-name">'+esc(e.name)+'</div><div class="exam-sub">#EXAM-'+(1000+e._i+1)+'</div></td>'+
+          '<td>'+paper+'</td><td>'+e.time+'</td><td>'+mock+'</td>'+
+          '<td>'+(e.chs?e.chs+' 个':'<span class="muted">—</span>')+'</td>'+
+          '<td><span class="menu-wrap"><button class="btn small" onclick="toggleMenu(event,this)">…</button><div class="menu">'+
+          '<div class="mi" onclick="toast(\'演示：编辑考试配置（正式考 / 模拟考）\')">编辑考试</div>'+
+          '<div class="mi" onclick="toast(\'演示：复制考试，名称与时间顺延\')">复制考试</div>'+
+          (e.paperOk?'':'<div class="mi" onclick="toast(\'演示：选择试卷后变为已关联\')">补关联试卷</div>')+
+          '<div class="mi red" onclick="delExam('+e._i+')">删除考试</div>'+
+          '</div></span></td>';
+        tb.appendChild(etr);
+      });
+      if(!list.length&&!kw){
+        var etr=document.createElement('tr');etr.className='exam';
+        etr.innerHTML='<td colspan="7" class="muted" style="font-size:12px">暂无考试，点击分组行「＋ 添加考试」</td>';
+        tb.appendChild(etr);
+      }
+    }
+  });
+  /* 完全空的活动 */
+  if(empty&&!curAct.groups.length&&!curAct.exams.length&&!newZoneMode){
+    var tr=document.createElement('tr');
+    tr.innerHTML='<td colspan="7"><div class="empty-tree"><div class="big">还没有分组和考试</div><div class="hint" style="margin-bottom:14px">先新建分组，或直接创建考试（将归入「未分组」）</div>'+
+      '<button class="btn" onclick="newZoneInline()">＋ 新建分组</button>&nbsp;&nbsp;<button class="btn primary" onclick="openWizard(null)">＋ 创建考试</button></div></td>';
+    tb.appendChild(tr);
+  }
+  renderTop();
+}
+function toggleZone(z){
+  if(allOpen){ /* 从全开切换为只关这个 */ }
+  if(zoneOpen[z]===undefined)zoneOpen[z]=false;else zoneOpen[z]=!zoneOpen[z];
+  /* 简化：非 allOpen 时记录；allOpen 时先整体收起再展开其它 */
+  if(allOpen){allOpen=false;zones().forEach(function(x){zoneOpen[x]=(x!==z)});}
+  else{zoneOpen[z]=!zoneOpen[z]}
+  syncExpandBtn();renderTree();
+}
+function toggleExpandAll(){
+  allOpen=!allOpen;zoneOpen={};syncExpandBtn();renderTree();
+}
+function syncExpandBtn(){$('btnExpand').textContent=allOpen?'收起全部':'展开全部'}
+function startEditZone(z){editingZone=z;renderTree();setTimeout(function(){var el=$('gnameInput');if(el){el.focus();el.select()}},30)}
+function saveGName(old){
+  var el=$('gnameInput');
+  if(!el){editingZone=null;return}
+  var v=el.value.trim();
+  editingZone=null;
+  if(!v||v===old){renderTree();return}
+  if(curAct.groups.indexOf(v)>=0){toast('分组名称已存在');renderTree();return}
+  curAct.groups[curAct.groups.indexOf(old)]=v;
+  curAct.exams.forEach(function(e){if(e.g===old)e.g=v});
+  toast('已重命名为「'+v+'」');renderTree();
+}
+function cancelGName(){editingZone=null;renderTree()}
+function moveZone(i,d){
+  var j=i+d;if(j<0||j>=curAct.groups.length)return;
+  var t=curAct.groups[i];curAct.groups[i]=curAct.groups[j];curAct.groups[j]=t;renderTree();
+}
+function delZone(z){
+  var n=curAct.exams.filter(function(e){return e.g===z}).length;
+  if(n>0){toast('该分组内有 '+n+' 场考试，请先移动或删除');return}
+  curAct.groups.splice(curAct.groups.indexOf(z),1);renderTree();toast('分组已删除');
+}
+function newZoneInline(){newZoneMode=true;renderTree()}
+function saveNewZone(){
+  var el=$('newZoneInput');
+  if(!el){newZoneMode=false;return}
+  var v=el.value.trim();newZoneMode=false;
+  if(!v){renderTree();return}
+  if(curAct.groups.indexOf(v)>=0){toast('分组名称已存在');renderTree();return}
+  curAct.groups.push(v);renderTree();toast('分组「'+v+'」已创建');
+}
+function cancelNewZone(){newZoneMode=false;renderTree()}
+function delExam(i){
+  if(!confirm('确认删除考试「'+curAct.exams[i].name+'」？已产生的报名不受影响。'))return;
+  curAct.exams.splice(i,1);renderTree();toast('考试已删除');
+}
+function toggleMenu(ev,btn){
+  ev.stopPropagation();
+  var m=btn.nextElementSibling;var open=m.classList.contains('show');
+  document.querySelectorAll('.menu').forEach(function(x){x.classList.remove('show');if(x.parentNode!==x._home&&x._home)x._home.appendChild(x)});
+  if(!open){
+    if(!m._home)m._home=m.parentNode;      /* 记住原位置，关菜单后归位 */
+    document.body.appendChild(m);          /* 提到 body：脱离表格一切层叠上下文 */
+    var r=btn.getBoundingClientRect();
+    m.classList.add('show');
+    var mw=m.offsetWidth,mh=m.offsetHeight;
+    var x=Math.min(r.right-mw+4,window.innerWidth-mw-8);
+    var y=r.bottom+6;
+    if(y+mh>window.innerHeight-8)y=r.top-mh-6;
+    if(y<8)y=Math.max(8,r.bottom+6);
+    m.style.left=Math.max(8,x)+'px';m.style.top=y+'px';
+  }
+}
+document.addEventListener('click',function(ev){
+  document.querySelectorAll('.menu').forEach(function(x){x.classList.remove('show')});
+  if(!ev.target.closest('.msel'))closeAllMsel();
+});
+
+/* ================= 下拉多选组件 ================= */
+function renderMsel(boxId,options,selected,dataName,refreshName){
+  var box=$(boxId);var html=
+    '<div class="msel-box" onclick="toggleMselMenu(\''+boxId+'\')">'+
+    (selected.length?selected.map(function(s){return '<span class="token">'+esc(s)+'<span class="tx" onclick="event.stopPropagation();mselToggle(\''+boxId+'\',\''+dataName+'\',\''+refreshName+'\',\''+esc(s)+'\')">✕</span></span>'}).join(''):'<span class="ph">请选择</span>')+
+    '</div><div class="msel-menu" id="'+boxId+'-menu">'+
+    options.map(function(o){
+      var dis=o.dis?' dis':'',on=selected.indexOf(o.name)>=0?' on':'';
+      return '<div class="mopt'+on+dis+'" '+(o.dis?'':'onclick="mselToggle(\''+boxId+'\',\''+dataName+'\',\''+refreshName+'\',\''+esc(o.name)+'\')"')+'><span class="ck"></span>'+esc(o.name)+(o.sub?'<span class="sub">'+o.sub+'</span>':'')+'</div>';
+    }).join('')+'</div>';
+  var wasOpen=$(boxId+'-menu')&&$(boxId+'-menu').classList.contains('show');
+  box.innerHTML=html;
+  if(wasOpen)$(boxId+'-menu').classList.add('show');
+}
+function toggleMselMenu(boxId){
+  var m=$(boxId+'-menu');var open=m.classList.contains('show');
+  closeAllMsel();
+  if(!open){m.classList.add('show');$(boxId).querySelector('.msel-box').classList.add('open');var si=m.querySelector('.msel-search');if(si)si.focus()}
+}
+function closeAllMsel(){document.querySelectorAll('.msel-menu').forEach(function(x){x.classList.remove('show')});document.querySelectorAll('.msel-box').forEach(function(x){x.classList.remove('open')})}
+function mselToggle(boxId,dataName,refreshName,v){
+  var arr=window[dataName];
+  var i=arr.indexOf(v);
+  if(i>=0)arr.splice(i,1);else arr.push(v);
+  window[refreshName]();
+  /* 多选：选项点击后菜单保持展开，仅重绘；焦点回搜索框 */
+  var m=$(boxId+'-menu');
+  if(m&&m.classList.contains('show')){
+    var si=m.querySelector('.msel-search');
+    if(si){si.focus()}else{m.scrollIntoViewIfNeeded&&m.scrollIntoViewIfNeeded()}
+  }
+}
+
+/* 可搜索下拉（单选） */
+var sselState={};
+function renderSsel(boxId,items,value,ph){
+  sselState[boxId]={items:items,q:''};
+  var box=$(boxId);
+  box.innerHTML=
+    '<div class="ssel-box'+(value?' has':'')+'" onclick="toggleSsel(\''+boxId+'\')">'+
+    (value?'<span class="ssel-val">'+esc(value)+'</span>':'<span class="ph">'+(ph||'搜索或选择')+'</span>')+
+    (value?'<span class="ssel-x" onclick="event.stopPropagation();sselClear(\''+boxId+'\')">✕</span>':'')+
+    '</div>'+
+    '<div class="msel-menu ssel-menu" id="'+boxId+'-menu">'+
+    '<div class="ssel-searchwrap" onclick="event.stopPropagation()"><input class="ssel-search" placeholder="输入关键字搜索…" oninput="sselFilter(\''+boxId+'\',this.value)"></div>'+
+    '<div class="ssel-list" id="'+boxId+'-list"></div></div>';
+  sselDraw(boxId);
+}
+function sselDraw(boxId){
+  var st=sselState[boxId];var list=$(boxId+'-list');
+  var q=st.q.trim().toLowerCase();
+  var hit=st.items.filter(function(x){return !q||x.toLowerCase().indexOf(q)>=0});
+  list.innerHTML=hit.length?hit.slice(0,30).map(function(x){
+    return '<div class="mopt" onclick="sselPick(\''+boxId+'\',\''+esc(x)+'\')">'+esc(x)+'</div>';
+  }).join(''):'<div class="hint" style="padding:14px;text-align:center">无匹配试卷</div>';
+}
+function toggleSsel(boxId){
+  var m=$(boxId+'-menu');var open=m.classList.contains('show');
+  closeAllMsel();
+  if(!open){m.classList.add('show');$(boxId).querySelector('.ssel-box').classList.add('open');
+    var si=m.querySelector('.ssel-search');si.value='';sselState[boxId].q='';sselDraw(boxId);si.focus()}
+}
+function sselFilter(boxId,q){sselState[boxId].q=q;sselDraw(boxId)}
+function sselPick(boxId,v){
+  sselState[boxId].value=v;
+  var box=$(boxId);
+  box.querySelector('.ssel-box').outerHTML='<div class="ssel-box has" onclick="toggleSsel(\''+boxId+'\')"><span class="ssel-val">'+esc(v)+'</span><span class="ssel-x" onclick="event.stopPropagation();sselClear(\''+boxId+'\')">✕</span></div>';
+  closeAllMsel();
+}
+function sselClear(boxId){
+  sselState[boxId].value='';
+  renderSsel(boxId,sselState[boxId].items,'');
+  toast('已清除试卷，本次创建的考试为「待关联试卷」');
+}
+
+/* ================= 向导 ================= */
+function refreshWizGroups(){
+  var opts=curAct.groups.map(function(g){return {name:g,sub:curAct.exams.filter(function(e){return e.g===g}).length+' 场'}});
+  opts.push({name:'未分组',sub:'系统默认'});
+  window.wizZoneSel=wizZoneSel;renderMsel('wizGroupSel',opts,wizZoneSel,'wizZoneSel','refreshWizGroups');
+}
+function refreshTags(){
+  window.wizTags=wizTags;renderMsel('tagSel',TAGS.map(function(t){return{name:t}}),wizTags,'wizTags','refreshTags');
+}
+var wizTags=[];
+function openWizard(zone){
+  wizStep='A';wizZoneSel=zone?[zone]:[];wizTags=[];
+  $('rowTable').querySelector('tbody').innerHTML='';
+  addRow();
+  refreshWizGroups();refreshTags();renderSsel('paperSel',PAPERS,'','搜索试卷名称，可留空后补');
+  wizShow('A');show('ovWizard');
+}
+function wizShow(s){
+  wizStep=s;
+  $('stepA').style.display=s==='A'?'block':'none';
+  $('stepB').style.display=s==='B'?'block':'none';
+  $('ws1').className='ws'+(s==='A'?' on':' done');
+  $('ws2').className='ws'+(s==='B'?' on':'');
+  $('ws1').querySelector('.d').textContent=s==='A'?'1':'✓';
+  $('wizPrev').style.display=s==='B'?'inline-block':'none';
+  $('wizNext').textContent=s==='A'?'下一步：考试配置':'提交创建';
+  $('wizSummary').textContent='';
+}
+function wizPrev(){wizShow('A')}
+function getWizRows(){return [].slice.call($('rowTable').querySelector('tbody').querySelectorAll('tr'))}
+function wizNext(){
+  if(wizStep==='A'){
+    var ok=getWizRows().filter(function(r){return r.querySelector('input').value.trim()});
+    if(!ok.length){toast('请至少填写一行考试名称');return}
+    var gs=wizZoneSel.length?wizZoneSel.length:1;
+    $('wizSummary').textContent='共 '+ok.length+' 场'+(wizZoneSel.length>1?' × '+wizZoneSel.length+' 个分组 = '+(ok.length*gs)+' 场':'');
+    wizShow('B');
+  }else{
+    createdCount=0;
+    var gs=wizZoneSel.length?wizZoneSel.slice():['未分组'];
+    getWizRows().forEach(function(r){
+      var name=r.querySelector('input').value.trim();if(!name)return;
+      gs.forEach(function(g){
+        curAct.exams.push({g:g,name:name,paper:(sselState['paperSel']&&sselState['paperSel'].value)||'',paperOk:!!(sselState['paperSel']&&sselState['paperSel'].value),mock:$('mockSw').classList.contains('on'),time:'待定',chs:0});
+        createdCount++;
+      });
+    });
+    hide('ovWizard');renderTree();
+    $('doneCount').textContent=createdCount;show('ovDone');
+  }
+}
+function genRows(){
+  var n=$('genName').value.trim();
+  if(!n){toast('请填写考试名称');return}
+  var c=parseInt($('genCount').value)||1;
+  var s=$('genStart').value,e=$('genEnd').value;
+  var tb=$('rowTable').querySelector('tbody');
+  for(var i=1;i<=c;i++){
+    var tr=document.createElement('tr');
+    var name=c>1?n+'-第'+i+'场':n;
+    tr.innerHTML='<td><input type="text" value="'+name+'" style="width:95%"></td><td><input type="datetime-local" value="'+addMin(s,(i-1)*30)+'" style="width:95%"></td><td><input type="datetime-local" value="'+addMin(e,(i-1)*30)+'" style="width:95%"></td><td><button class="btn small" onclick="this.closest(\'tr\').remove()">删</button></td>';
+    tb.appendChild(tr);
+  }
+  toast('已生成 '+c+' 行');
+}
+function addMin(dt,m){
+  if(!dt)return'';
+  var d=new Date(dt);d.setMinutes(d.getMinutes()+m);
+  var p=function(x){return (x<10?'0':'')+x};
+  return d.getFullYear()+'-'+p(d.getMonth()+1)+'-'+p(d.getDate())+'T'+p(d.getHours())+':'+p(d.getMinutes());
+}
+function addRow(){
+  var tb=$('rowTable').querySelector('tbody');
+  var tr=document.createElement('tr');
+  tr.innerHTML='<td><input type="text" placeholder="考试名称" style="width:95%"></td><td><input type="datetime-local" style="width:95%"></td><td><input type="datetime-local" style="width:95%"></td><td><button class="btn small" onclick="this.closest(\'tr\').remove()">删</button></td>';
+  tb.appendChild(tr);
+}
+function toggleMock(){
+  var s=$('mockSw');s.classList.toggle('on');
+  $('mockBody').style.display=s.classList.contains('on')?'block':'none';
+}
+
+
+
+/* ================= 批量修改考试 ================= */
+function ckAllToggle(cb){document.querySelectorAll('.examck').forEach(function(x){x.checked=cb.checked});ckSync()}
+function ckSync(){
+  var n=document.querySelectorAll('.examck:checked').length;
+  var b=$('headBulkBtn');
+  if(b){b.classList.toggle('hidden',n===0);b.textContent='✎ 批量修改 ('+n+')'}
+}
+function checkedExams(){return [].slice.call(document.querySelectorAll('.examck:checked')).map(function(x){return parseInt(x.dataset.i)})}
+function openBulkEditExam(){
+  var ids=checkedExams();
+  $('bulkEditSummary').textContent='将修改 '+ids.length+' 场考试：'+ids.slice(0,4).map(function(i){return curAct.exams[i].name}).join('、')+(ids.length>4?' 等':'');
+  window.beTagSel=[];
+  renderSsel('bePaperSel',PAPERS,'','搜索正式卷（不选 = 不变）');
+  renderSsel('beMockPaperSel',PAPERS,'','搜索模拟卷（不选 = 不变）');
+  renderMsel('beTagSel',TAGS.map(function(t){return{name:t}}),window.beTagSel,'beTagSel','refreshBeTags');
+  ['beMockSel','beMockStart','beMockEnd','beMockTimes','beMCam','beMRec','beMPho','beMWait','beMPhone','beTime','beDur','beSubmit','beCam','beRec','bePho','beWait','bePhone'].forEach(function(id){
+    var el=$(id);if(el)el.value='';
+  });
+  countChanges();bindChangeCount();
+  show('ovBulkEdit');
+}
+function refreshBeTags(){renderMsel('beTagSel',TAGS.map(function(t){return{name:t}}),window.beTagSel,'beTagSel','refreshBeTags');countChanges()}
+var _beBound=false;
+function bindChangeCount(){
+  if(_beBound)return;_beBound=true;
+  ['beMockSel','beMockStart','beMockEnd','beMockTimes','beMCam','beMRec','beMPho','beMWait','beMPhone','beTime','beDur','beSubmit','beCam','beRec','bePho','beWait','bePhone'].forEach(function(id){
+    var el=$(id);if(el)el.addEventListener('input',countChanges);if(el)el.addEventListener('change',countChanges);
+  });
+}
+function countChanges(){
+  var n=0;
+  if(sselState['bePaperSel']&&sselState['bePaperSel'].value)n++;
+  if(window.beTagSel&&window.beTagSel.length)n++;
+  if(sselState['beMockPaperSel']&&sselState['beMockPaperSel'].value)n++;
+  ['beMockSel','beMockStart','beMockEnd','beMockTimes','beMCam','beMRec','beMPho','beMWait','beMPhone'].forEach(function(id){if($(id).value)n++});
+  ['beTime','beDur','beWait'].forEach(function(id){if($(id).value)n++});
+  ['beSubmit','beCam','beRec','bePho','bePhone'].forEach(function(id){if($(id).value)n++});
+  $('beChanges').textContent=n?('将修改 '+n+' 个设置项'):'尚未修改任何项（全部保持原值）';
+  return n;
+}
+function doBulkEdit(){
+  var ids=checkedExams();
+  var n=countChanges();
+  if(!n){toast('未修改任何项，无需应用');return}
+  var paperV=(sselState['bePaperSel']&&sselState['bePaperSel'].value)||'';
+  var mockPaperV=(sselState['beMockPaperSel']&&sselState['beMockPaperSel'].value)||'';
+  var tagV=(window.beTagSel||[]).slice();
+  var mockV=$('beMockSel').value;
+  var bits=[];
+  ids.forEach(function(i){
+    var e=curAct.exams[i];
+    if(paperV){e.paper=paperV;e.paperOk=true}
+    if(tagV.length)e.tags=tagV.slice();
+    if(mockV==='on')e.mock=true;
+    if(mockV==='off')e.mock=false;
+    if(mockPaperV)e.mockPaper=mockPaperV;
+  });
+  if(paperV)bits.push('正式卷');
+  if(tagV.length)bits.push('标签');
+  if(mockV)bits.push('模拟考'+(mockV==='on'?'开':'关'));
+  if(mockPaperV)bits.push('模拟卷');
+  hide('ovBulkEdit');renderTree();
+  toast('已修改 '+ids.length+' 场考试（'+bits.join('、')+'），其余保持原值');
+}
+
+/* ================= 跳转 ================= */
+function gotoMatrix(){
+  if(!curAct){toast('请先进入一个活动');return}
+  location.href='35_渠道关联矩阵.html?act='+encodeURIComponent(curAct.name);
+}
+
+renderActs();
 </script>
+</div>
+</main>
 </body>
 </html>
