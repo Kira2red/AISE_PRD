@@ -247,7 +247,7 @@ textarea{min-height:72px}
       <button class="btn primary" onclick="openWizard(null)">＋ 创建考试</button>
     </div>
     <table class="tree">
-      <thead><tr><th style="width:34px"><input type="checkbox" id="ckAll" onclick="ckAllToggle(this)"></th><th style="padding-left:10px;width:180px">考试名称</th><th style="width:140px">试卷</th><th style="width:120px">考试时间</th><th style="width:230px">正式考配置</th><th style="width:200px">模拟考配置</th><th style="width:64px">渠道</th><th style="width:130px">操作</th></tr></thead>
+      <thead><tr><th style="width:34px"><input type="checkbox" id="ckAll" onclick="ckAllToggle(this)"></th><th style="padding-left:10px;width:190px">考试名称</th><th style="width:130px">考试时间</th><th style="width:250px">正式考配置</th><th style="width:230px">模拟考配置</th><th style="width:170px">渠道操作</th></tr></thead>
       <tbody id="treeBody"></tbody>
     </table>
   </div>
@@ -567,7 +567,7 @@ function renderTree(){
       '<button class="gbtn add" onclick="openWizard(\''+esc(z)+'\')">＋ 添加考试</button>'+
       '<button class="gbtn" title="删除分组" onclick="delZone(\''+esc(z)+'\')">🗑</button>'+
       '</span>';
-    tr.innerHTML='<td colspan="8"><div class="grp-line">'+
+    tr.innerHTML='<td colspan="6"><div class="grp-line">'+
       '<span class="tw'+(open?'':' closed')+'" onclick="toggleZone(\''+esc(z)+'\')">▼</span>'+
       gnameHtml+
       '<span class="gcount">'+zoneTotal+' 场考试</span>'+
@@ -577,7 +577,7 @@ function renderTree(){
     /* 新建分组编辑行（插在未分组前） */
     if(newZoneMode&&isSys){
       var ntr=document.createElement('tr');ntr.className='grp';
-      ntr.innerHTML='<td colspan="8"><div class="grp-line"><span class="tw closed">▼</span>'+
+      ntr.innerHTML='<td colspan="6"><div class="grp-line"><span class="tw closed">▼</span>'+
         '<input class="gname-input" id="newZoneInput" placeholder="输入分组名称" onkeydown="if(event.key===\'Enter\')saveNewZone();if(event.key===\'Escape\')cancelNewZone()" onblur="saveNewZone()">'+
         '<span class="hint">回车保存 · Esc 取消</span></div></td>';
       tb.appendChild(ntr);
@@ -590,27 +590,27 @@ function renderTree(){
         var paper=e.paperOk?'<span class="tag green">'+esc(e.paper)+'</span>':'<span class="tag amber">待关联试卷</span>';
         var mock=e.mock?'<span class="tag blue">已开启</span>':'<span class="tag gray">未开启</span>';
         var m=e.moni||{};
-        var fMoni=m.cam?('摄像 '+m.cam+' · 录屏 '+(m.rec==='开'?'开':'关')+' · 检录 '+(m.photo==='开'?'开':'关')+' · 手机 '+(m.phone==='开'?'开':'关')+' · 候考 '+m.wait):'—';
-        var fMockLine=e.mock?'已开启':'<span class="muted">未开启</span>';
+        var fMoni=(e.paperOk?'<div class="cell-line"><span class="tag green">'+esc(e.paper)+'</span></div>':'<div class="cell-line"><span class="tag amber">待关联试卷</span></div>')+
+          '<div class="cell-line">'+(m.cam?('摄像 '+m.cam+' · 录屏 '+(m.rec==='开'?'开':'关')+' · 检录 '+(m.photo==='开'?'开':'关')+' · 手机 '+(m.phone==='开'?'开':'关')+' · 候考 '+m.wait):'—')+'</div>';
+        var fMockLine='<div class="cell-line">'+(e.mock?'<span class="tag blue">已开启</span>':'<span class="tag gray">未开启</span>')+'</div>';
         var mMock='';
-        if(e.mock){mMock='<div class="cell-line">'+(e.mockPaper||'模拟卷未关联')+'</div><div class="cell-line">'+(e.mockTime||'时间待定')+' · '+(e.mockLimit||'次数未设')+'</div>';}
+        if(e.mock){mMock='<div class="cell-line"><span class="tag blue">'+(e.mockPaper||'模拟卷未关联')+'</span></div><div class="cell-line">'+(e.mockTime||'时间待定')+' · '+(e.mockLimit||'次数未设')+'</div>';}
         etr.innerHTML='<td style="padding-left:12px"><input type="checkbox" class="examck" data-i="'+e._i+'" onclick="event.stopPropagation();ckSync()"></td>'+
           '<td><div class="exam-name">'+esc(e.name)+'</div><div class="exam-sub">#EXAM-'+(1000+e._i+1)+'</div></td>'+
-          '<td>'+paper+'</td><td>'+e.time+'</td>'+
-          '<td class="cfg-cell"><div class="cell-line">'+fMoni+'</div></td>'+
+          '<td>'+e.time+'</td>'+
+          '<td class="cfg-cell">'+fMoni+'</td>'+
           '<td class="cfg-cell">'+fMockLine+mMock+'</td>'+
-          '<td>'+(e.chs?e.chs+' 个':'<span class="muted">—</span>')+'</td>'+
-          '<td><div style="display:flex;gap:6px;align-items:center;white-space:nowrap"><button class="btn small" style="width:58px;justify-content:center" onclick="toast(\'演示：编辑考试配置（正式考 / 模拟考）\')">编辑</button><span class="menu-wrap"><button class="btn small" style="width:40px;justify-content:center" onclick="toggleMenu(event,this)">…</button><div class="menu">'+
+          '<td><div style="display:flex;align-items:center;justify-content:space-between;gap:8px"><span style="white-space:nowrap">'+(e.chs?e.chs+' 渠道':'<span class="muted">—</span>')+'</span><span style="display:flex;gap:6px"><button class="btn small" style="width:52px;justify-content:center" onclick="toast(\'演示：编辑考试配置（正式考 / 模拟考）\')">编辑</button><span class="menu-wrap"><button class="btn small" style="width:36px;justify-content:center" onclick="toggleMenu(event,this)">…</button><div class="menu">'+
           '<div class="mi" onclick="toast(\'演示：编辑考试配置（正式考 / 模拟考）\')">编辑考试</div>'+
           '<div class="mi" onclick="toast(\'演示：复制考试，名称与时间顺延\')">复制考试</div>'+
           (e.paperOk?'':'<div class="mi" onclick="toast(\'演示：选择试卷后变为已关联\')">补关联试卷</div>')+
           '<div class="mi red" onclick="delExam('+e._i+')">删除考试</div>'+
-          '</div></span></div></td>';
+          '</div></span></span></div></td>';
         tb.appendChild(etr);
       });
       if(!list.length&&!kw){
         var etr=document.createElement('tr');etr.className='exam';
-        etr.innerHTML='<td colspan="8" class="muted" style="font-size:12px">暂无考试，点击分组行「＋ 添加考试」</td>';
+        etr.innerHTML='<td colspan="6" class="muted" style="font-size:12px">暂无考试，点击分组行「＋ 添加考试」</td>';
         tb.appendChild(etr);
       }
     }
@@ -618,7 +618,7 @@ function renderTree(){
   /* 完全空的活动 */
   if(empty&&!curAct.groups.length&&!curAct.exams.length&&!newZoneMode){
     var tr=document.createElement('tr');
-    tr.innerHTML='<td colspan="8"><div class="empty-tree"><div class="big">还没有分组和考试</div><div class="hint" style="margin-bottom:14px">先新建分组，或直接创建考试（将归入「未分组」）</div>'+
+    tr.innerHTML='<td colspan="6"><div class="empty-tree"><div class="big">还没有分组和考试</div><div class="hint" style="margin-bottom:14px">先新建分组，或直接创建考试（将归入「未分组」）</div>'+
       '<button class="btn" onclick="newZoneInline()">＋ 新建分组</button>&nbsp;&nbsp;<button class="btn primary" onclick="openWizard(null)">＋ 创建考试</button></div></td>';
     tb.appendChild(tr);
   }
