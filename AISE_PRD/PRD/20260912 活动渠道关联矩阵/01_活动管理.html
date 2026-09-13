@@ -104,6 +104,7 @@ tr.exam td{padding:9px 12px;border-bottom:1px solid #f2f4f8}
 tr.exam td:first-child{padding-left:44px}
 tr.exam:hover td{background:#fafbfd}
 .exam-name{font-weight:600;font-size:13px}
+.exam-moni{font-size:11px;color:#64748b;margin-top:2px;cursor:help}
 .exam-sub{font-size:11px;color:var(--muted);margin-top:2px}
 .empty-tree{padding:42px 20px;text-align:center}
 .empty-tree .big{font-size:14px;color:var(--text);margin-bottom:6px}
@@ -487,10 +488,10 @@ textarea{min-height:72px}
 var acts=[
  {id:1,name:'2026年9月常规考',start:'2026-09-01',end:'2026-09-30',groups:['3月批','6月批'],
   exams:[
-   {g:'3月批',name:'Python一级-第1场',paper:'Python一级 正式卷A',paperOk:true,mock:true,time:'09-20 09:00 ~ 11:00',chs:2},
-   {g:'3月批',name:'图形化一级-第1场',paper:'',paperOk:false,mock:true,time:'09-21 09:00 ~ 11:00',chs:2},
-   {g:'6月批',name:'Python二级-第1场',paper:'Python二级 正式卷A',paperOk:true,mock:false,time:'09-27 09:00 ~ 11:30',chs:1},
-   {g:'6月批',name:'图形化二级-第1场',paper:'图形化二级 正式卷B',paperOk:true,mock:false,time:'09-28 14:00 ~ 16:30',chs:0}
+   {g:'3月批',name:'Python一级-第1场',paper:'Python一级 正式卷A',paperOk:true,mock:true,time:'09-20 09:00 ~ 11:00',chs:2,moni:{cam:'强',rec:'开',photo:'开',wait:'10分钟',phone:'开',mockSame:true}},
+   {g:'3月批',name:'图形化一级-第1场',paper:'',paperOk:false,mock:true,time:'09-21 09:00 ~ 11:00',chs:2,moni:{cam:'强',rec:'关',photo:'开',wait:'10分钟',phone:'关',mockSame:false,mockNote:'模拟考：摄像头关 · 手机开'}},
+   {g:'6月批',name:'Python二级-第1场',paper:'Python二级 正式卷A',paperOk:true,mock:false,time:'09-27 09:00 ~ 11:30',chs:1,moni:{cam:'强',rec:'开',photo:'关',wait:'15分钟',phone:'开'}},
+   {g:'6月批',name:'图形化二级-第1场',paper:'图形化二级 正式卷B',paperOk:true,mock:false,time:'09-28 14:00 ~ 16:30',chs:0,moni:{cam:'中',rec:'关',photo:'关',wait:'10分钟',phone:'关'}}
   ],links:7},
  {id:2,name:'2026年12月冲刺班',start:'2026-12-01',end:'2026-12-31',groups:[],exams:[],links:0}
 ];
@@ -609,7 +610,12 @@ function renderTree(){
         var etr=document.createElement('tr');etr.className='exam';
         var paper=e.paperOk?'<span class="tag green">'+esc(e.paper)+'</span>':'<span class="tag amber">待关联试卷</span>';
         var mock=e.mock?'<span class="tag blue">已开启</span>':'<span class="tag gray">未开启</span>';
-        etr.innerHTML='<td style="padding-left:12px"><input type="checkbox" class="examck" data-i="'+e._i+'" onclick="event.stopPropagation();ckSync()"></td><td><div class="exam-name">'+esc(e.name)+'</div><div class="exam-sub">#EXAM-'+(1000+e._i+1)+'</div></td>'+
+        var m=e.moni||{};var moniLine='';var moniTip='';
+        if(m.cam){moniLine='监考 摄像'+m.cam+'·录屏'+m.rec+'·检录'+m.photo+'·手机'+m.phone;
+          if(e.mock&&m.mockSame===false&&m.mockNote){moniLine+='　'+m.mockNote;}else if(e.mock){moniLine+='（模拟考同正式考）';}
+          moniTip='摄像头 '+m.cam+'｜录屏 '+(m.rec==='开'?'开启':'关闭')+'｜检录照片 '+(m.photo==='开'?'开启':'关闭')+'｜候考时长 '+m.wait+'｜手机监考 '+(m.phone==='开'?'开启':'关闭');
+          if(e.mock&&m.mockSame===false&&m.mockNote){moniTip+='\n'+m.mockNote;}}
+        etr.innerHTML='<td style="padding-left:12px"><input type="checkbox" class="examck" data-i="'+e._i+'" onclick="event.stopPropagation();ckSync()"></td><td><div class="exam-name">'+esc(e.name)+'</div><div class="exam-sub">#EXAM-'+(1000+e._i+1)+'</div>'+(moniLine?'<div class="exam-moni" title="'+moniTip+'">'+moniLine+'</div>':'')+'</td>'+
           '<td>'+paper+'</td><td>'+e.time+'</td><td>'+mock+'</td>'+
           '<td>'+(e.chs?e.chs+' 个':'<span class="muted">—</span>')+'</td>'+
           '<td><span class="menu-wrap"><button class="btn small" onclick="toggleMenu(event,this)">…</button><div class="menu">'+
@@ -940,5 +946,6 @@ renderActs();
 </script>
 </div>
 </main>
+<div style="position:fixed;right:8px;bottom:6px;font-size:10px;color:#b9c2d0;pointer-events:none">demo-v16</div>
 </body>
 </html>
