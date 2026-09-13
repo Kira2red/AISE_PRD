@@ -303,10 +303,10 @@ textarea{min-height:72px}
             <div class="field"><label>首场结束</label><input type="datetime-local" id="genEnd" style="min-width:210px"></div>
             <div class="field" style="padding-top:18px"><button class="btn primary" onclick="genRows()">生成</button></div>
           </div>
-          <div class="hint" style="margin-top:8px">多场同名考试自动加「-第N场」，后续场次开始时间顺延 30 分钟；生成后可逐行修改。</div>
+          <div class="hint" style="margin-top:8px">多场同名考试自动加「-第N场」，后续场次开始时间顺延 30 分钟（模拟考时间同步顺延）；生成后可逐行修改。</div>
         </div>
         <table id="rowTable">
-          <thead><tr><th style="width:36%">考试名称</th><th>开始时间</th><th>结束时间</th><th style="width:56px"></th></tr></thead>
+          <thead><tr><th style="width:28%">考试名称</th><th>正式考开始</th><th>正式考结束</th><th>模拟考开始</th><th>模拟考结束</th><th style="width:56px"></th></tr></thead>
           <tbody></tbody>
         </table>
         <div style="margin-top:10px"><button class="btn small" onclick="addRow()">＋ 添加一行</button></div>
@@ -346,7 +346,7 @@ textarea{min-height:72px}
           </details>
         </div>
 
-        <div class="sec-title">模拟考 <span class="sub">试卷、时间、监考均可与正式考不同</span></div>
+        <div class="sec-title">模拟考 <span class="sub">考试时间已在第一步逐场配置；此处配置试卷、次数与监考</span></div>
         <div class="card" style="padding:16px;border-radius:8px">
           <div style="display:flex;align-items:center;gap:10px">
             <div class="switch on" id="mockSw" onclick="toggleMock()"></div><b style="font-size:13px">开启模拟考</b>
@@ -854,7 +854,7 @@ function addMin(dt,m){
 function addRow(){
   var tb=$('rowTable').querySelector('tbody');
   var tr=document.createElement('tr');
-  tr.innerHTML='<td><input type="text" placeholder="考试名称" style="width:95%"></td><td><input type="datetime-local" style="width:95%"></td><td><input type="datetime-local" style="width:95%"></td><td><button class="btn small" onclick="this.closest(\'tr\').remove()">删</button></td>';
+  tr.innerHTML='<td><input type="text" placeholder="考试名称" style="width:95%"></td><td><input type="datetime-local" style="width:95%"></td><td><input type="datetime-local" style="width:95%"></td><td><input type="datetime-local" style="width:95%"></td><td><input type="datetime-local" style="width:95%"></td><td><button class="btn small" onclick="this.closest(\'tr\').remove()">删</button></td>';
   tb.appendChild(tr);
 }
 function toggleMock(){
@@ -939,5 +939,6 @@ renderActs();
 </script>
 </div>
 </main>
+<div style="position:fixed;right:8px;bottom:6px;font-size:10px;color:#b9c2d0;pointer-events:none">demo-v14</div>
 </body>
 </html>

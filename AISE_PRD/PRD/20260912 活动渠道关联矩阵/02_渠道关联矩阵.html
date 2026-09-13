@@ -177,6 +177,7 @@ input[type=radio]{accent-color:var(--primary)}
     <select id="fGroup"><option value="">全部分组</option><option>3月批</option><option>6月批</option></select>
     <input type="text" id="fKw" placeholder="搜索考试名称" style="width:200px">
     <div class="spacer"></div>
+    <button class="btn" onclick="openBulkAll()">关联整个活动</button>
     <button class="btn" id="btnEdit" onclick="openBulkEdit()" disabled>修改渠道配置</button>
     <button class="btn danger" id="btnDel" onclick="openBulkDel()" disabled>解除渠道关联</button>
     <button class="btn primary" onclick="openBulkAdd()">＋ 添加渠道</button>
@@ -349,6 +350,12 @@ function toggleSelAll(){
   cks.forEach(function(x){x.checked=!all});
   selChk();
   $('btnSelAll').textContent=all?'全选':'取消全选';
+}
+function openBulkAll(){
+  var cks=[].slice.call(document.querySelectorAll('.rowck'));
+  cks.forEach(function(x){x.checked=true});
+  selChk();
+  openBulkAdd();
 }
 /* ================= 矩阵渲染 ================= */
 function renderHead(){
@@ -615,6 +622,6 @@ renderHead();renderBody();
 </script>
 </div>
 </main>
-<div style="position:fixed;right:8px;bottom:6px;font-size:10px;color:#b9c2d0;pointer-events:none">demo-v13</div>
+<div style="position:fixed;right:8px;bottom:6px;font-size:10px;color:#b9c2d0;pointer-events:none">demo-v14</div>
 </body>
 </html>
