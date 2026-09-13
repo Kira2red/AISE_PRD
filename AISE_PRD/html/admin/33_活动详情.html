@@ -479,8 +479,8 @@ textarea{min-height:72px}
 var acts=[
  {id:1,name:'2026年9月常规考',start:'2026-09-01',end:'2026-09-30',groups:['3月批','6月批'],
   exams:[
-   {g:'3月批',name:'Python一级-第1场',paper:'Python一级 正式卷A',paperOk:true,mock:true,time:'09-20 09:00 ~ 11:00',chs:2,moni:{cam:'强',rec:'开',photo:'开',wait:'10分钟',phone:'开'},mockPaper:'Python一级 模拟卷',mockTime:'09-19 09:00 ~ 10:00',mockLimit:'限 2 次'},
-   {g:'3月批',name:'图形化一级-第1场',paper:'',paperOk:false,mock:true,time:'09-21 09:00 ~ 11:00',chs:2,moni:{cam:'强',rec:'关',photo:'开',wait:'10分钟',phone:'关'},mockPaper:'图形化一级 模拟卷',mockTime:'09-20 09:00 ~ 10:00',mockLimit:'无限次'},
+   {g:'3月批',name:'Python一级-第1场',paper:'Python一级 正式卷A',paperOk:true,mock:true,time:'09-20 09:00 ~ 11:00',chs:2,moni:{cam:'强',rec:'开',photo:'开',wait:'10分钟',phone:'开'},mockPaper:'Python一级 模拟卷',mockTime:'09-19 09:00 ~ 10:00',mockLimit:'限 2 次',mockMoni:{cam:'强',rec:'开',photo:'开',phone:'开'}},
+   {g:'3月批',name:'图形化一级-第1场',paper:'',paperOk:false,mock:true,time:'09-21 09:00 ~ 11:00',chs:2,moni:{cam:'强',rec:'关',photo:'开',wait:'10分钟',phone:'关'},mockPaper:'图形化一级 模拟卷',mockTime:'09-20 09:00 ~ 10:00',mockLimit:'无限次',mockMoni:{cam:'关',rec:'关',photo:'开',phone:'开'}},
    {g:'6月批',name:'Python二级-第1场',paper:'Python二级 正式卷A',paperOk:true,mock:false,time:'09-27 09:00 ~ 11:30',chs:1,moni:{cam:'强',rec:'开',photo:'关',wait:'15分钟',phone:'开'}},
    {g:'6月批',name:'图形化二级-第1场',paper:'图形化二级 正式卷B',paperOk:true,mock:false,time:'09-28 14:00 ~ 16:30',chs:0,moni:{cam:'中',rec:'关',photo:'关',wait:'10分钟',phone:'关'}}
   ],links:7},
@@ -592,9 +592,13 @@ function renderTree(){
         var m=e.moni||{};
         var fMoni=(e.paperOk?'<div class="cell-line"><span class="tag green">'+esc(e.paper)+'</span></div>':'<div class="cell-line"><span class="tag amber">待关联试卷</span></div>')+
           '<div class="cell-line">'+(m.cam?('摄像 '+m.cam+' · 录屏 '+(m.rec==='开'?'开':'关')+' · 检录 '+(m.photo==='开'?'开':'关')+' · 手机 '+(m.phone==='开'?'开':'关')+' · 候考 '+m.wait):'—')+'</div>';
-        var fMockLine='<div class="cell-line">'+(e.mock?'<span class="tag blue">已开启</span>':'<span class="tag gray">未开启</span>')+'</div>';
+        var fMockLine='<div class="cell-line">'+(e.mock?'<span class="tag blue">'+(e.mockPaper||'模拟卷未关联')+'</span>':'<span class="muted">未开启</span>')+'</div>';
         var mMock='';
-        if(e.mock){mMock='<div class="cell-line"><span class="tag blue">'+(e.mockPaper||'模拟卷未关联')+'</span></div><div class="cell-line">'+(e.mockTime||'时间待定')+' · '+(e.mockLimit||'次数未设')+'</div>';}
+        if(e.mock){
+          var mm=e.mockMoni||{};
+          mMock='<div class="cell-line">'+(e.mockTime||'时间待定')+' · '+(e.mockLimit||'次数未设')+'</div>'+
+            '<div class="cell-line">'+(mm.cam!==undefined?('摄像 '+(mm.cam==='关'?'关':mm.cam)+' · 录屏 '+(mm.rec==='开'?'开':'关')+' · 检录 '+(mm.photo==='开'?'开':'关')+' · 手机 '+(mm.phone==='开'?'开':'关')):'监考未配置')+'</div>';
+        }
         etr.innerHTML='<td style="padding-left:12px"><input type="checkbox" class="examck" data-i="'+e._i+'" onclick="event.stopPropagation();ckSync()"></td>'+
           '<td><div class="exam-name">'+esc(e.name)+'</div><div class="exam-sub">#EXAM-'+(1000+e._i+1)+'</div></td>'+
           '<td>'+e.time+'</td>'+
