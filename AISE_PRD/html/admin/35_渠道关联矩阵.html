@@ -55,7 +55,7 @@ table.mtx{border-collapse:separate;border-spacing:0;width:100%;min-width:860px}
 .zone-line{display:flex;align-items:center;gap:10px}
 .zone-line b{font-size:13px;letter-spacing:.5px}
 .mtx td.stu{text-align:left;position:sticky;left:0;background:inherit;background:#fff;z-index:2;min-width:250px;border-right:1px solid var(--border)}
-.mtx thead th.stu{background:#f9fafc;z-index:3}
+.mtx thead th.stu{background:#f9fafc;z-index:4;position:sticky;left:0}
 .mtx td{padding:8px 10px;border-bottom:1px solid #f0f2f6;font-size:13px;text-align:center;vertical-align:middle}
 .mtx tr.exam td{padding-top:9px;padding-bottom:9px}
 .zone-row td{background:#f4f7fb;font-weight:600;text-align:left;padding:8px 12px;font-size:13px;color:#33415c}
@@ -411,7 +411,7 @@ function renderBody(){
     if(!list.length)return;
     shown=true;
     var zr=document.createElement('tr');zr.className='zone-row';
-    zr.innerHTML='<td class="stu" colspan="'+(CHS.length+1)+'"><div class="zone-line"><input type="checkbox" onclick="selZone(\''+z+'\',this)" title="选中本组全部测评"> <b>【'+z+'】</b> <span class="hint">'+list.length+' 场测评</span></div></td>';
+    zr.innerHTML='<td class="stu grp-td"><div class="zone-line"><input type="checkbox" onclick="selZone(\''+z+'\',this)" title="选中本组全部测评"> <b>【'+z+'】</b> <span class="hint">'+list.length+' 场测评</span></div></td><td class="grp-rest" colspan="'+CHS.length+'"></td>';
     tb.appendChild(zr);
     list.forEach(function(o){
       var r=o.r,i=o.i;
