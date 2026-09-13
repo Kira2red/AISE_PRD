@@ -222,10 +222,7 @@ textarea{min-height:72px}
         <h1 class="text-xl font-bold text-slate-800" id="pageTitle">活动管理</h1>
         <span class="text-xs text-slate-400 bg-slate-100 px-2 py-0.5 rounded" id="pageSub">活动详情</span>
     </div>
-    <div class="flex items-center gap-3">
-        <button onclick="openBulkEditExam()" id="headBulkBtn" class="bg-white border border-slate-200 hover:bg-slate-50 text-slate-600 text-sm px-4 py-2 rounded-lg hidden">✎ 批量修改</button>
-        <button onclick="gotoMatrix()" id="headMatrixBtn" class="bg-white border border-slate-200 hover:bg-slate-50 text-slate-600 text-sm px-4 py-2 rounded-lg">渠道关联</button>
-        </div>
+            </div>
 </header>
 
 <div class="flex-1 overflow-y-auto px-8 py-6">
@@ -249,6 +246,8 @@ textarea{min-height:72px}
       <input type="text" class="search" id="fKw" placeholder="搜索测评名称" oninput="renderTree()">
       <button class="btn small" id="btnExpand" onclick="toggleExpandAll()">收起全部</button>
       <div class="spacer"></div>
+      <button class="btn hidden" id="headBulkBtn" onclick="openBulkEditExam()">✎ 批量修改</button>
+      <button class="btn" id="headMatrixBtn" onclick="gotoMatrix()">渠道关联</button>
       <button class="btn" onclick="newZoneInline()">＋ 新建分组</button>
       <button class="btn primary" onclick="openWizard(null)">＋ 创建测评</button>
     </div>
