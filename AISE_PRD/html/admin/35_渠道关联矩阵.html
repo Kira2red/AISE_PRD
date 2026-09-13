@@ -399,7 +399,7 @@ function renderBody(){
         '<div class="stu-l2">'+sub+'</div>'+
         '<div class="stu-l3"><a class="lnk" onclick="examDetail('+i+')">详情</a><span class="sep">·</span><a class="lnk red" onclick="unlinkAll('+i+')">解除全部关联</a></div>'+
         '</div></td>';
-      (function(c,ci){
+      CHS.forEach(function(c,ci){
         var L=r.links[ci];
         if(L&&L.fail){tds+='<td><span class="cell linked" onclick="toast(\'创建失败：爱测评返回冲突，点击重试\')">创建失败<span class="badge fail">失败</span></span></td>';}
         else if(L){tds+='<td><span class="cell linked'+(L.hidden?' hiddenreg':'')+'" onclick="openCell('+i+','+ci+')"><span class="row1"><span class="fee">'+(L.fee===0?'免费':'¥'+L.fee)+'</span>'+(L.regs>0?'<span class="regs">'+L.regs+'人报名</span>':'')+'</span><span class="row2"><span class="edit">编辑 · 展示 · 隐藏</span></span></span></td>';}
