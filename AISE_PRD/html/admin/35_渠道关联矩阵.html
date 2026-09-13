@@ -177,7 +177,7 @@ function permToggle(cb,boxId){
         <a onclick="location.href='32_活动管理.html'" class="text-sm text-slate-400 hover:text-brand-600 cursor-pointer">活动管理</a><i class="fa-solid fa-chevron-right text-[10px] text-slate-300"></i><h1 class="text-xl font-bold text-slate-800">渠道关联</h1>
         <span class="text-xs text-slate-400 bg-slate-100 px-2 py-0.5 rounded" id="crumbAct2"></span>
     </div>
-    <button onclick="openBulkAdd()" class="bg-brand-600 hover:bg-brand-700 text-white text-sm font-medium px-5 py-2.5 rounded-lg shadow-sm transition flex items-center gap-2"><i class="fa-solid fa-plus"></i> 添加渠道</button>
+    <button onclick="openBulkAdd()" id="btnAdd" disabled class="bg-brand-600 hover:bg-brand-700 text-white text-sm font-medium px-5 py-2.5 rounded-lg shadow-sm transition flex items-center gap-2 disabled:opacity-40 disabled:cursor-not-allowed disabled:hover:bg-brand-600"><i class="fa-solid fa-plus"></i> 添加渠道</button>
 </header>
 <div class="flex-1 overflow-y-auto px-8 py-6">
 
@@ -437,6 +437,9 @@ function selZone(z,cb){document.querySelectorAll('.rowck[data-zone="'+z+'"]').fo
 function selChk(){
   var n=document.querySelectorAll('.rowck:checked').length;
   $('btnEdit').disabled=!n;$('btnDel').disabled=!n;
+  var b=$('btnAdd');
+  b.disabled=!n;
+  b.innerHTML='<i class="fa-solid fa-plus"></i> '+(n?'添加渠道（'+n+' 场）':'添加渠道');
 }
 function toggleMenu(ev,btn){
   ev.stopPropagation();
