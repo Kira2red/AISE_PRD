@@ -189,6 +189,11 @@ textarea{min-height:72px}
 .done-hero{text-align:center;padding:16px 10px}
 .done-hero .ico{width:56px;height:56px;border-radius:50%;background:#e5f5ec;color:var(--ok);font-size:26px;display:flex;align-items:center;justify-content:center;margin:0 auto 14px}
 .done-hero b{font-size:16px;display:block;margin-bottom:8px}
+
+/* 创建向导第一步表格：列宽固定+输入自适应 */
+#rowTable th,#rowTable td{white-space:nowrap}
+#rowTable input[type=text]{width:100%;min-width:150px}
+#rowTable input[type=datetime-local]{width:100%;min-width:165px;font-size:12px}
 </style>
 </head>
 <body class="flex h-screen overflow-hidden text-slate-800 font-sans" style="font-family:'PingFang SC','Microsoft YaHei',sans-serif">
@@ -274,7 +279,7 @@ textarea{min-height:72px}
 
 <!-- ========== 创建测评向导 ========== -->
 <div class="overlay" id="ovWizard">
-  <div class="modal" style="width:860px">
+  <div class="modal" style="width:1040px">
     <div class="modal-head"><b>创建测评</b><div class="spacer" style="flex:1"></div>
       <button class="btn small" onclick="hide('ovWizard')">✕</button></div>
     <div class="modal-body">
@@ -298,10 +303,12 @@ textarea{min-height:72px}
           </div>
           <div class="hint" style="margin-top:8px">多场同名测评自动加「-第N场」，后续场次开始时间顺延 30 分钟（模拟考时间同步顺延）；生成后可逐行修改。</div>
         </div>
-        <table id="rowTable">
-          <thead><tr><th style="width:28%">测评名称</th><th>正式考开始</th><th>正式考结束</th><th>模拟考开始</th><th>模拟考结束</th><th style="width:56px"></th></tr></thead>
+        <div style="overflow-x:auto;padding-bottom:4px">
+        <table id="rowTable" style="min-width:880px">
+          <thead><tr><th style="width:200px;min-width:200px">测评名称</th><th style="width:180px;min-width:170px">正式考开始</th><th style="width:180px;min-width:170px">正式考结束</th><th style="width:180px;min-width:170px">模拟考开始</th><th style="width:180px;min-width:170px">模拟考结束</th><th style="width:56px"></th></tr></thead>
           <tbody></tbody>
         </table>
+        </div>
         <div style="margin-top:10px"><button class="btn small" onclick="addRow()">＋ 添加一行</button></div>
         <div class="warnbox" style="margin-top:14px">试卷可稍后关联：先创建测评占位，确定后在测评行「…」菜单中补关联；未关联试卷的测评同样可关联渠道并接受报名。</div>
       </div>
