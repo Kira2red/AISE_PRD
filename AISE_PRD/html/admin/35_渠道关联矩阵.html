@@ -164,7 +164,7 @@ input[type=radio]{accent-color:var(--primary)}
 
 
 <div>
-  <div class="crumb"><a onclick="location.href='32_活动管理.html'">活动管理</a> / <span id="crumbAct">2026年9月常规考</span> / 渠道关联</div>
+  <div class="crumb"><a onclick="location.href='32_活动管理.html'">活动管理</a> / <a onclick="goBackDetail()">活动详情</a> / <span id="crumbAct">2026年9月常规考</span> / 渠道关联</div>
   <div class="card" style="padding:12px 18px">
     <div class="hint" style="font-size:13px">
       横轴 = 渠道，纵轴 = 分组下的考试。<b>点击单元格</b>配置该考试在该渠道的报名费 / 展示 / 隐藏报名；
@@ -360,6 +360,12 @@ function openBulkAll(){
   cks.forEach(function(x){x.checked=true});
   selChk();
   openBulkAdd();
+}
+function goBackDetail(){
+  var q=new URLSearchParams(location.search);
+  var act=q.get('act')||'2026年9月常规考';
+  var id=(act==='2026年12月冲刺班')?2:1;
+  location.href='33_活动详情.html?act='+id;
 }
 /* ================= 矩阵渲染 ================= */
 function renderHead(){
