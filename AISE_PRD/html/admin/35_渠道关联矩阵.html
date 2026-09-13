@@ -92,18 +92,18 @@ input[type=checkbox]{width:15px;height:15px;accent-color:var(--primary);cursor:p
 .wizard-tabs{display:flex;margin-bottom:16px;border:1px solid var(--border);border-radius:8px;overflow:hidden}
 .wizard-tabs .wt{flex:1;text-align:center;padding:9px;font-size:13px;background:#f7f9fc;color:var(--muted)}
 .wizard-tabs .wt.on{background:var(--primary);color:#fff;font-weight:600}
-.ch-cards{display:flex;flex-direction:column;gap:6px;max-height:340px;overflow-y:auto;padding-right:4px}
+.ch-cards{display:grid;grid-template-columns:repeat(3,1fr);gap:8px;max-height:340px;overflow-y:auto;padding-right:4px}
 .ch-list-search{position:relative;margin-bottom:10px}
-.ch-list-search input{width:100%;box-sizing:border-box;border:1px solid var(--border);border-radius:8px;padding:9px 12px 9px 34px;font-size:13px}
-.ch-list-search i{position:absolute;left:12px;top:50%;transform:translateY(-50%);color:var(--muted);font-size:12px}
-.ch-card{border:1px solid var(--border);border-radius:9px;padding:9px 12px;cursor:pointer;position:relative;display:flex;align-items:center;gap:10px}
+.ch-list-search input{width:100%;box-sizing:border-box;border:1px solid var(--border);border-radius:8px;padding:9px 12px 9px 36px !important;font-size:13px;background:transparent}
+.ch-list-search i{position:absolute;left:13px;top:50%;transform:translateY(-50%);color:var(--muted);font-size:12px;width:16px;text-align:center}
+.ch-card{border:1px solid var(--border);border-radius:9px;padding:9px 11px;cursor:pointer;position:relative;display:block}
 .ch-card.on{border-color:var(--primary);background:#f6f9ff;box-shadow:0 0 0 1px var(--primary)}
 .ch-card.dis{opacity:.5;cursor:not-allowed}
+.ch-card .tick{width:18px;height:18px;border:1.5px solid #c3ccd9;border-radius:5px;flex:none;display:none;align-items:center;justify-content:center;font-size:11px;color:#fff}
+.ch-card.on .tick{display:flex;background:var(--primary);border-color:var(--primary)}
 .ch-card b{font-size:13px}
 .ch-card .sub{font-size:11px;color:var(--muted);margin-top:3px}
-.ch-card .tick{position:absolute;top:10px;right:12px;color:var(--primary);font-weight:700;display:none}
-.ch-card.on .tick{display:block}
-.fee-cards{display:flex;flex-direction:column;gap:10px;margin-top:6px}
+.ch-card.on .fee-cards{display:flex;flex-direction:column;gap:10px;margin-top:6px}
 .fee-card{border:1px solid var(--border);border-radius:10px;padding:14px}
 .fee-card .head{display:flex;align-items:center;gap:8px;margin-bottom:10px}
 .fee-card .head b{font-size:13px}
@@ -498,7 +498,7 @@ function openBulkAdd(){
     var linked=ROWS.filter(function(r){return r.links[ci]&&!r.links[ci].fail}).length;
     var d=document.createElement('div');d.className='ch-card'+(all?' dis':'');
     d.setAttribute('data-name',c.toLowerCase());
-    d.innerHTML='<div class="tick">✓</div><b style="flex:1">'+c+'</b><span class="sub">'+(all?'已全部关联':'已关联 '+linked+' 场')+'</span>';
+    d.innerHTML='<div style="display:flex;align-items:center;gap:8px"><span class="tick">✓</span><b>'+c+'</b></div><div class="sub" style="margin-top:3px">'+(all?'已全部关联':'已关联 '+linked+' 场')+'</div>';
     if(!all)d.onclick=function(){d.classList.toggle('on');syncAdd()};
     box.appendChild(d);
   });
