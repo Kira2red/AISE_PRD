@@ -54,7 +54,7 @@ body { background-color: #F8FAFC; }
 .pbar.g > i { background:#10B981; }
 .funnel-row { display:flex; align-items:center; gap:12px; }
 .funnel-bar { height:34px; border-radius:8px; display:flex; align-items:center; padding:0 12px; color:#fff; font-weight:700; font-size:13px; min-width:64px; }
-.q-cell { display:inline-block; min-width:44px; text-align:center; padding:5px 8px; border-radius:7px; font-size:12px; font-weight:600; }
+.q-cell { display:inline-flex; flex-direction:column; align-items:center; min-width:76px; text-align:center; padding:5px 10px; border-radius:7px; font-size:12px; font-weight:600; line-height:1.35; }
 .q0 { background:#FEE2E2; color:#B91C1C; } .q1 { background:#FEF3C7; color:#B45309; } .q2 { background:#DBEAFE; color:#1D4ED8; } .q3 { background:#D1FAE5; color:#047857; }
 table.gt { width:100%; border-collapse:collapse; font-size:13px; }
 table.gt th { text-align:left; font-weight:600; color:#64748B; padding:10px 14px; border-bottom:1px solid #E2E8F0; background:#F8FAFC; white-space:nowrap; }
@@ -165,7 +165,7 @@ var D = {
   ],
   // 模拟考
   mYing: 1021, mCan: 735, mDone: 689,
-  mCam: [702, 735], mRec: [651, 698], mPic: [719, 735],
+  mCam: [702, 735], mRec: [651, 698], mPic: [719, 735], mPhone: [662, 735],
   // 候考
   hYing: 1021, hHou: 976, hAvg: 14,
   hCam: [968, 1021], hRec: [892, 964], hPhone: [612, 1021], hPic: [973, 1021],
@@ -185,7 +185,8 @@ var D = {
   pgTotal: 981, pgDone: 981,
   avg: 71.4, max: 100, min: 12, dabiao: 749,
   scoreSeg: { '0-30': 52, '30-60': 180, '60-70': 121, '70-80': 203, '80-90': 241, '90-100': 184 },
-  gradeDist: { '优秀': 187, '良好': 312, '合格': 250, '未通过': 232 },
+  gradeRpt: { '优秀': 187, '良好': 312, '合格': 250, '待提升': 232 },
+  gradeCert: { '一等奖': 121, '二等奖': 288, '三等奖': 340, '未达标': 232 },
   rpt: { done: 968, doing: 13, fail: 0 },
   certE: { wait: 0, gen: 0, sign: 12, signed: 737, fail: 0 },
   certP: { review: 0, pub: 0, making: 120, sent: 629 }
@@ -481,9 +482,10 @@ function secMoni() {
     h += '<div class="funnel-row"><span class="text-xs text-slate-500 w-16 text-right">' + r[0] + '</span><div class="funnel-bar" style="width:' + Math.max(14, r[2] * 82) + '%;background:' + r[3] + '">' + fmt(sc(r[1])) + ' 人</div><span class="text-xs text-slate-400 font-mono">' + (r[2] * 100).toFixed(1) + '%</span></div>';
   });
   h += '</div></div>';
-  h += '<div class="panel p-5">' + panelHead('监考开启率', '分母 = 实际参考学员中配置强制/非强制的人数') + '<div class="grid grid-cols-3 gap-3">';
+  h += '<div class="panel p-5">' + panelHead('监考开启率', '分母 = 实际参考学员中配置强制/非强制的人数') + '<div class="grid grid-cols-4 gap-3">';
   h += pairCard('摄像头监考', sc(D.mCam[0]), sc(D.mCam[1]), '开启率');
   h += pairCard('录屏监考', sc(D.mRec[0]), sc(D.mRec[1]), '开启率');
+  h += pairCard('手机监考', sc(D.mPhone[0]), sc(D.mPhone[1]), '开启率');
   h += pairCard('检录照片', sc(D.mPic[0]), sc(D.mPic[1]), '上传率');
   h += '</div></div></div></section>';
   return h;
@@ -514,7 +516,7 @@ function secKaozhong() {
   h += '<div class="grid grid-cols-6 gap-4 mb-5">';
   h += statCard('', '应到人数', fmt(sc(D.kYing)), '人', '有效报名');
   h += statCard('hl', '实到人数', fmt(sc(D.kShi)), '人', '进入过答题环节');
-  h += statCard('', '进行中', fmt(sc(D.kDoing)), '人', '未交卷（含不在场）');
+  h += statCard('', '进行中', fmt(sc(D.kDoing)), '人', '实到 − 已交卷（含不在场）');
   h += statCard('', '在线', fmt(sc(D.kOnline)), '人', '当前在线');
   h += statCard('', '已交卷', fmt(sc(D.kSubmitted)), '人', '交卷累计');
   h += statCard('', '未进入（缺考）', fmt(sc(D.kMiss)), '人', '全无监考口径');
@@ -527,7 +529,7 @@ function secKaozhong() {
   h += '</div>';
   h += '<div class="panel p-5">' + panelHead('逐题作答情况大表', '每题已作答人数 ÷ 实到人数 · 分档 0-45 / 45-60 / 60-90 / 90-100%') + '<div class="flex flex-wrap gap-2">';
   D.qRate.forEach(function (p, i) {
-    h += '<span class="q-cell ' + qcls(p) + '" title="第' + (i + 1) + '题">T' + (i + 1) + '<b class="ml-1 font-mono">' + p + '</b></span>';
+    h += '<span class="q-cell ' + qcls(p) + '"><span class="block text-[11px] opacity-80">第' + (i + 1) + '题</span><span class="block font-mono">' + fmt(Math.round(p / 100 * sc(D.kShi))) + '人 · ' + p + '%</span></span>';
   });
   h += '</div><div class="flex gap-4 mt-3 text-xs text-slate-400">'
     + '<span><i class="q-cell q0 inline-block" style="padding:2px 8px"></i> 0-45%</span><span><i class="q-cell q1 inline-block" style="padding:2px 8px"></i> 45-60%</span><span><i class="q-cell q2 inline-block" style="padding:2px 8px"></i> 60-90%</span><span><i class="q-cell q3 inline-block" style="padding:2px 8px"></i> 90-100%</span></div></div>';
@@ -586,14 +588,16 @@ function secKaohou() {
   h += '<div class="panel p-5">' + panelHead('分数段分布') + '<div class="chart-box" style="height:232px"><canvas id="cScore"></canvas></div></div>';
   h += '</div>';
   h += '<div class="grid grid-cols-2 gap-5 mt-5">';
-  h += '<div class="panel p-5">' + panelHead('等级分布', '优秀 / 良好 / 合格 / 未通过') + '<div class="chart-box" style="height:230px"><canvas id="cGrade"></canvas></div></div>';
-  h += '<div class="panel p-5">' + panelHead('交付进度明细') + '<div class="space-y-4 pt-1">'
+  h += '<div class="panel p-5">' + panelHead('个人报告等级分布', '报告管理（34）配置的报告等级分数段') + '<div class="chart-box" style="height:230px"><canvas id="cGradeRpt"></canvas></div></div>';
+  h += '<div class="panel p-5">' + panelHead('证书等级分布', '证书分数线规则配置的等级档位') + '<div class="chart-box" style="height:230px"><canvas id="cGradeCert"></canvas></div></div>';
+  h += '</div>';
+  h += '<div class="panel p-5 mt-5">' + panelHead('交付进度明细') + '<div class="space-y-4 pt-1">'
     + dlRow('批改', '完成 ' + fmt(sc(D.pgDone)) + ' / ' + fmt(sc(D.pgTotal)), 100)
     + dlRow('报告', '已生成 ' + fmt(sc(D.rpt.done)) + ' · 生成中 ' + fmt(sc(D.rpt.doing)) + ' · 失败 ' + fmt(sc(D.rpt.fail)), sc(D.rpt.done) / sc(D.pgTotal) * 100)
     + dlRow('电子证书', '已签发 ' + fmt(sc(D.certE.signed)) + ' · 待签发 ' + fmt(sc(D.certE.sign)), sc(D.certE.signed) / sc(D.dabiao) * 100)
     + dlRow('实体证书', '制作中 ' + fmt(sc(D.certP.making)) + ' · 已寄送 ' + fmt(sc(D.certP.sent)), sc(D.certP.sent) / sc(D.dabiao) * 100)
     + '</div></div>';
-  h += '</div></section>';
+  h += '</section>';
   return h;
 }
 function progCard(label, done, total, sub, green) {
@@ -601,7 +605,7 @@ function progCard(label, done, total, sub, green) {
   return '<div class="stat-card"><p class="text-xs text-slate-400 font-medium mb-1.5">' + label + '</p>' +
     '<p class="text-[24px] font-bold font-mono leading-none mb-2" style="color:#1E293B">' + p.toFixed(0) + '<span class="text-sm font-normal text-slate-400"> %</span></p>' +
     '<div class="pbar ' + (green ? 'g' : '') + '"><i style="width:' + Math.min(100, p) + '%"></i></div>' +
-    '<p class="text-xs text-slate-400 mt-1.5">' + sub + '</p></div>';
+    '<p class="text-xs text-slate-400 mt-1.5"><b class="font-mono text-slate-600">' + fmt(done) + ' / ' + fmt(total) + '</b> · ' + sub + '</p></div>';
 }
 function dlRow(name, desc, p) {
   return '<div><div class="flex justify-between text-xs mb-1"><span class="font-semibold text-slate-600">' + name + '</span><span class="text-slate-400">' + desc + '</span></div><div class="pbar"><i style="width:' + Math.min(100, p) + '%"></i></div></div>';
@@ -609,10 +613,16 @@ function dlRow(name, desc, p) {
 function drawKaohou() {
   var sk = Object.keys(D.scoreSeg);
   mkChart('cScore', { type: 'bar', data: { labels: sk, datasets: [{ data: sk.map(function (k) { return sc(D.scoreSeg[k]); }), backgroundColor: ['#E2E8F0', '#CBD5E1', '#93C5FD', '#60A5FA', '#3B82F6', '#2563EB'], borderRadius: 6 }] }, options: barOpt() });
-  var gk = Object.keys(D.gradeDist);
-  mkChart('cGrade', {
+  var rk = Object.keys(D.gradeRpt);
+  mkChart('cGradeRpt', {
     type: 'doughnut',
-    data: { labels: gk, datasets: [{ data: gk.map(function (k) { return sc(D.gradeDist[k]); }), backgroundColor: ['#059669', '#2563EB', '#93C5FD', '#E2E8F0'], borderWidth: 3, borderColor: '#fff' }] },
+    data: { labels: rk, datasets: [{ data: rk.map(function (k) { return sc(D.gradeRpt[k]); }), backgroundColor: ['#059669', '#2563EB', '#93C5FD', '#FDE68A'], borderWidth: 3, borderColor: '#fff' }] },
+    options: { responsive: true, maintainAspectRatio: false, cutout: '60%', plugins: { legend: { position: 'bottom', labels: { boxWidth: 10, boxHeight: 10, usePointStyle: true } } } }
+  });
+  var ck = Object.keys(D.gradeCert);
+  mkChart('cGradeCert', {
+    type: 'doughnut',
+    data: { labels: ck, datasets: [{ data: ck.map(function (k) { return sc(D.gradeCert[k]); }), backgroundColor: ['#059669', '#10B981', '#93C5FD', '#E2E8F0'], borderWidth: 3, borderColor: '#fff' }] },
     options: { responsive: true, maintainAspectRatio: false, cutout: '60%', plugins: { legend: { position: 'bottom', labels: { boxWidth: 10, boxHeight: 10, usePointStyle: true } } } }
   });
 }
