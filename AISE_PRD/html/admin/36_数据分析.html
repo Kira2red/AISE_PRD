@@ -104,7 +104,11 @@ table.gt tr:hover td { background:#F8FAFC; }
     <div id="fGroup"></div>
     <div class="w-px h-6 bg-slate-100"></div>
     <div id="fExam"></div>
-    <div class="ml-auto flex items-center gap-3"><span id="scopeTip" class="text-xs text-slate-400"></span></div>
+    <div class="ml-auto flex items-center gap-3">
+      <span id="scopeTip" class="text-xs text-slate-400"></span>
+      <button onclick="resetFilters()" class="text-sm text-slate-400 hover:text-slate-600 transition px-2 py-1"><i class="fa-solid fa-rotate-right mr-1"></i>重置</button>
+      <button onclick="applyFilters()" class="bg-brand-600 hover:bg-brand-700 text-white text-sm font-medium px-4 py-1.5 rounded-lg shadow-sm transition"><i class="fa-solid fa-magnifying-glass mr-1 text-xs"></i>筛选数据</button>
+    </div>
   </div>
 </div>
 
@@ -133,7 +137,7 @@ var FILTERS = {
   exam:    { label: '测评', options: ['Python一级·第1场', '图形化二级·第1场', 'C++一级·第1场'], shares: { 'Python一级·第1场': 0.30, '图形化二级·第1场': 0.35, 'C++一级·第1场': 0.35 } }
 };
 
-var state = { stage: 'kaohou', tab: 'kaohou', sel: { channel: [], group: [], exam: [] } };
+var state = { stage: 'kaohou', tab: 'kaohou', sel: { channel: [], group: [], exam: [] }, applied: { channel: [], group: [], exam: [] } };
 
 /* ---------- 演示数据（未筛选 = 全量口径） ---------- */
 var D = {
@@ -185,13 +189,27 @@ function esc(s) { return String(s).replace(/&/g, '&amp;').replace(/</g, '&lt;');
 function factor() {
   var f = 1;
   ['channel', 'group', 'exam'].forEach(function (k) {
-    var sel = state.sel[k];
+    var sel = state.applied[k];
     if (!sel.length) return;
     var s = 0;
     sel.forEach(function (o) { s += (FILTERS[k].shares[o] || 0); });
     f *= s;
   });
   return f;
+}
+function selEqApplied() {
+  return ['channel', 'group', 'exam'].every(function (k) {
+    var a = state.sel[k].slice().sort().join(','), b = state.applied[k].slice().sort().join(',');
+    return a === b;
+  });
+}
+function applyFilters() {
+  ['channel', 'group', 'exam'].forEach(function (k) { state.applied[k] = state.sel[k].slice(); });
+  renderFilters(); render();
+}
+function resetFilters() {
+  ['channel', 'group', 'exam'].forEach(function (k) { state.sel[k] = []; state.applied[k] = []; });
+  renderFilters(); render();
 }
 function sc(v) { return Math.round(v * factor()); }
 function scArr(arr) { var f = factor(); return arr.map(function (x) { return Math.round(x * f); }); }
@@ -249,7 +267,7 @@ function renderFilters() {
   ['channel', 'group', 'exam'].forEach(function (k) {
     if (state.sel[k].length) tips.push(FILTERS[k].label + '：' + state.sel[k].join('、'));
   });
-  $('scopeTip').textContent = tips.length ? '当前范围 · ' + tips.join(' ｜ ') : '当前范围 · 全部数据';
+  $('scopeTip').textContent = (tips.length ? '当前范围 · ' + tips.join(' ｜ ') : '当前范围 · 全部数据') + (selEqApplied() ? '' : ' · 有未应用的筛选');
 }
 function toggleMsel(dim) {
   var box = $('msel-' + dim);
@@ -302,16 +320,15 @@ function render() {
 /* ---------- 报名 ---------- */
 function secBaoming() {
   var h = '<section class="mb-7"><div class="flex items-center gap-2 mb-4"><span class="w-1.5 h-5 bg-brand-600 rounded-full"></span><h2 class="text-[15px] font-bold">报名</h2><span class="text-xs text-slate-400">报名开启 ~ 报名截止</span></div>';
-  h += '<div class="grid grid-cols-5 gap-4 mb-5">';
-  h += statCard('hl', '报名总人数', fmt(sc(D.renshu)), '人', '本活动全部报名学员');
-  h += statCard('', '报名总单量', fmt(sc(D.danliang)), '单', '一人一单');
+  h += '<div class="grid grid-cols-4 gap-4 mb-5">';
+  h += statCard('hl', '报名总人数', fmt(sc(D.renshu)), '人', '一人一单，人数即单量');
   h += statCard('', '有效报名', fmt(sc(D.youxiao)), '人', '已支付（待支付不计）');
   h += statCard('', '待支付', fmt(sc(D.daizhifu)), '单', '未完成支付的订单');
   h += statCard('', '已退款', fmt(sc(D.tuikuan)), '单', '退款通道关闭后冻结');
   h += '</div>';
   h += '<div class="grid grid-cols-2 gap-5 mb-5">';
-  h += '<div class="panel p-5"><div class="chart-box" style="height:270px"><canvas id="cDaily"></canvas></div></div>';
-  h += '<div class="panel p-5"><div class="chart-box" style="height:270px"><canvas id="cAudit"></canvas></div></div>';
+  h += '<div class="panel p-5">' + panelHead('每日新增报名趋势', '整体统计 + 每日统计') + '<div class="chart-box" style="height:240px"><canvas id="cDaily"></canvas></div></div>';
+  h += '<div class="panel p-5">' + panelHead('审核数据 · 每日', '按日统计：通过 / 不通过 / 待审核') + '<div class="chart-box" style="height:240px"><canvas id="cAudit"></canvas></div></div>';
   h += '</div>';
   h += '<div class="grid grid-cols-3 gap-5">';
   h += '<div class="panel p-5">' + panelHead('支付方式 · 人数与单量', '整体') + '<div class="chart-box" style="height:190px"><canvas id="cPayWay"></canvas></div></div>';
@@ -336,8 +353,7 @@ function drawBaoming() {
   mkChart('cDaily', {
     type: 'line',
     data: { labels: days, datasets: [
-      { label: '每日新增人数', data: scArr(D.daily), borderColor: '#2563EB', backgroundColor: 'rgba(37,99,235,.12)', fill: true, tension: .35, pointRadius: 2, borderWidth: 2 },
-      { label: '每日新增单量', data: scArr(D.daily), borderColor: '#10B981', borderDash: [5, 4], tension: .35, pointRadius: 0, borderWidth: 1.5 }
+      { label: '每日新增报名人数', data: scArr(D.daily), borderColor: '#2563EB', backgroundColor: 'rgba(37,99,235,.12)', fill: true, tension: .35, pointRadius: 2, borderWidth: 2 }
     ]},
     options: { responsive: true, maintainAspectRatio: false, plugins: { legend: { position: 'bottom', labels: { boxWidth: 10, boxHeight: 10, usePointStyle: true } } }, scales: { y: { beginAtZero: true, grid: { color: '#F1F5F9' } }, x: { grid: { display: false }, ticks: { maxTicksLimit: 9 } } } }
   });
