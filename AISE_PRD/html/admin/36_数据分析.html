@@ -132,9 +132,9 @@ var STAGES = [
 ];
 
 var FILTERS = {
-  channel: { label: '渠道', options: ['猿编程', '核桃编程', '编程猫'],            shares: { '猿编程': 0.42, '核桃编程': 0.33, '编程猫': 0.25 } },
-  group:   { label: '分组', options: ['3月批', '6月批'],                          shares: { '3月批': 0.55, '6月批': 0.45 } },
-  exam:    { label: '测评', options: ['Python一级·第1场', '图形化二级·第1场', 'C++一级·第1场'], shares: { 'Python一级·第1场': 0.30, '图形化二级·第1场': 0.35, 'C++一级·第1场': 0.35 } }
+  channel: { label: '渠道', options: ['猿编程', '核桃编程', '编程猫'],            shares: { '猿编程': 0.4203, '核桃编程': 0.3301, '编程猫': 0.2496 } },
+  group:   { label: '分组', options: ['3月批', '6月批'],                          shares: { '3月批': 0.5455, '6月批': 0.4545 } },
+  exam:    { label: '测评', options: ['Python一级·第1场', 'Python一级·第2场', '图形化二级·第1场', 'C++一级·第1场'], shares: { 'Python一级·第1场': 0.2203, 'Python一级·第2场': 0.1797, '图形化二级·第1场': 0.30, 'C++一级·第1场': 0.30 } }
 };
 
 var state = { stage: 'kaohou', tab: 'kaohou', sel: { channel: [], group: [], exam: [] }, applied: { channel: [], group: [], exam: [] } };
@@ -147,9 +147,7 @@ var D = {
   daily: [30, 32, 35, 37, 40, 42, 45, 46, 42, 44, 47, 49, 52, 50, 48, 50, 53, 55, 52, 55, 57, 60, 58, 55, 50, 48],
   auditPass: [86, 124, 98, 142, 156, 201, 146], auditFail: [6, 9, 4, 12, 15, 16, 6], auditWait: [12, 18, 9, 14, 11, 4, 0],
   auditPassT: 953, auditFailT: 68, auditWaitT: 0,
-  distGroup: { '3月批': 671, '6月批': 559 },
-  distExam: { 'Python一级·第1场': 271, 'Python一级·第2场': 221, '图形化二级·第1场': 369, 'C++一级·第1场': 369 },
-  distChannel: { '猿编程': 517, '核桃编程': 406, '编程猫': 307 },
+  distMap: { channel: { '猿编程': 517, '核桃编程': 406, '编程猫': 307 }, group: { '3月批': 671, '6月批': 559 }, exam: { 'Python一级·第1场': 271, 'Python一级·第2场': 221, '图形化二级·第1场': 369, 'C++一级·第1场': 369 } },
   // 模拟考
   mYing: 1021, mCan: 735, mDone: 689,
   mCam: [702, 735], mRec: [651, 698], mPic: [719, 735],
@@ -213,6 +211,23 @@ function resetFilters() {
 }
 function sc(v) { return Math.round(v * factor()); }
 function scArr(arr) { var f = factor(); return arr.map(function (x) { return Math.round(x * f); }); }
+function distFactor(exclude) {
+  var f = 1;
+  ['channel', 'group', 'exam'].forEach(function (k) {
+    if (k === exclude) return;
+    var sel = state.applied[k];
+    if (!sel.length) return;
+    var s = 0;
+    sel.forEach(function (o) { s += (FILTERS[k].shares[o] || 0); });
+    f *= s;
+  });
+  return f;
+}
+function distRows(dim) {
+  var opts = state.applied[dim].length ? state.applied[dim] : FILTERS[dim].options;
+  var f = distFactor(dim);
+  return { labels: opts, values: opts.map(function (o) { return Math.round((D.distMap[dim][o] || 0) * f); }) };
+}
 function qcls(p) { return p < 45 ? 'q0' : p < 60 ? 'q1' : p < 90 ? 'q2' : 'q3'; }
 function destroyCharts() { Object.keys(charts).forEach(function (k) { if (charts[k]) { charts[k].destroy(); charts[k] = null; } }); }
 function mkChart(id, cfg) {
@@ -377,12 +392,12 @@ function drawBaoming() {
     data: { labels: ['已支付', '待支付', '已退款'], datasets: [{ data: [sc(D.youxiao), sc(D.daizhifu), sc(D.tuikuan)], backgroundColor: ['#2563EB', '#F59E0B', '#EF4444'], borderWidth: 3, borderColor: '#fff' }] },
     options: { responsive: true, maintainAspectRatio: false, cutout: '62%', plugins: { legend: { position: 'bottom', labels: { boxWidth: 10, boxHeight: 10, usePointStyle: true } } } }
   });
-  var dk = Object.keys(D.distGroup);
-  mkChart('cDistGroup', { type: 'bar', data: { labels: dk, datasets: [{ data: dk.map(function (k) { return sc(D.distGroup[k]); }), backgroundColor: ['#2563EB', '#60A5FA'], borderRadius: 6 }] }, options: barOpt() });
-  var de = Object.keys(D.distExam);
-  mkChart('cDistExam', { type: 'bar', data: { labels: de, datasets: [{ data: de.map(function (k) { return sc(D.distExam[k]); }), backgroundColor: '#93C5FD', borderRadius: 6 }] }, options: barOpt() });
-  var dc = Object.keys(D.distChannel);
-  mkChart('cDistChannel', { type: 'bar', data: { labels: dc, datasets: [{ data: dc.map(function (k) { return sc(D.distChannel[k]); }), backgroundColor: ['#2563EB', '#60A5FA', '#93C5FD'], borderRadius: 6 }] }, options: barOpt() });
+  var g = distRows('group');
+  mkChart('cDistGroup', { type: 'bar', data: { labels: g.labels, datasets: [{ data: g.values, backgroundColor: '#2563EB', borderRadius: 6 }] }, options: barOpt() });
+  var e = distRows('exam');
+  mkChart('cDistExam', { type: 'bar', data: { labels: e.labels, datasets: [{ data: e.values, backgroundColor: '#93C5FD', borderRadius: 6 }] }, options: barOpt() });
+  var ch = distRows('channel');
+  mkChart('cDistChannel', { type: 'bar', data: { labels: ch.labels, datasets: [{ data: ch.values, backgroundColor: '#2563EB', borderRadius: 6 }] }, options: barOpt() });
 }
 function barOpt() { return { responsive: true, maintainAspectRatio: false, plugins: { legend: { display: false } }, scales: { y: { beginAtZero: true, grid: { color: '#F1F5F9' } }, x: { grid: { display: false } } } }; }
 
