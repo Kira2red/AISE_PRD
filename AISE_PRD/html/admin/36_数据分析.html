@@ -29,19 +29,19 @@ tailwind.config = {
 <style>
 body { background-color: #F8FAFC; }
 .mono { font-family: 'JetBrains Mono', monospace; }
-.stage-step { display:flex; align-items:center; gap:10px; cursor:pointer; user-select:none; }
-.stage-dot { width:30px; height:30px; border-radius:9999px; display:flex; align-items:center; justify-content:center; font-size:12px; font-weight:700; border:2px solid #E2E8F0; color:#94A3B8; background:#fff; transition:.15s; }
-.stage-step.done .stage-dot { border-color:#10B981; color:#10B981; }
-.stage-step.act .stage-dot { border-color:#2563EB; background:#2563EB; color:#fff; box-shadow:0 0 0 4px rgba(37,99,235,.14); }
-.stage-step.lock { cursor:not-allowed; opacity:.55; }
-.stage-label { font-size:13px; font-weight:600; color:#94A3B8; }
-.stage-step.act .stage-label { color:#1E293B; }
-.stage-step.done .stage-label { color:#475569; }
-.stage-conn { width:44px; height:2px; background:#E2E8F0; }
-.stage-conn.done { background:#10B981; }
-.seg { display:inline-flex; background:#F1F5F9; border-radius:10px; padding:3px; }
-.seg button { padding:6px 16px; border-radius:8px; font-size:13px; font-weight:600; color:#64748B; transition:.15s; }
-.seg button.on { background:#fff; color:#1E293B; box-shadow:0 1px 2px rgba(0,0,0,.08); }
+.msel { position:relative; }
+.msel-btn { display:inline-flex; align-items:center; gap:8px; border:1px solid #E2E8F0; background:#fff; border-radius:10px; padding:7px 12px; font-size:13px; color:#475569; cursor:pointer; transition:.13s; min-width:150px; }
+.msel-btn:hover { border-color:#93C5FD; }
+.msel-btn .cnt { background:#EFF6FF; color:#1D4ED8; font-weight:700; border-radius:9999px; padding:0 7px; font-size:11px; }
+.msel-panel { display:none; position:absolute; top:calc(100% + 6px); left:0; width:250px; background:#fff; border:1px solid #E2E8F0; border-radius:12px; box-shadow:0 8px 24px rgba(15,23,42,.12); z-index:50; padding:8px; }
+.msel.open .msel-panel { display:block; }
+.msel-search { width:100%; border:1px solid #E2E8F0; border-radius:8px; padding:6px 10px; font-size:13px; outline:none; margin-bottom:6px; }
+.msel-search:focus { border-color:#2563EB; }
+.msel-list { max-height:240px; overflow-y:auto; }
+.msel-opt { display:flex; align-items:center; gap:8px; padding:7px 9px; border-radius:8px; font-size:13px; color:#334155; cursor:pointer; }
+.msel-opt:hover { background:#F8FAFC; }
+.msel-opt input { accent-color:#2563EB; }
+.msel-empty { padding:12px; text-align:center; color:#94A3B8; font-size:12px; }
 .chip { display:inline-flex; align-items:center; gap:5px; padding:4px 12px; border-radius:9999px; border:1px solid #E2E8F0; background:#fff; font-size:12px; font-weight:500; color:#475569; cursor:pointer; transition:.13s; }
 .chip:hover { border-color:#93C5FD; }
 .chip.on { background:#EFF6FF; border-color:#2563EB; color:#1D4ED8; font-weight:600; }
@@ -94,27 +94,17 @@ table.gt tr:hover td { background:#F8FAFC; }
       <button onclick="toast('演示页面：导出走消息中心异步链路')" class="text-sm text-slate-500 hover:text-brand-600 border border-slate-200 hover:border-brand-500 rounded-lg px-3.5 py-1.5 transition flex items-center gap-2"><i class="fa-solid fa-file-export"></i> 导出</button>
     </div>
   </div>
-  <!-- 阶段步进器 -->
-  <div class="px-8 pb-4 flex items-center">
-    <div id="stepper" class="flex items-center w-full max-w-3xl justify-between"></div>
-  </div>
 </header>
 
 <!-- 筛选区 -->
 <div class="px-8 pt-5">
-  <div class="panel px-5 py-4 flex flex-wrap items-center gap-x-8 gap-y-3">
-    <div class="flex items-center gap-2" id="fChannel"></div>
+  <div class="panel px-5 py-4 flex flex-wrap items-center gap-4">
+    <div id="fChannel"></div>
     <div class="w-px h-6 bg-slate-100"></div>
-    <div class="flex items-center gap-2" id="fGroup"></div>
+    <div id="fGroup"></div>
     <div class="w-px h-6 bg-slate-100"></div>
-    <div class="flex items-center gap-2" id="fExam"></div>
-    <div class="ml-auto flex items-center gap-3">
-      <span id="scopeTip" class="text-xs text-slate-400"></span>
-      <div class="seg">
-        <button id="vwChart" class="on" onclick="setView('chart')"><i class="fa-solid fa-chart-column mr-1"></i>图表视图</button>
-        <button id="vwTable" onclick="setView('table')"><i class="fa-solid fa-table mr-1"></i>表格视图</button>
-      </div>
-    </div>
+    <div id="fExam"></div>
+    <div class="ml-auto flex items-center gap-3"><span id="scopeTip" class="text-xs text-slate-400"></span></div>
   </div>
 </div>
 
@@ -143,7 +133,7 @@ var FILTERS = {
   exam:    { label: '测评', options: ['Python一级·第1场', '图形化二级·第1场', 'C++一级·第1场'], shares: { 'Python一级·第1场': 0.30, '图形化二级·第1场': 0.35, 'C++一级·第1场': 0.35 } }
 };
 
-var state = { stage: 'kaohou', view: 'chart', tab: 'kaohou', sel: { channel: [], group: [], exam: [] } };
+var state = { stage: 'kaohou', tab: 'kaohou', sel: { channel: [], group: [], exam: [] } };
 
 /* ---------- 演示数据（未筛选 = 全量口径） ---------- */
 var D = {
@@ -230,36 +220,58 @@ function pairCard(label, real, should, isRate) {
     '<p class="text-xs mt-1.5"><span class="font-mono font-semibold text-brand-600">' + p + '%</span> <span class="text-slate-400">' + (isRate || '开启率') + '</span></p></div>';
 }
 
-/* ---------- 筛选区 ---------- */
-function chipRow(dim) {
+/* ---------- 筛选区（下拉多选 + 模糊搜索） ---------- */
+function mselHtml(dim) {
   var cfg = FILTERS[dim], sel = state.sel[dim];
-  var h = '<span class="text-xs text-slate-400 w-8">' + cfg.label + '</span>';
-  h += '<span class="chip ' + (sel.length ? '' : 'on') + '" onclick="toggleChip(\'' + dim + '\',null)">全部</span>';
-  cfg.options.forEach(function (o) {
-    h += '<span class="chip ' + (sel.indexOf(o) >= 0 ? 'on' : '') + '" onclick="toggleChip(\'' + dim + '\',\'' + esc(o) + '\')">' + esc(o) + '</span>';
-  });
+  var label = sel.length ? (sel.length === 1 ? esc(sel[0]) : cfg.label + ' ' + sel.length + ' 项') : '全部' + cfg.label;
+  var h = '<div class="msel" id="msel-' + dim + '">'
+    + '<button class="msel-btn" onclick="event.stopPropagation();toggleMsel(\'' + dim + '\')"><i class="fa-solid fa-filter text-[11px] text-slate-400"></i><span>' + cfg.label + '</span><b class="cnt">' + (sel.length || '全部') + '</b></button>'
+    + '<div class="msel-panel" onclick="event.stopPropagation()">'
+    + '<input class="msel-search" id="msel-kw-' + dim + '" placeholder="搜索' + cfg.label + '…" oninput="filterMselOpts(\'' + dim + '\')">'
+    + '<div class="msel-list" id="msel-list-' + dim + '">' + mselOpts(dim, '') + '</div>'
+    + '</div></div>';
   return h;
 }
+function mselOpts(dim, kw) {
+  var cfg = FILTERS[dim], sel = state.sel[dim];
+  var h = '';
+  cfg.options.forEach(function (o) {
+    if (kw && o.toLowerCase().indexOf(kw.toLowerCase()) < 0) return;
+    h += '<label class="msel-opt"><input type="checkbox" ' + (sel.indexOf(o) >= 0 ? 'checked' : '') + ' onchange="toggleOpt(\'' + dim + '\',\'' + esc(o) + '\')"><span>' + esc(o) + '</span></label>';
+  });
+  return h || '<div class="msel-empty">无匹配' + cfg.label + '</div>';
+}
 function renderFilters() {
-  $('fChannel').innerHTML = chipRow('channel');
-  $('fGroup').innerHTML = chipRow('group');
-  $('fExam').innerHTML = chipRow('exam');
+  $('fChannel').innerHTML = mselHtml('channel');
+  $('fGroup').innerHTML = mselHtml('group');
+  $('fExam').innerHTML = mselHtml('exam');
   var tips = [];
   ['channel', 'group', 'exam'].forEach(function (k) {
     if (state.sel[k].length) tips.push(FILTERS[k].label + '：' + state.sel[k].join('、'));
   });
   $('scopeTip').textContent = tips.length ? '当前范围 · ' + tips.join(' ｜ ') : '当前范围 · 全部数据';
 }
-function toggleChip(dim, opt) {
-  var sel = state.sel[dim];
-  if (opt === null) { sel = []; }
-  else {
-    var i = sel.indexOf(opt);
-    if (i >= 0) sel.splice(i, 1); else sel.push(opt);
-  }
-  state.sel[dim] = sel;
-  renderFilters(); render();
+function toggleMsel(dim) {
+  var box = $('msel-' + dim);
+  var was = box.classList.contains('open');
+  closeMsels();
+  if (!was) { box.classList.add('open'); var kw = $('msel-kw-' + dim); if (kw) { kw.value = ''; } $('msel-list-' + dim).innerHTML = mselOpts(dim, ''); setTimeout(function(){ var i=$('msel-kw-'+dim); if(i) i.focus(); }, 0); }
 }
+function closeMsels() {
+  document.querySelectorAll('.msel').forEach(function (b) { b.classList.remove('open'); });
+}
+function filterMselOpts(dim) {
+  $('msel-list-' + dim).innerHTML = mselOpts(dim, $('msel-kw-' + dim).value.trim());
+}
+function toggleOpt(dim, opt) {
+  var sel = state.sel[dim];
+  var i = sel.indexOf(opt);
+  if (i >= 0) sel.splice(i, 1); else sel.push(opt);
+  renderFilters();
+  var box = $('msel-' + dim);
+  if (box) { box.classList.add('open'); var kw = $('msel-kw-' + dim); $('msel-list-' + dim).innerHTML = mselOpts(dim, kw ? kw.value.trim() : ''); }
+}
+document.addEventListener('click', function () { closeMsels(); });
 
 /* ---------- 阶段门控 ---------- */
 function stageIdx(key) { for (var i = 0; i < STAGES.length; i++) if (STAGES[i].key === key) return i; return 0; }
@@ -269,37 +281,11 @@ function setStage(key) {
   $('actState').innerHTML = '<i class="fa-solid fa-circle-check mr-1 text-[11px]"></i>' + STAGES[stageIdx(key)].name + '阶段';
   render();
 }
-function setTab(key) {
-  if (stageIdx(key) > stageIdx(state.stage)) { toast('该阶段数据尚未产生，暂不可查看'); return; }
-  state.tab = key; render();
-}
-function renderStepper() {
-  var cur = stageIdx(state.stage), h = '';
-  STAGES.forEach(function (s, i) {
-    var cls = i === cur ? 'act' : i < cur ? 'done' : '';
-    var lock = i > cur ? ' lock' : '';
-    h += '<div class="stage-step ' + cls + lock + '" onclick="setTab(\'' + s.key + '\')">' +
-      '<div class="stage-dot">' + (i < cur ? '<i class="fa-solid fa-check"></i>' : i > cur ? '<i class="fa-solid fa-lock text-[10px]"></i>' : (i + 1)) + '</div>' +
-      '<span class="stage-label">' + s.name + '</span></div>';
-    if (i < STAGES.length - 1) h += '<div class="stage-conn ' + (i < cur ? 'done' : '') + '"></div>';
-  });
-  $('stepper').innerHTML = h;
-}
-
-/* ---------- 视图切换 ---------- */
-function setView(v) {
-  state.view = v;
-  $('vwChart').className = v === 'chart' ? 'on' : '';
-  $('vwTable').className = v === 'table' ? 'on' : '';
-  render();
-}
 
 /* ---------- 主渲染 ---------- */
 function render() {
   destroyCharts();
-  renderStepper();
   var m = $('main');
-  if (state.view === 'table') { m.innerHTML = tableView(); return; }
   var h = '';
   if (stageIdx('baoming') <= stageIdx(state.tab)) h += secBaoming();
   if (stageIdx('moni') <= stageIdx(state.tab)) h += secMoni();
@@ -528,79 +514,6 @@ function drawKaohou() {
     data: { labels: gk, datasets: [{ data: gk.map(function (k) { return sc(D.gradeDist[k]); }), backgroundColor: ['#059669', '#2563EB', '#93C5FD', '#E2E8F0'], borderWidth: 3, borderColor: '#fff' }] },
     options: { responsive: true, maintainAspectRatio: false, cutout: '60%', plugins: { legend: { position: 'bottom', labels: { boxWidth: 10, boxHeight: 10, usePointStyle: true } } } }
   });
-}
-
-/* ---------- 表格视图（全量数据） ---------- */
-function tableView() {
-  var cur = stageIdx(state.tab), lim = stageIdx(state.stage);
-  var rows = [];
-  function add(stage, name, val) { rows.push([stage, name, val]); }
-  if (cur >= 0) {
-    add('报名', '报名总人数', fmt(sc(D.renshu)) + ' 人');
-    add('报名', '报名总单量', fmt(sc(D.danliang)) + ' 单');
-    add('报名', '有效报名（已支付，待支付不计）', fmt(sc(D.youxiao)) + ' 人');
-    add('报名', '待支付', fmt(sc(D.daizhifu)) + ' 单');
-    add('报名', '已退款', fmt(sc(D.tuikuan)) + ' 单');
-    add('报名', '支付方式 · 微信支付', fmt(sc(D.youxiao)) + ' 人 / 单');
-    add('报名', '审核 · 累计通过', fmt(sc(D.auditPassT)) + ' 单');
-    add('报名', '审核 · 累计不通过', fmt(sc(D.auditFailT)) + ' 单');
-    add('报名', '审核 · 当前待审核', fmt(sc(D.auditWaitT)) + ' 单');
-    Object.keys(D.distGroup).forEach(function (k) { add('报名', '分组分布 · ' + k, fmt(sc(D.distGroup[k])) + ' 人'); });
-    Object.keys(D.distExam).forEach(function (k) { add('报名', '测评分布 · ' + k, fmt(sc(D.distExam[k])) + ' 人'); });
-    Object.keys(D.distChannel).forEach(function (k) { add('报名', '渠道分布 · ' + k, fmt(sc(D.distChannel[k])) + ' 人'); });
-  }
-  if (cur >= 1) {
-    add('模拟考', '应参人数', fmt(sc(D.mYing)) + ' 人');
-    add('模拟考', '参考人数', fmt(sc(D.mCan)) + ' 人');
-    add('模拟考', '完成人数', fmt(sc(D.mDone)) + ' 人');
-    add('模拟考', '摄像头监考 实际/应开启', fmt(sc(D.mCam[0])) + ' / ' + fmt(sc(D.mCam[1])) + ' 人（' + pct(sc(D.mCam[0]), sc(D.mCam[1])) + '%）');
-    add('模拟考', '录屏监考 实际/应开启', fmt(sc(D.mRec[0])) + ' / ' + fmt(sc(D.mRec[1])) + ' 人（' + pct(sc(D.mRec[0]), sc(D.mRec[1])) + '%）');
-    add('模拟考', '检录照片 实际/应上传', fmt(sc(D.mPic[0])) + ' / ' + fmt(sc(D.mPic[1])) + ' 人（' + pct(sc(D.mPic[0]), sc(D.mPic[1])) + '%）');
-  }
-  if (cur >= 2) {
-    add('候考', '应参人数', fmt(sc(D.hYing)) + ' 人');
-    add('候考', '候考人数', fmt(sc(D.hHou)) + ' 人');
-    add('候考', '候考率', pct(sc(D.hHou), sc(D.hYing)) + ' %');
-    add('候考', '平均候考时长', D.hAvg + ' 分钟');
-    add('候考', '摄像头监考 实际/应开启', fmt(sc(D.hCam[0])) + ' / ' + fmt(sc(D.hCam[1])) + ' 人（' + pct(sc(D.hCam[0]), sc(D.hCam[1])) + '%）');
-    add('候考', '录屏监考 实际/应开启', fmt(sc(D.hRec[0])) + ' / ' + fmt(sc(D.hRec[1])) + ' 人（' + pct(sc(D.hRec[0]), sc(D.hRec[1])) + '%）');
-    add('候考', '手机监考 实际/应开启', fmt(sc(D.hPhone[0])) + ' / ' + fmt(sc(D.hPhone[1])) + ' 人（' + pct(sc(D.hPhone[0]), sc(D.hPhone[1])) + '%）');
-    add('候考', '检录照片 实际/应上传', fmt(sc(D.hPic[0])) + ' / ' + fmt(sc(D.hPic[1])) + ' 人（' + pct(sc(D.hPic[0]), sc(D.hPic[1])) + '%）');
-  }
-  if (cur >= 3) {
-    add('考中', '应到人数', fmt(sc(D.kYing)) + ' 人');
-    add('考中', '实到人数', fmt(sc(D.kShi)) + ' 人');
-    add('考中', '进行中人数', fmt(sc(D.kDoing)) + ' 人');
-    add('考中', '在线人数', fmt(sc(D.kOnline)) + ' 人');
-    add('考中', '已交卷人数', fmt(sc(D.kSubmitted)) + ' 人');
-    add('考中', '未进入（缺考）人数', fmt(sc(D.kMiss)) + ' 人');
-    add('考中', '摄像头+录屏同时开启', fmt(sc(D.kCamRec)) + ' 人');
-    add('考中', '仅摄像头开启', fmt(sc(D.kCamOnly)) + ' 人');
-    add('考中', '仅录屏开启', fmt(sc(D.kRecOnly)) + ' 人');
-    add('考中', '未监考', fmt(sc(D.kNone)) + ' 人');
-    add('考中', '手机监考开启', fmt(sc(D.kPhone)) + ' 人');
-    D.qRate.forEach(function (p, i) { add('考中', '逐题作答 · 第' + (i + 1) + '题', p + ' %'); });
-    add('考中', '切屏异常', fmt(sc(D.abnScreen[0])) + ' 人 / ' + fmt(sc(D.abnScreen[1])) + ' 次');
-    add('考中', '摄像头异常', fmt(sc(D.abnCam)) + ' 人');
-    add('考中', '多 IP 同时在线', fmt(sc(D.abnIP[0])) + ' 人 / ' + fmt(sc(D.abnIP[1])) + ' 人次');
-  }
-  if (cur >= 4 && lim >= 4) {
-    add('考后', '批改进度', fmt(sc(D.pgDone)) + ' / ' + fmt(sc(D.pgTotal)) + ' 份');
-    add('考后', '平均分', D.avg + ' 分');
-    add('考后', '最高分 / 最低分', D.max + ' / ' + D.min + ' 分');
-    add('考后', '达标人数 / 达标率', fmt(sc(D.dabiao)) + ' 人 / ' + pct(sc(D.dabiao), sc(D.pgTotal)) + ' %');
-    Object.keys(D.gradeDist).forEach(function (k) { add('考后', '等级分布 · ' + k, fmt(sc(D.gradeDist[k])) + ' 人'); });
-    add('考后', '报告 已生成/生成中/失败', fmt(sc(D.rpt.done)) + ' / ' + fmt(sc(D.rpt.doing)) + ' / ' + fmt(sc(D.rpt.fail)) + ' 份');
-    add('考后', '电子证书 已签发/待签发', fmt(sc(D.certE.signed)) + ' / ' + fmt(sc(D.certE.sign)) + ' 份');
-    add('考后', '实体证书 制作中/已寄送', fmt(sc(D.certP.making)) + ' / ' + fmt(sc(D.certP.sent)) + ' 份');
-  }
-  var h = '<div class="panel overflow-hidden"><div class="px-5 py-4 border-b border-slate-100 flex items-baseline justify-between"><h3 class="text-sm font-bold text-slate-700">全量数据表</h3><span class="text-xs text-slate-400">' + STAGES[cur].name + '阶段及之前 · ' + rows.length + ' 项</span></div>';
-  h += '<div class="overflow-x-auto"><table class="gt"><thead><tr><th style="width:110px">阶段</th><th>数据项</th><th style="width:280px">数值</th></tr></thead><tbody>';
-  rows.forEach(function (r) {
-    h += '<tr><td><span class="tag blue">' + r[0] + '</span></td><td>' + esc(r[1]) + '</td><td class="font-mono">' + r[2] + '</td></tr>';
-  });
-  h += '</tbody></table></div></div>';
-  return h;
 }
 
 /* ---------- init ---------- */
