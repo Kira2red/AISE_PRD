@@ -66,6 +66,11 @@ table.gt tr:hover td { background:#F8FAFC; }
 #toast { position:fixed; bottom:28px; left:50%; transform:translateX(-50%) translateY(20px); background:#1E293B; color:#fff; padding:10px 22px; border-radius:10px; font-size:13px; opacity:0; transition:.25s; z-index:99; pointer-events:none; }
 #toast.show { opacity:1; transform:translateX(-50%) translateY(0); }
 .chart-box { position:relative; width:100%; }
+.mx td.num, .mx th.num { text-align:right; font-family:'JetBrains Mono',monospace; }
+.mx th.num { color:#64748B; }
+.mx-group td { background:#F8FAFC; font-weight:700; color:#1E293B; border-top:1px solid #E2E8F0; }
+.mx-exam td:first-child { padding-left:30px; color:#475569; }
+.mx-total td { font-weight:700; color:#1E293B; border-top:2px solid #CBD5E1; background:#F8FAFC; }
 </style>
 </head>
 <body class="font-sans text-slate-800">
@@ -132,9 +137,9 @@ var STAGES = [
 ];
 
 var FILTERS = {
-  channel: { label: '渠道', options: ['猿编程', '核桃编程', '编程猫'],            shares: { '猿编程': 0.4203, '核桃编程': 0.3301, '编程猫': 0.2496 } },
-  group:   { label: '分组', options: ['3月批', '6月批'],                          shares: { '3月批': 0.5455, '6月批': 0.4545 } },
-  exam:    { label: '测评', options: ['Python一级·第1场', 'Python一级·第2场', '图形化二级·第1场', 'C++一级·第1场'], shares: { 'Python一级·第1场': 0.2203, 'Python一级·第2场': 0.1797, '图形化二级·第1场': 0.30, 'C++一级·第1场': 0.30 } }
+  channel: { label: '渠道', options: ['猿编程', '核桃编程', '编程猫'], shares: {} },
+  group:   { label: '分组', options: ['3月批', '6月批'],             shares: {} },
+  exam:    { label: '测评', options: ['Python一级·第1场', 'Python一级·第2场', '图形化二级·第1场', 'C++一级·第1场'], shares: {} }
 };
 
 var state = { stage: 'kaohou', tab: 'kaohou', sel: { channel: [], group: [], exam: [] }, applied: { channel: [], group: [], exam: [] } };
@@ -147,7 +152,17 @@ var D = {
   daily: [30, 32, 35, 37, 40, 42, 45, 46, 42, 44, 47, 49, 52, 50, 48, 50, 53, 55, 52, 55, 57, 60, 58, 55, 50, 48],
   auditPass: [86, 124, 98, 142, 156, 201, 146], auditFail: [6, 9, 4, 12, 15, 16, 6], auditWait: [12, 18, 9, 14, 11, 4, 0],
   auditPassT: 953, auditFailT: 68, auditWaitT: 0,
-  distMap: { channel: { '猿编程': 517, '核桃编程': 406, '编程猫': 307 }, group: { '3月批': 671, '6月批': 559 }, exam: { 'Python一级·第1场': 271, 'Python一级·第2场': 221, '图形化二级·第1场': 369, 'C++一级·第1场': 369 } },
+  /* 报名量矩阵：行=分组>测评，列=渠道（顺序同 FILTERS.channel.options）；分布图与筛选占比全部由此推导 */
+  matrix: [
+    { group: '3月批', rows: [
+      { exam: 'Python一级·第1场', cells: [114, 89, 68] },
+      { exam: 'Python一级·第2场', cells: [93, 73, 55] }
+    ] },
+    { group: '6月批', rows: [
+      { exam: '图形化二级·第1场', cells: [155, 122, 92] },
+      { exam: 'C++一级·第1场',   cells: [155, 122, 92] }
+    ] }
+  ],
   // 模拟考
   mYing: 1021, mCan: 735, mDone: 689,
   mCam: [702, 735], mRec: [651, 698], mPic: [719, 735],
@@ -175,6 +190,26 @@ var D = {
   certE: { wait: 0, gen: 0, sign: 12, signed: 737, fail: 0 },
   certP: { review: 0, pub: 0, making: 120, sent: 629 }
 };
+
+/* ---------- 单一数据源推导：矩阵 → 分布图数值 + 筛选占比 ---------- */
+(function derive() {
+  var CH = FILTERS.channel.options, m = { channel: {}, group: {}, exam: {} }, total = 0;
+  D.matrix.forEach(function (g) {
+    var gsum = 0;
+    g.rows.forEach(function (r) {
+      var rsum = 0;
+      r.cells.forEach(function (v, i) { m.channel[CH[i]] = (m.channel[CH[i]] || 0) + v; rsum += v; });
+      m.exam[r.exam] = rsum; gsum += rsum; total += rsum;
+    });
+    m.group[g.group] = gsum;
+  });
+  D.distMap = m; D.renshu = total;
+  ['channel', 'group', 'exam'].forEach(function (k) {
+    var o = {};
+    Object.keys(m[k]).forEach(function (name) { o[name] = m[k][name] / total; });
+    FILTERS[k].shares = o;
+  });
+})();
 
 var charts = {};
 
@@ -356,12 +391,47 @@ function secBaoming() {
   h += '<div class="panel p-5">' + panelHead('分组分布 · 报名量') + '<div class="chart-box" style="height:200px"><canvas id="cDistGroup"></canvas></div></div>';
   h += '<div class="panel p-5">' + panelHead('测评分布 · 报名量') + '<div class="chart-box" style="height:200px"><canvas id="cDistExam"></canvas></div></div>';
   h += '<div class="panel p-5">' + panelHead('渠道分布 · 报名量') + '<div class="chart-box" style="height:200px"><canvas id="cDistChannel"></canvas></div></div>';
-  h += '</div></section>';
+  h += '</div>';
+  h += '<div class="panel p-5 mt-5">' + panelHead('报名量矩阵 · 分组/测评 × 渠道', '行=分组（一级）/ 测评（二级），列=渠道；随筛选联动') + matrixTable() + '</div></section>';
   return h;
 }
 function auditRow(name, v, cls) {
   var max = Math.max(sc(D.auditPassT), sc(D.auditFailT), sc(D.auditWaitT), 1);
   return '<div><div class="flex justify-between text-xs mb-1"><span class="text-slate-500">' + name + '</span><span class="font-mono font-semibold ' + cls + '">' + fmt(v) + '</span></div><div class="pbar g"><i style="width:' + (v / max * 100) + '%"></i></div></div>';
+}
+function matrixTable() {
+  var CH = state.applied.channel.length ? FILTERS.channel.options.filter(function (o) { return state.applied.channel.indexOf(o) >= 0; }) : FILTERS.channel.options;
+  var idx = CH.map(function (o) { return FILTERS.channel.options.indexOf(o); });
+  var gs = [];
+  D.matrix.forEach(function (g) {
+    if (state.applied.group.length && state.applied.group.indexOf(g.group) < 0) return;
+    var rows = g.rows.filter(function (r) { return state.applied.exam.length ? state.applied.exam.indexOf(r.exam) >= 0 : true; });
+    if (rows.length) gs.push({ group: g.group, rows: rows });
+  });
+  var colT = CH.map(function () { return 0; }), grand = 0;
+  var h = '<div class="overflow-x-auto"><table class="gt mx"><thead><tr><th style="min-width:220px">分组 / 测评</th>';
+  CH.forEach(function (o) { h += '<th class="num">' + esc(o) + '</th>'; });
+  h += '<th class="num">合计</th></tr></thead><tbody>';
+  if (!gs.length) {
+    h += '<tr><td colspan="' + (CH.length + 2) + '" style="text-align:center;color:#94A3B8;padding:24px">当前筛选下没有测评</td></tr>';
+  }
+  gs.forEach(function (g) {
+    var sub = CH.map(function () { return 0; }), gsum = 0;
+    var rowsHtml = '';
+    g.rows.forEach(function (r) {
+      var rs = 0;
+      var cells = idx.map(function (ci, j) { var v = r.cells[ci]; sub[j] += v; colT[j] += v; rs += v; return v; });
+      gsum += rs; grand += rs;
+      rowsHtml += '<tr class="mx-exam"><td>' + esc(r.exam) + '</td>' + cells.map(function (v) { return '<td class="num">' + fmt(v) + '</td>'; }).join('') + '<td class="num" style="font-weight:600">' + fmt(rs) + '</td></tr>';
+    });
+    h += '<tr class="mx-group"><td>' + esc(g.group) + '</td>' + sub.map(function (v) { return '<td class="num">' + fmt(v) + '</td>'; }).join('') + '<td class="num" style="color:#1D4ED8">' + fmt(gsum) + '</td></tr>' + rowsHtml;
+  });
+  h += '</tbody>';
+  if (gs.length) {
+    h += '<tfoot><tr class="mx-total"><td>合计</td>' + colT.map(function (v) { return '<td class="num">' + fmt(v) + '</td>'; }).join('') + '<td class="num" style="color:#1D4ED8">' + fmt(grand) + '</td></tr></tfoot>';
+  }
+  h += '</table></div>';
+  return h;
 }
 function drawBaoming() {
   var days = []; for (var i = 1; i <= 26; i++) days.push('5/' + i);
