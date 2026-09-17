@@ -55,7 +55,7 @@
                 <div class="w-9 h-9 bg-gradient-to-br from-brand-600 to-indigo-600 rounded-lg flex items-center justify-center text-white shadow-sm"><i class="fa-solid fa-table-list text-sm"></i></div>
                 <div>
                     <h1 class="text-[17px] font-bold leading-tight">学生明细 <span class="text-slate-400 font-medium">·</span> <span id="hdTitle" class="text-slate-700">全部学生</span></h1>
-                    <p class="text-xs text-slate-400 mt-0.5">2026 春季编程等级测评 · 数据截至 <span class="mono">06-30 18:00</span> · 与数据分析页筛选联动</p>
+                    <p class="text-xs text-slate-400 mt-0.5" id="hdSub">2026 春季编程等级测评 · 数据截至 <span class="mono">06-30 18:00</span> · 与数据分析页筛选联动</p>
                 </div>
             </div>
             <div class="ml-auto flex items-center gap-3">
@@ -74,7 +74,7 @@
                 <label class="text-xs text-slate-400 font-medium">筛选</label>
                 <select id="fExam" class="sel" onchange="render()"><option value="">全部测评</option></select>
                 <select id="fGroup" class="sel" onchange="render()"><option value="">全部分组</option></select>
-                <select id="fChannel" class="sel" onchange="render()"><option value="">全部渠道</option></select>
+                <select id="fChannel" class="sel" onchange="render()"><option value="">全部渠道</option></select><span id="orgLock" class="hidden text-[11px] text-slate-400"><i class="fa-solid fa-lock mr-0.5"></i>已限定本渠道</span>
                 <div class="w-px h-6 bg-slate-100"></div>
                 <select id="fExamState" class="sel" onchange="render()"><option value="">考试状态：全部</option></select>
                 <select id="fMoniState" class="sel" onchange="render()"><option value="">监考状态：全部</option></select>
@@ -144,12 +144,13 @@
         var est = ES[i % 7 === 0 ? 0 : (i % 5 === 0 ? 3 : (i % 3 === 0 ? 2 : 1))];
         var mst = MS[(i * 3) % 6];
         var ast = AS[est.k === 'submitted' ? 2 : (est.k === 'doing' ? ((i * 2) % 2 + 1) : (est.k === 'absent' ? 0 : 0))];
+        var rnd = rs();
         STUDENTS.push({
           name: NAMES[i % NAMES.length] + (i >= NAMES.length ? '·' + Math.floor(i / NAMES.length + 1) : ''),
           sid: 'STU2026' + String(1000 + i * 7).slice(0, 4),
           exam: exam,
           group: GROUPS[i % 2],
-          channel: CHANNELS[i % 3],
+          channel: CHANNELS[Math.floor(rnd * 3)],
           es: est, ms: mst, as: ast,
           enter: est.k !== 'not_started' && est.k !== 'absent'
         });
@@ -180,6 +181,8 @@
     };
 
     var bizKey = new URLSearchParams(location.search).get('biz') || 'all';
+    var IS_ORG = new URLSearchParams(location.search).get('scope') === 'org';
+    var ORG_CHANNEL = '猿编程';
     var preset = BIZ[bizKey] || BIZ.all;
     document.getElementById('hdTitle').textContent = preset.title;
 
@@ -209,6 +212,19 @@
     }
     applyPreset();
 
+    /* ---------- 组织后台模式：数据限定本渠道 ---------- */
+    if (IS_ORG) {
+      var fc = document.getElementById('fChannel');
+      fc.value = ORG_CHANNEL;
+      fc.disabled = true;
+      fc.style.opacity = '.55';
+      fc.style.cursor = 'not-allowed';
+      document.getElementById('orgLock').classList.remove('hidden');
+      document.getElementById('hdSub').innerHTML = '2026 春季编程等级测评 · 数据截至 <span class="mono">06-30 18:00</span> · 本渠道：猿编程教育科技 · 组织后台视角';
+      // 渠道选项只保留本渠道
+      Array.prototype.forEach.call(fc.options, function (o) { if (o.value && o.value !== ORG_CHANNEL) o.remove(); });
+    }
+
     /* ---------- 渲染 ---------- */
     function metaOf(arr, k) { for (var i = 0; i < arr.length; i++) if (arr[i].k === k) return arr[i]; return arr[0]; }
     function inMulti(presetKey, selVal, metaArr, k) {
@@ -223,6 +239,7 @@
       var es1 = document.getElementById('fExamState').value;
       var ms1 = document.getElementById('fMoniState').value;
       var as1 = document.getElementById('fAnsState').value;
+      if (IS_ORG) fc = ORG_CHANNEL;
       var rows = STUDENTS.filter(function (s) {
         if (fe && s.exam !== fe) return false;
         if (fg && s.group !== fg) return false;
@@ -273,6 +290,7 @@
     function resetAll() {
       ['fExam', 'fGroup', 'fChannel', 'fExamState', 'fMoniState', 'fAnsState'].forEach(function (id) { document.getElementById(id).value = ''; });
       preset._es = null; preset._ms = null;
+      if (IS_ORG) document.getElementById('fChannel').value = ORG_CHANNEL;
       render();
     }
     function toast(m) {
