@@ -86,20 +86,64 @@ table.gt tr:hover td { background:#F8FAFC; }
         <p class="text-xs text-slate-400 mt-0.5">2026-03-01 ~ 2026-06-30 · 4 场测评 · 3 个渠道 · 数据截至 <span class="mono">06-30 18:00</span></p>
       </div>
     </div>
-    <span id="actState" class="tag green ml-2"><i class="fa-solid fa-circle-check mr-1 text-[11px]"></i>考后</span>
+    <span id="actState" class="tag green ml-2"><i class="fa-solid fa-circle-check mr-1 text-[11px]"></i>考中</span>
     <div class="ml-auto flex items-center gap-3">
       <label class="text-xs text-slate-400">演示 · 阶段推进</label>
       <select id="stageCtl" onchange="setStage(this.value)" class="text-sm border border-slate-200 rounded-lg px-3 py-1.5 bg-white text-slate-600 focus:outline-none focus:border-brand-500">
         <option value="baoming">报名进行中</option>
         <option value="moni">模拟考开启</option>
         <option value="houkao">候考中</option>
-        <option value="kaozhong">考中</option>
-        <option value="kaohou" selected>考后</option>
-      </select>
+        <option value="kaozhong" selected>考中</option>
+              </select>
       <button onclick="toast('演示页面：导出走消息中心异步链路')" class="text-sm text-slate-500 hover:text-brand-600 border border-slate-200 hover:border-brand-500 rounded-lg px-3.5 py-1.5 transition flex items-center gap-2"><i class="fa-solid fa-file-export"></i> 导出</button>
     </div>
   </div>
 </header>
+
+<!-- 阶段进度条 -->
+<div class="px-8 pt-4">
+  <div class="panel px-6 py-4">
+    <div class="flex items-start">
+      <!-- 节点模板：圆点+名称+起止时间 -->
+      <div class="flex-1 flex items-start relative">
+        <div class="absolute top-[13px] left-[10%] right-[10%] h-[3px] bg-slate-200 rounded">
+          <div class="h-full w-[72%] bg-brand-600 rounded"></div>
+        </div>
+        <!-- 报名（已完成） -->
+        <div class="flex-1 flex flex-col items-center relative z-10">
+          <div class="w-7 h-7 rounded-full bg-brand-600 text-white flex items-center justify-center text-xs"><i class="fa-solid fa-check"></i></div>
+          <div class="mt-1.5 text-[13px] font-bold text-slate-700">报名</div>
+          <div class="text-[11px] text-slate-400">06-01 ~ 06-15</div>
+        </div>
+        <!-- 模拟考（已完成） -->
+        <div class="flex-1 flex flex-col items-center relative z-10">
+          <div class="w-7 h-7 rounded-full bg-brand-600 text-white flex items-center justify-center text-xs"><i class="fa-solid fa-check"></i></div>
+          <div class="mt-1.5 text-[13px] font-bold text-slate-700">模拟考</div>
+          <div class="text-[11px] text-slate-400">06-14 09:00 ~ 06-14 11:00</div>
+        </div>
+        <!-- 候考（已完成） -->
+        <div class="flex-1 flex flex-col items-center relative z-10">
+          <div class="w-7 h-7 rounded-full bg-brand-600 text-white flex items-center justify-center text-xs"><i class="fa-solid fa-check"></i></div>
+          <div class="mt-1.5 text-[13px] font-bold text-slate-700">候考</div>
+          <div class="text-[11px] text-slate-400">06-20 08:30 ~ 06-20 09:00</div>
+        </div>
+        <!-- 考中（当前） -->
+        <div class="flex-1 flex flex-col items-center relative z-10">
+          <div class="w-7 h-7 rounded-full bg-brand-600 ring-4 ring-brand-100 text-white flex items-center justify-center text-xs"><i class="fa-solid fa-user-pen"></i></div>
+          <div class="mt-1.5 text-[13px] font-bold text-brand-700">考中</div>
+          <div class="text-[11px] text-slate-400">06-20 09:00 ~ 06-20 11:00</div>
+          <div class="mt-0.5 text-[11px] font-semibold text-amber-600 bg-amber-50 border border-amber-200 rounded-full px-2 py-px"><i class="fa-regular fa-clock mr-1"></i>距结束还有 5 小时</div>
+        </div>
+        <!-- 考后（未到） -->
+        <div class="flex-1 flex flex-col items-center relative z-10">
+          <div class="w-7 h-7 rounded-full bg-slate-200 text-slate-400 flex items-center justify-center text-xs"><i class="fa-solid fa-award"></i></div>
+          <div class="mt-1.5 text-[13px] font-bold text-slate-400">考后</div>
+          <div class="text-[11px] text-slate-300">06-20 11:00 开始</div>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
 
 <!-- 筛选区 -->
 <div class="px-8 pt-5">
@@ -114,6 +158,17 @@ table.gt tr:hover td { background:#F8FAFC; }
       <button onclick="resetFilters()" class="text-sm text-slate-400 hover:text-slate-600 transition px-2 py-1"><i class="fa-solid fa-rotate-right mr-1"></i>重置</button>
       <button onclick="applyFilters()" class="bg-brand-600 hover:bg-brand-700 text-white text-sm font-medium px-4 py-1.5 rounded-lg shadow-sm transition"><i class="fa-solid fa-magnifying-glass mr-1 text-xs"></i>筛选数据</button>
     </div>
+  </div>
+</div>
+
+<!-- 当前筛选测评 -->
+<div class="px-8 pt-3">
+  <div class="flex items-center flex-wrap gap-2">
+    <span class="text-xs text-slate-400 mr-1">当前筛选测评：</span>
+    <button onclick="goExamDetail('Python一级-第1场')" class="chip-exam flex items-center gap-1.5 bg-brand-50 border border-brand-200 text-brand-700 rounded-full pl-2.5 pr-3 py-1 text-xs font-semibold hover:bg-brand-100 transition"><i class="fa-solid fa-file-pen text-[10px]"></i>Python一级-第1场<i class="fa-solid fa-arrow-up-right-from-square text-[9px] opacity-60"></i></button>
+    <button onclick="goExamDetail('图形化一级-第1场')" class="chip-exam flex items-center gap-1.5 bg-brand-50 border border-brand-200 text-brand-700 rounded-full pl-2.5 pr-3 py-1 text-xs font-semibold hover:bg-brand-100 transition"><i class="fa-solid fa-puzzle-piece text-[10px]"></i>图形化一级-第1场<i class="fa-solid fa-arrow-up-right-from-square text-[9px] opacity-60"></i></button>
+    <button onclick="goExamDetail('Python二级-第1场')" class="chip-exam flex items-center gap-1.5 bg-brand-50 border border-brand-200 text-brand-700 rounded-full pl-2.5 pr-3 py-1 text-xs font-semibold hover:bg-brand-100 transition"><i class="fa-solid fa-file-pen text-[10px]"></i>Python二级-第1场<i class="fa-solid fa-arrow-up-right-from-square text-[9px] opacity-60"></i></button>
+    <button onclick="goExamDetail('图形化二级-第1场')" class="chip-exam flex items-center gap-1.5 bg-brand-50 border border-brand-200 text-brand-700 rounded-full pl-2.5 pr-3 py-1 text-xs font-semibold hover:bg-brand-100 transition"><i class="fa-solid fa-puzzle-piece text-[10px]"></i>图形化二级-第1场<i class="fa-solid fa-arrow-up-right-from-square text-[9px] opacity-60"></i></button>
   </div>
 </div>
 
@@ -142,7 +197,7 @@ var FILTERS = {
   exam:    { label: '测评', options: ['Python一级·第1场', 'Python一级·第2场', '图形化二级·第1场', 'C++一级·第1场'], shares: {} }
 };
 
-var state = { stage: 'kaohou', tab: 'kaohou', sel: { channel: [], group: [], exam: [] }, applied: { channel: [], group: [], exam: [] } };
+var state = { stage: 'kaozhong', tab: 'kaozhong', sel: { channel: [], group: [], exam: [] }, applied: { channel: [], group: [], exam: [] } };
 
 /* ---------- 演示数据（未筛选 = 全量口径） ---------- */
 var D = {
@@ -180,7 +235,6 @@ var D = {
   lineRate:  [0, 8, 17, 26, 35, 44, 52, 59, 66, 72, 78],
   submitBuckets: [18, 95, 210, 128, 62, 10],
   qRate: [92, 88, 95, 76, 71, 68, 84, 90, 93, 66, 74, 81, 87, 90, 72, 64, 85, 91, 78, 83],
-  abnScreen: [47, 83], abnCam: 19, abnIP: [6, 9],
   // 考后
   pgTotal: 981, pgDone: 981,
   avg: 71.4, max: 100, min: 12, dabiao: 749,
@@ -344,6 +398,10 @@ document.addEventListener('click', function () { closeMsels(); });
 
 /* ---------- 阶段门控 ---------- */
 function stageIdx(key) { for (var i = 0; i < STAGES.length; i++) if (STAGES[i].key === key) return i; return 0; }
+function goExamDetail(name){
+  toast('携带登录态免登跳转爱测评 → 测评详情：' + name + '（免登票据单次有效、短时效）');
+}
+
 function setStage(key) {
   state.stage = key; state.tab = key;
   $('actState').className = 'tag ml-2 ' + (key === 'kaohou' ? 'green' : key === 'kaozhong' || key === 'houkao' ? 'blue' : 'amber');
@@ -360,12 +418,12 @@ function render() {
   if (stageIdx('moni') <= stageIdx(state.tab)) h += secMoni();
   if (stageIdx('houkao') <= stageIdx(state.tab)) h += secHoukao();
   if (stageIdx('kaozhong') <= stageIdx(state.tab)) h += secKaozhong();
-  if (stageIdx('kaohou') <= stageIdx(state.tab)) h += secKaohou();
+
   m.innerHTML = h;
   if (stageIdx('baoming') <= stageIdx(state.tab)) drawBaoming();
   if (stageIdx('moni') <= stageIdx(state.tab)) drawMoni();
   if (stageIdx('kaozhong') <= stageIdx(state.tab)) drawKaozhong();
-  if (stageIdx('kaohou') <= stageIdx(state.tab)) drawKaohou();
+
 }
 
 /* ---------- 报名 ---------- */
@@ -521,22 +579,11 @@ function secKaozhong() {
   h += statCard('', '已交卷', fmt(sc(D.kSubmitted)), '人', '交卷累计');
   h += statCard('', '未进入（缺考）', fmt(sc(D.kMiss)), '人', '全无监考口径');
   h += '</div>';
-  h += '<div class="grid grid-cols-2 gap-5 mb-5">';
+  h += '<div class="grid grid-cols-3 gap-5 mb-5">';
   h += '<div class="panel p-5">' + panelHead('监考相关 · 当前在线学员', '在线 ' + fmt(sc(D.kOnline)) + ' 人') + '<div class="chart-box" style="height:250px"><canvas id="cInv"></canvas></div></div>';
   h += '<div class="panel p-5">' + panelHead('作答状态 · 时间变化', '每 10 分钟一刻度') + '<div class="chart-box" style="height:250px"><canvas id="cStatus"></canvas></div></div>';
-  h += '<div class="panel p-5">' + panelHead('作答率 · 时间变化', '全场平均作答率') + '<div class="chart-box" style="height:250px"><canvas id="cRate"></canvas></div></div>';
   h += '<div class="panel p-5">' + panelHead('交卷时间分布', '刻度间隔 20 分钟') + '<div class="chart-box" style="height:250px"><canvas id="cSubmit"></canvas></div></div>';
   h += '</div>';
-  h += '<div class="panel p-5">' + panelHead('逐题作答情况大表', '每题已作答人数 ÷ 实到人数 · 分档 0-45 / 45-60 / 60-90 / 90-100%') + '<div class="flex flex-wrap gap-2">';
-  D.qRate.forEach(function (p, i) {
-    h += '<span class="q-cell ' + qcls(p) + '"><span class="block text-[11px] opacity-80">第' + (i + 1) + '题</span><span class="block font-mono">' + fmt(Math.round(p / 100 * sc(D.kShi))) + '人 · ' + p + '%</span></span>';
-  });
-  h += '</div><div class="flex gap-4 mt-3 text-xs text-slate-400">'
-    + '<span><i class="q-cell q0 inline-block" style="padding:2px 8px"></i> 0-45%</span><span><i class="q-cell q1 inline-block" style="padding:2px 8px"></i> 45-60%</span><span><i class="q-cell q2 inline-block" style="padding:2px 8px"></i> 60-90%</span><span><i class="q-cell q3 inline-block" style="padding:2px 8px"></i> 90-100%</span></div></div>';
-  h += '<div class="grid grid-cols-3 gap-4 mt-5">';
-  h += statCard('', '切屏异常', fmt(sc(D.abnScreen[0])), '人', '累计 ' + fmt(sc(D.abnScreen[1])) + ' 次');
-  h += statCard('', '摄像头异常', fmt(sc(D.abnCam)), '人', '考中摄像头中断');
-  h += statCard('', '多 IP 同时在线', fmt(sc(D.abnIP[0])), '人', '累计 ' + fmt(sc(D.abnIP[1])) + ' 人次');
   h += '</div></section>';
   return h;
 }
@@ -555,76 +602,9 @@ function drawKaozhong() {
     ]},
     options: lineOpt('人')
   });
-  mkChart('cRate', {
-    type: 'line',
-    data: { labels: D.rateTicks, datasets: [{ label: '全场平均作答率', data: D.lineRate, borderColor: '#2563EB', backgroundColor: 'rgba(37,99,235,.12)', fill: true, tension: .35, pointRadius: 2, borderWidth: 2 }] },
-    options: lineOpt('%')
-  });
-  mkChart('cSubmit', {
-    type: 'bar',
-    data: { labels: ['10min', '30min', '50min', '70min', '90min', '110min'], datasets: [{ data: scArr(D.submitBuckets), backgroundColor: '#2563EB', borderRadius: 6 }] },
-    options: barOpt()
-  });
-}
-function lineOpt(unit) {
+  function lineOpt(unit) {
   return { responsive: true, maintainAspectRatio: false, plugins: { legend: { position: 'bottom', labels: { boxWidth: 10, boxHeight: 10, usePointStyle: true } } }, scales: { y: { beginAtZero: true, grid: { color: '#F1F5F9' }, ticks: { callback: function (v) { return v + unit; } } }, x: { grid: { display: false } } } };
 }
-
-/* ---------- 考后 ---------- */
-function secKaohou() {
-  var h = '<section class="mb-7"><div class="flex items-center gap-2 mb-4"><span class="w-1.5 h-5 bg-brand-600 rounded-full"></span><h2 class="text-[15px] font-bold">考后</h2><span class="text-xs text-slate-400">测评结束 ~ 成果交付完成 · 事件驱动更新</span></div>';
-  // 进度行
-  h += '<div class="grid grid-cols-4 gap-4 mb-5">';
-  h += progCard('批改进度', sc(D.pgDone), sc(D.pgTotal), '已批 / 总试卷', true);
-  h += progCard('报告生成', sc(D.rpt.done), sc(D.pgTotal), '已生成 / 应生成');
-  h += progCard('电子证书签发', sc(D.certE.signed), sc(D.dabiao), '已签发 / 达标学员');
-  h += progCard('实体证书寄送', sc(D.certP.sent), sc(D.dabiao), '已寄送 / 达标学员');
-  h += '</div>';
-  // 成绩统计
-  h += '<div class="grid grid-cols-2 gap-5">';
-  h += '<div class="panel p-5">' + panelHead('成绩统计 · 关键指标', '等级与达标 = 证书分数线规则') + '<div class="grid grid-cols-4 gap-3">'
-    + statCard('', '平均分', D.avg, '分', '') + statCard('', '最高分', D.max, '分', '') + statCard('', '最低分', D.min, '分', '') + statCard('hl', '达标率', pct(sc(D.dabiao), sc(D.pgTotal)), '%', fmt(sc(D.dabiao)) + ' 人达标')
-    + '</div></div>';
-  h += '<div class="panel p-5">' + panelHead('分数段分布') + '<div class="chart-box" style="height:232px"><canvas id="cScore"></canvas></div></div>';
-  h += '</div>';
-  h += '<div class="grid grid-cols-2 gap-5 mt-5">';
-  h += '<div class="panel p-5">' + panelHead('个人报告等级分布', '报告管理（34）配置的报告等级分数段') + '<div class="chart-box" style="height:230px"><canvas id="cGradeRpt"></canvas></div></div>';
-  h += '<div class="panel p-5">' + panelHead('证书等级分布', '证书分数线规则配置的等级档位') + '<div class="chart-box" style="height:230px"><canvas id="cGradeCert"></canvas></div></div>';
-  h += '</div>';
-  h += '<div class="panel p-5 mt-5">' + panelHead('交付进度明细') + '<div class="space-y-4 pt-1">'
-    + dlRow('批改', '完成 ' + fmt(sc(D.pgDone)) + ' / ' + fmt(sc(D.pgTotal)), 100)
-    + dlRow('报告', '已生成 ' + fmt(sc(D.rpt.done)) + ' · 生成中 ' + fmt(sc(D.rpt.doing)) + ' · 失败 ' + fmt(sc(D.rpt.fail)), sc(D.rpt.done) / sc(D.pgTotal) * 100)
-    + dlRow('电子证书', '已签发 ' + fmt(sc(D.certE.signed)) + ' · 待签发 ' + fmt(sc(D.certE.sign)), sc(D.certE.signed) / sc(D.dabiao) * 100)
-    + dlRow('实体证书', '制作中 ' + fmt(sc(D.certP.making)) + ' · 已寄送 ' + fmt(sc(D.certP.sent)), sc(D.certP.sent) / sc(D.dabiao) * 100)
-    + '</div></div>';
-  h += '</section>';
-  return h;
-}
-function progCard(label, done, total, sub, green) {
-  var p = total ? (done / total * 100) : 0;
-  return '<div class="stat-card"><p class="text-xs text-slate-400 font-medium mb-1.5">' + label + '</p>' +
-    '<p class="text-[24px] font-bold font-mono leading-none mb-2" style="color:#1E293B">' + p.toFixed(0) + '<span class="text-sm font-normal text-slate-400"> %</span></p>' +
-    '<div class="pbar ' + (green ? 'g' : '') + '"><i style="width:' + Math.min(100, p) + '%"></i></div>' +
-    '<p class="text-xs text-slate-400 mt-1.5"><b class="font-mono text-slate-600">' + fmt(done) + ' / ' + fmt(total) + '</b> · ' + sub + '</p></div>';
-}
-function dlRow(name, desc, p) {
-  return '<div><div class="flex justify-between text-xs mb-1"><span class="font-semibold text-slate-600">' + name + '</span><span class="text-slate-400">' + desc + '</span></div><div class="pbar"><i style="width:' + Math.min(100, p) + '%"></i></div></div>';
-}
-function drawKaohou() {
-  var sk = Object.keys(D.scoreSeg);
-  mkChart('cScore', { type: 'bar', data: { labels: sk, datasets: [{ data: sk.map(function (k) { return sc(D.scoreSeg[k]); }), backgroundColor: ['#E2E8F0', '#CBD5E1', '#93C5FD', '#60A5FA', '#3B82F6', '#2563EB'], borderRadius: 6 }] }, options: barOpt() });
-  var rk = Object.keys(D.gradeRpt);
-  mkChart('cGradeRpt', {
-    type: 'doughnut',
-    data: { labels: rk, datasets: [{ data: rk.map(function (k) { return sc(D.gradeRpt[k]); }), backgroundColor: ['#059669', '#2563EB', '#93C5FD', '#FDE68A'], borderWidth: 3, borderColor: '#fff' }] },
-    options: { responsive: true, maintainAspectRatio: false, cutout: '60%', plugins: { legend: { position: 'bottom', labels: { boxWidth: 10, boxHeight: 10, usePointStyle: true } } } }
-  });
-  var ck = Object.keys(D.gradeCert);
-  mkChart('cGradeCert', {
-    type: 'doughnut',
-    data: { labels: ck, datasets: [{ data: ck.map(function (k) { return sc(D.gradeCert[k]); }), backgroundColor: ['#059669', '#10B981', '#93C5FD', '#E2E8F0'], borderWidth: 3, borderColor: '#fff' }] },
-    options: { responsive: true, maintainAspectRatio: false, cutout: '60%', plugins: { legend: { position: 'bottom', labels: { boxWidth: 10, boxHeight: 10, usePointStyle: true } } } }
-  });
 }
 
 /* ---------- init ---------- */
