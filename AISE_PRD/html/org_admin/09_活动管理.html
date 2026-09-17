@@ -1,0 +1,125 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>活动管理 - 组织后台</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <script>
+        tailwind.config = {
+            theme: {
+                extend: {
+                    fontFamily: { sans: ['Inter', 'sans-serif'], mono: ['JetBrains Mono', 'monospace'] },
+                    colors: { brand: { 50: '#f0fdfa', 100: '#ccfbf1', 500: '#14b8a6', 600: '#0d9488', 700: '#0f766e' } },
+                    boxShadow: { 'card': '0 1px 3px 0 rgba(0, 0, 0, 0.1), 0 1px 2px 0 rgba(0, 0, 0, 0.06)' }
+                }
+            }
+        }
+    </script>
+    <style>
+        body { background-color: #F8FAFC; }
+        .custom-scroll::-webkit-scrollbar { width: 6px; height: 6px; }
+        .custom-scroll::-webkit-scrollbar-thumb { background: #cbd5e1; border-radius: 3px; }
+        .nav-item.active { background-color: #f0fdfa; color: #0d9488; font-weight: 600; }
+        .nav-item.active::before { content: ''; position: absolute; left: 0; top: 10%; height: 80%; width: 4px; border-radius: 0 4px 4px 0; background-color: #0d9488; }
+    </style>
+</head>
+
+<body class="flex h-screen overflow-hidden text-slate-800 font-sans">
+
+    <!-- 侧边栏 -->
+    <aside class="w-64 bg-slate-900 text-slate-300 flex flex-col flex-shrink-0 z-20">
+        <div class="h-[72px] flex items-center px-6 border-b border-slate-800 bg-slate-950/50">
+            <div class="w-8 h-8 bg-gradient-to-br from-brand-500 to-emerald-600 rounded flex items-center justify-center text-white font-bold text-lg mr-3 shadow-lg">Y</div>
+            <div class="flex-1 min-w-0">
+                <h1 class="font-bold text-sm text-white truncate">猿编程教育科技</h1>
+                <p class="text-[10px] text-slate-500 font-mono truncate">ID: YPB2025</p>
+            </div>
+        </div>
+        <nav class="flex-1 overflow-y-auto py-6 space-y-1 custom-scroll px-3 cursor-pointer">
+            <div class="px-3 pb-2 text-[10px] font-bold text-slate-500 uppercase tracking-wider">业务数据中心</div>
+            <a href="03_学生列表.html" class="nav-item flex items-center gap-3 px-3 py-2.5 rounded-lg text-slate-400 hover:bg-slate-800 hover:text-white transition relative group">
+                <i class="fa-solid fa-users w-5 text-center group-hover:text-brand-400 transition-colors"></i><span class="text-sm">本渠道学生</span>
+            </a>
+            <a href="04_报名列表.html" class="nav-item flex items-center gap-3 px-3 py-2.5 rounded-lg text-slate-400 hover:bg-slate-800 hover:text-white transition relative group">
+                <i class="fa-solid fa-chart-simple w-5 text-center group-hover:text-brand-400 transition-colors"></i><span class="text-sm">成绩与进度查询</span>
+            </a>
+            <div class="px-3 pt-4 pb-2 text-[10px] font-bold text-slate-500 uppercase tracking-wider">活动中心</div>
+            <a href="09_活动管理.html" class="nav-item active flex items-center gap-3 px-3 py-2.5 rounded-lg text-slate-400 hover:bg-slate-800 hover:text-white transition relative group">
+                <i class="fa-solid fa-calendar-days w-5 text-center group-hover:text-brand-400 transition-colors"></i><span class="text-sm">活动管理</span>
+            </a>
+            <a href="10_活动数据分析.html" class="nav-item flex items-center gap-3 px-3 py-2.5 rounded-lg text-slate-400 hover:bg-slate-800 hover:text-white transition relative group">
+                <i class="fa-solid fa-chart-line w-5 text-center group-hover:text-brand-400 transition-colors"></i><span class="text-sm">活动数据分析</span>
+            </a>
+            <div class="px-3 pt-4 pb-2 text-[10px] font-bold text-slate-500 uppercase tracking-wider">开放能力</div>
+            <a href="05_密钥与Webhook.html" class="nav-item flex items-center gap-3 px-3 py-2.5 rounded-lg text-slate-400 hover:bg-slate-800 hover:text-white transition relative group">
+                <i class="fa-solid fa-key w-5 text-center group-hover:text-brand-400 transition-colors"></i><span class="text-sm">配置与密钥<br>(API)</span>
+            </a>
+            <a href="06_联调日志.html" class="nav-item flex items-center gap-3 px-3 py-2.5 rounded-lg text-slate-400 hover:bg-slate-800 hover:text-white transition relative group">
+                <i class="fa-solid fa-file-code w-5 text-center group-hover:text-brand-400 transition-colors"></i><span class="text-sm">联调与接口日志</span>
+            </a>
+        </nav>
+        <div class="p-4 border-t border-slate-800">
+            <div class="flex items-center gap-3">
+                <div class="w-8 h-8 rounded-full bg-slate-700 flex items-center justify-center text-xs text-white">李</div>
+                <div class="flex-1 min-w-0">
+                    <p class="text-xs text-white font-medium truncate">李明</p>
+                    <p class="text-[10px] text-slate-500">组织管理员</p>
+                </div>
+            </div>
+        </div>
+    </aside>
+
+    <!-- 主内容区 -->
+    <main class="flex-1 flex flex-col overflow-hidden">
+        <header class="h-[72px] bg-white border-b border-slate-200 flex items-center px-8 flex-shrink-0">
+            <div>
+                <h1 class="text-lg font-bold">活动管理</h1>
+                <p class="text-xs text-slate-400 mt-0.5">本渠道可参与的活动与数据入口</p>
+            </div>
+        </header>
+
+        <div class="flex-1 overflow-y-auto custom-scroll p-8">
+            <div class="space-y-4" id="actList"></div>
+        </div>
+    </main>
+
+    <script>
+    var ACTS = [
+      { id:'A2026SP', name:'2026 春季编程等级测评', range:'2026-03-01 ~ 2026-06-30', stage:'考中', stageCls:'bg-brand-50 text-brand-700 border-brand-200', stageIcon:'fa-user-pen', exams:4, groups:2, upto:'距考中结束还有 5 小时' },
+      { id:'A2025WI', name:'2025 冬季图形化等级测评', range:'2025-12-01 ~ 2025-12-28', stage:'已完结', stageCls:'bg-slate-100 text-slate-500 border-slate-200', stageIcon:'fa-flag-checkered', exams:3, groups:2, upto:'' },
+      { id:'A2026AU', name:'2026 秋季编程等级测评（筹备）', range:'2026-09-01 ~ 2026-12-20', stage:'未开始', stageCls:'bg-amber-50 text-amber-600 border-amber-200', stageIcon:'fa-hourglass-half', exams:5, groups:3, upto:'报名 09-20 开启' }
+    ];
+    function toast(msg){
+      var t = document.createElement('div');
+      t.className = 'fixed top-6 left-1/2 -translate-x-1/2 bg-slate-900 text-white text-sm px-5 py-2.5 rounded-lg shadow-lg z-50';
+      t.textContent = msg; document.body.appendChild(t);
+      setTimeout(function(){ t.remove(); }, 2600);
+    }
+    function render(){
+      var h = '';
+      ACTS.forEach(function(a){
+        h += '<div class="bg-white rounded-xl shadow-card border border-slate-100 p-5 flex items-center gap-5 hover:border-brand-300 transition">'
+          +  '<div class="w-11 h-11 rounded-lg bg-brand-50 text-brand-600 flex items-center justify-center text-lg flex-shrink-0"><i class="fa-solid fa-calendar-days"></i></div>'
+          +  '<div class="flex-1 min-w-0">'
+          +  '<div class="flex items-center gap-2.5"><h2 class="text-[15px] font-bold">' + a.name + '</h2>'
+          +  '<span class="tag inline-flex items-center gap-1 text-[11px] px-2 py-0.5 rounded border ' + a.stageCls + '"><i class="fa-solid ' + a.stageIcon + ' text-[10px]"></i>' + a.stage + '</span>'
+          +  (a.upto ? '<span class="text-[11px] text-amber-600 bg-amber-50 border border-amber-200 rounded-full px-2 py-px">' + a.upto + '</span>' : '')
+          +  '</div>'
+          +  '<div class="flex items-center gap-4 mt-1.5 text-xs text-slate-400 font-mono"><span>' + a.range + '</span><span class="font-sans">' + a.groups + ' 个分组 · ' + a.exams + ' 场测评</span><span class="font-sans">活动编号 ' + a.id + '</span></div>'
+          +  '</div>'
+          +  '<button data-id="' + a.id + '" onclick="goData(this.dataset.id)" class="flex items-center gap-2 text-sm font-semibold text-brand-700 bg-brand-50 hover:bg-brand-100 border border-brand-200 rounded-lg px-4 py-2 transition flex-shrink-0"><i class="fa-solid fa-chart-line"></i>数据分析</button>'
+          +  '</div>';
+      });
+      document.getElementById('actList').innerHTML = h;
+    }
+    function goData(id){ toast('打开本渠道活动数据分析：' + id); location.href = '10_活动数据分析.html?act=' + id; }
+    render();
+    </script>
+</body>
+
+</html>

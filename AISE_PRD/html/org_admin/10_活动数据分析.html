@@ -1,0 +1,587 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>活动数据分析 - 组织后台</title>
+<script src="https://cdn.tailwindcss.com"></script>
+<script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.0/dist/chart.umd.min.js"></script>
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&family=JetBrains+Mono:wght@400;600;700&family=Noto+Sans+SC:wght@400;500;700&display=swap" rel="stylesheet">
+<script>
+tailwind.config = {
+  theme: {
+    extend: {
+      fontFamily: {
+        sans: ['Inter', 'Noto Sans SC', 'sans-serif'],
+        mono: ['JetBrains Mono', 'monospace'],
+      },
+      colors: {
+        brand: { 50: '#f0fdfa', 100: '#ccfbf1', 500: '#14b8a6', 600: '#0d9488', 700: '#0f766e' },
+      },
+      boxShadow: {
+        card: '0 1px 3px 0 rgba(0, 0, 0, 0.1), 0 1px 2px 0 rgba(0, 0, 0, 0.06)',
+      }
+    }
+  }
+}
+</script>
+<style>
+body { background-color: #F8FAFC; }
+.mono { font-family: 'JetBrains Mono', monospace; }
+.msel { position:relative; }
+.msel-btn { display:inline-flex; align-items:center; gap:8px; border:1px solid #E2E8F0; background:#fff; border-radius:10px; padding:7px 12px; font-size:13px; color:#475569; cursor:pointer; transition:.13s; min-width:150px; }
+.msel-btn:hover { border-color:#93C5FD; }
+.msel-btn .cnt { background:#F0FDFA; color:#1D4ED8; font-weight:700; border-radius:9999px; padding:0 7px; font-size:11px; }
+.msel-panel { display:none; position:absolute; top:calc(100% + 6px); left:0; width:250px; background:#fff; border:1px solid #E2E8F0; border-radius:12px; box-shadow:0 8px 24px rgba(15,23,42,.12); z-index:50; padding:8px; }
+.msel.open .msel-panel { display:block; }
+.msel-search { width:100%; border:1px solid #E2E8F0; border-radius:8px; padding:6px 10px; font-size:13px; outline:none; margin-bottom:6px; }
+.msel-search:focus { border-color:#2563EB; }
+.msel-list { max-height:240px; overflow-y:auto; }
+.msel-opt { display:flex; align-items:center; gap:8px; padding:7px 9px; border-radius:8px; font-size:13px; color:#334155; cursor:pointer; }
+.msel-opt:hover { background:#F8FAFC; }
+.msel-opt input { accent-color:#2563EB; }
+.msel-empty { padding:12px; text-align:center; color:#94A3B8; font-size:12px; }
+.chip { display:inline-flex; align-items:center; gap:5px; padding:4px 12px; border-radius:9999px; border:1px solid #E2E8F0; background:#fff; font-size:12px; font-weight:500; color:#475569; cursor:pointer; transition:.13s; }
+.chip:hover { border-color:#93C5FD; }
+.chip.on { background:#F0FDFA; border-color:#2563EB; color:#1D4ED8; font-weight:600; }
+.stat-card { background:#fff; border:1px solid #E2E8F0; border-radius:14px; padding:18px 20px; box-shadow:0 1px 3px rgba(0,0,0,.07); transition:.15s; }
+.stat-card:hover { border-color:#BFDBFE; transform:translateY(-1px); }
+.stat-card.hl { background:linear-gradient(135deg,#F0FDFA,#fff); border-color:#BFDBFE; }
+.panel { background:#fff; border:1px solid #E2E8F0; border-radius:14px; box-shadow:0 1px 3px rgba(0,0,0,.06); }
+.pbar { height:8px; border-radius:9999px; background:#F1F5F9; overflow:hidden; }
+.pbar > i { display:block; height:100%; border-radius:9999px; background:#2563EB; transition:width .4s; }
+.pbar.g > i { background:#10B981; }
+.funnel-row { display:flex; align-items:center; gap:12px; }
+.funnel-bar { height:34px; border-radius:8px; display:flex; align-items:center; padding:0 12px; color:#fff; font-weight:700; font-size:13px; min-width:64px; }
+.q-cell { display:inline-flex; flex-direction:column; align-items:center; min-width:76px; text-align:center; padding:5px 10px; border-radius:7px; font-size:12px; font-weight:600; line-height:1.35; }
+.q0 { background:#FEE2E2; color:#B91C1C; } .q1 { background:#FEF3C7; color:#B45309; } .q2 { background:#DBEAFE; color:#1D4ED8; } .q3 { background:#D1FAE5; color:#047857; }
+table.gt { width:100%; border-collapse:collapse; font-size:13px; }
+table.gt th { text-align:left; font-weight:600; color:#64748B; padding:10px 14px; border-bottom:1px solid #E2E8F0; background:#F8FAFC; white-space:nowrap; }
+table.gt td { padding:10px 14px; border-bottom:1px solid #F1F5F9; color:#334155; }
+table.gt tr:hover td { background:#F8FAFC; }
+.tag { display:inline-flex; align-items:center; padding:2px 10px; border-radius:9999px; font-size:12px; font-weight:600; }
+.tag.blue { background:#F0FDFA; color:#1D4ED8; } .tag.green { background:#D1FAE5; color:#047857; }
+.tag.amber { background:#FEF3C7; color:#B45309; } .tag.gray { background:#F1F5F9; color:#64748B; } .tag.red { background:#FEE2E2; color:#B91C1C; }
+#toast { position:fixed; bottom:28px; left:50%; transform:translateX(-50%) translateY(20px); background:#1E293B; color:#fff; padding:10px 22px; border-radius:10px; font-size:13px; opacity:0; transition:.25s; z-index:99; pointer-events:none; }
+#toast.show { opacity:1; transform:translateX(-50%) translateY(0); }
+.chart-box { position:relative; width:100%; }
+.mx td.num, .mx th.num { text-align:right; font-family:'JetBrains Mono',monospace; }
+.mx th.num { color:#64748B; }
+.mx-group td { background:#F8FAFC; font-weight:700; color:#1E293B; border-top:1px solid #E2E8F0; }
+.mx-exam td:first-child { padding-left:30px; color:#475569; }
+.mx-total td { font-weight:700; color:#1E293B; border-top:2px solid #CBD5E1; background:#F8FAFC; }
+</style>
+</head>
+<body class="font-sans text-slate-800">
+
+<!-- 顶栏 -->
+<header class="bg-white border-b border-slate-200 sticky top-0 z-40">
+  <div class="px-8 h-16 flex items-center gap-4">
+    <a href="09_活动管理.html" class="w-9 h-9 rounded-lg border border-slate-200 flex items-center justify-center text-slate-500 hover:text-brand-600 hover:border-brand-500 transition"><i class="fa-solid fa-arrow-left text-sm"></i></a>
+    <div class="flex items-center gap-3">
+      <div class="w-9 h-9 bg-gradient-to-br from-brand-600 to-indigo-600 rounded-lg flex items-center justify-center text-white shadow-sm"><i class="fa-solid fa-chart-line text-sm"></i></div>
+      <div>
+        <h1 class="text-[17px] font-bold leading-tight">数据分析 <span class="text-slate-400 font-medium">·</span> <span id="actName" class="text-slate-700">2026 春季编程等级测评</span></h1>
+        <p class="text-xs text-slate-400 mt-0.5">2026-03-01 ~ 2026-06-30 · 4 场测评 · 本渠道：猿编程教育科技 · 数据截至 <span class="mono">06-30 18:00</span></p>
+      </div>
+    </div>
+    <span id="actState" class="tag green ml-2"><i class="fa-solid fa-circle-check mr-1 text-[11px]"></i>考中</span>
+    <div class="ml-auto flex items-center gap-3">
+      <label class="text-xs text-slate-400">演示 · 阶段推进</label>
+      <select id="stageCtl" onchange="setStage(this.value)" class="text-sm border border-slate-200 rounded-lg px-3 py-1.5 bg-white text-slate-600 focus:outline-none focus:border-brand-500">
+        <option value="baoming">报名进行中</option>
+        <option value="moni">模拟考开启</option>
+        <option value="houkao">候考中</option>
+        <option value="kaozhong" selected>考中</option>
+              </select>
+      <button onclick="toast('演示页面：导出走消息中心异步链路')" class="text-sm text-slate-500 hover:text-brand-600 border border-slate-200 hover:border-brand-500 rounded-lg px-3.5 py-1.5 transition flex items-center gap-2"><i class="fa-solid fa-file-export"></i> 导出</button>
+    </div>
+  </div>
+</header>
+
+<!-- 阶段进度条 -->
+<div class="px-8 pt-4">
+  <div class="panel px-6 py-4">
+    <div class="flex items-start">
+      <!-- 节点模板：圆点+名称+起止时间 -->
+      <div class="flex-1 flex items-start relative">
+        <div class="absolute top-[13px] left-[10%] right-[10%] h-[3px] bg-slate-200 rounded">
+          <div class="h-full w-[72%] bg-brand-600 rounded"></div>
+        </div>
+        <!-- 报名（已完成） -->
+        <div class="flex-1 flex flex-col items-center relative z-10">
+          <div class="w-7 h-7 rounded-full bg-brand-600 text-white flex items-center justify-center text-xs"><i class="fa-solid fa-check"></i></div>
+          <div class="mt-1.5 text-[13px] font-bold text-slate-700">报名</div>
+          <div class="text-[11px] text-slate-400">06-01 ~ 06-15</div>
+        </div>
+        <!-- 模拟考（已完成） -->
+        <div class="flex-1 flex flex-col items-center relative z-10">
+          <div class="w-7 h-7 rounded-full bg-brand-600 text-white flex items-center justify-center text-xs"><i class="fa-solid fa-check"></i></div>
+          <div class="mt-1.5 text-[13px] font-bold text-slate-700">模拟考</div>
+          <div class="text-[11px] text-slate-400">06-14 09:00 ~ 06-14 11:00</div>
+        </div>
+        <!-- 候考（已完成） -->
+        <div class="flex-1 flex flex-col items-center relative z-10">
+          <div class="w-7 h-7 rounded-full bg-brand-600 text-white flex items-center justify-center text-xs"><i class="fa-solid fa-check"></i></div>
+          <div class="mt-1.5 text-[13px] font-bold text-slate-700">候考</div>
+          <div class="text-[11px] text-slate-400">06-20 08:30 ~ 06-20 09:00</div>
+        </div>
+        <!-- 考中（当前） -->
+        <div class="flex-1 flex flex-col items-center relative z-10">
+          <div class="w-7 h-7 rounded-full bg-brand-600 ring-4 ring-brand-100 text-white flex items-center justify-center text-xs"><i class="fa-solid fa-user-pen"></i></div>
+          <div class="mt-1.5 text-[13px] font-bold text-brand-700">考中</div>
+          <div class="text-[11px] text-slate-400">06-20 09:00 ~ 06-20 11:00</div>
+          <div class="mt-0.5 text-[11px] font-semibold text-amber-600 bg-amber-50 border border-amber-200 rounded-full px-2 py-px"><i class="fa-regular fa-clock mr-1"></i>距结束还有 5 小时</div>
+        </div>
+        <!-- 考后（未到） -->
+        <div class="flex-1 flex flex-col items-center relative z-10">
+          <div class="w-7 h-7 rounded-full bg-slate-200 text-slate-400 flex items-center justify-center text-xs"><i class="fa-solid fa-award"></i></div>
+          <div class="mt-1.5 text-[13px] font-bold text-slate-400">考后</div>
+          <div class="text-[11px] text-slate-300">06-20 11:00 开始</div>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- 筛选区 -->
+<div class="px-8 pt-5">
+  <div class="panel px-5 py-4 flex flex-wrap items-center gap-4">
+    <div id="fGroup"></div>
+    <div class="w-px h-6 bg-slate-100"></div>
+    <div id="fExam"></div>
+    <div class="ml-auto flex items-center gap-3">
+      <span id="scopeTip" class="text-xs text-slate-400"></span>
+      <button onclick="resetFilters()" class="text-sm text-slate-400 hover:text-slate-600 transition px-2 py-1"><i class="fa-solid fa-rotate-right mr-1"></i>重置</button>
+      <button onclick="applyFilters()" class="bg-brand-600 hover:bg-brand-700 text-white text-sm font-medium px-4 py-1.5 rounded-lg shadow-sm transition"><i class="fa-solid fa-magnifying-glass mr-1 text-xs"></i>筛选数据</button>
+    </div>
+  </div>
+</div>
+
+<!-- 内容区 -->
+<main id="main" class="px-8 py-5"></main>
+
+<div id="toast"></div>
+
+<script>
+/* ============================================================
+   数据分析页 demo · 单活动视角
+   阶段门控：进展到哪个阶段，只能看该阶段及之前的数据
+   ============================================================ */
+
+var STAGES = [
+  { key: 'baoming',  name: '报名',   icon: 'fa-file-signature' },
+  { key: 'moni',     name: '模拟考', icon: 'fa-laptop-code' },
+  { key: 'houkao',   name: '候考',   icon: 'fa-hourglass-half' },
+  { key: 'kaozhong', name: '考中',   icon: 'fa-user-pen' },
+  { key: 'kaohou',   name: '考后',   icon: 'fa-award' }
+];
+
+var FILTERS = {
+  group:   { label: '分组', options: ['3月批', '6月批'],             shares: {} },
+  exam:    { label: '测评', options: ['Python一级·第1场', 'Python一级·第2场', '图形化二级·第1场', 'C++一级·第1场'], shares: {} }
+};
+
+var state = { stage: 'kaozhong', tab: 'kaozhong', sel: { group: [], exam: [] }, applied: { group: [], exam: [] } };
+
+/* ---------- 演示数据（未筛选 = 全量口径） ---------- */
+var D = {
+  // 报名
+  renshu: 1230, danliang: 1230, youxiao: 1021, daizhifu: 66, tuikuan: 143,
+  payWays: { '微信支付': 1021 },
+  daily: [30, 32, 35, 37, 40, 42, 45, 46, 42, 44, 47, 49, 52, 50, 48, 50, 53, 55, 52, 55, 57, 60, 58, 55, 50, 48],
+  auditPass: [86, 124, 98, 142, 156, 201, 146], auditFail: [6, 9, 4, 12, 15, 16, 6], auditWait: [12, 18, 9, 14, 11, 4, 0],
+  auditPassT: 953, auditFailT: 68, auditWaitT: 0,
+  /* 报名量矩阵：行=分组>测评，本渠道视角；分布图与筛选占比由此推导 */
+  matrix: [
+    { group: '3月批', rows: [
+      { exam: 'Python一级·第1场', cells: [114, 89, 68] },
+      { exam: 'Python一级·第2场', cells: [93, 73, 55] }
+    ] },
+    { group: '6月批', rows: [
+      { exam: '图形化二级·第1场', cells: [155, 122, 92] },
+      { exam: 'C++一级·第1场',   cells: [155, 122, 92] }
+    ] }
+  ],
+  // 模拟考
+  mYing: 1021, mCan: 735, mDone: 689,
+  mCam: [702, 735], mRec: [651, 698], mPic: [719, 735], mPhone: [662, 735],
+  // 候考
+  hYing: 1021, hHou: 976, hAvg: 14,
+  hCam: [968, 1021], hRec: [892, 964], hPhone: [612, 1021], hPic: [973, 1021],
+  // 考中
+  kYing: 1021, kShi: 981, kDoing: 458, kOnline: 316, kSubmitted: 523, kMiss: 40,
+  kCamRec: 201, kCamOnly: 48, kRecOnly: 35, kNone: 32, kPhone: 187,
+  statusTicks: ['0', '10', '20', '30', '40', '50', '60', '70', '80', '90', '100'],
+  lineSubmit: [0, 0, 3, 18, 64, 143, 239, 331, 412, 471, 523],
+  lineDoing: [0, 610, 750, 800, 815, 770, 690, 560, 430, 465, 458],
+  lineMiss:  [40, 40, 40, 40, 40, 40, 40, 40, 40, 40, 40],
+  rateTicks: ['0', '10', '20', '30', '40', '50', '60', '70', '80', '90', '100'],
+  lineRate:  [0, 8, 17, 26, 35, 44, 52, 59, 66, 72, 78],
+  submitBuckets: [18, 95, 210, 128, 62, 10],
+  qRate: [92, 88, 95, 76, 71, 68, 84, 90, 93, 66, 74, 81, 87, 90, 72, 64, 85, 91, 78, 83],
+  // 考后
+  pgTotal: 981, pgDone: 981,
+  avg: 71.4, max: 100, min: 12, dabiao: 749,
+  scoreSeg: { '0-30': 52, '30-60': 180, '60-70': 121, '70-80': 203, '80-90': 241, '90-100': 184 },
+  gradeRpt: { '优秀': 187, '良好': 312, '合格': 250, '待提升': 232 },
+  gradeCert: { '一等奖': 121, '二等奖': 288, '三等奖': 340, '未达标': 232 },
+  rpt: { done: 968, doing: 13, fail: 0 },
+  certE: { wait: 0, gen: 0, sign: 12, signed: 737, fail: 0 },
+  certP: { review: 0, pub: 0, making: 120, sent: 629 }
+};
+
+/* ---------- 单一数据源推导：矩阵 → 分布图数值 + 筛选占比 ---------- */
+(function derive() {
+  var m = { group: {}, exam: {} }, total = 0;
+  var dm = { group: {}, exam: {} };
+  D.matrix.forEach(function (g) {
+    g.rows.forEach(function (r) {
+      var rsum = 0;
+      r.cells.forEach(function (v) { rsum += v; });
+      m.group[g.group] = (m.group[g.group] || 0) + rsum;
+      m.exam[r.exam] = (m.exam[r.exam] || 0) + rsum;
+      total += rsum;
+    });
+  });
+  Object.keys(m.group).forEach(function (k) { dm.group[k] = m.group[k] || 0; });
+  Object.keys(m.exam).forEach(function (k) { dm.exam[k] = m.exam[k] || 0; });
+  D.distMap = dm;
+  FILTERS.group.options.forEach(function (o) { FILTERS.group.shares[o] = (m.group[o] || 1); });
+  FILTERS.exam.options.forEach(function (o) { FILTERS.exam.shares[o] = (m.exam[o] || 1); });
+  D.total = total;
+})();
+
+var charts = {};
+
+/* ---------- 工具 ---------- */
+function $(id) { return document.getElementById(id); }
+function toast(m) { var t = $('toast'); t.textContent = m; t.classList.add('show'); setTimeout(function () { t.classList.remove('show'); }, 2200); }
+function fmt(n) { return Number(n).toLocaleString('zh-CN'); }
+function pct(a, b) { return b ? (a / b * 100).toFixed(1) : '0.0'; }
+function esc(s) { return String(s).replace(/&/g, '&amp;').replace(/</g, '&lt;'); }
+function factor() {
+  var f = 1;
+  ['group', 'exam'].forEach(function (k) {
+    var sel = state.applied[k];
+    if (!sel.length) return;
+    var s = 0;
+    sel.forEach(function (o) { s += (FILTERS[k].shares[o] || 0); });
+    f *= s;
+  });
+  return f;
+}
+function selEqApplied() {
+  return ['group', 'exam'].every(function (k) {
+    var a = state.sel[k].slice().sort().join(','), b = state.applied[k].slice().sort().join(',');
+    return a === b;
+  });
+}
+function applyFilters() {
+  ['group', 'exam'].forEach(function (k) { state.applied[k] = state.sel[k].slice(); });
+  renderFilters(); render();
+}
+function resetFilters() {
+  ['group', 'exam'].forEach(function (k) { state.sel[k] = []; state.applied[k] = []; });
+  renderFilters(); render();
+}
+function sc(v) { return Math.round(v * factor()); }
+function scArr(arr) { var f = factor(); return arr.map(function (x) { return Math.round(x * f); }); }
+function distFactor(exclude) {
+  var f = 1;
+  ['group', 'exam'].forEach(function (k) {
+    if (k === exclude) return;
+    var sel = state.applied[k];
+    if (!sel.length) return;
+    var s = 0;
+    sel.forEach(function (o) { s += (FILTERS[k].shares[o] || 0); });
+    f *= s;
+  });
+  return f;
+}
+function distRows(dim) {
+  var opts = state.applied[dim].length ? state.applied[dim] : FILTERS[dim].options;
+  var f = distFactor(dim);
+  return { labels: opts, values: opts.map(function (o) { return Math.round((D.distMap[dim][o] || 0) * f); }) };
+}
+function qcls(p) { return p < 45 ? 'q0' : p < 60 ? 'q1' : p < 90 ? 'q2' : 'q3'; }
+function destroyCharts() { Object.keys(charts).forEach(function (k) { if (charts[k]) { charts[k].destroy(); charts[k] = null; } }); }
+function mkChart(id, cfg) {
+  var el = $(id); if (!el) return;
+  charts[id] = new Chart(el.getContext('2d'), cfg);
+}
+function statCard(cls, label, value, unit, sub) {
+  return '<div class="stat-card ' + (cls || '') + '">' +
+    '<p class="text-xs text-slate-400 font-medium mb-1.5">' + label + '</p>' +
+    '<p class="text-[26px] font-bold font-mono leading-none mb-1.5" style="color:#1E293B">' + value + (unit ? ' <span class="text-sm font-normal text-slate-400">' + unit + '</span>' : '') + '</p>' +
+    (sub ? '<p class="text-xs text-slate-400">' + sub + '</p>' : '') + '</div>';
+}
+function panelHead(title, note) {
+  return '<div class="flex items-baseline justify-between mb-4"><h3 class="text-sm font-bold text-slate-700">' + title + '</h3>' + (note ? '<span class="text-xs text-slate-400">' + note + '</span>' : '') + '</div>';
+}
+function pairCard(label, real, should, isRate) {
+  var p = pct(real, should);
+  var w = Math.min(100, Number(p)).toFixed(1);
+  return '<div class="stat-card">' +
+    '<p class="text-xs text-slate-400 font-medium mb-1.5">' + label + '</p>' +
+    '<p class="text-[24px] font-bold font-mono leading-none mb-1" style="color:#1E293B">' + (isRate === false ? fmt(real) + ' <span class="text-sm font-normal text-slate-400">/ ' + fmt(should) + ' 人</span>' : fmt(real) + ' <span class="text-sm font-normal text-slate-400">/ ' + fmt(should) + ' 人</span>') + '</p>' +
+    '<div class="pbar mt-2.5"><i style="width:' + w + '%"></i></div>' +
+    '<p class="text-xs mt-1.5"><span class="font-mono font-semibold text-brand-600">' + p + '%</span> <span class="text-slate-400">' + (isRate || '开启率') + '</span></p></div>';
+}
+
+/* ---------- 筛选区（下拉多选 + 模糊搜索） ---------- */
+function mselHtml(dim) {
+  var cfg = FILTERS[dim], sel = state.sel[dim];
+  var label = sel.length ? (sel.length === 1 ? esc(sel[0]) : cfg.label + ' ' + sel.length + ' 项') : '全部' + cfg.label;
+  var h = '<div class="msel" id="msel-' + dim + '">'
+    + '<button class="msel-btn" onclick="event.stopPropagation();toggleMsel(\'' + dim + '\')"><i class="fa-solid fa-filter text-[11px] text-slate-400"></i><span>' + cfg.label + '</span><b class="cnt">' + (sel.length || '全部') + '</b></button>'
+    + '<div class="msel-panel" onclick="event.stopPropagation()">'
+    + '<input class="msel-search" id="msel-kw-' + dim + '" placeholder="搜索' + cfg.label + '…" oninput="filterMselOpts(\'' + dim + '\')">'
+    + '<div class="msel-list" id="msel-list-' + dim + '">' + mselOpts(dim, '') + '</div>'
+    + '</div></div>';
+  return h;
+}
+function mselOpts(dim, kw) {
+  var cfg = FILTERS[dim], sel = state.sel[dim];
+  var h = '';
+  cfg.options.forEach(function (o) {
+    if (kw && o.toLowerCase().indexOf(kw.toLowerCase()) < 0) return;
+    h += '<label class="msel-opt"><input type="checkbox" ' + (sel.indexOf(o) >= 0 ? 'checked' : '') + ' onchange="toggleOpt(\'' + dim + '\',\'' + esc(o) + '\')"><span>' + esc(o) + '</span></label>';
+  });
+  return h || '<div class="msel-empty">无匹配' + cfg.label + '</div>';
+}
+function renderFilters() {
+  $('fGroup').innerHTML = mselHtml('group');
+  $('fExam').innerHTML = mselHtml('exam');
+  var tips = [];
+  ['group', 'exam'].forEach(function (k) {
+    if (state.sel[k].length) tips.push(FILTERS[k].label + '：' + state.sel[k].join('、'));
+  });
+  $('scopeTip').textContent = (tips.length ? '当前范围 · ' + tips.join(' ｜ ') : '当前范围 · 全部数据') + (selEqApplied() ? '' : ' · 有未应用的筛选');
+}
+function toggleMsel(dim) {
+  var box = $('msel-' + dim);
+  var was = box.classList.contains('open');
+  closeMsels();
+  if (!was) { box.classList.add('open'); var kw = $('msel-kw-' + dim); if (kw) { kw.value = ''; } $('msel-list-' + dim).innerHTML = mselOpts(dim, ''); setTimeout(function(){ var i=$('msel-kw-'+dim); if(i) i.focus(); }, 0); }
+}
+function closeMsels() {
+  document.querySelectorAll('.msel').forEach(function (b) { b.classList.remove('open'); });
+}
+function filterMselOpts(dim) {
+  $('msel-list-' + dim).innerHTML = mselOpts(dim, $('msel-kw-' + dim).value.trim());
+}
+function toggleOpt(dim, opt) {
+  var sel = state.sel[dim];
+  var i = sel.indexOf(opt);
+  if (i >= 0) sel.splice(i, 1); else sel.push(opt);
+  renderFilters();
+  var box = $('msel-' + dim);
+  if (box) { box.classList.add('open'); var kw = $('msel-kw-' + dim); $('msel-list-' + dim).innerHTML = mselOpts(dim, kw ? kw.value.trim() : ''); }
+}
+document.addEventListener('click', function () { closeMsels(); });
+
+/* ---------- 阶段门控 ---------- */
+function stageIdx(key) { for (var i = 0; i < STAGES.length; i++) if (STAGES[i].key === key) return i; return 0; }
+
+function setStage(key) {
+  state.stage = key; state.tab = key;
+  $('actState').className = 'tag ml-2 ' + (key === 'kaohou' ? 'green' : key === 'kaozhong' || key === 'houkao' ? 'blue' : 'amber');
+  $('actState').innerHTML = '<i class="fa-solid fa-circle-check mr-1 text-[11px]"></i>' + STAGES[stageIdx(key)].name + '阶段';
+  render();
+}
+
+/* ---------- 主渲染 ---------- */
+function render() {
+  destroyCharts();
+  var m = $('main');
+  var h = '';
+  if (stageIdx('baoming') <= stageIdx(state.tab)) h += secBaoming();
+  if (stageIdx('moni') <= stageIdx(state.tab)) h += secMoni();
+  if (stageIdx('houkao') <= stageIdx(state.tab)) h += secHoukao();
+  if (stageIdx('kaozhong') <= stageIdx(state.tab)) h += secKaozhong();
+
+  m.innerHTML = h;
+  if (stageIdx('baoming') <= stageIdx(state.tab)) drawBaoming();
+  if (stageIdx('moni') <= stageIdx(state.tab)) drawMoni();
+  if (stageIdx('kaozhong') <= stageIdx(state.tab)) drawKaozhong();
+
+}
+
+/* ---------- 报名 ---------- */
+function secBaoming() {
+  var h = '<section class="mb-7"><div class="flex items-center gap-2 mb-4"><span class="w-1.5 h-5 bg-brand-600 rounded-full"></span><h2 class="text-[15px] font-bold">报名</h2><span class="text-xs text-slate-400">报名开启 ~ 报名截止</span></div>';
+  h += '<div class="grid grid-cols-4 gap-4 mb-5">';
+  h += statCard('hl', '报名总人数', fmt(sc(D.renshu)), '人', '一人一单，人数即单量');
+  h += statCard('', '有效报名', fmt(sc(D.youxiao)), '人', '已支付（待支付不计）');
+  h += statCard('', '待支付', fmt(sc(D.daizhifu)), '单', '未完成支付的订单');
+  h += statCard('', '已退款', fmt(sc(D.tuikuan)), '单', '退款通道关闭后冻结');
+  h += '</div>';
+  h += '<div class="grid grid-cols-2 gap-5 mb-5">';
+  h += '<div class="panel p-5">' + panelHead('每日新增报名趋势', '整体统计 + 每日统计') + '<div class="chart-box" style="height:240px"><canvas id="cDaily"></canvas></div></div>';
+  h += '<div class="panel p-5">' + panelHead('审核数据 · 每日', '按日统计：通过 / 不通过 / 待审核') + '<div class="chart-box" style="height:240px"><canvas id="cAudit"></canvas></div></div>';
+  h += '</div>';
+  h += '<div class="grid grid-cols-3 gap-5">';
+  h += '<div class="panel p-5">' + panelHead('支付方式 · 人数与单量', '整体') + '<div class="chart-box" style="height:190px"><canvas id="cPayWay"></canvas></div></div>';
+  h += '<div class="panel p-5">' + panelHead('支付状态 · 人数与单量', '整体') + '<div class="chart-box" style="height:190px"><canvas id="cPayState"></canvas></div></div>';
+  h += '<div class="panel p-5">' + panelHead('审核数据', '整体') + '<div class="space-y-3 pt-1">'
+    + auditRow('通过', sc(D.auditPassT), 'text-emerald-600') + auditRow('不通过', sc(D.auditFailT), 'text-red-500') + auditRow('待审核', sc(D.auditWaitT), 'text-amber-500')
+    + '</div></div>';
+  h += '</div>';
+  h += '<div class="grid grid-cols-2 gap-5 mt-5">';
+  h += '<div class="panel p-5">' + panelHead('分组分布 · 报名量') + '<div class="chart-box" style="height:200px"><canvas id="cDistGroup"></canvas></div></div>';
+  h += '<div class="panel p-5">' + panelHead('测评分布 · 报名量') + '<div class="chart-box" style="height:200px"><canvas id="cDistExam"></canvas></div></div>';
+  h += '</div>';
+  h += '<div class="panel p-5 mt-5">' + panelHead('报名量矩阵 · 分组/测评', '行=分组（一级）/ 测评（二级），本渠道视角；随筛选联动') + matrixTable() + '</div></section>';
+  return h;
+}
+function auditRow(name, v, cls) {
+  var max = Math.max(sc(D.auditPassT), sc(D.auditFailT), sc(D.auditWaitT), 1);
+  return '<div><div class="flex justify-between text-xs mb-1"><span class="text-slate-500">' + name + '</span><span class="font-mono font-semibold ' + cls + '">' + fmt(v) + '</span></div><div class="pbar g"><i style="width:' + (v / max * 100) + '%"></i></div></div>';
+}
+function matrixTable() {
+  var gs = [];
+  D.matrix.forEach(function (g) {
+    if (state.applied.group.length && state.applied.group.indexOf(g.group) < 0) return;
+    var rows = g.rows.filter(function (r) { return state.applied.exam.length ? state.applied.exam.indexOf(r.exam) >= 0 : true; });
+    if (rows.length) gs.push({ group: g.group, rows: rows });
+  });
+  var grand = 0;
+  gs.forEach(function (g) { g.rows.forEach(function (r) { grand += r.cells.reduce(function (a, b) { return a + b; }, 0); }); });
+  var h = '<div class="overflow-x-auto"><table class="gt mx"><thead><tr><th style="min-width:220px">分组 / 测评</th><th class="num">本渠道报名量</th><th class="num">合计</th></tr></thead><tbody>';
+  gs.forEach(function (g) {
+    var gs2 = 0; g.rows.forEach(function (r) { gs2 += r.cells.reduce(function (a, b) { return a + b; }, 0); });
+    h += '<tr class="grp"><td colspan="3">' + esc(g.group) + ' · 小计 ' + fmt(gs2) + ' 人</td></tr>';
+    g.rows.forEach(function (r) {
+      var t = r.cells.reduce(function (a, b) { return a + b; }, 0);
+      h += '<tr><td>' + esc(r.exam) + '</td><td class="num">' + fmt(t) + '</td><td class="num">' + fmt(t) + '</td></tr>';
+    });
+  });
+  h += '<tr class="total"><td>总计</td><td class="num">' + fmt(grand) + '</td><td class="num">' + fmt(grand) + '</td></tr></tbody></table></div>';
+  return h;
+}
+function drawBaoming() {
+  var days = []; for (var i = 1; i <= 26; i++) days.push('5/' + i);
+  mkChart('cDaily', {
+    type: 'line',
+    data: { labels: days, datasets: [
+      { label: '每日新增报名人数', data: scArr(D.daily), borderColor: '#0D9488', backgroundColor: 'rgba(37,99,235,.12)', fill: true, tension: .35, pointRadius: 2, borderWidth: 2 }
+    ]},
+    options: { responsive: true, maintainAspectRatio: false, plugins: { legend: { position: 'bottom', labels: { boxWidth: 10, boxHeight: 10, usePointStyle: true } } }, scales: { y: { beginAtZero: true, grid: { color: '#F1F5F9' } }, x: { grid: { display: false }, ticks: { maxTicksLimit: 9 } } } }
+  });
+  var wk = ['周一', '周二', '周三', '周四', '周五', '周六', '周日'];
+  mkChart('cAudit', {
+    type: 'bar',
+    data: { labels: wk, datasets: [
+      { label: '通过', data: scArr(D.auditPass), backgroundColor: '#10B981', stack: 'a', borderRadius: 3 },
+      { label: '不通过', data: scArr(D.auditFail), backgroundColor: '#EF4444', stack: 'a', borderRadius: 3 },
+      { label: '待审核', data: scArr(D.auditWait), backgroundColor: '#F59E0B', stack: 'a', borderRadius: 3 }
+    ]},
+    options: { responsive: true, maintainAspectRatio: false, plugins: { legend: { position: 'bottom', labels: { boxWidth: 10, boxHeight: 10, usePointStyle: true } } }, scales: { y: { stacked: true, beginAtZero: true, grid: { color: '#F1F5F9' } }, x: { stacked: true, grid: { display: false } } } }
+  });
+  mkChart('cPayWay', {
+    type: 'bar',
+    data: { labels: ['微信支付'], datasets: [{ label: '人数', data: [sc(D.youxiao)], backgroundColor: '#0D9488', borderRadius: 6, barThickness: 44 }] },
+    options: { responsive: true, maintainAspectRatio: false, plugins: { legend: { display: false } }, scales: { y: { beginAtZero: true, grid: { color: '#F1F5F9' } }, x: { grid: { display: false } } } }
+  });
+  mkChart('cPayState', {
+    type: 'doughnut',
+    data: { labels: ['已支付', '待支付', '已退款'], datasets: [{ data: [sc(D.youxiao), sc(D.daizhifu), sc(D.tuikuan)], backgroundColor: ['#0D9488', '#F59E0B', '#EF4444'], borderWidth: 3, borderColor: '#fff' }] },
+    options: { responsive: true, maintainAspectRatio: false, cutout: '62%', plugins: { legend: { position: 'bottom', labels: { boxWidth: 10, boxHeight: 10, usePointStyle: true } } } }
+  });
+  var g = distRows('group');
+  mkChart('cDistGroup', { type: 'bar', data: { labels: g.labels, datasets: [{ data: g.values, backgroundColor: '#0D9488', borderRadius: 6 }] }, options: barOpt() });
+  var e = distRows('exam');
+  mkChart('cDistExam', { type: 'bar', data: { labels: e.labels, datasets: [{ data: e.values, backgroundColor: '#93C5FD', borderRadius: 6 }] }, options: barOpt() });
+}
+function barOpt() { return { responsive: true, maintainAspectRatio: false, plugins: { legend: { display: false } }, scales: { y: { beginAtZero: true, grid: { color: '#F1F5F9' } }, x: { grid: { display: false } } } }; }
+
+/* ---------- 模拟考 ---------- */
+function secMoni() {
+  var f = [ ['应参人数', D.mYing, 1.0, '#1D4ED8'], ['参考人数', D.mCan, D.mCan / D.mYing, '#3B82F6'], ['完成人数', D.mDone, D.mDone / D.mYing, '#93C5FD'] ];
+  var h = '<section class="mb-7"><div class="flex items-center gap-2 mb-4"><span class="w-1.5 h-5 bg-brand-600 rounded-full"></span><h2 class="text-[15px] font-bold">模拟考</h2><span class="text-xs text-slate-400">模拟考开启 ~ 模拟考关闭（属于考前阶段）</span></div>';
+  h += '<div class="grid grid-cols-2 gap-5">';
+  h += '<div class="panel p-5">' + panelHead('参与漏斗', '应参 → 参考 → 完成') + '<div class="space-y-3.5">';
+  f.forEach(function (r) {
+    h += '<div class="funnel-row"><span class="text-xs text-slate-500 w-16 text-right">' + r[0] + '</span><div class="funnel-bar" style="width:' + Math.max(14, r[2] * 82) + '%;background:' + r[3] + '">' + fmt(sc(r[1])) + ' 人</div><span class="text-xs text-slate-400 font-mono">' + (r[2] * 100).toFixed(1) + '%</span></div>';
+  });
+  h += '</div></div>';
+  h += '<div class="panel p-5">' + panelHead('监考开启率', '分母 = 实际参考学员中配置强制/非强制的人数') + '<div class="grid grid-cols-4 gap-3">';
+  h += pairCard('摄像头监考', sc(D.mCam[0]), sc(D.mCam[1]), '开启率');
+  h += pairCard('录屏监考', sc(D.mRec[0]), sc(D.mRec[1]), '开启率');
+  h += pairCard('手机监考', sc(D.mPhone[0]), sc(D.mPhone[1]), '开启率');
+  h += pairCard('检录照片', sc(D.mPic[0]), sc(D.mPic[1]), '上传率');
+  h += '</div></div></div></section>';
+  return h;
+}
+function drawMoni() { /* 模拟考无 canvas 图表 */ }
+
+/* ---------- 候考 ---------- */
+function secHoukao() {
+  var h = '<section class="mb-7"><div class="flex items-center gap-2 mb-4"><span class="w-1.5 h-5 bg-brand-600 rounded-full"></span><h2 class="text-[15px] font-bold">候考</h2><span class="text-xs text-slate-400">候考页开放 ~ 测评开始</span></div>';
+  h += '<div class="grid grid-cols-4 gap-4 mb-5">';
+  h += statCard('hl', '应参人数', fmt(sc(D.hYing)), '人', '有效报名（待支付不计）');
+  h += statCard('', '候考人数', fmt(sc(D.hHou)), '人', '进入过候考页即算');
+  h += statCard('', '候考率', pct(sc(D.hHou), sc(D.hYing)), '%', '候考人数 ÷ 应参人数');
+  h += statCard('', '平均候考时长', D.hAvg, '分钟', '进入候考页 → 测评开始');
+  h += '</div>';
+  h += '<div class="panel p-5">' + panelHead('监考开启（候考口径）', '实际开启 = 设备检测对应项通过人数；测评开始时冻结') + '<div class="grid grid-cols-4 gap-4">';
+  h += pairCard('摄像头监考', sc(D.hCam[0]), sc(D.hCam[1]), '开启率');
+  h += pairCard('录屏监考', sc(D.hRec[0]), sc(D.hRec[1]), '开启率');
+  h += pairCard('手机监考', sc(D.hPhone[0]), sc(D.hPhone[1]), '开启率');
+  h += pairCard('检录照片', sc(D.hPic[0]), sc(D.hPic[1]), '上传率');
+  h += '</div></div></section>';
+  return h;
+}
+
+/* ---------- 考中 ---------- */
+function secKaozhong() {
+  var h = '<section class="mb-7"><div class="flex items-center gap-2 mb-4"><span class="w-1.5 h-5 bg-brand-600 rounded-full"></span><h2 class="text-[15px] font-bold">考中</h2><span class="text-xs text-slate-400">开测 ~ 测评结束 · 实时指标每分钟更新（可放宽至 5 分钟）</span></div>';
+  h += '<div class="grid grid-cols-6 gap-4 mb-5">';
+  h += statCard('', '应到人数', fmt(sc(D.kYing)), '人', '有效报名');
+  h += statCard('hl', '实到人数', fmt(sc(D.kShi)), '人', '进入过答题环节');
+  h += statCard('', '进行中', fmt(sc(D.kDoing)), '人', '实到 − 已交卷（含不在场）');
+  h += statCard('', '在线', fmt(sc(D.kOnline)), '人', '当前在线');
+  h += statCard('', '已交卷', fmt(sc(D.kSubmitted)), '人', '交卷累计');
+  h += statCard('', '未进入（缺考）', fmt(sc(D.kMiss)), '人', '全无监考口径');
+  h += '</div>';
+  h += '<div class="grid grid-cols-3 gap-5 mb-5">';
+  h += '<div class="panel p-5">' + panelHead('监考相关 · 当前在线学员', '在线 ' + fmt(sc(D.kOnline)) + ' 人') + '<div class="chart-box" style="height:250px"><canvas id="cInv"></canvas></div></div>';
+  h += '<div class="panel p-5">' + panelHead('作答状态 · 时间变化', '每 10 分钟一刻度') + '<div class="chart-box" style="height:250px"><canvas id="cStatus"></canvas></div></div>';
+  h += '<div class="panel p-5">' + panelHead('交卷时间分布', '刻度间隔 20 分钟') + '<div class="chart-box" style="height:250px"><canvas id="cSubmit"></canvas></div></div>';
+  h += '</div>';
+  h += '</div></section>';
+  return h;
+}
+function drawKaozhong() {
+  mkChart('cInv', {
+    type: 'bar',
+    data: { labels: ['摄像头+录屏', '仅摄像头', '仅录屏', '未监考', '手机监考'], datasets: [{ data: [sc(D.kCamRec), sc(D.kCamOnly), sc(D.kRecOnly), sc(D.kNone), sc(D.kPhone)], backgroundColor: ['#0D9488', '#2DD4BF', '#99F6E4', '#E2E8F0', '#10B981'], borderRadius: 6 }] },
+    options: { indexAxis: 'y', responsive: true, maintainAspectRatio: false, plugins: { legend: { display: false } }, scales: { x: { beginAtZero: true, grid: { color: '#F1F5F9' } }, y: { grid: { display: false } } } }
+  });
+  mkChart('cStatus', {
+    type: 'line',
+    data: { labels: D.statusTicks, datasets: [
+      { label: '已交卷', data: scArr(D.lineSubmit), borderColor: '#10B981', backgroundColor: 'rgba(16,185,129,.10)', fill: true, tension: .3, pointRadius: 2, borderWidth: 2 },
+      { label: '考试中', data: scArr(D.lineDoing), borderColor: '#0D9488', tension: .3, pointRadius: 2, borderWidth: 2 },
+      { label: '缺考', data: scArr(D.lineMiss), borderColor: '#94A3B8', borderDash: [5, 4], tension: 0, pointRadius: 0, borderWidth: 1.5 }
+    ]},
+    options: lineOpt('人')
+  });
+  function lineOpt(unit) {
+  return { responsive: true, maintainAspectRatio: false, plugins: { legend: { position: 'bottom', labels: { boxWidth: 10, boxHeight: 10, usePointStyle: true } } }, scales: { y: { beginAtZero: true, grid: { color: '#F1F5F9' }, ticks: { callback: function (v) { return v + unit; } } }, x: { grid: { display: false } } } };
+}
+}
+
+/* ---------- init ---------- */
+(function init() {
+  var qs = new URLSearchParams(location.search);
+  var stg = qs.get('stage');
+  if (stg && stageIdx(stg) >= 0) { state.stage = stg; state.tab = stg; var sel = $('stageCtl'); if (sel) sel.value = stg; }
+  renderFilters();
+  setStage(state.stage);
+})();
+</script>
+</body>
+</html>
