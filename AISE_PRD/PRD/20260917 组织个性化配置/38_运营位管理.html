@@ -1,0 +1,758 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>测评系统 - 运营位管理</title>
+<style>
+* { margin: 0; padding: 0; box-sizing: border-box; }
+body { font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", "PingFang SC", "Hiragino Sans GB", "Microsoft YaHei", sans-serif; font-size: 14px; color: rgba(0,0,0,0.65); background: #f0f2f5; }
+a { color: #1890ff; text-decoration: none; cursor: pointer; }
+/* ===== 布局 ===== */
+.layout { display: flex; min-height: 100vh; }
+.sider { width: 208px; background: #001529; flex-shrink: 0; display: flex; flex-direction: column; }
+.sider-logo { height: 64px; display: flex; align-items: center; justify-content: center; color: #fff; font-size: 16px; font-weight: 600; letter-spacing: 1px; background: #002140; }
+.menu { flex: 1; overflow-y: auto; padding: 8px 0; }
+.menu::-webkit-scrollbar { width: 4px; }
+.menu::-webkit-scrollbar-thumb { background: rgba(255,255,255,0.2); }
+.menu-item { height: 40px; line-height: 40px; padding: 0 16px 0 24px; color: rgba(255,255,255,0.65); cursor: pointer; white-space: nowrap; transition: all .2s; font-size: 14px; }
+.menu-item:hover { color: #fff; }
+.menu-item.active { background: #1890ff; color: #fff; }
+.main { flex: 1; display: flex; flex-direction: column; min-width: 0; }
+.header { height: 64px; background: #001529; color: #fff; display: flex; align-items: center; padding: 0 24px; justify-content: space-between; }
+.header-title { font-size: 16px; font-weight: 600; }
+.header-right { font-size: 13px; color: rgba(255,255,255,0.85); }
+.header-right a { color: rgba(255,255,255,0.85); margin-left: 12px; }
+.content { padding: 16px 24px 24px; }
+/* ===== 面包屑 ===== */
+.breadcrumb { margin-bottom: 12px; font-size: 13px; color: rgba(0,0,0,0.45); }
+.breadcrumb a { color: rgba(0,0,0,0.45); }
+.breadcrumb a:hover { color: #1890ff; }
+.page-title { font-size: 20px; font-weight: 600; color: rgba(0,0,0,0.85); margin-bottom: 16px; }
+/* ===== 卡片 / 搜索 ===== */
+.card { background: #fff; border-radius: 4px; padding: 16px; margin-bottom: 16px; border: 1px solid #e8e8e8; }
+.search-row { display: flex; flex-wrap: wrap; gap: 16px 24px; align-items: center; }
+.search-item { display: flex; align-items: center; gap: 8px; }
+.search-item label { color: rgba(0,0,0,0.85); white-space: nowrap; }
+input[type=text].ipt { height: 32px; border: 1px solid #d9d9d9; border-radius: 4px; padding: 0 10px; width: 180px; outline: none; transition: border .2s; font-size: 13px; }
+input[type=text].ipt:focus { border-color: #40a9ff; box-shadow: 0 0 0 2px rgba(24,144,255,0.2); }
+input[type=text].ipt:disabled { background: #f5f5f5; cursor: not-allowed; color: rgba(0,0,0,0.25); }
+.btn { height: 32px; padding: 0 15px; border-radius: 4px; border: 1px solid #d9d9d9; background: #fff; color: rgba(0,0,0,0.65); cursor: pointer; font-size: 14px; transition: all .2s; line-height: 30px; }
+.btn:hover { border-color: #40a9ff; color: #40a9ff; }
+.btn.primary { background: #1890ff; border-color: #1890ff; color: #fff; }
+.btn.primary:hover { background: #40a9ff; border-color: #40a9ff; }
+.btn.mini { height: 28px; line-height: 26px; padding: 0 10px; font-size: 13px; }
+.btn.dashed { border-style: dashed; color: #1890ff; border-color: #1890ff; }
+.toolbar-row { display: flex; justify-content: space-between; align-items: center; margin-top: 4px; }
+.sel-tip { font-size: 13px; color: rgba(0,0,0,0.45); }
+.sel-tip a { margin-left: 8px; }
+/* ===== 表格 ===== */
+.table-wrap { overflow-x: auto; }
+table.list { width: 100%; border-collapse: collapse; font-size: 13px; }
+table.list th { background: #fafafa; font-weight: 600; color: rgba(0,0,0,0.85); padding: 12px 8px; text-align: left; border-bottom: 1px solid #e8e8e8; white-space: nowrap; }
+table.list td { padding: 12px 8px; border-bottom: 1px solid #e8e8e8; vertical-align: middle; }
+table.list tr:hover td { background: #e6f7ff; }
+.op-link { margin-right: 10px; white-space: nowrap; }
+.tag { display: inline-block; padding: 1px 8px; border-radius: 3px; font-size: 12px; line-height: 20px; border: 1px solid; white-space: nowrap; }
+.tag.green { color: #52c41a; border-color: #b7eb8f; background: #f6ffed; }
+.tag.blue { color: #1890ff; border-color: #91d5ff; background: #e6f7ff; }
+.tag.gray { color: rgba(0,0,0,0.45); border-color: #e8e8e8; background: #fafafa; }
+.tag.red { color: #f5222d; border-color: #ffa39e; background: #fff1f0; }
+.tag.orange { color: #fa8c16; border-color: #ffd591; background: #fff7e6; }
+.pager { display: flex; justify-content: flex-end; align-items: center; gap: 8px; margin-top: 16px; font-size: 13px; color: rgba(0,0,0,0.65); }
+.pager .pg-btn { min-width: 28px; height: 28px; line-height: 26px; text-align: center; border: 1px solid #d9d9d9; border-radius: 4px; cursor: pointer; }
+.pager .pg-btn.cur { border-color: #1890ff; color: #1890ff; }
+/* ===== 弹窗 ===== */
+.modal-mask { position: fixed; inset: 0; background: rgba(0,0,0,0.45); z-index: 1000; display: none; }
+.modal-mask.show { display: block; }
+.modal { position: fixed; left: 50%; top: 50%; transform: translate(-50%, -50%); width: 800px; max-width: 96vw; background: #fff; border-radius: 4px; z-index: 1001; display: none; flex-direction: column; max-height: 92vh; box-shadow: 0 4px 24px rgba(0,0,0,0.18); }
+.modal.show { display: flex; }
+.modal-head { display: flex; justify-content: space-between; align-items: center; padding: 14px 24px; border-bottom: 1px solid #e8e8e8; }
+.modal-title { font-size: 16px; font-weight: 600; color: rgba(0,0,0,0.85); }
+.modal-icons { display: flex; gap: 14px; color: rgba(0,0,0,0.45); font-size: 16px; }
+.modal-icons span { cursor: pointer; }
+.modal-icons span:hover { color: rgba(0,0,0,0.65); }
+.modal-body { padding: 20px 24px; overflow-y: auto; }
+.modal-foot { padding: 12px 24px; border-top: 1px solid #e8e8e8; text-align: right; }
+.modal-foot .btn { margin-left: 8px; min-width: 64px; }
+/* 分节标题（蓝下划线） */
+.sec-title { display: inline-block; font-size: 15px; font-weight: 600; color: rgba(0,0,0,0.85); padding-bottom: 6px; border-bottom: 2px solid #1890ff; margin-bottom: 18px; }
+.sec { margin-bottom: 26px; }
+/* 表单 */
+.form-row { display: flex; align-items: flex-start; margin-bottom: 16px; }
+.form-label { width: 110px; text-align: right; padding-right: 12px; color: rgba(0,0,0,0.85); line-height: 32px; flex-shrink: 0; }
+.form-label .req { color: #f5222d; margin-right: 2px; }
+.form-ctrl { flex: 1; min-width: 0; }
+.form-ctrl .ipt { width: 100%; max-width: 420px; }
+.form-ctrl .ipt.half { max-width: 200px; }
+.err-msg { color: #f5222d; font-size: 12px; line-height: 1.6; margin-top: 2px; }
+.readonly-text { line-height: 32px; color: rgba(0,0,0,0.45); }
+/* 开关 */
+.switch { display: inline-flex; align-items: center; gap: 8px; cursor: pointer; }
+.switch .pill { width: 44px; height: 22px; border-radius: 11px; background: #d9d9d9; position: relative; transition: background .2s; flex-shrink: 0; }
+.switch .pill::after { content: ''; position: absolute; left: 2px; top: 2px; width: 18px; height: 18px; border-radius: 50%; background: #fff; transition: left .2s; box-shadow: 0 1px 2px rgba(0,0,0,0.2); }
+.switch.on .pill { background: #1890ff; }
+.switch.on .pill::after { left: 24px; }
+.switch .sw-text { line-height: 22px; color: rgba(0,0,0,0.45); }
+.switch.on .sw-text { color: #1890ff; }
+/* 组织 chips */
+.chips { display: flex; flex-wrap: wrap; gap: 8px; margin-top: 4px; }
+.chip { display: inline-flex; align-items: center; gap: 6px; background: #f5f5f5; border: 1px solid #e8e8e8; border-radius: 4px; padding: 2px 8px; font-size: 13px; }
+.chip .x { cursor: pointer; color: rgba(0,0,0,0.45); font-style: normal; }
+.chip .x:hover { color: #f5222d; }
+.org-picker { position: relative; display: inline-block; }
+.org-dropdown { position: absolute; top: 34px; left: 0; width: 240px; max-height: 200px; overflow-y: auto; background: #fff; border: 1px solid #d9d9d9; border-radius: 4px; box-shadow: 0 2px 8px rgba(0,0,0,0.15); z-index: 10; display: none; }
+.org-dropdown.show { display: block; }
+.org-dropdown div { padding: 6px 12px; cursor: pointer; font-size: 13px; }
+.org-dropdown div:hover { background: #e6f7ff; }
+/* 运营位配置表 */
+.cfg-table { width: 100%; border-collapse: collapse; font-size: 13px; }
+.cfg-table th { background: #fafafa; padding: 10px 8px; border: 1px solid #e8e8e8; color: rgba(0,0,0,0.85); font-weight: 600; text-align: left; white-space: nowrap; }
+.cfg-table td { padding: 10px 8px; border: 1px solid #e8e8e8; vertical-align: top; }
+.cfg-table .ipt { width: 100%; min-width: 150px; }
+.cfg-table select { height: 32px; border: 1px solid #d9d9d9; border-radius: 4px; padding: 0 8px; font-size: 13px; outline: none; background: #fff; width: 100%; min-width: 170px; color: rgba(0,0,0,0.65); }
+.desc-text { color: rgba(0,0,0,0.45); font-size: 12px; line-height: 1.6; margin-top: 4px; word-break: break-all; }
+.upload-box { border: 1px dashed #d9d9d9; border-radius: 4px; padding: 10px 12px; color: rgba(0,0,0,0.45); font-size: 13px; cursor: pointer; background: #fafafa; transition: border .2s; }
+.upload-box:hover { border-color: #1890ff; color: #1890ff; }
+.upload-box.has-file { border-style: solid; border-color: #91d5ff; background: #e6f7ff; color: #1890ff; }
+.link-none { color: rgba(0,0,0,0.25); }
+.del-link { color: #f5222d; white-space: nowrap; }
+/* 分段控件（组织状态） */
+.seg { display: inline-flex; border: 1px solid #d9d9d9; border-radius: 4px; overflow: hidden; }
+.seg span { padding: 5px 16px; background: #fff; cursor: pointer; font-size: 13px; color: rgba(0,0,0,0.65); border-right: 1px solid #d9d9d9; }
+.seg span:last-child { border-right: none; }
+.seg span.on { background: #1890ff; color: #fff; }
+/* 单选 */
+.radio-group { display: flex; gap: 20px; line-height: 32px; }
+.radio-group label { cursor: pointer; display: inline-flex; align-items: center; gap: 6px; }
+.radio-dot { width: 14px; height: 14px; border-radius: 50%; border: 1px solid #d9d9d9; position: relative; display: inline-block; }
+.radio-group label.on .radio-dot { border-color: #1890ff; }
+.radio-group label.on .radio-dot::after { content: ''; position: absolute; left: 2px; top: 2px; width: 8px; height: 8px; border-radius: 50%; background: #1890ff; }
+/* toast */
+.toast { position: fixed; top: 70px; left: 50%; transform: translateX(-50%); background: #fff; border: 1px solid #e8e8e8; box-shadow: 0 2px 12px rgba(0,0,0,0.12); border-radius: 4px; padding: 9px 16px; font-size: 13px; z-index: 3000; display: none; align-items: center; gap: 8px; }
+.toast.show { display: flex; }
+.toast .dot { width: 8px; height: 8px; border-radius: 50%; background: #52c41a; }
+.muted { color: rgba(0,0,0,0.45); }
+</style>
+</head>
+<body>
+<div class="layout">
+  <!-- 左侧菜单 -->
+  <div class="sider">
+    <div class="sider-logo">测评系统</div>
+    <div class="menu" id="siderMenu">
+      <div class="menu-item" data-view="home">首页</div>
+      <div class="menu-item" data-view="material">素材配置</div>
+      <div class="menu-item active" data-view="operation">运营位管理</div>
+      <div class="menu-item">测评引擎管理</div>
+      <div class="menu-item">试卷管理</div>
+      <div class="menu-item">用户答卷管理</div>
+      <div class="menu-item">题库管理</div>
+      <div class="menu-item">考场管理</div>
+      <div class="menu-item">测评报告</div>
+      <div class="menu-item" data-view="org">组织管理</div>
+      <div class="menu-item">申请试用</div>
+      <div class="menu-item">近期测评</div>
+      <div class="menu-item">评价报告</div>
+      <div class="menu-item">合作学校</div>
+      <div class="menu-item">系统通知</div>
+      <div class="menu-item">用户功能使用情况</div>
+      <div class="menu-item">功能发布</div>
+      <div class="menu-item">用户管理</div>
+      <div class="menu-item">班级管理</div>
+    </div>
+  </div>
+  <!-- 主区 -->
+  <div class="main">
+    <div class="header">
+      <div class="header-title">欢迎使用测评管理系统</div>
+      <div class="header-right">欢迎您，管理员<a>退出登录</a></div>
+    </div>
+    <div class="content">
+      <!-- 面包屑 + 标题 -->
+      <div class="breadcrumb"><a>首页</a> / <span id="crumb">运营位管理</span></div>
+      <div class="page-title" id="pageTitle">运营位管理</div>
+
+      <!-- ===== 视图：运营位管理 ===== -->
+      <div id="viewOperation">
+        <div class="card">
+          <div class="search-row">
+            <div class="search-item"><label>运营位ID</label><input type="text" class="ipt" id="qId" placeholder="请输入运营位ID"></div>
+            <div class="search-item"><label>组织</label><input type="text" class="ipt" id="qOrg" placeholder="请输入组织名称"></div>
+            <button class="btn primary" onclick="doQuery()">查 询</button>
+            <button class="btn" onclick="doReset()">重 置</button>
+            <a onclick="toast('演示页面：展开筛选暂未开放')">展开 <span style="font-size:11px">∨</span></a>
+          </div>
+        </div>
+        <div class="card">
+          <div class="toolbar-row">
+            <div class="sel-tip">已选择 0 项<a>清空</a></div>
+            <button class="btn primary" onclick="openModal('new')">新 增</button>
+          </div>
+          <div class="table-wrap">
+            <table class="list">
+              <thead><tr><th>#</th><th>运营位ID</th><th>组织名称</th><th>开启时间</th><th>结束时间</th><th>当前状态</th><th>操作人</th><th style="min-width:150px">操作</th></tr></thead>
+              <tbody id="opTbody"></tbody>
+            </table>
+          </div>
+          <div class="pager"><span id="pageInfo">1-9 共9条</span><span class="pg-btn cur">1</span><span>10 条/页</span></div>
+        </div>
+      </div>
+
+      <!-- ===== 视图：组织管理 ===== -->
+      <div id="viewOrg" style="display:none">
+        <div class="card">
+          <div class="search-row">
+            <div class="search-item"><label>组织名</label><input type="text" class="ipt" placeholder="请输入组织名"></div>
+            <div class="search-item"><label>域名</label><input type="text" class="ipt" placeholder="请输入域名"></div>
+            <button class="btn primary" onclick="toast('演示页面：查询暂未开放')">查 询</button>
+            <button class="btn" onclick="toast('演示页面：重置暂未开放')">重 置</button>
+            <a onclick="toast('演示页面：展开筛选暂未开放')">展开 <span style="font-size:11px">∨</span></a>
+          </div>
+        </div>
+        <div class="card">
+          <div class="toolbar-row">
+            <div class="sel-tip">已选择 0 项<a>清空</a></div>
+            <button class="btn primary" onclick="toast('演示页面：新增组织暂未开放')">新 增</button>
+          </div>
+          <div class="table-wrap">
+            <table class="list">
+              <thead><tr><th>#</th><th>组织ID</th><th>组织名</th><th>域名</th><th>组织状态</th><th>创建人</th><th>创建日期</th><th>更新人</th><th>更新日期</th><th>操作</th></tr></thead>
+              <tbody id="orgTbody"></tbody>
+            </table>
+          </div>
+          <div class="pager"><span>1-4 共4条</span><span class="pg-btn cur">1</span><span>10 条/页</span></div>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- ===== 运营位 新增/编辑 弹窗 ===== -->
+<div class="modal-mask" id="opMask" onclick="closeOpModal()"></div>
+<div class="modal" id="opModal">
+  <div class="modal-head">
+    <div class="modal-title" id="opModalTitle">新增</div>
+    <div class="modal-icons"><span title="全屏">⛶</span><span onclick="closeOpModal()" title="关闭">✕</span></div>
+  </div>
+  <div class="modal-body">
+    <!-- 运营位基础信息 -->
+    <div class="sec">
+      <div class="sec-title">运营位基础信息</div>
+      <div class="form-row">
+        <div class="form-label">运营位ID</div>
+        <div class="form-ctrl"><div class="readonly-text" id="fOpId">系统自动生成</div></div>
+      </div>
+      <div class="form-row">
+        <div class="form-label">永久显示</div>
+        <div class="form-ctrl">
+          <div class="switch" id="fPermanent" onclick="togglePermanent()"><span class="pill"></span><span class="sw-text" id="fPermanentText">停用</span></div>
+          <div class="desc-text">开启后起止时间不生效，本条配置一直展示（用于组织品牌皮肤等常态配置）</div>
+        </div>
+      </div>
+      <div class="form-row">
+        <div class="form-label"><span class="req">*</span>开启时间</div>
+        <div class="form-ctrl"><input type="text" class="ipt half" id="fStartTime" placeholder="请选择开启时间" onfocus="this.blur();toast('演示页面：时间选择器未开放，可手动输入')"><div class="err-msg" id="errStart" style="display:none">请选择开启时间！</div></div>
+      </div>
+      <div class="form-row">
+        <div class="form-label"><span class="req">*</span>结束时间</div>
+        <div class="form-ctrl"><input type="text" class="ipt half" id="fEndTime" placeholder="请选择结束时间" onfocus="this.blur();toast('演示页面：时间选择器未开放，可手动输入')"><div class="err-msg" id="errEnd" style="display:none">请选择结束时间！</div></div>
+      </div>
+    </div>
+    <!-- 组织管理 -->
+    <div class="sec">
+      <div class="sec-title">组织管理</div>
+      <div class="form-row">
+        <div class="form-label"><span class="req">*</span>添加组织</div>
+        <div class="form-ctrl">
+          <div class="org-picker">
+            <button class="btn" onclick="toggleOrgDropdown(event)">添加组织</button>
+            <div class="org-dropdown" id="orgDropdown"></div>
+          </div>
+          <div class="chips" id="orgChips"></div>
+          <div class="err-msg" id="errOrg" style="display:none">请添加组织！</div>
+        </div>
+      </div>
+    </div>
+    <!-- 运营位配置 -->
+    <div class="sec">
+      <div class="sec-title">运营位配置</div>
+      <div style="text-align:right; margin-bottom:10px"><button class="btn mini dashed" onclick="addCfgRow()">添加运营位配置</button></div>
+      <table class="cfg-table">
+        <thead><tr><th style="width:44px">序号</th><th style="width:200px">运营位类型</th><th>运营位内容</th><th style="width:170px">跳转链接</th><th style="width:200px">运营位说明</th><th style="width:52px">操作</th></tr></thead>
+        <tbody id="cfgTbody"></tbody>
+      </table>
+      <div class="err-msg" id="errCfg" style="display:none; margin-top:6px">请至少添加一条运营位配置并选择类型！</div>
+    </div>
+  </div>
+  <div class="modal-foot">
+    <button class="btn" onclick="closeOpModal()">关 闭</button>
+    <button class="btn primary" onclick="saveOp()">确 定</button>
+  </div>
+</div>
+
+<!-- ===== 组织 编辑弹窗（组织图标字段已移除） ===== -->
+<div class="modal-mask" id="orgMask" onclick="closeOrgModal()"></div>
+<div class="modal" id="orgModal" style="width:800px">
+  <div class="modal-head">
+    <div class="modal-title">编辑</div>
+    <div class="modal-icons"><span title="全屏">⛶</span><span onclick="closeOrgModal()" title="关闭">✕</span></div>
+  </div>
+  <div class="modal-body">
+    <div class="form-row">
+      <div class="form-label"><span class="req">*</span>组织名</div>
+      <div class="form-ctrl"><input type="text" class="ipt" id="oName" placeholder="请输入组织名"></div>
+    </div>
+    <div class="form-row">
+      <div class="form-label"><span class="req">*</span>域名</div>
+      <div class="form-ctrl"><input type="text" class="ipt" id="oDomain" placeholder="请输入域名"></div>
+    </div>
+    <div class="form-row">
+      <div class="form-label"><span class="req">*</span>组织状态</div>
+      <div class="form-ctrl"><div class="seg" id="oStatus"><span class="on">启用中</span><span>冻结</span></div></div>
+    </div>
+    <div class="form-row">
+      <div class="form-label"><span class="req">*</span>组织类型</div>
+      <div class="form-ctrl"><div class="radio-group" id="oType"><label class="on"><span class="radio-dot"></span>普通组织</label><label><span class="radio-dot"></span>高级组织</label></div></div>
+    </div>
+    <div class="form-row">
+      <div class="form-label">子组织</div>
+      <div class="form-ctrl"><input type="text" class="ipt" placeholder="请选择组织"></div>
+    </div>
+    <div class="form-row">
+      <div class="form-label">所属地区</div>
+      <div class="form-ctrl"><input type="text" class="ipt" placeholder="请选择所属地区"></div>
+    </div>
+  </div>
+  <div class="modal-foot">
+    <button class="btn" onclick="closeOrgModal()">关 闭</button>
+    <button class="btn primary" onclick="toast('已保存（演示）：组织图标字段已移至运营位管理配置');closeOrgModal()">确 定</button>
+  </div>
+</div>
+
+<div class="toast" id="toastBox"><span class="dot"></span><span id="toastText"></span></div>
+
+<script>
+/* ================= 数据 ================= */
+// 运营位类型定义：ctrl: img=图片上传 / text=文本输入；link: 是否显示跳转链接
+var OP_TYPES = [
+  { id: 'stu_home_qr',        name: '学生端 - 首页 - 二维码',    ctrl: 'img',  link: false, desc: '支持JPG、PNG格式，文件大小不超过10M' },
+  { id: 'stu_home_tofu',      name: '学生端 - 首页 - 右下豆腐块', ctrl: 'img',  link: true,  desc: '支持JPG、PNG格式，文件大小不超过10M，图片比例16:9' },
+  { id: 'stu_home_topbar',    name: '学生端 - 首页 - 顶栏横幅',   ctrl: 'img',  link: true,  desc: '支持JPG、PNG格式，文件大小小于等于5M，图片高度34像素' },
+  { id: 'stu_home_banner',    name: '学生端 - 首页 - banner',   ctrl: 'img',  link: true,  desc: '支持JPG、PNG格式，图片宽度1400像素、高度最大支持160像素' },
+  { id: 'stu_login_logo',     name: '学生端 - 登录页 - logo',   ctrl: 'img',  link: true,  desc: '支持JPG、PNG格式，文件大小不超过10M；点击可跳转（跳转链接选填）' },
+  { id: 'stu_login_pic1',     name: '学生端 - 登录页 - 小图1',  ctrl: 'img',  link: false, desc: '登录卡片顶部插画；支持JPG、PNG格式，文件大小不超过10M' },
+  { id: 'stu_login_pic2',     name: '学生端 - 登录页 - 小图2',  ctrl: 'img',  link: false, desc: '登录卡片右侧插画；支持JPG、PNG格式，文件大小不超过10M' },
+  { id: 'stu_login_bg',       name: '学生端 - 登录页 - 背景图',  ctrl: 'img',  link: false, desc: '整页背景；支持JPG、PNG格式，文件大小不超过10M' },
+  { id: 'stu_home_logo',      name: '学生端 - 首页 - logo',    ctrl: 'img',  link: true,  desc: '支持JPG、PNG格式，文件大小不超过10M；点击可跳转（跳转链接选填）' },
+  { id: 'stu_home_notice',    name: '学生端 - 首页 - 公告名称',  ctrl: 'text', link: false, desc: '首页"公告"栏目名称，如"证书查询"；不超过10个字', maxlen: 10 },
+  { id: 'stu_org_icon',       name: '学生端 - 组织图标',       ctrl: 'img',  link: false, desc: '支持JPG、PNG格式，文件大小不超过10M' },
+  { id: 'tea_home_king_l',    name: '教师端 - 首页 - 左金刚位', ctrl: 'img',  link: true,  desc: '支持JPG、PNG格式，图片高度200像素、宽度不小于800像素' },
+  { id: 'tea_home_king_r',    name: '教师端 - 首页 - 右金刚位', ctrl: 'img',  link: true,  desc: '支持JPG、PNG格式，图片高度200像素' },
+  { id: 'tea_home_popup',     name: '教师端 - 首页 - 弹窗',    ctrl: 'rich', link: false, desc: '编辑内容；配置之后每次进入教师端会弹窗提醒' },
+  { id: 'adv_home_king_r',    name: '高级组织 - 首页 - 右金刚位', ctrl: 'img', link: true, desc: '支持JPG、PNG格式，图片尺寸386*186像素' },
+  { id: 'tea_dot_question',   name: '教师端 - 小红点 - 题目管理', ctrl: 'dot', link: false, desc: '长期显示 / 单次显示' },
+  { id: 'tea_dot_paper',      name: '教师端 - 小红点 - 试卷管理', ctrl: 'dot', link: false, desc: '长期显示 / 单次显示' },
+  { id: 'tea_dot_exam',       name: '教师端 - 小红点 - 考试管理', ctrl: 'dot', link: false, desc: '长期显示 / 单次显示' },
+  { id: 'tea_dot_class',      name: '教师端 - 小红点 - 班级管理', ctrl: 'dot', link: false, desc: '长期显示 / 单次显示' },
+  { id: 'tea_dot_student',    name: '教师端 - 小红点 - 学生管理', ctrl: 'dot', link: false, desc: '长期显示 / 单次显示' },
+  { id: 'tea_dot_homework',   name: '教师端 - 小红点 - 日常作业', ctrl: 'dot', link: false, desc: '长期显示 / 单次显示' }
+];
+
+var ORG_OPTIONS = ['人大附中', 'AISE青少年人工智能应用创新能力测评', '赣州一中', '刘玮测试', '张哲瑞高级组织', '公共', '本地环境', '七七管理'];
+
+// 运营位列表（前6条=线上真实存量；后3条=演示新增能力）
+var OP_ROWS = [
+  { id: '1983809121162489858', org: '刘玮测试', start: '2025-10-30 16:05:37', end: '2025-11-05 10:13:27', permanent: false, stopped: false, op: 'admin' },
+  { id: '1985245754629939201', org: '张哲瑞高级组织', start: '2025-11-03 15:18:13', end: '2025-11-04 15:18:18', permanent: false, stopped: false, op: 'admin' },
+  { id: '1985257188407500801', org: '公共', start: '2025-11-03 16:05:41', end: '2025-11-04 16:05:44', permanent: false, stopped: false, op: 'admin' },
+  { id: '1985520207322537986', org: '本地环境', start: '2025-11-04 09:30:52', end: '2025-11-06 09:30:54', permanent: false, stopped: false, op: 'admin' },
+  { id: '19855951994314186754', org: '公共七七管理', start: '2025-11-04 14:28:07', end: '2025-11-06 14:28:09', permanent: false, stopped: false, op: 'admin' },
+  { id: '1985595388237832194', org: '七七管理', start: '2025-11-04 14:29:38', end: '2025-11-06 14:29:41', permanent: false, stopped: false, op: 'admin' },
+  { id: '1998230901120000001', org: '人大附中', start: '', end: '', permanent: true, stopped: false, op: 'admin' },
+  { id: '1998230901120000002', org: 'AISE青少年人工智能应用创新能力测评', start: '2026-09-01 00:00:00', end: '2026-12-31 23:59:59', permanent: false, stopped: false, op: 'admin' },
+  { id: '1998230901120000003', org: '赣州一中', start: '', end: '', permanent: true, stopped: true, op: 'admin' }
+];
+
+// 组织管理列表（线上真实数据）
+var ORG_ROWS = [
+  { id: '143', name: '王秋涵普通组织', domain: 'wangqiuhan.test.iceping.org.cn', status: '启用中', creator: 'admin', created: '2026-04-13 11:08:00', updater: 'admin', updated: '2026-04-13 11:08:20' },
+  { id: '142', name: 'AISE青少年人工智能应用创新能力测评', domain: 'aica.test.iceping.org.cn', status: '启用中', creator: 'admin', created: '2025-11-27 20:38:55', updater: 'admin', updated: '2026-01-13 15:43:13' },
+  { id: '141', name: 'aica测试', domain: 'http://localhost:3000', status: '启用中', creator: 'admin', created: '2025-11-27 14:22:31', updater: 'admin', updated: '2025-11-27 14:22:31' },
+  { id: '140', name: '张哲瑞高级组织', domain: 'zzrtest.test.iceping.org.cn', status: '启用中', creator: 'admin', created: '2025-11-27 11:00:00', updater: 'admin', updated: '2025-11-27 11:00:00' }
+];
+
+/* ================= 状态计算 ================= */
+function calcStatus(r) {
+  if (r.stopped) return { text: '已停止', cls: 'red' };
+  if (r.permanent) return { text: '永久有效', cls: 'blue' };
+  var now = Date.now();
+  var s = Date.parse((r.start || '').replace(' ', 'T'));
+  var e = Date.parse((r.end || '').replace(' ', 'T'));
+  if (!isNaN(s) && now < s) return { text: '未开始', cls: 'orange' };
+  if (!isNaN(e) && now > e) return { text: '已过期', cls: 'gray' };
+  return { text: '生效中', cls: 'green' };
+}
+
+/* ================= 列表渲染 ================= */
+function renderOpList(rows) {
+  var tb = document.getElementById('opTbody');
+  var html = '';
+  for (var i = 0; i < rows.length; i++) {
+    var r = rows[i];
+    var st = calcStatus(r);
+    var timeCol = r.permanent ? '<span class="muted">—（永久显示）</span>' : r.start;
+    var endCol = r.permanent ? '<span class="muted">—（永久显示）</span>' : r.end;
+    var stopLink = r.stopped
+      ? '<a class="op-link" onclick="toggleStop(\'' + r.id + '\')">启用</a>'
+      : '<a class="op-link" onclick="toggleStop(\'' + r.id + '\')">停止</a>';
+    html += '<tr>'
+      + '<td>' + (i + 1) + '</td>'
+      + '<td>' + r.id + '</td>'
+      + '<td>' + r.org + '</td>'
+      + '<td>' + timeCol + '</td>'
+      + '<td>' + endCol + '</td>'
+      + '<td><span class="tag ' + st.cls + '">' + st.text + '</span></td>'
+      + '<td>' + r.op + '</td>'
+      + '<td><a class="op-link" onclick="openModal(\'edit\',\'' + r.id + '\')">编辑</a>' + stopLink + '<a class="op-link" onclick="toast(\'演示页面：更多操作未开放\')">更多 ∨</a></td>'
+      + '</tr>';
+  }
+  tb.innerHTML = html;
+  document.getElementById('pageInfo').textContent = '1-' + rows.length + ' 共' + rows.length + '条';
+}
+
+function renderOrgList() {
+  var tb = document.getElementById('orgTbody');
+  var html = '';
+  for (var i = 0; i < ORG_ROWS.length; i++) {
+    var r = ORG_ROWS[i];
+    html += '<tr>'
+      + '<td>' + (i + 1) + '</td><td>' + r.id + '</td><td>' + r.name + '</td><td>' + r.domain + '</td>'
+      + '<td><span class="tag green">' + r.status + '</span></td><td>' + r.creator + '</td><td>' + r.created + '</td><td>' + r.updater + '</td><td>' + r.updated + '</td>'
+      + '<td><a class="op-link" onclick="openOrgModal(' + i + ')">编辑</a><a class="op-link" onclick="toast(\'演示页面：更多操作未开放\')">更多 ∨</a></td>'
+      + '</tr>';
+  }
+  tb.innerHTML = html;
+}
+
+/* ================= 视图切换 ================= */
+function switchView(view) {
+  var isOrg = view === 'org';
+  document.getElementById('viewOperation').style.display = isOrg ? 'none' : 'block';
+  document.getElementById('viewOrg').style.display = isOrg ? 'block' : 'none';
+  document.getElementById('crumb').textContent = isOrg ? '组织管理' : '运营位管理';
+  document.getElementById('pageTitle').textContent = isOrg ? '组织管理' : '运营位管理';
+  var items = document.querySelectorAll('.menu-item');
+  for (var i = 0; i < items.length; i++) {
+    items[i].classList.toggle('active', items[i].getAttribute('data-view') === view);
+  }
+}
+
+/* ================= 弹窗：运营位 新增/编辑 ================= */
+var editId = null;      // 当前编辑的运营位ID；null=新增
+var permanent = false;  // 永久显示开关
+var pickedOrgs = [];    // 已选组织
+var cfgRows = [];       // 配置行 {type:'', text:'', link:''}
+
+function openModal(mode, id) {
+  editId = mode === 'edit' ? id : null;
+  document.getElementById('opModalTitle').textContent = mode === 'edit' ? '编辑' : '新增';
+  document.getElementById('fOpId').textContent = mode === 'edit' ? id : '系统自动生成';
+  if (mode === 'edit') {
+    var row = null;
+    for (var i = 0; i < OP_ROWS.length; i++) if (OP_ROWS[i].id === id) row = OP_ROWS[i];
+    if (row) {
+      permanent = !!row.permanent;
+      pickedOrgs = [row.org];
+      cfgRows = [{ type: '', text: '', link: '' }];
+      document.getElementById('fStartTime').value = row.start || '';
+      document.getElementById('fEndTime').value = row.end || '';
+    }
+  } else {
+    permanent = false;
+    pickedOrgs = [];
+    cfgRows = [{ type: '', text: '', link: '' }];
+    document.getElementById('fStartTime').value = '';
+    document.getElementById('fEndTime').value = '';
+  }
+  hideErrs();
+  renderPermanent();
+  renderChips();
+  renderCfgRows();
+  document.getElementById('opMask').classList.add('show');
+  document.getElementById('opModal').classList.add('show');
+}
+
+function closeOpModal() {
+  document.getElementById('opMask').classList.remove('show');
+  document.getElementById('opModal').classList.remove('show');
+  document.getElementById('orgDropdown').classList.remove('show');
+}
+
+function togglePermanent() {
+  permanent = !permanent;
+  renderPermanent();
+}
+
+function renderPermanent() {
+  document.getElementById('fPermanent').classList.toggle('on', permanent);
+  document.getElementById('fPermanentText').textContent = permanent ? '启用' : '停用';
+  var dis = permanent;
+  document.getElementById('fStartTime').disabled = dis;
+  document.getElementById('fEndTime').disabled = dis;
+  if (dis) {
+    document.getElementById('errStart').style.display = 'none';
+    document.getElementById('errEnd').style.display = 'none';
+  }
+}
+
+/* --- 组织选择 --- */
+function toggleOrgDropdown(ev) {
+  if (ev) ev.stopPropagation();
+  var dd = document.getElementById('orgDropdown');
+  var html = '';
+  for (var i = 0; i < ORG_OPTIONS.length; i++) {
+    var o = ORG_OPTIONS[i];
+    if (pickedOrgs.indexOf(o) === -1) html += '<div onclick="pickOrg(\'' + o.replace(/'/g, "\\'") + '\')">' + o + '</div>';
+  }
+  dd.innerHTML = html || '<div class="muted">全部组织已添加</div>';
+  dd.classList.toggle('show');
+}
+
+function pickOrg(name) {
+  if (pickedOrgs.indexOf(name) === -1) pickedOrgs.push(name);
+  document.getElementById('errOrg').style.display = 'none';
+  document.getElementById('orgDropdown').classList.remove('show');
+  renderChips();
+}
+
+function removeOrg(name) {
+  var idx = pickedOrgs.indexOf(name);
+  if (idx > -1) pickedOrgs.splice(idx, 1);
+  renderChips();
+}
+
+function renderChips() {
+  var html = '';
+  for (var i = 0; i < pickedOrgs.length; i++) {
+    html += '<span class="chip">' + pickedOrgs[i] + '<i class="x" onclick="removeOrg(\'' + pickedOrgs[i].replace(/'/g, "\\'") + '\')">✕</i></span>';
+  }
+  document.getElementById('orgChips').innerHTML = html;
+}
+
+/* --- 配置行 --- */
+function addCfgRow() {
+  cfgRows.push({ type: '', text: '', link: '' });
+  document.getElementById('errCfg').style.display = 'none';
+  renderCfgRows();
+}
+
+function removeCfgRow(i) {
+  cfgRows.splice(i, 1);
+  if (cfgRows.length === 0) cfgRows.push({ type: '', text: '', link: '' });
+  renderCfgRows();
+}
+
+function typeMeta(typeId) {
+  for (var i = 0; i < OP_TYPES.length; i++) if (OP_TYPES[i].id === typeId) return OP_TYPES[i];
+  return null;
+}
+
+function onTypeChange(i, val) {
+  cfgRows[i].type = val;
+  renderCfgRows();
+}
+
+function onCfgText(i, val) {
+  cfgRows[i].text = val;
+}
+
+function onCfgLink(i, val) {
+  cfgRows[i].link = val;
+}
+
+function simulateUpload(i) {
+  cfgRows[i].text = cfgRows[i].text === '已选择文件' ? '' : '已选择文件';
+  renderCfgRows();
+}
+
+function renderCfgRows() {
+  var tb = document.getElementById('cfgTbody');
+  var html = '';
+  for (var i = 0; i < cfgRows.length; i++) {
+    var row = cfgRows[i];
+    var meta = typeMeta(row.type);
+    var opts = '<option value="">请选择运营位类型</option>';
+    for (var j = 0; j < OP_TYPES.length; j++) {
+      var t = OP_TYPES[j];
+      opts += '<option value="' + t.id + '"' + (row.type === t.id ? ' selected' : '') + '>' + t.name + '</option>';
+    }
+    // 内容控件
+    var contentCell;
+    if (!meta) {
+      contentCell = '<span class="link-none">请先选择运营位类型</span>';
+    } else if (meta.ctrl === 'img') {
+      contentCell = '<div class="upload-box' + (row.text ? ' has-file' : '') + '" onclick="simulateUpload(' + i + ')">' + (row.text ? '✓ ' + row.text + '（点击重新选择）' : '选择文件') + '</div>';
+    } else if (meta.ctrl === 'text') {
+      var maxlen = meta.maxlen || 50;
+      contentCell = '<input type="text" class="ipt" maxlength="' + maxlen + '" placeholder="请输入名称（不超过' + maxlen + '个字）" value="' + esc(row.text) + '" oninput="onCfgText(' + i + ',this.value)">'
+        + '<div class="desc-text">' + (row.text ? row.text.length : 0) + '/' + maxlen + ' 字</div>';
+    } else if (meta.ctrl === 'rich') {
+      contentCell = '<button class="btn mini" onclick="toast(\'演示页面：富文本编辑未开放\')">编辑内容</button> <span class="muted">已填写</span>';
+    } else {
+      contentCell = '<label style="font-size:13px"><input type="radio" name="dotmode' + i + '" checked> 长期显示 <input type="radio" name="dotmode' + i + '" style="margin-left:12px"> 单次显示</label>';
+    }
+    // 跳转链接
+    var linkCell = meta && meta.link
+      ? '<input type="text" class="ipt" placeholder="请输入跳转链接（选填）" value="' + esc(row.link) + '" oninput="onCfgLink(' + i + ',this.value)">'
+      : '<span class="link-none">—</span>';
+    // 说明
+    var descCell = meta ? '<span class="desc-text" style="margin-top:0">' + meta.desc + '</span>' : '<span class="link-none">—</span>';
+    html += '<tr>'
+      + '<td style="text-align:center">' + (i + 1) + '</td>'
+      + '<td><select onchange="onTypeChange(' + i + ',this.value)">' + opts + '</select></td>'
+      + '<td>' + contentCell + '</td>'
+      + '<td>' + linkCell + '</td>'
+      + '<td>' + descCell + '</td>'
+      + '<td><a class="del-link" onclick="removeCfgRow(' + i + ')">删 除</a></td>'
+      + '</tr>';
+  }
+  tb.innerHTML = html;
+}
+
+function esc(s) {
+  return String(s == null ? '' : s).replace(/&/g, '&amp;').replace(/"/g, '&quot;').replace(/</g, '&lt;');
+}
+
+/* --- 校验与保存 --- */
+function hideErrs() {
+  ['errStart', 'errEnd', 'errOrg', 'errCfg'].forEach(function(id) { document.getElementById(id).style.display = 'none'; });
+}
+
+function saveOp() {
+  hideErrs();
+  var ok = true;
+  if (!permanent) {
+    if (!document.getElementById('fStartTime').value.trim()) { document.getElementById('errStart').style.display = 'block'; ok = false; }
+    if (!document.getElementById('fEndTime').value.trim()) { document.getElementById('errEnd').style.display = 'block'; ok = false; }
+  }
+  if (pickedOrgs.length === 0) { document.getElementById('errOrg').style.display = 'block'; ok = false; }
+  var validCfg = 0;
+  for (var i = 0; i < cfgRows.length; i++) if (cfgRows[i].type) validCfg++;
+  if (validCfg === 0) { document.getElementById('errCfg').style.display = 'block'; ok = false; }
+  if (!ok) return;
+  if (editId) {
+    for (var k = 0; k < OP_ROWS.length; k++) {
+      if (OP_ROWS[k].id === editId) {
+        OP_ROWS[k].org = pickedOrgs[0];
+        OP_ROWS[k].start = permanent ? '' : document.getElementById('fStartTime').value.trim();
+        OP_ROWS[k].end = permanent ? '' : document.getElementById('fEndTime').value.trim();
+        OP_ROWS[k].permanent = permanent;
+      }
+    }
+    toast('已保存（演示）');
+  } else {
+    var newId = String(Date.now()) + Math.floor(Math.random() * 100);
+    OP_ROWS.push({ id: newId, org: pickedOrgs[0], start: permanent ? '' : document.getElementById('fStartTime').value.trim(), end: permanent ? '' : document.getElementById('fEndTime').value.trim(), permanent: permanent, stopped: false, op: 'admin' });
+    toast('已新增（演示）：' + pickedOrgs.join('、'));
+  }
+  renderOpList(filterRows());
+  closeOpModal();
+}
+
+/* ================= 停止 / 启用 ================= */
+function toggleStop(id) {
+  for (var i = 0; i < OP_ROWS.length; i++) {
+    if (OP_ROWS[i].id === id) {
+      OP_ROWS[i].stopped = !OP_ROWS[i].stopped;
+      toast(OP_ROWS[i].stopped ? '已停止：该配置立即失效，学生端回落平台默认' : '已启用：按原规则生效');
+    }
+  }
+  renderOpList(filterRows());
+}
+
+/* ================= 查询 ================= */
+function filterRows() {
+  var qid = document.getElementById('qId').value.trim();
+  var qorg = document.getElementById('qOrg').value.trim();
+  return OP_ROWS.filter(function(r) {
+    return (!qid || r.id.indexOf(qid) > -1) && (!qorg || r.org.indexOf(qorg) > -1);
+  });
+}
+
+function doQuery() { renderOpList(filterRows()); }
+function doReset() {
+  document.getElementById('qId').value = '';
+  document.getElementById('qOrg').value = '';
+  renderOpList(OP_ROWS);
+}
+
+/* ================= 组织编辑弹窗 ================= */
+function openOrgModal(i) {
+  var r = ORG_ROWS[i];
+  document.getElementById('oName').value = r.name;
+  document.getElementById('oDomain').value = r.domain;
+  document.getElementById('orgMask').classList.add('show');
+  document.getElementById('orgModal').classList.add('show');
+}
+
+function closeOrgModal() {
+  document.getElementById('orgMask').classList.remove('show');
+  document.getElementById('orgModal').classList.remove('show');
+}
+
+/* ================= 通用 ================= */
+var toastTimer = null;
+function toast(msg) {
+  var box = document.getElementById('toastBox');
+  document.getElementById('toastText').textContent = msg;
+  box.classList.add('show');
+  if (toastTimer) clearTimeout(toastTimer);
+  toastTimer = setTimeout(function() { box.classList.remove('show'); }, 2600);
+}
+
+document.addEventListener('click', function(ev) {
+  if (!ev.target.closest || !ev.target.closest('.org-picker')) {
+    var dd = document.getElementById('orgDropdown');
+    if (dd) dd.classList.remove('show');
+  }
+});
+
+(function init() {
+  var menu = document.getElementById('siderMenu');
+  menu.addEventListener('click', function(ev) {
+    var item = ev.target.closest('.menu-item');
+    if (!item) return;
+    var view = item.getAttribute('data-view');
+    if (view === 'org' || view === 'operation' || view === 'home' || view === 'material') {
+      if (view === 'home' || view === 'material') { toast('演示页面：该模块未开放'); return; }
+      switchView(view);
+    } else {
+      toast('演示页面：该模块未开放');
+    }
+  });
+  // 分段控件 / 单选切换
+  document.getElementById('oStatus').addEventListener('click', function(ev) {
+    var spans = this.querySelectorAll('span');
+    spans.forEach(function(s) { s.classList.remove('on'); });
+    if (ev.target.tagName === 'SPAN') ev.target.classList.add('on');
+  });
+  document.getElementById('oType').addEventListener('click', function(ev) {
+    var labels = this.querySelectorAll('label');
+    labels.forEach(function(l) { l.classList.remove('on'); });
+    if (ev.target.tagName === 'LABEL') ev.target.classList.add('on');
+  });
+  renderOpList(OP_ROWS);
+  renderOrgList();
+  renderChips();
+  renderCfgRows();
+  // URL 参数便于核验：?modal=new 自动开新增弹窗；?view=org 直达组织管理；?edit=<id> 编辑指定行
+  var qs = {};
+  location.search.replace(/[?&]?([^=&]+)=([^&]*)/g, function(_, k, v) { qs[k] = decodeURIComponent(v); });
+  if (qs.view === 'org') switchView('org');
+  if (qs.modal === 'new') openModal('new');
+  if (qs.edit) openModal('edit', qs.edit);
+})();
+</script>
+</body>
+</html>
