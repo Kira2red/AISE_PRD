@@ -4,7 +4,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>学生明细 - 数据分析</title>
+    <title>学员明细 - 数据分析</title>
     <script src="https://cdn.tailwindcss.com"></script>
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
     <link href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
@@ -54,7 +54,7 @@
             <div class="flex items-center gap-3">
                 <div class="w-9 h-9 bg-gradient-to-br from-brand-600 to-indigo-600 rounded-lg flex items-center justify-center text-white shadow-sm"><i class="fa-solid fa-table-list text-sm"></i></div>
                 <div>
-                    <h1 class="text-[17px] font-bold leading-tight">学生明细 <span class="text-slate-400 font-medium">·</span> <span id="hdTitle" class="text-slate-700">全部学生</span></h1>
+                    <h1 class="text-[17px] font-bold leading-tight">学员明细 <span class="text-slate-400 font-medium">·</span> <span id="hdTitle" class="text-slate-700">全部学员</span></h1>
                     <p class="text-xs text-slate-400 mt-0.5" id="hdSub">2026 春季编程等级测评 · 数据截至 <span class="mono">06-30 18:00</span></p>
                 </div>
             </div>
@@ -76,7 +76,7 @@
                 <select id="fGroup" class="sel" onchange="render()"><option value="">全部分组</option></select>
                 <select id="fChannel" class="sel" onchange="render()"><option value="">全部渠道</option></select><span id="orgLock" class="hidden text-[11px] text-slate-400"><i class="fa-solid fa-lock mr-0.5"></i>已限定本渠道</span>
                 <div class="w-px h-6 bg-slate-100"></div>
-                <select id="fExamState" class="sel" onchange="render()"><option value="">考试状态：全部</option></select>
+                <select id="fExamState" class="sel" onchange="render()"><option value="">测评状态：全部</option></select>
                 <select id="fMoniState" class="sel" onchange="render()"><option value="">监考状态：全部</option></select>
                 <select id="fAnsState" class="sel" onchange="render()"><option value="">作答状态：全部</option></select>
                 <button onclick="resetAll()" class="text-sm text-slate-400 hover:text-brand-600 px-2 py-1.5 transition ml-auto"><i class="fa-solid fa-rotate-left mr-1"></i>重置</button>
@@ -92,12 +92,12 @@
                 <table class="gt">
                     <thead>
                         <tr>
-                            <th style="min-width:110px">学生姓名</th>
-                            <th style="min-width:130px">学生 ID</th>
+                            <th style="min-width:110px">学员姓名</th>
+                            <th style="min-width:130px">学员 ID</th>
                             <th style="min-width:200px">所属测评活动</th>
                             <th style="min-width:100px">分组</th>
                             <th style="min-width:100px">渠道</th>
-                            <th style="min-width:110px">考试状态</th>
+                            <th style="min-width:110px">测评状态</th>
                             <th style="min-width:130px">监考状态</th>
                             <th style="min-width:100px">作答状态</th>
                         </tr>
@@ -106,7 +106,7 @@
                 </table>
             </div>
         </div>
-        <p id="empty" class="hidden text-center text-sm text-slate-400 py-16"><i class="fa-regular fa-folder-open mr-2"></i>当前筛选条件下暂无学生</p>
+        <p id="empty" class="hidden text-center text-sm text-slate-400 py-16"><i class="fa-regular fa-folder-open mr-2"></i>当前筛选条件下暂无学员</p>
     </main>
 
     <script>
@@ -159,24 +159,24 @@
 
     /* ---------- biz 预设：从数据分析页不同格子进入时的默认筛选 ---------- */
     var BIZ = {
-      all:            { title: '报名总人数 · 学生明细' },
-      valid:          { title: '有效报名 · 学生明细' },
-      unpaid:         { title: '待支付 · 学生明细' },
-      refund:         { title: '已退款 · 学生明细' },
-      entered:        { title: '实到人数 · 学生明细', es: 'doing,submitted' },
-      doing:          { title: '进行中 · 学生明细', es: 'doing' },
-      online:         { title: '当前在线 · 学生明细', es: 'doing', ms: 'cam,cam_rec,cam_ph,full' },
-      submitted:      { title: '已交卷 · 学生明细', es: 'submitted' },
-      absent:         { title: '未进入（缺考） · 学生明细', es: 'absent' },
-      houkao_entered: { title: '候考人数 · 学生明细', es: 'doing,submitted' },
-      moni_cam:       { title: '模拟考 · 摄像头监考 · 学生明细', ms: 'cam,cam_rec,cam_ph,full' },
-      moni_rec:       { title: '模拟考 · 录屏监考 · 学生明细', ms: 'cam_rec,full' },
-      moni_phone:     { title: '模拟考 · 手机监考 · 学生明细', ms: 'cam_ph,full' },
-      moni_pic:       { title: '模拟考 · 检录照片 · 学生明细', ms: 'cam,cam_rec,cam_ph,full' },
-      houkao_cam:     { title: '候考 · 摄像头监考 · 学生明细', ms: 'cam,cam_rec,cam_ph,full' },
-      houkao_rec:     { title: '候考 · 录屏监考 · 学生明细', ms: 'cam_rec,full' },
-      houkao_phone:   { title: '候考 · 手机监考 · 学生明细', ms: 'cam_ph,full' },
-      houkao_pic:     { title: '候考 · 检录照片 · 学生明细', ms: 'cam,cam_rec,cam_ph,full' }
+      all:            { title: '报名总人数 · 学员明细' },
+      valid:          { title: '有效报名 · 学员明细' },
+      unpaid:         { title: '待支付 · 学员明细' },
+      refund:         { title: '已退款 · 学员明细' },
+      entered:        { title: '实到人数 · 学员明细', es: 'doing,submitted' },
+      doing:          { title: '进行中 · 学员明细', es: 'doing' },
+      online:         { title: '当前在线 · 学员明细', es: 'doing', ms: 'cam,cam_rec,cam_ph,full' },
+      submitted:      { title: '已交卷 · 学员明细', es: 'submitted' },
+      absent:         { title: '未进入（缺考） · 学员明细', es: 'absent' },
+      houkao_entered: { title: '候考人数 · 学员明细', es: 'doing,submitted' },
+      moni_cam:       { title: '模拟考 · 摄像头监考 · 学员明细', ms: 'cam,cam_rec,cam_ph,full' },
+      moni_rec:       { title: '模拟考 · 录屏监考 · 学员明细', ms: 'cam_rec,full' },
+      moni_phone:     { title: '模拟考 · 手机监考 · 学员明细', ms: 'cam_ph,full' },
+      moni_pic:       { title: '模拟考 · 检录照片 · 学员明细', ms: 'cam,cam_rec,cam_ph,full' },
+      houkao_cam:     { title: '候考 · 摄像头监考 · 学员明细', ms: 'cam,cam_rec,cam_ph,full' },
+      houkao_rec:     { title: '候考 · 录屏监考 · 学员明细', ms: 'cam_rec,full' },
+      houkao_phone:   { title: '候考 · 手机监考 · 学员明细', ms: 'cam_ph,full' },
+      houkao_pic:     { title: '候考 · 检录照片 · 学员明细', ms: 'cam,cam_rec,cam_ph,full' }
     };
 
     var bizKey = new URLSearchParams(location.search).get('biz') || 'all';
@@ -189,7 +189,7 @@
     EXAMS.forEach(function (e) { var o = document.createElement('option'); o.value = e; o.textContent = e; document.getElementById('fExam').appendChild(o); });
     GROUPS.forEach(function (e) { var o = document.createElement('option'); o.value = e; o.textContent = e; document.getElementById('fGroup').appendChild(o); });
     CHANNELS.forEach(function (e) { var o = document.createElement('option'); o.value = e; o.textContent = e; document.getElementById('fChannel').appendChild(o); });
-    ES.forEach(function (s) { var o = document.createElement('option'); o.value = s.k; o.textContent = '考试状态：' + s.t; document.getElementById('fExamState').appendChild(o); });
+    ES.forEach(function (s) { var o = document.createElement('option'); o.value = s.k; o.textContent = '测评状态：' + s.t; document.getElementById('fExamState').appendChild(o); });
     MS.forEach(function (s) { var o = document.createElement('option'); o.value = s.k; o.textContent = '监考状态：' + s.t; document.getElementById('fMoniState').appendChild(o); });
     AS.forEach(function (s) { var o = document.createElement('option'); o.value = s.k; o.textContent = '作答状态：' + s.t; document.getElementById('fAnsState').appendChild(o); });
 
@@ -263,7 +263,7 @@
       }).join('');
       document.getElementById('empty').classList.toggle('hidden', rows.length > 0);
       document.getElementById('statBar').innerHTML =
-        '<span><i class="fa-solid fa-users mr-1 text-brand-500"></i>共 <b class="text-slate-700 font-mono">' + rows.length + '</b> 名学生</span>' +
+        '<span><i class="fa-solid fa-users mr-1 text-brand-500"></i>共 <b class="text-slate-700 font-mono">' + rows.length + '</b> 名学员</span>' +
         '<span>作答中 <b class="text-blue-600 font-mono">' + rows.filter(function (s) { return s.es.k === 'doing'; }).length + '</b></span>' +
         '<span>已交卷 <b class="text-emerald-600 font-mono">' + rows.filter(function (s) { return s.es.k === 'submitted'; }).length + '</b></span>' +
         '<span>缺考 <b class="text-red-500 font-mono">' + rows.filter(function (s) { return s.es.k === 'absent'; }).length + '</b></span>' +
@@ -279,7 +279,7 @@
       if (fg) h += chip(fg, "document.getElementById('fGroup').value=''");
       if (fc) h += chip(fc, "document.getElementById('fChannel').value=''");
       if (es1) h += chip(metaOf(ES, es1).t, "document.getElementById('fExamState').value=''");
-      if (preset._es && !es1) h += '<span class="fchip">考试状态：' + preset._es.map(function (k) { return metaOf(ES, k).t; }).join(' / ') + '<button onclick="preset._es=null;render()"><i class="fa-solid fa-xmark"></i></button></span>';
+      if (preset._es && !es1) h += '<span class="fchip">测评状态：' + preset._es.map(function (k) { return metaOf(ES, k).t; }).join(' / ') + '<button onclick="preset._es=null;render()"><i class="fa-solid fa-xmark"></i></button></span>';
       if (ms1) h += chip(metaOf(MS, ms1).t, "document.getElementById('fMoniState').value=''");
       if (preset._ms && !ms1) h += '<span class="fchip">监考状态：' + preset._ms.map(function (k) { return metaOf(MS, k).t; }).join(' / ') + '<button onclick="preset._ms=null;render()"><i class="fa-solid fa-xmark"></i></button></span>';
       if (as1) h += chip(metaOf(AS, as1).t, "document.getElementById('fAnsState').value=''");

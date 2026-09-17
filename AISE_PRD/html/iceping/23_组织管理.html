@@ -47,16 +47,7 @@ html, body { margin: 0; padding: 0; background: #fff; font-family: -apple-system
 .area-dropdown .area-opt { padding: 7px 14px; font-size: 13px; color: #323335; cursor: pointer; }
 .area-dropdown .area-opt:hover, .area-dropdown .area-opt.selected { background: #E5F5FF; color: #2A55E5; }
 
-/* 组织图标上传（线上 ant-upload picture-card） */
-.upload-img-card { position: relative; width: 104px; height: 104px; border: 1px solid #e8e8e8; border-radius: 8px; overflow: hidden; display: inline-flex; align-items: center; justify-content: center; background: #fff; vertical-align: top; }
-.upload-img-card img { max-width: 100%; max-height: 100%; display: block; }
-.upload-img-card .ua-actions { position: absolute; inset: 0; background: rgba(0,0,0,.45); display: none; align-items: center; justify-content: center; gap: 12px; color: #fff; font-size: 12px; cursor: pointer; }
-.upload-img-card:hover .ua-actions { display: flex; }
-.ua-actions span:hover { color: #40a9ff; }
-.upload-btn { width: 104px; height: 104px; border: 1px dashed #d9d9d9; border-radius: 8px; background: #fafafa; cursor: pointer; display: inline-flex; flex-direction: column; align-items: center; justify-content: center; gap: 6px; color: #64666B; font-size: 12px; vertical-align: top; margin-left: 8px; }
-.upload-btn:hover { border-color: #2A55E5; color: #2A55E5; }
 
-.demo-toast { position: fixed; top: 80px; left: 50%; transform: translateX(-50%); background: rgba(0,0,0,.75); color: #fff; padding: 10px 20px; border-radius: 6px; font-size: 14px; z-index: 9999; display: none; }
 </style>
 </head>
 <body>
@@ -165,19 +156,6 @@ html, body { margin: 0; padding: 0; background: #fff; font-family: -apple-system
           </div>
         </div>
         <div class="form-item">
-          <span class="form-label">组织图标</span>
-          <div class="form-ctl">
-            <span class="upload-img-card" id="imgCard">
-              <img src="assets/level-logo.png" alt="75aa55f02287470f89d508c5d9688c47.png">
-              <span class="ua-actions">
-                <span onclick="event.stopPropagation();toast('预览组织图标（演示）')">预览</span>
-                <span onclick="event.stopPropagation();removeIcon()">删除</span>
-              </span>
-            </span>
-            <span class="upload-btn" id="uploadBtn" style="display:none;" onclick="toast('上传组织图标（演示）')">📷<span>组织图标上传</span></span>
-          </div>
-        </div>
-        <div class="form-item">
           <span class="form-label"></span>
           <div class="form-ctl">
             <button type="submit" class="ant-btn ant-btn-primary" style="margin-left:60px;"><span>保 存</span></button>
@@ -212,13 +190,6 @@ function pickArea(el) {
 document.addEventListener('click', function (e) {
   if (!e.target.closest('#areaSelect')) document.getElementById('areaDropdown').style.display = 'none';
 });
-
-/* ============ 组织图标 ============ */
-function removeIcon() {
-  document.getElementById('imgCard').style.display = 'none';
-  document.getElementById('uploadBtn').style.display = 'inline-flex';
-  toast('已移除组织图标（演示）');
-}
 
 /* ============ 保存 ============ */
 function saveOrg() {
