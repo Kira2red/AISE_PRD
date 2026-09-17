@@ -28,6 +28,10 @@ tailwind.config = {
 </script>
 <style>
 body { background-color: #F8FAFC; }
+.stat-card { position: relative; }
+.jump-btn { position: absolute; top: 10px; right: 10px; width: 26px; height: 26px; border-radius: 8px; display: flex; align-items: center; justify-content: center; color: #94A3B8; background: #F1F5F9; font-size: 11px; opacity: 0; transform: translateY(-2px); transition: .15s; }
+.stat-card:hover .jump-btn { opacity: 1; transform: translateY(0); }
+.jump-btn:hover { background: #DBEAFE; color: #2563EB; }
 .mono { font-family: 'JetBrains Mono', monospace; }
 .msel { position:relative; }
 .msel-btn { display:inline-flex; align-items:center; gap:8px; border:1px solid #E2E8F0; background:#fff; border-radius:10px; padding:7px 12px; font-size:13px; color:#475569; cursor:pointer; transition:.13s; min-width:150px; }
@@ -324,23 +328,25 @@ function mkChart(id, cfg) {
   var el = $(id); if (!el) return;
   charts[id] = new Chart(el.getContext('2d'), cfg);
 }
-function statCard(cls, label, value, unit, sub) {
+function statCard(cls, label, value, unit, sub, jump) {
   return '<div class="stat-card ' + (cls || '') + '">' +
     '<p class="text-xs text-slate-400 font-medium mb-1.5">' + label + '</p>' +
     '<p class="text-[26px] font-bold font-mono leading-none mb-1.5" style="color:#1E293B">' + value + (unit ? ' <span class="text-sm font-normal text-slate-400">' + unit + '</span>' : '') + '</p>' +
-    (sub ? '<p class="text-xs text-slate-400">' + sub + '</p>' : '') + '</div>';
+    (sub ? '<p class="text-xs text-slate-400">' + sub + '</p>' : '') +
+    (jump ? '<a class="jump-btn" href="37_学生明细.html?biz=' + jump + '" target="_blank" title="查看学生明细"><i class="fa-solid fa-arrow-up-right-from-square"></i></a>' : '') + '</div>';
 }
 function panelHead(title, note) {
   return '<div class="flex items-baseline justify-between mb-4"><h3 class="text-sm font-bold text-slate-700">' + title + '</h3>' + (note ? '<span class="text-xs text-slate-400">' + note + '</span>' : '') + '</div>';
 }
-function pairCard(label, real, should, isRate) {
+function pairCard(label, real, should, isRate, jump) {
   var p = pct(real, should);
   var w = Math.min(100, Number(p)).toFixed(1);
   return '<div class="stat-card">' +
     '<p class="text-xs text-slate-400 font-medium mb-1.5">' + label + '</p>' +
-    '<p class="text-[24px] font-bold font-mono leading-none mb-1" style="color:#1E293B">' + (isRate === false ? fmt(real) + ' <span class="text-sm font-normal text-slate-400">/ ' + fmt(should) + ' 人</span>' : fmt(real) + ' <span class="text-sm font-normal text-slate-400">/ ' + fmt(should) + ' 人</span>') + '</p>' +
+    '<p class="text-[24px] font-bold font-mono leading-none mb-1" style="color:#1E293B">' + fmt(real) + ' <span class="text-sm font-normal text-slate-400">/ ' + fmt(should) + ' 人</span>' + '</p>' +
     '<div class="pbar mt-2.5"><i style="width:' + w + '%"></i></div>' +
-    '<p class="text-xs mt-1.5"><span class="font-mono font-semibold text-brand-600">' + p + '%</span> <span class="text-slate-400">' + (isRate || '开启率') + '</span></p></div>';
+    '<p class="text-xs mt-1.5"><span class="font-mono font-semibold text-brand-600">' + p + '%</span> <span class="text-slate-400">' + (isRate || '开启率') + '</span></p>' +
+    (jump ? '<a class="jump-btn" href="37_学生明细.html?biz=' + jump + '" target="_blank" title="查看学生明细"><i class="fa-solid fa-arrow-up-right-from-square"></i></a>' : '') + '</div>';
 }
 
 /* ---------- 筛选区（下拉多选 + 模糊搜索） ---------- */
@@ -430,10 +436,10 @@ function render() {
 function secBaoming() {
   var h = '<section class="mb-7"><div class="flex items-center gap-2 mb-4"><span class="w-1.5 h-5 bg-brand-600 rounded-full"></span><h2 class="text-[15px] font-bold">报名</h2><span class="text-xs text-slate-400">报名开启 ~ 报名截止</span></div>';
   h += '<div class="grid grid-cols-4 gap-4 mb-5">';
-  h += statCard('hl', '报名总人数', fmt(sc(D.renshu)), '人', '一人一单，人数即单量');
-  h += statCard('', '有效报名', fmt(sc(D.youxiao)), '人', '已支付（待支付不计）');
-  h += statCard('', '待支付', fmt(sc(D.daizhifu)), '单', '未完成支付的订单');
-  h += statCard('', '已退款', fmt(sc(D.tuikuan)), '单', '退款通道关闭后冻结');
+  h += statCard('hl', '报名总人数', fmt(sc(D.renshu)), '人', '一人一单，人数即单量', 'all');
+  h += statCard('', '有效报名', fmt(sc(D.youxiao)), '人', '已支付（待支付不计）', 'valid');
+  h += statCard('', '待支付', fmt(sc(D.daizhifu)), '单', '未完成支付的订单', 'unpaid');
+  h += statCard('', '已退款', fmt(sc(D.tuikuan)), '单', '退款通道关闭后冻结', 'refund');
   h += '</div>';
   h += '<div class="grid grid-cols-2 gap-5 mb-5">';
   h += '<div class="panel p-5">' + panelHead('每日新增报名趋势', '整体统计 + 每日统计') + '<div class="chart-box" style="height:240px"><canvas id="cDaily"></canvas></div></div>';
@@ -541,10 +547,10 @@ function secMoni() {
   });
   h += '</div></div>';
   h += '<div class="panel p-5">' + panelHead('监考开启率', '分母 = 实际参考学员中配置强制/非强制的人数') + '<div class="grid grid-cols-4 gap-3">';
-  h += pairCard('摄像头监考', sc(D.mCam[0]), sc(D.mCam[1]), '开启率');
-  h += pairCard('录屏监考', sc(D.mRec[0]), sc(D.mRec[1]), '开启率');
-  h += pairCard('手机监考', sc(D.mPhone[0]), sc(D.mPhone[1]), '开启率');
-  h += pairCard('检录照片', sc(D.mPic[0]), sc(D.mPic[1]), '上传率');
+  h += pairCard('摄像头监考', sc(D.mCam[0]), sc(D.mCam[1]), '开启率', 'moni_cam');
+  h += pairCard('录屏监考', sc(D.mRec[0]), sc(D.mRec[1]), '开启率', 'moni_rec');
+  h += pairCard('手机监考', sc(D.mPhone[0]), sc(D.mPhone[1]), '开启率', 'moni_phone');
+  h += pairCard('检录照片', sc(D.mPic[0]), sc(D.mPic[1]), '上传率', 'moni_pic');
   h += '</div></div></div></section>';
   return h;
 }
@@ -554,8 +560,8 @@ function drawMoni() { /* 模拟考无 canvas 图表 */ }
 function secHoukao() {
   var h = '<section class="mb-7"><div class="flex items-center gap-2 mb-4"><span class="w-1.5 h-5 bg-brand-600 rounded-full"></span><h2 class="text-[15px] font-bold">候考</h2><span class="text-xs text-slate-400">候考页开放 ~ 测评开始</span></div>';
   h += '<div class="grid grid-cols-4 gap-4 mb-5">';
-  h += statCard('hl', '应参人数', fmt(sc(D.hYing)), '人', '有效报名（待支付不计）');
-  h += statCard('', '候考人数', fmt(sc(D.hHou)), '人', '进入过候考页即算');
+  h += statCard('hl', '应参人数', fmt(sc(D.hYing)), '人', '有效报名（待支付不计）', 'valid');
+  h += statCard('', '候考人数', fmt(sc(D.hHou)), '人', '进入过候考页即算', 'houkao_entered');
   h += statCard('', '候考率', pct(sc(D.hHou), sc(D.hYing)), '%', '候考人数 ÷ 应参人数');
   h += statCard('', '平均候考时长', D.hAvg, '分钟', '进入候考页 → 测评开始');
   h += '</div>';
@@ -569,15 +575,33 @@ function secHoukao() {
 }
 
 /* ---------- 考中 ---------- */
+function secHoukao() {
+  var h = '<section class="mb-7"><div class="flex items-center gap-2 mb-4"><span class="w-1.5 h-5 bg-brand-600 rounded-full"></span><h2 class="text-[15px] font-bold">候考</h2><span class="text-xs text-slate-400">候考页开放 ~ 测评开始</span></div>';
+  h += '<div class="grid grid-cols-4 gap-4 mb-5">';
+  h += statCard('hl', '应参人数', fmt(sc(D.hYing)), '人', '有效报名（待支付不计）', 'valid');
+  h += statCard('', '候考人数', fmt(sc(D.hHou)), '人', '进入过候考页即算', 'houkao_entered');
+  h += statCard('', '候考率', pct(sc(D.hHou), sc(D.hYing)), '%', '候考人数 ÷ 应参人数');
+  h += statCard('', '平均候考时长', D.hAvg, '分钟', '进入候考页 → 测评开始');
+  h += '</div>';
+  h += '<div class="panel p-5">' + panelHead('监考开启（候考口径）', '实际开启 = 设备检测对应项通过人数；测评开始时冻结') + '<div class="grid grid-cols-4 gap-4">';
+  h += pairCard('摄像头监考', sc(D.hCam[0]), sc(D.hCam[1]), '开启率', 'houkao_cam');
+  h += pairCard('录屏监考', sc(D.hRec[0]), sc(D.hRec[1]), '开启率', 'houkao_rec');
+  h += pairCard('手机监考', sc(D.hPhone[0]), sc(D.hPhone[1]), '开启率', 'houkao_phone');
+  h += pairCard('检录照片', sc(D.hPic[0]), sc(D.hPic[1]), '上传率', 'houkao_pic');
+  h += '</div></div></section>';
+  return h;
+}
+
+/* ---------- 考中 ---------- */
 function secKaozhong() {
   var h = '<section class="mb-7"><div class="flex items-center gap-2 mb-4"><span class="w-1.5 h-5 bg-brand-600 rounded-full"></span><h2 class="text-[15px] font-bold">考中</h2><span class="text-xs text-slate-400">开测 ~ 测评结束 · 实时指标每分钟更新（可放宽至 5 分钟）</span></div>';
   h += '<div class="grid grid-cols-6 gap-4 mb-5">';
-  h += statCard('', '应到人数', fmt(sc(D.kYing)), '人', '有效报名');
-  h += statCard('hl', '实到人数', fmt(sc(D.kShi)), '人', '进入过答题环节');
-  h += statCard('', '进行中', fmt(sc(D.kDoing)), '人', '实到 − 已交卷（含不在场）');
-  h += statCard('', '在线', fmt(sc(D.kOnline)), '人', '当前在线');
-  h += statCard('', '已交卷', fmt(sc(D.kSubmitted)), '人', '交卷累计');
-  h += statCard('', '未进入（缺考）', fmt(sc(D.kMiss)), '人', '全无监考口径');
+  h += statCard('', '应到人数', fmt(sc(D.kYing)), '人', '有效报名', 'valid');
+  h += statCard('hl', '实到人数', fmt(sc(D.kShi)), '人', '进入过答题环节', 'entered');
+  h += statCard('', '进行中', fmt(sc(D.kDoing)), '人', '实到 − 已交卷（含不在场）', 'doing');
+  h += statCard('', '在线', fmt(sc(D.kOnline)), '人', '当前在线', 'online');
+  h += statCard('', '已交卷', fmt(sc(D.kSubmitted)), '人', '交卷累计', 'submitted');
+  h += statCard('', '未进入（缺考）', fmt(sc(D.kMiss)), '人', '全无监考口径', 'absent');
   h += '</div>';
   h += '<div class="grid grid-cols-3 gap-5 mb-5">';
   h += '<div class="panel p-5">' + panelHead('监考相关 · 当前在线学员', '在线 ' + fmt(sc(D.kOnline)) + ' 人') + '<div class="chart-box" style="height:250px"><canvas id="cInv"></canvas></div></div>';

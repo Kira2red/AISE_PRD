@@ -1,0 +1,288 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>学生明细 - 数据分析</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <script>
+        tailwind.config = {
+            theme: {
+                extend: {
+                    fontFamily: { sans: ['Inter', 'sans-serif'], mono: ['JetBrains Mono', 'monospace'] },
+                    colors: { brand: { 50: '#eff6ff', 100: '#dbeafe', 500: '#3b82f6', 600: '#2563eb', 700: '#1d4ed8' } },
+                    boxShadow: { card: '0 1px 3px 0 rgba(0, 0, 0, 0.1), 0 1px 2px 0 rgba(0, 0, 0, 0.06)' }
+                }
+            }
+        }
+    </script>
+    <style>
+        body { background-color: #F8FAFC; }
+        .mono { font-family: 'JetBrains Mono', monospace; }
+        .tag { display: inline-flex; align-items: center; font-size: 12px; padding: 2px 10px; border-radius: 9999px; font-weight: 500; }
+        .sel { border: 1px solid #E2E8F0; background: #fff; border-radius: 10px; padding: 7px 12px; font-size: 13px; color: #334155; cursor: pointer; transition: .13s; min-width: 150px; }
+        .sel:hover { border-color: #93C5FD; }
+        .sel:focus { outline: none; border-color: #2563EB; box-shadow: 0 0 0 3px rgba(37,99,235,.08); }
+        .gt { width: 100%; border-collapse: separate; border-spacing: 0; font-size: 13px; }
+        .gt th { background: #F8FAFC; color: #64748B; font-weight: 600; text-align: left; padding: 10px 14px; border-bottom: 1px solid #E2E8F0; white-space: nowrap; position: sticky; top: 0; z-index: 5; }
+        .gt td { padding: 11px 14px; border-bottom: 1px solid #F1F5F9; color: #334155; }
+        .gt tr:hover td { background: #F8FAFC; }
+        .gt td.num { text-align: right; font-family: 'JetBrains Mono', monospace; }
+        .chip { display: inline-flex; align-items: center; gap: 4px; font-size: 11px; padding: 1px 9px; border-radius: 9999px; font-weight: 500; }
+        .c-green { background: #ECFDF5; color: #059669; }
+        .c-blue { background: #EFF6FF; color: #2563EB; }
+        .c-amber { background: #FFFBEB; color: #D97706; }
+        .c-red { background: #FEF2F2; color: #DC2626; }
+        .c-slate { background: #F1F5F9; color: #64748B; }
+        .c-violet { background: #F5F3FF; color: #7C3AED; }
+        .fchip { display: inline-flex; align-items: center; gap: 6px; font-size: 12px; padding: 4px 10px; border-radius: 9999px; background: #EFF6FF; color: #1D4ED8; font-weight: 500; }
+        .fchip button { color: #93C5FD; cursor: pointer; font-size: 10px; }
+        .fchip button:hover { color: #DC2626; }
+    </style>
+</head>
+
+<body class="text-slate-800 font-sans">
+
+    <!-- 顶栏 -->
+    <header class="bg-white border-b border-slate-200 sticky top-0 z-40">
+        <div class="px-8 h-16 flex items-center gap-4">
+            <a href="javascript:window.close()" onclick="if(!window.opener){location.href='36_数据分析.html'}return false" class="w-9 h-9 rounded-lg border border-slate-200 flex items-center justify-center text-slate-500 hover:text-brand-600 hover:border-brand-500 transition"><i class="fa-solid fa-arrow-left text-sm"></i></a>
+            <div class="flex items-center gap-3">
+                <div class="w-9 h-9 bg-gradient-to-br from-brand-600 to-indigo-600 rounded-lg flex items-center justify-center text-white shadow-sm"><i class="fa-solid fa-table-list text-sm"></i></div>
+                <div>
+                    <h1 class="text-[17px] font-bold leading-tight">学生明细 <span class="text-slate-400 font-medium">·</span> <span id="hdTitle" class="text-slate-700">全部学生</span></h1>
+                    <p class="text-xs text-slate-400 mt-0.5">2026 春季编程等级测评 · 数据截至 <span class="mono">06-30 18:00</span> · 与数据分析页筛选联动</p>
+                </div>
+            </div>
+            <div class="ml-auto flex items-center gap-3">
+                <button onclick="toast('演示页面：导出走消息中心异步链路')" class="text-sm text-slate-500 hover:text-brand-600 border border-slate-200 hover:border-brand-500 rounded-lg px-3.5 py-1.5 transition flex items-center gap-2"><i class="fa-solid fa-download"></i>导出</button>
+            </div>
+        </div>
+    </header>
+
+    <main class="px-8 py-5 max-w-[1400px] mx-auto">
+        <!-- 生效筛选条 -->
+        <div id="activeChips" class="flex items-center gap-2 flex-wrap mb-4"></div>
+
+        <!-- 筛选区 -->
+        <div class="bg-white rounded-xl shadow-card border border-slate-100 p-4 mb-5">
+            <div class="flex items-center gap-3 flex-wrap">
+                <label class="text-xs text-slate-400 font-medium">筛选</label>
+                <select id="fExam" class="sel" onchange="render()"><option value="">全部测评</option></select>
+                <select id="fGroup" class="sel" onchange="render()"><option value="">全部分组</option></select>
+                <select id="fChannel" class="sel" onchange="render()"><option value="">全部渠道</option></select>
+                <div class="w-px h-6 bg-slate-100"></div>
+                <select id="fExamState" class="sel" onchange="render()"><option value="">考试状态：全部</option></select>
+                <select id="fMoniState" class="sel" onchange="render()"><option value="">监考状态：全部</option></select>
+                <select id="fAnsState" class="sel" onchange="render()"><option value="">作答状态：全部</option></select>
+                <button onclick="resetAll()" class="text-sm text-slate-400 hover:text-brand-600 px-2 py-1.5 transition ml-auto"><i class="fa-solid fa-rotate-left mr-1"></i>重置</button>
+            </div>
+            <p class="text-[11px] text-slate-400 mt-2.5"><i class="fa-solid fa-circle-info mr-1"></u>从数据分析页不同数据格子进入时，默认筛选对应名单；此处可随时切换，互不影响原页面。</p>
+        </div>
+
+        <!-- 统计条 -->
+        <div id="statBar" class="flex items-center gap-5 mb-4 text-xs text-slate-400"></div>
+
+        <!-- 明细表 -->
+        <div class="bg-white rounded-xl shadow-card border border-slate-100 overflow-hidden">
+            <div class="overflow-x-auto" style="max-height: calc(100vh - 320px)">
+                <table class="gt">
+                    <thead>
+                        <tr>
+                            <th style="min-width:110px">学生姓名</th>
+                            <th style="min-width:130px">学生 ID</th>
+                            <th style="min-width:200px">所属测评活动</th>
+                            <th style="min-width:100px">分组</th>
+                            <th style="min-width:100px">渠道</th>
+                            <th style="min-width:110px">考试状态</th>
+                            <th style="min-width:130px">监考状态</th>
+                            <th style="min-width:100px">作答状态</th>
+                        </tr>
+                    </thead>
+                    <tbody id="tb"></tbody>
+                </table>
+            </div>
+        </div>
+        <p id="empty" class="hidden text-center text-sm text-slate-400 py-16"><i class="fa-regular fa-folder-open mr-2"></i>当前筛选条件下暂无学生</p>
+    </main>
+
+    <script>
+    /* ---------- 演示数据 ---------- */
+    var EXAMS = ['Python一级·第1场', 'Python一级·第2场', '图形化二级·第1场', 'C++一级·第1场'];
+    var GROUPS = ['3月批', '6月批'];
+    var CHANNELS = ['猿编程', '核桃编程', '编程猫'];
+    var NAMES = ['王一诺', '李梓轩', '张若彤', '刘昊然', '陈思远', '杨雨薇', '赵晨曦', '黄嘉豪', '周诗涵', '吴宇轩', '徐若曦', '孙浩宇', '马欣然', '朱子墨', '郭静怡', '何俊杰', '高梓萱', '林天佑', '罗雨桐', '郑博文'];
+    var ES = [
+      { k: 'not_started', t: '未开始', cls: 'c-slate' },
+      { k: 'doing',       t: '作答中', cls: 'c-blue' },
+      { k: 'submitted',   t: '已交卷', cls: 'c-green' },
+      { k: 'absent',      t: '缺考',   cls: 'c-red' }
+    ];
+    var MS = [
+      { k: 'cam',      t: '仅摄像头', cls: 'c-amber' },
+      { k: 'cam_rec',  t: '摄像头+录屏', cls: 'c-green' },
+      { k: 'cam_ph',   t: '摄像头+手机', cls: 'c-violet' },
+      { k: 'full',     t: '三路齐全', cls: 'c-green' },
+      { k: 'none',     t: '未接入', cls: 'c-slate' },
+      { k: 'offline',  t: '监考断线', cls: 'c-red' }
+    ];
+    var AS = [
+      { k: 'none',    t: '未作答', cls: 'c-slate' },
+      { k: 'partial', t: '作答中', cls: 'c-blue' },
+      { k: 'done',    t: '已完成', cls: 'c-green' }
+    ];
+
+    var STUDENTS = [];
+    (function seed() {
+      var rs = LCG(20260917);
+      for (var i = 0; i < 60; i++) {
+        var exam = EXAMS[i % 4];
+        var est = ES[i % 7 === 0 ? 0 : (i % 5 === 0 ? 3 : (i % 3 === 0 ? 2 : 1))];
+        var mst = MS[(i * 3) % 6];
+        var ast = AS[est.k === 'submitted' ? 2 : (est.k === 'doing' ? ((i * 2) % 2 + 1) : (est.k === 'absent' ? 0 : 0))];
+        STUDENTS.push({
+          name: NAMES[i % NAMES.length] + (i >= NAMES.length ? '·' + Math.floor(i / NAMES.length + 1) : ''),
+          sid: 'STU2026' + String(1000 + i * 7).slice(0, 4),
+          exam: exam,
+          group: GROUPS[i % 2],
+          channel: CHANNELS[i % 3],
+          es: est, ms: mst, as: ast,
+          enter: est.k !== 'not_started' && est.k !== 'absent'
+        });
+      }
+    })();
+    function LCG(seed) { return function () { seed = (seed * 48271) % 2147483647; return seed / 2147483647; }; }
+
+    /* ---------- biz 预设：从数据分析页不同格子进入时的默认筛选 ---------- */
+    var BIZ = {
+      all:            { title: '报名总人数 · 学生明细' },
+      valid:          { title: '有效报名 · 学生明细' },
+      unpaid:         { title: '待支付 · 学生明细' },
+      refund:         { title: '已退款 · 学生明细' },
+      entered:        { title: '实到人数 · 学生明细', es: 'doing,submitted' },
+      doing:          { title: '进行中 · 学生明细', es: 'doing' },
+      online:         { title: '当前在线 · 学生明细', es: 'doing', ms: 'cam,cam_rec,cam_ph,full' },
+      submitted:      { title: '已交卷 · 学生明细', es: 'submitted' },
+      absent:         { title: '未进入（缺考） · 学生明细', es: 'absent' },
+      houkao_entered: { title: '候考人数 · 学生明细', es: 'doing,submitted' },
+      moni_cam:       { title: '模拟考 · 摄像头监考 · 学生明细', ms: 'cam,cam_rec,cam_ph,full' },
+      moni_rec:       { title: '模拟考 · 录屏监考 · 学生明细', ms: 'cam_rec,full' },
+      moni_phone:     { title: '模拟考 · 手机监考 · 学生明细', ms: 'cam_ph,full' },
+      moni_pic:       { title: '模拟考 · 检录照片 · 学生明细', ms: 'cam,cam_rec,cam_ph,full' },
+      houkao_cam:     { title: '候考 · 摄像头监考 · 学生明细', ms: 'cam,cam_rec,cam_ph,full' },
+      houkao_rec:     { title: '候考 · 录屏监考 · 学生明细', ms: 'cam_rec,full' },
+      houkao_phone:   { title: '候考 · 手机监考 · 学生明细', ms: 'cam_ph,full' },
+      houkao_pic:     { title: '候考 · 检录照片 · 学生明细', ms: 'cam,cam_rec,cam_ph,full' }
+    };
+
+    var bizKey = new URLSearchParams(location.search).get('biz') || 'all';
+    var preset = BIZ[bizKey] || BIZ.all;
+    document.getElementById('hdTitle').textContent = preset.title;
+
+    /* ---------- 填充筛选器 ---------- */
+    EXAMS.forEach(function (e) { var o = document.createElement('option'); o.value = e; o.textContent = e; document.getElementById('fExam').appendChild(o); });
+    GROUPS.forEach(function (e) { var o = document.createElement('option'); o.value = e; o.textContent = e; document.getElementById('fGroup').appendChild(o); });
+    CHANNELS.forEach(function (e) { var o = document.createElement('option'); o.value = e; o.textContent = e; document.getElementById('fChannel').appendChild(o); });
+    ES.forEach(function (s) { var o = document.createElement('option'); o.value = s.k; o.textContent = '考试状态：' + s.t; document.getElementById('fExamState').appendChild(o); });
+    MS.forEach(function (s) { var o = document.createElement('option'); o.value = s.k; o.textContent = '监考状态：' + s.t; document.getElementById('fMoniState').appendChild(o); });
+    AS.forEach(function (s) { var o = document.createElement('option'); o.value = s.k; o.textContent = '作答状态：' + s.t; document.getElementById('fAnsState').appendChild(o); });
+
+    /* ---------- 应用 biz 预设（映射到筛选器） ---------- */
+    function applyPreset() {
+      if (preset.es) {
+        var ks = preset.es.split(',');
+        var s = document.getElementById('fExamState');
+        if (ks.length === 1) s.value = ks[0];
+        // 多状态（如实到=作答中+已交卷）用多选 chip 方式：记录到 state
+        preset._es = ks;
+      }
+      if (preset.ms) {
+        var ks2 = preset.ms.split(',');
+        var s2 = document.getElementById('fMoniState');
+        if (ks2.length === 1) s2.value = ks2[0];
+        preset._ms = ks2;
+      }
+    }
+    applyPreset();
+
+    /* ---------- 渲染 ---------- */
+    function metaOf(arr, k) { for (var i = 0; i < arr.length; i++) if (arr[i].k === k) return arr[i]; return arr[0]; }
+    function inMulti(presetKey, selVal, metaArr, k) {
+      if (presetKey && presetKey.length) return presetKey.indexOf(k) >= 0;
+      if (!selVal) return true;
+      return selVal === k;
+    }
+    function render() {
+      var fe = document.getElementById('fExam').value;
+      var fg = document.getElementById('fGroup').value;
+      var fc = document.getElementById('fChannel').value;
+      var es1 = document.getElementById('fExamState').value;
+      var ms1 = document.getElementById('fMoniState').value;
+      var as1 = document.getElementById('fAnsState').value;
+      var rows = STUDENTS.filter(function (s) {
+        if (fe && s.exam !== fe) return false;
+        if (fg && s.group !== fg) return false;
+        if (fc && s.channel !== fc) return false;
+        if (!inMulti(preset._es, es1, ES, s.es.k)) return false;
+        if (!inMulti(preset._ms, ms1, MS, s.ms.k)) return false;
+        if (as1 && s.as.k !== as1) return false;
+        return true;
+      });
+      var tb = document.getElementById('tb');
+      tb.innerHTML = rows.map(function (s) {
+        return '<tr>' +
+          '<td class="font-medium">' + s.name + '</td>' +
+          '<td class="mono text-xs text-slate-500">' + s.sid + '</td>' +
+          '<td>2026 春季编程等级测评 · ' + s.exam + '</td>' +
+          '<td>' + s.group + '</td>' +
+          '<td>' + s.channel + '</td>' +
+          '<td><span class="chip ' + s.es.cls + '">' + s.es.t + '</span></td>' +
+          '<td><span class="chip ' + s.ms.cls + '">' + s.ms.t + '</span></td>' +
+          '<td><span class="chip ' + s.as.cls + '">' + s.as.t + '</span></td>' +
+          '</tr>';
+      }).join('');
+      document.getElementById('empty').classList.toggle('hidden', rows.length > 0);
+      document.getElementById('statBar').innerHTML =
+        '<span><i class="fa-solid fa-users mr-1 text-brand-500"></i>共 <b class="text-slate-700 font-mono">' + rows.length + '</b> 名学生</span>' +
+        '<span>作答中 <b class="text-blue-600 font-mono">' + rows.filter(function (s) { return s.es.k === 'doing'; }).length + '</b></span>' +
+        '<span>已交卷 <b class="text-emerald-600 font-mono">' + rows.filter(function (s) { return s.es.k === 'submitted'; }).length + '</b></span>' +
+        '<span>缺考 <b class="text-red-500 font-mono">' + rows.filter(function (s) { return s.es.k === 'absent'; }).length + '</b></span>' +
+        '<span class="ml-auto mono">biz=' + bizKey + '</span>';
+      renderChips(fe, fg, fc, es1, ms1, as1);
+    }
+    function renderChips(fe, fg, fc, es1, ms1, as1) {
+      var h = '<span class="text-xs text-slate-400 font-medium">生效筛选</span>';
+      function chip(txt, clear) {
+        return '<span class="fchip">' + txt + '<button onclick="' + clear + ';render()"><i class="fa-solid fa-xmark"></i></button></span>';
+      }
+      if (fe) h += chip(fe, "document.getElementById('fExam').value=''");
+      if (fg) h += chip(fg, "document.getElementById('fGroup').value=''");
+      if (fc) h += chip(fc, "document.getElementById('fChannel').value=''");
+      if (es1) h += chip(metaOf(ES, es1).t, "document.getElementById('fExamState').value=''");
+      if (preset._es && !es1) h += '<span class="fchip">考试状态：' + preset._es.map(function (k) { return metaOf(ES, k).t; }).join(' / ') + '<button onclick="preset._es=null;render()"><i class="fa-solid fa-xmark"></i></button></span>';
+      if (ms1) h += chip(metaOf(MS, ms1).t, "document.getElementById('fMoniState').value=''");
+      if (preset._ms && !ms1) h += '<span class="fchip">监考状态：' + preset._ms.map(function (k) { return metaOf(MS, k).t; }).join(' / ') + '<button onclick="preset._ms=null;render()"><i class="fa-solid fa-xmark"></i></button></span>';
+      if (as1) h += chip(metaOf(AS, as1).t, "document.getElementById('fAnsState').value=''");
+      if (h.indexOf('fchip') < 0) h += '<span class="text-xs text-slate-400">无（全部学生）</span>';
+      document.getElementById('activeChips').innerHTML = h;
+    }
+    function resetAll() {
+      ['fExam', 'fGroup', 'fChannel', 'fExamState', 'fMoniState', 'fAnsState'].forEach(function (id) { document.getElementById(id).value = ''; });
+      preset._es = null; preset._ms = null;
+      render();
+    }
+    function toast(m) {
+      var t = document.createElement('div');
+      t.className = 'fixed top-6 left-1/2 -translate-x-1/2 bg-slate-900 text-white text-sm px-5 py-2.5 rounded-lg shadow-lg z-50';
+      t.textContent = m; document.body.appendChild(t);
+      setTimeout(function () { t.remove(); }, 2600);
+    }
+    render();
+    </script>
+</body>
+
+</html>
