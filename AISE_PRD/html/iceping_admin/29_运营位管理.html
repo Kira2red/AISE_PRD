@@ -336,7 +336,7 @@ table.list tr:hover td { background: #e6f7ff; }
 /* ================= 数据 ================= */
 // 运营位类型定义：ctrl: img=图片上传 / text=文本输入；link: 是否显示跳转链接
 var OP_TYPES = [
-  { id: 'stu_home_qr',        name: '学生端 - 首页 - 二维码',    ctrl: 'img',  link: false, desc: '支持JPG、PNG格式，文件大小不超过10M' },
+  { id: 'stu_home_qr',        name: '学生端 - 首页 - 二维码',    ctrl: 'img',  link: true,  desc: '支持JPG、PNG格式，文件大小不超过10M；点击二维码可跳转（跳转链接选填）' },
   { id: 'stu_home_tofu',      name: '学生端 - 首页 - 右下豆腐块', ctrl: 'img',  link: true,  desc: '支持JPG、PNG格式，文件大小不超过10M，图片比例16:9' },
   { id: 'stu_home_topbar',    name: '学生端 - 首页 - 顶栏横幅',   ctrl: 'img',  link: true,  desc: '支持JPG、PNG格式，文件大小小于等于5M，图片高度34像素' },
   { id: 'stu_home_banner',    name: '学生端 - 首页 - banner',   ctrl: 'img',  link: true,  desc: '支持JPG、PNG格式，图片宽度1400像素、高度最大支持160像素' },
