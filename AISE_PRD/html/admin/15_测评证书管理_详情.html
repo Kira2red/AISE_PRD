@@ -120,7 +120,7 @@
             <div class="flex justify-between items-center mb-4">
                 <h2 class="text-sm font-bold text-slate-800 flex items-center gap-2">
                     <i class="fa-solid fa-wand-magic-sparkles text-brand-500"></i> 证书与报告生成
-                    <span class="text-[10px] font-bold text-slate-400 bg-slate-100 px-1.5 py-0.5 rounded">生成完成后自动推送给学员</span>
+                    <span class="text-[10px] font-bold text-slate-400 bg-slate-100 px-1.5 py-0.5 rounded">生成完成后需手动点击推送</span>
                 </h2>
                 <button onclick="regenAllConfirm()" id="regen-all-btn" class="hidden text-xs font-bold text-slate-600 bg-slate-50 border border-slate-200 px-3 py-1.5 rounded-lg hover:bg-slate-100">
                     <i class="fa-solid fa-rotate mr-1"></i> 整场重新生成
@@ -149,6 +149,9 @@
                     <button id="cert-gen-btn" onclick="startGen('cert')" class="w-full bg-brand-600 hover:bg-brand-700 text-white font-bold py-2 rounded-lg text-sm transition shadow-sm">
                         <i class="fa-solid fa-play mr-1"></i> 生成证书
                     </button>
+                    <button id="cert-push-btn" onclick="startPush('cert')" class="hidden w-full mt-2 bg-indigo-600 hover:bg-indigo-700 text-white font-bold py-2 rounded-lg text-sm transition shadow-sm">
+                        <i class="fa-solid fa-paper-plane mr-1"></i> 推送证书
+                    </button>
                 </div>
                 <!-- 报告模块 -->
                 <div id="report-card" class="border border-slate-200 rounded-xl p-5" data-state="idle">
@@ -172,9 +175,12 @@
                     <button id="report-gen-btn" onclick="startGen('report')" class="w-full bg-brand-600 hover:bg-brand-700 text-white font-bold py-2 rounded-lg text-sm transition shadow-sm">
                         <i class="fa-solid fa-play mr-1"></i> 生成报告
                     </button>
+                    <button id="report-push-btn" onclick="startPush('report')" class="hidden w-full mt-2 bg-indigo-600 hover:bg-indigo-700 text-white font-bold py-2 rounded-lg text-sm transition shadow-sm">
+                        <i class="fa-solid fa-paper-plane mr-1"></i> 推送报告
+                    </button>
                 </div>
             </div>
-            <p class="text-[11px] text-slate-400 mt-3"><i class="fa-solid fa-circle-info mr-1"></i>证书与报告全部生成且推送完成后，方可流转至成绩公示。</p>
+            <p class="text-[11px] text-slate-400 mt-3"><i class="fa-solid fa-circle-info mr-1"></i>证书与报告全部生成并手动推送完成后，方可流转至成绩公示。</p>
         </section>
 
         <div class="grid grid-cols-1 lg:grid-cols-3 gap-6">
@@ -373,20 +379,36 @@
                 btn.className = 'w-full bg-amber-500 hover:bg-amber-600 text-white font-bold py-2 rounded-lg text-sm transition shadow-sm';
                 return;
             }
-            // 全部成功 → 自动推送
-            s.phase = 'pushing';
-            setBadge(type, '推送中', 'bg-blue-50 text-blue-600 border-blue-100 animate-pulse');
+            // 全部成功 → 停在「待推送」，等待手动推送
+            s.phase = 'generated';
+            setBadge(type, '待推送', 'bg-indigo-50 text-indigo-600 border-indigo-100');
             const btn = document.getElementById(type + '-gen-btn');
-            btn.innerHTML = '<i class="fa-solid fa-spinner fa-spin mr-1"></i> 已生成，自动推送中…';
+            btn.disabled = true;
+            btn.innerHTML = '<i class="fa-solid fa-check mr-1"></i> 生成完成';
+            btn.className = 'w-full bg-green-50 text-green-600 font-bold py-2 rounded-lg text-sm border border-green-100 cursor-default';
+            // 显示推送按钮
+            const pushBtn = document.getElementById(type + '-push-btn');
+            pushBtn.classList.remove('hidden');
+            document.getElementById('regen-all-btn').classList.remove('hidden');
+            updateFlowGate();
+        }
+
+        function startPush(type) {
+            const s = state[type];
+            if (s.phase !== 'generated') return;
+            s.phase = 'pushing';
+            const pushBtn = document.getElementById(type + '-push-btn');
+            pushBtn.disabled = true;
+            pushBtn.innerHTML = '<i class="fa-solid fa-spinner fa-spin mr-1"></i> 推送中…';
+            pushBtn.className = 'w-full mt-2 bg-slate-200 text-slate-400 font-bold py-2 rounded-lg text-sm cursor-not-allowed';
+            setBadge(type, '推送中', 'bg-blue-50 text-blue-600 border-blue-100 animate-pulse');
             setTimeout(() => {
                 s.phase = 'pushed';
                 setBadge(type, '已推送', 'bg-green-50 text-green-600 border-green-100');
-                btn.disabled = true;
-                btn.innerHTML = '<i class="fa-solid fa-check mr-1"></i> 已生成并推送';
-                btn.className = 'w-full bg-green-50 text-green-600 font-bold py-2 rounded-lg text-sm border border-green-100 cursor-default';
-                document.getElementById('regen-all-btn').classList.remove('hidden');
+                pushBtn.innerHTML = '<i class="fa-solid fa-check mr-1"></i> 已推送';
+                pushBtn.className = 'w-full mt-2 bg-green-50 text-green-600 font-bold py-2 rounded-lg text-sm border border-green-100 cursor-default';
                 updateFlowGate();
-            }, 1800);
+            }, 1500);
         }
 
         function regenAllConfirm() {
@@ -394,7 +416,19 @@
             let msg = '整场重新生成将覆盖已生成的全部证书与报告';
             if (c.phase === 'pushed' || r.phase === 'pushed') msg += '，已推送的学员将回退为待推送';
             if (!confirm(msg + '。确认继续？')) return;
-            ['cert', 'report'].forEach(t => { state[t].progress = 0; state[t].fails = 0; state[t].retrying = false; startGen(t); });
+            ['cert', 'report'].forEach(t => {
+                    state[t].progress = 0; state[t].fails = 0; state[t].retrying = false;
+                    const pb = document.getElementById(t + '-push-btn');
+                    pb.classList.add('hidden');
+                    pb.disabled = false;
+                    pb.innerHTML = '<i class="fa-solid fa-paper-plane mr-1"></i> 推送' + (t === 'cert' ? '证书' : '报告');
+                    pb.className = 'hidden w-full mt-2 bg-indigo-600 hover:bg-indigo-700 text-white font-bold py-2 rounded-lg text-sm transition shadow-sm';
+                    const gb = document.getElementById(t + '-gen-btn');
+                    gb.disabled = false;
+                    gb.innerHTML = '<i class="fa-solid fa-play mr-1"></i> 生成' + (t === 'cert' ? '证书' : '报告');
+                    gb.className = 'w-full bg-brand-600 hover:bg-brand-700 text-white font-bold py-2 rounded-lg text-sm transition shadow-sm';
+                    startGen(t);
+                });
         }
 
         function updateFlowGate() {
@@ -413,6 +447,7 @@
                     if (state[t].phase === 'idle') pending.push(name + '未生成');
                     else if (state[t].phase === 'partial') pending.push(name + '有 ' + state[t].fails + ' 份生成失败');
                     else if (state[t].phase === 'generating') pending.push(name + '生成中（' + fmt(state[t].progress) + '/' + fmt(TOTAL) + '）');
+                    else if (state[t].phase === 'generated') pending.push(name + '已生成待推送（点击「推送' + name + '」继续）');
                     else if (state[t].phase === 'pushing') pending.push(name + '推送中');
                 });
                 tip.classList.remove('hidden');
