@@ -142,7 +142,7 @@
                             <button id="cert-gen-btn" onclick="startGen('cert')" class="w-full bg-brand-600 hover:bg-brand-700 text-white font-bold py-2 rounded-lg text-sm transition shadow-sm">
                                 <i class="fa-solid fa-play mr-1"></i> 生成证书
                             </button>
-                            <button id="cert-push-btn" onclick="startPush('cert')" class="hidden w-full bg-indigo-600 hover:bg-indigo-700 text-white font-bold py-2 rounded-lg text-sm transition shadow-sm">
+                            <button id="cert-push-btn" onclick="startPush('cert')" disabled class="w-full bg-slate-100 text-slate-400 font-bold py-2 rounded-lg text-sm cursor-not-allowed">
                                 <i class="fa-solid fa-paper-plane mr-1"></i> 推送证书
                             </button>
                         </div>
@@ -153,19 +153,19 @@
                             <div id="cert-gen-progress">
                                 <div class="flex justify-between text-[11px] mb-1.5">
                                     <span class="text-slate-500">生成进度：<span id="cert-prog-text" class="font-mono font-bold">0 / 1,240</span></span>
-                                    <span id="cert-fail-text" class="text-red-400 font-bold hidden">失败 <span class="font-mono">0</span></span>
+                                    <span id="cert-fail-text" class="text-red-400 font-bold invisible">失败 <span class="font-mono">0</span></span>
                                 </div>
                                 <div class="w-full h-1.5 bg-slate-100 rounded-full overflow-hidden">
                                     <div id="cert-prog-bar" class="h-full bg-brand-500 rounded-full transition-all" style="width: 0%"></div>
                                 </div>
-                                <p id="cert-fail-link" class="hidden mt-1.5"><a href="#" onclick="alert('跳转失败明细（演示）');return false;" class="text-[11px] font-bold text-red-500 hover:text-red-600"><i class="fa-solid fa-circle-exclamation mr-0.5"></i>查看失败明细并重试</a></p>
+                                <p id="cert-fail-link" class="invisible mt-1.5"><a href="#" onclick="alert('跳转失败明细（演示）');return false;" class="text-[11px] font-bold text-red-500 hover:text-red-600"><i class="fa-solid fa-circle-exclamation mr-0.5"></i>查看失败明细并重试</a></p>
                             </div>
-                            <div id="cert-push-progress" class="hidden">
+                            <div id="cert-push-progress">
                                 <div class="flex justify-between text-[11px] mb-1.5">
-                                    <span class="text-slate-500">推送进度：<span id="cert-push-text" class="font-mono font-bold">0 / 1,240</span></span>
+                                    <span id="cert-push-label" class="text-slate-300">推送进度：生成完成后可推送</span>
                                 </div>
                                 <div class="w-full h-1.5 bg-slate-100 rounded-full overflow-hidden">
-                                    <div id="cert-push-bar" class="h-full bg-indigo-500 rounded-full transition-all" style="width: 0%"></div>
+                                    <div id="cert-push-bar" class="h-full bg-slate-200 rounded-full" style="width: 0%"></div>
                                 </div>
                             </div>
                         </div>
@@ -186,7 +186,7 @@
                             <button id="report-gen-btn" onclick="startGen('report')" class="w-full bg-brand-600 hover:bg-brand-700 text-white font-bold py-2 rounded-lg text-sm transition shadow-sm">
                                 <i class="fa-solid fa-play mr-1"></i> 生成报告
                             </button>
-                            <button id="report-push-btn" onclick="startPush('report')" class="hidden w-full bg-indigo-600 hover:bg-indigo-700 text-white font-bold py-2 rounded-lg text-sm transition shadow-sm">
+                            <button id="report-push-btn" onclick="startPush('report')" disabled class="w-full bg-slate-100 text-slate-400 font-bold py-2 rounded-lg text-sm cursor-not-allowed">
                                 <i class="fa-solid fa-paper-plane mr-1"></i> 推送报告
                             </button>
                         </div>
@@ -197,19 +197,19 @@
                             <div id="report-gen-progress">
                                 <div class="flex justify-between text-[11px] mb-1.5">
                                     <span class="text-slate-500">生成进度：<span id="report-prog-text" class="font-mono font-bold">0 / 1,240</span></span>
-                                    <span id="report-fail-text" class="text-red-400 font-bold hidden">失败 <span class="font-mono">0</span></span>
+                                    <span id="report-fail-text" class="text-red-400 font-bold invisible">失败 <span class="font-mono">0</span></span>
                                 </div>
                                 <div class="w-full h-1.5 bg-slate-100 rounded-full overflow-hidden">
                                     <div id="report-prog-bar" class="h-full bg-brand-500 rounded-full transition-all" style="width: 0%"></div>
                                 </div>
-                                <p id="report-fail-link" class="hidden mt-1.5"><a href="#" onclick="alert('跳转失败明细（演示）');return false;" class="text-[11px] font-bold text-red-500 hover:text-red-600"><i class="fa-solid fa-circle-exclamation mr-0.5"></i>查看失败明细并重试</a></p>
+                                <p id="report-fail-link" class="invisible mt-1.5"><a href="#" onclick="alert('跳转失败明细（演示）');return false;" class="text-[11px] font-bold text-red-500 hover:text-red-600"><i class="fa-solid fa-circle-exclamation mr-0.5"></i>查看失败明细并重试</a></p>
                             </div>
-                            <div id="report-push-progress" class="hidden">
+                            <div id="report-push-progress">
                                 <div class="flex justify-between text-[11px] mb-1.5">
-                                    <span class="text-slate-500">推送进度：<span id="report-push-text" class="font-mono font-bold">0 / 1,240</span></span>
+                                    <span id="report-push-label" class="text-slate-300">推送进度：生成完成后可推送</span>
                                 </div>
                                 <div class="w-full h-1.5 bg-slate-100 rounded-full overflow-hidden">
-                                    <div id="report-push-bar" class="h-full bg-indigo-500 rounded-full transition-all" style="width: 0%"></div>
+                                    <div id="report-push-bar" class="h-full bg-slate-200 rounded-full" style="width: 0%"></div>
                                 </div>
                             </div>
                         </div>
@@ -394,12 +394,12 @@
             const failText = document.getElementById(type + '-fail-text');
             const failLink = document.getElementById(type + '-fail-link');
             if (s.fails > 0) {
-                failText.classList.remove('hidden');
+                failText.classList.remove('invisible');
                 failText.querySelector('span').innerText = s.fails;
-                failLink.classList.remove('hidden');
+                failLink.classList.remove('invisible');
             } else {
-                failText.classList.add('hidden');
-                failLink.classList.add('hidden');
+                failText.classList.add('invisible');
+                failLink.classList.add('invisible');
             }
         }
 
@@ -422,9 +422,10 @@
             btn.disabled = true;
             btn.innerHTML = '<i class="fa-solid fa-check mr-1"></i> 生成完成';
             btn.className = 'w-full bg-green-50 text-green-600 font-bold py-2 rounded-lg text-sm border border-green-100 cursor-default';
-            // 显示推送按钮
+            // 激活推送按钮
             const pushBtn = document.getElementById(type + '-push-btn');
-            pushBtn.classList.remove('hidden');
+            pushBtn.disabled = false;
+            pushBtn.className = 'w-full bg-indigo-600 hover:bg-indigo-700 text-white font-bold py-2 rounded-lg text-sm transition shadow-sm';
             document.getElementById('regen-all-btn').classList.remove('hidden');
             updateFlowGate();
         }
@@ -439,8 +440,13 @@
             pushBtn.innerHTML = '<i class="fa-solid fa-spinner fa-spin mr-1"></i> 推送中…';
             pushBtn.className = 'w-full bg-slate-200 text-slate-400 font-bold py-2 rounded-lg text-sm cursor-not-allowed';
             setBadge(type, '推送中', 'bg-blue-50 text-blue-600 border-blue-100 animate-pulse');
-            // 显示独立推送进度条（生成条保持 100% 不动）
-            document.getElementById(type + '-push-progress').classList.remove('hidden');
+            // 激活推送进度条（生成条保持 100% 不动）
+            const label = document.getElementById(type + '-push-label');
+            label.className = 'text-slate-500';
+            label.innerHTML = '推送进度：<span id="' + type + '-push-text" class="font-mono font-bold">0 / 1,240</span>';
+            const bar = document.getElementById(type + '-push-bar');
+            bar.classList.remove('bg-slate-200');
+            bar.classList.add('bg-indigo-500', 'transition-all');
             timers[type] = setInterval(() => pushTick(type), 40);
         }
 
@@ -469,11 +475,16 @@
             ['cert', 'report'].forEach(t => {
                     state[t].progress = 0; state[t].fails = 0; state[t].retrying = false;
                     const pb = document.getElementById(t + '-push-btn');
-                    pb.classList.add('hidden');
-                    const pp = document.getElementById(t + '-push-progress');
-                    pp.classList.add('hidden');
-                    document.getElementById(t + '-push-bar').style.width = '0%';
-                    document.getElementById(t + '-push-text').innerText = '0 / 1,240';
+                    pb.disabled = true;
+                    pb.innerHTML = '<i class="fa-solid fa-paper-plane mr-1"></i> 推送' + (t === 'cert' ? '证书' : '报告');
+                    pb.className = 'w-full bg-slate-100 text-slate-400 font-bold py-2 rounded-lg text-sm cursor-not-allowed';
+                    const pl = document.getElementById(t + '-push-label');
+                    pl.className = 'text-slate-300';
+                    pl.innerText = '推送进度：生成完成后可推送';
+                    const pbar = document.getElementById(t + '-push-bar');
+                    pbar.classList.remove('bg-indigo-500', 'transition-all');
+                    pbar.classList.add('bg-slate-200');
+                    pbar.style.width = '0%';
                     pb.disabled = false;
                     pb.innerHTML = '<i class="fa-solid fa-paper-plane mr-1"></i> 推送' + (t === 'cert' ? '证书' : '报告');
                     pb.className = 'hidden w-full mt-2 bg-indigo-600 hover:bg-indigo-700 text-white font-bold py-2 rounded-lg text-sm transition shadow-sm';
