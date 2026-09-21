@@ -249,28 +249,28 @@
                         <button onclick="closeCertModal()" class="text-slate-400 hover:text-slate-600"><i class="fa-solid fa-xmark text-lg"></i></button>
                     </div>
                     <div class="px-6 py-3 bg-slate-50 border-b border-slate-100 text-xs text-slate-500">
-                        <i class="fa-solid fa-circle-info text-brand-500 mr-1"></i> 勾选一个证书实例即可完成配置；一个实例可同时用于多场测评。
+                        <i class="fa-solid fa-circle-info text-brand-500 mr-1"></i> 勾选一个证书模板，保存后系统自动为该测评创建证书实例并完成电子证书配置。
                     </div>
                     <div class="flex-1 overflow-y-auto px-6 py-4 space-y-2" id="cert-modal-list">
                         <label class="flex items-center gap-3 p-3 rounded-lg border border-slate-200 hover:border-brand-300 hover:bg-brand-50/40 cursor-pointer cert-option">
-                            <input type="radio" name="cert-instance-pick" value="程序设计等级证书实例" class="h-4 w-4 text-brand-600 focus:ring-brand-500">
+                            <input type="radio" name="cert-instance-pick" value="程序设计等级证书" class="h-4 w-4 text-brand-600 focus:ring-brand-500">
                             <div class="flex-1 min-w-0">
-                                <p class="text-sm font-bold text-slate-800">程序设计等级证书实例 <span class="font-mono text-[10px] text-slate-400 ml-1">EX-2026-006</span></p>
-                                <p class="text-xs text-slate-400 mt-0.5">模板：程序设计等级证书 · 适用于程序设计/编程语言类测评</p>
+                                <p class="text-sm font-bold text-slate-800">程序设计等级证书</p>
+                                <p class="text-xs text-slate-400 mt-0.5">适用于程序设计/编程语言类测评 · 保存后自动创建证书实例</p>
                             </div>
                         </label>
                         <label class="flex items-center gap-3 p-3 rounded-lg border border-slate-200 hover:border-brand-300 hover:bg-brand-50/40 cursor-pointer cert-option">
-                            <input type="radio" name="cert-instance-pick" value="生成式人工智能证书实例" class="h-4 w-4 text-brand-600 focus:ring-brand-500">
+                            <input type="radio" name="cert-instance-pick" value="生成式人工智能等级证书" class="h-4 w-4 text-brand-600 focus:ring-brand-500">
                             <div class="flex-1 min-w-0">
-                                <p class="text-sm font-bold text-slate-800">生成式人工智能证书实例 <span class="font-mono text-[10px] text-slate-400 ml-1">EX-2026-007</span></p>
-                                <p class="text-xs text-slate-400 mt-0.5">模板：生成式人工智能等级证书 · 适用于 AIGC/人工智能类测评</p>
+                                <p class="text-sm font-bold text-slate-800">生成式人工智能等级证书</p>
+                                <p class="text-xs text-slate-400 mt-0.5">适用于 AIGC/人工智能类测评 · 保存后自动创建证书实例</p>
                             </div>
                         </label>
                         <label class="flex items-center gap-3 p-3 rounded-lg border border-slate-200 hover:border-brand-300 hover:bg-brand-50/40 cursor-pointer cert-option">
-                            <input type="radio" name="cert-instance-pick" value="技术融合应用评定证书实例" class="h-4 w-4 text-brand-600 focus:ring-brand-500">
+                            <input type="radio" name="cert-instance-pick" value="技术融合应用和创新实践评定证书" class="h-4 w-4 text-brand-600 focus:ring-brand-500">
                             <div class="flex-1 min-w-0">
-                                <p class="text-sm font-bold text-slate-800">技术融合应用评定证书实例 <span class="font-mono text-[10px] text-slate-400 ml-1">EX-2026-008</span></p>
-                                <p class="text-xs text-slate-400 mt-0.5">模板：技术融合应用和创新实践评定证书 · 适用于技术融合/创新实践类测评</p>
+                                <p class="text-sm font-bold text-slate-800">技术融合应用和创新实践评定证书</p>
+                                <p class="text-xs text-slate-400 mt-0.5">适用于技术融合/创新实践类测评 · 保存后自动创建证书实例</p>
                             </div>
                         </label>
                     </div>
@@ -337,7 +337,7 @@
             });
             closeCertModal();
             const toast = document.getElementById('cert-toast');
-            document.getElementById('cert-toast-text').innerText = '电子证书配置成功：' + picked.value;
+            document.getElementById('cert-toast-text').innerText = '已按「' + picked.value + '」创建证书实例，电子证书配置完成';
             toast.classList.remove('hidden');
             setTimeout(() => toast.classList.add('hidden'), 2600);
         }
