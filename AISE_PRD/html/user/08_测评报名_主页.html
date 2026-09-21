@@ -133,25 +133,31 @@
                                 </p>
                             </div>
 
-                            <div>
-                                <label class="block text-xs font-bold text-slate-500 uppercase mb-1.5">所属机构/学校 <span class="text-red-500">*</span></label>
-                                <div class="relative">
+                            <div class="md:col-span-2">
+                                <div id="agency-view-lock" class="hidden px-4 py-2.5 rounded-lg bg-slate-100 border border-slate-200 text-sm text-slate-600 flex items-center gap-2">
+                                    <i class="fa-solid fa-link text-brand-500 text-xs"></i>
+                                    <span>渠道：<span id="agency-view-lock-name" class="font-bold text-slate-700"></span>　<span class="text-xs text-slate-400">（报名链接指定，不可更改）</span></span>
+                                </div>
+                                <div class="relative" id="agency-select-wrap">
+                                    <label class="block text-xs font-bold text-slate-500 uppercase mb-1.5">所属机构/学校 <span class="text-red-500">*</span></label>
                                     <select id="select-agency" class="w-full px-4 py-2.5 rounded-lg border border-slate-200 focus:border-slate-800 outline-none text-sm bg-white appearance-none" onchange="onAgencyChange()">
                                         <option value="">请选择机构...</option>
-                                        </select>
-                                    <i class="fa-solid fa-chevron-down absolute right-4 top-3.5 text-slate-400 text-xs pointer-events-none"></i>
+                                    </select>
+                                    <i class="fa-solid fa-chevron-down absolute right-4 bottom-3.5 text-slate-400 text-xs pointer-events-none"></i>
                                 </div>
                             </div>
 
-                            <div id="group-select-wrapper" class="hidden">
-                                <label class="block text-xs font-bold text-slate-500 uppercase mb-1.5">测评分组 <span class="text-red-500">*</span></label>
-                                <div class="relative">
-                                    <select id="select-group" class="w-full px-4 py-2.5 rounded-lg border border-slate-200 focus:border-slate-800 outline-none text-sm bg-white appearance-none" disabled onchange="onGroupChange()">
-                                        <option value="">请选择分组...</option>
-                                    </select>
-                                    <i class="fa-solid fa-chevron-down absolute right-4 top-3.5 text-slate-400 text-xs pointer-events-none"></i>
-                                </div>
+                            <div id="act-select-row" class="md:col-span-2 hidden">
+                                <label class="block text-xs font-bold text-slate-500 uppercase mb-1.5">选择活动 <span class="text-red-500">*</span></label>
+                                <div id="act-chips" class="flex flex-wrap gap-2"></div>
                             </div>
+
+                            <div id="group-select-wrapper" class="md:col-span-2 hidden">
+                                <label class="block text-xs font-bold text-slate-500 uppercase mb-1.5">测评分组</label>
+                                <div id="group-chips" class="flex flex-wrap gap-2"></div>
+                            </div>
+
+                            
                         </div>
 
                         <div class="md:col-span-2" id="activity-cards-section">
@@ -312,28 +318,31 @@
                 code: "YPB2025", name: "猿编程教育科技",
                 groups: ["3月考期", "6月考期"],
                 activities: [
-                    { name: "2025春季 Python 程序设计（一级）", group: "3月考期" },
-                    { name: "2025春季 C++ 算法基础", group: "3月考期" },
-                    { name: "2025夏季 AIGC 应用能力（二级）", group: "6月考期" },
-                    { name: "2024冬季 Scratch 图形化（一级）", group: null },
+                    { act: "2025春季考级", name: "2025春季 Python 程序设计（一级）", group: "3月考期" },
+                    { act: "2025春季考级", name: "2025春季 C++ 算法基础", group: "3月考期" },
+                    { act: "2025夏季考级", name: "2025夏季 AIGC 应用能力（二级）", group: "6月考期" },
+                    { act: "2024冬季考级", name: "2024冬季 Scratch 图形化（一级）", group: null },
                 ]
             },
             {
                 code: "CB888", name: "CodeBear 代码熊",
                 groups: [],
                 activities: [
-                    { name: "2025夏季 AIGC 应用能力（二级）", group: null },
+                    { act: "2025夏季考级", name: "2025夏季 AIGC 应用能力（二级）", group: null },
                 ]
             },
             {
                 code: "DEFAULT", name: "社会学员通道",
                 groups: [],
                 activities: [
-                    { name: "2025春季 Python 程序设计（一级）", group: null },
-                    { name: "2025夏季 AIGC 应用能力（二级）", group: null },
+                    { act: "2025春季考级", name: "2025春季 Python 程序设计（一级）", group: null },
+                    { act: "2025春季考级", name: "2025夏季 AIGC 应用能力（二级）", group: null },
                 ]
             },
         ];
+
+        // 链接级别上下文：由运营复制的链接带参决定（?code=渠道&act=活动&grp=分组）
+        const linkCtx = { code: null, act: null, grp: null };
 
         let selectedActId = null;
 
@@ -391,15 +400,19 @@
             }
         }
 
-        // 测评卡片渲染
+        // 测评卡片渲染（visibleActs 见下方新版：按当前活动+分组过滤）
         function visibleActs(agency) {
             if (!agency) return [];
-            const groupSel = document.getElementById('select-group');
-            if (agency.groups && agency.groups.length > 0) {
-                const g = groupSel.value || '';
-                return agency.activities.filter(a => (a.group || '默认') === g);
+            const act = currentActName();
+            if (!act) return [];
+            const pool = agency.activities.filter(a => a.act === act);
+            const grpBtn = document.querySelector('#group-chips button.border-indigo-400');
+            if (grpBtn) {
+                const g = grpBtn.textContent.replace(/\d+ 场.*/, '').trim();
+                return pool.filter(a => (a.group || '默认') === g);
             }
-            return agency.activities;
+            if (linkCtx.grp) return pool.filter(a => (a.group || '默认') === linkCtx.grp);
+            return pool;
         }
 
         // 测评时间格式化：同日省略第二个日期，跨日保留完整区间
@@ -458,17 +471,27 @@
         function initIdentityCode() {
             const urlParams = new URLSearchParams(window.location.search);
             const codeFromUrl = urlParams.get('code');
+            const actFromUrl = urlParams.get('act');
+            const grpFromUrl = urlParams.get('grp');
             const codeRow = document.getElementById('channel-code-row');
-            
-            // 初始化下拉框的所有选项（针对官网直接进入的用户）
+
+            // 记录链接级别上下文
+            linkCtx.code = codeFromUrl;
+            linkCtx.act = actFromUrl;
+            linkCtx.grp = grpFromUrl;
+
             renderAgencyOptions();
 
             if (codeFromUrl) {
-                // 场景 A: 扫码/链接进入 -> 隐藏渠道码输入框，锁定机构
+                // 链接进入：隐藏渠道码输入，锁定机构
                 codeRow.classList.add('hidden');
-                verifyAndLock(codeFromUrl);
+                const ok = verifyAndLock(codeFromUrl);
+                if (!ok) {
+                    // 链接渠道无效时回退为自由选择
+                    codeRow.classList.remove('hidden');
+                    document.getElementById('select-agency').disabled = false;
+                }
             } else {
-                // 场景 B: 官网进入 -> 显示渠道码（选填），允许自由选择
                 codeRow.classList.remove('hidden');
             }
         }
@@ -488,53 +511,114 @@
         // 机构变化时，联动分组下拉与测评卡片
         function onAgencyChange() {
             const agencyCode = document.getElementById('select-agency').value;
-            const wrapper = document.getElementById('group-select-wrapper');
-            const groupSel = document.getElementById('select-group');
             resetActSelection();
+            applyLinkContext(agencyCode);
+        }
 
-            if (!agencyCode) {
-                wrapper.classList.add('hidden');
-                groupSel.disabled = true;
-                renderActCards([], '请先选择机构');
-                return;
-            }
-
+        // 渠道确定后：渲染活动选择（linkCtx.act 有值则锁定），再联动分组
+        function applyLinkContext(agencyCode) {
+            const actRow = document.getElementById('act-select-row');
+            const grpWrap = document.getElementById('group-select-wrapper');
+            const grpChips = document.getElementById('group-chips');
+            grpWrap.classList.add('hidden');
+            grpChips.innerHTML = '';
+            if (!agencyCode) { hideActRow(); renderActCards([], '请先选择机构'); return; }
             const agency = agencyData.find(a => a.code === agencyCode);
-            const hasGroups = agency && agency.groups && agency.groups.length > 0;
 
-            groupSel.innerHTML = '<option value="">请选择分组...</option>';
-            if (hasGroups) {
-                agency.groups.forEach(g => {
-                    const option = document.createElement('option');
-                    option.value = g; option.text = g;
-                    groupSel.appendChild(option);
-                });
-                if (agency.activities.some(a => !a.group)) {
-                    const option = document.createElement('option');
-                    option.value = '默认'; option.text = '默认';
-                    groupSel.appendChild(option);
-                }
-                wrapper.classList.remove('hidden');
-                groupSel.disabled = false;
-                renderActCards([], '请选择分组');
+            // 可报名活动 = 关联里去重（仅统计可报名状态）
+            const openActs = [...new Set(agency.activities.map(a => a.act).filter(Boolean))];
+
+            if (linkCtx.act) {
+                // 活动级链接：锁定活动，只渲染分组+测评
+                renderGroupChips(agency, linkCtx.act);
+            } else if (openActs.length === 1) {
+                // 过滤机制：渠道下仅一个可报名活动 → 隐藏活动选择，直接进入分组
+                hideActRow();
+                renderGroupChips(agency, openActs[0]);
             } else {
-                wrapper.classList.add('hidden');
-                groupSel.disabled = true;
-                renderActCards(agency ? agency.activities : [], '该渠道暂无可报名测评');
+                // 渠道级链接 / 自选：显示活动 chips 供选择
+                showActRow(agency, openActs);
+                renderActCards([], '请先选择活动');
             }
         }
 
-        function onGroupChange() {
-            resetActSelection();
+        function hideActRow() {
+            document.getElementById('act-select-row').classList.add('hidden');
+            document.getElementById('act-chips').innerHTML = '';
+        }
+
+        function showActRow(agency, openActs) {
+            const row = document.getElementById('act-select-row');
+            const box = document.getElementById('act-chips');
+            row.classList.remove('hidden');
+            box.innerHTML = openActs.map(act => {
+                const count = agency.activities.filter(a => a.act === act).length;
+                return '<button type="button" onclick="selectActLevel(\'' + act + '\')" class="px-4 py-2.5 rounded-xl border-2 text-sm font-bold transition bg-white border-slate-200 text-slate-700 hover:border-brand-400 hover:shadow-sm">' + act + '<span class="ml-2 text-xs font-normal text-slate-400">' + count + ' 场测评</span></button>';
+            }).join('');
+        }
+
+        // 学员点了某个活动 chip
+        function selectActLevel(act) {
             const agencyCode = document.getElementById('select-agency').value;
-            const group = document.getElementById('select-group').value;
             const agency = agencyData.find(a => a.code === agencyCode);
-            if (!agency || !group) {
-                renderActCards([], '请选择分组');
+            // 高亮选中
+            document.querySelectorAll('#act-chips button').forEach(b => {
+                const sel = b.textContent.indexOf(act) === 0;
+                b.className = sel
+                    ? 'px-4 py-2.5 rounded-xl border-2 text-sm font-bold transition bg-brand-50 border-brand-500 text-brand-700 shadow-sm'
+                    : 'px-4 py-2.5 rounded-xl border-2 text-sm font-bold transition bg-white border-slate-200 text-slate-700 hover:border-brand-400 hover:shadow-sm';
+            });
+            renderGroupChips(agency, act);
+        }
+
+        // 渲染分组 chips（linkCtx.grp 有值则锁定该分组）
+        function renderGroupChips(agency, act) {
+            const wrap = document.getElementById('group-select-wrapper');
+            const box = document.getElementById('group-chips');
+            const pool = agency.activities.filter(a => a.act === act);
+            const groups = [...new Set(pool.map(a => a.group || '默认'))];
+
+            if (linkCtx.grp) {
+                // 分组级链接：锁定分组，直接出测评卡
+                wrap.classList.add('hidden');
+                renderActCards(pool.filter(a => (a.group || '默认') === linkCtx.grp));
                 return;
             }
-            renderActCards(agency.activities.filter(a => (a.group || '默认') === group));
+            if (groups.length === 1) {
+                // 过滤机制：该活动下仅一个分组 → 隐藏分组选择
+                wrap.classList.add('hidden');
+                renderActCards(pool.filter(a => (a.group || '默认') === groups[0]));
+                return;
+            }
+            wrap.classList.remove('hidden');
+            box.innerHTML = groups.map((g, idx) => {
+                const cnt = pool.filter(a => (a.group || '默认') === g).length;
+                return '<button type="button" onclick="selectGroupLevel(\'' + g + '\')" class="px-4 py-2.5 rounded-xl border-2 text-sm font-bold transition ' + (idx === 0 ? 'bg-indigo-50 border-indigo-400 text-indigo-700' : 'bg-white border-slate-200 text-slate-700 hover:border-indigo-300') + '">' + g + '<span class="ml-2 text-xs font-normal text-slate-400">' + cnt + ' 场</span></button>';
+            }).join('');
+            renderActCards([], '请选择分组');
         }
+
+        function selectGroupLevel(g) {
+            const agencyCode = document.getElementById('select-agency').value;
+            const agency = agencyData.find(a => a.code === agencyCode);
+            const act = currentActName();
+            document.querySelectorAll('#group-chips button').forEach(b => {
+                const sel = b.textContent.indexOf(g) === 0;
+                b.className = sel
+                    ? 'px-4 py-2.5 rounded-xl border-2 text-sm font-bold transition bg-indigo-50 border-indigo-400 text-indigo-700 shadow-sm'
+                    : 'px-4 py-2.5 rounded-xl border-2 text-sm font-bold transition bg-white border-slate-200 text-slate-700 hover:border-indigo-300';
+            });
+            const pool = agency.activities.filter(a => a.act === act);
+            renderActCards(pool.filter(a => (a.group || '默认') === g));
+        }
+
+        // 当前活动名（锁定或选中）
+        function currentActName() {
+            if (linkCtx.act) return linkCtx.act;
+            const sel = document.querySelector('#act-chips button.border-brand-500');
+            return sel ? sel.textContent.replace(/\d+ 场测评.*/, '').trim() : null;
+        }
+
         // 手动验证渠道码
         function manualVerifyCode() {
             const inputCode = document.getElementById('input-code');
@@ -569,13 +653,11 @@
                 // 触发项目更新
                 onAgencyChange();
                 
-                // 视觉反馈：分组下拉框或测评卡片区高亮
-                const groupWrapper = document.getElementById('group-select-wrapper');
-                if (!groupWrapper.classList.contains('hidden')) {
-                    groupWrapper.querySelector('select').classList.add('ring-2', 'ring-brand-200', 'bg-blue-50');
-                } else {
-                    document.getElementById('activity-cards-section').classList.add('ring-2', 'ring-brand-200', 'rounded-xl');
-                }
+                // 渠道锁定条（链接指定）
+                const lockBar = document.getElementById('agency-view-lock');
+                lockBar.classList.remove('hidden');
+                document.getElementById('agency-view-lock-name').innerText = agency.name;
+                document.getElementById('agency-select-wrap').classList.add('hidden');
 
                 return true;
             }
@@ -594,13 +676,17 @@
             document.getElementById('view-id').innerText = document.getElementById('input-id').value;
             document.getElementById('view-gender').innerText = document.getElementById('input-gender').value;
             document.getElementById('view-address').innerText = `${document.getElementById('input-city').value} ${document.getElementById('input-address').value}`;
-            // 分组信息
-            const groupSel = document.getElementById('select-group');
-            const wrapper = document.getElementById('group-select-wrapper');
+            // 分组信息（从当前选中分组 chip / 链接锁定取值）
             const groupRow = document.getElementById('view-group-row');
-            if (groupSel && groupSel.value && !wrapper.classList.contains('hidden')) {
+            let curGroup = '';
+            if (linkCtx.grp) curGroup = linkCtx.grp;
+            else {
+                const grpBtn = document.querySelector('#group-chips button.border-indigo-400');
+                if (grpBtn) curGroup = grpBtn.textContent.replace(/\d+ 场.*/, '').trim();
+            }
+            if (curGroup) {
                 groupRow.style.display = '';
-                document.getElementById('view-group').innerText = groupSel.value;
+                document.getElementById('view-group').innerText = curGroup;
             } else {
                 groupRow.style.display = 'none';
             }
