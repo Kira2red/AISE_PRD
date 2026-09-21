@@ -42,7 +42,7 @@
                 <h1 class="text-lg font-bold text-slate-800 leading-tight">2025春季 Python 一级等级测评</h1>
                 <p class="text-xs text-slate-400 font-mono">ID: 1001</p>
             </div>
-            <span class="ml-2 px-2 py-0.5 bg-amber-50 text-amber-700 text-xs font-bold rounded border border-amber-100">待复核</span>
+            <span id="stage-badge" class="ml-2 px-2 py-0.5 bg-amber-50 text-amber-700 text-xs font-bold rounded border border-amber-100">批改中</span>
         </div>
         <div class="flex items-center gap-3">
              <button class="text-slate-500 hover:text-brand-600 text-sm font-medium transition flex items-center gap-2">
@@ -58,16 +58,16 @@
             <div class="flex items-center justify-between w-full px-4 relative">
                 <div class="absolute left-0 top-1/2 transform -translate-y-1/2 w-full h-1 bg-slate-100 -z-10 rounded-full"></div>
 
-                <div class="step-item completed flex flex-col items-center gap-3 bg-white px-2 z-10">
+                <div id="step-reviewing" class="step-item active flex flex-col items-center gap-3 bg-white px-2 z-10">
                     <div class="step-circle w-10 h-10 rounded-full border-2 border-slate-300 bg-white flex items-center justify-center text-slate-400 font-bold transition-all relative z-10">
-                        <i class="fa-solid fa-check"></i>
+                        <i class="fa-solid fa-pen-nib"></i>
                     </div>
                     <span class="step-label text-xs font-medium text-slate-400">批改中</span>
                 </div>
                 
                 <div class="flex-1 h-1 bg-slate-100"></div>
 
-                <div class="step-item active flex flex-col items-center gap-3 bg-white px-2 z-10">
+                <div id="step-pending" class="step-item flex flex-col items-center gap-3 bg-white px-2 z-10">
                     <div class="step-circle w-10 h-10 rounded-full border-2 border-slate-200 bg-white flex items-center justify-center text-slate-300 font-bold transition-all">
                         <i class="fa-solid fa-clipboard-check"></i>
                     </div>
@@ -103,8 +103,20 @@
             </div>
         </section>
 
-        <!-- 证书与报告生成操作区（待复核环节） -->
-        <section id="gen-section" class="bg-white rounded-xl shadow-card border border-slate-200 p-6">
+        <!-- 批改中占位提示（生成操作仅待复核环节开放） -->
+        <section id="gen-placeholder" class="bg-white rounded-xl shadow-card border border-slate-200 p-6">
+            <div class="flex items-center gap-3 text-sm text-slate-400">
+                <i class="fa-solid fa-lock text-slate-300 text-lg"></i>
+                <div>
+                    <p class="font-bold text-slate-500">证书与报告生成</p>
+                    <p class="text-xs mt-0.5">当前环节「批改中」。流转至「待复核」后，可在此生成证书与报告并自动推送学员；全部完成后方可流转「公示中」。</p>
+                </div>
+            </div>
+        </section>
+
+        <!-- 证书与报告生成操作区（仅待复核环节可见） -->
+        <!-- 证书与报告生成操作区（仅待复核环节可见） -->
+        <section id="gen-section" class="hidden bg-white rounded-xl shadow-card border border-slate-200 p-6">
             <div class="flex justify-between items-center mb-4">
                 <h2 class="text-sm font-bold text-slate-800 flex items-center gap-2">
                     <i class="fa-solid fa-wand-magic-sparkles text-brand-500"></i> 证书与报告生成
@@ -250,7 +262,7 @@
                 
                 <div>
                     <h2 class="text-sm font-bold uppercase tracking-wider opacity-80 mb-1">状态流转控制</h2>
-                    <p class="text-2xl font-bold mb-6">待复核 <i class="fa-solid fa-arrow-right mx-2 opacity-50 text-xl"></i> 公示中</p>
+                    <p class="text-2xl font-bold mb-6"><span id="flow-from">批改中</span> <i class="fa-solid fa-arrow-right mx-2 opacity-50 text-xl"></i> <span id="flow-to">待复核</span></p>
                     <div id="flow-gate-tip" class="hidden bg-white/10 backdrop-blur-sm rounded-lg p-3 border border-amber-300/40 mb-3 text-xs">
                         <i class="fa-solid fa-lock mr-1"></i> <span id="flow-gate-text">证书与报告全部生成且推送完成后方可流转</span>
                     </div>
@@ -263,10 +275,10 @@
 
                 <div class="space-y-3">
                     <button onclick="tryFlow('定时流转')" class="w-full bg-white text-brand-600 font-bold py-2.5 rounded-lg hover:bg-brand-50 transition shadow-lg flex items-center justify-center gap-2">
-                        <i class="fa-regular fa-clock"></i> 设定定时流转
+                        <i class="fa-regular fa-clock"></i> <span id="flow-schedule-text">设定定时流转</span>
                     </button>
                     <button onclick="tryFlow('立即流转')" class="w-full bg-brand-700/50 hover:bg-brand-700 text-white font-medium py-2.5 rounded-lg border border-brand-500 transition flex items-center justify-center gap-2">
-                        <i class="fa-solid fa-bolt"></i> 立即流转至下一步
+                        <i class="fa-solid fa-bolt"></i> <span id="flow-now-text">立即流转至下一步</span>
                     </button>
                     <button class="w-full bg-transparent hover:bg-black/10 text-white/80 hover:text-white font-medium py-2 rounded-lg border border-white/20 transition flex items-center justify-center gap-2 text-sm">
                         <i class="fa-solid fa-rotate-left"></i> 返回上一步 (撤销)
@@ -409,17 +421,77 @@
             return ok;
         }
 
-        function tryFlow(mode) {
-            if (!updateFlowGate()) {
+        // ===== 页面环节状态机：reviewing(批改中) → pending(待复核) → public(公示中) =====
+        let pageStage = 'reviewing';
+
+        function renderStage() {
+            const badge = document.getElementById('stage-badge');
+            const stepR = document.getElementById('step-reviewing');
+            const stepP = document.getElementById('step-pending');
+            const genSec = document.getElementById('gen-section');
+            const ph = document.getElementById('gen-placeholder');
+            const gateTip = document.getElementById('flow-gate-tip');
+            if (pageStage === 'reviewing') {
+                badge.innerText = '批改中';
+                badge.className = 'ml-2 px-2 py-0.5 bg-amber-50 text-amber-700 text-xs font-bold rounded border border-amber-100';
+                stepR.className = 'step-item active flex flex-col items-center gap-3 bg-white px-2 z-10';
+                stepR.querySelector('i').className = 'fa-solid fa-pen-nib';
+                stepP.className = 'step-item flex flex-col items-center gap-3 bg-white px-2 z-10';
+                genSec.classList.add('hidden');
+                ph.classList.remove('hidden');
+                gateTip.classList.add('hidden');
+                document.getElementById('flow-from').innerText = '批改中';
+                document.getElementById('flow-to').innerText = '待复核';
+                document.getElementById('flow-now-text').innerText = '立即流转至下一步';
+            } else if (pageStage === 'pending') {
+                badge.innerText = '待复核';
+                badge.className = 'ml-2 px-2 py-0.5 bg-amber-50 text-amber-700 text-xs font-bold rounded border border-amber-100';
+                stepR.className = 'step-item completed flex flex-col items-center gap-3 bg-white px-2 z-10';
+                stepR.querySelector('i').className = 'fa-solid fa-check';
+                stepP.className = 'step-item active flex flex-col items-center gap-3 bg-white px-2 z-10';
+                genSec.classList.remove('hidden');
+                ph.classList.add('hidden');
+                document.getElementById('flow-from').innerText = '待复核';
+                document.getElementById('flow-to').innerText = '公示中';
                 updateFlowGate();
-                alert(mode + '被拦截：证书与报告须全部生成且推送完成后才能流转成绩公示（见下方门禁提示）');
-                return;
             }
-            alert(mode + '成功：测评已流转至「公示中」（演示）');
         }
 
-        // 初始渲染门禁提示
-        document.addEventListener('DOMContentLoaded', updateFlowGate);
+        function tryFlow(mode) {
+            if (pageStage === 'reviewing') {
+                // 批改中 → 待复核：无门禁
+                if (mode === '定时流转') { alert('已设定定时流转：到点后自动流转至「待复核」（演示）'); return; }
+                pageStage = 'pending';
+                renderStage();
+                alert('流转成功：测评已进入「待复核」环节，现在可以生成证书与报告了（演示）');
+                return;
+            }
+            if (pageStage === 'pending') {
+                // 待复核 → 公示中：门禁校验
+                if (!updateFlowGate()) {
+                    alert(mode + '被拦截：证书与报告须全部生成且推送完成后才能流转成绩公示（见下方门禁提示）');
+                    return;
+                }
+                pageStage = 'public';
+                // 公示中：生成区隐藏、门禁解除
+                document.getElementById('gen-section').classList.add('hidden');
+                const badge = document.getElementById('stage-badge');
+                badge.innerText = '公示中';
+                badge.className = 'ml-2 px-2 py-0.5 bg-purple-50 text-purple-700 text-xs font-bold rounded border border-purple-100';
+                document.getElementById('step-pending').className = 'step-item completed flex flex-col items-center gap-3 bg-white px-2 z-10';
+                document.getElementById('step-pending').querySelector('i').className = 'fa-solid fa-check';
+                const tip = document.getElementById('flow-gate-tip');
+                tip.classList.remove('hidden');
+                tip.classList.add('border-green-300/40');
+                document.getElementById('flow-gate-text').innerHTML = '<i class="fa-solid fa-circle-check mr-1 text-green-300"></i> 已流转至「公示中」。如需修正证书/报告，请走既有证书修改流程';
+                document.getElementById('flow-from').innerText = '待复核';
+                document.getElementById('flow-to').innerText = '公示中';
+                alert(mode + '成功：测评已流转至「公示中」（演示）');
+            }
+        }
+
+        // 初始渲染：批改中
+        document.addEventListener('DOMContentLoaded', () => { pageStage = 'reviewing'; renderStage(); });
     </script>
 </body>
 </html>
