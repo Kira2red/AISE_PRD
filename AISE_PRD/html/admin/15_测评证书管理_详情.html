@@ -42,7 +42,7 @@
                 <h1 class="text-lg font-bold text-slate-800 leading-tight">2025春季 Python 一级等级测评</h1>
                 <p class="text-xs text-slate-400 font-mono">ID: 1001</p>
             </div>
-            <span class="ml-2 px-2 py-0.5 bg-amber-50 text-amber-700 text-xs font-bold rounded border border-amber-100">批改中</span>
+            <span class="ml-2 px-2 py-0.5 bg-amber-50 text-amber-700 text-xs font-bold rounded border border-amber-100">待复核</span>
         </div>
         <div class="flex items-center gap-3">
              <button class="text-slate-500 hover:text-brand-600 text-sm font-medium transition flex items-center gap-2">
@@ -58,16 +58,16 @@
             <div class="flex items-center justify-between w-full px-4 relative">
                 <div class="absolute left-0 top-1/2 transform -translate-y-1/2 w-full h-1 bg-slate-100 -z-10 rounded-full"></div>
 
-                <div class="step-item active flex flex-col items-center gap-3 bg-white px-2 z-10">
+                <div class="step-item completed flex flex-col items-center gap-3 bg-white px-2 z-10">
                     <div class="step-circle w-10 h-10 rounded-full border-2 border-slate-300 bg-white flex items-center justify-center text-slate-400 font-bold transition-all relative z-10">
-                        <i class="fa-solid fa-pen-nib"></i>
+                        <i class="fa-solid fa-check"></i>
                     </div>
                     <span class="step-label text-xs font-medium text-slate-400">批改中</span>
                 </div>
                 
                 <div class="flex-1 h-1 bg-slate-100"></div>
 
-                <div class="step-item flex flex-col items-center gap-3 bg-white px-2 z-10">
+                <div class="step-item active flex flex-col items-center gap-3 bg-white px-2 z-10">
                     <div class="step-circle w-10 h-10 rounded-full border-2 border-slate-200 bg-white flex items-center justify-center text-slate-300 font-bold transition-all">
                         <i class="fa-solid fa-clipboard-check"></i>
                     </div>
@@ -101,6 +101,68 @@
                     <span class="step-label text-xs font-medium text-slate-400">已寄送</span>
                 </div>
             </div>
+        </section>
+
+        <!-- 证书与报告生成操作区（待复核环节） -->
+        <section id="gen-section" class="bg-white rounded-xl shadow-card border border-slate-200 p-6">
+            <div class="flex justify-between items-center mb-4">
+                <h2 class="text-sm font-bold text-slate-800 flex items-center gap-2">
+                    <i class="fa-solid fa-wand-magic-sparkles text-brand-500"></i> 证书与报告生成
+                    <span class="text-[10px] font-bold text-slate-400 bg-slate-100 px-1.5 py-0.5 rounded">生成完成后自动推送给学员</span>
+                </h2>
+                <button onclick="regenAllConfirm()" id="regen-all-btn" class="hidden text-xs font-bold text-slate-600 bg-slate-50 border border-slate-200 px-3 py-1.5 rounded-lg hover:bg-slate-100">
+                    <i class="fa-solid fa-rotate mr-1"></i> 整场重新生成
+                </button>
+            </div>
+            <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                <!-- 证书模块 -->
+                <div id="cert-card" class="border border-slate-200 rounded-xl p-5" data-state="idle">
+                    <div class="flex justify-between items-start mb-3">
+                        <div>
+                            <h3 class="font-bold text-slate-800 text-sm"><i class="fa-solid fa-certificate text-amber-500 mr-1.5"></i>测评证书</h3>
+                            <p class="text-[11px] text-slate-400 mt-0.5">覆盖成绩达标学员 <span class="font-mono">1,240</span> 人</p>
+                        </div>
+                        <span id="cert-state-badge" class="px-2 py-0.5 rounded text-[10px] font-bold bg-slate-50 text-slate-500 border border-slate-200">未生成</span>
+                    </div>
+                    <div id="cert-progress-wrap" class="hidden mb-3">
+                        <div class="flex justify-between text-[11px] mb-1">
+                            <span class="text-slate-500">进度：<span id="cert-prog-text" class="font-mono font-bold">0 / 1,240</span></span>
+                            <span id="cert-fail-text" class="text-red-400 font-bold hidden">失败 <span class="font-mono">0</span></span>
+                        </div>
+                        <div class="w-full h-1.5 bg-slate-100 rounded-full overflow-hidden">
+                            <div id="cert-prog-bar" class="h-full bg-brand-500 rounded-full transition-all" style="width: 0%"></div>
+                        </div>
+                        <p id="cert-fail-link" class="hidden mt-1.5"><a href="#" onclick="alert('跳转失败明细（演示）');return false;" class="text-[11px] font-bold text-red-500 hover:text-red-600"><i class="fa-solid fa-circle-exclamation mr-0.5"></i>查看失败明细并重试</a></p>
+                    </div>
+                    <button id="cert-gen-btn" onclick="startGen('cert')" class="w-full bg-brand-600 hover:bg-brand-700 text-white font-bold py-2 rounded-lg text-sm transition shadow-sm">
+                        <i class="fa-solid fa-play mr-1"></i> 生成证书
+                    </button>
+                </div>
+                <!-- 报告模块 -->
+                <div id="report-card" class="border border-slate-200 rounded-xl p-5" data-state="idle">
+                    <div class="flex justify-between items-start mb-3">
+                        <div>
+                            <h3 class="font-bold text-slate-800 text-sm"><i class="fa-solid fa-file-lines text-blue-500 mr-1.5"></i>考级报告</h3>
+                            <p class="text-[11px] text-slate-400 mt-0.5">覆盖全部参测学员 <span class="font-mono">1,240</span> 人</p>
+                        </div>
+                        <span id="report-state-badge" class="px-2 py-0.5 rounded text-[10px] font-bold bg-slate-50 text-slate-500 border border-slate-200">未生成</span>
+                    </div>
+                    <div id="report-progress-wrap" class="hidden mb-3">
+                        <div class="flex justify-between text-[11px] mb-1">
+                            <span class="text-slate-500">进度：<span id="report-prog-text" class="font-mono font-bold">0 / 1,240</span></span>
+                            <span id="report-fail-text" class="text-red-400 font-bold hidden">失败 <span class="font-mono">0</span></span>
+                        </div>
+                        <div class="w-full h-1.5 bg-slate-100 rounded-full overflow-hidden">
+                            <div id="report-prog-bar" class="h-full bg-brand-500 rounded-full transition-all" style="width: 0%"></div>
+                        </div>
+                        <p id="report-fail-link" class="hidden mt-1.5"><a href="#" onclick="alert('跳转失败明细（演示）');return false;" class="text-[11px] font-bold text-red-500 hover:text-red-600"><i class="fa-solid fa-circle-exclamation mr-0.5"></i>查看失败明细并重试</a></p>
+                    </div>
+                    <button id="report-gen-btn" onclick="startGen('report')" class="w-full bg-brand-600 hover:bg-brand-700 text-white font-bold py-2 rounded-lg text-sm transition shadow-sm">
+                        <i class="fa-solid fa-play mr-1"></i> 生成报告
+                    </button>
+                </div>
+            </div>
+            <p class="text-[11px] text-slate-400 mt-3"><i class="fa-solid fa-circle-info mr-1"></i>证书与报告全部生成且推送完成后，方可流转至成绩公示。</p>
         </section>
 
         <div class="grid grid-cols-1 lg:grid-cols-3 gap-6">
@@ -188,7 +250,10 @@
                 
                 <div>
                     <h2 class="text-sm font-bold uppercase tracking-wider opacity-80 mb-1">状态流转控制</h2>
-                    <p class="text-2xl font-bold mb-6">批改中 <i class="fa-solid fa-arrow-right mx-2 opacity-50 text-xl"></i> 待复核</p>
+                    <p class="text-2xl font-bold mb-6">待复核 <i class="fa-solid fa-arrow-right mx-2 opacity-50 text-xl"></i> 公示中</p>
+                    <div id="flow-gate-tip" class="hidden bg-white/10 backdrop-blur-sm rounded-lg p-3 border border-amber-300/40 mb-3 text-xs">
+                        <i class="fa-solid fa-lock mr-1"></i> <span id="flow-gate-text">证书与报告全部生成且推送完成后方可流转</span>
+                    </div>
                     
                     <div class="bg-white/10 backdrop-blur-sm rounded-lg p-4 border border-white/20 mb-4">
                         <label class="block text-[10px] font-bold uppercase opacity-70 mb-2">设定自动流转时间 (可选)</label>
@@ -197,10 +262,10 @@
                 </div>
 
                 <div class="space-y-3">
-                    <button class="w-full bg-white text-brand-600 font-bold py-2.5 rounded-lg hover:bg-brand-50 transition shadow-lg flex items-center justify-center gap-2">
+                    <button onclick="tryFlow('定时流转')" class="w-full bg-white text-brand-600 font-bold py-2.5 rounded-lg hover:bg-brand-50 transition shadow-lg flex items-center justify-center gap-2">
                         <i class="fa-regular fa-clock"></i> 设定定时流转
                     </button>
-                    <button class="w-full bg-brand-700/50 hover:bg-brand-700 text-white font-medium py-2.5 rounded-lg border border-brand-500 transition flex items-center justify-center gap-2">
+                    <button onclick="tryFlow('立即流转')" class="w-full bg-brand-700/50 hover:bg-brand-700 text-white font-medium py-2.5 rounded-lg border border-brand-500 transition flex items-center justify-center gap-2">
                         <i class="fa-solid fa-bolt"></i> 立即流转至下一步
                     </button>
                     <button class="w-full bg-transparent hover:bg-black/10 text-white/80 hover:text-white font-medium py-2 rounded-lg border border-white/20 transition flex items-center justify-center gap-2 text-sm">
@@ -212,5 +277,149 @@
 
     </main>
 
+
+    <script>
+        // ===== 证书/报告生成状态机（demo 模拟） =====
+        // idle → generating → done / partial → (自动推送) pushing → pushed
+        const TOTAL = 1240;
+        const state = {
+            cert:   { progress: 0, fails: 0, phase: 'idle' },
+            report: { progress: 0, fails: 0, phase: 'idle' }
+        };
+        const timers = {};
+
+        function fmt(n) { return n.toLocaleString('en-US'); }
+
+        function setBadge(type, text, cls) {
+            const el = document.getElementById(type + '-state-badge');
+            el.innerText = text;
+            el.className = 'px-2 py-0.5 rounded text-[10px] font-bold border ' + cls;
+        }
+
+        function startGen(type) {
+            const s = state[type];
+            if (s.phase === 'generating' || s.phase === 'pushing') return;
+            if (s.phase === 'done' || s.phase === 'pushed') {
+                if (!confirm('整场重新生成将覆盖已生成的全部' + (type === 'cert' ? '证书' : '报告') + '，已推送的学员将回退为待推送。确认继续？')) return;
+                s.progress = 0; s.fails = 0;
+            }
+            s.phase = 'generating';
+            const card = document.getElementById(type + '-card');
+            const btn = document.getElementById(type + '-gen-btn');
+            btn.disabled = true;
+            btn.innerHTML = '<i class="fa-solid fa-spinner fa-spin mr-1"></i> 生成中…';
+            btn.className = 'w-full bg-slate-200 text-slate-400 font-bold py-2 rounded-lg text-sm transition cursor-not-allowed';
+            document.getElementById(type + '-progress-wrap').classList.remove('hidden');
+            setBadge(type, '生成中', 'bg-blue-50 text-blue-600 border-blue-100 animate-pulse');
+            timers[type] = setInterval(() => tick(type), 50);
+        }
+
+        function tick(type) {
+            const s = state[type];
+            // 模拟：到 1186 处产生 4 个失败，其余继续到 1236，最后补上失败的重试完成
+            s.progress += Math.floor(Math.random() * 60) + 30;
+            let done = false;
+            if (s.progress >= 1236 && s.fails === 0 && !s.retrying) { s.progress = 1236; s.fails = 4; render(type); }
+            if (s.fails === 4 && s.progress >= 1236) {
+                // 1.5 秒后自动重试成功
+                if (!s.retrying) {
+                    s.retrying = true;
+                    setTimeout(() => { s.progress = TOTAL; s.fails = 0; render(type); finishGen(type); }, 1500);
+                }
+                return;
+            }
+            if (s.progress >= TOTAL) { s.progress = TOTAL; done = true; }
+            render(type);
+            if (done) finishGen(type);
+        }
+
+        function render(type) {
+            const s = state[type];
+            document.getElementById(type + '-prog-text').innerText = fmt(Math.min(s.progress, TOTAL)) + ' / ' + fmt(TOTAL);
+            document.getElementById(type + '-prog-bar').style.width = Math.min(100, s.progress / TOTAL * 100) + '%';
+            const failText = document.getElementById(type + '-fail-text');
+            const failLink = document.getElementById(type + '-fail-link');
+            if (s.fails > 0) {
+                failText.classList.remove('hidden');
+                failText.querySelector('span').innerText = s.fails;
+                failLink.classList.remove('hidden');
+            } else {
+                failText.classList.add('hidden');
+                failLink.classList.add('hidden');
+            }
+        }
+
+        function finishGen(type) {
+            clearInterval(timers[type]);
+            const s = state[type];
+            if (s.fails > 0) {
+                s.phase = 'partial';
+                setBadge(type, '部分失败', 'bg-red-50 text-red-600 border-red-100');
+                const btn = document.getElementById(type + '-gen-btn');
+                btn.disabled = false;
+                btn.innerHTML = '<i class="fa-solid fa-rotate mr-1"></i> 重试失败项';
+                btn.className = 'w-full bg-amber-500 hover:bg-amber-600 text-white font-bold py-2 rounded-lg text-sm transition shadow-sm';
+                return;
+            }
+            // 全部成功 → 自动推送
+            s.phase = 'pushing';
+            setBadge(type, '推送中', 'bg-blue-50 text-blue-600 border-blue-100 animate-pulse');
+            const btn = document.getElementById(type + '-gen-btn');
+            btn.innerHTML = '<i class="fa-solid fa-spinner fa-spin mr-1"></i> 已生成，自动推送中…';
+            setTimeout(() => {
+                s.phase = 'pushed';
+                setBadge(type, '已推送', 'bg-green-50 text-green-600 border-green-100');
+                btn.disabled = true;
+                btn.innerHTML = '<i class="fa-solid fa-check mr-1"></i> 已生成并推送';
+                btn.className = 'w-full bg-green-50 text-green-600 font-bold py-2 rounded-lg text-sm border border-green-100 cursor-default';
+                document.getElementById('regen-all-btn').classList.remove('hidden');
+                updateFlowGate();
+            }, 1800);
+        }
+
+        function regenAllConfirm() {
+            const c = state.cert, r = state.report;
+            let msg = '整场重新生成将覆盖已生成的全部证书与报告';
+            if (c.phase === 'pushed' || r.phase === 'pushed') msg += '，已推送的学员将回退为待推送';
+            if (!confirm(msg + '。确认继续？')) return;
+            ['cert', 'report'].forEach(t => { state[t].progress = 0; state[t].fails = 0; state[t].retrying = false; startGen(t); });
+        }
+
+        function updateFlowGate() {
+            const ok = ['cert', 'report'].every(t => state[t].phase === 'pushed');
+            const tip = document.getElementById('flow-gate-tip');
+            const txt = document.getElementById('flow-gate-text');
+            if (ok) {
+                tip.classList.remove('hidden');
+                tip.classList.remove('border-amber-300/40');
+                tip.classList.add('border-green-300/40');
+                txt.innerHTML = '<i class="fa-solid fa-circle-check mr-1 text-green-300"></i> 证书与报告已全部生成并推送完成，可流转至成绩公示';
+            } else {
+                const pending = [];
+                ['cert', 'report'].forEach(t => {
+                    const name = t === 'cert' ? '证书' : '报告';
+                    if (state[t].phase === 'idle') pending.push(name + '未生成');
+                    else if (state[t].phase === 'partial') pending.push(name + '有 ' + state[t].fails + ' 份生成失败');
+                    else if (state[t].phase === 'generating') pending.push(name + '生成中（' + fmt(state[t].progress) + '/' + fmt(TOTAL) + '）');
+                    else if (state[t].phase === 'pushing') pending.push(name + '推送中');
+                });
+                tip.classList.remove('hidden');
+                txt.innerHTML = '<i class="fa-solid fa-lock mr-1"></i> 不可流转：' + pending.join('、');
+            }
+            return ok;
+        }
+
+        function tryFlow(mode) {
+            if (!updateFlowGate()) {
+                updateFlowGate();
+                alert(mode + '被拦截：证书与报告须全部生成且推送完成后才能流转成绩公示（见下方门禁提示）');
+                return;
+            }
+            alert(mode + '成功：测评已流转至「公示中」（演示）');
+        }
+
+        // 初始渲染门禁提示
+        document.addEventListener('DOMContentLoaded', updateFlowGate);
+    </script>
 </body>
 </html>
