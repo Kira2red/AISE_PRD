@@ -182,7 +182,7 @@
                                     <a href="certificate-detail.html" target="_blank" class="text-brand-600 hover:text-brand-700 text-xs font-bold border border-brand-200 bg-brand-50 hover:bg-brand-100 px-3 py-1.5 rounded transition inline-flex items-center gap-1">
                                         <i class="fa-solid fa-gear"></i> 管理证书
                                     </a>
-                                    <a href="28_证书实例管理.html" class="text-amber-600 hover:text-amber-700 text-xs font-bold border border-amber-200 bg-amber-50 hover:bg-amber-100 px-3 py-1.5 rounded transition inline-flex items-center gap-1">
+                                    <a href="#" onclick="openCertModal(event)" data-exam="2025夏季 AIGC 应用能力二级测评" class="cert-config-btn text-amber-600 hover:text-amber-700 text-xs font-bold border border-amber-200 bg-amber-50 hover:bg-amber-100 px-3 py-1.5 rounded transition inline-flex items-center gap-1">
                                         <i class="fa-solid fa-file-certificate"></i> 配置电子证书
                                     </a>
                                 </div>
@@ -237,7 +237,112 @@
                     </tbody>
                 </table>
             </div>
+
+            <!-- 配置电子证书弹窗（勾选式，带测评上下文） -->
+            <div id="cert-modal-overlay" class="fixed inset-0 bg-slate-900/40 z-50 hidden items-center justify-center" style="display:none">
+                <div class="bg-white rounded-xl shadow-2xl w-[560px] max-w-[92vw] max-h-[85vh] flex flex-col" onclick="event.stopPropagation()">
+                    <div class="px-6 py-4 border-b border-slate-100 flex items-center justify-between">
+                        <div>
+                            <h3 class="font-bold text-slate-800">配置电子证书</h3>
+                            <p class="text-xs text-slate-400 mt-0.5">测评：<span id="cert-modal-exam" class="font-medium text-slate-600">—</span></p>
+                        </div>
+                        <button onclick="closeCertModal()" class="text-slate-400 hover:text-slate-600"><i class="fa-solid fa-xmark text-lg"></i></button>
+                    </div>
+                    <div class="px-6 py-3 bg-slate-50 border-b border-slate-100 text-xs text-slate-500">
+                        <i class="fa-solid fa-circle-info text-brand-500 mr-1"></i> 勾选一个证书实例即可完成配置；一个实例可同时用于多场测评。
+                    </div>
+                    <div class="flex-1 overflow-y-auto px-6 py-4 space-y-2" id="cert-modal-list">
+                        <label class="flex items-center gap-3 p-3 rounded-lg border border-slate-200 hover:border-brand-300 hover:bg-brand-50/40 cursor-pointer cert-option">
+                            <input type="radio" name="cert-instance-pick" value="程序设计等级证书实例" class="h-4 w-4 text-brand-600 focus:ring-brand-500">
+                            <div class="flex-1 min-w-0">
+                                <p class="text-sm font-bold text-slate-800">程序设计等级证书实例 <span class="font-mono text-[10px] text-slate-400 ml-1">EX-2026-006</span></p>
+                                <p class="text-xs text-slate-400 mt-0.5">模板：程序设计等级证书 · 适用于程序设计/编程语言类测评</p>
+                            </div>
+                        </label>
+                        <label class="flex items-center gap-3 p-3 rounded-lg border border-slate-200 hover:border-brand-300 hover:bg-brand-50/40 cursor-pointer cert-option">
+                            <input type="radio" name="cert-instance-pick" value="生成式人工智能证书实例" class="h-4 w-4 text-brand-600 focus:ring-brand-500">
+                            <div class="flex-1 min-w-0">
+                                <p class="text-sm font-bold text-slate-800">生成式人工智能证书实例 <span class="font-mono text-[10px] text-slate-400 ml-1">EX-2026-007</span></p>
+                                <p class="text-xs text-slate-400 mt-0.5">模板：生成式人工智能等级证书 · 适用于 AIGC/人工智能类测评</p>
+                            </div>
+                        </label>
+                        <label class="flex items-center gap-3 p-3 rounded-lg border border-slate-200 hover:border-brand-300 hover:bg-brand-50/40 cursor-pointer cert-option">
+                            <input type="radio" name="cert-instance-pick" value="技术融合应用评定证书实例" class="h-4 w-4 text-brand-600 focus:ring-brand-500">
+                            <div class="flex-1 min-w-0">
+                                <p class="text-sm font-bold text-slate-800">技术融合应用评定证书实例 <span class="font-mono text-[10px] text-slate-400 ml-1">EX-2026-008</span></p>
+                                <p class="text-xs text-slate-400 mt-0.5">模板：技术融合应用和创新实践评定证书 · 适用于技术融合/创新实践类测评</p>
+                            </div>
+                        </label>
+                    </div>
+                    <div id="cert-modal-warn" class="hidden mx-6 mb-2 px-3 py-2 bg-amber-50 border border-amber-200 rounded text-xs text-amber-700"></div>
+                    <div class="px-6 py-4 border-t border-slate-100 flex items-center justify-between">
+                        <a href="28_证书实例管理.html" class="text-xs text-brand-600 hover:text-brand-700 font-medium"><i class="fa-solid fa-plus mr-1"></i>都不合适？新建证书实例</a>
+                        <div class="flex items-center gap-2">
+                            <button onclick="closeCertModal()" class="px-4 py-2 text-sm text-slate-600 hover:bg-slate-100 rounded-lg transition">取消</button>
+                            <button onclick="confirmCertConfig()" class="px-5 py-2 bg-brand-600 hover:bg-brand-700 text-white text-sm font-bold rounded-lg shadow-md transition">保存</button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <!-- 配置成功提示 -->
+            <div id="cert-toast" class="fixed top-6 left-1/2 -translate-x-1/2 z-[60] hidden">
+                <div class="flex items-center gap-2 bg-green-600 text-white text-sm font-bold px-4 py-2.5 rounded-lg shadow-lg">
+                    <i class="fa-solid fa-circle-check"></i><span id="cert-toast-text">电子证书配置成功</span>
+                </div>
+            </div>
         </div>
     </main>
+
+    <script>
+        let certModalExam = '';
+        function openCertModal(e) {
+            e.preventDefault();
+            const btn = e.currentTarget;
+            certModalExam = btn.getAttribute('data-exam') || '当前测评';
+            document.getElementById('cert-modal-exam').innerText = certModalExam;
+            const overlay = document.getElementById('cert-modal-overlay');
+            overlay.classList.remove('hidden');
+            overlay.style.display = 'flex';
+            document.querySelectorAll('input[name="cert-instance-pick"]').forEach(r => r.checked = false);
+            document.getElementById('cert-modal-warn').classList.add('hidden');
+        }
+        function closeCertModal() {
+            const overlay = document.getElementById('cert-modal-overlay');
+            overlay.classList.add('hidden');
+            overlay.style.display = 'none';
+        }
+        function confirmCertConfig() {
+            const picked = document.querySelector('input[name="cert-instance-pick"]:checked');
+            const warn = document.getElementById('cert-modal-warn');
+            if (!picked) {
+                warn.innerText = '请先勾选一个证书实例。';
+                warn.classList.remove('hidden');
+                return;
+            }
+            // 行内状态更新：找到当前测评所在行，改「未配置」→「已配置」
+            document.querySelectorAll('tbody tr').forEach(tr => {
+                const nameEl = tr.querySelector('td p.font-bold');
+                if (nameEl && nameEl.innerText === certModalExam) {
+                    const badge = tr.querySelectorAll('td')[5];
+                    if (badge && badge.innerText.includes('未配置')) {
+                        badge.innerHTML = '<span class="inline-flex items-center gap-1.5 px-2 py-0.5 rounded text-xs font-bold bg-green-50 text-green-700 border border-green-100"><i class="fa-solid fa-circle-check text-[10px]"></i> 已配置</span>';
+                    }
+                    const link = tr.querySelector('.cert-config-btn');
+                    if (link) {
+                        link.classList.remove('text-amber-600','hover:text-amber-700','border-amber-200','bg-amber-50','hover:bg-amber-100');
+                        link.classList.add('text-brand-600','hover:text-brand-700','border-brand-200','bg-brand-50','hover:bg-brand-100');
+                        link.innerHTML = '<i class="fa-solid fa-file-certificate"></i> 电子证书';
+                    }
+                }
+            });
+            closeCertModal();
+            const toast = document.getElementById('cert-toast');
+            document.getElementById('cert-toast-text').innerText = '电子证书配置成功：' + picked.value;
+            toast.classList.remove('hidden');
+            setTimeout(() => toast.classList.add('hidden'), 2600);
+        }
+        // 点击遮罩不关闭（防误触），按 Esc 关闭
+        document.addEventListener('keydown', ev => { if (ev.key === 'Escape') closeCertModal(); });
+    </script>
 </body>
 </html>

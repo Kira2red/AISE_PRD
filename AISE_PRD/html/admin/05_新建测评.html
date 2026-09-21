@@ -532,6 +532,22 @@
                 </div>
 
                 <div>
+                    <label class="block text-xs font-bold text-slate-500 mb-2">证书实例 <span class="text-slate-400 font-normal">(选填)</span></label>
+                    <div class="relative">
+                        <select id="cert-instance" onchange="onCertInstanceChange()"
+                            class="w-full px-3 py-2 rounded-lg border border-slate-200 focus:border-brand-500 focus:ring-1 focus:ring-brand-500 bg-white text-sm text-slate-700 outline-none hover:border-slate-300 cursor-pointer appearance-none">
+                            <option value="">暂不选择 — 考后可在「测评证书管理」补配电子证书</option>
+                            <option value="EX-2026-006">程序设计等级证书实例（模板：程序设计等级证书）</option>
+                            <option value="EX-2026-007">生成式人工智能证书实例（模板：生成式人工智能等级证书）</option>
+                            <option value="EX-2026-008">技术融合应用评定证书实例（模板：技术融合应用和创新实践评定证书）</option>
+                        </select>
+                        <i class="fa-solid fa-chevron-down text-slate-400 text-xs absolute right-3 top-1/2 -translate-y-1/2 pointer-events-none"></i>
+                    </div>
+                    <p id="cert-instance-tip" class="text-[11px] text-slate-500 mt-2 hidden"><i class="fa-solid fa-circle-info mr-1 text-brand-500"></i><span id="cert-instance-tip-text"></span></p>
+                    <p class="text-[11px] text-slate-500 mt-2"><i class="fa-solid fa-circle-info mr-1"></i> 选择后，测评结束进入「待复核」环节时自动按该实例生成电子证书；一个实例可同时用于多场测评。</p>
+                </div>
+
+                <div>
                     <label class="block text-xs font-bold text-slate-500 mb-3">证书落款时间配置</label>
                     <div class="space-y-4 pl-1">
                         <label class="flex items-start gap-3 cursor-pointer group">
@@ -809,12 +825,32 @@
             }
         }
 
+        // ===== 证书实例选择（选填，一对多复用） =====
+        function onCertInstanceChange() {
+            const v = document.getElementById('cert-instance').value;
+            const tip = document.getElementById('cert-instance-tip');
+            const tipText = document.getElementById('cert-instance-tip-text');
+            if (v) {
+                const names = {
+                    'EX-2026-006': '程序设计等级证书实例已选：本测评结束后将自动生成程序设计等级电子证书。',
+                    'EX-2026-007': '生成式人工智能证书实例已选：本测评结束后将自动生成生成式人工智能等级电子证书。',
+                    'EX-2026-008': '技术融合应用评定证书实例已选：本测评结束后将自动生成技术融合应用和创新实践评定电子证书。'
+                };
+                tipText.innerText = names[v] || '证书实例已选：测评结束后自动生成电子证书。';
+                tip.classList.remove('hidden');
+            } else {
+                tip.classList.add('hidden');
+            }
+        }
+
         function saveActivity() {
             const nm = nameInput.value;
             if (!nm.trim()) { alert('请输入测评名称'); return; }
+            const certInst = document.getElementById('cert-instance').value;
+            const certMsg = certInst ? '已保存，电子证书将按所选证书实例在考后自动生成。' : '已保存（未配置电子证书）。考后可在「测评证书管理」补配。';
             const paper = sourceSelect.value;
             if (!paper) {
-                alert('已保存（未关联爱测评试卷）。之后编辑补关联试卷并保存，将自动创建爱测评测评。');
+                alert('已保存（未关联爱测评试卷）。' + certMsg);
                 closeActivityModal();
                 return;
             }

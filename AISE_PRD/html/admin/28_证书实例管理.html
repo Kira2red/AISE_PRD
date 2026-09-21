@@ -117,6 +117,10 @@
                     <i class="fa-solid fa-plus"></i> 新建证书实例
                 </button>
             </div>
+            <div class="mt-4 px-4 py-3 bg-brand-50/60 border border-brand-100 rounded-lg text-xs text-slate-600">
+                <i class="fa-solid fa-circle-info text-brand-600 mr-1"></i>
+                证书实例是<b>可复用的证书配置</b>（模板 + 字段映射），一个实例可同时用于多场测评：创建测评时直接选择，考后自动生成电子证书。下方「引用测评」列展示每个实例当前被多少场测评使用；参测人数与已签发数按各测评分别记录，点击行可展开查看明细。
+            </div>
         </div>
 
         <div class="flex-1 overflow-y-auto px-8 pb-8 custom-scroll">
@@ -124,9 +128,10 @@
                 <table class="w-full text-left border-collapse">
                     <thead>
                         <tr class="border-b border-slate-100 bg-slate-50 text-xs uppercase text-slate-500 font-bold">
-                            <th class="p-4 pl-6">测评名称 / ID</th>
-                            <th class="p-4">测评类型</th>
+                            <th class="p-4 pl-6">实例名称 / ID</th>
+                            <th class="p-4">实例类型</th>
                             <th class="p-4">绑定模板</th>
+                            <th class="p-4">引用测评</th>
                             <th class="p-4">参测人数</th>
                             <th class="p-4">已签发</th>
                             <th class="p-4">创建时间</th>
@@ -138,7 +143,7 @@
 
                         <tr class="hover-row transition group">
                             <td class="p-4 pl-6">
-                                <p class="font-bold text-slate-800">2026春季 Python 一级等级测评</p>
+                                <p class="font-bold text-slate-800">程序设计等级证书实例</p>
                                 <p class="text-xs text-slate-400 font-mono mt-0.5">ID: EX-2026-001</p>
                             </td>
                             <td class="p-4">
@@ -148,6 +153,11 @@
                             </td>
                             <td class="p-4">
                                 <span class="text-xs font-medium text-slate-700">等级测评证书（默认模板）</span>
+                            </td>
+                            <td class="p-4">
+                                <span class="inline-flex items-center gap-1 px-2 py-0.5 rounded text-xs font-bold bg-indigo-50 text-indigo-700 border border-indigo-100">
+                                    <i class="fa-solid fa-layer-group text-[10px]"></i> 3 场
+                                </span>
                             </td>
                             <td class="p-4 font-mono text-slate-600">1,240</td>
                             <td class="p-4" data-col="issued">
@@ -175,7 +185,7 @@
 
                         <tr class="hover-row transition group">
                             <td class="p-4 pl-6">
-                                <p class="font-bold text-slate-800">2026夏季 AIGC 应用能力二级测评</p>
+                                <p class="font-bold text-slate-800">生成式人工智能证书实例</p>
                                 <p class="text-xs text-slate-400 font-mono mt-0.5">ID: EX-2026-002</p>
                             </td>
                             <td class="p-4">
@@ -185,6 +195,11 @@
                             </td>
                             <td class="p-4">
                                 <span class="text-xs font-medium text-slate-700">AIGC 应用能力认证证书</span>
+                            </td>
+                            <td class="p-4">
+                                <span class="inline-flex items-center gap-1 px-2 py-0.5 rounded text-xs font-bold bg-indigo-50 text-indigo-700 border border-indigo-100">
+                                    <i class="fa-solid fa-layer-group text-[10px]"></i> 2 场
+                                </span>
                             </td>
                             <td class="p-4 font-mono text-slate-600">856</td>
                             <td class="p-4" data-col="issued">
@@ -212,7 +227,7 @@
 
                         <tr class="hover-row transition group">
                             <td class="p-4 pl-6">
-                                <p class="font-bold text-slate-800">2026年中学信息学奥林匹克竞赛</p>
+                                <p class="font-bold text-slate-800">信息学奥赛证书实例</p>
                                 <p class="text-xs text-slate-400 font-mono mt-0.5">ID: EX-2026-003</p>
                             </td>
                             <td class="p-4">
@@ -222,6 +237,11 @@
                             </td>
                             <td class="p-4">
                                 <span class="text-xs font-medium text-slate-700">信息学奥赛一等奖证书</span>
+                            </td>
+                            <td class="p-4">
+                                <span class="inline-flex items-center gap-1 px-2 py-0.5 rounded text-xs font-bold bg-indigo-50 text-indigo-700 border border-indigo-100">
+                                    <i class="fa-solid fa-layer-group text-[10px]"></i> 1 场
+                                </span>
                             </td>
                             <td class="p-4 font-mono text-slate-600">628</td>
                             <td class="p-4" data-col="issued">
@@ -249,7 +269,7 @@
 
                         <tr class="hover-row transition group">
                             <td class="p-4 pl-6">
-                                <p class="font-bold text-slate-800">编程猫合作校 2026春季预备测评</p>
+                                <p class="font-bold text-slate-800">编程猫合作校预备测证书实例</p>
                                 <p class="text-xs text-slate-400 font-mono mt-0.5">ID: EX-2026-004</p>
                             </td>
                             <td class="p-4">
@@ -259,6 +279,11 @@
                             </td>
                             <td class="p-4">
                                 <span class="text-xs font-medium text-slate-700">预备测评参与证明</span>
+                            </td>
+                            <td class="p-4">
+                                <span class="inline-flex items-center gap-1 px-2 py-0.5 rounded text-xs font-bold bg-indigo-50 text-indigo-700 border border-indigo-100">
+                                    <i class="fa-solid fa-layer-group text-[10px]"></i> 1 场
+                                </span>
                             </td>
                             <td class="p-4 font-mono text-slate-600">320</td>
                             <td class="p-4" data-col="issued">
@@ -286,7 +311,7 @@
 
                         <tr class="hover-row transition group">
                             <td class="p-4 pl-6">
-                                <p class="font-bold text-slate-800">C++ 算法设计三级测评</p>
+                                <p class="font-bold text-slate-800">C++ 算法设计证书实例</p>
                                 <p class="text-xs text-slate-400 font-mono mt-0.5">ID: EX-2026-005</p>
                             </td>
                             <td class="p-4">
@@ -296,6 +321,11 @@
                             </td>
                             <td class="p-4">
                                 <span class="text-xs font-medium text-slate-500">未绑定模板</span>
+                            </td>
+                            <td class="p-4">
+                                <span class="inline-flex items-center gap-1 px-2 py-0.5 rounded text-xs font-bold bg-slate-100 text-slate-500 border border-slate-200">
+                                    <i class="fa-solid fa-layer-group text-[10px]"></i> 0 场
+                                </span>
                             </td>
                             <td class="p-4 font-mono text-slate-600">520</td>
                             <td class="p-4" data-col="issued">
@@ -778,7 +808,12 @@
             const row = btn.closest('tr');
             const name = row.querySelector('.font-bold').innerText;
             if (action === 'disable') {
-                if (!confirm(`确认禁用「${name}」的证书实例？禁用后该测评将不再生成新证书，已有证书不受影响。`)) return;
+                const refCell = row.querySelectorAll('td')[3];
+                const refMatch = refCell ? refCell.innerText.match(/(\d+)/) : null;
+                const refCount = refMatch ? parseInt(refMatch[1]) : 0;
+                if (refCount > 0) {
+                    if (!confirm(`「${name}」正在被 ${refCount} 场测评引用，禁用后这些测评将不再自动生成新电子证书（已有证书不受影响）。\n\n建议先为引用的测评批量换绑其他实例，再禁用。确认仍要禁用？`)) return;
+                } else if (!confirm(`确认禁用「${name}」的证书实例？禁用后该测评将不再生成新证书，已有证书不受影响。`)) return;
                 btn.innerText = '启用';
                 btn.setAttribute('onclick', "toggleInstance(this, 'enable')");
                 const statusCell = row.querySelector('td:nth-last-child(2) span');
