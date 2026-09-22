@@ -25,6 +25,7 @@
                 }
             }
         }
+
     </script>
     <style>
         body {
@@ -354,7 +355,7 @@
                         <label class="block text-xs font-bold text-slate-500 mb-2"><span class="text-red-500">*</span>
                             开始时间</label>
                         <div class="relative">
-                            <input type="datetime-local"
+                            <input type="datetime-local" id="exam-start-time"
                                 class="w-full pl-4 pr-3 py-2.5 rounded-lg border border-slate-200 text-sm outline-none text-slate-600 focus:border-brand-500">
                         </div>
                     </div>
@@ -362,7 +363,7 @@
                         <label class="block text-xs font-bold text-slate-500 mb-2"><span class="text-red-500">*</span>
                             结束时间</label>
                         <div class="relative">
-                            <input type="datetime-local"
+                            <input type="datetime-local" id="exam-end-time"
                                 class="w-full pl-4 pr-3 py-2.5 rounded-lg border border-slate-200 text-sm outline-none text-slate-600 focus:border-brand-500">
                         </div>
                     </div>
@@ -949,28 +950,56 @@
             if (guide && mguide) mguide.value = guide.value;
         }
 
+        // 模拟考默认时间：正式考开始已填时，结束默认=正式考开始前 1 小时（仅在用户未手动填写时生效）
+        let mockEndTouched = false;
+        function fmtLocal(d) {
+            const p = x => (x < 10 ? '0' : '') + x;
+            return d.getFullYear() + '-' + p(d.getMonth() + 1) + '-' + p(d.getDate()) + 'T' + p(d.getHours()) + ':' + p(d.getMinutes());
+        }
+        function mockEndDefault() {
+            const es = document.getElementById('exam-start-time').value;
+            if (!es) return '';
+            const d = new Date(es);
+            d.setMinutes(d.getMinutes() - 60);
+            return fmtLocal(d);
+        }
+        function applyMockEndDefault() {
+            if (mockEndTouched) return;
+            const v = mockEndDefault();
+            if (v) document.getElementById('mock-end-time').value = v;
+        }
         function initMockConfigDefaults() {
             const startInput = document.getElementById('mock-start-time');
             const endInput = document.getElementById('mock-end-time');
 
-            // Set Start Time to Now
+            // 模拟考开始默认=现在（保持原占位逻辑）
             if (!startInput.value) {
                 const now = new Date();
                 now.setMinutes(now.getMinutes() - now.getTimezoneOffset());
                 startInput.value = now.toISOString().slice(0, 16);
+
             }
 
-            // Set End Time to 3 days later (Simulating formal exam start)
+            // 模拟考结束默认=正式考开始前 1 小时（正式考未填时退回 3 天后占位）
             if (!endInput.value) {
-                const end = new Date();
-                end.setDate(end.getDate() + 3);
-                end.setMinutes(end.getMinutes() - end.getTimezoneOffset());
-                endInput.value = end.toISOString().slice(0, 16);
+                const def = mockEndDefault();
+                if (def) {
+                    endInput.value = def;
+                } else {
+                    const end = new Date();
+                    end.setDate(end.getDate() + 3);
+                    end.setMinutes(end.getMinutes() - end.getTimezoneOffset());
+                    endInput.value = end.toISOString().slice(0, 16);
+                }
             }
 
             // 模拟考监考配置默认读取正式考当前配置
             syncMockInvigilation();
         }
+
+        // 事件绑定：手动修改模拟考结束后不再自动覆盖；正式考开始变动时刷新默认值
+        document.getElementById('mock-end-time').addEventListener('input', () => { mockEndTouched = true; });
+        document.getElementById('exam-start-time').addEventListener('change', applyMockEndDefault);
 
     </script>
 </body>

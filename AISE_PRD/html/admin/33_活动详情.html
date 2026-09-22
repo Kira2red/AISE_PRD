@@ -451,9 +451,10 @@ textarea{min-height:72px}
       </div>
       <div class="fline">
         <div class="field"><label>模拟考开始</label><input type="datetime-local" id="beMockStart" style="width:100%"></div>
-        <div class="field"><label>模拟考结束</label><input type="datetime-local" id="beMockEnd" style="width:100%"></div>
+        <div class="field"><label>模拟考结束</label><input type="datetime-local" id="beMockEnd" placeholder="留空 = 保持原值" title="批量修改跨多场测评，各场正式考时间不同，不做自动计算；如需按正式考自动计算请逐场编辑" style="width:100%"></div>
         <div class="field"><label>次数限制</label><select id="beMockTimes" style="width:100%"><option value="">不变</option><option>1 次</option><option>2 次</option><option>3 次</option><option>无限次</option></select></div>
       </div>
+      <div class="hint" style="margin-top:6px">模拟考时间不做批量自动计算（各场正式考时间不同）；留空 = 保持原值，如需按「正式考开始前 1 小时」自动计算请逐场编辑。</div>
       <div class="subblock">
         <div class="subblock-title">模拟考监考</div>
         <div class="fline">
@@ -817,6 +818,27 @@ function openWizard(zone){
   refreshWizGroups();refreshTags();renderSsel('paperSel',PAPERS,'','搜索试卷名称，可留空后补');
   wizShow('A');show('ovWizard');
 }
+
+// 模拟考结束默认联动：正式考开始(第2列)变动 → 模拟考结束(第5列)为空或未曾手动修改时刷新
+document.getElementById('rowTable').addEventListener('change', function(e){
+  var td=e.target.closest('td');if(!td)return;
+  var tr=td.parentElement, cells=[].slice.call(tr.cells);
+  var ci=cells.indexOf(td);
+  if(ci===1 && e.target.type==='datetime-local'){ // 正式考开始变动
+    var inp=cells[4].querySelector('input');
+    if(inp && !inp.dataset.touched){
+      inp.value=mockEndDef(e.target.value);
+    }
+  }
+}, true);
+document.getElementById('rowTable').addEventListener('input', function(e){
+  var td=e.target.closest('td');if(!td)return;
+  var cells=[].slice.call(td.parentElement.cells);
+  if(cells.indexOf(td)===4 && e.target.type==='datetime-local' && e.target.value){
+    e.target.dataset.touched='1'; // 手动填写过模拟考结束，之后不覆盖
+  }
+}, true);
+
 function wizShow(s){
   wizStep=s;
   $('stepA').style.display=s==='A'?'block':'none';
@@ -851,6 +873,12 @@ function wizNext(){
     $('doneCount').textContent=createdCount;show('ovDone');
   }
 }
+function mockEndDef(es){
+  if(!es)return'';
+  var d=new Date(es);d.setMinutes(d.getMinutes()-60);
+  var p=function(x){return (x<10?'0':'')+x};
+  return d.getFullYear()+'-'+p(d.getMonth()+1)+'-'+p(d.getDate())+'T'+p(d.getHours())+':'+p(d.getMinutes());
+}
 function genRows(){
   var n=$('genName').value.trim();
   if(!n){toast('请填写测评名称');return}
@@ -860,7 +888,8 @@ function genRows(){
   for(var i=1;i<=c;i++){
     var tr=document.createElement('tr');
     var name=c>1?n+'-第'+i+'场':n;
-    tr.innerHTML='<td><input type="text" value="'+name+'" style="width:95%"></td><td><input type="datetime-local" value="'+addMin(s,(i-1)*30)+'" style="width:95%"></td><td><input type="datetime-local" value="'+addMin(e,(i-1)*30)+'" style="width:95%"></td><td><button class="btn small" onclick="this.closest(\'tr\').remove()">删</button></td>';
+    var fs=addMin(s,(i-1)*30);
+    tr.innerHTML='<td><input type="text" value="'+name+'" style="width:95%"></td><td><input type="datetime-local" value="'+fs+'" style="width:95%"></td><td><input type="datetime-local" value="'+addMin(e,(i-1)*30)+'" style="width:95%"></td><td><input type="datetime-local" style="width:95%"></td><td><input type="datetime-local" value="'+mockEndDef(fs)+'" style="width:95%"></td><td><button class="btn small" onclick="this.closest(\'tr\').remove()">删</button></td>';
     tb.appendChild(tr);
   }
   toast('已生成 '+c+' 行');
