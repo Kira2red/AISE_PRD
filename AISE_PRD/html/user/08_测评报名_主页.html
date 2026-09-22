@@ -117,7 +117,7 @@
                         <div class="md:col-span-2 bg-slate-50 p-5 rounded-xl border border-slate-200 grid grid-cols-1 md:grid-cols-2 gap-6 relative overflow-hidden">
                             <div class="absolute top-0 left-0 w-1 h-full bg-brand-500"></div>
                             
-                            <div class="md:col-span-2" id="channel-code-row">
+                            <div id="channel-code-row">
                                 <label class="block text-xs font-bold text-slate-600 uppercase mb-1.5 flex justify-between">
                                     <span>渠道识别码 <span class="text-slate-400 font-normal ml-1">(选填)</span></span>
                                     <span class="text-[10px] text-brand-600 font-normal cursor-pointer hover:underline" onclick="alert('如果您是机构学员，请咨询您的老师获取识别码，可直接锁定对应课程。')"><i class="fa-regular fa-circle-question"></i> 什么是识别码？</span>
@@ -133,7 +133,7 @@
                                 </p>
                             </div>
 
-                            <div class="md:col-span-2">
+                            <div>
                                 <div id="agency-view-lock" class="hidden px-4 py-2.5 rounded-lg bg-slate-100 border border-slate-200 text-sm text-slate-600 flex items-center gap-2">
                                     <i class="fa-solid fa-link text-brand-500 text-xs"></i>
                                     <span>渠道：<span id="agency-view-lock-name" class="font-bold text-slate-700"></span>　<span class="text-xs text-slate-400">（报名链接指定，不可更改）</span></span>
@@ -153,18 +153,17 @@
                             </div>
 
                             <div id="group-select-wrapper" class="md:col-span-2 hidden">
-                                <label class="block text-xs font-bold text-slate-500 uppercase mb-1.5">测评分组</label>
+                                <label class="block text-xs font-bold text-slate-500 uppercase mb-1.5">选择分组 <span class="text-red-500">*</span></label>
                                 <div id="group-chips" class="flex flex-wrap gap-2"></div>
                             </div>
 
                             
                         </div>
 
-                        <div class="md:col-span-2" id="activity-cards-section">
+                        <div class="md:col-span-2 hidden" id="activity-cards-section">
                             <label class="block text-xs font-bold text-slate-500 uppercase mb-1.5">选择测评 <span class="text-red-500">*</span></label>
                             <div id="act-cards" class="grid grid-cols-1 md:grid-cols-2 gap-3">
-                                <p class="col-span-2 text-center text-sm text-slate-400 py-8 border-2 border-dashed border-slate-200 rounded-xl">请先选择机构</p>
-                            </div>
+                                </div>
                             <div id="selected-act-info" class="hidden bg-brand-50 border border-brand-100 rounded-xl p-3 mt-3 text-sm">
                                 <span class="text-brand-700 font-bold">已选择：</span><span id="selected-act-text" class="text-slate-700"></span>
                             </div>
@@ -427,6 +426,8 @@
 
         function renderActCards(acts, emptyText) {
             const container = document.getElementById('act-cards');
+            const sectionEl = document.getElementById('activity-cards-section');
+            if (sectionEl) sectionEl.classList.remove('hidden');
             if (!acts || acts.length === 0) {
                 container.innerHTML = '<p class="col-span-2 text-center text-sm text-slate-400 py-8 border-2 border-dashed border-slate-200 rounded-xl">' + (emptyText || '该分组暂无可报名测评') + '</p>';
                 return;
@@ -522,7 +523,7 @@
             const grpChips = document.getElementById('group-chips');
             grpWrap.classList.add('hidden');
             grpChips.innerHTML = '';
-            if (!agencyCode) { hideActRow(); renderActCards([], '请先选择机构'); return; }
+            if (!agencyCode) { hideActRow(); document.getElementById('activity-cards-section').classList.add('hidden'); return; }
             const agency = agencyData.find(a => a.code === agencyCode);
 
             // 可报名活动 = 关联里去重（仅统计可报名状态）
@@ -538,7 +539,7 @@
             } else {
                 // 渠道级链接 / 自选：显示活动 chips 供选择
                 showActRow(agency, openActs);
-                renderActCards([], '请先选择活动');
+                document.getElementById('activity-cards-section').classList.add('hidden');
             }
         }
 
@@ -590,6 +591,7 @@
                 renderActCards(pool.filter(a => (a.group || '默认') === groups[0]));
                 return;
             }
+            document.getElementById('activity-cards-section').classList.add('hidden');
             wrap.classList.remove('hidden');
             box.innerHTML = groups.map((g, idx) => {
                 const cnt = pool.filter(a => (a.group || '默认') === g).length;
