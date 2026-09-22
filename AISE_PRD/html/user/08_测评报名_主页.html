@@ -308,6 +308,7 @@
         const activityDB = {
             "2025春季 Python 程序设计（一级）": { examStart: "2025-03-16 08:00", examEnd: "2025-03-16 11:30", fee: 199, status: "open" },
             "2025春季 C++ 算法基础": { examStart: "2025-03-17 14:00", examEnd: "2025-03-17 16:00", fee: 199, status: "open" },
+            "2025春季 Python 算法进阶（二级）": { examStart: "2025-03-18 09:00", examEnd: "2025-03-18 11:00", fee: 240, status: "open" },
             "2025夏季 AIGC 应用能力（二级）": { examStart: "2025-06-15 09:00", examEnd: "2025-06-15 11:00", fee: 0, status: "open" },
             "2024冬季 Scratch 图形化（一级）": { examStart: "2024-12-21 09:00", examEnd: "2024-12-21 10:30", fee: 199, status: "ended" },
         };
@@ -315,10 +316,11 @@
         const agencyData = [
             {
                 code: "YPB2025", name: "猿编程教育科技",
-                groups: ["3月考期", "6月考期"],
+                groups: ["3月考期", "6月考期", "考前冲刺班"],
                 activities: [
                     { act: "2025春季考级", name: "2025春季 Python 程序设计（一级）", group: "3月考期" },
                     { act: "2025春季考级", name: "2025春季 C++ 算法基础", group: "3月考期" },
+                    { act: "2025春季考级", name: "2025春季 Python 算法进阶（二级）", group: "考前冲刺班" },
                     { act: "2025夏季考级", name: "2025夏季 AIGC 应用能力（二级）", group: "6月考期" },
                     { act: "2024冬季考级", name: "2024冬季 Scratch 图形化（一级）", group: null },
                 ]
@@ -595,9 +597,8 @@
             wrap.classList.remove('hidden');
             box.innerHTML = groups.map((g, idx) => {
                 const cnt = pool.filter(a => (a.group || '默认') === g).length;
-                return '<button type="button" onclick="selectGroupLevel(\'' + g + '\')" class="px-4 py-2.5 rounded-xl border-2 text-sm font-bold transition ' + (idx === 0 ? 'bg-indigo-50 border-indigo-400 text-indigo-700' : 'bg-white border-slate-200 text-slate-700 hover:border-indigo-300') + '">' + g + '<span class="ml-2 text-xs font-normal text-slate-400">' + cnt + ' 场</span></button>';
+                return '<button type="button" onclick="selectGroupLevel(\'' + g + '\')" class="px-4 py-2.5 rounded-xl border-2 text-sm font-bold transition bg-white border-slate-200 text-slate-700 hover:border-indigo-300 hover:shadow-sm">' + g + '<span class="ml-2 text-xs font-normal text-slate-400">' + cnt + ' 场</span></button>';
             }).join('');
-            renderActCards([], '请选择分组');
         }
 
         function selectGroupLevel(g) {
