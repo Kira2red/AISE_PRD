@@ -533,11 +533,11 @@
                 </div>
 
                 <div>
-                    <label class="block text-xs font-bold text-slate-500 mb-2">证书模板 <span class="text-slate-400 font-normal">(选填)</span></label>
+                    <label class="block text-xs font-bold text-slate-500 mb-2">证书模板 <span class="text-red-500 font-normal">(必选)</span></label>
                     <div class="relative">
                         <select id="cert-instance" onchange="onCertInstanceChange()"
                             class="w-full px-3 py-2 rounded-lg border border-slate-200 focus:border-brand-500 focus:ring-1 focus:ring-brand-500 bg-white text-sm text-slate-700 outline-none hover:border-slate-300 cursor-pointer appearance-none">
-                            <option value="">暂不选择 — 考后可在「测评证书管理」补配电子证书</option>
+                            <option value="" disabled selected>请选择证书模板</option>
                             <option value="TPL-CODE">程序设计等级证书（适用于程序设计/编程语言类测评）</option>
                             <option value="TPL-AIGC">生成式人工智能等级证书（适用于 AIGC/人工智能类测评）</option>
                             <option value="TPL-FUSION">技术融合应用和创新实践评定证书（适用于技术融合/创新实践类测评）</option>
@@ -826,7 +826,7 @@
             }
         }
 
-        // ===== 证书模板选择（选填；保存后自动生成该测评的证书实例） =====
+        // ===== 证书模板选择（必选；保存后自动生成该测评的证书实例） =====
         function onCertInstanceChange() {
             const v = document.getElementById('cert-instance').value;
             const tip = document.getElementById('cert-instance-tip');
@@ -848,7 +848,8 @@
             const nm = nameInput.value;
             if (!nm.trim()) { alert('请输入测评名称'); return; }
             const certInst = document.getElementById('cert-instance').value;
-            const certMsg = certInst ? '已保存，已按所选证书模板自动创建证书实例，考后将自动生成电子证书。' : '已保存（未配置电子证书）。考后可在「测评证书管理」补配。';
+            if (!certInst) { alert('请先选择证书模板'); return; }
+            const certMsg = '已保存，已按所选证书模板自动创建证书实例，考后将自动生成电子证书。';
             const paper = sourceSelect.value;
             if (!paper) {
                 alert('已保存（未关联爱测评试卷）。' + certMsg);

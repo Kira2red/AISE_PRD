@@ -321,7 +321,7 @@ textarea{min-height:72px}
             <div class="field"><label class="req">测评时长（分钟）</label><input type="number" id="cfgDur" value="120" style="width:100%"></div>
             <div class="field"><label class="req">交卷限制</label><select id="cfgSubmit" style="width:100%"><option>到时自动交卷</option><option>允许提前 15 分钟交卷</option><option>不限</option></select></div>
           </div>
-          <div class="field"><label>标签</label><div class="msel" id="tagSel"></div></div>
+          <div class="field"><label class="req">关联证书模板</label><select id="certTplSel" style="width:100%"><option value="" disabled selected>请选择证书模板</option><option value="TPL-CODE">程序设计等级证书 · 适用于程序设计/编程语言类测评</option><option value="TPL-AIGC">生成式人工智能等级证书 · 适用于 AIGC/人工智能类测评</option><option value="TPL-FUSION">技术融合应用和创新实践评定证书 · 适用于技术融合/创新实践类测评</option></select><p style="font-size:11px;color:#64748b;margin-top:4px">必选；保存后每场考场自动创建各自证书实例，考后自动生成电子证书，无需逐场绑定</p></div>
           <div class="sec-title" style="font-size:13px;margin-top:8px">监考配置</div>
           <div class="grid3">
             <div class="field"><label>摄像头</label><select style="width:100%"><option>强制开启</option><option>学员自选</option><option>关闭</option></select></div>
@@ -808,11 +808,11 @@ function refreshWizGroups(){
   window.wizZoneSel=wizZoneSel;renderMsel('wizGroupSel',opts,wizZoneSel,'wizZoneSel','refreshWizGroups');
 }
 function refreshTags(){
-  window.wizTags=wizTags;renderMsel('tagSel',TAGS.map(function(t){return{name:t}}),wizTags,'wizTags','refreshTags');
+  /* 标签字段已由「关联证书模板」必选下拉替代（2026-10-06），函数保留防旧引用 */
 }
 var wizTags=[];
 function openWizard(zone){
-  wizStep='A';wizZoneSel=zone?[zone]:[];wizTags=[];
+  wizStep='A';wizZoneSel=zone?[zone]:[];wizTags=[];var ct=document.getElementById('certTplSel');if(ct)ct.selectedIndex=0;
   $('rowTable').querySelector('tbody').innerHTML='';
   addRow();
   refreshWizGroups();refreshTags();renderSsel('paperSel',PAPERS,'','搜索试卷名称，可留空后补');
@@ -860,6 +860,8 @@ function wizNext(){
     $('wizSummary').textContent='共 '+ok.length+' 场'+(wizZoneSel.length>1?' × '+wizZoneSel.length+' 个分组 = '+(ok.length*gs)+' 场':'');
     wizShow('B');
   }else{
+    var certTpl=document.getElementById('certTplSel').value;
+    if(!certTpl){toast('请先选择关联证书模板');return}
     createdCount=0;
     var gs=wizZoneSel.length?wizZoneSel.slice():['未分组'];
     getWizRows().forEach(function(r){
