@@ -340,30 +340,21 @@
                         <button onclick="closeCertModal()" class="text-slate-400 hover:text-slate-600"><i class="fa-solid fa-xmark text-lg"></i></button>
                     </div>
                     <div class="px-6 py-3 bg-slate-50 border-b border-slate-100 text-xs text-slate-500">
-                        <i class="fa-solid fa-circle-info text-brand-500 mr-1"></i> 勾选一个证书模板，保存后系统自动为该测评创建证书实例并完成电子证书配置。
+                        <i class="fa-solid fa-circle-info text-brand-500 mr-1"></i> 下拉选择一个证书模板，保存后系统自动为该测评创建证书实例并完成电子证书配置。
                     </div>
-                    <div class="flex-1 overflow-y-auto px-6 py-4 space-y-2" id="cert-modal-list">
-                        <label class="flex items-center gap-3 p-3 rounded-lg border border-slate-200 hover:border-brand-300 hover:bg-brand-50/40 cursor-pointer cert-option">
-                            <input type="radio" name="cert-instance-pick" value="程序设计等级证书" class="h-4 w-4 text-brand-600 focus:ring-brand-500">
-                            <div class="flex-1 min-w-0">
-                                <p class="text-sm font-bold text-slate-800">程序设计等级证书</p>
-                                <p class="text-xs text-slate-400 mt-0.5">适用于程序设计/编程语言类测评 · 保存后自动创建证书实例</p>
-                            </div>
-                        </label>
-                        <label class="flex items-center gap-3 p-3 rounded-lg border border-slate-200 hover:border-brand-300 hover:bg-brand-50/40 cursor-pointer cert-option">
-                            <input type="radio" name="cert-instance-pick" value="生成式人工智能等级证书" class="h-4 w-4 text-brand-600 focus:ring-brand-500">
-                            <div class="flex-1 min-w-0">
-                                <p class="text-sm font-bold text-slate-800">生成式人工智能等级证书</p>
-                                <p class="text-xs text-slate-400 mt-0.5">适用于 AIGC/人工智能类测评 · 保存后自动创建证书实例</p>
-                            </div>
-                        </label>
-                        <label class="flex items-center gap-3 p-3 rounded-lg border border-slate-200 hover:border-brand-300 hover:bg-brand-50/40 cursor-pointer cert-option">
-                            <input type="radio" name="cert-instance-pick" value="技术融合应用和创新实践评定证书" class="h-4 w-4 text-brand-600 focus:ring-brand-500">
-                            <div class="flex-1 min-w-0">
-                                <p class="text-sm font-bold text-slate-800">技术融合应用和创新实践评定证书</p>
-                                <p class="text-xs text-slate-400 mt-0.5">适用于技术融合/创新实践类测评 · 保存后自动创建证书实例</p>
-                            </div>
-                        </label>
+                    <div class="flex-1 overflow-y-auto px-6 py-4" id="cert-modal-list">
+                        <label class="block text-xs font-bold text-slate-500 mb-2">证书模板 <span class="text-red-500 font-normal">(必选)</span></label>
+                        <div class="relative">
+                            <select id="cert-instance-pick"
+                                class="w-full px-3 py-2 rounded-lg border border-slate-200 focus:border-brand-500 focus:ring-1 focus:ring-brand-500 bg-white text-sm text-slate-700 outline-none hover:border-slate-300 cursor-pointer appearance-none">
+                                <option value="" disabled selected>请选择证书模板</option>
+                                <option value="程序设计等级证书">程序设计等级证书 · 适用于程序设计/编程语言类测评</option>
+                                <option value="生成式人工智能等级证书">生成式人工智能等级证书 · 适用于 AIGC/人工智能类测评</option>
+                                <option value="技术融合应用和创新实践评定证书">技术融合应用和创新实践评定证书 · 适用于技术融合/创新实践类测评</option>
+                            </select>
+                            <i class="fa-solid fa-chevron-down text-slate-400 text-xs absolute right-3 top-1/2 -translate-y-1/2 pointer-events-none"></i>
+                        </div>
+                        <p class="text-[11px] text-slate-500 mt-2"><i class="fa-solid fa-circle-info mr-1 text-brand-500"></i>保存后系统自动为该测评创建证书实例并完成电子证书配置；模板较多时下拉支持键入关键字快速定位。</p>
                     </div>
                     <div id="cert-modal-warn" class="hidden mx-6 mb-2 px-3 py-2 bg-amber-50 border border-amber-200 rounded text-xs text-amber-700"></div>
                     <div class="px-6 py-4 border-t border-slate-100 flex items-center justify-between">
@@ -414,10 +405,10 @@
             overlay.style.display = 'none';
         }
         function confirmCertConfig() {
-            const picked = document.querySelector('input[name="cert-instance-pick"]:checked');
+            const picked = document.getElementById('cert-instance-pick');
             const warn = document.getElementById('cert-modal-warn');
-            if (!picked) {
-                warn.innerText = '请先勾选一个证书实例。';
+            if (!picked || !picked.value) {
+                warn.innerText = '请先选择一个证书模板。';
                 warn.classList.remove('hidden');
                 return;
             }
