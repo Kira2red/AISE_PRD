@@ -402,10 +402,10 @@ textarea{min-height:72px}
         只改你要改的项：<b>未修改 / 留空的项自动保持各测评原值</b>，无需勾选。改完点「应用修改」即生效。
       </div>
 
-<div class="sec-title">试卷与标签 <span class="sub">正式考</span></div>
+<div class="sec-title">试卷与证书模板 <span class="sub">正式考</span></div>
       <div class="fline">
         <div class="field w2"><label>关联试卷 <span class="sub">选中即替换，不选不变</span></label><div class="msel" id="bePaperSel"></div></div>
-        <div class="field"><label>标签 <span class="sub">选择后替换，不选不变</span></label><div class="msel" id="beTagSel"></div></div>
+        <div class="field"><label>关联证书模板 <span class="sub">选中即替换，不选不变</span></label><select id="beCertTpl" style="width:100%"><option value="">不变（保持各测评原值）</option><option value="TPL-CODE">程序设计等级证书 · 适用于程序设计/编程语言类测评</option><option value="TPL-AIGC">生成式人工智能等级证书 · 适用于 AIGC/人工智能类测评</option><option value="TPL-FUSION">技术融合应用和创新实践评定证书 · 适用于技术融合/创新实践类测评</option></select></div>
       </div>
 
       <div class="sec-title">测评时间与要素 <span class="sub">正式考</span></div>
@@ -926,17 +926,17 @@ function checkedExams(){return [].slice.call(document.querySelectorAll('.examck:
 function openBulkEditExam(){
   var ids=checkedExams();
   $('bulkEditSummary').textContent='将修改 '+ids.length+' 场测评：'+ids.slice(0,4).map(function(i){return curAct.exams[i].name}).join('、')+(ids.length>4?' 等':'');
-  window.beTagSel=[];
+  var beCert=document.getElementById('beCertTpl');if(beCert)beCert.value='';
   renderSsel('bePaperSel',PAPERS,'','搜索正式卷（不选 = 不变）');
   renderSsel('beMockPaperSel',PAPERS,'','搜索模拟卷（不选 = 不变）');
-  renderMsel('beTagSel',TAGS.map(function(t){return{name:t}}),window.beTagSel,'beTagSel','refreshBeTags');
+  var beCert=document.getElementById('beCertTpl');if(beCert)beCert.value='';
   ['beMockSel','beMockStart','beMockEnd','beMockTimes','beMCam','beMRec','beMPho','beMWait','beMPhone','beTime','beDur','beSubmit','beCam','beRec','bePho','beWait','bePhone'].forEach(function(id){
     var el=$(id);if(el)el.value='';
   });
   countChanges();bindChangeCount();
   show('ovBulkEdit');
 }
-function refreshBeTags(){renderMsel('beTagSel',TAGS.map(function(t){return{name:t}}),window.beTagSel,'beTagSel','refreshBeTags');countChanges()}
+function refreshBeTags(){var beCert=document.getElementById('beCertTpl');if(beCert)beCert.value='';countChanges()}
 var _beBound=false;
 function bindChangeCount(){
   if(_beBound)return;_beBound=true;
@@ -947,7 +947,7 @@ function bindChangeCount(){
 function countChanges(){
   var n=0;
   if(sselState['bePaperSel']&&sselState['bePaperSel'].value)n++;
-  if(window.beTagSel&&window.beTagSel.length)n++;
+  var beCertChg=document.getElementById('beCertTpl');if(beCertChg&&beCertChg.value)n++;
   if(sselState['beMockPaperSel']&&sselState['beMockPaperSel'].value)n++;
   ['beMockSel','beMockStart','beMockEnd','beMockTimes','beMCam','beMRec','beMPho','beMWait','beMPhone'].forEach(function(id){if($(id).value)n++});
   ['beTime','beDur','beWait'].forEach(function(id){if($(id).value)n++});
@@ -961,19 +961,19 @@ function doBulkEdit(){
   if(!n){toast('未修改任何项，无需应用');return}
   var paperV=(sselState['bePaperSel']&&sselState['bePaperSel'].value)||'';
   var mockPaperV=(sselState['beMockPaperSel']&&sselState['beMockPaperSel'].value)||'';
-  var tagV=(window.beTagSel||[]).slice();
+  var beCertApp=document.getElementById('beCertTpl');var tagV=beCertApp&&beCertApp.value?beCertApp.value:'';
   var mockV=$('beMockSel').value;
   var bits=[];
   ids.forEach(function(i){
     var e=curAct.exams[i];
     if(paperV){e.paper=paperV;e.paperOk=true}
-    if(tagV.length)e.tags=tagV.slice();
+    if(tagV)e.certTpl=tagV;
     if(mockV==='on')e.mock=true;
     if(mockV==='off')e.mock=false;
     if(mockPaperV)e.mockPaper=mockPaperV;
   });
   if(paperV)bits.push('正式卷');
-  if(tagV.length)bits.push('标签');
+  if(tagV)bits.push('证书模板');
   if(mockV)bits.push('模拟考'+(mockV==='on'?'开':'关'));
   if(mockPaperV)bits.push('模拟卷');
   hide('ovBulkEdit');renderTree();
