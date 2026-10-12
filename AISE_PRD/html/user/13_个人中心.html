@@ -178,8 +178,7 @@
                                 <label class="block text-xs font-bold text-slate-500 uppercase mb-2">登录手机号</label>
                                 <div class="relative">
                                     <i class="fa-solid fa-mobile-screen absolute left-4 top-3.5 text-slate-400"></i>
-                                    <input type="tel" value="13800138000" readonly class="w-full pl-10 pr-24 py-3 rounded-xl border border-slate-200 bg-slate-50 text-sm font-medium text-slate-600 outline-none cursor-not-allowed transition">
-                                    <button type="button" onclick="openLoginPhoneModal()" class="absolute right-3 top-2 text-xs font-bold text-brand-600 hover:text-brand-700 px-2 py-1 rounded-lg hover:bg-blue-50 transition">修改</button>
+                                    <input type="tel" value="13800138000" readonly class="w-full pl-10 pr-4 py-3 rounded-xl border border-slate-200 bg-slate-50 text-sm font-medium text-slate-600 outline-none cursor-not-allowed transition">
                                 </div>
                                 <p class="text-[10px] text-slate-400 mt-1">登录手机号用于登录和接收验证码，如需修改请联系客服。</p>
                             </div>
@@ -245,26 +244,6 @@
             <p>© 2025 AISE 人工智能应用创新人才培养工程. All rights reserved.</p>
         </div>
     </footer>
-
-    
-    <!-- 登录手机号修改提示弹窗 -->
-    <div id="modal-login-phone" class="fixed inset-0 z-50 hidden flex items-center justify-center bg-slate-900/50 backdrop-blur-sm transition-opacity opacity-0">
-        <div class="bg-white rounded-2xl shadow-xl w-96 p-6 transform scale-95 transition-transform" id="modal-login-phone-content">
-            <div class="flex flex-col items-center text-center">
-                <div class="w-12 h-12 bg-blue-50 rounded-full flex items-center justify-center mb-4">
-                    <i class="fa-solid fa-circle-info text-brand-500 text-xl"></i>
-                </div>
-                <h3 class="font-bold text-slate-800 text-lg mb-2">修改登录手机号</h3>
-                <p class="text-sm text-slate-500 leading-relaxed mb-2">
-                    登录手机号是账号的唯一登录凭证，暂不支持在线修改。
-                </p>
-                <p class="text-sm text-slate-500 leading-relaxed mb-6">
-                    请联系客服进行修改：<span class="font-bold text-slate-800 font-mono">400-800-1234</span>
-                </p>
-                <button onclick="closeLoginPhoneModal()" class="w-full px-4 py-2.5 text-sm font-bold text-white bg-slate-900 hover:bg-brand-600 rounded-lg shadow-lg transition">我知道了</button>
-            </div>
-        </div>
-    </div>
 
     <script>
         // 照片审核状态切换（Demo 专用）
@@ -353,24 +332,6 @@
                     btn.classList.add('bg-slate-900', 'hover:bg-brand-600');
                 }, 2000);
             }, 1000);
-        }
-    
-        // 登录手机号修改提示
-        const loginPhoneModal = document.getElementById('modal-login-phone');
-        const loginPhoneModalContent = document.getElementById('modal-login-phone-content');
-        function openLoginPhoneModal() {
-            loginPhoneModal.classList.remove('hidden');
-            setTimeout(() => {
-                loginPhoneModal.classList.remove('opacity-0');
-                loginPhoneModalContent.classList.add('modal-enter');
-            }, 10);
-        }
-        function closeLoginPhoneModal() {
-            loginPhoneModal.classList.add('opacity-0');
-            setTimeout(() => {
-                loginPhoneModal.classList.add('hidden');
-                loginPhoneModalContent.classList.remove('modal-enter');
-            }, 200);
         }
 </script>
 
