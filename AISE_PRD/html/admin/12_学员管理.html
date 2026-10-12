@@ -102,7 +102,8 @@
                         <thead>
                             <tr class="border-b border-slate-100 bg-slate-50 text-xs uppercase text-slate-500 font-bold">
                                 <th class="p-4 pl-6">基本信息</th>
-                                <th class="p-4">联系方式</th>
+                                <th class="p-4">联系电话</th>
+                                <th class="p-4">登录手机号</th>
                                 <th class="p-4">身份证号</th>
                                 <th class="p-4">所在地区</th>
                                 <th class="p-4">注册时间</th>
@@ -121,10 +122,8 @@
                                         </div>
                                     </div>
                                 </td>
-                                <td class="p-4">
-                                    <p class="font-mono">13800138000</p>
-                                    <p class="text-xs text-slate-400">zhangsan@example.com</p>
-                                </td>
+                                <td class="p-4 font-mono">13900000000</td>
+                                <td class="p-4 font-mono">13800138000</td>
                                 <td class="p-4 font-mono text-slate-600">11010120150101****</td>
                                 <td class="p-4">北京市 海淀区</td>
                                 <td class="p-4 text-slate-500 text-xs">2025-04-10 10:23</td>
@@ -209,7 +208,14 @@
                                         </div>
                                     </div>
                                     <div>
-                                        <label class="block text-xs font-bold text-slate-500 uppercase mb-1.5">手机号码</label>
+                                        <label class="block text-xs font-bold text-slate-500 uppercase mb-1.5">登录手机号</label>
+                                        <div class="relative">
+                                            <input type="text" value="13800138000" readonly class="w-full px-3 py-2 rounded-lg border border-slate-200 bg-slate-50 text-sm font-mono text-slate-600 outline-none cursor-not-allowed">
+                                            <i class="fa-solid fa-lock absolute right-3 top-2.5 text-slate-400 text-xs" title="登录凭证，仅后台可修改"></i>
+                                        </div>
+                                    </div>
+                                    <div>
+                                        <label class="block text-xs font-bold text-slate-500 uppercase mb-1.5">联系电话</label>
                                         <input type="text" value="13800138000" class="w-full px-3 py-2 rounded-lg border border-slate-200 text-sm font-mono focus:border-brand-500 focus:ring-1 outline-none transition">
                                     </div>
                                     <div>
