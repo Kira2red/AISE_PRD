@@ -231,73 +231,58 @@
                             <th class="p-4">学员信息</th>
                             <th class="p-4">照片状态</th>
                             <th class="p-4">准考证</th>
+                            <th class="p-4">渠道来源</th>
+                            <th class="p-4">所属分组</th>
                             <th class="p-4">登录手机号</th>
                             <th class="p-4">联系电话</th>
-                            <th class="p-4">所属分组</th>
-                            <th class="p-4">渠道来源</th>
                             <th class="p-4">支付金额</th>
                             <th class="p-4">支付方式</th>
-                            <th class="p-4">状态</th>
+                            <th class="p-4">支付状态</th>
+                            <th class="p-4">报名来源</th>
                             <th class="p-4">考试时间</th>
                             <th class="p-4">报名时间</th>
+                            <th class="p-4">所属学校</th>
                             <th class="p-4 text-right pr-6">操作</th>
                         </tr>
                     </thead>
                     <tbody class="text-sm text-slate-700 divide-y divide-slate-100">
-
-                        <tr class="hover-row transition cursor-pointer" onclick="openDrawer('ORD-20250520-001')">
-                            <td class="p-4 pl-6" onclick="event.stopPropagation()"><input type="checkbox" onchange="updateBatchBar()" class="row-check w-4 h-4 rounded border-slate-300 text-brand-600 focus:ring-brand-500 cursor-pointer"></td>
-                            <td class="p-4 pl-6">
+<tr class="hover-row transition cursor-pointer" onclick="openDrawer('ORD-20250520-001')"><td class="p-4 pl-6" onclick="event.stopPropagation()"><input type="checkbox" onchange="updateBatchBar()" class="row-check w-4 h-4 rounded border-slate-300 text-brand-600 focus:ring-brand-500 cursor-pointer"></td><td class="p-4 pl-6">
                                 <p class="font-bold text-slate-800">2025春季 Python 一级</p>
                                 <p class="text-xs text-slate-400 font-mono mt-0.5">ORD-20250520-001</p>
-                            </td>
-                            <td class="p-4">
+                            </td><td class="p-4">
                                 <div class="flex items-center gap-2">
                                     <img src="https://api.dicebear.com/7.x/avataaars/svg?seed=ZhangSan"
                                         class="w-6 h-6 rounded-full border border-slate-200">
                                     <span>张三</span>
                                 </div>
                                 <p class="text-xs text-slate-400 mt-0.5 font-mono">UID 20258899</p>
-                            </td>
-                                                        <td class="p-4">
+                            </td><td class="p-4">
                                 <div class="flex items-center gap-2">
                                     <img src="https://api.dicebear.com/9.x/avataaars/svg?seed=ZhangSan" onclick="event.stopPropagation(); openPhotoPreview('ZhangSan')" class="w-9 h-9 rounded-lg object-cover border border-slate-200 cursor-pointer hover:border-brand-400 transition" title="点击查看照片">
                                     <span class="inline-flex items-center gap-1 px-2 py-0.5 rounded text-xs font-bold bg-green-50 text-green-700"><i class="fa-solid fa-circle-check"></i>合格</span>
                                     <i onclick="event.stopPropagation(); openPhotoPreview('ZhangSan')" class="fa-solid fa-expand text-slate-400 hover:text-brand-600 cursor-pointer text-xs" title="查看大图"></i>
                                 </div>
-                            </td>
-                            <td class="p-4 font-mono text-xs text-slate-700">ZK2026-0715-0001</td>
-                            <td class="p-4 font-mono text-xs">13800138000</td>
-                            <td class="p-4 font-mono text-xs text-slate-600">13800138000</td>
-                            <td class="p-4 text-xs">上午场 A组</td>
-<td class="p-4">
+                            </td><td class="p-4"><button onclick="event.stopPropagation(); openTicketModal('ORD-20250520-001')" class="font-mono text-xs text-brand-600 hover:text-brand-800 underline underline-offset-2 cursor-pointer" title="点击查看准考证">ZK2026-0715-0001</button></td><td class="p-4">
                                 <span
                                     class="bg-blue-50 text-brand-600 border border-blue-100 text-[10px] px-2 py-0.5 rounded font-mono">YPB2025</span>
-                            </td>
-                            <td class="p-4 font-mono font-medium">¥ 199.00</td>
-                            <td class="p-4">
+                            </td><td class="p-4 text-xs">上午场 A组</td><td class="p-4 font-mono text-xs">13800138000</td><td class="p-4 font-mono text-xs text-slate-600">13800138000</td><td class="p-4 font-mono font-medium">¥ 199.00</td><td class="p-4">
                                 <span class="bg-slate-100 text-slate-600 px-2 py-0.5 rounded text-[11px]"><i
                                         class="fa-brands fa-weixin text-green-500 mr-1"></i>微信支付</span>
-                            </td>
-                            <td class="p-4">
+                            </td><td class="p-4">
                                 <span
                                     class="inline-flex items-center gap-1.5 px-2 py-0.5 rounded text-xs font-bold bg-green-50 text-green-700">
                                     <i class="fa-solid fa-circle-check"></i> 支付成功
                                 </span>
-                            </td>
-                            <td class="p-4 text-xs text-slate-600">2026-07-15 09:00–11:00</td><td class="p-4 text-xs text-slate-500">05-20 10:23</td>
-                            <td class="p-4 text-right pr-6 relative z-10">
+                            </td><td class="p-4"><span class="text-[10px] bg-blue-50 text-blue-600 px-1.5 py-0.5 rounded">自主报名</span></td><td class="p-4 text-xs text-slate-600">2026-07-15 09:00–11:00</td><td class="p-4 text-xs text-slate-500">05-20 10:23</td><td class="p-4">
+                                    <p class="text-xs text-slate-700">杭州第二中学</p>
+                                    <p class="text-[10px] text-slate-400 font-mono mt-0.5">账号 20258899</p>
+                                </td><td class="p-4 text-right pr-6 relative z-10">
                                 <button class="text-brand-600 hover:text-brand-800 font-medium text-xs">编辑详情</button>
-                            </td>
-                        </tr>
-
-                        <tr class="hover-row transition cursor-pointer" onclick="openDrawer('ORD-20250520-089')">
-                            <td class="p-4 pl-6" onclick="event.stopPropagation()"><input type="checkbox" onchange="updateBatchBar()" class="row-check w-4 h-4 rounded border-slate-300 text-brand-600 focus:ring-brand-500 cursor-pointer"></td>
-                            <td class="p-4 pl-6">
+                            </td></tr>
+<tr class="hover-row transition cursor-pointer" onclick="openDrawer('ORD-20250520-089')"><td class="p-4 pl-6" onclick="event.stopPropagation()"><input type="checkbox" onchange="updateBatchBar()" class="row-check w-4 h-4 rounded border-slate-300 text-brand-600 focus:ring-brand-500 cursor-pointer"></td><td class="p-4 pl-6">
                                 <p class="font-bold text-slate-800">2025夏季 AIGC 二级</p>
                                 <p class="text-xs text-slate-400 font-mono mt-0.5">ORD-20250520-089</p>
-                            </td>
-                            <td class="p-4">
+                            </td><td class="p-4">
                                 <div class="flex items-center gap-2">
                                     <div
                                         class="w-6 h-6 rounded-full bg-purple-100 text-purple-600 flex items-center justify-center text-xs font-bold">
@@ -305,45 +290,32 @@
                                     <span>李小四</span>
                                 </div>
                                 <p class="text-xs text-slate-400 mt-0.5 font-mono">UID 20258901</p>
-                            </td>
-                                                        <td class="p-4">
+                            </td><td class="p-4">
                                 <div class="flex items-center gap-2">
                                     <img src="https://api.dicebear.com/9.x/avataaars/svg?seed=LiXiaosi" onclick="event.stopPropagation(); openPhotoPreview('LiXiaosi')" class="w-9 h-9 rounded-lg object-cover border border-slate-200 cursor-pointer hover:border-brand-400 transition" title="点击查看照片">
                                     <span class="inline-flex items-center gap-1 px-2 py-0.5 rounded text-xs font-bold bg-amber-50 text-amber-600"><i class="fa-regular fa-clock"></i>待审核</span>
                                     <i onclick="event.stopPropagation(); openPhotoPreview('LiXiaosi')" class="fa-solid fa-expand text-slate-400 hover:text-brand-600 cursor-pointer text-xs" title="查看大图"></i>
                                 </div>
-                            </td>
-                            <td class="p-4 font-mono text-xs text-slate-700">ZK2025-0701-0089</td>
-                            <td class="p-4 font-mono text-xs">13912345678</td>
-                            <td class="p-4 font-mono text-xs text-slate-600">0571-88990000</td>
-                            <td class="p-4 text-xs">下午场 B组</td>
-<td class="p-4">
+                            </td><td class="p-4"><button onclick="event.stopPropagation(); openTicketModal('ORD-20250520-089')" class="font-mono text-xs text-brand-600 hover:text-brand-800 underline underline-offset-2 cursor-pointer" title="点击查看准考证">ZK2025-0701-0089</button></td><td class="p-4">
                                 <span class="text-slate-400 text-xs">C端自招</span>
-                            </td>
-                            <td class="p-4 font-mono font-medium text-slate-400">¥ 0.00</td>
-                            <td class="p-4">
+                            </td><td class="p-4 text-xs">下午场 B组</td><td class="p-4 font-mono text-xs">13912345678</td><td class="p-4 font-mono text-xs text-slate-600">0571-88990000</td><td class="p-4 font-mono font-medium text-slate-400">¥ 0.00</td><td class="p-4">
                                 <span class="bg-slate-100 text-slate-600 px-2 py-0.5 rounded text-[11px]"><i
                                         class="fa-solid fa-user-shield text-brand-500 mr-1"></i>后台直接开通</span>
-                            </td>
-                            <td class="p-4">
+                            </td><td class="p-4">
                                 <span
                                     class="inline-flex items-center gap-1.5 px-2 py-0.5 rounded text-xs font-bold bg-green-50 text-green-700">
                                     <i class="fa-solid fa-circle-check"></i> 支付成功
                                 </span>
-                            </td>
-                            <td class="p-4 text-xs text-slate-600">2025-07-01 14:00–16:00</td><td class="p-4 text-xs text-slate-500">05-21 09:15</td>
-                            <td class="p-4 text-right pr-6 relative z-10">
+                            </td><td class="p-4"><span class="text-[10px] bg-purple-50 text-purple-600 px-1.5 py-0.5 rounded">后台导入</span></td><td class="p-4 text-xs text-slate-600">2025-07-01 14:00–16:00</td><td class="p-4 text-xs text-slate-500">05-21 09:15</td><td class="p-4">
+                                    <p class="text-xs text-slate-700">—</p>
+                                    <p class="text-[10px] text-slate-400 font-mono mt-0.5">账号 20258901</p>
+                                </td><td class="p-4 text-right pr-6 relative z-10">
                                 <button class="text-brand-600 hover:text-brand-800 font-medium text-xs">编辑详情</button>
-                            </td>
-                        </tr>
-
-                        <tr class="hover-row transition cursor-pointer" onclick="openDrawer('ORD-20250522-102')">
-                            <td class="p-4 pl-6" onclick="event.stopPropagation()"><input type="checkbox" onchange="updateBatchBar()" class="row-check w-4 h-4 rounded border-slate-300 text-brand-600 focus:ring-brand-500 cursor-pointer"></td>
-                            <td class="p-4 pl-6">
+                            </td></tr>
+<tr class="hover-row transition cursor-pointer" onclick="openDrawer('ORD-20250522-102')"><td class="p-4 pl-6" onclick="event.stopPropagation()"><input type="checkbox" onchange="updateBatchBar()" class="row-check w-4 h-4 rounded border-slate-300 text-brand-600 focus:ring-brand-500 cursor-pointer"></td><td class="p-4 pl-6">
                                 <p class="font-bold text-slate-800">2025春季 Python 一级</p>
                                 <p class="text-xs text-slate-400 font-mono mt-0.5">ORD-20250522-102</p>
-                            </td>
-                            <td class="p-4">
+                            </td><td class="p-4">
                                 <div class="flex items-center gap-2">
                                     <div
                                         class="w-6 h-6 rounded-full bg-orange-100 text-orange-600 flex items-center justify-center text-xs font-bold">
@@ -351,47 +323,34 @@
                                     <span>王五</span>
                                 </div>
                                 <p class="text-xs text-slate-400 mt-0.5 font-mono">UID 20258905</p>
-                            </td>
-                                                        <td class="p-4">
+                            </td><td class="p-4">
                                 <div class="flex items-center gap-2">
                                     <img src="https://api.dicebear.com/9.x/avataaars/svg?seed=WangWu" onclick="event.stopPropagation(); openPhotoPreview('WangWu')" class="w-9 h-9 rounded-lg object-cover border border-slate-200 cursor-pointer hover:border-brand-400 transition" title="点击查看照片">
                                     <span class="inline-flex items-center gap-1 px-2 py-0.5 rounded text-xs font-bold bg-red-50 text-red-600"><i class="fa-solid fa-circle-xmark"></i>不合格</span>
                                     <i onclick="event.stopPropagation(); openPhotoPreview('WangWu')" class="fa-solid fa-expand text-slate-400 hover:text-brand-600 cursor-pointer text-xs" title="查看大图"></i>
                                 </div>
-                            </td>
-                            <td class="p-4 font-mono text-xs text-slate-700"><span class="text-slate-400">未生成</span></td>
-                            <td class="p-4 font-mono text-xs">15000000000</td>
-                            <td class="p-4 font-mono text-xs text-slate-600">15000000000</td>
-                            <td class="p-4 text-xs">上午场 A组</td>
-<td class="p-4">
+                            </td><td class="p-4"><span class="text-xs text-slate-400 font-mono" data-ticket-oid="ORD-20250522-102">未生成</span></td><td class="p-4">
                                 <span
                                     class="bg-blue-50 text-brand-600 border border-blue-100 text-[10px] px-2 py-0.5 rounded font-mono">CB888</span>
-                            </td>
-                            <td class="p-4 font-mono font-medium">¥ 199.00</td>
-                            <td class="p-4">
+                            </td><td class="p-4 text-xs">上午场 A组</td><td class="p-4 font-mono text-xs">15000000000</td><td class="p-4 font-mono text-xs text-slate-600">15000000000</td><td class="p-4 font-mono font-medium">¥ 199.00</td><td class="p-4">
                                 <span
                                     class="bg-indigo-50 text-indigo-700 px-2 py-0.5 rounded text-[11px] border border-indigo-100"><i
                                         class="fa-brands fa-alipay text-blue-500 mr-1"></i>支付宝</span>
-                            </td>
-                            <td class="p-4">
+                            </td><td class="p-4">
                                 <span
                                     class="inline-flex items-center gap-1.5 px-2 py-0.5 rounded text-xs font-bold bg-amber-50 text-amber-600">
                                     <i class="fa-regular fa-clock"></i> 待支付
                                 </span>
-                            </td>
-                            <td class="p-4 text-xs text-slate-600">2026-07-01 09:00–11:00</td><td class="p-4 text-xs text-slate-500">05-22 14:30</td>
-                            <td class="p-4 text-right pr-6 relative z-10">
+                            </td><td class="p-4"><span class="text-[10px] bg-blue-50 text-blue-600 px-1.5 py-0.5 rounded">自主报名</span></td><td class="p-4 text-xs text-slate-600">2026-07-01 09:00–11:00</td><td class="p-4 text-xs text-slate-500">05-22 14:30</td><td class="p-4">
+                                    <p class="text-xs text-slate-700">上海实验中学</p>
+                                    <p class="text-[10px] text-slate-400 font-mono mt-0.5">账号 20258905</p>
+                                </td><td class="p-4 text-right pr-6 relative z-10">
                                 <button class="text-brand-600 hover:text-brand-800 font-medium text-xs">编辑详情</button>
-                            </td>
-                        </tr>
-
-                        <tr class="hover-row transition cursor-pointer bg-slate-50/50" onclick="openDrawer('ORD-20250519-045')">
-                            <td class="p-4 pl-6" onclick="event.stopPropagation()"><input type="checkbox" onchange="updateBatchBar()" class="row-check w-4 h-4 rounded border-slate-300 text-brand-600 focus:ring-brand-500 cursor-pointer"></td>
-                            <td class="p-4 pl-6">
+                            </td></tr>
+<tr class="hover-row transition cursor-pointer bg-slate-50/50" onclick="openDrawer('ORD-20250519-045')"><td class="p-4 pl-6" onclick="event.stopPropagation()"><input type="checkbox" onchange="updateBatchBar()" class="row-check w-4 h-4 rounded border-slate-300 text-brand-600 focus:ring-brand-500 cursor-pointer"></td><td class="p-4 pl-6">
                                 <p class="font-bold text-slate-800">2025春季 Python 一级</p>
                                 <p class="text-xs text-slate-400 font-mono mt-0.5">ORD-20250519-045</p>
-                            </td>
-                            <td class="p-4">
+                            </td><td class="p-4">
                                 <div class="flex items-center gap-2">
                                     <div
                                         class="w-6 h-6 rounded-full bg-teal-100 text-teal-600 flex items-center justify-center text-xs font-bold">
@@ -399,39 +358,29 @@
                                     <span>赵六</span>
                                 </div>
                                 <p class="text-xs text-slate-400 mt-0.5 font-mono">UID 20258850</p>
-                            </td>
-                                                        <td class="p-4">
+                            </td><td class="p-4">
                                 <div class="flex items-center gap-2">
                                     <img src="https://api.dicebear.com/9.x/avataaars/svg?seed=ZhaoLiu" onclick="event.stopPropagation(); openPhotoPreview('ZhaoLiu')" class="w-9 h-9 rounded-lg object-cover border border-slate-200 cursor-pointer hover:border-brand-400 transition" title="点击查看照片">
                                     <span class="inline-flex items-center gap-1 px-2 py-0.5 rounded text-xs font-bold bg-slate-100 text-slate-500"><i class="fa-regular fa-image"></i>未提交</span>
                                     <i onclick="event.stopPropagation(); openPhotoPreview('ZhaoLiu')" class="fa-solid fa-expand text-slate-400 hover:text-brand-600 cursor-pointer text-xs" title="查看大图"></i>
                                 </div>
-                            </td>
-                            <td class="p-4 font-mono text-xs text-slate-700"><span class="text-slate-400">未生成</span></td>
-                            <td class="p-4 font-mono text-xs">13700001111</td>
-                            <td class="p-4 font-mono text-xs text-slate-600">13700001111</td>
-                            <td class="p-4 text-xs">下午场 B组</td>
-<td class="p-4">
+                            </td><td class="p-4"><span class="text-xs text-slate-400 font-mono" data-ticket-oid="ORD-20250519-045">未生成</span></td><td class="p-4">
                                 <span class="text-slate-400 text-xs">C端自招</span>
-                            </td>
-                            <td class="p-4 font-mono font-medium text-slate-400 line-through">¥ 199.00</td>
-                            <td class="p-4">
+                            </td><td class="p-4 text-xs">下午场 B组</td><td class="p-4 font-mono text-xs">13700001111</td><td class="p-4 font-mono text-xs text-slate-600">13700001111</td><td class="p-4 font-mono font-medium text-slate-400 line-through">¥ 199.00</td><td class="p-4">
                                 <span class="bg-slate-100 text-slate-600 px-2 py-0.5 rounded text-[11px]"><i
                                         class="fa-brands fa-weixin text-green-500 mr-1"></i>微信支付</span>
-                            </td>
-                            <td class="p-4">
+                            </td><td class="p-4">
                                 <span
                                     class="inline-flex items-center gap-1.5 px-2 py-0.5 rounded text-xs font-bold bg-slate-100 text-slate-500 border border-slate-200">
                                     <i class="fa-solid fa-rotate-left"></i> 已退款
                                 </span>
-                            </td>
-                            <td class="p-4 text-xs text-slate-600">2025-06-15 14:00–16:00</td><td class="p-4 text-xs text-slate-500">05-19 16:30</td>
-                            <td class="p-4 text-right pr-6 relative z-10">
+                            </td><td class="p-4"><span class="text-[10px] bg-amber-50 text-amber-600 px-1.5 py-0.5 rounded">后台代报名</span></td><td class="p-4 text-xs text-slate-600">2025-06-15 14:00–16:00</td><td class="p-4 text-xs text-slate-500">05-19 16:30</td><td class="p-4">
+                                    <p class="text-xs text-slate-700">—</p>
+                                    <p class="text-[10px] text-slate-400 font-mono mt-0.5">账号 20258850</p>
+                                </td><td class="p-4 text-right pr-6 relative z-10">
                                 <button class="text-brand-600 hover:text-brand-800 font-medium text-xs">编辑详情</button>
-                            </td>
-                        </tr>
-
-                    </tbody>
+                            </td></tr>
+</tbody>
                 </table>
             </div>
         </div>
@@ -1221,25 +1170,28 @@
         }
 
         function syncListRow(orderId, data) {
-            const btns = document.querySelectorAll('tbody button');
-            btns.forEach(b => {
-                if (b.textContent.trim() === '详情') {
-                    const tr = b.closest('tr');
-                    if (!tr || !tr.textContent.includes(orderId)) return;
-                    const tds = tr.querySelectorAll('td');
-                    // 14列：0测评 1学员 2照片 3准考证 4登录手机 5联系电话 6分组 7渠道 8金额 9支付 10状态 11考试时间 12报名时间 13操作
-                    if (tds[4] !== undefined) tds[4].textContent = data.ticketNo || '未生成';
-                    const loc = ORDER_ROOM[orderId];
-                    const info = loc ? findRoom(loc) : null;
-                    if (tds[7] !== undefined) tds[7].textContent = loc ? loc.group : '—';
-                    if (tds[12] !== undefined) tds[12].textContent = info ? info.time : '—';
-                    if (tds[8] !== undefined && info) {
-                        const code = info.code;
-                        const name = info.channel;
-                        tds[8].innerHTML = code
-                            ? `<span class="bg-blue-50 text-brand-600 border border-blue-100 text-[10px] px-2 py-0.5 rounded font-mono">${code}</span><span class="text-[10px] text-slate-400 ml-1">${name}</span>`
-                            : `<span class="text-xs text-slate-500">${name}</span>`;
+            document.querySelectorAll('tbody tr').forEach(tr => {
+                const oc = tr.getAttribute('onclick') || '';
+                if (!oc.includes(orderId)) return;
+                const tds = tr.querySelectorAll('td');
+                // 17列：0勾选 1报名信息 2学员信息 3照片状态 4准考证 5渠道来源 6所属分组 7登录手机号 8联系电话 9支付金额 10支付方式 11支付状态 12报名来源 13考试时间 14报名时间 15所属学校 16操作
+                if (tds[4] !== undefined) {
+                    if (data.ticketNo) {
+                        tds[4].innerHTML = `<button onclick="event.stopPropagation(); openTicketModal('${orderId}')" class="font-mono text-xs text-brand-600 hover:text-brand-800 underline underline-offset-2 cursor-pointer" title="点击查看准考证">${data.ticketNo}</button>`;
+                    } else {
+                        tds[4].innerHTML = '<span class="text-xs text-slate-400 font-mono">未生成</span>';
                     }
+                }
+                const loc = ORDER_ROOM[orderId];
+                const info = loc ? findRoom(loc) : null;
+                if (tds[6] !== undefined) tds[6].textContent = loc ? loc.group : '—';
+                if (tds[13] !== undefined) tds[13].textContent = info ? info.time : '—';
+                if (tds[5] !== undefined && info) {
+                    const code = info.code;
+                    const name = info.channel;
+                    tds[5].innerHTML = code
+                        ? `<span class="bg-blue-50 text-brand-600 border border-blue-100 text-[10px] px-2 py-0.5 rounded font-mono">${code}</span><span class="text-[10px] text-slate-400 ml-1">${name}</span>`
+                        : `<span class="text-xs text-slate-500">${name}</span>`;
                 }
             });
         }
@@ -1284,6 +1236,58 @@
             document.getElementById('batch-pending').textContent = pending;
             bar.classList.remove('hidden');
         }
+        // ===== 需求六：准考证查看弹窗 =====
+        const TICKET_HTML = {
+            'ORD-20250520-001': {no: 'ZK2026-0715-0001', exam: '2025春季 Python 一级等级测评', room: '2025春季青少年编程等级测评 › 上午场 A组 › 2025春季 Python 一级等级测评 › 猿编程', time: '2026-07-15 09:00–11:00', spot: '杭州考点 A区 12号'},
+            'ORD-20250520-089': {no: 'ZK2025-0701-0089', exam: '2025夏季 AIGC 应用能力二级', room: '2025夏季青少年人工智能测评 › 下午场 B组 › 2025夏季 AIGC 应用能力二级 › C端自招', time: '2025-07-01 09:00–11:00', spot: '线上考试'},
+            'ORD-20250522-102': {no: '', exam: '2025春季 Python 一级等级测评', room: '', time: '', spot: ''},
+            'ORD-20250519-045': {no: '', exam: '2025春季 Python 一级等级测评', room: '', time: '', spot: ''}
+        };
+        function openTicketModal(orderId) {
+            const data = orders[orderId];
+            const tk = TICKET_HTML[orderId] || {};
+            const generated = !!tk.no;
+            let body;
+            if (!generated) {
+                body = `<div class="p-8 text-center">
+                        <i class="fa-solid fa-ticket-simple text-4xl text-slate-200 mb-3"></i>
+                        <p class="text-sm text-slate-500">准考证尚未生成</p>
+                        <p class="text-xs text-slate-400 mt-1">完成支付并审核通过后由系统自动生成</p>
+                    </div>`;
+            } else {
+                // 准考证版式（图片占位+关键信息）
+                body = `<div class="p-6">
+                        <div class="rounded-xl border-2 border-dashed border-brand-200 bg-brand-50/50 p-5 mb-4 flex items-center gap-4">
+                            <div class="w-20 h-20 rounded-lg bg-white border border-slate-200 flex items-center justify-center text-3xl text-slate-300"><i class="fa-solid fa-id-card"></i></div>
+                            <div>
+                                <p class="text-[10px] text-slate-400 mb-0.5">准考证图片（正式环境为准考证渲染图）</p>
+                                <p class="font-mono font-bold text-lg text-slate-800">${tk.no}</p>
+                            </div>
+                        </div>
+                        <div class="space-y-2.5 text-sm">
+                            <div class="flex justify-between"><span class="text-slate-500">测评名称</span><span class="text-slate-800 font-medium text-right max-w-[280px]">${tk.exam}</span></div>
+                            <div class="flex justify-between"><span class="text-slate-500">考生</span><span class="text-slate-800">${data.studentName}（账号 ${data.studentId}）</span></div>
+                            <div class="flex justify-between"><span class="text-slate-500">考场</span><span class="text-slate-800 text-xs text-right max-w-[300px]">${tk.room}</span></div>
+                            <div class="flex justify-between"><span class="text-slate-500">考试时间</span><span class="text-slate-800 font-mono text-xs">${tk.time}</span></div>
+                            <div class="flex justify-between"><span class="text-slate-500">考点/座位</span><span class="text-slate-800 text-xs">${tk.spot}</span></div>
+                        </div>
+                        <p class="text-[10px] text-slate-400 mt-4 pt-3 border-t border-slate-100"><i class="fa-solid fa-rotate mr-1"></i>学生信息变更后本准考证自动重新生成，历史版本作废</p>
+                    </div>`;
+            }
+            const modal = document.createElement('div');
+            modal.id = 'ticket-modal';
+            modal.className = 'fixed inset-0 z-[70] flex items-center justify-center bg-slate-900/60 backdrop-blur-sm';
+            modal.onclick = (e) => { if (e.target === modal) modal.remove(); };
+            modal.innerHTML = `<div class="bg-white rounded-2xl shadow-xl w-[480px] overflow-hidden">
+                    <div class="px-6 py-4 border-b border-slate-100 flex items-center justify-between">
+                        <h3 class="font-bold text-slate-800">准考证信息</h3>
+                        <button onclick="this.closest('#ticket-modal').remove()" class="w-8 h-8 rounded-full hover:bg-slate-100 flex items-center justify-center text-slate-500 transition"><i class="fa-solid fa-xmark"></i></button>
+                    </div>
+                    ${body}
+                </div>`;
+            document.body.appendChild(modal);
+        }
+
         let photoCurrentSeed = null;
         function openPhotoPreview(seed) {
             photoCurrentSeed = seed;
