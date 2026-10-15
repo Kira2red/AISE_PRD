@@ -287,7 +287,7 @@
                             </td>
                             <td class="p-4 text-xs text-slate-600">2026-07-15 09:00–11:00</td><td class="p-4 text-xs text-slate-500">05-20 10:23</td>
                             <td class="p-4 text-right pr-6 relative z-10">
-                                <button class="text-brand-600 hover:text-brand-800 font-medium text-xs">详情</button>
+                                <button class="text-brand-600 hover:text-brand-800 font-medium text-xs">编辑详情</button>
                             </td>
                         </tr>
 
@@ -333,7 +333,7 @@
                             </td>
                             <td class="p-4 text-xs text-slate-600">2025-07-01 14:00–16:00</td><td class="p-4 text-xs text-slate-500">05-21 09:15</td>
                             <td class="p-4 text-right pr-6 relative z-10">
-                                <button class="text-brand-600 hover:text-brand-800 font-medium text-xs">详情</button>
+                                <button class="text-brand-600 hover:text-brand-800 font-medium text-xs">编辑详情</button>
                             </td>
                         </tr>
 
@@ -381,7 +381,7 @@
                             </td>
                             <td class="p-4 text-xs text-slate-600">2026-07-01 09:00–11:00</td><td class="p-4 text-xs text-slate-500">05-22 14:30</td>
                             <td class="p-4 text-right pr-6 relative z-10">
-                                <button class="text-brand-600 hover:text-brand-800 font-medium text-xs">详情</button>
+                                <button class="text-brand-600 hover:text-brand-800 font-medium text-xs">编辑详情</button>
                             </td>
                         </tr>
 
@@ -427,7 +427,7 @@
                             </td>
                             <td class="p-4 text-xs text-slate-600">2025-06-15 14:00–16:00</td><td class="p-4 text-xs text-slate-500">05-19 16:30</td>
                             <td class="p-4 text-right pr-6 relative z-10">
-                                <button class="text-brand-600 hover:text-brand-800 font-medium text-xs">详情</button>
+                                <button class="text-brand-600 hover:text-brand-800 font-medium text-xs">编辑详情</button>
                             </td>
                         </tr>
 
@@ -803,7 +803,9 @@
                 channelCode: 'YPB2025',
                 examStartTime: '2026-07-15T09:00:00',
                 ticketNo: 'ZK2026-0715-0001',
-                certIssued: false,                merchantTxId: 'MCH-20250520102345',
+                certIssued: false,
+                photoStatus: 'pass',
+                merchantTxId: 'MCH-20250520102345',
                 status: 'paid',
                 refundAmount: null,
                 refundTime: null,
@@ -833,7 +835,9 @@
                 channelCode: '',
                 examStartTime: '2025-07-01T09:00:00',
                 ticketNo: 'ZK2025-0701-0089',
-                certIssued: true,                merchantTxId: null,
+                certIssued: true,
+                photoStatus: 'pending',
+                merchantTxId: null,
                 status: 'paid',
                 refundAmount: null,
                 refundTime: null,
@@ -862,7 +866,9 @@
                 channelCode: 'CB888',
                 examStartTime: '2026-07-01T09:00:00',
                 ticketNo: '',
-                certIssued: false,                merchantTxId: null,
+                certIssued: false,
+                photoStatus: 'reject',
+                merchantTxId: null,
                 status: 'unpaid',
                 refundAmount: null,
                 refundTime: null,
@@ -890,7 +896,9 @@
                 channelCode: '',
                 examStartTime: '2025-06-15T09:00:00',
                 ticketNo: '',
-                certIssued: false,                merchantTxId: 'MCH-20250515142000',
+                certIssued: false,
+                photoStatus: 'none',
+                merchantTxId: 'MCH-20250515142000',
                 status: 'refunded',
                 refundAmount: '199.00',
                 refundTime: '2025-05-19 16:30:22',
@@ -947,6 +955,7 @@
             html += renderMerchantTxId(data);
             html += renderExamInfo(data);
             html += renderStudentInfo(data);
+            html += renderPhotoCard(data);
             if (data.status === 'refunded' || data.status === 'refund_failed') {
                 html += renderRefundInfo(data);
             }
@@ -1342,6 +1351,50 @@
         }
 
 
+        function renderPhotoCard(data) {
+            const st = data.photoStatus || 'none';
+            const badgeMap = {
+                pass: '<span class="inline-flex items-center gap-1 px-2 py-0.5 rounded text-xs font-bold bg-green-50 text-green-700 border border-green-200">合格</span>',
+                pending: '<span class="inline-flex items-center gap-1 px-2 py-0.5 rounded text-xs font-bold bg-amber-50 text-amber-700 border border-amber-200">待审核</span>',
+                reject: '<span class="inline-flex items-center gap-1 px-2 py-0.5 rounded text-xs font-bold bg-red-50 text-red-700 border border-red-200">不合格</span>',
+                none: '<span class="inline-flex items-center gap-1 px-2 py-0.5 rounded text-xs font-bold bg-slate-100 text-slate-500">未提交</span>'
+            };
+            const imgHTML = st !== 'none'
+                ? `<img src="${data.studentAvatar || 'https://api.dicebear.com/9.x/avataaars/svg?seed=' + data.studentName}" class="w-24 h-24 rounded-xl object-cover border-2 border-slate-100">`
+                : `<div class="w-24 h-24 rounded-xl bg-slate-50 border-2 border-dashed border-slate-200 flex items-center justify-center text-slate-300 text-2xl"><i class="fa-solid fa-user-slash"></i></div>`;
+            const auditBtns = st === 'pending'
+                ? `<div class="flex gap-2 ml-auto">
+                        <button onclick="auditPhotoInDrawer('reject')" class="px-3 py-1.5 text-xs text-red-600 hover:bg-red-50 rounded-lg border border-red-200 transition font-medium">不通过</button>
+                        <button onclick="auditPhotoInDrawer('pass')" class="px-3 py-1.5 text-xs bg-green-600 hover:bg-green-700 text-white rounded-lg transition font-bold">通过</button>
+                    </div>`
+                : '';
+            return `<div class="mb-6">
+                <h4 class="text-xs font-bold text-slate-400 uppercase mb-3 border-b border-slate-100 pb-1">报名照片</h4>
+                <div class="flex items-center gap-4">
+                    ${imgHTML}
+                    <div class="space-y-1.5">
+                        <div class="flex items-center gap-2"><span class="text-xs text-slate-500">照片状态</span><span id="drawer-photo-badge">${badgeMap[st]}</span></div>
+                        <p class="text-[10px] text-slate-400">${st === 'pending' ? '审核通过后同步证件制作' : st === 'none' ? '学生尚未上传照片' : '审核结论默认继承历史结果'}</p>
+                    </div>
+                    ${auditBtns}
+                </div>
+            </div>`;
+        }
+        function auditPhotoInDrawer(result) {
+            const data = orders[currentOrderId];
+            if (!data) return;
+            data.photoStatus = result === 'pass' ? 'pass' : 'reject';
+            // 同步列表行照片状态列
+            document.querySelectorAll('tbody tr').forEach(tr => {
+                const oc = tr.getAttribute('onclick') || '';
+                if (oc.includes(currentOrderId)) {
+                    tr.querySelectorAll('td')[3].innerHTML = result === 'pass'
+                        ? '<span class="inline-flex items-center gap-1 px-2 py-0.5 rounded text-xs font-bold bg-green-50 text-green-700 border border-green-200">合格</span>'
+                        : '<span class="inline-flex items-center gap-1 px-2 py-0.5 rounded text-xs font-bold bg-red-50 text-red-700 border border-red-200">不合格</span>';
+                }
+            });
+            renderDrawerContent(data);
+        }
         function renderStudentInfo(data) {
             let avatarHTML;
             if (data.studentAvatar) {
