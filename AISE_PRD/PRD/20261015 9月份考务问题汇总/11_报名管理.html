@@ -202,6 +202,25 @@
             <button onclick="clearChecks()" class="text-slate-400 hover:text-white text-sm">取消</button>
         </div>
 
+        <!-- 需求四：照片查看/审核弹窗 -->
+        <div id="photo-modal" class="hidden fixed inset-0 z-[70] flex items-center justify-center bg-slate-900/60 backdrop-blur-sm">
+            <div class="bg-white rounded-2xl shadow-xl w-[420px] overflow-hidden transform transition">
+                <div class="px-6 py-4 border-b border-slate-100 flex items-center justify-between">
+                    <h3 class="font-bold text-slate-800">报名照片查看</h3>
+                    <button onclick="closePhotoPreview()" class="w-8 h-8 rounded-full hover:bg-slate-100 flex items-center justify-center text-slate-500 transition"><i class="fa-solid fa-xmark"></i></button>
+                </div>
+                <div class="p-6 flex flex-col items-center gap-4">
+                    <img id="photo-modal-img" src="" class="w-56 h-56 rounded-2xl object-cover border-4 border-slate-100 shadow-md">
+                    <div id="photo-modal-status"></div>
+                    <div id="photo-modal-actions" class="flex gap-3 w-full">
+                        <button onclick="closePhotoPreview()" class="flex-1 px-4 py-2.5 text-sm text-slate-600 hover:bg-slate-50 rounded-lg border border-slate-200 transition">关闭</button>
+                        <button onclick="auditFromPhoto('reject')" class="flex-1 px-4 py-2.5 text-sm text-red-600 hover:bg-red-50 rounded-lg border border-red-200 transition font-medium">不通过</button>
+                        <button onclick="auditFromPhoto('pass')" class="flex-1 px-4 py-2.5 text-sm bg-green-600 hover:bg-green-700 text-white rounded-lg transition font-bold">通过</button>
+                    </div>
+                </div>
+            </div>
+        </div>
+
         <div class="flex-1 overflow-y-auto px-8 pb-8 custom-scroll">
             <div class="bg-white rounded-xl shadow-card border border-slate-200 overflow-hidden">
                 <table class="w-full text-left border-collapse">
@@ -227,7 +246,7 @@
                     <tbody class="text-sm text-slate-700 divide-y divide-slate-100">
 
                         <tr class="hover-row transition cursor-pointer" onclick="openDrawer('ORD-20250520-001')">
-                            <td class="p-4 pl-6"><input type="checkbox" onchange="updateBatchBar()" class="row-check w-4 h-4 rounded border-slate-300 text-brand-600 focus:ring-brand-500 cursor-pointer"></td>
+                            <td class="p-4 pl-6" onclick="event.stopPropagation()"><input type="checkbox" onchange="updateBatchBar()" class="row-check w-4 h-4 rounded border-slate-300 text-brand-600 focus:ring-brand-500 cursor-pointer"></td>
                             <td class="p-4 pl-6">
                                 <p class="font-bold text-slate-800">2025春季 Python 一级</p>
                                 <p class="text-xs text-slate-400 font-mono mt-0.5">ORD-20250520-001</p>
@@ -241,7 +260,11 @@
                                 <p class="text-xs text-slate-400 mt-0.5 font-mono">UID 20258899</p>
                             </td>
                                                         <td class="p-4">
-                                <span class="inline-flex items-center gap-1 px-2 py-0.5 rounded text-xs font-bold bg-green-50 text-green-700"><i class="fa-solid fa-circle-check"></i>合格</span>
+                                <div class="flex items-center gap-2">
+                                    <img src="https://api.dicebear.com/9.x/avataaars/svg?seed=ZhangSan" onclick="event.stopPropagation(); openPhotoPreview('ZhangSan')" class="w-9 h-9 rounded-lg object-cover border border-slate-200 cursor-pointer hover:border-brand-400 transition" title="点击查看照片">
+                                    <span class="inline-flex items-center gap-1 px-2 py-0.5 rounded text-xs font-bold bg-green-50 text-green-700"><i class="fa-solid fa-circle-check"></i>合格</span>
+                                    <i onclick="event.stopPropagation(); openPhotoPreview('ZhangSan')" class="fa-solid fa-expand text-slate-400 hover:text-brand-600 cursor-pointer text-xs" title="查看大图"></i>
+                                </div>
                             </td>
                             <td class="p-4 font-mono text-xs text-slate-700">ZK2026-0715-0001</td>
                             <td class="p-4 font-mono text-xs">13800138000</td>
@@ -269,7 +292,7 @@
                         </tr>
 
                         <tr class="hover-row transition cursor-pointer" onclick="openDrawer('ORD-20250520-089')">
-                            <td class="p-4 pl-6"><input type="checkbox" onchange="updateBatchBar()" class="row-check w-4 h-4 rounded border-slate-300 text-brand-600 focus:ring-brand-500 cursor-pointer"></td>
+                            <td class="p-4 pl-6" onclick="event.stopPropagation()"><input type="checkbox" onchange="updateBatchBar()" class="row-check w-4 h-4 rounded border-slate-300 text-brand-600 focus:ring-brand-500 cursor-pointer"></td>
                             <td class="p-4 pl-6">
                                 <p class="font-bold text-slate-800">2025夏季 AIGC 二级</p>
                                 <p class="text-xs text-slate-400 font-mono mt-0.5">ORD-20250520-089</p>
@@ -284,7 +307,11 @@
                                 <p class="text-xs text-slate-400 mt-0.5 font-mono">UID 20258901</p>
                             </td>
                                                         <td class="p-4">
-                                <span class="inline-flex items-center gap-1 px-2 py-0.5 rounded text-xs font-bold bg-amber-50 text-amber-600"><i class="fa-regular fa-clock"></i>待审核</span>
+                                <div class="flex items-center gap-2">
+                                    <img src="https://api.dicebear.com/9.x/avataaars/svg?seed=LiXiaosi" onclick="event.stopPropagation(); openPhotoPreview('LiXiaosi')" class="w-9 h-9 rounded-lg object-cover border border-slate-200 cursor-pointer hover:border-brand-400 transition" title="点击查看照片">
+                                    <span class="inline-flex items-center gap-1 px-2 py-0.5 rounded text-xs font-bold bg-amber-50 text-amber-600"><i class="fa-regular fa-clock"></i>待审核</span>
+                                    <i onclick="event.stopPropagation(); openPhotoPreview('LiXiaosi')" class="fa-solid fa-expand text-slate-400 hover:text-brand-600 cursor-pointer text-xs" title="查看大图"></i>
+                                </div>
                             </td>
                             <td class="p-4 font-mono text-xs text-slate-700">ZK2025-0701-0089</td>
                             <td class="p-4 font-mono text-xs">13912345678</td>
@@ -311,7 +338,7 @@
                         </tr>
 
                         <tr class="hover-row transition cursor-pointer" onclick="openDrawer('ORD-20250522-102')">
-                            <td class="p-4 pl-6"><input type="checkbox" onchange="updateBatchBar()" class="row-check w-4 h-4 rounded border-slate-300 text-brand-600 focus:ring-brand-500 cursor-pointer"></td>
+                            <td class="p-4 pl-6" onclick="event.stopPropagation()"><input type="checkbox" onchange="updateBatchBar()" class="row-check w-4 h-4 rounded border-slate-300 text-brand-600 focus:ring-brand-500 cursor-pointer"></td>
                             <td class="p-4 pl-6">
                                 <p class="font-bold text-slate-800">2025春季 Python 一级</p>
                                 <p class="text-xs text-slate-400 font-mono mt-0.5">ORD-20250522-102</p>
@@ -326,7 +353,11 @@
                                 <p class="text-xs text-slate-400 mt-0.5 font-mono">UID 20258905</p>
                             </td>
                                                         <td class="p-4">
-                                <span class="inline-flex items-center gap-1 px-2 py-0.5 rounded text-xs font-bold bg-red-50 text-red-600"><i class="fa-solid fa-circle-xmark"></i>不合格</span>
+                                <div class="flex items-center gap-2">
+                                    <img src="https://api.dicebear.com/9.x/avataaars/svg?seed=WangWu" onclick="event.stopPropagation(); openPhotoPreview('WangWu')" class="w-9 h-9 rounded-lg object-cover border border-slate-200 cursor-pointer hover:border-brand-400 transition" title="点击查看照片">
+                                    <span class="inline-flex items-center gap-1 px-2 py-0.5 rounded text-xs font-bold bg-red-50 text-red-600"><i class="fa-solid fa-circle-xmark"></i>不合格</span>
+                                    <i onclick="event.stopPropagation(); openPhotoPreview('WangWu')" class="fa-solid fa-expand text-slate-400 hover:text-brand-600 cursor-pointer text-xs" title="查看大图"></i>
+                                </div>
                             </td>
                             <td class="p-4 font-mono text-xs text-slate-700"><span class="text-slate-400">未生成</span></td>
                             <td class="p-4 font-mono text-xs">15000000000</td>
@@ -355,7 +386,7 @@
                         </tr>
 
                         <tr class="hover-row transition cursor-pointer bg-slate-50/50" onclick="openDrawer('ORD-20250519-045')">
-                            <td class="p-4 pl-6"><input type="checkbox" onchange="updateBatchBar()" class="row-check w-4 h-4 rounded border-slate-300 text-brand-600 focus:ring-brand-500 cursor-pointer"></td>
+                            <td class="p-4 pl-6" onclick="event.stopPropagation()"><input type="checkbox" onchange="updateBatchBar()" class="row-check w-4 h-4 rounded border-slate-300 text-brand-600 focus:ring-brand-500 cursor-pointer"></td>
                             <td class="p-4 pl-6">
                                 <p class="font-bold text-slate-800">2025春季 Python 一级</p>
                                 <p class="text-xs text-slate-400 font-mono mt-0.5">ORD-20250519-045</p>
@@ -370,7 +401,11 @@
                                 <p class="text-xs text-slate-400 mt-0.5 font-mono">UID 20258850</p>
                             </td>
                                                         <td class="p-4">
-                                <span class="inline-flex items-center gap-1 px-2 py-0.5 rounded text-xs font-bold bg-slate-100 text-slate-500"><i class="fa-regular fa-image"></i>未提交</span>
+                                <div class="flex items-center gap-2">
+                                    <img src="https://api.dicebear.com/9.x/avataaars/svg?seed=ZhaoLiu" onclick="event.stopPropagation(); openPhotoPreview('ZhaoLiu')" class="w-9 h-9 rounded-lg object-cover border border-slate-200 cursor-pointer hover:border-brand-400 transition" title="点击查看照片">
+                                    <span class="inline-flex items-center gap-1 px-2 py-0.5 rounded text-xs font-bold bg-slate-100 text-slate-500"><i class="fa-regular fa-image"></i>未提交</span>
+                                    <i onclick="event.stopPropagation(); openPhotoPreview('ZhaoLiu')" class="fa-solid fa-expand text-slate-400 hover:text-brand-600 cursor-pointer text-xs" title="查看大图"></i>
+                                </div>
                             </td>
                             <td class="p-4 font-mono text-xs text-slate-700"><span class="text-slate-400">未生成</span></td>
                             <td class="p-4 font-mono text-xs">13700001111</td>
@@ -1239,6 +1274,43 @@
             document.getElementById('batch-count').textContent = checks.length;
             document.getElementById('batch-pending').textContent = pending;
             bar.classList.remove('hidden');
+        }
+        let photoCurrentSeed = null;
+        function openPhotoPreview(seed) {
+            photoCurrentSeed = seed;
+            document.getElementById('photo-modal-img').src = `https://api.dicebear.com/9.x/avataaars/svg?seed=${seed}`;
+            // 找该行的照片状态
+            let statusText = '', badge = '';
+            document.querySelectorAll('tbody tr').forEach(tr => {
+                const img = tr.querySelector('img');
+                if (img && img.src.includes('seed=' + seed)) {
+                    const td = tr.querySelectorAll('td')[3];
+                    statusText = td.textContent.trim();
+                    badge = td.querySelector('span') ? td.querySelector('span').outerHTML : '';
+                }
+            });
+            document.getElementById('photo-modal-status').innerHTML = `当前状态：${badge}`;
+            // 未提交/已审核的不显示通过不通过按钮
+            const canAudit = statusText.includes('待审核');
+            document.getElementById('photo-modal-actions').children[1].style.display = canAudit ? '' : 'none';
+            document.getElementById('photo-modal-actions').children[2].style.display = canAudit ? '' : 'none';
+            document.getElementById('photo-modal').classList.remove('hidden');
+        }
+        function closePhotoPreview() {
+            document.getElementById('photo-modal').classList.add('hidden');
+            photoCurrentSeed = null;
+        }
+        function auditFromPhoto(result) {
+            document.querySelectorAll('tbody tr').forEach(tr => {
+                const img = tr.querySelector('img');
+                if (img && photoCurrentSeed && img.src.includes('seed=' + photoCurrentSeed)) {
+                    const td = tr.querySelectorAll('td')[3];
+                    td.innerHTML = result === 'pass'
+                        ? '<span class="inline-flex items-center gap-1 px-2 py-0.5 rounded text-xs font-bold bg-green-50 text-green-700 border border-green-200">合格</span>'
+                        : '<span class="inline-flex items-center gap-1 px-2 py-0.5 rounded text-xs font-bold bg-red-50 text-red-700 border border-red-200">不合格</span>';
+                }
+            });
+            closePhotoPreview();
         }
         function clearChecks() {
             document.querySelectorAll('.row-check').forEach(c => c.checked = false);
