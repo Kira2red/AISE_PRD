@@ -1,0 +1,568 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>报名管理 - AISE 测评系统</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+
+    <script>
+        tailwind.config = {
+            theme: {
+                extend: {
+                    fontFamily: {
+                        sans: ['Inter', 'sans-serif'],
+                        mono: ['JetBrains Mono', 'monospace'],
+                    },
+                    colors: {
+                        brand: { 50: '#eff6ff', 100: '#dbeafe', 500: '#3b82f6', 600: '#2563eb', 700: '#1d4ed8' },
+                    },
+                    boxShadow: {
+                        'card': '0 1px 3px 0 rgba(0, 0, 0, 0.1), 0 1px 2px 0 rgba(0, 0, 0, 0.06)',
+                    }
+                }
+            }
+        }
+    </script>
+    <style>
+        body { background-color: #F8FAFC; }
+        .hide-scroll::-webkit-scrollbar { display: none; }
+        .nav-item.active::before {
+            content: ''; position: absolute; left: 0; top: 50%; transform: translateY(-50%);
+            width: 4px; height: 24px; background-color: #3b82f6; border-radius: 0 4px 4px 0;
+        }
+        tr.hover-row:hover td { background-color: #f8fafc; }
+        
+        /* Modal Animation */
+        .modal-enter { animation: modalScaleIn 0.2s cubic-bezier(0.16, 1, 0.3, 1) forwards; }
+        @keyframes modalScaleIn { from { transform: scale(0.95); opacity: 0; } to { transform: scale(1); opacity: 1; } }
+
+        /* Stepper Styles */
+        .step-circle { transition: all 0.3s; }
+        .step-active .step-circle { background-color: #2563eb; color: white; border-color: #2563eb; }
+        .step-done .step-circle { background-color: #dcfce7; color: #16a34a; border-color: #dcfce7; }
+        .step-pending .step-circle { background-color: white; color: #94a3b8; border-color: #e2e8f0; }
+        
+        /* Disabled Button Style Override */
+        button:disabled { cursor: not-allowed; opacity: 0.5; background-color: #94a3b8; }
+    </style>
+</head>
+<body class="flex h-screen overflow-hidden text-slate-800 font-sans">
+
+    <aside class="w-64 bg-white border-r border-slate-200 flex flex-col flex-shrink-0 z-20">
+        <div class="h-16 flex items-center px-6 border-b border-slate-100">
+            <div class="w-8 h-8 bg-gradient-to-br from-brand-600 to-indigo-600 rounded-lg flex items-center justify-center text-white font-bold text-lg mr-3 shadow-sm">A</div>
+            <span class="font-bold text-lg text-slate-800 tracking-tight">AISE Admin</span>
+        </div>
+        <nav class="flex-1 overflow-y-auto py-4 space-y-1">
+            <a href="#" class="nav-item flex items-center gap-3 px-6 py-3 text-slate-500 hover:bg-slate-50 hover:text-brand-600 transition relative">
+                <i class="fa-solid fa-users w-5 text-center"></i><span class="font-medium text-sm">学员管理</span>
+            </a>
+            <a href="#" class="nav-item active flex items-center gap-3 px-6 py-3 text-brand-600 bg-brand-50 transition relative">
+                <i class="fa-solid fa-clipboard-check w-5 text-center"></i><span class="font-medium text-sm">报名管理</span>
+            </a>
+        </nav>
+    </aside>
+
+    <main class="flex-1 flex flex-col min-w-0 bg-slate-50/50 relative">
+
+        <header class="h-16 bg-white border-b border-slate-200 flex items-center justify-between px-8 flex-shrink-0 z-10">
+            <h1 class="text-xl font-bold text-slate-800">报名记录管理</h1>
+            <div class="flex gap-3">
+                <button onclick="openImportModal()" class="bg-white border border-brand-200 hover:border-brand-500 text-brand-700 hover:text-brand-800 text-sm font-medium px-5 py-2.5 rounded-lg shadow-sm transition flex items-center gap-2">
+                    <i class="fa-solid fa-file-import"></i> 批量导入
+                </button>
+                <button class="bg-brand-600 hover:bg-brand-700 text-white text-sm font-medium px-5 py-2.5 rounded-lg shadow-sm transition flex items-center gap-2">
+                    <i class="fa-solid fa-user-plus"></i> 后台代报名
+                </button>
+            </div>
+        </header>
+
+        <div class="px-8 py-6">
+            <div class="bg-white rounded-xl shadow-card border border-slate-100 p-4 flex flex-wrap gap-4 items-center">
+                <div class="relative w-72">
+                    <i class="fa-solid fa-magnifying-glass absolute left-3 top-1/2 transform -translate-y-1/2 text-slate-400 text-sm"></i>
+                    <input type="text" placeholder="搜索订单号 / 姓名 / 手机号..." class="w-full pl-9 pr-4 py-2 rounded-lg border border-slate-200 text-sm focus:border-brand-500 outline-none transition">
+                </div>
+                <div class="ml-auto text-sm text-slate-400">共 1,245 条记录</div>
+            </div>
+        </div>
+
+        <div class="flex-1 overflow-y-auto px-8 pb-8 custom-scroll">
+            <div class="bg-white rounded-xl shadow-card border border-slate-200 overflow-hidden">
+                <table class="w-full text-left border-collapse" id="order-table">
+                    <thead>
+                        <tr class="border-b border-slate-100 bg-slate-50 text-xs uppercase text-slate-500 font-bold">
+                            <th class="p-4 pl-6">报名信息</th>
+                            <th class="p-4">学员信息</th>
+                            <th class="p-4">渠道来源</th>
+                            <th class="p-4">支付金额</th>
+                            <th class="p-4">状态</th>
+                            <th class="p-4">报名时间</th>
+                        </tr>
+                    </thead>
+                    <tbody class="text-sm text-slate-700 divide-y divide-slate-100" id="table-body">
+                        <tr class="hover-row transition">
+                            <td class="p-4 pl-6">
+                                <p class="font-bold text-slate-800">2025春季 Python 一级</p>
+                                <p class="text-xs text-slate-400 font-mono mt-0.5">ORD-20250520-001</p>
+                            </td>
+                            <td class="p-4">
+                                <div class="flex items-center gap-2">
+                                    <div class="w-6 h-6 rounded-full bg-slate-200 flex items-center justify-center text-xs font-bold text-slate-600">张</div>
+                                    <span>张三</span>
+                                </div>
+                                <p class="text-xs text-slate-400 mt-0.5 font-mono">13800138000</p>
+                            </td>
+                            <td class="p-4"><span class="bg-blue-50 text-brand-600 border border-blue-100 text-[10px] px-2 py-0.5 rounded font-mono">YPB2025</span></td>
+                            <td class="p-4 font-mono font-medium">¥ 199.00</td>
+                            <td class="p-4">
+                                <span class="inline-flex items-center gap-1.5 px-2 py-0.5 rounded text-xs font-bold bg-green-50 text-green-700">
+                                    <i class="fa-brands fa-weixin"></i> 已支付
+                                </span>
+                            </td>
+                            <td class="p-4 text-xs text-slate-500">05-20 10:23</td>
+                        </tr>
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </main>
+
+    <div id="modal-import" class="fixed inset-0 z-50 hidden flex items-center justify-center bg-slate-900/50 backdrop-blur-sm transition-opacity opacity-0">
+        <div class="bg-white rounded-2xl shadow-xl w-[700px] h-[600px] flex flex-col transform scale-95 transition-transform overflow-hidden" id="modal-import-content">
+            
+            <div class="bg-white px-8 py-5 border-b border-slate-100 flex justify-between items-center">
+                <div class="flex items-center gap-3">
+                    <div class="w-8 h-8 rounded-full bg-brand-50 text-brand-600 flex items-center justify-center"><i class="fa-solid fa-file-import"></i></div>
+                    <h3 class="font-bold text-lg text-slate-800">批量报名导入</h3>
+                </div>
+                <button onclick="closeImportModal()" class="text-slate-400 hover:text-slate-800 transition"><i class="fa-solid fa-xmark text-xl"></i></button>
+            </div>
+
+            <div class="bg-slate-50/50 px-8 py-5 border-b border-slate-100">
+                <div class="flex justify-between items-center relative max-w-md mx-auto">
+                    <div class="absolute left-0 top-1/2 w-full h-0.5 bg-slate-200 -z-10"></div>
+                    <div id="step-ind-1" class="step-active flex flex-col items-center gap-2 bg-slate-50 px-2">
+                        <div class="step-circle w-8 h-8 rounded-full border-2 flex items-center justify-center text-sm font-bold">1</div>
+                        <span class="text-xs font-medium text-slate-600">上传文件</span>
+                    </div>
+                    <div id="step-ind-2" class="step-pending flex flex-col items-center gap-2 bg-slate-50 px-2">
+                        <div class="step-circle w-8 h-8 rounded-full border-2 flex items-center justify-center text-sm font-bold">2</div>
+                        <span class="text-xs font-medium text-slate-600">预览校验</span>
+                    </div>
+                    <div id="step-ind-3" class="step-pending flex flex-col items-center gap-2 bg-slate-50 px-2">
+                        <div class="step-circle w-8 h-8 rounded-full border-2 flex items-center justify-center text-sm font-bold">3</div>
+                        <span class="text-xs font-medium text-slate-600">导入结果</span>
+                    </div>
+                </div>
+            </div>
+
+            <div class="flex-1 p-8 overflow-y-auto relative">
+
+                <div id="step-content-1" class="h-full flex flex-col">
+                    <div class="flex justify-between items-center mb-3">
+                        <h4 class="font-bold text-slate-700 text-sm">上传报名名单</h4>
+                        <button class="text-brand-600 text-xs hover:underline flex items-center gap-1" onclick="alert('下载：批量导入模板.xlsx（含 11 列标准表头与填写说明）')">
+                            <i class="fa-solid fa-download"></i> 下载标准Excel模板
+                        </button>
+                    </div>
+
+                    <div class="bg-blue-50 text-blue-800 text-xs p-3 rounded-lg border border-blue-100 mb-4">
+                        <i class="fa-solid fa-circle-info mr-1"></i> 一个文件可包含多个活动、多个测评、多个渠道的报名数据。测评名称、活动等归属信息直接填写在表格列中，无需提前选择。
+                    </div>
+
+                    <div class="flex-1 border-2 border-dashed border-slate-300 hover:border-brand-400 bg-slate-50 hover:bg-brand-50/10 rounded-xl flex flex-col items-center justify-center cursor-pointer transition relative group" onclick="simulateUpload()">
+                        <div class="w-14 h-14 bg-white shadow-sm rounded-full flex items-center justify-center text-brand-600 text-2xl mb-3 group-hover:scale-110 transition">
+                            <i class="fa-solid fa-file-excel"></i>
+                        </div>
+                        <p class="font-medium text-slate-600">点击上传文件</p>
+                        <p class="text-xs text-slate-400 mt-1">仅支持 .xlsx 格式</p>
+
+                        <div id="upload-spinner" class="absolute inset-0 bg-white/90 z-10 flex flex-col items-center justify-center hidden">
+                            <i class="fa-solid fa-circle-notch fa-spin text-3xl text-brand-600 mb-3"></i>
+                            <p class="text-sm font-medium text-slate-600">正在解析数据...</p>
+                        </div>
+                    </div>
+
+                    <details class="mt-4 border border-slate-200 rounded-lg bg-white">
+                        <summary class="px-4 py-2.5 text-xs font-bold text-slate-600 cursor-pointer select-none flex items-center gap-2">
+                            <i class="fa-solid fa-table-list text-slate-400"></i> 查看标准模板列与填写规则（11 列）
+                        </summary>
+                        <div class="px-4 pb-3 text-xs text-slate-600">
+                            <table class="w-full border-collapse">
+                                <thead>
+                                    <tr class="bg-slate-50 text-slate-500">
+                                        <th class="p-2 text-left font-bold">列名</th>
+                                        <th class="p-2 text-left font-bold">规则</th>
+                                    </tr>
+                                </thead>
+                                <tbody class="divide-y divide-slate-100">
+                                    <tr><td class="p-2 font-medium">姓名</td><td class="p-2">必填。留空沿用系统档案（仅更新已有报名时）</td></tr>
+                                    <tr><td class="p-2 font-medium">身份证号</td><td class="p-2">必填，定位学生的唯一依据</td></tr>
+                                    <tr><td class="p-2 font-medium">联系电话</td><td class="p-2">可空=不修改。留空不覆盖原联系电话；<b>登录手机号任何情况都不会被导入修改</b></td></tr>
+                                    <tr><td class="p-2 font-medium">活动</td><td class="p-2">必填，须与系统活动名称完全一致</td></tr>
+                                    <tr><td class="p-2 font-medium">报名渠道</td><td class="p-2">须与系统渠道名一致；渠道以渠道识别码为匹配键，两列都须对得上</td></tr>
+                                    <tr><td class="p-2 font-medium">渠道识别码</td><td class="p-2">新建报名必填；更新已有报名可空=保持原渠道</td></tr>
+                                    <tr><td class="p-2 font-medium">分组</td><td class="p-2">须与该活动下的分组名一致；更新时可空=保持原分组</td></tr>
+                                    <tr><td class="p-2 font-medium">测评名称</td><td class="p-2">必填，须与系统测评名完全一致</td></tr>
+                                    <tr><td class="p-2 font-medium">支付状态</td><td class="p-2">已支付/未支付；新建报名必填；更新时可空=保持原状态</td></tr>
+                                </tbody>
+                            </table>
+                        </div>
+                    </details>
+                </div>
+
+                <div id="step-content-3" class="hidden h-full flex flex-col">
+                    <!-- 顶部统计条 -->
+                    <div class="flex gap-3 mb-3">
+                        <div class="flex-1 bg-green-50 border border-green-100 rounded-lg p-2.5 text-center">
+                            <p class="text-[11px] text-green-600 mb-0.5">校验通过</p>
+                            <p class="text-lg font-bold text-green-700">12 条</p>
+                        </div>
+                        <div class="flex-1 bg-red-50 border border-red-100 rounded-lg p-2.5 text-center">
+                            <p class="text-[11px] text-red-600 mb-0.5">校验失败（整表拦截）</p>
+                            <p class="text-lg font-bold text-red-700">2 条</p>
+                        </div>
+                        <div class="flex-1 bg-blue-50 border border-blue-100 rounded-lg p-2.5 text-center">
+                            <p class="text-[11px] text-blue-600 mb-0.5">更新已有报名</p>
+                            <p class="text-lg font-bold text-blue-700">8 条</p>
+                        </div>
+                        <div class="flex-1 bg-slate-50 border border-slate-200 rounded-lg p-2.5 text-center">
+                            <p class="text-[11px] text-slate-500 mb-0.5">新建报名</p>
+                            <p class="text-lg font-bold text-slate-700">4 条</p>
+                        </div>
+                    </div>
+
+                    <!-- 拦截横幅 -->
+                    <div class="flex items-start gap-2 p-3 bg-red-50 border border-red-200 rounded-lg mb-3 text-xs text-red-700">
+                        <i class="fa-solid fa-circle-exclamation mt-0.5"></i>
+                        <div class="flex-1">
+                            <p class="font-bold">存在 2 条校验失败数据，本次导入已被拦截，全部数据都不会写入系统。</p>
+                            <p class="mt-0.5 text-red-600/90">请根据下方明细修正 Excel 后重新上传。修正并重新校验通过后才能提交导入。</p>
+                        </div>
+                        <a href="javascript:void(0)" class="text-red-700 font-bold underline whitespace-nowrap flex items-center gap-1" onclick="alert('下载：导入失败明细_20260715.xlsx（含行号、失败字段、失败原因、系统正确值参考）')"><i class="fa-solid fa-download"></i>下载失败明细</a>
+                    </div>
+
+                    <!-- 预览表格：工具条 -->
+                    <div class="flex items-center gap-2 mb-2">
+                        <div class="flex bg-slate-100 rounded-lg p-0.5 text-xs font-medium" id="preview-tabs">
+                            <button onclick="switchPreviewTab('all', this)" class="px-3 py-1.5 rounded-md bg-white shadow-sm text-slate-800">全部 14</button>
+                            <button onclick="switchPreviewTab('error', this)" class="px-3 py-1.5 rounded-md text-red-600">错误 2</button>
+                            <button onclick="switchPreviewTab('update', this)" class="px-3 py-1.5 rounded-md text-blue-600">更新预告 8</button>
+                        </div>
+                        <span class="text-[11px] text-slate-400"><i class="fa-solid fa-circle-info mr-0.5"></i>更新预告 = 该行将覆盖的字段（蓝色文字为改后值）</span>
+                    </div>
+
+                    <!-- 预览表格本体 -->
+                    <div class="border border-slate-200 rounded-lg overflow-hidden flex-1 relative">
+                        <div class="absolute inset-0 overflow-y-auto">
+                            <table class="w-full text-left text-[11px] leading-4">
+                                <thead class="bg-slate-50 text-slate-500 sticky top-0 border-b border-slate-100 z-10">
+                                    <tr>
+                                        <th class="p-2.5 whitespace-nowrap">行号</th>
+                                        <th class="p-2.5 whitespace-nowrap">姓名</th>
+                                        <th class="p-2.5 whitespace-nowrap">身份证号（后4位）</th>
+                                        <th class="p-2.5 whitespace-nowrap">活动 / 测评</th>
+                                        <th class="p-2.5 whitespace-nowrap">报名渠道</th>
+                                        <th class="p-2.5 whitespace-nowrap">分组</th>
+                                        <th class="p-2.5 whitespace-nowrap">校验结果</th>
+                                    </tr>
+                                </thead>
+                                <tbody class="divide-y divide-slate-100" id="preview-tbody">
+                                    <tr class="bg-red-50/40 preview-row" data-kind="error">
+                                        <td class="p-2.5 font-mono font-bold text-red-600">第 3 行</td>
+                                        <td class="p-2.5">王五</td>
+                                        <td class="p-2.5 font-mono">6789</td>
+                                        <td class="p-2.5">2025春季 Python 一级</td>
+                                        <td class="p-2.5">希望编程</td>
+                                        <td class="p-2.5">上午场 A组</td>
+                                        <td class="p-2.5 text-red-600 font-bold"><i class="fa-solid fa-circle-exclamation mr-1"></i>渠道识别码「XW999」在系统中不存在</td>
+                                    </tr>
+                                    <tr class="bg-red-50/40 preview-row" data-kind="error">
+                                        <td class="p-2.5 font-mono font-bold text-red-600">第 7 行</td>
+                                        <td class="p-2.5">赵小六</td>
+                                        <td class="p-2.5 font-mono">1234</td>
+                                        <td class="p-2.5 text-red-600 font-bold">2026秋季 C++ 三级 <i class="fa-solid fa-arrow-right text-[9px]"></i> 系统中无此测评</td>
+                                        <td class="p-2.5">——</td>
+                                        <td class="p-2.5">——</td>
+                                        <td class="p-2.5 text-red-600 font-bold"><i class="fa-solid fa-circle-exclamation mr-1"></i>测评名称「2026秋季 C++ 三级」与系统数据不匹配</td>
+                                    </tr>
+                                    <tr class="preview-row" data-kind="update">
+                                        <td class="p-2.5 font-mono text-slate-400">第 1 行</td>
+                                        <td class="p-2.5">李雷 <span class="text-[9px] text-blue-500 font-bold">更新</span></td>
+                                        <td class="p-2.5 font-mono">5678</td>
+                                        <td class="p-2.5">2025春季 Python 一级</td>
+                                        <td class="p-2.5">英才教育 <span class="text-blue-500">（保持）</span></td>
+                                        <td class="p-2.5">上午场 A组 → <span class="text-blue-500 font-bold">下午场 B组</span></td>
+                                        <td class="p-2.5 text-green-600"><i class="fa-solid fa-check mr-1"></i>通过 · 将更新 1 个字段</td>
+                                    </tr>
+                                    <tr class="preview-row" data-kind="update">
+                                        <td class="p-2.5 font-mono text-slate-400">第 2 行</td>
+                                        <td class="p-2.5">张三 <span class="text-[9px] text-blue-500 font-bold">更新</span></td>
+                                        <td class="p-2.5 font-mono">9012</td>
+                                        <td class="p-2.5">2025春季 Python 一级</td>
+                                        <td class="p-2.5">英才教育（保持）</td>
+                                        <td class="p-2.5 text-slate-400">未填写（保持原分组）</td>
+                                        <td class="p-2.5 text-green-600"><i class="fa-solid fa-check mr-1"></i>通过 · 无字段变更</td>
+                                    </tr>
+                                    <tr class="preview-row" data-kind="update">
+                                        <td class="p-2.5 font-mono text-slate-400">第 4 行</td>
+                                        <td class="p-2.5">韩梅梅 <span class="text-[9px] text-blue-500 font-bold">更新</span></td>
+                                        <td class="p-2.5 font-mono">3456</td>
+                                        <td class="p-2.5">2025夏季 AIGC 应用能力二级</td>
+                                        <td class="p-2.5">希望编程 → <span class="text-blue-500 font-bold">英才教育</span></td>
+                                        <td class="p-2.5">下午场 B组 → <span class="text-blue-500 font-bold">上午场 A组</span></td>
+                                        <td class="p-2.5 text-green-600"><i class="fa-solid fa-check mr-1"></i>通过 · 将更新 3 个字段（含支付状态）</td>
+                                    </tr>
+                                    <tr class="preview-row" data-kind="new">
+                                        <td class="p-2.5 font-mono text-slate-400">第 5 行</td>
+                                        <td class="p-2.5">马小跳 <span class="text-[9px] text-green-600 font-bold">新建</span></td>
+                                        <td class="p-2.5 font-mono">7890</td>
+                                        <td class="p-2.5">2025夏季 AIGC 应用能力二级</td>
+                                        <td class="p-2.5">英才教育</td>
+                                        <td class="p-2.5">上午场 A组</td>
+                                        <td class="p-2.5 text-green-600"><i class="fa-solid fa-check mr-1"></i>通过 · 新建报名（已支付）</td>
+                                    </tr>
+                                    <tr class="preview-row hidden" data-kind="new">
+                                        <td class="p-2.5 font-mono text-slate-400">第 6 行</td>
+                                        <td class="p-2.5">林小雨 <span class="text-[9px] text-green-600 font-bold">新建</span></td>
+                                        <td class="p-2.5 font-mono">2345</td>
+                                        <td class="p-2.5">2025春季 Python 一级</td>
+                                        <td class="p-2.5">希望编程</td>
+                                        <td class="p-2.5">下午场 B组</td>
+                                        <td class="p-2.5 text-green-600"><i class="fa-solid fa-check mr-1"></i>通过 · 新建报名（未支付）</td>
+                                    </tr>
+                                </tbody>
+                            </table>
+                        </div>
+                    </div>
+
+                    <div class="mt-3 p-2.5 bg-slate-50 border border-slate-100 rounded-lg flex items-center gap-2 text-[11px] text-slate-500">
+                        <i class="fa-solid fa-shield-halved text-slate-400"></i>
+                        校验规则：任一行校验失败即拦截整表导入；联系电话留空表示不修改原值；登录手机号不会被导入修改。
+                    </div>
+                </div>
+
+                <div id="step-content-success" class="hidden h-full flex flex-col">
+                    <div class="flex flex-col items-center justify-center text-center pt-4 pb-5">
+                        <div class="w-14 h-14 bg-green-100 text-green-500 rounded-full flex items-center justify-center text-2xl mb-3">
+                            <i class="fa-solid fa-check"></i>
+                        </div>
+                        <h3 class="font-bold text-lg text-slate-800">导入完成</h3>
+                        <p class="text-sm text-slate-500 mt-1">成功导入 14 条：新建报名 6 条 · 更新已有报名 8 条</p>
+                    </div>
+                    <div class="border border-slate-200 rounded-lg overflow-hidden flex-1 relative">
+                        <div class="absolute inset-0 overflow-y-auto">
+                            <table class="w-full text-left text-[11px] leading-4">
+                                <thead class="bg-slate-50 text-slate-500 sticky top-0 border-b border-slate-100 z-10">
+                                    <tr>
+                                        <th class="p-2.5 whitespace-nowrap">结果</th>
+                                        <th class="p-2.5 whitespace-nowrap">行号</th>
+                                        <th class="p-2.5 whitespace-nowrap">姓名</th>
+                                        <th class="p-2.5 whitespace-nowrap">活动 / 测评</th>
+                                        <th class="p-2.5 whitespace-nowrap">说明</th>
+                                    </tr>
+                                </thead>
+                                <tbody class="divide-y divide-slate-100">
+                                    <tr>
+                                        <td class="p-2.5"><span class="px-1.5 py-0.5 rounded bg-green-50 text-green-700 font-bold text-[10px]">新建成功</span></td>
+                                        <td class="p-2.5 font-mono text-slate-400">第 5 行</td>
+                                        <td class="p-2.5">马小跳</td>
+                                        <td class="p-2.5">2025夏季 AIGC 应用能力二级</td>
+                                        <td class="p-2.5 text-slate-500">生成订单 ORD-20260715-0201（已支付）</td>
+                                    </tr>
+                                    <tr>
+                                        <td class="p-2.5"><span class="px-1.5 py-0.5 rounded bg-blue-50 text-blue-700 font-bold text-[10px]">更新成功</span></td>
+                                        <td class="p-2.5 font-mono text-slate-400">第 1 行</td>
+                                        <td class="p-2.5">李雷</td>
+                                        <td class="p-2.5">2025春季 Python 一级</td>
+                                        <td class="p-2.5 text-slate-500">分组：上午场 A组 → 下午场 B组</td>
+                                    </tr>
+                                    <tr>
+                                        <td class="p-2.5"><span class="px-1.5 py-0.5 rounded bg-blue-50 text-blue-700 font-bold text-[10px]">更新成功</span></td>
+                                        <td class="p-2.5 font-mono text-slate-400">第 2 行</td>
+                                        <td class="p-2.5">张三</td>
+                                        <td class="p-2.5">2025春季 Python 一级</td>
+                                        <td class="p-2.5 text-slate-500">无字段变更（仅同步账号信息）</td>
+                                    </tr>
+                                    <tr>
+                                        <td class="p-2.5"><span class="px-1.5 py-0.5 rounded bg-blue-50 text-blue-700 font-bold text-[10px]">更新成功</span></td>
+                                        <td class="p-2.5 font-mono text-slate-400">第 4 行</td>
+                                        <td class="p-2.5">韩梅梅</td>
+                                        <td class="p-2.5">2025夏季 AIGC 应用能力二级</td>
+                                        <td class="p-2.5 text-slate-500">报名渠道、分组、支付状态共 3 个字段已更新</td>
+                                    </tr>
+                                    <tr>
+                                        <td class="p-2.5"><span class="px-1.5 py-0.5 rounded bg-green-50 text-green-700 font-bold text-[10px]">新建成功</span></td>
+                                        <td class="p-2.5 font-mono text-slate-400">第 6 行</td>
+                                        <td class="p-2.5">林小雨</td>
+                                        <td class="p-2.5">2025春季 Python 一级</td>
+                                        <td class="p-2.5 text-slate-500">生成订单 ORD-20260715-0202（未支付）</td>
+                                    </tr>
+                                </tbody>
+                            </table>
+                        </div>
+                    </div>
+                    <div class="mt-3 flex items-center justify-between p-2.5 bg-slate-50 border border-slate-100 rounded-lg">
+                        <p class="text-[11px] text-slate-500"><i class="fa-solid fa-file-excel mr-1"></i>完整导入结果可下载留存</p>
+                        <a href="javascript:void(0)" class="text-brand-600 text-xs font-bold underline flex items-center gap-1" onclick="alert('下载：导入结果明细_20260715.xlsx')"><i class="fa-solid fa-download"></i>下载导入结果明细</a>
+                    </div>
+                </div>
+
+            </div>
+
+            <div class="bg-slate-50 px-8 py-4 border-t border-slate-200 flex justify-end gap-3">
+                <button id="btn-cancel" onclick="closeImportModal()" class="px-4 py-2 text-sm text-slate-500 hover:text-slate-800 font-medium">取消</button>
+                <button id="btn-next" onclick="nextStep()" disabled class="bg-brand-600 hover:bg-brand-700 text-white text-sm font-bold px-6 py-2 rounded-lg shadow-sm transition">
+                    下一步
+                </button>
+                <button id="btn-finish" onclick="finishImport()" class="hidden bg-slate-800 hover:bg-slate-900 text-white text-sm font-bold px-6 py-2 rounded-lg shadow-sm transition">
+                    完成
+                </button>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // --- 核心逻辑（三步：上传 → 预览校验 → 导入结果） ---
+
+        // 模拟当前上传的文件是否有错误（demo 固定为有错误，展示整表拦截）
+        const SIMULATE_HAS_ERRORS = true;
+
+        // Modal Logic
+        const modal = document.getElementById('modal-import');
+        const modalContent = document.getElementById('modal-import-content');
+        let currentStep = 1;
+
+        function openImportModal() {
+            currentStep = 1;
+            renderStep();
+            modal.classList.remove('hidden');
+            setTimeout(() => {
+                modal.classList.remove('opacity-0');
+                modalContent.classList.add('modal-enter');
+            }, 10);
+        }
+
+        function closeImportModal() {
+            modal.classList.add('opacity-0');
+            setTimeout(() => {
+                modal.classList.add('hidden');
+                modalContent.classList.remove('modal-enter');
+            }, 200);
+        }
+
+        function switchPreviewTab(kind, btn) {
+            document.querySelectorAll('#preview-tabs button').forEach(b => {
+                b.classList.remove('bg-white', 'shadow-sm', 'text-slate-800');
+            });
+            btn.classList.add('bg-white', 'shadow-sm', 'text-slate-800');
+            document.querySelectorAll('#preview-tbody .preview-row').forEach(row => {
+                const k = row.dataset.kind;
+                let show = (kind === 'all') ||
+                           (kind === 'error' && k === 'error') ||
+                           (kind === 'update' && k === 'update');
+                row.classList.toggle('hidden', !show);
+            });
+        }
+
+        function nextStep() {
+            if (currentStep === 1) {
+                // 上传步：点击确认进入校验预览（demo 直接进入）
+                currentStep = 3;
+                renderStep();
+            } else if (currentStep === 3) {
+                // 校验预览步：存在错误 → 整表拦截，按钮禁用，不允许进入导入
+                if (SIMULATE_HAS_ERRORS) return;
+                document.getElementById('step-content-3').classList.add('hidden');
+                document.getElementById('step-content-success').classList.remove('hidden');
+                document.getElementById('btn-next').classList.add('hidden');
+                document.getElementById('btn-cancel').classList.add('hidden');
+                document.getElementById('btn-finish').classList.remove('hidden');
+
+                document.getElementById('step-ind-3').className = "step-done flex flex-col items-center gap-2 bg-slate-50 px-2";
+                document.getElementById('step-ind-3').innerHTML = `<div class="step-circle w-8 h-8 rounded-full border-2 flex items-center justify-center text-sm font-bold"><i class="fa-solid fa-check"></i></div><span class="text-xs font-medium text-slate-600">导入结果</span>`;
+            }
+        }
+
+        function simulateUpload() {
+            document.getElementById('upload-spinner').classList.remove('hidden');
+            setTimeout(() => {
+                document.getElementById('upload-spinner').classList.add('hidden');
+                nextStep(); // Go to preview
+            }, 1000);
+        }
+
+        function renderStep() {
+            // Content Visibility（1=上传 2=已并入上传步 3=预览校验）
+            const contents = { 1: 'step-content-1', 3: 'step-content-3' };
+            for (const [step, id] of Object.entries(contents)) {
+                const el = document.getElementById(id);
+                const ind = document.getElementById(`step-ind-${step}`);
+                if (Number(step) < currentStep) {
+                    el.classList.add('hidden');
+                    ind.className = "step-done flex flex-col items-center gap-2 bg-slate-50 px-2";
+                    ind.querySelector('.step-circle').innerHTML = '<i class="fa-solid fa-check"></i>';
+                } else if (Number(step) === currentStep) {
+                    el.classList.remove('hidden');
+                    ind.className = "step-active flex flex-col items-center gap-2 bg-slate-50 px-2";
+                    ind.querySelector('.step-circle').innerHTML = step;
+                } else {
+                    el.classList.add('hidden');
+                    ind.className = "step-pending flex flex-col items-center gap-2 bg-slate-50 px-2";
+                    ind.querySelector('.step-circle').innerHTML = step;
+                }
+            }
+
+            // Buttons Logic
+            const btnNext = document.getElementById('btn-next');
+            if (currentStep === 1) {
+                btnNext.classList.remove('hidden');
+                btnNext.innerText = "下一步";
+                btnNext.disabled = false;
+            } else if (currentStep === 3) {
+                btnNext.classList.remove('hidden');
+                // 有错误 → 整表拦截：确认导入禁用
+                btnNext.innerText = "确认导入";
+                btnNext.disabled = SIMULATE_HAS_ERRORS;
+            }
+        }
+
+        function finishImport() {
+            closeImportModal();
+            // Simulate adding a row
+            setTimeout(() => {
+                const tbody = document.getElementById('table-body');
+                const newRow = `
+                <tr class="hover-row transition bg-blue-50/30 animate-pulse">
+                    <td class="p-4 pl-6">
+                        <p class="font-bold text-slate-800">2025春季 Python 一级</p>
+                        <p class="text-xs text-slate-400 font-mono mt-0.5">ORD-NEW-IMPORT-001</p>
+                        <span class="text-[10px] text-brand-600 font-bold">NEW</span>
+                    </td>
+                    <td class="p-4">
+                        <div class="flex items-center gap-2">
+                            <div class="w-6 h-6 rounded-full bg-brand-100 text-brand-600 flex items-center justify-center text-xs font-bold">李</div>
+                            <span>李雷</span>
+                        </div>
+                        <p class="text-xs text-slate-400 mt-0.5 font-mono">13912345678</p>
+                    </td>
+                    <td class="p-4"><span class="bg-blue-50 text-brand-600 border border-blue-100 text-[10px] px-2 py-0.5 rounded font-mono">YPB</span></td>
+                    <td class="p-4 font-mono font-medium">¥ 199.00</td>
+                    <td class="p-4">
+                        <span class="inline-flex items-center gap-1.5 px-2 py-0.5 rounded text-xs font-bold bg-green-50 text-green-700">
+                            <i class="fa-solid fa-file-import"></i> 批量导入
+                        </span>
+                    </td>
+                    <td class="p-4 text-xs text-slate-500">刚刚</td>
+                </tr>`;
+                tbody.insertAdjacentHTML('afterbegin', newRow);
+            }, 300);
+        }
+    </script>
+</body>
+</html>
