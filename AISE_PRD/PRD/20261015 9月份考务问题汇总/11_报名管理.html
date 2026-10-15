@@ -1362,55 +1362,51 @@
             const imgHTML = st !== 'none'
                 ? `<img src="${data.studentAvatar || 'https://api.dicebear.com/9.x/avataaars/svg?seed=' + data.studentName}" class="w-24 h-24 rounded-xl object-cover border-2 border-slate-100">`
                 : `<div class="w-24 h-24 rounded-xl bg-slate-50 border-2 border-dashed border-slate-200 flex items-center justify-center text-slate-300 text-2xl"><i class="fa-solid fa-user-slash"></i></div>`;
-            // 状态修改：下拉选择后需点「保存」生效（与修改报考信息一致）；未提交无照片不可设
-            let actionHTML = '';
+            // 纵向布局、区域常驻：编辑行+按钮行固定占位，仅禁用/启用切换 → 零跳变、零换行
+            let editHTML = '';
             if (st === 'none') {
-                actionHTML = `<span class="ml-auto text-[11px] text-slate-400">学生尚未上传照片，无法设置审核状态</span>`;
+                editHTML = `<p class="text-[11px] text-slate-400 pt-3 mt-3 border-t border-slate-100">学生尚未上传照片，无法设置审核状态</p>`;
             } else {
                 const opt = (val, label) => `<option value="${val}" ${st === val ? 'selected' : ''}>${label}</option>`;
-                actionHTML = `<div class="ml-auto flex flex-col items-end gap-1.5">
+                editHTML = `<div class="pt-3 mt-3 border-t border-slate-100">
                         <div class="flex items-center gap-2">
-                            <label class="text-[10px] text-slate-400">修改审核状态</label>
-                            <select id="photo-status-select" onchange="onPhotoStatusChange('${st}')" class="px-3 py-1.5 text-xs rounded-lg border border-slate-200 bg-white text-slate-700 font-medium outline-none hover:border-slate-300 cursor-pointer">
+                            <span class="text-xs text-slate-500 shrink-0">修改审核状态</span>
+                            <select id="photo-status-select" onchange="onPhotoStatusChange('${st}')" class="flex-1 px-2 py-1.5 text-xs rounded-lg border border-slate-200 bg-white text-slate-700 font-medium outline-none hover:border-slate-300 cursor-pointer min-w-0">
                                 ${opt('pass', '合格')}
                                 ${opt('pending', '待审核')}
                                 ${opt('reject', '不合格')}
                             </select>
                         </div>
-                        <div id="photo-status-actions" class="hidden flex items-center gap-2">
-                            <button onclick="cancelPhotoStatusChange('${st}')" class="px-3 py-1.5 text-xs text-slate-600 hover:bg-slate-50 rounded-lg border border-slate-200 transition">取消</button>
-                            <button onclick="savePhotoStatusChange()" class="px-3 py-1.5 text-xs bg-brand-600 hover:bg-brand-700 text-white rounded-lg transition font-bold">保存并同步</button>
+                        <div class="flex items-center justify-end gap-2 pt-2.5">
+                            <span class="text-[10px] text-slate-400 mr-auto truncate">选择新状态后保存生效</span>
+                            <button id="photo-cancel-btn" onclick="cancelPhotoStatusChange('${st}')" disabled class="px-3 py-1.5 text-xs text-slate-600 rounded-lg border border-slate-200 transition disabled:opacity-40 disabled:cursor-not-allowed enabled:hover:bg-slate-50">取消</button>
+                            <button id="photo-save-btn" onclick="savePhotoStatusChange()" disabled class="px-3 py-1.5 text-xs bg-brand-600 text-white rounded-lg transition font-bold disabled:opacity-40 disabled:cursor-not-allowed enabled:hover:bg-brand-700">保存并同步</button>
                         </div>
-                        <span id="photo-status-hint" class="text-[10px] text-slate-400">选择新状态后保存生效，同步列表与证件状态</span>
                     </div>`;
             }
             return `<div class="mb-6">
                 <h4 class="text-xs font-bold text-slate-400 uppercase mb-3 border-b border-slate-100 pb-1">报名照片</h4>
-                <div class="flex items-center gap-4">
+                <div class="flex items-start gap-4">
                     ${imgHTML}
-                    <div class="space-y-1.5">
-                        <div class="flex items-center gap-2"><span class="text-xs text-slate-500">照片状态</span><span id="drawer-photo-badge">${badgeMap[st]}</span></div>
-                        <p class="text-[10px] text-slate-400">${st === 'pending' ? '审核通过后同步证件制作' : st === 'none' ? '等待学生上传' : '审核结论默认继承历史结果'}</p>
+                    <div class="flex-1 min-w-0 space-y-2">
+                        <div class="flex items-center gap-2"><span class="text-xs text-slate-500 shrink-0">照片状态</span><span id="drawer-photo-badge">${badgeMap[st]}</span></div>
+                        <p class="text-[10px] text-slate-400 truncate">${st === 'pending' ? '审核通过后同步证件制作' : st === 'none' ? '等待学生上传' : '审核结论默认继承历史结果'}</p>
+                        ${editHTML}
                     </div>
-                    ${actionHTML}
                 </div>
             </div>`;
         }
         function onPhotoStatusChange(currentSt) {
             const sel = document.getElementById('photo-status-select');
-            const actions = document.getElementById('photo-status-actions');
-            if (!sel || !actions) return;
-            if (sel.value === currentSt) {
-                actions.classList.add('hidden');
-            } else {
-                actions.classList.remove('hidden');
-            }
+            if (!sel) return;
+            const changed = sel.value !== currentSt;
+            document.getElementById('photo-save-btn').disabled = !changed;
+            document.getElementById('photo-cancel-btn').disabled = !changed;
         }
         function cancelPhotoStatusChange(currentSt) {
             const sel = document.getElementById('photo-status-select');
             if (sel) sel.value = currentSt;
-            const actions = document.getElementById('photo-status-actions');
-            if (actions) actions.classList.add('hidden');
+            onPhotoStatusChange(currentSt);
         }
         function savePhotoStatusChange() {
             const sel = document.getElementById('photo-status-select');
