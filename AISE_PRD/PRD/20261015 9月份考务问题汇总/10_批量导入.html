@@ -171,8 +171,15 @@
                         </button>
                     </div>
 
-                    <div class="bg-blue-50 text-blue-800 text-xs p-3 rounded-lg border border-blue-100 mb-4">
+                    <div class="bg-blue-50 text-blue-800 text-xs p-3 rounded-lg border border-blue-100 mb-3">
                         <i class="fa-solid fa-circle-info mr-1"></i> 一个文件可包含多个活动、多个测评、多个渠道的报名数据。测评名称、活动等归属信息直接填写在表格列中，无需提前选择。
+                    </div>
+
+                    <div class="flex items-center gap-2 mb-4 text-xs">
+                        <span class="text-slate-500 font-medium"><i class="fa-solid fa-flask mr-1 text-slate-400"></i>演示场景：</span>
+                        <button id="scn-pass" onclick="setScenario('pass')" class="px-3 py-1.5 rounded-lg border font-medium transition">① 全部校验通过</button>
+                        <button id="scn-error" onclick="setScenario('error')" class="px-3 py-1.5 rounded-lg border font-medium transition">② 含 2 条错误（整表拦截）</button>
+                        <span class="text-slate-400">先选场景，再点击上传查看对应校验结果</span>
                     </div>
 
                     <div class="flex-1 border-2 border-dashed border-slate-300 hover:border-brand-400 bg-slate-50 hover:bg-brand-50/10 rounded-xl flex flex-col items-center justify-center cursor-pointer transition relative group" onclick="simulateUpload()">
@@ -221,24 +228,24 @@
                     <div class="flex gap-3 mb-3">
                         <div class="flex-1 bg-green-50 border border-green-100 rounded-lg p-2 text-center">
                             <p class="text-[11px] text-green-600">校验通过</p>
-                            <p class="text-base font-bold text-green-700">12 条</p>
+                            <p id="stat-pass" class="text-base font-bold text-green-700">14 条</p>
                         </div>
                         <div class="flex-1 bg-red-50 border border-red-100 rounded-lg p-2 text-center">
                             <p class="text-[11px] text-red-600">校验失败（整表拦截）</p>
-                            <p class="text-base font-bold text-red-700">2 条</p>
+                            <p id="stat-fail" class="text-base font-bold text-red-700">0 条</p>
                         </div>
                         <div class="flex-1 bg-blue-50 border border-blue-100 rounded-lg p-2 text-center">
                             <p class="text-[11px] text-blue-600">更新已有报名</p>
-                            <p class="text-base font-bold text-blue-700">8 条</p>
+                            <p id="stat-update" class="text-base font-bold text-blue-700">8 条</p>
                         </div>
                         <div class="flex-1 bg-slate-50 border border-slate-200 rounded-lg p-2 text-center">
                             <p class="text-[11px] text-slate-500">新建报名</p>
-                            <p class="text-base font-bold text-slate-700">4 条</p>
+                            <p id="stat-new" class="text-base font-bold text-slate-700">6 条</p>
                         </div>
                     </div>
 
                     <!-- 拦截横幅 -->
-                    <div class="flex items-start gap-2 p-3 bg-red-50 border border-red-200 rounded-lg mb-3 text-xs text-red-700">
+                    <div id="intercept-banner" class="hidden flex items-start gap-2 p-3 bg-red-50 border border-red-200 rounded-lg mb-3 text-xs text-red-700">
                         <i class="fa-solid fa-circle-exclamation mt-0.5"></i>
                         <div class="flex-1">
                             <p class="font-bold">存在 2 条校验失败数据，本次导入已被拦截，全部数据都不会写入系统。</p>
@@ -250,9 +257,9 @@
                     <!-- 预览表格：工具条 -->
                     <div class="flex items-center gap-2 mb-2">
                         <div class="flex bg-slate-100 rounded-lg p-0.5 text-xs font-medium" id="preview-tabs">
-                            <button onclick="switchPreviewTab('all', this)" class="px-3 py-1.5 rounded-md bg-white shadow-sm text-slate-800">全部 14</button>
-                            <button onclick="switchPreviewTab('error', this)" class="px-3 py-1.5 rounded-md text-red-600">错误 2</button>
-                            <button onclick="switchPreviewTab('update', this)" class="px-3 py-1.5 rounded-md text-blue-600">更新预告 8</button>
+                            <button id="tab-all" onclick="switchPreviewTab('all', this)" class="px-3 py-1.5 rounded-md bg-white shadow-sm text-slate-800">全部 14</button>
+                            <button id="tab-error" onclick="switchPreviewTab('error', this)" class="px-3 py-1.5 rounded-md text-red-600">错误 0</button>
+                            <button id="tab-update" onclick="switchPreviewTab('update', this)" class="px-3 py-1.5 rounded-md text-blue-600">更新预告 8</button>
                         </div>
                         <span class="text-[11px] text-slate-400"><i class="fa-solid fa-circle-info mr-0.5"></i>更新预告 = 该行将覆盖的字段（蓝色文字为改后值）</span>
                     </div>
@@ -273,6 +280,7 @@
                                     </tr>
                                 </thead>
                                 <tbody class="divide-y divide-slate-100" id="preview-tbody">
+                                    <tr id="error-empty-row" class="hidden"><td colspan="7" class="p-6 text-center text-green-600 text-xs"><i class="fa-solid fa-circle-check mr-1"></i>无错误记录，全部数据校验通过，可直接确认导入</td></tr>
                                     <tr class="bg-red-50/40 preview-row" data-kind="error">
                                         <td class="p-2.5 font-mono font-bold text-red-600">第 3 行</td>
                                         <td class="p-2.5">王五</td>
@@ -430,8 +438,31 @@
     <script>
         // --- 核心逻辑（三步：上传 → 预览校验 → 导入结果） ---
 
-        // 模拟当前上传的文件是否有错误（demo 固定为有错误，展示整表拦截）
-        const SIMULATE_HAS_ERRORS = true;
+        // 演示场景：pass=全部通过（对应测试文件①），error=含2条错误（对应测试文件②③④）
+        let SCENARIO = 'pass';
+        const SIMULATE_HAS_ERRORS = () => SCENARIO === 'error';
+
+        function setScenario(s) {
+            SCENARIO = s;
+            renderScenarioBtns();
+            // 若已处于预览步，实时刷新统计/横幅/按钮状态
+            if (currentStep === 3) applyScenario();
+            if (currentStep === 3) {
+                document.getElementById('btn-next').disabled = SIMULATE_HAS_ERRORS();
+            }
+        }
+
+        function renderScenarioBtns() {
+            const bp = document.getElementById('scn-pass');
+            const be = document.getElementById('scn-error');
+            if (SCENARIO === 'pass') {
+                bp.className = 'px-3 py-1.5 rounded-lg border font-medium transition bg-green-50 border-green-300 text-green-700';
+                be.className = 'px-3 py-1.5 rounded-lg border font-medium transition border-slate-200 text-slate-500 hover:border-slate-300';
+            } else {
+                bp.className = 'px-3 py-1.5 rounded-lg border font-medium transition border-slate-200 text-slate-500 hover:border-slate-300';
+                be.className = 'px-3 py-1.5 rounded-lg border font-medium transition bg-red-50 border-red-300 text-red-700';
+            }
+        }
 
         // Modal Logic
         const modal = document.getElementById('modal-import');
@@ -440,6 +471,8 @@
 
         function openImportModal() {
             currentStep = 1;
+            SCENARIO = 'pass';
+            applyScenario();
             renderStep();
             modal.classList.remove('hidden');
             setTimeout(() => {
@@ -456,6 +489,24 @@
             }, 200);
         }
 
+
+        function applyScenario() {
+            const hasErr = SIMULATE_HAS_ERRORS();
+            // 统计卡
+            document.getElementById('stat-pass').innerText = hasErr ? '12 条' : '14 条';
+            document.getElementById('stat-fail').innerText = hasErr ? '2 条' : '0 条';
+            // 拦截横幅
+            document.getElementById('intercept-banner').classList.toggle('hidden', !hasErr);
+            // 错误行显示/隐藏 + 页签计数
+            document.querySelectorAll('#preview-tbody .preview-row[data-kind="error"]').forEach(r => r.classList.toggle('hidden', !hasErr));
+            document.getElementById('error-empty-row').classList.toggle('hidden', hasErr);
+            document.getElementById('tab-error').innerText = hasErr ? '错误 2' : '错误 0';
+            document.getElementById('tab-all').innerText = '全部 ' + (hasErr ? '8' : '8');
+            // 默认回到「全部」页签
+            const tabs = document.querySelectorAll('#preview-tabs button');
+            switchPreviewTab('all', tabs[0]);
+            renderScenarioBtns();
+        }
         function switchPreviewTab(kind, btn) {
             document.querySelectorAll('#preview-tabs button').forEach(b => {
                 b.classList.remove('bg-white', 'shadow-sm', 'text-slate-800');
@@ -463,21 +514,25 @@
             btn.classList.add('bg-white', 'shadow-sm', 'text-slate-800');
             document.querySelectorAll('#preview-tbody .preview-row').forEach(row => {
                 const k = row.dataset.kind;
-                let show = (kind === 'all') ||
+                const hasErr = SIMULATE_HAS_ERRORS();
+                let show = (kind === 'all' && (k !== 'error' || hasErr)) ||
                            (kind === 'error' && k === 'error') ||
                            (kind === 'update' && k === 'update');
                 row.classList.toggle('hidden', !show);
+                // pass 场景：错误页签只显示空状态行
+                document.getElementById('error-empty-row').classList.toggle('hidden', hasErr || kind !== 'error');
             });
         }
 
         function nextStep() {
             if (currentStep === 1) {
-                // 上传步：点击确认进入校验预览（demo 直接进入）
+                // 上传步：进入校验预览，并按当前场景刷新预览内容
                 currentStep = 3;
+                applyScenario();
                 renderStep();
             } else if (currentStep === 3) {
                 // 校验预览步：存在错误 → 整表拦截，按钮禁用，不允许进入导入
-                if (SIMULATE_HAS_ERRORS) return;
+                if (SIMULATE_HAS_ERRORS()) return;
                 document.getElementById('step-content-3').classList.add('hidden');
                 document.getElementById('step-content-success').classList.remove('hidden');
                 document.getElementById('btn-next').classList.add('hidden');
@@ -528,7 +583,7 @@
                 btnNext.classList.remove('hidden');
                 // 有错误 → 整表拦截：确认导入禁用
                 btnNext.innerText = "确认导入";
-                btnNext.disabled = SIMULATE_HAS_ERRORS;
+                btnNext.disabled = SIMULATE_HAS_ERRORS();
             }
         }
 
