@@ -1362,19 +1362,26 @@
             const imgHTML = st !== 'none'
                 ? `<img src="${data.studentAvatar || 'https://api.dicebear.com/9.x/avataaars/svg?seed=' + data.studentName}" class="w-24 h-24 rounded-xl object-cover border-2 border-slate-100">`
                 : `<div class="w-24 h-24 rounded-xl bg-slate-50 border-2 border-dashed border-slate-200 flex items-center justify-center text-slate-300 text-2xl"><i class="fa-solid fa-user-slash"></i></div>`;
-            // 状态修改：下拉选择（三态自由切换）；未提交无照片不可设
+            // 状态修改：下拉选择后需点「保存」生效（与修改报考信息一致）；未提交无照片不可设
             let actionHTML = '';
             if (st === 'none') {
                 actionHTML = `<span class="ml-auto text-[11px] text-slate-400">学生尚未上传照片，无法设置审核状态</span>`;
             } else {
                 const opt = (val, label) => `<option value="${val}" ${st === val ? 'selected' : ''}>${label}</option>`;
-                actionHTML = `<div class="ml-auto flex flex-col items-end gap-1">
-                        <label class="text-[10px] text-slate-400">修改审核状态</label>
-                        <select onchange="auditPhotoInDrawer(this.value)" class="px-3 py-1.5 text-xs rounded-lg border border-slate-200 bg-white text-slate-700 font-medium outline-none hover:border-slate-300 cursor-pointer">
-                            ${opt('pass', '合格')}
-                            ${opt('pending', '待审核')}
-                            ${opt('reject', '不合格')}
-                        </select>
+                actionHTML = `<div class="ml-auto flex flex-col items-end gap-1.5">
+                        <div class="flex items-center gap-2">
+                            <label class="text-[10px] text-slate-400">修改审核状态</label>
+                            <select id="photo-status-select" onchange="onPhotoStatusChange('${st}')" class="px-3 py-1.5 text-xs rounded-lg border border-slate-200 bg-white text-slate-700 font-medium outline-none hover:border-slate-300 cursor-pointer">
+                                ${opt('pass', '合格')}
+                                ${opt('pending', '待审核')}
+                                ${opt('reject', '不合格')}
+                            </select>
+                        </div>
+                        <div id="photo-status-actions" class="hidden flex items-center gap-2">
+                            <button onclick="cancelPhotoStatusChange('${st}')" class="px-3 py-1.5 text-xs text-slate-600 hover:bg-slate-50 rounded-lg border border-slate-200 transition">取消</button>
+                            <button onclick="savePhotoStatusChange()" class="px-3 py-1.5 text-xs bg-brand-600 hover:bg-brand-700 text-white rounded-lg transition font-bold">保存并同步</button>
+                        </div>
+                        <span id="photo-status-hint" class="text-[10px] text-slate-400">选择新状态后保存生效，同步列表与证件状态</span>
                     </div>`;
             }
             return `<div class="mb-6">
@@ -1388,6 +1395,27 @@
                     ${actionHTML}
                 </div>
             </div>`;
+        }
+        function onPhotoStatusChange(currentSt) {
+            const sel = document.getElementById('photo-status-select');
+            const actions = document.getElementById('photo-status-actions');
+            if (!sel || !actions) return;
+            if (sel.value === currentSt) {
+                actions.classList.add('hidden');
+            } else {
+                actions.classList.remove('hidden');
+            }
+        }
+        function cancelPhotoStatusChange(currentSt) {
+            const sel = document.getElementById('photo-status-select');
+            if (sel) sel.value = currentSt;
+            const actions = document.getElementById('photo-status-actions');
+            if (actions) actions.classList.add('hidden');
+        }
+        function savePhotoStatusChange() {
+            const sel = document.getElementById('photo-status-select');
+            if (!sel) return;
+            auditPhotoInDrawer(sel.value);
         }
         const PHOTO_BADGE_HTML = {
             pass: '<span class="inline-flex items-center gap-1 px-2 py-0.5 rounded text-xs font-bold bg-green-50 text-green-700 border border-green-200">合格</span>',
