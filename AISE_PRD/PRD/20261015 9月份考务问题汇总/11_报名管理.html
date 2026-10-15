@@ -1362,25 +1362,22 @@
             const imgHTML = st !== 'none'
                 ? `<img src="${data.studentAvatar || 'https://api.dicebear.com/9.x/avataaars/svg?seed=' + data.studentName}" class="w-24 h-24 rounded-xl object-cover border-2 border-slate-100">`
                 : `<div class="w-24 h-24 rounded-xl bg-slate-50 border-2 border-dashed border-slate-200 flex items-center justify-center text-slate-300 text-2xl"><i class="fa-solid fa-user-slash"></i></div>`;
-            // 状态修改区：待审核=通过/不通过；已审核=可改判（通过/不通过，标注"修改审核结果"）；未提交=仅提示
+            // 状态自由切换：当前状态高亮不可点，其余状态点击即切换；未提交无照片不可设状态
             let actionHTML = '';
-            if (st === 'pending') {
-                actionHTML = `<div class="ml-auto flex flex-col items-end gap-1.5">
-                        <div class="flex gap-2">
-                            <button onclick="auditPhotoInDrawer('reject')" class="px-3 py-1.5 text-xs text-red-600 hover:bg-red-50 rounded-lg border border-red-200 transition font-medium">不通过</button>
-                            <button onclick="auditPhotoInDrawer('pass')" class="px-3 py-1.5 text-xs bg-green-600 hover:bg-green-700 text-white rounded-lg transition font-bold">通过</button>
-                        </div>
-                        <span class="text-[10px] text-slate-400">审核后立即生效并同步列表</span>
-                    </div>`;
-            } else if (st === 'pass' || st === 'reject') {
-                actionHTML = `<div class="ml-auto flex flex-col items-end gap-1.5">
-                        <div class="flex gap-2">
-                            <button onclick="auditPhotoInDrawer('${st === 'pass' ? 'reject' : 'pass'}')" class="px-3 py-1.5 text-xs ${st === 'pass' ? 'text-red-600 hover:bg-red-50 border-red-200' : 'text-green-700 hover:bg-green-50 border-green-200'} rounded-lg border transition font-medium">${st === 'pass' ? '改判为不通过' : '改判为通过'}</button>
-                        </div>
-                        <span class="text-[10px] text-slate-400">修改审核结果将同步列表与证件状态</span>
-                    </div>`;
+            if (st === 'none') {
+                actionHTML = `<span class="ml-auto text-[11px] text-slate-400">学生尚未上传照片，无法设置审核状态</span>`;
             } else {
-                actionHTML = `<span class="ml-auto text-[11px] text-slate-400">学生尚未上传照片，无法审核</span>`;
+                const opt = (val, label, cls) => st === val
+                    ? `<button class="px-3 py-1.5 text-xs rounded-lg font-bold ${cls}" disabled style="opacity:0.55;cursor:default">${label}（当前）</button>`
+                    : `<button onclick="auditPhotoInDrawer('${val}')" class="px-3 py-1.5 text-xs rounded-lg border transition font-medium ${cls} hover:opacity-80">${label}</button>`;
+                actionHTML = `<div class="ml-auto flex flex-col items-end gap-1.5">
+                        <div class="flex gap-2">
+                            ${opt('pass', '合格', 'bg-green-600 text-white border-green-600')}
+                            ${opt('pending', '待审核', st === 'pending' ? 'bg-amber-500 text-white border-amber-500' : 'text-amber-700 border-amber-200 bg-white hover:bg-amber-50')}
+                            ${opt('reject', '不合格', st === 'reject' ? 'bg-red-600 text-white border-red-600' : 'text-red-600 border-red-200 bg-white hover:bg-red-50')}
+                        </div>
+                        <span class="text-[10px] text-slate-400">状态可自由切换，修改后同步列表与证件状态</span>
+                    </div>`;
             }
             return `<div class="mb-6">
                 <h4 class="text-xs font-bold text-slate-400 uppercase mb-3 border-b border-slate-100 pb-1">报名照片</h4>
@@ -1394,17 +1391,22 @@
                 </div>
             </div>`;
         }
+        const PHOTO_BADGE_HTML = {
+            pass: '<span class="inline-flex items-center gap-1 px-2 py-0.5 rounded text-xs font-bold bg-green-50 text-green-700 border border-green-200">合格</span>',
+            pending: '<span class="inline-flex items-center gap-1 px-2 py-0.5 rounded text-xs font-bold bg-amber-50 text-amber-700 border border-amber-200">待审核</span>',
+            reject: '<span class="inline-flex items-center gap-1 px-2 py-0.5 rounded text-xs font-bold bg-red-50 text-red-700 border border-red-200">不合格</span>',
+            none: '<span class="inline-flex items-center gap-1 px-2 py-0.5 rounded text-xs font-bold bg-slate-100 text-slate-500">未提交</span>'
+        };
         function auditPhotoInDrawer(result) {
             const data = orders[currentOrderId];
             if (!data) return;
-            data.photoStatus = result === 'pass' ? 'pass' : 'reject';
+            if (!['pass', 'pending', 'reject'].includes(result)) return;
+            data.photoStatus = result;
             // 同步列表行照片状态列
             document.querySelectorAll('tbody tr').forEach(tr => {
                 const oc = tr.getAttribute('onclick') || '';
                 if (oc.includes(currentOrderId)) {
-                    tr.querySelectorAll('td')[3].innerHTML = result === 'pass'
-                        ? '<span class="inline-flex items-center gap-1 px-2 py-0.5 rounded text-xs font-bold bg-green-50 text-green-700 border border-green-200">合格</span>'
-                        : '<span class="inline-flex items-center gap-1 px-2 py-0.5 rounded text-xs font-bold bg-red-50 text-red-700 border border-red-200">不合格</span>';
+                    tr.querySelectorAll('td')[3].innerHTML = PHOTO_BADGE_HTML[result];
                 }
             });
             renderDrawerContent(data);
