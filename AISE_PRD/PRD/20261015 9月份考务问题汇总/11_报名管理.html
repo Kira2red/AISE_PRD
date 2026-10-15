@@ -668,17 +668,66 @@
         });
 
         // ========== Order Data Store ==========
-        // 需求三：考场-场次配置（按测评）
-        const EXAM_ROOMS = {
-            '2025春季 Python 一级等级测评': [
-                { id: 'R1', name: '考场A · 上午场 A组', slot: '09:00–11:00' },
-                { id: 'R2', name: '考场B · 下午场 B组', slot: '14:00–16:00' }
-            ],
-            '2025夏季 AIGC 应用能力二级': [
-                { id: 'R3', name: '考场C · 上午场 A组', slot: '09:00–11:00' },
-                { id: 'R4', name: '考场D · 下午场 B组', slot: '14:00–16:00' }
-            ]
+        // 需求三：考场=测评×渠道（活动渠道关联矩阵的一格=一个考场），时间取矩阵格配置
+        const ACTIVITY_TREE = [
+            {
+                activity: '2025春季青少年编程等级测评',
+                groups: [
+                    { group: '上午场 A组', exams: [
+                        { exam: '2025春季 Python 一级等级测评', rooms: [
+                            { channel: '猿编程', code: 'YPB2025', time: '2026-07-15 09:00–11:00' },
+                            { channel: '核桃编程', code: 'HBT2025', time: '2026-07-16 09:00–11:00' },
+                            { channel: 'C端自招', code: '', time: '2026-07-15 14:00–16:00' }
+                        ] }
+                    ] },
+                    { group: '下午场 B组', exams: [
+                        { exam: '2025春季 Python 一级等级测评', rooms: [
+                            { channel: '编程猫', code: 'BJM888', time: '2026-07-18 14:00–16:00' },
+                            { channel: 'C端自招', code: '', time: '2026-07-19 14:00–16:00' }
+                        ] }
+                    ] }
+                ]
+            },
+            {
+                activity: '2025夏季青少年人工智能测评',
+                groups: [
+                    { group: '上午场 A组', exams: [
+                        { exam: '2025夏季 AIGC 应用能力二级', rooms: [
+                            { channel: '猿编程', code: 'YPB2025', time: '2025-07-01 09:00–11:00' },
+                            { channel: '小码王', code: 'XW666', time: '2025-07-02 09:00–11:00' }
+                        ] }
+                    ] },
+                    { group: '下午场 B组', exams: [
+                        { exam: '2025夏季 AIGC 应用能力二级', rooms: [
+                            { channel: 'C端自招', code: '', time: '2025-07-01 14:00–16:00' }
+                        ] }
+                    ] }
+                ]
+            }
+        ];
+
+        // 订单 → 当前矩阵格定位
+        const ORDER_ROOM = {
+            'ORD-20250520-001': { activity: '2025春季青少年编程等级测评', group: '上午场 A组', exam: '2025春季 Python 一级等级测评', channel: '猿编程' },
+            'ORD-20250520-089': { activity: '2025夏季青少年人工智能测评', group: '上午场 A组', exam: '2025夏季 AIGC 应用能力二级', channel: '猿编程' },
+            'ORD-20250522-102': { activity: '2025春季青少年编程等级测评', group: '上午场 A组', exam: '2025春季 Python 一级等级测评', channel: '核桃编程' },
+            'ORD-20250519-045': { activity: '2025春季青少年编程等级测评', group: '下午场 B组', exam: '2025春季 Python 一级等级测评', channel: '编程猫' }
         };
+
+        function findRoom(loc) {
+            for (const act of ACTIVITY_TREE) {
+                if (act.activity !== loc.activity) continue;
+                for (const g of act.groups) {
+                    if (g.group !== loc.group) continue;
+                    for (const ex of g.exams) {
+                        if (ex.exam !== loc.exam) continue;
+                        const room = ex.rooms.find(r => r.channel === loc.channel);
+                        if (room) return { ...room, activity: act.activity, group: g.group, exam: ex.exam };
+                    }
+                }
+            }
+            return null;
+        }
 
         const orders = {
             'ORD-20250520-001': {
@@ -699,9 +748,6 @@
                 channel: '猿编程',
                 channelCode: 'YPB2025',
                 examStartTime: '2026-07-15T09:00:00',
-
-                examRoom: '考场A · 上午场 A组',
-                examSlot: '2026-07-15 09:00–11:00',
                 ticketNo: 'ZK2026-0715-0001',
                 certIssued: false,                merchantTxId: 'MCH-20250520102345',
                 status: 'paid',
@@ -732,9 +778,6 @@
                 channel: 'C端自招',
                 channelCode: '',
                 examStartTime: '2025-07-01T09:00:00',
-
-                examRoom: '考场D · 下午场 B组',
-                examSlot: '2025-07-01 14:00–16:00',
                 ticketNo: 'ZK2025-0701-0089',
                 certIssued: true,                merchantTxId: null,
                 status: 'paid',
@@ -764,9 +807,6 @@
                 channel: '猿编程',
                 channelCode: 'CB888',
                 examStartTime: '2026-07-01T09:00:00',
-
-                examRoom: '考场A · 上午场 A组',
-                examSlot: '2026-07-01 09:00–11:00',
                 ticketNo: '',
                 certIssued: false,                merchantTxId: null,
                 status: 'unpaid',
@@ -795,9 +835,6 @@
                 channel: 'C端自招',
                 channelCode: '',
                 examStartTime: '2025-06-15T09:00:00',
-
-                examRoom: '考场B · 下午场 B组',
-                examSlot: '2025-06-15 14:00–16:00',
                 ticketNo: '',
                 certIssued: false,                merchantTxId: 'MCH-20250515142000',
                 status: 'refunded',
@@ -938,6 +975,8 @@
         }
 
         function renderExamInfo(data) {
+            const roomLoc = ORDER_ROOM[data.orderId];
+            const roomInfo = roomLoc ? findRoom(roomLoc) : null;
             const channelDisplay = data.channelCode ? `${data.channel} (${data.channelCode})` : data.channel;
             const ticketDisplay = data.ticketNo
                 ? `<span class="font-mono text-slate-800 select-all">${data.ticketNo}</span><span class="text-[10px] text-green-600 bg-green-50 px-1.5 py-0.5 rounded ml-2">已同步证书</span>`
@@ -965,11 +1004,11 @@
                     </div>
                     <div class="flex justify-between">
                         <span class="text-slate-500">考场</span>
-                        <span class="text-slate-800 font-medium" id="display-room">${data.examRoom || '—'}</span>
+                        <span class="text-slate-800 font-medium text-xs text-right" id="display-room">${roomLoc ? roomLoc.activity + ' › ' + roomLoc.group + ' › ' + roomLoc.exam + ' › ' + roomLoc.channel : '—'}</span>
                     </div>
                     <div class="flex justify-between">
                         <span class="text-slate-500">考试时间</span>
-                        <span class="text-slate-800 font-mono text-xs" id="display-slot">${data.examSlot || '—'}</span>
+                        <span class="text-slate-800 font-mono text-xs" id="display-slot">${roomInfo ? roomInfo.time : '—'}</span>
                     </div>
                     <div class="flex justify-between">
                         <span class="text-slate-500">准考证</span>
@@ -977,19 +1016,32 @@
                     </div>
                 </div>
                 <div id="room-edit" class="hidden mt-3 bg-brand-50/40 border border-brand-100 rounded-xl p-4 space-y-3">
-                    <div>
-                        <label class="block text-xs font-medium text-slate-600 mb-1.5">考场（含分组与场次）</label>
-                        <select id="edit-room" class="w-full px-3 py-2 rounded-lg border border-slate-200 text-sm bg-white focus:border-brand-500 focus:ring-1 focus:ring-brand-500 outline-none"></select>
+                    <p class="text-xs font-medium text-slate-700">调整考场：依次选择 渠道 → 活动 → 分组 → 测评，定位到目标考场（测评×渠道）</p>
+                    <div class="grid grid-cols-2 gap-2.5">
+                        <div>
+                            <label class="block text-xs font-medium text-slate-600 mb-1.5">渠道</label>
+                            <select id="edit-channel" onchange="onEditCascade('channel')" class="w-full px-2.5 py-2 rounded-lg border border-slate-200 text-xs bg-white focus:border-brand-500 focus:ring-1 focus:ring-brand-500 outline-none"></select>
+                        </div>
+                        <div>
+                            <label class="block text-xs font-medium text-slate-600 mb-1.5">活动</label>
+                            <select id="edit-activity" onchange="onEditCascade('activity')" class="w-full px-2.5 py-2 rounded-lg border border-slate-200 text-xs bg-white focus:border-brand-500 focus:ring-1 focus:ring-brand-500 outline-none"></select>
+                        </div>
+                        <div>
+                            <label class="block text-xs font-medium text-slate-600 mb-1.5">分组</label>
+                            <select id="edit-group" onchange="onEditCascade('group')" class="w-full px-2.5 py-2 rounded-lg border border-slate-200 text-xs bg-white focus:border-brand-500 focus:ring-1 focus:ring-brand-500 outline-none"></select>
+                        </div>
+                        <div>
+                            <label class="block text-xs font-medium text-slate-600 mb-1.5">测评</label>
+                            <select id="edit-exam" onchange="onEditCascade('exam')" class="w-full px-2.5 py-2 rounded-lg border border-slate-200 text-xs bg-white focus:border-brand-500 focus:ring-1 focus:ring-brand-500 outline-none"></select>
+                        </div>
                     </div>
-                    <div>
-                        <label class="block text-xs font-medium text-slate-600 mb-1.5">考试日期</label>
-                        <input type="date" id="edit-date" class="w-full px-3 py-2 rounded-lg border border-slate-200 text-sm focus:border-brand-500 focus:ring-1 focus:ring-brand-500 outline-none">
-                    </div>
-                    <div class="text-xs text-slate-500 bg-white rounded-lg p-3 border border-slate-100">
-                        <p class="font-medium text-slate-700 mb-1"><i class="fa-solid fa-circle-info mr-1 text-brand-500"></i>保存后系统自动同步：</p>
-                        <p>· 按新考场/日期重新生成准考证号</p>
-                        <p>· 更新列表考试时间与所属分组</p>
-                        <p id="edit-cert-hint" class="hidden text-amber-600">· 该学员已签发证书，证书上的考场与时间将同步更新</p>
+                    <div class="bg-white rounded-lg p-3 border border-slate-100 space-y-1.5 text-xs">
+                        <div class="flex justify-between">
+                            <span class="text-slate-500">新考场时间（取矩阵配置，不可修改）</span>
+                            <span class="font-mono text-slate-800 font-medium" id="edit-room-time">—</span>
+                        </div>
+                        <div id="edit-cert-hint" class="hidden text-amber-600">该学员已签发证书，证书上的考场与时间将同步更新</div>
+                        <div id="edit-hint" class="hidden text-red-600"></div>
                     </div>
                     <div class="flex justify-end gap-2 pt-1">
                         <button onclick="toggleRoomEdit()" class="px-3 py-1.5 text-xs text-slate-600 hover:bg-slate-100 rounded-lg border border-slate-200 transition">取消</button>
@@ -1009,48 +1061,99 @@
                 disp.classList.remove('hidden');
                 return;
             }
-            // 填充考场下拉
-            const rooms = EXAM_ROOMS[data.exam] || [];
-            const sel = document.getElementById('edit-room');
-            sel.innerHTML = rooms.map(r => `<option value="${r.id}" ${r.name === data.examRoom ? 'selected' : ''}>${r.name}</option>`).join('');
-            // 填充日期（从 examSlot 提取）
-            const m = (data.examSlot || '').match(/^(\d{4}-\d{2}-\d{2})/);
-            document.getElementById('edit-date').value = m ? m[1] : '';
-            // 证书提示
+            const curLoc = ORDER_ROOM[data.orderId];
+            // 渠道：全量已关联渠道
+            const allChannels = [];
+            ACTIVITY_TREE.forEach(act => act.groups.forEach(g => g.exams.forEach(ex => ex.rooms.forEach(r => {
+                if (!allChannels.some(c => c.channel === r.channel)) allChannels.push({ channel: r.channel, code: r.code });
+            }))));
+            const selC = document.getElementById('edit-channel');
+            selC.innerHTML = allChannels.map(c => `<option value="${c.channel}" ${c.channel === curLoc.channel ? 'selected' : ''}>${c.channel}${c.code ? ' (' + c.code + ')' : ''}</option>`).join('');
+            fillCascade('activity', curLoc.channel, curLoc.activity);
+            fillCascade('group', curLoc.channel, curLoc.activity, curLoc.group);
+            fillCascade('exam', curLoc.channel, curLoc.activity, curLoc.group, curLoc.exam);
             document.getElementById('edit-cert-hint').classList.toggle('hidden', !data.certIssued);
+            updateRoomTime();
             disp.classList.add('hidden');
             edit.classList.remove('hidden');
+        }
+
+        // 级联填充：level='activity'|'group'|'exam'，按上游选择过滤
+        function cascadeOptions(channel, activity, group) {
+            let acts = ACTIVITY_TREE;
+            if (channel) acts = acts.filter(a => a.groups.some(g => g.exams.some(ex => ex.rooms.some(r => r.channel === channel))));
+            let out = acts.map(a => a.activity);
+            if (activity) out = [activity];
+            return out;
+        }
+        function fillCascade(level, channel, activity, group, exam) {
+            const sel = document.getElementById('edit-' + level);
+            let opts = [];
+            if (level === 'activity') {
+                opts = cascadeOptions(channel);
+            } else if (level === 'group') {
+                const act = ACTIVITY_TREE.find(a => a.activity === activity);
+                opts = act ? act.groups.filter(g => g.exams.some(ex => ex.rooms.some(r => r.channel === channel))).map(g => g.group) : [];
+            } else if (level === 'exam') {
+                const act = ACTIVITY_TREE.find(a => a.activity === activity);
+                const g = act && act.groups.find(x => x.group === group);
+                opts = g ? g.exams.filter(ex => ex.rooms.some(r => r.channel === channel)).map(ex => ex.exam) : [];
+            }
+            const cur = sel.value || opts[0];
+            sel.innerHTML = opts.map(o => `<option value="${o}">${o}</option>`).join('');
+            if (opts.includes(cur)) sel.value = cur;
+        }
+
+        function onEditCascade(level) {
+            const channel = document.getElementById('edit-channel').value;
+            let activity = document.getElementById('edit-activity').value;
+            let group = document.getElementById('edit-group').value;
+            if (level === 'channel') { fillCascade('activity', channel); activity = document.getElementById('edit-activity').value; fillCascade('group', channel, activity); group = document.getElementById('edit-group').value; fillCascade('exam', channel, activity, group); }
+            else if (level === 'activity') { fillCascade('group', channel, activity); group = document.getElementById('edit-group').value; fillCascade('exam', channel, activity, group); }
+            else if (level === 'group') { fillCascade('exam', channel, activity, group); }
+            updateRoomTime();
+        }
+
+        function currentEditLoc() {
+            return {
+                channel: document.getElementById('edit-channel').value,
+                activity: document.getElementById('edit-activity').value,
+                group: document.getElementById('edit-group').value,
+                exam: document.getElementById('edit-exam').value
+            };
+        }
+
+        function updateRoomTime() {
+            const loc = currentEditLoc();
+            const room = findRoom(loc);
+            document.getElementById('edit-room-time').textContent = room ? room.time : '该组合未关联（矩阵中不存在）';
         }
 
         function saveRoomEdit() {
             if (!currentOrderId || !orders[currentOrderId]) return;
             const data = orders[currentOrderId];
-            const rooms = EXAM_ROOMS[data.exam] || [];
-            const roomId = document.getElementById('edit-room').value;
-            const date = document.getElementById('edit-date').value;
-            if (!date) { alert('请选择考试日期'); return; }
-            const room = rooms.find(r => r.id === roomId);
-            if (!room) { alert('请选择考场'); return; }
-            const newSlot = `${date} ${room.slot}`;
-            const roomChanged = room.name !== data.examRoom;
-            const slotChanged = newSlot !== data.examSlot;
-            if (!roomChanged && !slotChanged) {
-                alert('考场与时间均未变化');
-                return;
-            }
-            const oldRoom = data.examRoom, oldSlot = data.examSlot;
-            data.examRoom = room.name;
-            data.examSlot = newSlot;
-            // 重新生成准考证号：ZK + 日期去符号 + 序号（取原号尾号或随机）
+            const newLoc = currentEditLoc();
+            const room = findRoom(newLoc);
+            const hintEl = document.getElementById('edit-hint');
+            const showHint = msg => { hintEl.textContent = msg; hintEl.classList.remove('hidden'); };
+            hintEl.classList.add('hidden');
+            if (!room) { showHint('该「测评×渠道」组合未在矩阵中关联，无法调整'); return; }
+            const curLoc = ORDER_ROOM[data.orderId];
+            const same = curLoc.channel === newLoc.channel && curLoc.activity === newLoc.activity && curLoc.group === newLoc.group && curLoc.exam === newLoc.exam;
+            if (same) { showHint('考场未变化，请先选择不同的考场'); return; }
+            const oldRoom = findRoom(curLoc);
+            // 更新数据
+            ORDER_ROOM[data.orderId] = newLoc;
+            data.channel = newLoc.channel;
+            data.channelCode = room.code || '';
             const seq = data.ticketNo ? data.ticketNo.slice(-4) : String(Math.floor(1000 + Math.random() * 9000));
-            data.ticketNo = `ZK${date.replace(/-/g, '')}-${seq}`;
-            // 操作日志
+            const datePart = room.time.match(/^(\d{4}-\d{2}-\d{2})/);
+            data.ticketNo = `ZK${datePart ? datePart[1].replace(/-/g, '') : '00000000'}-${seq}`;
             const now = new Date();
             const ts = `${now.getFullYear()}-${String(now.getMonth()+1).padStart(2,'0')}-${String(now.getDate()).padStart(2,'0')} ${String(now.getHours()).padStart(2,'0')}:${String(now.getMinutes()).padStart(2,'0')}`;
-            data.log.unshift({ action: `调整考场/时间：${oldRoom || '—'} → ${room.name}，${oldSlot || '—'} → ${newSlot}`, time: ts, actor: '客服小A', type: 'info' });
-            // 同步列表行
+            const locStr = l => `${l.activity} › ${l.group} › ${l.exam} › ${l.channel}`;
+            data.log.unshift({ action: `调整考场：${locStr(curLoc)} → ${locStr(newLoc)}，时间 ${oldRoom.time} → ${room.time}`, time: ts, actor: '客服小A', type: 'info' });
             syncListRow(currentOrderId, data);
-            // 重渲染抽屉
             renderDrawerContent(data);
         }
 
@@ -1063,8 +1166,17 @@
                     const tds = tr.querySelectorAll('td');
                     // 14列：0测评 1学员 2照片 3准考证 4登录手机 5联系电话 6分组 7渠道 8金额 9支付 10状态 11考试时间 12报名时间 13操作
                     if (tds[3] !== undefined) tds[3].textContent = data.ticketNo || '未生成';
-                    if (tds[6] !== undefined) tds[6].textContent = data.examRoom ? data.examRoom.replace(/^考场[A-Z] · /, '') : '—';
-                    if (tds[11] !== undefined) tds[11].textContent = data.examSlot || '—';
+                    const loc = ORDER_ROOM[orderId];
+                    const info = loc ? findRoom(loc) : null;
+                    if (tds[6] !== undefined) tds[6].textContent = loc ? loc.group : '—';
+                    if (tds[11] !== undefined) tds[11].textContent = info ? info.time : '—';
+                    if (tds[7] !== undefined && info) {
+                        const code = info.code;
+                        const name = info.channel;
+                        tds[7].innerHTML = code
+                            ? `<span class="bg-blue-50 text-brand-600 border border-blue-100 text-[10px] px-2 py-0.5 rounded font-mono">${code}</span><span class="text-[10px] text-slate-400 ml-1">${name}</span>`
+                            : `<span class="text-xs text-slate-500">${name}</span>`;
+                    }
                 }
             });
         }
