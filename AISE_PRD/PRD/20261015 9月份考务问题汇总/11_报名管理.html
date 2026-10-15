@@ -668,6 +668,18 @@
         });
 
         // ========== Order Data Store ==========
+        // 需求三：考场-场次配置（按测评）
+        const EXAM_ROOMS = {
+            '2025春季 Python 一级等级测评': [
+                { id: 'R1', name: '考场A · 上午场 A组', slot: '09:00–11:00' },
+                { id: 'R2', name: '考场B · 下午场 B组', slot: '14:00–16:00' }
+            ],
+            '2025夏季 AIGC 应用能力二级': [
+                { id: 'R3', name: '考场C · 上午场 A组', slot: '09:00–11:00' },
+                { id: 'R4', name: '考场D · 下午场 B组', slot: '14:00–16:00' }
+            ]
+        };
+
         const orders = {
             'ORD-20250520-001': {
                 orderId: 'ORD-20250520-001',
@@ -687,7 +699,11 @@
                 channel: '猿编程',
                 channelCode: 'YPB2025',
                 examStartTime: '2026-07-15T09:00:00',
-                merchantTxId: 'MCH-20250520102345',
+
+                examRoom: '考场A · 上午场 A组',
+                examSlot: '2026-07-15 09:00–11:00',
+                ticketNo: 'ZK2026-0715-0001',
+                certIssued: false,                merchantTxId: 'MCH-20250520102345',
                 status: 'paid',
                 refundAmount: null,
                 refundTime: null,
@@ -716,7 +732,11 @@
                 channel: 'C端自招',
                 channelCode: '',
                 examStartTime: '2025-07-01T09:00:00',
-                merchantTxId: null,
+
+                examRoom: '考场D · 下午场 B组',
+                examSlot: '2025-07-01 14:00–16:00',
+                ticketNo: 'ZK2025-0701-0089',
+                certIssued: true,                merchantTxId: null,
                 status: 'paid',
                 refundAmount: null,
                 refundTime: null,
@@ -744,7 +764,11 @@
                 channel: '猿编程',
                 channelCode: 'CB888',
                 examStartTime: '2026-07-01T09:00:00',
-                merchantTxId: null,
+
+                examRoom: '考场A · 上午场 A组',
+                examSlot: '2026-07-01 09:00–11:00',
+                ticketNo: '',
+                certIssued: false,                merchantTxId: null,
                 status: 'unpaid',
                 refundAmount: null,
                 refundTime: null,
@@ -771,7 +795,11 @@
                 channel: 'C端自招',
                 channelCode: '',
                 examStartTime: '2025-06-15T09:00:00',
-                merchantTxId: 'MCH-20250515142000',
+
+                examRoom: '考场B · 下午场 B组',
+                examSlot: '2025-06-15 14:00–16:00',
+                ticketNo: '',
+                certIssued: false,                merchantTxId: 'MCH-20250515142000',
                 status: 'refunded',
                 refundAmount: '199.00',
                 refundTime: '2025-05-19 16:30:22',
@@ -911,9 +939,18 @@
 
         function renderExamInfo(data) {
             const channelDisplay = data.channelCode ? `${data.channel} (${data.channelCode})` : data.channel;
+            const ticketDisplay = data.ticketNo
+                ? `<span class="font-mono text-slate-800 select-all">${data.ticketNo}</span><span class="text-[10px] text-green-600 bg-green-50 px-1.5 py-0.5 rounded ml-2">已同步证书</span>`
+                : '<span class="text-slate-400">未生成</span>';
+            const editable = data.status === 'paid' || data.status === 'unpaid';
+            const editBtn = editable
+                ? `<button onclick="toggleRoomEdit()" class="text-xs text-brand-600 hover:text-brand-800 font-medium"><i class="fa-solid fa-pen-to-square mr-1"></i>调整考场/时间</button>`
+                : '<span class="text-xs text-slate-400">已退款或测评开始，不可调整</span>';
             return `<div class="mb-6">
-                <h4 class="text-xs font-bold text-slate-400 uppercase mb-3 border-b border-slate-100 pb-1">报考信息</h4>
-                <div class="space-y-3 text-sm">
+                <h4 class="text-xs font-bold text-slate-400 uppercase mb-3 border-b border-slate-100 pb-1 flex items-center justify-between">
+                    <span>报考信息</span>${editBtn}
+                </h4>
+                <div id="room-display" class="space-y-3 text-sm">
                     <div class="flex justify-between">
                         <span class="text-slate-500">订单编号</span>
                         <span class="font-mono text-slate-800 select-all">${data.orderId}</span>
@@ -926,8 +963,110 @@
                         <span class="text-slate-500">渠道来源</span>
                         <span class="${data.channelCode ? 'bg-blue-50 text-brand-600' : ''} text-xs px-2 py-0.5 rounded">${channelDisplay}</span>
                     </div>
+                    <div class="flex justify-between">
+                        <span class="text-slate-500">考场</span>
+                        <span class="text-slate-800 font-medium" id="display-room">${data.examRoom || '—'}</span>
+                    </div>
+                    <div class="flex justify-between">
+                        <span class="text-slate-500">考试时间</span>
+                        <span class="text-slate-800 font-mono text-xs" id="display-slot">${data.examSlot || '—'}</span>
+                    </div>
+                    <div class="flex justify-between">
+                        <span class="text-slate-500">准考证</span>
+                        <span id="display-ticket">${ticketDisplay}</span>
+                    </div>
+                </div>
+                <div id="room-edit" class="hidden mt-3 bg-brand-50/40 border border-brand-100 rounded-xl p-4 space-y-3">
+                    <div>
+                        <label class="block text-xs font-medium text-slate-600 mb-1.5">考场（含分组与场次）</label>
+                        <select id="edit-room" class="w-full px-3 py-2 rounded-lg border border-slate-200 text-sm bg-white focus:border-brand-500 focus:ring-1 focus:ring-brand-500 outline-none"></select>
+                    </div>
+                    <div>
+                        <label class="block text-xs font-medium text-slate-600 mb-1.5">考试日期</label>
+                        <input type="date" id="edit-date" class="w-full px-3 py-2 rounded-lg border border-slate-200 text-sm focus:border-brand-500 focus:ring-1 focus:ring-brand-500 outline-none">
+                    </div>
+                    <div class="text-xs text-slate-500 bg-white rounded-lg p-3 border border-slate-100">
+                        <p class="font-medium text-slate-700 mb-1"><i class="fa-solid fa-circle-info mr-1 text-brand-500"></i>保存后系统自动同步：</p>
+                        <p>· 按新考场/日期重新生成准考证号</p>
+                        <p>· 更新列表考试时间与所属分组</p>
+                        <p id="edit-cert-hint" class="hidden text-amber-600">· 该学员已签发证书，证书上的考场与时间将同步更新</p>
+                    </div>
+                    <div class="flex justify-end gap-2 pt-1">
+                        <button onclick="toggleRoomEdit()" class="px-3 py-1.5 text-xs text-slate-600 hover:bg-slate-100 rounded-lg border border-slate-200 transition">取消</button>
+                        <button onclick="saveRoomEdit()" class="px-4 py-1.5 text-xs bg-brand-600 hover:bg-brand-700 text-white font-bold rounded-lg transition shadow-sm">保存并同步</button>
+                    </div>
                 </div>
             </div>`;
+        }
+
+        function toggleRoomEdit() {
+            if (!currentOrderId || !orders[currentOrderId]) return;
+            const data = orders[currentOrderId];
+            const disp = document.getElementById('room-display');
+            const edit = document.getElementById('room-edit');
+            if (!edit.classList.contains('hidden')) {
+                edit.classList.add('hidden');
+                disp.classList.remove('hidden');
+                return;
+            }
+            // 填充考场下拉
+            const rooms = EXAM_ROOMS[data.exam] || [];
+            const sel = document.getElementById('edit-room');
+            sel.innerHTML = rooms.map(r => `<option value="${r.id}" ${r.name === data.examRoom ? 'selected' : ''}>${r.name}</option>`).join('');
+            // 填充日期（从 examSlot 提取）
+            const m = (data.examSlot || '').match(/^(\d{4}-\d{2}-\d{2})/);
+            document.getElementById('edit-date').value = m ? m[1] : '';
+            // 证书提示
+            document.getElementById('edit-cert-hint').classList.toggle('hidden', !data.certIssued);
+            disp.classList.add('hidden');
+            edit.classList.remove('hidden');
+        }
+
+        function saveRoomEdit() {
+            if (!currentOrderId || !orders[currentOrderId]) return;
+            const data = orders[currentOrderId];
+            const rooms = EXAM_ROOMS[data.exam] || [];
+            const roomId = document.getElementById('edit-room').value;
+            const date = document.getElementById('edit-date').value;
+            if (!date) { alert('请选择考试日期'); return; }
+            const room = rooms.find(r => r.id === roomId);
+            if (!room) { alert('请选择考场'); return; }
+            const newSlot = `${date} ${room.slot}`;
+            const roomChanged = room.name !== data.examRoom;
+            const slotChanged = newSlot !== data.examSlot;
+            if (!roomChanged && !slotChanged) {
+                alert('考场与时间均未变化');
+                return;
+            }
+            const oldRoom = data.examRoom, oldSlot = data.examSlot;
+            data.examRoom = room.name;
+            data.examSlot = newSlot;
+            // 重新生成准考证号：ZK + 日期去符号 + 序号（取原号尾号或随机）
+            const seq = data.ticketNo ? data.ticketNo.slice(-4) : String(Math.floor(1000 + Math.random() * 9000));
+            data.ticketNo = `ZK${date.replace(/-/g, '')}-${seq}`;
+            // 操作日志
+            const now = new Date();
+            const ts = `${now.getFullYear()}-${String(now.getMonth()+1).padStart(2,'0')}-${String(now.getDate()).padStart(2,'0')} ${String(now.getHours()).padStart(2,'0')}:${String(now.getMinutes()).padStart(2,'0')}`;
+            data.log.unshift({ action: `调整考场/时间：${oldRoom || '—'} → ${room.name}，${oldSlot || '—'} → ${newSlot}`, time: ts, actor: '客服小A', type: 'info' });
+            // 同步列表行
+            syncListRow(currentOrderId, data);
+            // 重渲染抽屉
+            renderDrawerContent(data);
+        }
+
+        function syncListRow(orderId, data) {
+            const btns = document.querySelectorAll('tbody button');
+            btns.forEach(b => {
+                if (b.textContent.trim() === '详情') {
+                    const tr = b.closest('tr');
+                    if (!tr || !tr.textContent.includes(orderId)) return;
+                    const tds = tr.querySelectorAll('td');
+                    // 14列：0测评 1学员 2照片 3准考证 4登录手机 5联系电话 6分组 7渠道 8金额 9支付 10状态 11考试时间 12报名时间 13操作
+                    if (tds[3] !== undefined) tds[3].textContent = data.ticketNo || '未生成';
+                    if (tds[6] !== undefined) tds[6].textContent = data.examRoom ? data.examRoom.replace(/^考场[A-Z] · /, '') : '—';
+                    if (tds[11] !== undefined) tds[11].textContent = data.examSlot || '—';
+                }
+            });
         }
 
         function renderStudentInfo(data) {
