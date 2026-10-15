@@ -87,7 +87,9 @@
                     <i class="fa-solid fa-magnifying-glass absolute left-3 top-1/2 transform -translate-y-1/2 text-slate-400 text-sm"></i>
                     <input type="text" placeholder="搜索订单号 / 姓名 / 手机号..." class="w-full pl-9 pr-4 py-2 rounded-lg border border-slate-200 text-sm focus:border-brand-500 outline-none transition">
                 </div>
-                <div class="ml-auto text-sm text-slate-400">共 1,245 条记录</div>
+                <select class="px-3 py-2 rounded-lg border border-slate-200 text-sm text-slate-600 bg-white outline-none"><option>支付状态：全部</option><option>已支付</option><option>待支付</option></select>
+                    <select class="px-3 py-2 rounded-lg border border-slate-200 text-sm text-slate-600 bg-white outline-none"><option>报名来源：全部</option><option>批量导入</option><option>自主报名</option></select>
+                    <div class="ml-2 text-sm text-slate-400">共 1,245 条记录</div>
             </div>
         </div>
 
@@ -119,12 +121,42 @@
                             </td>
                             <td class="p-4"><span class="bg-blue-50 text-brand-600 border border-blue-100 text-[10px] px-2 py-0.5 rounded font-mono">YPB2025</span></td>
                             <td class="p-4 font-mono font-medium">¥ 199.00</td>
-                            <td class="p-4">
-                                <span class="inline-flex items-center gap-1.5 px-2 py-0.5 rounded text-xs font-bold bg-green-50 text-green-700">
-                                    <i class="fa-brands fa-weixin"></i> 已支付
-                                </span>
-                            </td>
+                            <td class="p-4"><span class="inline-flex items-center gap-1.5 px-2 py-0.5 rounded text-xs font-bold bg-green-50 text-green-700">已支付</span></td>
                             <td class="p-4 text-xs text-slate-500">05-20 10:23</td>
+                        </tr>
+                        <tr class="hover-row transition">
+                            <td class="p-4 pl-6">
+                                <p class="font-bold text-slate-800">2025夏季 AIGC 二级</p>
+                                <p class="text-xs text-slate-400 font-mono mt-0.5">ORD-20250521-089</p>
+                            </td>
+                            <td class="p-4">
+                                <div class="flex items-center gap-2">
+                                    <div class="w-6 h-6 rounded-full bg-purple-100 text-purple-600 flex items-center justify-center text-xs font-bold">李</div>
+                                    <span>李小四</span>
+                                </div>
+                                <p class="text-xs text-slate-400 mt-0.5 font-mono">13912345678</p>
+                            </td>
+                            <td class="p-4"><span class="text-slate-400 text-xs">C端自招</span></td>
+                            <td class="p-4 font-mono font-medium text-slate-400">¥ 0.00</td>
+                            <td class="p-4"><span class="inline-flex items-center gap-1.5 px-2 py-0.5 rounded text-xs font-bold bg-green-50 text-green-700">已支付</span></td>
+                            <td class="p-4 text-xs text-slate-500">05-21 09:15</td>
+                        </tr>
+                        <tr class="hover-row transition">
+                            <td class="p-4 pl-6">
+                                <p class="font-bold text-slate-800">2025春季 Python 一级</p>
+                                <p class="text-xs text-slate-400 font-mono mt-0.5">ORD-20250522-102</p>
+                            </td>
+                            <td class="p-4">
+                                <div class="flex items-center gap-2">
+                                    <div class="w-6 h-6 rounded-full bg-orange-100 text-orange-600 flex items-center justify-center text-xs font-bold">王</div>
+                                    <span>王五</span>
+                                </div>
+                                <p class="text-xs text-slate-400 mt-0.5 font-mono">15000000000</p>
+                            </td>
+                            <td class="p-4"><span class="bg-blue-50 text-brand-600 border border-blue-100 text-[10px] px-2 py-0.5 rounded font-mono">CB888</span></td>
+                            <td class="p-4 font-mono font-medium">¥ 199.00</td>
+                            <td class="p-4"><span class="inline-flex items-center gap-1.5 px-2 py-0.5 rounded text-xs font-bold bg-amber-50 text-amber-600">待支付</span></td>
+                            <td class="p-4 text-xs text-slate-500">05-22 14:30</td>
                         </tr>
                     </tbody>
                 </table>
@@ -197,7 +229,7 @@
 
                     <details class="mt-4 border border-slate-200 rounded-lg bg-white">
                         <summary class="px-4 py-2.5 text-xs font-bold text-slate-600 cursor-pointer select-none flex items-center gap-2">
-                            <i class="fa-solid fa-table-list text-slate-400"></i> 查看标准模板列与填写规则（11 列）
+                            <i class="fa-solid fa-table-list text-slate-400"></i> 查看标准模板列与填写规则（7 列）
                         </summary>
                         <div class="px-4 pb-3 text-xs text-slate-600">
                             <table class="w-full border-collapse">
@@ -208,16 +240,14 @@
                                     </tr>
                                 </thead>
                                 <tbody class="divide-y divide-slate-100">
-                                    <tr><td class="p-2 font-medium">姓名</td><td class="p-2">必填。留空沿用系统档案（仅更新已有报名时）</td></tr>
-                                    <tr><td class="p-2 font-medium">身份证号</td><td class="p-2">必填，定位学生的唯一依据</td></tr>
-                                    <tr><td class="p-2 font-medium">联系电话</td><td class="p-2">可空=不修改。留空不覆盖原联系电话；<b>登录手机号任何情况都不会被导入修改</b></td></tr>
-                                    <tr><td class="p-2 font-medium">活动</td><td class="p-2">必填，须与系统活动名称完全一致</td></tr>
-                                    <tr><td class="p-2 font-medium">报名渠道</td><td class="p-2">须与系统渠道名一致；渠道以渠道识别码为匹配键，两列都须对得上</td></tr>
-                                    <tr><td class="p-2 font-medium">渠道识别码</td><td class="p-2">新建报名必填；更新已有报名可空=保持原渠道</td></tr>
-                                    <tr><td class="p-2 font-medium">分组</td><td class="p-2">须与该活动下的分组名一致；更新时可空=保持原分组</td></tr>
-                                    <tr><td class="p-2 font-medium">测评名称</td><td class="p-2">必填，须与系统测评名完全一致</td></tr>
-                                    <tr><td class="p-2 font-medium">支付状态</td><td class="p-2">已支付/未支付；新建报名必填；更新时可空=保持原状态</td></tr>
-                                </tbody>
+                                    <tr><td class="p-2 font-medium">姓名（必填）</td><td class="p-2">更新已有报名时可空=沿用系统档案；填了则以表格为准覆盖</td></tr>
+                                    <tr><td class="p-2 font-medium">证件类型（必填）</td><td class="p-2">取线上支持的全部证件类型（居民身份证、港澳通行证、台湾通行证、护照等），以模板下拉为准</td></tr>
+                                    <tr><td class="p-2 font-medium">证件号（必填）</td><td class="p-2">定位学生的唯一依据；证件类型+证件号联合唯一</td></tr>
+                                    <tr><td class="p-2 font-medium">联系电话</td><td class="p-2">可空=不修改原值；登录手机号任何情况不被导入修改</td></tr>
+                                    <tr><td class="p-2 font-medium">测评ID（必填）</td><td class="p-2">填测评唯一ID，系统自动关联所属活动与测评，无需填活动名/测评名</td></tr>
+                                    <tr><td class="p-2 font-medium">渠道ID（必填）</td><td class="p-2">填渠道唯一ID，系统自动确定报名渠道与分组归属；只修改报名渠道，不改动学员的所属渠道</td></tr>
+                                    <tr><td class="p-2 font-medium">支付状态（必填）</td><td class="p-2">取值：已支付/未支付</td></tr>
+</tbody>
                             </table>
                         </div>
                     </details>
@@ -228,7 +258,7 @@
                     <div class="flex gap-3 mb-3">
                         <div class="flex-1 bg-green-50 border border-green-100 rounded-lg p-2 text-center">
                             <p class="text-[11px] text-green-600">校验通过</p>
-                            <p id="stat-pass" class="text-base font-bold text-green-700">14 条</p>
+                            <p id="stat-pass" class="text-base font-bold text-green-700">6 条</p>
                         </div>
                         <div class="flex-1 bg-red-50 border border-red-100 rounded-lg p-2 text-center">
                             <p class="text-[11px] text-red-600">校验失败（整表拦截）</p>
@@ -236,11 +266,11 @@
                         </div>
                         <div class="flex-1 bg-blue-50 border border-blue-100 rounded-lg p-2 text-center">
                             <p class="text-[11px] text-blue-600">更新已有报名</p>
-                            <p id="stat-update" class="text-base font-bold text-blue-700">8 条</p>
+                            <p id="stat-update" class="text-base font-bold text-blue-700">2 条</p>
                         </div>
                         <div class="flex-1 bg-slate-50 border border-slate-200 rounded-lg p-2 text-center">
                             <p class="text-[11px] text-slate-500">新建报名</p>
-                            <p id="stat-new" class="text-base font-bold text-slate-700">6 条</p>
+                            <p id="stat-new" class="text-base font-bold text-slate-700">4 条</p>
                         </div>
                     </div>
 
@@ -257,9 +287,9 @@
                     <!-- 预览表格：工具条 -->
                     <div class="flex items-center gap-2 mb-2">
                         <div class="flex bg-slate-100 rounded-lg p-0.5 text-xs font-medium" id="preview-tabs">
-                            <button id="tab-all" onclick="switchPreviewTab('all', this)" class="px-3 py-1.5 rounded-md bg-white shadow-sm text-slate-800">全部 14</button>
+                            <button id="tab-all" onclick="switchPreviewTab('all', this)" class="px-3 py-1.5 rounded-md bg-white shadow-sm text-slate-800">全部 6</button>
                             <button id="tab-error" onclick="switchPreviewTab('error', this)" class="px-3 py-1.5 rounded-md text-red-600">错误 0</button>
-                            <button id="tab-update" onclick="switchPreviewTab('update', this)" class="px-3 py-1.5 rounded-md text-blue-600">更新预告 8</button>
+                            <button id="tab-update" onclick="switchPreviewTab('update', this)" class="px-3 py-1.5 rounded-md text-blue-600">更新预告 2</button>
                         </div>
                         <span class="text-[11px] text-slate-400"><i class="fa-solid fa-circle-info mr-0.5"></i>更新预告 = 该行将覆盖的字段（蓝色文字为改后值）</span>
                     </div>
@@ -272,76 +302,55 @@
                                     <tr>
                                         <th class="p-2.5 whitespace-nowrap">行号</th>
                                         <th class="p-2.5 whitespace-nowrap">姓名</th>
-                                        <th class="p-2.5 whitespace-nowrap">身份证号（后4位）</th>
-                                        <th class="p-2.5 whitespace-nowrap">活动 / 测评</th>
-                                        <th class="p-2.5 whitespace-nowrap">报名渠道</th>
-                                        <th class="p-2.5 whitespace-nowrap">分组</th>
+                                        <th class="p-2.5 whitespace-nowrap">证件号（后4位）</th>
+                                        <th class="p-2.5 whitespace-nowrap">测评ID</th>
+                                        <th class="p-2.5 whitespace-nowrap">渠道ID</th>
                                         <th class="p-2.5 whitespace-nowrap">校验结果</th>
                                     </tr>
                                 </thead>
                                 <tbody class="divide-y divide-slate-100" id="preview-tbody">
-                                    <tr id="error-empty-row" class="hidden"><td colspan="7" class="p-6 text-center text-green-600 text-xs"><i class="fa-solid fa-circle-check mr-1"></i>无错误记录，全部数据校验通过，可直接确认导入</td></tr>
-                                    <tr class="bg-red-50/40 preview-row" data-kind="error">
-                                        <td class="p-2.5 font-mono font-bold text-red-600">第 3 行</td>
-                                        <td class="p-2.5">王五</td>
-                                        <td class="p-2.5 font-mono">6789</td>
-                                        <td class="p-2.5">2025春季 Python 一级</td>
-                                        <td class="p-2.5">希望编程</td>
-                                        <td class="p-2.5">上午场 A组</td>
-                                        <td class="p-2.5 text-red-600 font-bold"><i class="fa-solid fa-circle-exclamation mr-1"></i>渠道识别码「XW999」在系统中不存在</td>
-                                    </tr>
-                                    <tr class="bg-red-50/40 preview-row" data-kind="error">
-                                        <td class="p-2.5 font-mono font-bold text-red-600">第 7 行</td>
-                                        <td class="p-2.5">赵小六</td>
-                                        <td class="p-2.5 font-mono">1234</td>
-                                        <td class="p-2.5 text-red-600 font-bold">2026秋季 C++ 三级 <i class="fa-solid fa-arrow-right text-[9px]"></i> 系统中无此测评</td>
-                                        <td class="p-2.5">——</td>
-                                        <td class="p-2.5">——</td>
-                                        <td class="p-2.5 text-red-600 font-bold"><i class="fa-solid fa-circle-exclamation mr-1"></i>测评名称「2026秋季 C++ 三级」与系统数据不匹配</td>
-                                    </tr>
-                                    <tr class="preview-row" data-kind="update">
+                                    <tr id="error-empty-row" class="hidden"><td colspan="6" class="p-6 text-center text-green-600 text-xs"><i class="fa-solid fa-circle-check mr-1"></i>无错误记录，全部数据校验通过，可直接确认导入</td></tr>
+<tr class="preview-row" data-kind="update">
                                         <td class="p-2.5 font-mono text-slate-400">第 1 行</td>
                                         <td class="p-2.5">李雷 <span class="text-[9px] text-blue-500 font-bold">更新</span></td>
                                         <td class="p-2.5 font-mono">5678</td>
-                                        <td class="p-2.5">2025春季 Python 一级</td>
-                                        <td class="p-2.5">英才教育 <span class="text-blue-500">（保持）</span></td>
-                                        <td class="p-2.5">上午场 A组 → <span class="text-blue-500 font-bold">下午场 B组</span></td>
-                                        <td class="p-2.5 text-green-600"><i class="fa-solid fa-check mr-1"></i>通过 · 将更新 1 个字段</td>
-                                    </tr>
-                                    <tr class="preview-row" data-kind="update">
+                                        <td class="p-2.5 font-mono">EX2025P1</td>
+                                        <td class="p-2.5 font-mono">YC001</td>
+                                        <td class="p-2.5 text-green-600"><i class="fa-solid fa-check mr-1"></i>通过 · 分组：上午场 A组 → <span class="text-blue-500 font-bold">下午场 B组</span></td>
+                                    </tr><tr class="preview-row" data-kind="update">
                                         <td class="p-2.5 font-mono text-slate-400">第 2 行</td>
                                         <td class="p-2.5">张三 <span class="text-[9px] text-blue-500 font-bold">更新</span></td>
                                         <td class="p-2.5 font-mono">9012</td>
-                                        <td class="p-2.5">2025春季 Python 一级</td>
-                                        <td class="p-2.5">英才教育（保持）</td>
-                                        <td class="p-2.5 text-slate-400">未填写（保持原分组）</td>
-                                        <td class="p-2.5 text-green-600"><i class="fa-solid fa-check mr-1"></i>通过 · 无字段变更</td>
-                                    </tr>
-                                    <tr class="preview-row" data-kind="update">
+                                        <td class="p-2.5 font-mono">EX2025P1</td>
+                                        <td class="p-2.5 font-mono">YC001</td>
+                                        <td class="p-2.5 text-green-600"><i class="fa-solid fa-check mr-1"></i>通过 · 无字段变更（联系电话留空=保持）</td>
+                                    </tr><tr class="preview-row bg-red-50/40" data-kind="error">
+                                        <td class="p-2.5 font-mono text-slate-400">第 3 行</td>
+                                        <td class="p-2.5">王小明 <span class="text-[9px] text-green-600 font-bold">新建</span></td>
+                                        <td class="p-2.5 font-mono">3301</td>
+                                        <td class="p-2.5 font-mono">EX2025P1</td>
+                                        <td class="p-2.5 font-mono">YC001</td>
+                                        <td class="p-2.5 text-red-600 font-bold"><i class="fa-solid fa-circle-exclamation mr-1"></i>证件类型「台胞证」不在系统支持的证件类型范围内</td>
+                                    </tr><tr class="preview-row bg-red-50/40" data-kind="error">
                                         <td class="p-2.5 font-mono text-slate-400">第 4 行</td>
-                                        <td class="p-2.5">韩梅梅 <span class="text-[9px] text-blue-500 font-bold">更新</span></td>
-                                        <td class="p-2.5 font-mono">3456</td>
-                                        <td class="p-2.5">2025夏季 AIGC 应用能力二级</td>
-                                        <td class="p-2.5">希望编程 → <span class="text-blue-500 font-bold">英才教育</span></td>
-                                        <td class="p-2.5">下午场 B组 → <span class="text-blue-500 font-bold">上午场 A组</span></td>
-                                        <td class="p-2.5 text-green-600"><i class="fa-solid fa-check mr-1"></i>通过 · 将更新 3 个字段（含支付状态）</td>
-                                    </tr>
-                                    <tr class="preview-row" data-kind="new">
+                                        <td class="p-2.5">陈大文 <span class="text-[9px] text-green-600 font-bold">新建</span></td>
+                                        <td class="p-2.5 font-mono">8834</td>
+                                        <td class="p-2.5 font-mono">EX2026AIGC2</td>
+                                        <td class="p-2.5 font-mono">XW999</td>
+                                        <td class="p-2.5 text-red-600 font-bold"><i class="fa-solid fa-circle-exclamation mr-1"></i>渠道ID「XW999」在系统中不存在</td>
+                                    </tr><tr class="preview-row" data-kind="new">
                                         <td class="p-2.5 font-mono text-slate-400">第 5 行</td>
+                                        <td class="p-2.5">韩梅梅 <span class="text-[9px] text-green-600 font-bold">新建</span></td>
+                                        <td class="p-2.5 font-mono">3456</td>
+                                        <td class="p-2.5 font-mono">EX2025AIGC2</td>
+                                        <td class="p-2.5 font-mono">YC001</td>
+                                        <td class="p-2.5 text-green-600"><i class="fa-solid fa-check mr-1"></i>通过 · 港澳通行证 · 新建报名（已支付）</td>
+                                    </tr><tr class="preview-row" data-kind="new">
+                                        <td class="p-2.5 font-mono text-slate-400">第 6 行</td>
                                         <td class="p-2.5">马小跳 <span class="text-[9px] text-green-600 font-bold">新建</span></td>
                                         <td class="p-2.5 font-mono">7890</td>
-                                        <td class="p-2.5">2025夏季 AIGC 应用能力二级</td>
-                                        <td class="p-2.5">英才教育</td>
-                                        <td class="p-2.5">上午场 A组</td>
-                                        <td class="p-2.5 text-green-600"><i class="fa-solid fa-check mr-1"></i>通过 · 新建报名（已支付）</td>
-                                    </tr>
-                                    <tr class="preview-row hidden" data-kind="new">
-                                        <td class="p-2.5 font-mono text-slate-400">第 6 行</td>
-                                        <td class="p-2.5">林小雨 <span class="text-[9px] text-green-600 font-bold">新建</span></td>
-                                        <td class="p-2.5 font-mono">2345</td>
-                                        <td class="p-2.5">2025春季 Python 一级</td>
-                                        <td class="p-2.5">希望编程</td>
-                                        <td class="p-2.5">下午场 B组</td>
+                                        <td class="p-2.5 font-mono">EX2025P1</td>
+                                        <td class="p-2.5 font-mono">YPB2025</td>
                                         <td class="p-2.5 text-green-600"><i class="fa-solid fa-check mr-1"></i>通过 · 新建报名（未支付）</td>
                                     </tr>
                                 </tbody>
@@ -371,7 +380,7 @@
                                         <th class="p-2.5 whitespace-nowrap">结果</th>
                                         <th class="p-2.5 whitespace-nowrap">行号</th>
                                         <th class="p-2.5 whitespace-nowrap">姓名</th>
-                                        <th class="p-2.5 whitespace-nowrap">活动 / 测评</th>
+                                        <th class="p-2.5 whitespace-nowrap">测评ID</th>
                                         <th class="p-2.5 whitespace-nowrap">说明</th>
                                     </tr>
                                 </thead>
@@ -380,35 +389,35 @@
                                         <td class="p-2.5"><span class="px-1.5 py-0.5 rounded bg-green-50 text-green-700 font-bold text-[10px]">新建成功</span></td>
                                         <td class="p-2.5 font-mono text-slate-400">第 5 行</td>
                                         <td class="p-2.5">马小跳</td>
-                                        <td class="p-2.5">2025夏季 AIGC 应用能力二级</td>
+                                        <td class="p-2.5 font-mono">EX2025AIGC2</td>
                                         <td class="p-2.5 text-slate-500">生成订单 ORD-20260715-0201（已支付）</td>
                                     </tr>
                                     <tr>
                                         <td class="p-2.5"><span class="px-1.5 py-0.5 rounded bg-blue-50 text-blue-700 font-bold text-[10px]">更新成功</span></td>
                                         <td class="p-2.5 font-mono text-slate-400">第 1 行</td>
                                         <td class="p-2.5">李雷</td>
-                                        <td class="p-2.5">2025春季 Python 一级</td>
+                                        <td class="p-2.5 font-mono">EX2025P1</td>
                                         <td class="p-2.5 text-slate-500">分组：上午场 A组 → 下午场 B组</td>
                                     </tr>
                                     <tr>
                                         <td class="p-2.5"><span class="px-1.5 py-0.5 rounded bg-blue-50 text-blue-700 font-bold text-[10px]">更新成功</span></td>
                                         <td class="p-2.5 font-mono text-slate-400">第 2 行</td>
                                         <td class="p-2.5">张三</td>
-                                        <td class="p-2.5">2025春季 Python 一级</td>
+                                        <td class="p-2.5 font-mono">EX2025P1</td>
                                         <td class="p-2.5 text-slate-500">无字段变更（仅同步账号信息）</td>
                                     </tr>
                                     <tr>
                                         <td class="p-2.5"><span class="px-1.5 py-0.5 rounded bg-blue-50 text-blue-700 font-bold text-[10px]">更新成功</span></td>
                                         <td class="p-2.5 font-mono text-slate-400">第 4 行</td>
                                         <td class="p-2.5">韩梅梅</td>
-                                        <td class="p-2.5">2025夏季 AIGC 应用能力二级</td>
+                                        <td class="p-2.5 font-mono">EX2025AIGC2</td>
                                         <td class="p-2.5 text-slate-500">报名渠道、分组、支付状态共 3 个字段已更新</td>
                                     </tr>
                                     <tr>
                                         <td class="p-2.5"><span class="px-1.5 py-0.5 rounded bg-green-50 text-green-700 font-bold text-[10px]">新建成功</span></td>
                                         <td class="p-2.5 font-mono text-slate-400">第 6 行</td>
                                         <td class="p-2.5">林小雨</td>
-                                        <td class="p-2.5">2025春季 Python 一级</td>
+                                        <td class="p-2.5 font-mono">EX2025P1</td>
                                         <td class="p-2.5 text-slate-500">生成订单 ORD-20260715-0202（未支付）</td>
                                     </tr>
                                 </tbody>
@@ -493,7 +502,7 @@
         function applyScenario() {
             const hasErr = SIMULATE_HAS_ERRORS();
             // 统计卡
-            document.getElementById('stat-pass').innerText = hasErr ? '12 条' : '14 条';
+            document.getElementById('stat-pass').innerText = hasErr ? '4 条' : '6 条';
             document.getElementById('stat-fail').innerText = hasErr ? '2 条' : '0 条';
             // 拦截横幅
             document.getElementById('intercept-banner').classList.toggle('hidden', !hasErr);
@@ -501,7 +510,7 @@
             document.querySelectorAll('#preview-tbody .preview-row[data-kind="error"]').forEach(r => r.classList.toggle('hidden', !hasErr));
             document.getElementById('error-empty-row').classList.toggle('hidden', hasErr);
             document.getElementById('tab-error').innerText = hasErr ? '错误 2' : '错误 0';
-            document.getElementById('tab-all').innerText = '全部 ' + (hasErr ? '8' : '8');
+            document.getElementById('tab-all').innerText = '全部 6';
             // 默认回到「全部」页签
             const tabs = document.querySelectorAll('#preview-tabs button');
             switchPreviewTab('all', tabs[0]);
