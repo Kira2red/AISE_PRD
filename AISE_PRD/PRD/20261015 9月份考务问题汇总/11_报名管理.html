@@ -1238,10 +1238,10 @@
         }
         // ===== 需求六：准考证查看弹窗 =====
         const TICKET_HTML = {
-            'ORD-20250520-001': {no: 'ZK2026-0715-0001', exam: '2025春季 Python 一级等级测评', room: '2025春季青少年编程等级测评 › 上午场 A组 › 2025春季 Python 一级等级测评 › 猿编程', time: '2026-07-15 09:00–11:00', spot: '杭州考点 A区 12号'},
-            'ORD-20250520-089': {no: 'ZK2025-0701-0089', exam: '2025夏季 AIGC 应用能力二级', room: '2025夏季青少年人工智能测评 › 下午场 B组 › 2025夏季 AIGC 应用能力二级 › C端自招', time: '2025-07-01 09:00–11:00', spot: '线上考试'},
-            'ORD-20250522-102': {no: '', exam: '2025春季 Python 一级等级测评', room: '', time: '', spot: ''},
-            'ORD-20250519-045': {no: '', exam: '2025春季 Python 一级等级测评', room: '', time: '', spot: ''}
+            'ORD-20250520-001': {no: 'ZK2026-0715-0001', exam: '2025春季 Python 一级等级测评', room: '2025春季青少年编程等级测评 › 上午场 A组 › 2025春季 Python 一级等级测评 › 猿编程', time: '2026-07-15 09:00–11:00'},
+            'ORD-20250520-089': {no: 'ZK2025-0701-0089', exam: '2025夏季 AIGC 应用能力二级', room: '2025夏季青少年人工智能测评 › 下午场 B组 › 2025夏季 AIGC 应用能力二级 › C端自招', time: '2025-07-01 09:00–11:00'},
+            'ORD-20250522-102': {no: '', exam: '2025春季 Python 一级等级测评', room: '', time: '', spot: ""},
+            'ORD-20250519-045': {no: '', exam: '2025春季 Python 一级等级测评', room: '', time: '', spot: ""}
         };
         function openTicketModal(orderId) {
             const data = orders[orderId];
@@ -1269,7 +1269,6 @@
                             <div class="flex justify-between"><span class="text-slate-500">考生</span><span class="text-slate-800">${data.studentName}（账号 ${data.studentId}）</span></div>
                             <div class="flex justify-between"><span class="text-slate-500">考场</span><span class="text-slate-800 text-xs text-right max-w-[300px]">${tk.room}</span></div>
                             <div class="flex justify-between"><span class="text-slate-500">考试时间</span><span class="text-slate-800 font-mono text-xs">${tk.time}</span></div>
-                            <div class="flex justify-between"><span class="text-slate-500">考点/座位</span><span class="text-slate-800 text-xs">${tk.spot}</span></div>
                         </div>
                         <p class="text-[10px] text-slate-400 mt-4 pt-3 border-t border-slate-100"><i class="fa-solid fa-rotate mr-1"></i>学生信息变更后本准考证自动重新生成，历史版本作废</p>
                     </div>`;
