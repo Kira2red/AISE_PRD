@@ -502,27 +502,33 @@
 
                 <div>
                     <label class="block text-xs font-bold text-slate-500 uppercase mb-2">2. 报考信息</label>
-                    <div class="grid grid-cols-1 gap-4">
-                        <select
+                    <div class="grid grid-cols-3 gap-3">
+                        <select id="proxy-level-activity" onchange="proxyCascade()"
                             class="w-full px-3 py-2.5 rounded-lg border border-slate-200 text-sm bg-white focus:border-brand-500 focus:ring-1 focus:ring-brand-500 outline-none">
-                            <option value="" disabled selected>请选择测评场次</option>
-                            <option value="1">2025春季 Python 一级等级测评</option>
-                            <option value="2">2025夏季 AIGC 应用能力二级</option>
+                            <option value="" disabled selected>选择活动</option>
                         </select>
+                        <select id="proxy-level-grade" onchange="proxyCascade()" disabled
+                            class="w-full px-3 py-2.5 rounded-lg border border-slate-200 text-sm bg-white focus:border-brand-500 focus:ring-1 focus:ring-brand-500 outline-none disabled:bg-slate-50 disabled:text-slate-400">
+                            <option value="" disabled selected>先选活动</option>
+                        </select>
+                        <select id="proxy-level-exam" onchange="proxyCascade()" disabled
+                            class="w-full px-3 py-2.5 rounded-lg border border-slate-200 text-sm bg-white focus:border-brand-500 focus:ring-1 focus:ring-brand-500 outline-none disabled:bg-slate-50 disabled:text-slate-400">
+                            <option value="" disabled selected>先选分级</option>
+                        </select>
+                    </div>
 
-                        <div class="grid grid-cols-2 gap-4">
-                            <div>
-                                <input type="text" placeholder="渠道识别码 (选填)"
-                                    class="w-full px-3 py-2.5 rounded-lg border border-slate-200 text-sm focus:border-brand-500 focus:ring-1 focus:ring-brand-500 outline-none">
-                            </div>
-                            <div>
-                                <select
-                                    class="w-full px-3 py-2.5 rounded-lg border border-slate-200 text-sm bg-white focus:border-brand-500 focus:ring-1 focus:ring-brand-500 outline-none">
-                                    <option value="paid">直接标记为已支付</option>
-                                    <option value="free">标记为免单</option>
-                                    <option value="unpaid">仅生成订单(待支付)</option>
-                                </select>
-                            </div>
+                    <div class="grid grid-cols-2 gap-4 mt-4">
+                        <div>
+                            <input type="text" placeholder="渠道识别码 (选填)"
+                                class="w-full px-3 py-2.5 rounded-lg border border-slate-200 text-sm focus:border-brand-500 focus:ring-1 focus:ring-brand-500 outline-none">
+                        </div>
+                        <div>
+                            <select
+                                class="w-full px-3 py-2.5 rounded-lg border border-slate-200 text-sm bg-white focus:border-brand-500 focus:ring-1 focus:ring-brand-500 outline-none">
+                                <option value="paid">直接标记为已支付</option>
+                                <option value="free">标记为免单</option>
+                                <option value="unpaid">仅生成订单(待支付)</option>
+                            </select>
                         </div>
                     </div>
                 </div>
@@ -1043,6 +1049,73 @@
             document.getElementById('user-search').classList.remove('hidden');
             document.getElementById('user-search').value = '';
             document.getElementById('user-search').focus();
+        }
+
+        // ========== Proxy Modal Cascade (Activity / Level(分级) / Exam) ==========
+        const PROXY_CATALOG = {
+            '2025春季活动': { label: '2025春季活动', grades: ['一级', '二级'] },
+            '2025夏季活动': { label: '2025夏季活动', grades: ['一级', '二级', '三级'] },
+            '2025秋季活动': { label: '2025秋季活动', grades: ['一级'] }
+        };
+        const PROXY_EXAMS = {
+            '2025春季活动|一级': ['2025春季 Python 一级等级测评'],
+            '2025春季活动|二级': ['2025春季 AIGC 应用能力二级'],
+            '2025夏季活动|一级': ['2025夏季 Python 一级等级测评'],
+            '2025夏季活动|二级': ['2025夏季 AIGC 应用能力二级'],
+            '2025夏季活动|三级': ['2025夏季 编程能力三级测评'],
+            '2025秋季活动|一级': ['2025秋季 Python 一级等级测评']
+        };
+
+        function initProxyCascade() {
+            const actSel = document.getElementById('proxy-level-activity');
+            const gradeSel = document.getElementById('proxy-level-grade');
+            const examSel = document.getElementById('proxy-level-exam');
+            actSel.innerHTML = '<option value="" disabled selected>选择活动</option>'
+                + Object.keys(PROXY_CATALOG).map(function (k) {
+                    return '<option value="' + k + '">' + PROXY_CATALOG[k].label + '</option>';
+                }).join('');
+            gradeSel.innerHTML = '<option value="" disabled selected>先选活动</option>';
+            examSel.innerHTML = '<option value="" disabled selected>先选分级</option>';
+            gradeSel.disabled = true;
+            examSel.disabled = true;
+        }
+        initProxyCascade();
+
+        function fillSelect(sel, placeholder, values) {
+            sel.innerHTML = '<option value="" disabled selected>' + placeholder + '</option>'
+                + values.map(function (v) { return '<option value="' + v + '">' + v + '</option>'; }).join('');
+        }
+
+        function proxyCascade() {
+            const actSel = document.getElementById('proxy-level-activity');
+            const gradeSel = document.getElementById('proxy-level-grade');
+            const examSel = document.getElementById('proxy-level-exam');
+            // 重渲染前记住已选值，重渲染后恢复，避免把用户刚选的项清掉
+            const keepGrade = gradeSel.value;
+            const keepExam = examSel.value;
+            if (!actSel.value) {
+                fillSelect(gradeSel, '先选活动', []);
+                gradeSel.disabled = true;
+                fillSelect(examSel, '先选分级', []);
+                examSel.disabled = true;
+                return;
+            }
+            fillSelect(gradeSel, '选择分级', PROXY_CATALOG[actSel.value].grades);
+            gradeSel.disabled = false;
+            if (keepGrade && PROXY_CATALOG[actSel.value].grades.indexOf(keepGrade) >= 0) {
+                gradeSel.value = keepGrade;
+            }
+            const exams = PROXY_EXAMS[actSel.value + '|' + gradeSel.value] || [];
+            if (gradeSel.value && exams.length > 0) {
+                fillSelect(examSel, '选择测评', exams);
+                examSel.disabled = false;
+                if (keepExam && exams.indexOf(keepExam) >= 0) {
+                    examSel.value = keepExam;
+                }
+            } else {
+                fillSelect(examSel, '先选分级', []);
+                examSel.disabled = true;
+            }
         }
 
         // ========== Global Escape Key ==========
