@@ -129,18 +129,35 @@
 
         <div class="px-8 py-6">
             <div class="bg-white rounded-xl shadow-card border border-slate-100 p-4 flex flex-wrap gap-4 items-center">
-                <div class="relative w-72">
-                    <i
-                        class="fa-solid fa-magnifying-glass absolute left-3 top-1/2 transform -translate-y-1/2 text-slate-400 text-sm"></i>
-                    <input type="text" placeholder="搜索订单号 / 姓名 / 手机号..."
-                        class="w-full pl-9 pr-4 py-2 rounded-lg border border-slate-200 text-sm focus:border-brand-500 outline-none transition">
+                <div class="flex items-center gap-2">
+                    <select id="search-type"
+                        class="px-3 py-2 rounded-lg border border-slate-200 text-sm text-slate-600 bg-white outline-none hover:border-slate-300 cursor-pointer">
+                        <option value="keyword">综合</option>
+                        <option value="ticket">准考证号</option>
+                        <option value="idcard">身份证号</option>
+                        <option value="order">订单号</option>
+                        <option value="userid">用户ID</option>
+                        <option value="phone">手机号</option>
+                    </select>
+                    <div class="relative w-72">
+                        <i
+                            class="fa-solid fa-magnifying-glass absolute left-3 top-1/2 transform -translate-y-1/2 text-slate-400 text-sm"></i>
+                        <input type="text" id="search-input" placeholder="搜索订单号 / 姓名 / 手机号..."
+                            oninput="doSearch()"
+                            class="w-full pl-9 pr-4 py-2 rounded-lg border border-slate-200 text-sm focus:border-brand-500 outline-none transition">
+                    </div>
                 </div>
 
-                <select
+                <select id="filter-activity" onchange="onActivityFilter()"
+                    class="px-3 py-2 rounded-lg border border-slate-200 text-sm text-slate-600 bg-white outline-none hover:border-slate-300 cursor-pointer">
+                    <option value="">全部活动</option>
+                    <option value="2025春季青少年编程等级测评">2025春季青少年编程等级测评</option>
+                    <option value="2025夏季青少年人工智能测评">2025夏季青少年人工智能测评</option>
+                </select>
+
+                <select id="filter-exam"
                     class="px-3 py-2 rounded-lg border border-slate-200 text-sm text-slate-600 bg-white outline-none hover:border-slate-300 cursor-pointer max-w-xs">
                     <option value="">全部测评项目</option>
-                    <option value="python1">2025春季 Python 一级</option>
-                    <option value="aigc2">2025夏季 AIGC 二级</option>
                 </select>
 
                 <select
@@ -176,162 +193,194 @@
             </div>
         </div>
 
+        <!-- 需求四：照片批量审核浮出条 -->
+        <div id="batch-bar" class="hidden fixed bottom-8 left-1/2 transform -translate-x-1/2 z-40 bg-slate-900 text-white rounded-full shadow-xl px-6 py-3 flex items-center gap-4">
+            <span class="text-sm">已选 <b id="batch-count" class="text-brand-300">0</b> 条</span>
+            <span class="text-xs text-slate-400">勾选项中待审核照片 <b id="batch-pending" class="text-amber-300">0</b> 条</span>
+            <button onclick="batchAudit('pass')" class="bg-green-500 hover:bg-green-600 text-sm font-bold px-4 py-1.5 rounded-full transition">照片批量通过</button>
+            <button onclick="batchAudit('reject')" class="bg-red-500 hover:bg-red-600 text-sm font-bold px-4 py-1.5 rounded-full transition">批量不通过</button>
+            <button onclick="clearChecks()" class="text-slate-400 hover:text-white text-sm">取消</button>
+        </div>
+
+        <!-- 需求四：照片查看/审核弹窗 -->
+        <div id="photo-modal" class="hidden fixed inset-0 z-[70] flex items-center justify-center bg-slate-900/60 backdrop-blur-sm">
+            <div class="bg-white rounded-2xl shadow-xl w-[420px] overflow-hidden transform transition">
+                <div class="px-6 py-4 border-b border-slate-100 flex items-center justify-between">
+                    <h3 class="font-bold text-slate-800">报名照片查看</h3>
+                    <button onclick="closePhotoPreview()" class="w-8 h-8 rounded-full hover:bg-slate-100 flex items-center justify-center text-slate-500 transition"><i class="fa-solid fa-xmark"></i></button>
+                </div>
+                <div class="p-6 flex flex-col items-center gap-4">
+                    <img id="photo-modal-img" src="" class="w-56 h-56 rounded-2xl object-cover border-4 border-slate-100 shadow-md">
+                    <div id="photo-modal-status"></div>
+                    <div id="photo-modal-actions" class="flex gap-3 w-full">
+                        <button onclick="closePhotoPreview()" class="flex-1 px-4 py-2.5 text-sm text-slate-600 hover:bg-slate-50 rounded-lg border border-slate-200 transition">关闭</button>
+                        <button onclick="auditFromPhoto('reject')" class="flex-1 px-4 py-2.5 text-sm text-red-600 hover:bg-red-50 rounded-lg border border-red-200 transition font-medium">不通过</button>
+                        <button onclick="auditFromPhoto('pass')" class="flex-1 px-4 py-2.5 text-sm bg-green-600 hover:bg-green-700 text-white rounded-lg transition font-bold">通过</button>
+                    </div>
+                </div>
+            </div>
+        </div>
+
         <div class="flex-1 overflow-y-auto px-8 pb-8 custom-scroll">
             <div class="bg-white rounded-xl shadow-card border border-slate-200 overflow-hidden">
                 <table class="w-full text-left border-collapse">
                     <thead>
                         <tr class="border-b border-slate-100 bg-slate-50 text-xs uppercase text-slate-500 font-bold">
-                            <th class="p-4 pl-6">报名信息</th>
+                            <th class="p-4 pl-6"><input type="checkbox" id="check-all" onchange="toggleCheckAll()" class="w-4 h-4 rounded border-slate-300 text-brand-600 focus:ring-brand-500 cursor-pointer"></th>
+                            <th class="p-4">报名信息</th>
                             <th class="p-4">学员信息</th>
+                            <th class="p-4">照片状态</th>
+                            <th class="p-4">准考证</th>
                             <th class="p-4">渠道来源</th>
+                            <th class="p-4">所属分组</th>
+                            <th class="p-4">登录手机号</th>
+                            <th class="p-4">联系电话</th>
                             <th class="p-4">支付金额</th>
                             <th class="p-4">支付方式</th>
-                            <th class="p-4">状态</th>
+                            <th class="p-4">支付状态</th>
+                            <th class="p-4">报名来源</th>
+                            <th class="p-4">考试时间</th>
                             <th class="p-4">报名时间</th>
+                            <th class="p-4">所属学校</th>
                             <th class="p-4 text-right pr-6">操作</th>
                         </tr>
                     </thead>
                     <tbody class="text-sm text-slate-700 divide-y divide-slate-100">
-
-                        <tr class="hover-row transition cursor-pointer" onclick="openDrawer('ORD-20250520-001')">
-                            <td class="p-4 pl-6">
+<tr class="hover-row transition cursor-pointer" onclick="openDrawer('ORD-20250520-001')"><td class="p-4 pl-6" onclick="event.stopPropagation()"><input type="checkbox" onchange="updateBatchBar()" class="row-check w-4 h-4 rounded border-slate-300 text-brand-600 focus:ring-brand-500 cursor-pointer"></td><td class="p-4 pl-6">
                                 <p class="font-bold text-slate-800">2025春季 Python 一级</p>
                                 <p class="text-xs text-slate-400 font-mono mt-0.5">ORD-20250520-001</p>
-                            </td>
-                            <td class="p-4">
+                            </td><td class="p-4">
                                 <div class="flex items-center gap-2">
                                     <img src="https://api.dicebear.com/7.x/avataaars/svg?seed=ZhangSan"
                                         class="w-6 h-6 rounded-full border border-slate-200">
                                     <span>张三</span>
                                 </div>
-                                <p class="text-xs text-slate-400 mt-0.5 font-mono">13800138000</p>
-                            </td>
-                            <td class="p-4">
+                                <p class="text-xs text-slate-400 mt-0.5 font-mono">UID 20258899</p>
+                            </td><td class="p-4">
+                                <div class="flex items-center gap-2">
+                                    <img src="https://api.dicebear.com/9.x/avataaars/svg?seed=ZhangSan" onclick="event.stopPropagation(); openPhotoPreview('ZhangSan')" class="w-9 h-9 rounded-lg object-cover border border-slate-200 cursor-pointer hover:border-brand-400 transition" title="点击查看照片">
+                                    <span class="inline-flex items-center gap-1 px-2 py-0.5 rounded text-xs font-bold bg-green-50 text-green-700"><i class="fa-solid fa-circle-check"></i>合格</span>
+                                    <i onclick="event.stopPropagation(); openPhotoPreview('ZhangSan')" class="fa-solid fa-expand text-slate-400 hover:text-brand-600 cursor-pointer text-xs" title="查看大图"></i>
+                                </div>
+                            </td><td class="p-4"><button onclick="event.stopPropagation(); openTicketModal('ORD-20250520-001')" class="font-mono text-xs text-brand-600 hover:text-brand-800 underline underline-offset-2 cursor-pointer" title="点击查看准考证">ZK2026-0715-0001</button></td><td class="p-4">
                                 <span
                                     class="bg-blue-50 text-brand-600 border border-blue-100 text-[10px] px-2 py-0.5 rounded font-mono">YPB2025</span>
-                            </td>
-                            <td class="p-4 font-mono font-medium">¥ 199.00</td>
-                            <td class="p-4">
+                            </td><td class="p-4 text-xs">上午场 A组</td><td class="p-4 font-mono text-xs">13800138000</td><td class="p-4 font-mono text-xs text-slate-600">13800138000</td><td class="p-4 font-mono font-medium">¥ 199.00</td><td class="p-4">
                                 <span class="bg-slate-100 text-slate-600 px-2 py-0.5 rounded text-[11px]"><i
                                         class="fa-brands fa-weixin text-green-500 mr-1"></i>微信支付</span>
-                            </td>
-                            <td class="p-4">
+                            </td><td class="p-4">
                                 <span
                                     class="inline-flex items-center gap-1.5 px-2 py-0.5 rounded text-xs font-bold bg-green-50 text-green-700">
                                     <i class="fa-solid fa-circle-check"></i> 支付成功
                                 </span>
-                            </td>
-                            <td class="p-4 text-xs text-slate-500">05-20 10:23</td>
-                            <td class="p-4 text-right pr-6 relative z-10">
-                                <button class="text-brand-600 hover:text-brand-800 font-medium text-xs">详情</button>
-                            </td>
-                        </tr>
-
-                        <tr class="hover-row transition cursor-pointer" onclick="openDrawer('ORD-20250520-089')">
-                            <td class="p-4 pl-6">
+                            </td><td class="p-4"><span class="text-[10px] bg-blue-50 text-blue-600 px-1.5 py-0.5 rounded">自主报名</span></td><td class="p-4 text-xs text-slate-600">2026-07-15 09:00–11:00</td><td class="p-4 text-xs text-slate-500">05-20 10:23</td><td class="p-4">
+                                    <p class="text-xs text-slate-700">杭州第二中学</p>
+                                    <p class="text-[10px] text-slate-400 font-mono mt-0.5">账号 20258899</p>
+                                </td><td class="p-4 text-right pr-6 relative z-10">
+                                <button class="text-brand-600 hover:text-brand-800 font-medium text-xs">编辑详情</button>
+                            </td></tr>
+<tr class="hover-row transition cursor-pointer" onclick="openDrawer('ORD-20250520-089')"><td class="p-4 pl-6" onclick="event.stopPropagation()"><input type="checkbox" onchange="updateBatchBar()" class="row-check w-4 h-4 rounded border-slate-300 text-brand-600 focus:ring-brand-500 cursor-pointer"></td><td class="p-4 pl-6">
                                 <p class="font-bold text-slate-800">2025夏季 AIGC 二级</p>
                                 <p class="text-xs text-slate-400 font-mono mt-0.5">ORD-20250520-089</p>
-                            </td>
-                            <td class="p-4">
+                            </td><td class="p-4">
                                 <div class="flex items-center gap-2">
                                     <div
                                         class="w-6 h-6 rounded-full bg-purple-100 text-purple-600 flex items-center justify-center text-xs font-bold">
                                         李</div>
                                     <span>李小四</span>
                                 </div>
-                                <p class="text-xs text-slate-400 mt-0.5 font-mono">13912345678</p>
-                            </td>
-                            <td class="p-4">
+                                <p class="text-xs text-slate-400 mt-0.5 font-mono">UID 20258901</p>
+                            </td><td class="p-4">
+                                <div class="flex items-center gap-2">
+                                    <img src="https://api.dicebear.com/9.x/avataaars/svg?seed=LiXiaosi" onclick="event.stopPropagation(); openPhotoPreview('LiXiaosi')" class="w-9 h-9 rounded-lg object-cover border border-slate-200 cursor-pointer hover:border-brand-400 transition" title="点击查看照片">
+                                    <span class="inline-flex items-center gap-1 px-2 py-0.5 rounded text-xs font-bold bg-amber-50 text-amber-600"><i class="fa-regular fa-clock"></i>待审核</span>
+                                    <i onclick="event.stopPropagation(); openPhotoPreview('LiXiaosi')" class="fa-solid fa-expand text-slate-400 hover:text-brand-600 cursor-pointer text-xs" title="查看大图"></i>
+                                </div>
+                            </td><td class="p-4"><button onclick="event.stopPropagation(); openTicketModal('ORD-20250520-089')" class="font-mono text-xs text-brand-600 hover:text-brand-800 underline underline-offset-2 cursor-pointer" title="点击查看准考证">ZK2025-0701-0089</button></td><td class="p-4">
                                 <span class="text-slate-400 text-xs">C端自招</span>
-                            </td>
-                            <td class="p-4 font-mono font-medium text-slate-400">¥ 0.00</td>
-                            <td class="p-4">
+                            </td><td class="p-4 text-xs">下午场 B组</td><td class="p-4 font-mono text-xs">13912345678</td><td class="p-4 font-mono text-xs text-slate-600">0571-88990000</td><td class="p-4 font-mono font-medium text-slate-400">¥ 0.00</td><td class="p-4">
                                 <span class="bg-slate-100 text-slate-600 px-2 py-0.5 rounded text-[11px]"><i
                                         class="fa-solid fa-user-shield text-brand-500 mr-1"></i>后台直接开通</span>
-                            </td>
-                            <td class="p-4">
+                            </td><td class="p-4">
                                 <span
                                     class="inline-flex items-center gap-1.5 px-2 py-0.5 rounded text-xs font-bold bg-green-50 text-green-700">
                                     <i class="fa-solid fa-circle-check"></i> 支付成功
                                 </span>
-                            </td>
-                            <td class="p-4 text-xs text-slate-500">05-21 09:15</td>
-                            <td class="p-4 text-right pr-6 relative z-10">
-                                <button class="text-brand-600 hover:text-brand-800 font-medium text-xs">详情</button>
-                            </td>
-                        </tr>
-
-                        <tr class="hover-row transition cursor-pointer" onclick="openDrawer('ORD-20250522-102')">
-                            <td class="p-4 pl-6">
+                            </td><td class="p-4"><span class="text-[10px] bg-purple-50 text-purple-600 px-1.5 py-0.5 rounded">后台导入</span></td><td class="p-4 text-xs text-slate-600">2025-07-01 14:00–16:00</td><td class="p-4 text-xs text-slate-500">05-21 09:15</td><td class="p-4">
+                                    <p class="text-xs text-slate-700">—</p>
+                                    <p class="text-[10px] text-slate-400 font-mono mt-0.5">账号 20258901</p>
+                                </td><td class="p-4 text-right pr-6 relative z-10">
+                                <button class="text-brand-600 hover:text-brand-800 font-medium text-xs">编辑详情</button>
+                            </td></tr>
+<tr class="hover-row transition cursor-pointer" onclick="openDrawer('ORD-20250522-102')"><td class="p-4 pl-6" onclick="event.stopPropagation()"><input type="checkbox" onchange="updateBatchBar()" class="row-check w-4 h-4 rounded border-slate-300 text-brand-600 focus:ring-brand-500 cursor-pointer"></td><td class="p-4 pl-6">
                                 <p class="font-bold text-slate-800">2025春季 Python 一级</p>
                                 <p class="text-xs text-slate-400 font-mono mt-0.5">ORD-20250522-102</p>
-                            </td>
-                            <td class="p-4">
+                            </td><td class="p-4">
                                 <div class="flex items-center gap-2">
                                     <div
                                         class="w-6 h-6 rounded-full bg-orange-100 text-orange-600 flex items-center justify-center text-xs font-bold">
                                         王</div>
                                     <span>王五</span>
                                 </div>
-                                <p class="text-xs text-slate-400 mt-0.5 font-mono">15000000000</p>
-                            </td>
-                            <td class="p-4">
+                                <p class="text-xs text-slate-400 mt-0.5 font-mono">UID 20258905</p>
+                            </td><td class="p-4">
+                                <div class="flex items-center gap-2">
+                                    <img src="https://api.dicebear.com/9.x/avataaars/svg?seed=WangWu" onclick="event.stopPropagation(); openPhotoPreview('WangWu')" class="w-9 h-9 rounded-lg object-cover border border-slate-200 cursor-pointer hover:border-brand-400 transition" title="点击查看照片">
+                                    <span class="inline-flex items-center gap-1 px-2 py-0.5 rounded text-xs font-bold bg-red-50 text-red-600"><i class="fa-solid fa-circle-xmark"></i>不合格</span>
+                                    <i onclick="event.stopPropagation(); openPhotoPreview('WangWu')" class="fa-solid fa-expand text-slate-400 hover:text-brand-600 cursor-pointer text-xs" title="查看大图"></i>
+                                </div>
+                            </td><td class="p-4"><span class="text-xs text-slate-400 font-mono" data-ticket-oid="ORD-20250522-102">未生成</span></td><td class="p-4">
                                 <span
                                     class="bg-blue-50 text-brand-600 border border-blue-100 text-[10px] px-2 py-0.5 rounded font-mono">CB888</span>
-                            </td>
-                            <td class="p-4 font-mono font-medium">¥ 199.00</td>
-                            <td class="p-4">
+                            </td><td class="p-4 text-xs">上午场 A组</td><td class="p-4 font-mono text-xs">15000000000</td><td class="p-4 font-mono text-xs text-slate-600">15000000000</td><td class="p-4 font-mono font-medium">¥ 199.00</td><td class="p-4">
                                 <span
                                     class="bg-indigo-50 text-indigo-700 px-2 py-0.5 rounded text-[11px] border border-indigo-100"><i
                                         class="fa-brands fa-alipay text-blue-500 mr-1"></i>支付宝</span>
-                            </td>
-                            <td class="p-4">
+                            </td><td class="p-4">
                                 <span
                                     class="inline-flex items-center gap-1.5 px-2 py-0.5 rounded text-xs font-bold bg-amber-50 text-amber-600">
                                     <i class="fa-regular fa-clock"></i> 待支付
                                 </span>
-                            </td>
-                            <td class="p-4 text-xs text-slate-500">05-22 14:30</td>
-                            <td class="p-4 text-right pr-6 relative z-10">
-                                <button class="text-brand-600 hover:text-brand-800 font-medium text-xs">详情</button>
-                            </td>
-                        </tr>
-
-                        <tr class="hover-row transition cursor-pointer bg-slate-50/50" onclick="openDrawer('ORD-20250519-045')">
-                            <td class="p-4 pl-6">
+                            </td><td class="p-4"><span class="text-[10px] bg-blue-50 text-blue-600 px-1.5 py-0.5 rounded">自主报名</span></td><td class="p-4 text-xs text-slate-600">2026-07-01 09:00–11:00</td><td class="p-4 text-xs text-slate-500">05-22 14:30</td><td class="p-4">
+                                    <p class="text-xs text-slate-700">上海实验中学</p>
+                                    <p class="text-[10px] text-slate-400 font-mono mt-0.5">账号 20258905</p>
+                                </td><td class="p-4 text-right pr-6 relative z-10">
+                                <button class="text-brand-600 hover:text-brand-800 font-medium text-xs">编辑详情</button>
+                            </td></tr>
+<tr class="hover-row transition cursor-pointer bg-slate-50/50" onclick="openDrawer('ORD-20250519-045')"><td class="p-4 pl-6" onclick="event.stopPropagation()"><input type="checkbox" onchange="updateBatchBar()" class="row-check w-4 h-4 rounded border-slate-300 text-brand-600 focus:ring-brand-500 cursor-pointer"></td><td class="p-4 pl-6">
                                 <p class="font-bold text-slate-800">2025春季 Python 一级</p>
                                 <p class="text-xs text-slate-400 font-mono mt-0.5">ORD-20250519-045</p>
-                            </td>
-                            <td class="p-4">
+                            </td><td class="p-4">
                                 <div class="flex items-center gap-2">
                                     <div
                                         class="w-6 h-6 rounded-full bg-teal-100 text-teal-600 flex items-center justify-center text-xs font-bold">
                                         赵</div>
                                     <span>赵六</span>
                                 </div>
-                                <p class="text-xs text-slate-400 mt-0.5 font-mono">13700001111</p>
-                            </td>
-                            <td class="p-4">
+                                <p class="text-xs text-slate-400 mt-0.5 font-mono">UID 20258850</p>
+                            </td><td class="p-4">
+                                <div class="flex items-center gap-2">
+                                    <img src="https://api.dicebear.com/9.x/avataaars/svg?seed=ZhaoLiu" onclick="event.stopPropagation(); openPhotoPreview('ZhaoLiu')" class="w-9 h-9 rounded-lg object-cover border border-slate-200 cursor-pointer hover:border-brand-400 transition" title="点击查看照片">
+                                    <span class="inline-flex items-center gap-1 px-2 py-0.5 rounded text-xs font-bold bg-slate-100 text-slate-500"><i class="fa-regular fa-image"></i>未提交</span>
+                                    <i onclick="event.stopPropagation(); openPhotoPreview('ZhaoLiu')" class="fa-solid fa-expand text-slate-400 hover:text-brand-600 cursor-pointer text-xs" title="查看大图"></i>
+                                </div>
+                            </td><td class="p-4"><span class="text-xs text-slate-400 font-mono" data-ticket-oid="ORD-20250519-045">未生成</span></td><td class="p-4">
                                 <span class="text-slate-400 text-xs">C端自招</span>
-                            </td>
-                            <td class="p-4 font-mono font-medium text-slate-400 line-through">¥ 199.00</td>
-                            <td class="p-4">
+                            </td><td class="p-4 text-xs">下午场 B组</td><td class="p-4 font-mono text-xs">13700001111</td><td class="p-4 font-mono text-xs text-slate-600">13700001111</td><td class="p-4 font-mono font-medium text-slate-400 line-through">¥ 199.00</td><td class="p-4">
                                 <span class="bg-slate-100 text-slate-600 px-2 py-0.5 rounded text-[11px]"><i
                                         class="fa-brands fa-weixin text-green-500 mr-1"></i>微信支付</span>
-                            </td>
-                            <td class="p-4">
+                            </td><td class="p-4">
                                 <span
                                     class="inline-flex items-center gap-1.5 px-2 py-0.5 rounded text-xs font-bold bg-slate-100 text-slate-500 border border-slate-200">
                                     <i class="fa-solid fa-rotate-left"></i> 已退款
                                 </span>
-                            </td>
-                            <td class="p-4 text-xs text-slate-500">05-19 16:30</td>
-                            <td class="p-4 text-right pr-6 relative z-10">
-                                <button class="text-brand-600 hover:text-brand-800 font-medium text-xs">详情</button>
-                            </td>
-                        </tr>
-
-                    </tbody>
+                            </td><td class="p-4"><span class="text-[10px] bg-amber-50 text-amber-600 px-1.5 py-0.5 rounded">后台代报名</span></td><td class="p-4 text-xs text-slate-600">2025-06-15 14:00–16:00</td><td class="p-4 text-xs text-slate-500">05-19 16:30</td><td class="p-4">
+                                    <p class="text-xs text-slate-700">—</p>
+                                    <p class="text-[10px] text-slate-400 font-mono mt-0.5">账号 20258850</p>
+                                </td><td class="p-4 text-right pr-6 relative z-10">
+                                <button class="text-brand-600 hover:text-brand-800 font-medium text-xs">编辑详情</button>
+                            </td></tr>
+</tbody>
                 </table>
             </div>
         </div>
@@ -502,33 +551,27 @@
 
                 <div>
                     <label class="block text-xs font-bold text-slate-500 uppercase mb-2">2. 报考信息</label>
-                    <div class="grid grid-cols-3 gap-3">
-                        <select id="proxy-level-activity" onchange="proxyCascade()"
+                    <div class="grid grid-cols-1 gap-4">
+                        <select
                             class="w-full px-3 py-2.5 rounded-lg border border-slate-200 text-sm bg-white focus:border-brand-500 focus:ring-1 focus:ring-brand-500 outline-none">
-                            <option value="" disabled selected>选择活动</option>
+                            <option value="" disabled selected>请选择测评场次</option>
+                            <option value="1">2025春季 Python 一级等级测评</option>
+                            <option value="2">2025夏季 AIGC 应用能力二级</option>
                         </select>
-                        <select id="proxy-level-grade" onchange="proxyCascade()" disabled
-                            class="w-full px-3 py-2.5 rounded-lg border border-slate-200 text-sm bg-white focus:border-brand-500 focus:ring-1 focus:ring-brand-500 outline-none disabled:bg-slate-50 disabled:text-slate-400">
-                            <option value="" disabled selected>先选活动</option>
-                        </select>
-                        <select id="proxy-level-exam" onchange="proxyCascade()" disabled
-                            class="w-full px-3 py-2.5 rounded-lg border border-slate-200 text-sm bg-white focus:border-brand-500 focus:ring-1 focus:ring-brand-500 outline-none disabled:bg-slate-50 disabled:text-slate-400">
-                            <option value="" disabled selected>先选分级</option>
-                        </select>
-                    </div>
 
-                    <div class="grid grid-cols-2 gap-4 mt-4">
-                        <div>
-                            <input type="text" placeholder="渠道识别码 (选填)"
-                                class="w-full px-3 py-2.5 rounded-lg border border-slate-200 text-sm focus:border-brand-500 focus:ring-1 focus:ring-brand-500 outline-none">
-                        </div>
-                        <div>
-                            <select
-                                class="w-full px-3 py-2.5 rounded-lg border border-slate-200 text-sm bg-white focus:border-brand-500 focus:ring-1 focus:ring-brand-500 outline-none">
-                                <option value="paid">直接标记为已支付</option>
-                                <option value="free">标记为免单</option>
-                                <option value="unpaid">仅生成订单(待支付)</option>
-                            </select>
+                        <div class="grid grid-cols-2 gap-4">
+                            <div>
+                                <input type="text" placeholder="渠道识别码 (选填)"
+                                    class="w-full px-3 py-2.5 rounded-lg border border-slate-200 text-sm focus:border-brand-500 focus:ring-1 focus:ring-brand-500 outline-none">
+                            </div>
+                            <div>
+                                <select
+                                    class="w-full px-3 py-2.5 rounded-lg border border-slate-200 text-sm bg-white focus:border-brand-500 focus:ring-1 focus:ring-brand-500 outline-none">
+                                    <option value="paid">直接标记为已支付</option>
+                                    <option value="free">标记为免单</option>
+                                    <option value="unpaid">仅生成订单(待支付)</option>
+                                </select>
+                            </div>
                         </div>
                     </div>
                 </div>
@@ -547,7 +590,148 @@
     </div>
 
     <script>
+        // ========== Search Logic (报名管理功能升级：多维度查询 + 模糊搜索) ==========
+        const searchTypeEl = document.getElementById('search-type');
+        const searchInputEl = document.getElementById('search-input');
+
+        // 每行的可搜索数据集（demo 静态映射；真实系统由后端查询）
+        const rowSearchData = {
+            'ORD-20250520-001': { name: '张三', order: 'ORD-20250520-001', ticket: 'ZK2026-0715-0001', idcard: '11010120150101', uid: '20258899', loginPhone: '13800138000', contactPhone: '13800138000' },
+            'ORD-20250520-089': { name: '李小四', order: 'ORD-20250520-089', ticket: 'ZK2025-0701-0089', idcard: '31010120160301', uid: '20258901', loginPhone: '13912345678', contactPhone: '0571-88990000' },
+            'ORD-20250522-102': { name: '王五', order: 'ORD-20250522-102', ticket: '', idcard: '44010120150202', uid: '20258905', loginPhone: '15000000000', contactPhone: '15000000000' },
+            'ORD-20250519-045': { name: '赵六', order: 'ORD-20250519-045', ticket: '', idcard: '51010120150303', uid: '20258850', loginPhone: '13700001111', contactPhone: '13700001111' }
+        };
+
+        function getRowByOrder(oid) {
+            const rows = document.querySelectorAll('tbody tr[onclick*="openDrawer"]');
+            for (const row of rows) {
+                if (row.getAttribute('onclick').includes(oid)) return row;
+            }
+            return null;
+        }
+
+        function doSearch() {
+            const type = searchTypeEl.value;
+            const q = searchInputEl.value.trim().toLowerCase();
+            const rows = document.querySelectorAll('tbody tr[onclick*="openDrawer"]');
+            let visible = 0;
+            rows.forEach(function(row) {
+                const m = row.getAttribute('onclick').match(/openDrawer\('(ORD-[\d-]+)'\)/);
+                const data = m ? rowSearchData[m[1]] : null;
+                let hit = true;
+                if (data && q) {
+                    if (type === 'keyword') {
+                        hit = [data.name, data.order, data.ticket, data.idcard, data.uid, data.loginPhone, data.contactPhone]
+                            .some(function(v){ return v && v.toLowerCase().includes(q); });
+                    } else if (type === 'ticket') {
+                        hit = data.ticket ? data.ticket.toLowerCase().includes(q) : false;
+                    } else if (type === 'idcard') {
+                        hit = data.idcard.includes(q);
+                    } else if (type === 'order') {
+                        hit = data.order.toLowerCase().includes(q);
+                    } else if (type === 'userid') {
+                        hit = data.uid.includes(q);
+                    } else if (type === 'phone') {
+                        hit = data.loginPhone.includes(q) || data.contactPhone.replace(/-/g,'').includes(q.replace(/-/g,''));
+                    }
+                }
+                row.style.display = hit ? '' : 'none';
+                if (hit) visible++;
+            });
+            updateEmptyTip(visible, rows.length);
+        }
+
+        function updateEmptyTip(visible, total) {
+            let tip = document.getElementById('empty-tip');
+            if (visible === 0 && total > 0) {
+                if (!tip) {
+                    tip = document.createElement('div');
+                    tip.id = 'empty-tip';
+                    tip.className = 'p-10 text-center text-sm text-slate-400';
+                    tip.innerHTML = '<i class="fa-solid fa-magnifying-glass mr-2"></i>未找到匹配的报名记录，请调整搜索条件后重试';
+                    document.querySelector('tbody').parentNode.insertAdjacentElement('afterend', tip);
+                }
+                tip.style.display = '';
+            } else if (tip) {
+                tip.style.display = 'none';
+            }
+        }
+
+        searchTypeEl.addEventListener('change', function() {
+            const ph = {
+                keyword: '搜索订单号 / 姓名 / 手机号...',
+                ticket: '输入准考证号精确查询...',
+                idcard: '输入身份证号精确查询...',
+                order: '输入订单号精确查询...',
+                userid: '输入用户ID精确查询...',
+                phone: '输入登录手机号或联系电话...'
+            };
+            searchInputEl.placeholder = ph[this.value] || ph.keyword;
+            doSearch();
+        });
+
         // ========== Order Data Store ==========
+        // 需求三：考场=测评×渠道（活动渠道关联矩阵的一格=一个考场），时间取矩阵格配置
+        const ACTIVITY_TREE = [
+            {
+                activity: '2025春季青少年编程等级测评',
+                groups: [
+                    { group: '上午场 A组', exams: [
+                        { exam: '2025春季 Python 一级等级测评', rooms: [
+                            { channel: '猿编程', code: 'YPB2025', time: '2026-07-15 09:00–11:00' },
+                            { channel: '核桃编程', code: 'HBT2025', time: '2026-07-16 09:00–11:00' },
+                            { channel: 'C端自招', code: '', time: '2026-07-15 14:00–16:00' }
+                        ] }
+                    ] },
+                    { group: '下午场 B组', exams: [
+                        { exam: '2025春季 Python 一级等级测评', rooms: [
+                            { channel: '编程猫', code: 'BJM888', time: '2026-07-18 14:00–16:00' },
+                            { channel: 'C端自招', code: '', time: '2026-07-19 14:00–16:00' }
+                        ] }
+                    ] }
+                ]
+            },
+            {
+                activity: '2025夏季青少年人工智能测评',
+                groups: [
+                    { group: '上午场 A组', exams: [
+                        { exam: '2025夏季 AIGC 应用能力二级', rooms: [
+                            { channel: '猿编程', code: 'YPB2025', time: '2025-07-01 09:00–11:00' },
+                            { channel: '小码王', code: 'XW666', time: '2025-07-02 09:00–11:00' }
+                        ] }
+                    ] },
+                    { group: '下午场 B组', exams: [
+                        { exam: '2025夏季 AIGC 应用能力二级', rooms: [
+                            { channel: 'C端自招', code: '', time: '2025-07-01 14:00–16:00' }
+                        ] }
+                    ] }
+                ]
+            }
+        ];
+
+        // 订单 → 当前矩阵格定位
+        const ORDER_ROOM = {
+            'ORD-20250520-001': { activity: '2025春季青少年编程等级测评', group: '上午场 A组', exam: '2025春季 Python 一级等级测评', channel: '猿编程' },
+            'ORD-20250520-089': { activity: '2025夏季青少年人工智能测评', group: '上午场 A组', exam: '2025夏季 AIGC 应用能力二级', channel: '猿编程' },
+            'ORD-20250522-102': { activity: '2025春季青少年编程等级测评', group: '上午场 A组', exam: '2025春季 Python 一级等级测评', channel: '核桃编程' },
+            'ORD-20250519-045': { activity: '2025春季青少年编程等级测评', group: '下午场 B组', exam: '2025春季 Python 一级等级测评', channel: '编程猫' }
+        };
+
+        function findRoom(loc) {
+            for (const act of ACTIVITY_TREE) {
+                if (act.activity !== loc.activity) continue;
+                for (const g of act.groups) {
+                    if (g.group !== loc.group) continue;
+                    for (const ex of g.exams) {
+                        if (ex.exam !== loc.exam) continue;
+                        const room = ex.rooms.find(r => r.channel === loc.channel);
+                        if (room) return { ...room, activity: act.activity, group: g.group, exam: ex.exam };
+                    }
+                }
+            }
+            return null;
+        }
+
         const orders = {
             'ORD-20250520-001': {
                 orderId: 'ORD-20250520-001',
@@ -567,6 +751,9 @@
                 channel: '猿编程',
                 channelCode: 'YPB2025',
                 examStartTime: '2026-07-15T09:00:00',
+                ticketNo: 'ZK2026-0715-0001',
+                certIssued: false,
+                photoStatus: 'pass',
                 merchantTxId: 'MCH-20250520102345',
                 status: 'paid',
                 refundAmount: null,
@@ -596,6 +783,9 @@
                 channel: 'C端自招',
                 channelCode: '',
                 examStartTime: '2025-07-01T09:00:00',
+                ticketNo: 'ZK2025-0701-0089',
+                certIssued: true,
+                photoStatus: 'pending',
                 merchantTxId: null,
                 status: 'paid',
                 refundAmount: null,
@@ -624,6 +814,9 @@
                 channel: '猿编程',
                 channelCode: 'CB888',
                 examStartTime: '2026-07-01T09:00:00',
+                ticketNo: '',
+                certIssued: false,
+                photoStatus: 'reject',
                 merchantTxId: null,
                 status: 'unpaid',
                 refundAmount: null,
@@ -651,6 +844,9 @@
                 channel: 'C端自招',
                 channelCode: '',
                 examStartTime: '2025-06-15T09:00:00',
+                ticketNo: '',
+                certIssued: false,
+                photoStatus: 'none',
                 merchantTxId: 'MCH-20250515142000',
                 status: 'refunded',
                 refundAmount: '199.00',
@@ -708,6 +904,7 @@
             html += renderMerchantTxId(data);
             html += renderExamInfo(data);
             html += renderStudentInfo(data);
+            html += renderPhotoCard(data);
             if (data.status === 'refunded' || data.status === 'refund_failed') {
                 html += renderRefundInfo(data);
             }
@@ -790,10 +987,21 @@
         }
 
         function renderExamInfo(data) {
+            const roomLoc = ORDER_ROOM[data.orderId];
+            const roomInfo = roomLoc ? findRoom(roomLoc) : null;
             const channelDisplay = data.channelCode ? `${data.channel} (${data.channelCode})` : data.channel;
+            const ticketDisplay = data.ticketNo
+                ? `<span class="font-mono text-slate-800 select-all">${data.ticketNo}</span><span class="text-[10px] text-green-600 bg-green-50 px-1.5 py-0.5 rounded ml-2">已同步证书</span>`
+                : '<span class="text-slate-400">未生成</span>';
+            const editable = data.status === 'paid' || data.status === 'unpaid';
+            const editBtn = editable
+                ? `<button onclick="toggleRoomEdit()" class="text-xs text-brand-600 hover:text-brand-800 font-medium"><i class="fa-solid fa-pen-to-square mr-1"></i>调整考场/时间</button>`
+                : '<span class="text-xs text-slate-400">已退款或测评开始，不可调整</span>';
             return `<div class="mb-6">
-                <h4 class="text-xs font-bold text-slate-400 uppercase mb-3 border-b border-slate-100 pb-1">报考信息</h4>
-                <div class="space-y-3 text-sm">
+                <h4 class="text-xs font-bold text-slate-400 uppercase mb-3 border-b border-slate-100 pb-1 flex items-center justify-between">
+                    <span>报考信息</span>${editBtn}
+                </h4>
+                <div id="room-display" class="space-y-3 text-sm">
                     <div class="flex justify-between">
                         <span class="text-slate-500">订单编号</span>
                         <span class="font-mono text-slate-800 select-all">${data.orderId}</span>
@@ -806,10 +1014,471 @@
                         <span class="text-slate-500">渠道来源</span>
                         <span class="${data.channelCode ? 'bg-blue-50 text-brand-600' : ''} text-xs px-2 py-0.5 rounded">${channelDisplay}</span>
                     </div>
+                    <div class="flex justify-between">
+                        <span class="text-slate-500">考场</span>
+                        <span class="text-slate-800 font-medium text-xs text-right" id="display-room">${roomLoc ? roomLoc.activity + ' › ' + roomLoc.group + ' › ' + roomLoc.exam + ' › ' + roomLoc.channel : '—'}</span>
+                    </div>
+                    <div class="flex justify-between">
+                        <span class="text-slate-500">考试时间</span>
+                        <span class="text-slate-800 font-mono text-xs" id="display-slot">${roomInfo ? roomInfo.time : '—'}</span>
+                    </div>
+                    <div class="flex justify-between">
+                        <span class="text-slate-500">准考证</span>
+                        <span id="display-ticket">${ticketDisplay}</span>
+                    </div>
+                </div>
+                <div id="room-edit" class="hidden mt-3 bg-brand-50/40 border border-brand-100 rounded-xl p-4 space-y-3">
+                    <p class="text-xs font-medium text-slate-700">调整考场：依次选择 渠道 → 活动 → 分组 → 测评，定位到目标考场（测评×渠道）</p>
+                    <div class="grid grid-cols-2 gap-2.5">
+                        <div>
+                            <label class="block text-xs font-medium text-slate-600 mb-1.5">渠道</label>
+                            <select id="edit-channel" onchange="onEditCascade('channel')" class="w-full px-2.5 py-2 rounded-lg border border-slate-200 text-xs bg-white focus:border-brand-500 focus:ring-1 focus:ring-brand-500 outline-none"></select>
+                        </div>
+                        <div>
+                            <label class="block text-xs font-medium text-slate-600 mb-1.5">活动</label>
+                            <select id="edit-activity" onchange="onEditCascade('activity')" class="w-full px-2.5 py-2 rounded-lg border border-slate-200 text-xs bg-white focus:border-brand-500 focus:ring-1 focus:ring-brand-500 outline-none"></select>
+                        </div>
+                        <div>
+                            <label class="block text-xs font-medium text-slate-600 mb-1.5">分组</label>
+                            <select id="edit-group" onchange="onEditCascade('group')" class="w-full px-2.5 py-2 rounded-lg border border-slate-200 text-xs bg-white focus:border-brand-500 focus:ring-1 focus:ring-brand-500 outline-none"></select>
+                        </div>
+                        <div>
+                            <label class="block text-xs font-medium text-slate-600 mb-1.5">测评</label>
+                            <select id="edit-exam" onchange="onEditCascade('exam')" class="w-full px-2.5 py-2 rounded-lg border border-slate-200 text-xs bg-white focus:border-brand-500 focus:ring-1 focus:ring-brand-500 outline-none"></select>
+                        </div>
+                    </div>
+                    <div class="bg-white rounded-lg p-3 border border-slate-100 space-y-1.5 text-xs">
+                        <div class="flex justify-between">
+                            <span class="text-slate-500">新考场时间（取矩阵配置，不可修改）</span>
+                            <span class="font-mono text-slate-800 font-medium" id="edit-room-time">—</span>
+                        </div>
+                        <div id="edit-cert-hint" class="hidden text-amber-600">该学员已签发证书，证书上的考场与时间将同步更新</div>
+                        <div id="edit-hint" class="hidden text-red-600"></div>
+                    </div>
+                    <div class="flex justify-end gap-2 pt-1">
+                        <button onclick="toggleRoomEdit()" class="px-3 py-1.5 text-xs text-slate-600 hover:bg-slate-100 rounded-lg border border-slate-200 transition">取消</button>
+                        <button onclick="saveRoomEdit()" class="px-4 py-1.5 text-xs bg-brand-600 hover:bg-brand-700 text-white font-bold rounded-lg transition shadow-sm">保存并同步</button>
+                    </div>
                 </div>
             </div>`;
         }
 
+        function toggleRoomEdit() {
+            if (!currentOrderId || !orders[currentOrderId]) return;
+            const data = orders[currentOrderId];
+            const disp = document.getElementById('room-display');
+            const edit = document.getElementById('room-edit');
+            if (!edit.classList.contains('hidden')) {
+                edit.classList.add('hidden');
+                disp.classList.remove('hidden');
+                return;
+            }
+            const curLoc = ORDER_ROOM[data.orderId];
+            // 渠道：全量已关联渠道
+            const allChannels = [];
+            ACTIVITY_TREE.forEach(act => act.groups.forEach(g => g.exams.forEach(ex => ex.rooms.forEach(r => {
+                if (!allChannels.some(c => c.channel === r.channel)) allChannels.push({ channel: r.channel, code: r.code });
+            }))));
+            const selC = document.getElementById('edit-channel');
+            selC.innerHTML = allChannels.map(c => `<option value="${c.channel}" ${c.channel === curLoc.channel ? 'selected' : ''}>${c.channel}${c.code ? ' (' + c.code + ')' : ''}</option>`).join('');
+            fillCascade('activity', curLoc.channel, curLoc.activity);
+            fillCascade('group', curLoc.channel, curLoc.activity, curLoc.group);
+            fillCascade('exam', curLoc.channel, curLoc.activity, curLoc.group, curLoc.exam);
+            document.getElementById('edit-cert-hint').classList.toggle('hidden', !data.certIssued);
+            updateRoomTime();
+            disp.classList.add('hidden');
+            edit.classList.remove('hidden');
+        }
+
+        // 级联填充：level='activity'|'group'|'exam'，按上游选择过滤
+        function cascadeOptions(channel, activity, group) {
+            let acts = ACTIVITY_TREE;
+            if (channel) acts = acts.filter(a => a.groups.some(g => g.exams.some(ex => ex.rooms.some(r => r.channel === channel))));
+            let out = acts.map(a => a.activity);
+            if (activity) out = [activity];
+            return out;
+        }
+        function fillCascade(level, channel, activity, group, exam) {
+            const sel = document.getElementById('edit-' + level);
+            let opts = [];
+            if (level === 'activity') {
+                opts = cascadeOptions(channel);
+            } else if (level === 'group') {
+                const act = ACTIVITY_TREE.find(a => a.activity === activity);
+                opts = act ? act.groups.filter(g => g.exams.some(ex => ex.rooms.some(r => r.channel === channel))).map(g => g.group) : [];
+            } else if (level === 'exam') {
+                const act = ACTIVITY_TREE.find(a => a.activity === activity);
+                const g = act && act.groups.find(x => x.group === group);
+                opts = g ? g.exams.filter(ex => ex.rooms.some(r => r.channel === channel)).map(ex => ex.exam) : [];
+            }
+            const cur = sel.value || opts[0];
+            sel.innerHTML = opts.map(o => `<option value="${o}">${o}</option>`).join('');
+            if (opts.includes(cur)) sel.value = cur;
+        }
+
+        function onEditCascade(level) {
+            const channel = document.getElementById('edit-channel').value;
+            let activity = document.getElementById('edit-activity').value;
+            let group = document.getElementById('edit-group').value;
+            if (level === 'channel') { fillCascade('activity', channel); activity = document.getElementById('edit-activity').value; fillCascade('group', channel, activity); group = document.getElementById('edit-group').value; fillCascade('exam', channel, activity, group); }
+            else if (level === 'activity') { fillCascade('group', channel, activity); group = document.getElementById('edit-group').value; fillCascade('exam', channel, activity, group); }
+            else if (level === 'group') { fillCascade('exam', channel, activity, group); }
+            updateRoomTime();
+        }
+
+        function currentEditLoc() {
+            return {
+                channel: document.getElementById('edit-channel').value,
+                activity: document.getElementById('edit-activity').value,
+                group: document.getElementById('edit-group').value,
+                exam: document.getElementById('edit-exam').value
+            };
+        }
+
+        function updateRoomTime() {
+            const loc = currentEditLoc();
+            const room = findRoom(loc);
+            document.getElementById('edit-room-time').textContent = room ? room.time : '该组合未关联（矩阵中不存在）';
+        }
+
+        function saveRoomEdit() {
+            if (!currentOrderId || !orders[currentOrderId]) return;
+            const data = orders[currentOrderId];
+            const newLoc = currentEditLoc();
+            const room = findRoom(newLoc);
+            const hintEl = document.getElementById('edit-hint');
+            const showHint = msg => { hintEl.textContent = msg; hintEl.classList.remove('hidden'); };
+            hintEl.classList.add('hidden');
+            if (!room) { showHint('该「测评×渠道」组合未在矩阵中关联，无法调整'); return; }
+            const curLoc = ORDER_ROOM[data.orderId];
+            const same = curLoc.channel === newLoc.channel && curLoc.activity === newLoc.activity && curLoc.group === newLoc.group && curLoc.exam === newLoc.exam;
+            if (same) { showHint('考场未变化，请先选择不同的考场'); return; }
+            const oldRoom = findRoom(curLoc);
+            // 更新数据
+            ORDER_ROOM[data.orderId] = newLoc;
+            data.channel = newLoc.channel;
+            data.channelCode = room.code || '';
+            const seq = data.ticketNo ? data.ticketNo.slice(-4) : String(Math.floor(1000 + Math.random() * 9000));
+            const datePart = room.time.match(/^(\d{4}-\d{2}-\d{2})/);
+            data.ticketNo = `ZK${datePart ? datePart[1].replace(/-/g, '') : '00000000'}-${seq}`;
+            const now = new Date();
+            const ts = `${now.getFullYear()}-${String(now.getMonth()+1).padStart(2,'0')}-${String(now.getDate()).padStart(2,'0')} ${String(now.getHours()).padStart(2,'0')}:${String(now.getMinutes()).padStart(2,'0')}`;
+            const locStr = l => `${l.activity} › ${l.group} › ${l.exam} › ${l.channel}`;
+            data.log.unshift({ action: `调整考场：${locStr(curLoc)} → ${locStr(newLoc)}，时间 ${oldRoom.time} → ${room.time}`, time: ts, actor: '客服小A', type: 'info' });
+            syncListRow(currentOrderId, data);
+            renderDrawerContent(data);
+        }
+
+        function syncListRow(orderId, data) {
+            document.querySelectorAll('tbody tr').forEach(tr => {
+                const oc = tr.getAttribute('onclick') || '';
+                if (!oc.includes(orderId)) return;
+                const tds = tr.querySelectorAll('td');
+                // 17列：0勾选 1报名信息 2学员信息 3照片状态 4准考证 5渠道来源 6所属分组 7登录手机号 8联系电话 9支付金额 10支付方式 11支付状态 12报名来源 13考试时间 14报名时间 15所属学校 16操作
+                if (tds[4] !== undefined) {
+                    if (data.ticketNo) {
+                        tds[4].innerHTML = `<button onclick="event.stopPropagation(); openTicketModal('${orderId}')" class="font-mono text-xs text-brand-600 hover:text-brand-800 underline underline-offset-2 cursor-pointer" title="点击查看准考证">${data.ticketNo}</button>`;
+                    } else {
+                        tds[4].innerHTML = '<span class="text-xs text-slate-400 font-mono">未生成</span>';
+                    }
+                }
+                const loc = ORDER_ROOM[orderId];
+                const info = loc ? findRoom(loc) : null;
+                if (tds[6] !== undefined) tds[6].textContent = loc ? loc.group : '—';
+                if (tds[13] !== undefined) tds[13].textContent = info ? info.time : '—';
+                if (tds[5] !== undefined && info) {
+                    const code = info.code;
+                    const name = info.channel;
+                    tds[5].innerHTML = code
+                        ? `<span class="bg-blue-50 text-brand-600 border border-blue-100 text-[10px] px-2 py-0.5 rounded font-mono">${code}</span><span class="text-[10px] text-slate-400 ml-1">${name}</span>`
+                        : `<span class="text-xs text-slate-500">${name}</span>`;
+                }
+            });
+        }
+
+        // ===== 需求四：活动→测评联动筛选 =====
+        const ACTIVITY_EXAM_MAP = {
+            '2025春季青少年编程等级测评': ['2025春季 Python 一级', '2025春季 Scratch 一级'],
+            '2025夏季青少年人工智能测评': ['2025夏季 AIGC 二级']
+        };
+        function onActivityFilter() {
+            const act = document.getElementById('filter-activity').value;
+            const examSel = document.getElementById('filter-exam');
+            if (!act) {
+                examSel.innerHTML = '<option value="">全部测评项目</option><option value="python1">2025春季 Python 一级</option><option value="aigc2">2025夏季 AIGC 二级</option>';
+                return;
+            }
+            const exams = ACTIVITY_EXAM_MAP[act] || [];
+            examSel.innerHTML = '<option value="">全部测评项目</option>' + exams.map(e => `<option value="${e}">${e}</option>`).join('');
+        }
+
+        // ===== 需求四：照片批量审核 =====
+        function toggleCheckAll() {
+            const all = document.getElementById('check-all').checked;
+            document.querySelectorAll('.row-check').forEach(c => c.checked = all);
+            updateBatchBar();
+        }
+        function updateBatchBar() {
+            const checks = document.querySelectorAll('.row-check:checked');
+            const bar = document.getElementById('batch-bar');
+            if (checks.length === 0) {
+                bar.classList.add('hidden');
+                return;
+            }
+            let pending = 0;
+            checks.forEach(c => {
+                const tr = c.closest('tr');
+                const tds = tr.querySelectorAll('td');
+                // 照片状态列（index 3）
+                if (tds[3] && tds[3].textContent.includes('待审核')) pending++;
+            });
+            document.getElementById('batch-count').textContent = checks.length;
+            document.getElementById('batch-pending').textContent = pending;
+            bar.classList.remove('hidden');
+        }
+        // ===== 需求六：准考证查看弹窗 =====
+        const TICKET_HTML = {
+            'ORD-20250520-001': {no: 'ZK2026-0715-0001', exam: '2025春季 Python 一级等级测评', room: '2025春季青少年编程等级测评 › 上午场 A组 › 2025春季 Python 一级等级测评 › 猿编程', time: '2026-07-15 09:00–11:00'},
+            'ORD-20250520-089': {no: 'ZK2025-0701-0089', exam: '2025夏季 AIGC 应用能力二级', room: '2025夏季青少年人工智能测评 › 下午场 B组 › 2025夏季 AIGC 应用能力二级 › C端自招', time: '2025-07-01 09:00–11:00'},
+            'ORD-20250522-102': {no: '', exam: '2025春季 Python 一级等级测评', room: '', time: '', spot: ""},
+            'ORD-20250519-045': {no: '', exam: '2025春季 Python 一级等级测评', room: '', time: '', spot: ""}
+        };
+        function openTicketModal(orderId) {
+            const data = orders[orderId];
+            const tk = TICKET_HTML[orderId] || {};
+            const generated = !!tk.no;
+            let body;
+            if (!generated) {
+                body = `<div class="p-8 text-center">
+                        <i class="fa-solid fa-ticket-simple text-4xl text-slate-200 mb-3"></i>
+                        <p class="text-sm text-slate-500">准考证尚未生成</p>
+                        <p class="text-xs text-slate-400 mt-1">完成支付并审核通过后由系统自动生成</p>
+                    </div>`;
+            } else {
+                // 准考证版式（图片占位+关键信息）
+                body = `<div class="p-6">
+                        <div class="rounded-xl border-2 border-dashed border-brand-200 bg-brand-50/50 p-5 mb-4 flex items-center gap-4">
+                            <div class="w-20 h-20 rounded-lg bg-white border border-slate-200 flex items-center justify-center text-3xl text-slate-300"><i class="fa-solid fa-id-card"></i></div>
+                            <div>
+                                <p class="text-[10px] text-slate-400 mb-0.5">准考证图片（正式环境为准考证渲染图）</p>
+                                <p class="font-mono font-bold text-lg text-slate-800">${tk.no}</p>
+                            </div>
+                        </div>
+                        <div class="space-y-2.5 text-sm">
+                            <div class="flex justify-between"><span class="text-slate-500">测评名称</span><span class="text-slate-800 font-medium text-right max-w-[280px]">${tk.exam}</span></div>
+                            <div class="flex justify-between"><span class="text-slate-500">考生</span><span class="text-slate-800">${data.studentName}（账号 ${data.studentId}）</span></div>
+                            <div class="flex justify-between"><span class="text-slate-500">考场</span><span class="text-slate-800 text-xs text-right max-w-[300px]">${tk.room}</span></div>
+                            <div class="flex justify-between"><span class="text-slate-500">考试时间</span><span class="text-slate-800 font-mono text-xs">${tk.time}</span></div>
+                        </div>
+                        <div class="mt-4 pt-3 border-t border-slate-100 flex items-center justify-between gap-3">
+                            <p class="text-[10px] text-slate-400"><i class="fa-solid fa-rotate mr-1"></i>学生信息变更后本准考证自动重新生成，历史版本作废</p>
+                            <button id="ticket-refresh-btn" onclick="manualRefreshTicket('${orderId}')" class="flex items-center gap-1.5 bg-white border border-brand-200 hover:bg-brand-50 text-brand-600 text-xs font-bold px-3 py-1.5 rounded-lg transition flex-shrink-0">
+                                <i class="fa-solid fa-rotate-right" id="ticket-refresh-icon"></i><span id="ticket-refresh-label">手动更新</span>
+                            </button>
+                        </div>
+                    </div>`;
+            }
+            const modal = document.createElement('div');
+            modal.id = 'ticket-modal';
+            modal.className = 'fixed inset-0 z-[70] flex items-center justify-center bg-slate-900/60 backdrop-blur-sm';
+            modal.onclick = (e) => { if (e.target === modal) modal.remove(); };
+            modal.innerHTML = `<div class="bg-white rounded-2xl shadow-xl w-[480px] overflow-hidden">
+                    <div class="px-6 py-4 border-b border-slate-100 flex items-center justify-between">
+                        <h3 class="font-bold text-slate-800">准考证信息</h3>
+                        <button onclick="this.closest('#ticket-modal').remove()" class="w-8 h-8 rounded-full hover:bg-slate-100 flex items-center justify-center text-slate-500 transition"><i class="fa-solid fa-xmark"></i></button>
+                    </div>
+                    ${body}
+                </div>`;
+            document.body.appendChild(modal);
+        }
+
+        // 手动更新准考证：按钮加载态 → 更新完成 → 弹窗内容刷新 + 列表同步
+        function manualRefreshTicket(orderId) {
+            const btn = document.getElementById('ticket-refresh-btn');
+            const icon = document.getElementById('ticket-refresh-icon');
+            const label = document.getElementById('ticket-refresh-label');
+            if (!btn || btn.disabled) return;
+            btn.disabled = true;
+            btn.classList.add('opacity-60', 'cursor-not-allowed');
+            icon.classList.add('fa-spin');
+            label.innerText = '更新中...';
+            setTimeout(() => {
+                // 模拟重新生成：准考证号尾部序号 +1，演示更新效果
+                const tk = TICKET_HTML[orderId];
+                if (tk && tk.no) {
+                    const m = tk.no.match(/^(.*-)(\d{4})$/);
+                    if (m) tk.no = m[1] + String(parseInt(m[2]) + 1).padStart(4, '0');
+                }
+                // 刷新弹窗内容
+                const modal = document.getElementById('ticket-modal');
+                if (modal) modal.remove();
+                openTicketModal(orderId);
+                // 同步列表里的准考证号（tds[4] 准考证列）
+                const data = orders[orderId];
+                if (data && tk && tk.no) {
+                    data.ticketNo = tk.no;
+                    document.querySelectorAll('tbody tr').forEach(tr => {
+                        const b = tr.querySelector('button[title="点击查看准考证"]');
+                        if (b && b.getAttribute('onclick').includes("'" + orderId + "'")) b.innerText = tk.no;
+                    });
+                }
+                const toast = document.createElement('div');
+                toast.className = 'fixed top-20 left-1/2 transform -translate-x-1/2 z-[80] bg-slate-900 text-white text-sm px-5 py-2.5 rounded-lg shadow-xl';
+                toast.textContent = '准考证已重新生成：' + (tk ? tk.no : '') + '，列表已同步更新';
+                document.body.appendChild(toast);
+                setTimeout(() => toast.remove(), 3000);
+            }, 1200);
+        }
+
+        let photoCurrentSeed = null;
+        function openPhotoPreview(seed) {
+            photoCurrentSeed = seed;
+            document.getElementById('photo-modal-img').src = `https://api.dicebear.com/9.x/avataaars/svg?seed=${seed}`;
+            // 找该行的照片状态
+            let statusText = '', badge = '';
+            document.querySelectorAll('tbody tr').forEach(tr => {
+                const img = tr.querySelector('img');
+                if (img && img.src.includes('seed=' + seed)) {
+                    const td = tr.querySelectorAll('td')[3];
+                    statusText = td.textContent.trim();
+                    badge = td.querySelector('span') ? td.querySelector('span').outerHTML : '';
+                }
+            });
+            document.getElementById('photo-modal-status').innerHTML = `当前状态：${badge}`;
+            // 未提交/已审核的不显示通过不通过按钮
+            const canAudit = statusText.includes('待审核');
+            document.getElementById('photo-modal-actions').children[1].style.display = canAudit ? '' : 'none';
+            document.getElementById('photo-modal-actions').children[2].style.display = canAudit ? '' : 'none';
+            document.getElementById('photo-modal').classList.remove('hidden');
+        }
+        function closePhotoPreview() {
+            document.getElementById('photo-modal').classList.add('hidden');
+            photoCurrentSeed = null;
+        }
+        function auditFromPhoto(result) {
+            document.querySelectorAll('tbody tr').forEach(tr => {
+                const img = tr.querySelector('img');
+                if (img && photoCurrentSeed && img.src.includes('seed=' + photoCurrentSeed)) {
+                    const td = tr.querySelectorAll('td')[3];
+                    td.innerHTML = result === 'pass'
+                        ? '<span class="inline-flex items-center gap-1 px-2 py-0.5 rounded text-xs font-bold bg-green-50 text-green-700 border border-green-200">合格</span>'
+                        : '<span class="inline-flex items-center gap-1 px-2 py-0.5 rounded text-xs font-bold bg-red-50 text-red-700 border border-red-200">不合格</span>';
+                }
+            });
+            closePhotoPreview();
+        }
+        function clearChecks() {
+            document.querySelectorAll('.row-check').forEach(c => c.checked = false);
+            const all = document.getElementById('check-all');
+            if (all) all.checked = false;
+            updateBatchBar();
+        }
+        function batchAudit(result) {
+            const checks = document.querySelectorAll('.row-check:checked');
+            let changed = 0, skipped = 0;
+            checks.forEach(c => {
+                const tr = c.closest('tr');
+                const tds = tr.querySelectorAll('td');
+                if (tds[3] && tds[3].textContent.includes('待审核')) {
+                    tds[3].innerHTML = result === 'pass'
+                        ? '<span class="inline-flex items-center gap-1 px-2 py-0.5 rounded text-xs font-bold bg-green-50 text-green-700 border border-green-200">合格</span>'
+                        : '<span class="inline-flex items-center gap-1 px-2 py-0.5 rounded text-xs font-bold bg-red-50 text-red-700 border border-red-200">不合格</span>';
+                    changed++;
+                } else {
+                    skipped++;
+                }
+            });
+            clearChecks();
+            const toast = document.createElement('div');
+            toast.className = 'fixed top-20 left-1/2 transform -translate-x-1/2 z-50 bg-slate-900 text-white text-sm px-5 py-2.5 rounded-lg shadow-xl';
+            toast.textContent = `照片审核完成：通过/不通过 ${changed} 条${skipped ? '，非待审核 ' + skipped + ' 条已跳过' : ''}（历史已审核结果默认继承，无需重复审核）`;
+            document.body.appendChild(toast);
+            setTimeout(() => toast.remove(), 3000);
+        }
+
+
+        function renderPhotoCard(data) {
+            const st = data.photoStatus || 'none';
+            const badgeMap = {
+                pass: '<span class="inline-flex items-center gap-1 px-2 py-0.5 rounded text-xs font-bold bg-green-50 text-green-700 border border-green-200">合格</span>',
+                pending: '<span class="inline-flex items-center gap-1 px-2 py-0.5 rounded text-xs font-bold bg-amber-50 text-amber-700 border border-amber-200">待审核</span>',
+                reject: '<span class="inline-flex items-center gap-1 px-2 py-0.5 rounded text-xs font-bold bg-red-50 text-red-700 border border-red-200">不合格</span>',
+                none: '<span class="inline-flex items-center gap-1 px-2 py-0.5 rounded text-xs font-bold bg-slate-100 text-slate-500">未提交</span>'
+            };
+            const imgHTML = st !== 'none'
+                ? `<img src="${data.studentAvatar || 'https://api.dicebear.com/9.x/avataaars/svg?seed=' + data.studentName}" class="w-24 h-24 rounded-xl object-cover border-2 border-slate-100">`
+                : `<div class="w-24 h-24 rounded-xl bg-slate-50 border-2 border-dashed border-slate-200 flex items-center justify-center text-slate-300 text-2xl"><i class="fa-solid fa-user-slash"></i></div>`;
+            // 纵向布局、区域常驻：编辑行+按钮行固定占位，仅禁用/启用切换 → 零跳变、零换行
+            let editHTML = '';
+            if (st === 'none') {
+                editHTML = `<p class="text-[11px] text-slate-400 pt-3 mt-3 border-t border-slate-100">学生尚未上传照片，无法设置审核状态</p>`;
+            } else {
+                const opt = (val, label) => `<option value="${val}" ${st === val ? 'selected' : ''}>${label}</option>`;
+                editHTML = `<div class="pt-3 mt-3 border-t border-slate-100">
+                        <div class="flex items-center gap-2">
+                            <span class="text-xs text-slate-500 shrink-0">修改审核状态</span>
+                            <select id="photo-status-select" onchange="onPhotoStatusChange('${st}')" class="flex-1 px-2 py-1.5 text-xs rounded-lg border border-slate-200 bg-white text-slate-700 font-medium outline-none hover:border-slate-300 cursor-pointer min-w-0">
+                                ${opt('pass', '合格')}
+                                ${opt('pending', '待审核')}
+                                ${opt('reject', '不合格')}
+                            </select>
+                        </div>
+                        <div class="flex items-center justify-end gap-2 pt-2.5">
+                            <span class="text-[10px] text-slate-400 mr-auto truncate">选择新状态后保存生效</span>
+                            <button id="photo-cancel-btn" onclick="cancelPhotoStatusChange('${st}')" disabled class="px-3 py-1.5 text-xs text-slate-600 rounded-lg border border-slate-200 transition disabled:opacity-40 disabled:cursor-not-allowed enabled:hover:bg-slate-50">取消</button>
+                            <button id="photo-save-btn" onclick="savePhotoStatusChange()" disabled class="px-3 py-1.5 text-xs bg-brand-600 text-white rounded-lg transition font-bold disabled:opacity-40 disabled:cursor-not-allowed enabled:hover:bg-brand-700">保存并同步</button>
+                        </div>
+                    </div>`;
+            }
+            return `<div class="mb-6">
+                <h4 class="text-xs font-bold text-slate-400 uppercase mb-3 border-b border-slate-100 pb-1">报名照片</h4>
+                <div class="flex items-start gap-4">
+                    ${imgHTML}
+                    <div class="flex-1 min-w-0 space-y-2">
+                        <div class="flex items-center gap-2"><span class="text-xs text-slate-500 shrink-0">照片状态</span><span id="drawer-photo-badge">${badgeMap[st]}</span></div>
+                        <p class="text-[10px] text-slate-400 truncate">${st === 'pending' ? '审核通过后同步证件制作' : st === 'none' ? '等待学生上传' : '审核结论默认继承历史结果'}</p>
+                        ${editHTML}
+                    </div>
+                </div>
+            </div>`;
+        }
+        function onPhotoStatusChange(currentSt) {
+            const sel = document.getElementById('photo-status-select');
+            if (!sel) return;
+            const changed = sel.value !== currentSt;
+            document.getElementById('photo-save-btn').disabled = !changed;
+            document.getElementById('photo-cancel-btn').disabled = !changed;
+        }
+        function cancelPhotoStatusChange(currentSt) {
+            const sel = document.getElementById('photo-status-select');
+            if (sel) sel.value = currentSt;
+            onPhotoStatusChange(currentSt);
+        }
+        function savePhotoStatusChange() {
+            const sel = document.getElementById('photo-status-select');
+            if (!sel) return;
+            auditPhotoInDrawer(sel.value);
+        }
+        const PHOTO_BADGE_HTML = {
+            pass: '<span class="inline-flex items-center gap-1 px-2 py-0.5 rounded text-xs font-bold bg-green-50 text-green-700 border border-green-200">合格</span>',
+            pending: '<span class="inline-flex items-center gap-1 px-2 py-0.5 rounded text-xs font-bold bg-amber-50 text-amber-700 border border-amber-200">待审核</span>',
+            reject: '<span class="inline-flex items-center gap-1 px-2 py-0.5 rounded text-xs font-bold bg-red-50 text-red-700 border border-red-200">不合格</span>',
+            none: '<span class="inline-flex items-center gap-1 px-2 py-0.5 rounded text-xs font-bold bg-slate-100 text-slate-500">未提交</span>'
+        };
+        function auditPhotoInDrawer(result) {
+            const data = orders[currentOrderId];
+            if (!data) return;
+            if (!['pass', 'pending', 'reject'].includes(result)) return;
+            data.photoStatus = result;
+            // 同步列表行照片状态列
+            document.querySelectorAll('tbody tr').forEach(tr => {
+                const oc = tr.getAttribute('onclick') || '';
+                if (oc.includes(currentOrderId)) {
+                    tr.querySelectorAll('td')[3].innerHTML = PHOTO_BADGE_HTML[result];
+                }
+            });
+            renderDrawerContent(data);
+        }
         function renderStudentInfo(data) {
             let avatarHTML;
             if (data.studentAvatar) {
@@ -1049,73 +1718,6 @@
             document.getElementById('user-search').classList.remove('hidden');
             document.getElementById('user-search').value = '';
             document.getElementById('user-search').focus();
-        }
-
-        // ========== Proxy Modal Cascade (Activity / Level(分级) / Exam) ==========
-        const PROXY_CATALOG = {
-            '2025春季活动': { label: '2025春季活动', grades: ['一级', '二级'] },
-            '2025夏季活动': { label: '2025夏季活动', grades: ['一级', '二级', '三级'] },
-            '2025秋季活动': { label: '2025秋季活动', grades: ['一级'] }
-        };
-        const PROXY_EXAMS = {
-            '2025春季活动|一级': ['2025春季 Python 一级等级测评'],
-            '2025春季活动|二级': ['2025春季 AIGC 应用能力二级'],
-            '2025夏季活动|一级': ['2025夏季 Python 一级等级测评'],
-            '2025夏季活动|二级': ['2025夏季 AIGC 应用能力二级'],
-            '2025夏季活动|三级': ['2025夏季 编程能力三级测评'],
-            '2025秋季活动|一级': ['2025秋季 Python 一级等级测评']
-        };
-
-        function initProxyCascade() {
-            const actSel = document.getElementById('proxy-level-activity');
-            const gradeSel = document.getElementById('proxy-level-grade');
-            const examSel = document.getElementById('proxy-level-exam');
-            actSel.innerHTML = '<option value="" disabled selected>选择活动</option>'
-                + Object.keys(PROXY_CATALOG).map(function (k) {
-                    return '<option value="' + k + '">' + PROXY_CATALOG[k].label + '</option>';
-                }).join('');
-            gradeSel.innerHTML = '<option value="" disabled selected>先选活动</option>';
-            examSel.innerHTML = '<option value="" disabled selected>先选分级</option>';
-            gradeSel.disabled = true;
-            examSel.disabled = true;
-        }
-        initProxyCascade();
-
-        function fillSelect(sel, placeholder, values) {
-            sel.innerHTML = '<option value="" disabled selected>' + placeholder + '</option>'
-                + values.map(function (v) { return '<option value="' + v + '">' + v + '</option>'; }).join('');
-        }
-
-        function proxyCascade() {
-            const actSel = document.getElementById('proxy-level-activity');
-            const gradeSel = document.getElementById('proxy-level-grade');
-            const examSel = document.getElementById('proxy-level-exam');
-            // 重渲染前记住已选值，重渲染后恢复，避免把用户刚选的项清掉
-            const keepGrade = gradeSel.value;
-            const keepExam = examSel.value;
-            if (!actSel.value) {
-                fillSelect(gradeSel, '先选活动', []);
-                gradeSel.disabled = true;
-                fillSelect(examSel, '先选分级', []);
-                examSel.disabled = true;
-                return;
-            }
-            fillSelect(gradeSel, '选择分级', PROXY_CATALOG[actSel.value].grades);
-            gradeSel.disabled = false;
-            if (keepGrade && PROXY_CATALOG[actSel.value].grades.indexOf(keepGrade) >= 0) {
-                gradeSel.value = keepGrade;
-            }
-            const exams = PROXY_EXAMS[actSel.value + '|' + gradeSel.value] || [];
-            if (gradeSel.value && exams.length > 0) {
-                fillSelect(examSel, '选择测评', exams);
-                examSel.disabled = false;
-                if (keepExam && exams.indexOf(keepExam) >= 0) {
-                    examSel.value = keepExam;
-                }
-            } else {
-                fillSelect(examSel, '先选分级', []);
-                examSel.disabled = true;
-            }
         }
 
         // ========== Global Escape Key ==========

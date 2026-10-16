@@ -1270,7 +1270,12 @@
                             <div class="flex justify-between"><span class="text-slate-500">考场</span><span class="text-slate-800 text-xs text-right max-w-[300px]">${tk.room}</span></div>
                             <div class="flex justify-between"><span class="text-slate-500">考试时间</span><span class="text-slate-800 font-mono text-xs">${tk.time}</span></div>
                         </div>
-                        <p class="text-[10px] text-slate-400 mt-4 pt-3 border-t border-slate-100"><i class="fa-solid fa-rotate mr-1"></i>学生信息变更后本准考证自动重新生成，历史版本作废</p>
+                        <div class="mt-4 pt-3 border-t border-slate-100 flex items-center justify-between gap-3">
+                            <p class="text-[10px] text-slate-400"><i class="fa-solid fa-rotate mr-1"></i>学生信息变更后本准考证自动重新生成，历史版本作废</p>
+                            <button id="ticket-refresh-btn" onclick="manualRefreshTicket('${orderId}')" class="flex items-center gap-1.5 bg-white border border-brand-200 hover:bg-brand-50 text-brand-600 text-xs font-bold px-3 py-1.5 rounded-lg transition flex-shrink-0">
+                                <i class="fa-solid fa-rotate-right" id="ticket-refresh-icon"></i><span id="ticket-refresh-label">手动更新</span>
+                            </button>
+                        </div>
                     </div>`;
             }
             const modal = document.createElement('div');
@@ -1285,6 +1290,44 @@
                     ${body}
                 </div>`;
             document.body.appendChild(modal);
+        }
+
+        // 手动更新准考证：按钮加载态 → 更新完成 → 弹窗内容刷新 + 列表同步
+        function manualRefreshTicket(orderId) {
+            const btn = document.getElementById('ticket-refresh-btn');
+            const icon = document.getElementById('ticket-refresh-icon');
+            const label = document.getElementById('ticket-refresh-label');
+            if (!btn || btn.disabled) return;
+            btn.disabled = true;
+            btn.classList.add('opacity-60', 'cursor-not-allowed');
+            icon.classList.add('fa-spin');
+            label.innerText = '更新中...';
+            setTimeout(() => {
+                // 模拟重新生成：准考证号尾部序号 +1，演示更新效果
+                const tk = TICKET_HTML[orderId];
+                if (tk && tk.no) {
+                    const m = tk.no.match(/^(.*-)(\d{4})$/);
+                    if (m) tk.no = m[1] + String(parseInt(m[2]) + 1).padStart(4, '0');
+                }
+                // 刷新弹窗内容
+                const modal = document.getElementById('ticket-modal');
+                if (modal) modal.remove();
+                openTicketModal(orderId);
+                // 同步列表里的准考证号（tds[4] 准考证列）
+                const data = orders[orderId];
+                if (data && tk && tk.no) {
+                    data.ticketNo = tk.no;
+                    document.querySelectorAll('tbody tr').forEach(tr => {
+                        const b = tr.querySelector('button[title="点击查看准考证"]');
+                        if (b && b.getAttribute('onclick').includes("'" + orderId + "'")) b.innerText = tk.no;
+                    });
+                }
+                const toast = document.createElement('div');
+                toast.className = 'fixed top-20 left-1/2 transform -translate-x-1/2 z-[80] bg-slate-900 text-white text-sm px-5 py-2.5 rounded-lg shadow-xl';
+                toast.textContent = '准考证已重新生成：' + (tk ? tk.no : '') + '，列表已同步更新';
+                document.body.appendChild(toast);
+                setTimeout(() => toast.remove(), 3000);
+            }, 1200);
         }
 
         let photoCurrentSeed = null;
