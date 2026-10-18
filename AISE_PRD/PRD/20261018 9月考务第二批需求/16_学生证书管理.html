@@ -1,0 +1,735 @@
+﻿<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>学生证书管理 - AISE 后台</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <script>
+        tailwind.config = {
+            theme: {
+                extend: {
+                    fontFamily: { sans: ['Inter', 'sans-serif'], mono: ['JetBrains Mono', 'monospace'] },
+                    colors: { brand: { 50: '#eff6ff', 100: '#dbeafe', 500: '#3b82f6', 600: '#2563eb', 700: '#1d4ed8' } },
+                    boxShadow: { 'card': '0 1px 3px 0 rgba(0, 0, 0, 0.1), 0 1px 2px 0 rgba(0, 0, 0, 0.06)' },
+                    animation: { 'fade-in-down': 'fadeInDown 0.3s ease-out forwards' },
+                    keyframes: {
+                        fadeInDown: { '0%': { opacity: '0', transform: 'translateY(-20px) translateX(-50%)' }, '100%': { opacity: '1', transform: 'translateY(0) translateX(-50%)' } }
+                    }
+                }
+            }
+        }
+    </script>
+    <style>
+        body { background-color: #F8FAFC; }
+        .nav-item.active::before {
+            content: ''; position: absolute; left: 0; top: 50%; transform: translateY(-50%);
+            width: 4px; height: 24px; background-color: #3b82f6; border-radius: 0 4px 4px 0;
+        }
+        tr.hover-row:hover td { background-color: #f8fafc; }
+        /* Custom Scrollbar for table container */
+        .custom-scroll::-webkit-scrollbar { width: 6px; height: 8px; }
+        .custom-scroll::-webkit-scrollbar-track { background: transparent; }
+        .custom-scroll::-webkit-scrollbar-thumb { background-color: #cbd5e1; border-radius: 4px; }
+        .custom-scroll::-webkit-scrollbar-thumb:hover { background-color: #94a3b8; }
+    </style>
+</head>
+<body class="flex h-screen overflow-hidden text-slate-800 font-sans relative">
+
+    <div id="toast" class="fixed top-5 left-1/2 transform -translate-x-1/2 bg-slate-800 text-white px-6 py-3 rounded-lg shadow-lg z-[100] flex items-center gap-3 hidden opacity-0 transition-all">
+        <i class="fa-solid fa-circle-info text-blue-400"></i>
+        <span class="text-sm font-medium">正在导出，请稍后在「消息中心」查看下载</span>
+    </div>
+
+    <aside class="w-64 bg-white border-r border-slate-200 flex flex-col flex-shrink-0 z-20">
+        <div class="h-16 flex items-center px-6 border-b border-slate-100">
+            <div class="w-8 h-8 bg-gradient-to-br from-brand-600 to-indigo-600 rounded-lg flex items-center justify-center text-white font-bold text-lg mr-3 shadow-sm">A</div>
+            <span class="font-bold text-lg text-slate-800 tracking-tight">AISE Admin</span>
+        </div>
+        <nav class="flex-1 overflow-y-auto py-4 space-y-1">
+            <a href="#" class="nav-item flex items-center gap-3 px-6 py-3 text-slate-500 hover:bg-slate-50 hover:text-brand-600 transition relative">
+                <i class="fa-solid fa-graduation-cap w-5 text-center"></i><span class="font-medium text-sm">测评管理</span>
+            </a>
+            <a href="#" class="nav-item flex items-center gap-3 px-6 py-3 text-slate-500 hover:bg-slate-50 hover:text-brand-600 transition relative">
+                <i class="fa-solid fa-certificate w-5 text-center"></i><span class="font-medium text-sm">证书管理</span>
+            </a>
+            <a href="#" class="nav-item active flex items-center gap-3 px-6 py-3 text-brand-600 bg-brand-50 transition relative">
+                <i class="fa-solid fa-user-graduate w-5 text-center"></i><span class="font-medium text-sm">学生证书管理</span>
+            </a>
+            <div class="px-6 py-2 mt-4 text-xs font-bold text-slate-400 uppercase tracking-wider">系统与消息</div>
+            <a href="#" class="nav-item flex items-center gap-3 px-6 py-3 text-slate-500 hover:bg-slate-50 hover:text-brand-600 transition relative">
+                <i class="fa-solid fa-bell w-5 text-center"></i><span class="font-medium text-sm">消息中心</span>
+            </a>
+            <a href="#" class="nav-item flex items-center gap-3 px-6 py-3 text-slate-500 hover:bg-slate-50 hover:text-brand-600 transition relative">
+                <i class="fa-solid fa-users w-5 text-center"></i><span class="font-medium text-sm">用户管理</span>
+            </a>
+        </nav>
+    </aside>
+
+    <main class="flex-1 flex flex-col min-w-0 bg-slate-50/50 relative">
+
+        <header class="h-16 bg-white border-b border-slate-200 flex items-center justify-between px-8 flex-shrink-0 z-10">
+            <h1 class="text-xl font-bold text-slate-800">学生证书管理</h1>
+            <div class="flex items-center gap-2 text-xs text-slate-500 bg-blue-50 px-3 py-1.5 rounded-lg border border-blue-100">
+                <i class="fa-solid fa-shield-halved text-brand-600"></i>
+                <span>管理员：Admin</span>
+            </div>
+        </header>
+
+        <div class="px-8 pt-4 pb-3">
+            <div class="bg-white rounded-xl shadow-card border border-slate-100 px-4 py-3">
+                <div class="flex flex-wrap items-center gap-2">
+                    <div class="relative w-[150px]">
+                        <span class="absolute inset-y-0 left-0 pl-2.5 flex items-center pointer-events-none text-slate-400"><i class="fa-regular fa-user"></i></span>
+                        <input type="text" id="filter-name" placeholder="学生姓名" class="w-full pl-8 pr-2 py-1.5 text-sm border border-slate-200 rounded-lg focus:border-brand-500 outline-none bg-white transition shadow-sm">
+                    </div>
+                    <div class="relative w-[150px]">
+                        <span class="absolute inset-y-0 left-0 pl-2.5 flex items-center pointer-events-none text-slate-400"><i class="fa-solid fa-phone"></i></span>
+                        <input type="text" id="filter-phone" placeholder="手机号" class="w-full pl-8 pr-2 py-1.5 text-sm border border-slate-200 rounded-lg focus:border-brand-500 outline-none bg-white transition shadow-sm">
+                    </div>
+                    <div class="relative w-[170px]">
+                        <span class="absolute inset-y-0 left-0 pl-2.5 flex items-center pointer-events-none text-slate-400"><i class="fa-regular fa-id-card"></i></span>
+                        <input type="text" id="filter-idcard" placeholder="身份证号" class="w-full pl-8 pr-2 py-1.5 text-sm border border-slate-200 rounded-lg focus:border-brand-500 outline-none bg-white transition shadow-sm">
+                    </div>
+                    <div class="relative w-[180px]">
+                        <span class="absolute inset-y-0 left-0 pl-2.5 flex items-center pointer-events-none text-slate-400"><i class="fa-solid fa-barcode"></i></span>
+                        <input type="text" id="filter-certno" placeholder="证书编号（精确搜索）" class="w-full pl-8 pr-2 py-1.5 text-sm border border-slate-200 rounded-lg focus:border-brand-500 outline-none bg-white transition shadow-sm">
+                    </div>
+                    <select id="filter-channel" class="w-[150px] px-2 py-1.5 text-sm border border-slate-200 rounded-lg bg-white focus:border-brand-500 outline-none shadow-sm text-slate-600 cursor-pointer">
+                        <option value="">渠道 (名称/编号)</option>
+                        <option value="1">编程猫北京中心</option>
+                        <option value="2">童程童美上海</option>
+                        <option value="3">AISE 直营</option>
+                    </select>
+                    <select id="filter-cert-status" class="w-[130px] px-2 py-1.5 text-sm border border-slate-200 rounded-lg bg-white focus:border-brand-500 outline-none shadow-sm text-slate-600 cursor-pointer">
+                        <option value="">证书状态 (全部)</option>
+                        <option value="processing">批改中</option>
+                        <option value="completed">批改完成</option>
+                        <option value="publicity">公示中</option>
+                        <option value="making">制作中</option>
+                        <option value="sent">已寄送</option>
+                    </select>
+                    <select id="filter-elec-cert" class="w-[130px] px-2 py-1.5 text-sm border border-slate-200 rounded-lg bg-white focus:border-brand-500 outline-none shadow-sm text-slate-600 cursor-pointer">
+                        <option value="">电子证书 (全部)</option>
+                        <option value="issued">已签发</option>
+                        <option value="pending">待签发</option>
+                        <option value="failed">签发失败</option>
+                        <option value="unconfigured">未配置</option>
+                    </select>
+                    <select id="filter-result" class="w-[110px] px-2 py-1.5 text-sm border border-slate-200 rounded-lg bg-white focus:border-brand-500 outline-none shadow-sm text-slate-600 cursor-pointer">
+                        <option value="">测评结果</option>
+                        <option value="优秀">优秀</option>
+                        <option value="良好">良好</option>
+                        <option value="合格">合格</option>
+                    </select>
+                    <div class="flex items-center gap-1 w-[110px]">
+                        <input type="number" id="filter-score-min" placeholder="分" class="w-full px-1.5 py-1.5 text-sm border border-slate-200 rounded-lg focus:border-brand-500 outline-none bg-white shadow-sm text-center">
+                        <span class="text-slate-300">-</span>
+                        <input type="number" id="filter-score-max" placeholder="分" class="w-full px-1.5 py-1.5 text-sm border border-slate-200 rounded-lg focus:border-brand-500 outline-none bg-white shadow-sm text-center">
+                    </div>
+                    <select id="filter-module" class="w-[120px] px-2 py-1.5 text-sm border border-slate-200 rounded-lg bg-white focus:border-brand-500 outline-none shadow-sm text-slate-600 cursor-pointer">
+                        <option value="">模块 (可多选)</option>
+                        <option value="Python">Python</option>
+                        <option value="C++">C++</option>
+                    </select>
+                    <select id="filter-level" class="w-[110px] px-2 py-1.5 text-sm border border-slate-200 rounded-lg bg-white focus:border-brand-500 outline-none shadow-sm text-slate-600 cursor-pointer">
+                        <option value="">级别 (可多选)</option>
+                        <option value="1">一级</option>
+                        <option value="2">二级</option>
+                    </select>
+                    <div class="ml-auto flex items-center gap-2">
+                        <button id="btn-reset" onclick="resetCertNoFilter()" class="px-4 py-1.5 bg-white border border-slate-200 hover:bg-slate-50 text-slate-600 text-sm font-medium rounded-lg transition">重置</button>
+                        <button id="btn-export" onclick="exportData()" class="px-4 py-1.5 bg-green-50 hover:bg-green-100 border border-green-200 text-green-700 text-sm font-bold rounded-lg transition flex items-center gap-1.5">
+                            <i class="fa-solid fa-file-excel"></i> <span>导出数据</span>
+                        </button>
+                        <button id="btn-search" onclick="applyCertNoFilter()" class="px-4 py-1.5 bg-brand-600 hover:bg-brand-700 text-white text-sm font-bold rounded-lg shadow-md transition flex items-center gap-1.5">
+                            <i class="fa-solid fa-magnifying-glass"></i> 查询数据
+                        </button>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        
+<div class="flex-1 overflow-hidden px-8 pb-8">
+            <div id="certno-filter-tip" class="hidden mb-3 px-4 py-2.5 rounded-lg bg-amber-50 border border-amber-100 text-xs text-amber-700"></div>
+            <div class="bg-white rounded-xl shadow-card border border-slate-200 h-full flex flex-col">
+                <div class="flex-1 overflow-auto custom-scroll">
+                    <table class="w-full text-left border-collapse">
+                        <thead class="sticky top-0 z-10">
+                            <tr class="border-b border-slate-100 bg-slate-50 text-xs uppercase text-slate-500 font-bold">
+                                <th class="p-4 pl-6 whitespace-nowrap">学生姓名</th>
+                                <th class="p-4 whitespace-nowrap">照片</th>
+                                <th class="p-4 whitespace-nowrap text-center">导出次数</th>
+                                <th class="p-4 whitespace-nowrap">备注</th>
+                                <th class="p-4 whitespace-nowrap">手机号</th>
+                                <th class="p-4 whitespace-nowrap">身份证号</th>
+                                <th class="p-4 whitespace-nowrap">渠道信息</th>
+                                <th class="p-4 whitespace-nowrap text-right">成绩</th>
+                                <th class="p-4 whitespace-nowrap">测评结果</th>
+                                <th class="p-4 whitespace-nowrap">证书状态</th>
+                                <th class="p-4 whitespace-nowrap">电子证书</th>
+                                <th class="p-4 whitespace-nowrap">模块</th>
+                                <th class="p-4 whitespace-nowrap">级别</th>
+                                <th class="p-4 whitespace-nowrap text-center bg-slate-50 sticky right-0 shadow-[-4px_0_8px_-4px_rgba(0,0,0,0.05)]">操作</th>
+                            </tr>
+                        </thead>
+                        <tbody class="text-sm text-slate-700 divide-y divide-slate-100">
+                            <tr class="hover-row transition group hover:bg-slate-50">
+                                <td class="p-4 pl-6 font-bold text-slate-800 whitespace-nowrap">张小明</td>
+                                <td class="p-4">
+                                    <div class="w-8 h-8 rounded-full bg-slate-200 overflow-hidden border border-slate-100 shadow-sm shrink-0">
+                                        <img src="https://api.dicebear.com/7.x/avataaars/svg?seed=ZhangXiaoming" alt="Avatar" class="w-full h-full object-cover">
+                                    </div>
+                                </td>
+                                <td class="p-4 whitespace-nowrap text-center" data-stu="张小明">
+                                    <button onclick="openRecordModal(this)" class="cell-count text-sm font-bold text-slate-700 hover:text-brand-600 hover:underline transition" title="查看导出记录与备注">-</button>
+                                </td>
+                                <td class="p-4 whitespace-nowrap" data-stu="张小明">
+                                    <button onclick="openRecordModal(this)" class="cell-remark max-w-[150px] inline-block truncate text-xs text-slate-500 hover:text-brand-600 hover:underline transition text-left" title="查看导出记录与备注">-</button>
+                                </td>
+                                <td class="p-4 font-mono text-slate-500 whitespace-nowrap">138****8888</td>
+                                <td class="p-4 font-mono text-slate-500 whitespace-nowrap">110101********1234</td>
+                                <td class="p-4 whitespace-nowrap">
+                                    <p class="text-xs font-medium text-slate-700">编程猫北京中心</p>
+                                    <p class="text-[10px] font-mono text-slate-400 mt-0.5">CH-BJ-001</p>
+                                </td>
+                                <td class="p-4 font-mono font-bold text-slate-800 text-right whitespace-nowrap">92</td>
+                                <td class="p-4 whitespace-nowrap">
+                                    <span class="inline-flex items-center gap-1 px-2 py-0.5 rounded text-xs font-bold bg-brand-50 text-brand-700 border border-brand-100">优秀</span>
+                                </td>
+                                <td class="p-4 whitespace-nowrap">
+                                    <span class="inline-flex items-center gap-1.5 px-2 py-0.5 rounded text-xs font-bold bg-green-50 text-green-700 border border-green-100">
+                                        <i class="fa-solid fa-truck-fast text-[10px]"></i> 已寄送
+                                    </span>
+                                </td>
+                                <td class="p-4 whitespace-nowrap">
+                                    <span class="inline-flex items-center gap-1.5 px-2 py-0.5 rounded text-xs font-bold bg-green-50 text-green-700 border border-green-100">
+                                        <i class="fa-solid fa-circle-check text-[10px]"></i> 已签发
+                                    </span>
+                                </td>
+                                <td class="p-4 text-xs whitespace-nowrap">Python</td>
+                                <td class="p-4 text-xs whitespace-nowrap"><span class="bg-slate-100 text-slate-600 px-1.5 rounded">一级</span></td>
+                                <td class="p-4 text-center whitespace-nowrap bg-white sticky right-0 shadow-[-4px_0_8px_-4px_rgba(0,0,0,0.05)] group-hover:bg-slate-50 transition-colors">
+                                    <div class="flex items-center justify-center gap-2">
+                                        <button class="text-xs font-medium text-brand-600 hover:text-brand-800 hover:bg-brand-50 px-2 py-1 rounded transition">管理证书</button>
+                                        <div class="w-px h-3 bg-slate-200"></div>
+                                        <button class="text-xs font-medium text-slate-500 hover:text-brand-600 hover:bg-slate-50 px-2 py-1 rounded transition">查看证书</button>
+                                        <div class="w-px h-3 bg-slate-200"></div>
+                                        <button class="text-xs font-medium text-slate-500 hover:text-blue-600 hover:bg-slate-50 px-2 py-1 rounded transition">修改信息</button>
+                                        <div class="w-px h-3 bg-slate-200"></div>
+                                        <a href="../user/29_考级报告.html" target="_blank" class="text-xs font-medium text-amber-600 hover:text-amber-700 hover:bg-amber-50 px-2 py-1 rounded transition" title="预览个人报告（样式与学生端一致）"><i class="fa-regular fa-file-lines mr-0.5"></i>查看报告</a>
+                                        <div class="w-px h-3 bg-slate-200"></div>
+                                        <button class="text-xs font-medium text-green-600 hover:text-green-700 hover:bg-green-50 px-2 py-1 rounded transition" title="下载电子证书PDF"><i class="fa-solid fa-download mr-0.5"></i>电子证书</button>
+                                    </div>
+                                </td>
+                            </tr>
+
+                            <tr class="hover-row transition group hover:bg-slate-50">
+                                <td class="p-4 pl-6 font-bold text-slate-800 whitespace-nowrap">李小红</td>
+                                <td class="p-4">
+                                    <div class="w-8 h-8 rounded-full bg-slate-200 overflow-hidden border border-slate-100 shadow-sm shrink-0">
+                                        <img src="https://api.dicebear.com/7.x/avataaars/svg?seed=LiXiaohong" alt="Avatar" class="w-full h-full object-cover">
+                                    </div>
+                                </td>
+                                <td class="p-4 whitespace-nowrap text-center" data-stu="李小红">
+                                    <button onclick="openRecordModal(this)" class="cell-count text-sm font-bold text-slate-700 hover:text-brand-600 hover:underline transition" title="查看导出记录与备注">-</button>
+                                </td>
+                                <td class="p-4 whitespace-nowrap" data-stu="李小红">
+                                    <button onclick="openRecordModal(this)" class="cell-remark max-w-[150px] inline-block truncate text-xs text-slate-500 hover:text-brand-600 hover:underline transition text-left" title="查看导出记录与备注">-</button>
+                                </td>
+                                <td class="p-4 font-mono text-slate-500 whitespace-nowrap">139****6666</td>
+                                <td class="p-4 font-mono text-slate-500 whitespace-nowrap">110102********5678</td>
+                                <td class="p-4 whitespace-nowrap">
+                                    <p class="text-xs font-medium text-slate-700">编程猫北京中心</p>
+                                    <p class="text-[10px] font-mono text-slate-400 mt-0.5">CH-BJ-001</p>
+                                </td>
+                                <td class="p-4 font-mono font-bold text-slate-800 text-right whitespace-nowrap">85</td>
+                                <td class="p-4 whitespace-nowrap">
+                                    <span class="inline-flex items-center gap-1 px-2 py-0.5 rounded text-xs font-bold bg-blue-50 text-blue-700 border border-blue-100">良好</span>
+                                </td>
+                                <td class="p-4 whitespace-nowrap">
+                                    <span class="inline-flex items-center gap-1.5 px-2 py-0.5 rounded text-xs font-bold bg-green-50 text-green-700 border border-green-100">
+                                        <i class="fa-solid fa-truck-fast text-[10px]"></i> 已寄送
+                                    </span>
+                                </td>
+                                <td class="p-4 whitespace-nowrap">
+                                    <span class="inline-flex items-center gap-1.5 px-2 py-0.5 rounded text-xs font-bold bg-amber-50 text-amber-700 border border-amber-100">
+                                        <i class="fa-regular fa-clock text-[10px]"></i> 待签发
+                                    </span>
+                                </td>
+                                <td class="p-4 text-xs whitespace-nowrap">Python</td>
+                                <td class="p-4 text-xs whitespace-nowrap"><span class="bg-slate-100 text-slate-600 px-1.5 rounded">一级</span></td>
+                                <td class="p-4 text-center whitespace-nowrap bg-white sticky right-0 shadow-[-4px_0_8px_-4px_rgba(0,0,0,0.05)] group-hover:bg-slate-50 transition-colors">
+                                    <div class="flex items-center justify-center gap-2">
+                                        <button class="text-xs font-medium text-brand-600 hover:text-brand-800 hover:bg-brand-50 px-2 py-1 rounded transition">管理证书</button>
+                                        <div class="w-px h-3 bg-slate-200"></div>
+                                        <button class="text-xs font-medium text-slate-500 hover:text-brand-600 hover:bg-slate-50 px-2 py-1 rounded transition">查看证书</button>
+                                        <div class="w-px h-3 bg-slate-200"></div>
+                                        <button class="text-xs font-medium text-slate-500 hover:text-blue-600 hover:bg-slate-50 px-2 py-1 rounded transition">修改信息</button>
+                                        <div class="w-px h-3 bg-slate-200"></div>
+                                        <a href="../user/29_考级报告.html" target="_blank" class="text-xs font-medium text-amber-600 hover:text-amber-700 hover:bg-amber-50 px-2 py-1 rounded transition" title="预览个人报告（样式与学生端一致）"><i class="fa-regular fa-file-lines mr-0.5"></i>查看报告</a>
+                                    </div>
+                                </td>
+                            </tr>
+
+                            <tr class="hover-row transition group hover:bg-slate-50">
+                                <td class="p-4 pl-6 font-bold text-slate-800 whitespace-nowrap">赵小梅</td>
+                                <td class="p-4">
+                                    <div class="w-8 h-8 rounded-full bg-slate-200 overflow-hidden border border-slate-100 shadow-sm shrink-0">
+                                        <img src="https://api.dicebear.com/7.x/avataaars/svg?seed=ZhaoXiaomei" alt="Avatar" class="w-full h-full object-cover">
+                                    </div>
+                                </td>
+                                <td class="p-4 whitespace-nowrap text-center" data-stu="赵小梅">
+                                    <button onclick="openRecordModal(this)" class="cell-count text-sm font-bold text-slate-700 hover:text-brand-600 hover:underline transition" title="查看导出记录与备注">-</button>
+                                </td>
+                                <td class="p-4 whitespace-nowrap" data-stu="赵小梅">
+                                    <button onclick="openRecordModal(this)" class="cell-remark max-w-[150px] inline-block truncate text-xs text-slate-500 hover:text-brand-600 hover:underline transition text-left" title="查看导出记录与备注">-</button>
+                                </td>
+                                <td class="p-4 font-mono text-slate-500 whitespace-nowrap">137****3333</td>
+                                <td class="p-4 font-mono text-slate-500 whitespace-nowrap">110103********9012</td>
+                                <td class="p-4 whitespace-nowrap">
+                                    <p class="text-xs font-medium text-slate-700">童程童美上海</p>
+                                    <p class="text-[10px] font-mono text-slate-400 mt-0.5">CH-SH-002</p>
+                                </td>
+                                <td class="p-4 font-mono font-bold text-slate-800 text-right whitespace-nowrap">88</td>
+                                <td class="p-4 whitespace-nowrap">
+                                    <span class="inline-flex items-center gap-1 px-2 py-0.5 rounded text-xs font-bold bg-blue-50 text-blue-700 border border-blue-100">良好</span>
+                                </td>
+                                <td class="p-4 whitespace-nowrap">
+                                    <span class="inline-flex items-center gap-1.5 px-2 py-0.5 rounded text-xs font-bold bg-purple-50 text-purple-700 border border-purple-100">
+                                        <i class="fa-solid fa-bullhorn text-[10px]"></i> 公示中
+                                    </span>
+                                </td>
+                                <td class="p-4 whitespace-nowrap">
+                                    <span class="inline-flex items-center gap-1.5 px-2 py-0.5 rounded text-xs font-bold bg-red-50 text-red-700 border border-red-100">
+                                        <i class="fa-solid fa-circle-exclamation text-[10px]"></i> 签发失败
+                                    </span>
+                                </td>
+                                <td class="p-4 text-xs whitespace-nowrap">AIGC</td>
+                                <td class="p-4 text-xs whitespace-nowrap"><span class="bg-slate-100 text-slate-600 px-1.5 rounded">二级</span></td>
+                                <td class="p-4 text-center whitespace-nowrap bg-white sticky right-0 shadow-[-4px_0_8px_-4px_rgba(0,0,0,0.05)] group-hover:bg-slate-50 transition-colors">
+                                    <div class="flex items-center justify-center gap-2">
+                                        <button class="text-xs font-medium text-brand-600 hover:text-brand-800 hover:bg-brand-50 px-2 py-1 rounded transition">管理证书</button>
+                                        <div class="w-px h-3 bg-slate-200"></div>
+                                        <button class="text-xs font-medium text-slate-500 hover:text-brand-600 hover:bg-slate-50 px-2 py-1 rounded transition">查看证书</button>
+                                        <div class="w-px h-3 bg-slate-200"></div>
+                                        <button class="text-xs font-medium text-slate-500 hover:text-blue-600 hover:bg-slate-50 px-2 py-1 rounded transition">修改信息</button>
+                                        <div class="w-px h-3 bg-slate-200"></div>
+                                        <a href="../user/29_考级报告.html" target="_blank" class="text-xs font-medium text-amber-600 hover:text-amber-700 hover:bg-amber-50 px-2 py-1 rounded transition" title="预览个人报告（样式与学生端一致）"><i class="fa-regular fa-file-lines mr-0.5"></i>查看报告</a>
+                                    </div>
+                                </td>
+                            </tr>
+
+                            <tr class="hover-row transition group hover:bg-slate-50">
+                                <td class="p-4 pl-6 font-bold text-slate-800 whitespace-nowrap">王大力</td>
+                                <td class="p-4">
+                                    <div class="w-8 h-8 rounded-full bg-slate-200 overflow-hidden border border-slate-100 shadow-sm shrink-0">
+                                        <img src="https://api.dicebear.com/7.x/avataaars/svg?seed=WangDali" alt="Avatar" class="w-full h-full object-cover">
+                                    </div>
+                                </td>
+                                <td class="p-4 whitespace-nowrap text-center" data-stu="王大力">
+                                    <button onclick="openRecordModal(this)" class="cell-count text-sm font-bold text-slate-700 hover:text-brand-600 hover:underline transition" title="查看导出记录与备注">-</button>
+                                </td>
+                                <td class="p-4 whitespace-nowrap" data-stu="王大力">
+                                    <button onclick="openRecordModal(this)" class="cell-remark max-w-[150px] inline-block truncate text-xs text-slate-500 hover:text-brand-600 hover:underline transition text-left" title="查看导出记录与备注">-</button>
+                                </td>
+                                <td class="p-4 font-mono text-slate-500 whitespace-nowrap">136****1111</td>
+                                <td class="p-4 font-mono text-slate-500 whitespace-nowrap">110104********3456</td>
+                                <td class="p-4 whitespace-nowrap">
+                                    <p class="text-xs font-medium text-slate-700">AISE 直营</p>
+                                    <p class="text-[10px] font-mono text-slate-400 mt-0.5">CH-OFFICIAL</p>
+                                </td>
+                                <td class="p-4 font-mono font-bold text-slate-800 text-right whitespace-nowrap">97</td>
+                                <td class="p-4 whitespace-nowrap">
+                                    <span class="inline-flex items-center gap-1 px-2 py-0.5 rounded text-xs font-bold bg-brand-50 text-brand-700 border border-brand-100">优秀</span>
+                                </td>
+                                <td class="p-4 whitespace-nowrap">
+                                    <span class="inline-flex items-center gap-1.5 px-2 py-0.5 rounded text-xs font-bold bg-slate-100 text-slate-500 border border-slate-200">
+                                        <i class="fa-solid fa-pen-nib text-[10px]"></i> 批改中
+                                    </span>
+                                </td>
+                                <td class="p-4 whitespace-nowrap">
+                                    <span class="inline-flex items-center gap-1.5 px-2 py-0.5 rounded text-xs font-bold bg-slate-100 text-slate-400 border border-slate-200">
+                                        <i class="fa-solid fa-minus text-[10px]"></i> 未配置
+                                    </span>
+                                </td>
+                                <td class="p-4 text-xs whitespace-nowrap">C++</td>
+                                <td class="p-4 text-xs whitespace-nowrap"><span class="bg-slate-100 text-slate-600 px-1.5 rounded">三级</span></td>
+                                <td class="p-4 text-center whitespace-nowrap bg-white sticky right-0 shadow-[-4px_0_8px_-4px_rgba(0,0,0,0.05)] group-hover:bg-slate-50 transition-colors">
+                                    <div class="flex items-center justify-center gap-2">
+                                        <button class="text-xs font-medium text-brand-600 hover:text-brand-800 hover:bg-brand-50 px-2 py-1 rounded transition">管理证书</button>
+                                        <div class="w-px h-3 bg-slate-200"></div>
+                                        <button class="text-xs font-medium text-slate-500 hover:text-brand-600 hover:bg-slate-50 px-2 py-1 rounded transition">查看证书</button>
+                                        <div class="w-px h-3 bg-slate-200"></div>
+                                        <button class="text-xs font-medium text-slate-500 hover:text-blue-600 hover:bg-slate-50 px-2 py-1 rounded transition">修改信息</button>
+                                        <div class="w-px h-3 bg-slate-200"></div>
+                                        <a href="../user/29_考级报告.html" target="_blank" class="text-xs font-medium text-amber-600 hover:text-amber-700 hover:bg-amber-50 px-2 py-1 rounded transition" title="预览个人报告（样式与学生端一致）"><i class="fa-regular fa-file-lines mr-0.5"></i>查看报告</a>
+                                    </div>
+                                </td>
+                            </tr>
+                            </tbody>
+                    </table>
+                </div>
+                
+                <div class="p-4 mt-auto border-t border-slate-100 flex items-center justify-between text-xs text-slate-500 bg-white rounded-b-xl">
+                    <div class="flex items-center gap-2">
+                        <span>每页显示</span>
+                        <select class="border border-slate-200 rounded px-2 py-1 bg-white focus:border-brand-500 outline-none cursor-pointer hover:border-slate-300 transition">
+                            <option value="20">20 条</option>
+                            <option value="50">50 条</option>
+                            <option value="100">100 条</option>
+                        </select>
+                        <span>共 5,682 条记录</span>
+                    </div>
+                    
+                    <div class="flex gap-1">
+                        <button class="px-2 py-1 border border-slate-200 rounded hover:bg-slate-50 disabled:opacity-50 transition" disabled>上一页</button>
+                        <button class="px-2 py-1 bg-brand-50 text-brand-600 font-bold border border-brand-100 rounded transition">1</button>
+                        <button class="px-2 py-1 border border-slate-200 rounded hover:bg-slate-50 transition">2</button>
+                        <button class="px-2 py-1 border border-slate-200 rounded hover:bg-slate-50 transition">3</button>
+                        <span class="px-2 py-1">...</span>
+                        <button class="px-2 py-1 border border-slate-200 rounded hover:bg-slate-50 transition">10</button>
+                        <button class="px-2 py-1 border border-slate-200 rounded hover:bg-slate-50 transition">下一页</button>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+
+    <!-- 证书导出记录与备注弹窗（20261018 证书与学生报告管理需求） -->
+    <div id="record-modal" class="hidden fixed inset-0 z-50 flex items-center justify-center p-6">
+        <div class="absolute inset-0 bg-slate-900/50" onclick="closeRecordModal()"></div>
+        <div class="relative bg-white rounded-2xl shadow-xl w-[640px] max-h-[82vh] flex flex-col overflow-hidden">
+            <div class="px-6 py-4 border-b border-slate-100 flex items-start justify-between">
+                <div>
+                    <h3 id="record-modal-title" class="text-base font-bold text-slate-800">导出记录与备注</h3>
+                    <p id="record-modal-meta" class="text-xs text-slate-500 mt-1"></p>
+                </div>
+                <button onclick="closeRecordModal()" class="text-slate-4'+'00 hover:text-slate-600 transition"><i class="fa-solid fa-xmark"></i></button>
+            </div>
+            <div class="flex-1 overflow-y-auto custom-scroll px-6 py-4">
+                <h4 class="text-xs font-bold text-slate-400 uppercase tracking-wider mb-2">导出记录</h4>
+                <div class="border border-slate-100 rounded-lg overflow-hidden mb-5">
+                    <table class="w-full text-left">
+                        <thead class="bg-slate-50 text-[11px] uppercase text-slate-400 font-bold">
+                            <tr>
+                                <th class="p-2.5">导出任务</th>
+                                <th class="p-2.5">导出时间</th>
+                                <th class="p-2.5 text-right">包内总行数</th>
+                                <th class="p-2.5">操作人</th>
+                            </tr>
+                        </thead>
+                        <tbody id="record-log-tbody" class="divide-y divide-slate-50"></tbody>
+                    </table>
+                </div>
+                <h4 class="text-xs font-bold text-slate-400 uppercase tracking-wider mb-2">备注标记</h4>
+                <textarea id="record-remark" rows="3" placeholder="记录纸质证书发放批次和时间，如：第2批 10-09 寄出"
+                    class="w-full px-3 py-2 text-sm border border-slate-200 rounded-lg focus:border-brand-500 outline-none bg-white transition resize-none"></textarea>
+                <p class="text-[11px] text-slate-400 mt-1.5">备注用于追踪纸质证书发放批次和时间，保存后同步展示在列表「备注」列并随导出表格带出。</p>
+            </div>
+            <div class="px-6 py-4 border-t border-slate-100 flex justify-end gap-3 bg-slate-50/50">
+                <button onclick="closeRecordModal()" class="px-5 py-2 bg-white border border-slate-200 hover:bg-slate-50 text-slate-600 text-sm font-medium rounded-lg transition">取消</button>
+                <button onclick="saveRecordRemark()" class="px-5 py-2 bg-brand-600 hover:bg-brand-700 text-white text-sm font-bold rounded-lg shadow-md transition">保存备注</button>
+            </div>
+        </div>
+    </div>
+
+    </main>
+
+    <script>
+        // ========== 导出任务模拟存储（纯前端 demo：localStorage 模拟任务表，与 19_消息中心 共用键名） ==========
+        const EXPORT_TASKS_KEY = 'aise_export_tasks'; // JSON 数组，行字段契约见 S1 V4 附录 A
+        function loadExportTasks() {
+            try { return JSON.parse(localStorage.getItem(EXPORT_TASKS_KEY) || '[]'); }
+            catch (e) { return []; }
+        }
+        // 返回 false 表示写入失败（localStorage 配额满 → 模拟 QUOTA_EXCEEDED）
+        function saveExportTasks(tasks) {
+            try { localStorage.setItem(EXPORT_TASKS_KEY, JSON.stringify(tasks)); return true; }
+            catch (e) { return false; }
+        }
+
+        // ========== 通用 Toast（抽取自现状 exportData 内联逻辑，L387-391/L401-407） ==========
+        function showToast(text, duration = 3000) {
+            const toast = document.getElementById('toast');
+            toast.querySelector('span').textContent = text;
+            toast.classList.remove('hidden');
+            void toast.offsetWidth; // Force reflow
+            toast.classList.add('animation-fade-in-down', 'opacity-100', 'translate-y-0');
+            toast.classList.remove('opacity-0', '-translate-y-5');
+            if (toast._hideTimer) clearTimeout(toast._hideTimer);
+            toast._hideTimer = setTimeout(() => {
+                toast.classList.remove('opacity-100', 'translate-y-0');
+                toast.classList.add('opacity-0', '-translate-y-5');
+                setTimeout(() => toast.classList.add('hidden'), 300);
+            }, duration);
+        }
+
+        // ========== 筛选条件收集（唯一取值来源；字段与 S1 V4 附录 A filter 契约一致） ==========
+        function collectFilter() {
+            const v = (id) => { const el = document.getElementById(id); return el ? el.value.trim() : ''; };
+            const filter = {};
+
+            // 文本：空值不传（等价全部）
+            const name = v('filter-name');    if (name)    filter.name = name;
+            const phone = v('filter-phone');  if (phone)   filter.phone = phone;
+            const idCard = v('filter-idcard');if (idCard)  filter.idCard = idCard;
+
+            // 单选下拉：空=全部，不传
+            const certStatus = v('filter-cert-status');   if (certStatus)   filter.certStatus = certStatus;
+            const elecCertStatus = v('filter-elec-cert'); if (elecCertStatus) filter.elecCertStatus = elecCertStatus;
+            const result = v('filter-result');            if (result)       filter.result = result;
+
+            // 数组字段（现状为单选 select）：空=不传（等价全部），有值=[value]
+            const channelId = v('filter-channel'); if (channelId) filter.channelIds = [channelId];
+            const moduleId  = v('filter-module');  if (moduleId)  filter.moduleIds = [moduleId];
+            const levelId   = v('filter-level');   if (levelId)   filter.levelIds = [levelId];
+
+            // 分数范围：Number() 保留小数（98.5 不截断）；空串/非数字不传；单端填写只传一端
+            const scoreMinRaw = v('filter-score-min');
+            const scoreMaxRaw = v('filter-score-max');
+            if (scoreMinRaw !== '' && !Number.isNaN(Number(scoreMinRaw))) filter.scoreMin = Number(scoreMinRaw);
+            if (scoreMaxRaw !== '' && !Number.isNaN(Number(scoreMaxRaw))) filter.scoreMax = Number(scoreMaxRaw);
+
+            return filter;
+        }
+
+        // ========== 导出序号：warning 延迟 Toast 的任务守卫（旧 warning 不覆盖新任务 Toast） ==========
+        let exportSeq = 0;
+
+        // Toast 原文案保持不动（L44「正在导出，请稍后在「消息中心」查看下载」）
+        const EXPORT_TOAST_TEXT = '正在导出，请稍后在「消息中心」查看下载';
+
+        function exportData() {
+            const btn = document.getElementById('btn-export');
+            const originalContent = '<i class="fa-solid fa-file-excel"></i> <span>导出数据</span>';
+            const loadingContent = '<i class="fa-solid fa-spinner fa-spin"></i> <span>正在导出...</span>';
+            if (btn.disabled) return; // 重复点击兜底（disabled 按钮本不触发 onclick，双保险）
+            const seq = ++exportSeq;  // 本次导出序号（新导出会使旧 warning 定时器失效）
+
+            // 1. 按钮 loading + 禁用（复用现状逻辑 L383-385）
+            btn.innerHTML = loadingContent;
+            btn.classList.add('opacity-75', 'cursor-not-allowed');
+            btn.disabled = true;
+
+            // 2. 组装请求体（契约：S1 V4 附录 A；desensitize 恒 true）
+            const filter = collectFilter(); // 点击时刻快照，后续控件变化不影响本次任务
+            const payload = {
+                type: 'student_cert_package',
+                filter: filter,
+                desensitize: true
+            };
+
+            // 3. 创建导出任务（demo 模拟：写入 localStorage 任务表；真实接口为 POST /api/admin/export/tasks）
+            //    模拟网络往返 600ms（按钮 loading 期间可见；真实环境中 finally 在请求结束后恢复按钮）
+            setTimeout(() => {
+                try {
+                    const tasks = loadExportTasks();
+                    const now = new Date();
+                    const pad = (n) => String(n).padStart(2, '0');
+                    const task = {
+                        taskId: 'EXP' + Date.now(),
+                        taskName: '导出学生证书包',
+                        fileName: '',       // 生成中暂无文件名
+                        fileSize: 0,
+                        operatorName: 'Admin',
+                        createdAt: now.getFullYear() + '-' + pad(now.getMonth() + 1) + '-' + pad(now.getDate()) + ' ' + pad(now.getHours()) + ':' + pad(now.getMinutes()) + ':' + pad(now.getSeconds()),
+                        status: 'processing',
+                        summary: { totalRows: 0, pdfCount: 0, missingCount: 0 },
+                        attemptCount: 1,
+                        filterSnapshot: filter, // 筛选快照（S1 V4 附录 A）
+                        desensitize: true,
+                        warning: null
+                    };
+                    tasks.unshift(task);
+                    if (!saveExportTasks(tasks)) {
+                        // QUOTA_EXCEEDED：存储配额不足（demo 中 localStorage 写入失败；真实接口为业务 code，HTTP 507/429 兜底映射同此文案）
+                        showToast('存储配额不足，请联系管理员', 4000);
+                        return;
+                    }
+
+                    // 4. 成功：Toast 保持原文案（L44）
+                    showToast(EXPORT_TOAST_TEXT, 3000);
+
+                    // 5. warning 信息性提示（不阻塞、不弹确认，带 exportSeq 任务守卫）：
+                    //    demo 触发规则：无筛选条件（=全量 5,682 人导出，数据量大）时模拟返回 warning；联调后以服务端 data.warning 为准
+                    const isFullExport = Object.keys(filter).length === 0;
+                    if (isFullExport) {
+                        const warning = { estimatedSize: '1.2GB', estimatedTime: '约3分钟', message: '' };
+                        setTimeout(() => {
+                            if (seq !== exportSeq) return; // 期间已发起新导出，丢弃旧 warning，避免覆盖新任务 Toast
+                            showToast(
+                                warning.message ||
+                                '本次导出预计约 ' + warning.estimatedSize + '、耗时约 ' + warning.estimatedTime + '，请稍后在「消息中心」查看下载',
+                                6000
+                            );
+                        }, 3500);
+                    }
+
+                    // 6. 模拟异步完成：2~3 秒后 success（85%）/ failed（15%，演示重试）；任务更新按 taskId 定位，互不串扰
+                    setTimeout(() => {
+                        const cur = loadExportTasks();
+                        const t = cur.find(x => x.taskId === task.taskId);
+                        if (!t) return;
+                        // 行数模拟：全量 5,682 人；有筛选随机 10~500
+                        const totalRows = isFullExport ? 5682 : 10 + Math.floor(Math.random() * 491);
+                        const pdfCount = Math.floor(totalRows * (0.55 + Math.random() * 0.25)); // 已签发占比（PDF 只打包已签发）
+                        const missingCount = totalRows - pdfCount;
+                        if (Math.random() < 0.15) {
+                            t.status = 'failed';
+                            t.failReason = 'PDF 生成服务超时（demo 模拟），请点击重试';
+                        } else {
+                            const ymd = pad(now.getFullYear()) + pad(now.getMonth() + 1) + pad(now.getDate());
+                            t.status = 'success';
+                            t.fileName = '学生证书包_' + ymd + '_共' + totalRows + '人_' + pdfCount + '份.zip';
+                            t.fileSize = Math.round((totalRows * 0.21 + Math.random() * 8) * 10) / 10; // MB（demo 模拟）
+                            t.summary = { totalRows: totalRows, pdfCount: pdfCount, missingCount: missingCount };
+                        recordExportToCertTrack(t); // 导出成功即累加包内学员的导出次数（20261018 需求）
+                        }
+                        saveExportTasks(cur);
+                    }, 2000 + Math.random() * 1000); // 2~3 秒
+                } catch (e) {
+                    // 网络错误 / 其他异常（真实环境：5xx / 超时 / AbortError 等）
+                    showToast('网络异常，请稍后重试', 4000);
+                } finally {
+                    // 7. 按钮恢复（复用现状 L396-398），无论成功失败
+                    btn.innerHTML = originalContent;
+                    btn.classList.remove('opacity-75', 'cursor-not-allowed');
+                    btn.disabled = false;
+                }
+            }, 600);
+        }
+
+        // ========== 证书导出追踪（20261018 证书与学生报告管理需求）==========
+        const CERT_TRACK_KEY = 'aise_cert_track';
+        const CERT_STU_META = {
+            '张小明': { idcard: '110101********1234', certNo: 'AISE2026-P1-000123', photo: '合格' },
+            '李小红': { idcard: '110102********5678', certNo: 'AISE2026-P1-000124', photo: '合格' },
+            '赵小梅': { idcard: '110103********9012', certNo: '', photo: '不合格' },
+            '王大力': { idcard: '110104********3456', certNo: '', photo: '未提交' }
+        };
+        const CERT_STU_KEYS = Object.keys(CERT_STU_META);
+
+        function loadCertTrack() {
+            try { return JSON.parse(localStorage.getItem(CERT_TRACK_KEY) || '{}'); }
+            catch (e) { return {}; }
+        }
+        function saveCertTrack(d) {
+            try { localStorage.setItem(CERT_TRACK_KEY, JSON.stringify(d)); } catch (e) {}
+        }
+        function seedCertTrack() {
+            const d = loadCertTrack();
+            if (d.__seeded === true) return;
+            d['张小明'] = { count: 2, remark: '第1批 09-28 寄出；第2批 10-09 寄出', logs: [
+                { taskId: 'EXP1759281532', time: '2026-09-28 15:32:10', rows: 412, operator: 'Admin' },
+                { taskId: 'EXP1759101489', time: '2026-10-09 10:14:51', rows: 385, operator: 'Admin' }
+            ] };
+            ['李小红', '赵小梅', '王大力'].forEach(n => { d[n] = { count: 0, remark: '', logs: [] }; });
+            d.__seeded = true;
+            saveCertTrack(d);
+        }
+        function escapeHtml(s) {
+            return String(s).replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;').replace(/"/g, '&quot;');
+        }
+        function renderCertTrackCols() {
+            const d = loadCertTrack();
+            document.querySelectorAll('td[data-stu]').forEach(td => {
+                const rec = d[td.dataset.stu] || { count: 0, remark: '' };
+                if (td.querySelector('.cell-count')) {
+                    td.innerHTML = '<button onclick="openRecordModal(this)" class="cell-count text-sm font-bold text-slate-700 hover:text-brand-600 hover:underline transition" title="查看导出记录与备注">' + rec.count + '</button>';
+                } else {
+                    td.innerHTML = '<button onclick="openRecordModal(this)" class="cell-remark max-w-[150px] inline-block truncate text-xs text-slate-500 hover:text-brand-600 hover:underline transition text-left" title="查看导出记录与备注">' + (rec.remark ? escapeHtml(rec.remark) : '—') + '</button>';
+                }
+            });
+        }
+
+        // 导出成功 → 累加导出次数并写导出记录（口径：每次导出，包内含该学员即 +1）
+        function recordExportToCertTrack(task) {
+            const d = loadCertTrack();
+            CERT_STU_KEYS.forEach(name => {
+                if (!d[name]) d[name] = { count: 0, remark: '', logs: [] };
+                d[name].count += 1;
+                d[name].logs.push({
+                    taskId: task.taskId, time: task.createdAt,
+                    rows: task.summary ? task.summary.totalRows : 0,
+                    operator: task.operatorName || 'Admin'
+                });
+            });
+            saveCertTrack(d);
+            renderCertTrackCols();
+        }
+
+        let recordModalStu = '';
+        function openRecordModal(target) {
+            const name = typeof target === 'string' ? target : target.closest('td[data-stu]').dataset.stu;
+            recordModalStu = name;
+            const d = loadCertTrack();
+            const rec = d[name] || { count: 0, remark: '', logs: [] };
+            const meta = CERT_STU_META[name] || {};
+            document.getElementById('record-modal-title').textContent = '导出记录与备注 — ' + name;
+            document.getElementById('record-modal-meta').textContent =
+                '身份证号 ' + (meta.idcard || '-') + '　·　证书编号 ' + (meta.certNo || '暂无') + '　·　照片状态 ' + (meta.photo || '-');
+            const tbody = document.getElementById('record-log-tbody');
+            if (!rec.logs || rec.logs.length === 0) {
+                tbody.innerHTML = '<tr><td colspan="4" class="p-4 text-center text-xs text-slate-400">暂无导出记录</td></tr>';
+            } else {
+                tbody.innerHTML = rec.logs.map(l =>
+                    '<tr>' +
+                    '<td class="p-2.5 font-mono text-[11px] text-slate-500">' + escapeHtml(l.taskId) + '</td>' +
+                    '<td class="p-2.5 text-xs text-slate-600">' + escapeHtml(l.time) + '</td>' +
+                    '<td class="p-2.5 text-xs text-slate-600 text-right">' + l.rows + '</td>' +
+                    '<td class="p-2.5 text-xs text-slate-600">' + escapeHtml(l.operator) + '</td>' +
+                    '</tr>').join('');
+            }
+            document.getElementById('record-remark').value = rec.remark || '';
+            document.getElementById('record-modal').classList.remove('hidden');
+        }
+        function closeRecordModal() {
+            document.getElementById('record-modal').classList.add('hidden');
+            recordModalStu = '';
+        }
+        function saveRecordRemark() {
+            if (!recordModalStu) return;
+            const d = loadCertTrack();
+            if (!d[recordModalStu] || d[recordModalStu] === true) d[recordModalStu] = { count: 0, remark: '', logs: [] };
+            d[recordModalStu].remark = document.getElementById('record-remark').value.trim();
+            saveCertTrack(d);
+            renderCertTrackCols();
+            closeRecordModal();
+            showToast('备注已保存', 2000);
+        }
+
+        function applyCertNoFilter() {
+            const no = document.getElementById('filter-certno').value.trim();
+            if (!no) { resetCertNoFilter(); return; }
+            let hit = 0;
+            document.querySelectorAll('tbody tr').forEach(tr => {
+                const td = tr.querySelector('td[data-stu]');
+                const meta = td ? (CERT_STU_META[td.dataset.stu] || {}) : {};
+                const match = (meta.certNo || '') === no;
+                tr.style.display = match ? '' : 'none';
+                if (match) hit++;
+            });
+            renderCertNoTip(hit > 0 ? '' : '未找到证书编号为「' + no + '」的记录（精确匹配）');
+        }
+        function resetCertNoFilter() {
+            document.getElementById('filter-certno').value = '';
+            document.querySelectorAll('tbody tr').forEach(tr => { tr.style.display = ''; });
+            renderCertNoTip('');
+        }
+        function renderCertNoTip(text) {
+            const tip = document.getElementById('certno-filter-tip');
+            tip.textContent = text;
+            tip.classList.toggle('hidden', !text);
+        }
+
+        seedCertTrack();
+        renderCertTrackCols();
+        document.getElementById('filter-certno').addEventListener('keydown', e => { if (e.key === 'Enter') applyCertNoFilter(); });
+    </script>
+</body>
+</html>
