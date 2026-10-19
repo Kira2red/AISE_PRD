@@ -174,6 +174,104 @@ html, body { margin: 0; padding: 0; background: #fff; font-family: -apple-system
             </div>
           </div>
           <div class="ant-col ant-col-sm-24 ant-col-md-8 ant-col-lg-7 ant-col-xl-6" style="padding-left:12px;padding-right:12px;">
+            <div class="acp_form ant-row ant-form-item" style="display:flex;margin-bottom:16px;">
+              <div class="ant-col ant-form-item-label"><label title="考试时间" class="">考试时间</label></div>
+              <div class="ant-col ant-form-item-control-wrapper" style="flex:1;">
+                <div class="ant-form-item-control">
+                  <span class="ant-form-item-children" style="display:flex;align-items:center;">
+                    <input placeholder="开始日期" type="date" class="ant-input" id="dateStart" oninput="applyFilters()" style="width:50%;height:32px;min-width:0;">
+                    <span style="padding:0 4px;color:#bfbfbf;">~</span>
+                    <input placeholder="结束日期" type="date" class="ant-input" id="dateEnd" oninput="applyFilters()" style="width:50%;height:32px;min-width:0;">
+                  </span>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          </div>
+          <div class="ant-row" style="margin-left:-12px;margin-right:-12px;">          <div class="ant-col ant-col-sm-24 ant-col-md-8 ant-col-lg-7 ant-col-xl-6" style="padding-left:12px;padding-right:12px;">
+            <div class="acp_form ant-row ant-form-item" style="display:flex;margin-bottom:16px;">
+              <div class="ant-col ant-form-item-label"><label title="活动" class="">活动</label></div>
+              <div class="ant-col ant-form-item-control-wrapper" style="flex:1;position:relative;">
+                <div class="ant-form-item-control">
+                  <span class="ant-form-item-children">
+                    <div tabindex="0" class="ant-select ant-select-enabled" style="position:relative;height:32px;border:1px solid #d9d9d9;border-radius:0 4px 4px 0;cursor:pointer;" onclick="toggleDropdown('actDropdown')">
+                      <div role="combobox" aria-autocomplete="list" aria-haspopup="true" class="ant-select-selection ant-select-selection--single" style="border:none;height:30px;">
+                        <div class="ant-select-selection__rendered" style="line-height:30px;padding:0 8px;">
+                          <div unselectable="on" class="ant-select-selection__placeholder" id="actVal" style="display:block;user-select:none;color:#bfbfbf;">全部活动</div>
+                        </div>
+                        <span unselectable="on" class="ant-select-arrow" style="position:absolute;right:8px;top:50%;transform:translateY(-50%);color:#bfbfbf;font-size:12px;">▾</span>
+                      </div>
+                      <div class="opt-dropdown" id="actDropdown"></div>
+                    </div>
+                  </span>
+                </div>
+              </div>
+            </div>
+          </div>
+          <div class="ant-col ant-col-sm-24 ant-col-md-8 ant-col-lg-7 ant-col-xl-6" style="padding-left:12px;padding-right:12px;">
+            <div class="acp_form ant-row ant-form-item" style="display:flex;margin-bottom:16px;">
+              <div class="ant-col ant-form-item-label"><label title="分组" class="">分组</label></div>
+              <div class="ant-col ant-form-item-control-wrapper" style="flex:1;position:relative;">
+                <div class="ant-form-item-control">
+                  <span class="ant-form-item-children">
+                    <div tabindex="0" class="ant-select ant-select-enabled" style="position:relative;height:32px;border:1px solid #d9d9d9;border-radius:0 4px 4px 0;cursor:pointer;" onclick="toggleGrp()">
+                      <div role="combobox" aria-autocomplete="list" aria-haspopup="true" class="ant-select-selection ant-select-selection--single" style="border:none;height:30px;">
+                        <div class="ant-select-selection__rendered" style="line-height:30px;padding:0 8px;">
+                          <div unselectable="on" class="ant-select-selection__placeholder" id="grpVal" style="display:block;user-select:none;color:#bfbfbf;">先选活动</div>
+                        </div>
+                        <span unselectable="on" class="ant-select-arrow" style="position:absolute;right:8px;top:50%;transform:translateY(-50%);color:#bfbfbf;font-size:12px;">▾</span>
+                      </div>
+                      <div class="opt-dropdown" id="grpDropdown"></div>
+                    </div>
+                  </span>
+                </div>
+              </div>
+            </div>
+          </div>
+          <div class="ant-col ant-col-sm-24 ant-col-md-8 ant-col-lg-7 ant-col-xl-6" style="padding-left:12px;padding-right:12px;">
+            <div class="acp_form ant-row ant-form-item" style="display:flex;margin-bottom:16px;">
+              <div class="ant-col ant-form-item-label"><label title="测评" class="">测评</label></div>
+              <div class="ant-col ant-form-item-control-wrapper" style="flex:1;position:relative;">
+                <div class="ant-form-item-control">
+                  <span class="ant-form-item-children">
+                    <div tabindex="0" class="ant-select ant-select-enabled" style="position:relative;height:32px;border:1px solid #d9d9d9;border-radius:0 4px 4px 0;cursor:pointer;" onclick="toggleExam()">
+                      <div role="combobox" aria-autocomplete="list" aria-haspopup="true" class="ant-select-selection ant-select-selection--single" style="border:none;height:30px;">
+                        <div class="ant-select-selection__rendered" style="line-height:30px;padding:0 8px;">
+                          <div unselectable="on" class="ant-select-selection__placeholder" id="examVal" style="display:block;user-select:none;color:#bfbfbf;">先选分组</div>
+                        </div>
+                        <span unselectable="on" class="ant-select-arrow" style="position:absolute;right:8px;top:50%;transform:translateY(-50%);color:#bfbfbf;font-size:12px;">▾</span>
+                      </div>
+                      <div class="opt-dropdown" id="examDropdown"></div>
+                    </div>
+                  </span>
+                </div>
+              </div>
+            </div>
+          </div>
+          <div class="ant-col ant-col-sm-24 ant-col-md-8 ant-col-lg-7 ant-col-xl-6" style="padding-left:12px;padding-right:12px;">
+            <div class="acp_form ant-row ant-form-item" style="display:flex;margin-bottom:16px;">
+              <div class="ant-col ant-form-item-label"><label title="渠道" class="">渠道</label></div>
+              <div class="ant-col ant-form-item-control-wrapper" style="flex:1;position:relative;">
+                <div class="ant-form-item-control">
+                  <span class="ant-form-item-children">
+                    <div tabindex="0" class="ant-select ant-select-enabled" style="position:relative;height:32px;border:1px solid #d9d9d9;border-radius:0 4px 4px 0;cursor:pointer;" onclick="toggleDropdown('chDropdown')">
+                      <div role="combobox" aria-autocomplete="list" aria-haspopup="true" class="ant-select-selection ant-select-selection--single" style="border:none;height:30px;">
+                        <div class="ant-select-selection__rendered" style="line-height:30px;padding:0 8px;">
+                          <div unselectable="on" class="ant-select-selection__placeholder" id="chVal" style="display:block;user-select:none;color:#bfbfbf;">全部渠道</div>
+                        </div>
+                        <span unselectable="on" class="ant-select-arrow" style="position:absolute;right:8px;top:50%;transform:translateY(-50%);color:#bfbfbf;font-size:12px;">▾</span>
+                      </div>
+                      <div class="opt-dropdown" id="chDropdown"></div>
+                    </div>
+                  </span>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          </div>
+          <div class="ant-row" style="margin-left:-12px;margin-right:-12px;">          <div class="ant-col ant-col-sm-24 ant-col-md-8 ant-col-lg-7 ant-col-xl-6" style="padding-left:12px;padding-right:12px;">
             <span class="table-page-search-submitButtons" style="float:left;overflow:hidden;">
               <button type="button" class="ant-btn ant-btn-primary" onclick="applyFilters()"><span>查 询</span></button>
               <button type="button" class="ant-btn" style="margin-left:8px;" onclick="resetFilters()"><span>重 置</span></button>
@@ -181,6 +279,7 @@ html, body { margin: 0; padding: 0; background: #fff; font-family: -apple-system
           </div>
         </div>
       </form>
+      <div style="font-size:12px;color:#969AA0;margin-top:-6px;">注：活动 / 分组 / 测评 / 渠道筛选仅对 AISE 组织生效；考试时间筛选适用于全部组织。</div>
     </div>
 
     <!-- 测评列表卡片 -->
@@ -200,15 +299,19 @@ html, body { margin: 0; padding: 0; background: #fff; font-family: -apple-system
                     <div tabindex="-1" class="ant-table-body">
                       <table class="ant-table-fixed" style="width:100%;">
                         <colgroup>
-                          <col style="width:220px;min-width:220px;"><col>
-                          <col style="width:120px;min-width:120px;"><col style="width:280px;min-width:280px;">
-                          <col style="width:120px;min-width:120px;"><col style="width:120px;min-width:120px;">
-                          <col style="width:140px;min-width:140px;">
+                          <col style="width:185px;min-width:185px;"><col>
+                          <col style="width:150px;min-width:150px;"><col style="width:90px;min-width:90px;"><col style="width:90px;min-width:90px;">
+                          <col style="width:100px;min-width:100px;"><col style="width:230px;min-width:230px;">
+                          <col style="width:80px;min-width:80px;"><col style="width:80px;min-width:80px;">
+                          <col style="width:120px;min-width:120px;">
                         </colgroup>
                         <thead class="ant-table-thead">
                           <tr>
                             <th class="ant-table-row-cell-break-word"><span class="ant-table-header-column"><div><span class="ant-table-column-title">测评ID</span></div></span></th>
                             <th class=""><span class="ant-table-header-column"><div><span class="ant-table-column-title">测评名称</span></div></span></th>
+                            <th class="ant-table-row-cell-break-word"><span class="ant-table-header-column"><div><span class="ant-table-column-title">活动</span></div></span></th>
+                            <th class="ant-table-row-cell-break-word"><span class="ant-table-header-column"><div><span class="ant-table-column-title">分组</span></div></span></th>
+                            <th class="ant-table-row-cell-break-word"><span class="ant-table-header-column"><div><span class="ant-table-column-title">渠道</span></div></span></th>
                             <th class="ant-table-row-cell-break-word"><span class="ant-table-header-column"><div><span class="ant-table-column-title">创建人</span></div></span></th>
                             <th class="ant-table-row-cell-break-word"><span class="ant-table-header-column"><div><span class="ant-table-column-title">起止时间</span></div></span></th>
                             <th class="ant-table-row-cell-break-word"><span class="ant-table-header-column"><div><span class="ant-table-column-title">测评时长(分钟)</span></div></span></th>
@@ -254,21 +357,29 @@ html, body { margin: 0; padding: 0; background: #fff; font-family: -apple-system
 
 <script>
 'use strict';
-/* ============ Mock 数据（基于线上真实列表） ============ */
+/* ============ 活动体系 mock（活动渠道关联矩阵同源：活动›分组›测评） ============ */
+var ACT_TREE = {
+  '全国青少年编程能力等级考试(2026秋季)': { groups: { 'Python一级': ['GESP Python一级-10月场', 'GESP Python一级-11月场'], '图形化一级': ['GESP图形化一级-10月场', 'GESP图形化一级-11月场'] } },
+  '全国青少年编程能力等级考试(2026春季)': { groups: { '图形化一级': ['GESP图形化一级-4月场', 'GESP图形化一级-6月场'], 'C++二级': ['GESP C++二级-4月场'] } },
+  '机器人技术等级测评': { groups: { '机械结构组': ['机器人一级-综合场', '机器人二级-综合场'], '编程控制组': ['机器人三级-编程测评'] } }
+};
+var CHANNELS = ['个人报名', '学校团体', '机构合作'];
+
+/* ============ Mock 数据（基于线上真实列表 + 活动体系字段） ============ */
 var ROWS = [
-  { id: '2090549022635401218', name: '0821测试考场', creator: 'adminAica', time: '2026-08-24 06:05~2026-08-27 11:00', duration: '180', status: '进行中' },
-  { id: '2090695444920926210', name: '0821测试', creator: 'adminAica', time: '2026-08-20 14:58~2026-08-25 14:58', duration: '60', status: '已结束' },
-  { id: '2088509703934513153', name: '候场0815', creator: 'adminAica', time: '2026-08-15 14:30~2026-08-15 14:50', duration: '20', status: '已结束' },
-  { id: '2088038583234007042', name: '0814测试', creator: 'adminAica', time: '2026-08-14 17:06~2026-08-14 18:06', duration: '20', status: '已结束' },
-  { id: '2088022815830249473', name: '候场0814', creator: 'O1gkUb477', time: '2026-08-14 17:03~2026-08-14 20:03', duration: '20', status: '已结束' },
-  { id: '2087852874921480193', name: '候场测试0813', creator: 'adminAica', time: '2026-08-14 07:05~2026-08-14 23:59', duration: '20', status: '已结束' },
-  { id: '2087846878828367873', name: '候场0813', creator: 'adminAica', time: '2026-08-14 05:05~2026-08-14 19:59', duration: '60', status: '已结束' },
-  { id: '2087412826438701058', name: '侯考测试', creator: 'adminAica', time: '2026-08-13 19:35~2026-08-15 13:35', duration: '20', status: '已结束' },
-  { id: '2089726847699456001', name: '0818测试', creator: 'adminAica', time: '2026-08-01 22:50~2026-08-25 22:18', duration: '60', status: '已结束' },
-  { id: '1994709955930329089', name: 'aica测试测评2024', creator: 'adminAica', time: '2026-08-01 18:07~2026-12-31 18:07', duration: '1800', status: '进行中' }
+  { id: '2090549022635401218', name: '0821测试考场', creator: 'adminAica', time: '2026-08-24 06:05~2026-08-27 11:00', duration: '180', status: '进行中', act: '全国青少年编程能力等级考试(2026秋季)', grp: 'Python一级', exam: 'GESP Python一级-10月场', ch: '个人报名' },
+  { id: '2090695444920926210', name: '0821测试', creator: 'adminAica', time: '2026-08-20 14:58~2026-08-25 14:58', duration: '60', status: '已结束', act: '全国青少年编程能力等级考试(2026秋季)', grp: 'Python一级', exam: 'GESP Python一级-11月场', ch: '学校团体' },
+  { id: '2088509703934513153', name: '候场0815', creator: 'adminAica', time: '2026-08-15 14:30~2026-08-15 14:50', duration: '20', status: '已结束', act: '全国青少年编程能力等级考试(2026秋季)', grp: '图形化一级', exam: 'GESP图形化一级-10月场', ch: '机构合作' },
+  { id: '2088038583234007042', name: '0814测试', creator: 'adminAica', time: '2026-08-14 17:06~2026-08-14 18:06', duration: '20', status: '已结束', act: '全国青少年编程能力等级考试(2026秋季)', grp: '图形化一级', exam: 'GESP图形化一级-11月场', ch: '个人报名' },
+  { id: '2088022815830249473', name: '候场0814', creator: 'O1gkUb477', time: '2026-08-14 17:03~2026-08-14 20:03', duration: '20', status: '已结束', act: '全国青少年编程能力等级考试(2026春季)', grp: '图形化一级', exam: 'GESP图形化一级-4月场', ch: '学校团体' },
+  { id: '2087852874921480193', name: '候场测试0813', creator: 'adminAica', time: '2026-08-14 07:05~2026-08-14 23:59', duration: '20', status: '已结束', act: '全国青少年编程能力等级考试(2026春季)', grp: 'C++二级', exam: 'GESP C++二级-4月场', ch: '个人报名' },
+  { id: '2087846878828367873', name: '候场0813', creator: 'adminAica', time: '2026-08-14 05:05~2026-08-14 19:59', duration: '60', status: '已结束', act: '机器人技术等级测评', grp: '编程控制组', exam: '机器人三级-编程测评', ch: '机构合作' },
+  { id: '2087412826438701058', name: '侯考测试', creator: 'adminAica', time: '2026-08-13 19:35~2026-08-15 13:35', duration: '20', status: '已结束', act: '机器人技术等级测评', grp: '机械结构组', exam: '机器人一级-综合场', ch: '个人报名' },
+  { id: '2089726847699456001', name: '0818测试', creator: 'adminAica', time: '2026-08-01 22:50~2026-08-25 22:18', duration: '60', status: '已结束', act: '机器人技术等级测评', grp: '机械结构组', exam: '机器人二级-综合场', ch: '学校团体' },
+  { id: '1994709955930329089', name: 'aica测试测评2024', creator: 'adminAica', time: '2026-08-01 18:07~2026-12-31 18:07', duration: '1800', status: '进行中', act: '全国青少年编程能力等级考试(2026秋季)', grp: 'Python一级', exam: 'GESP Python一级-11月场', ch: '个人报名' }
 ];
 
-var FILTERS = { kw: '', id: '', status: '请选择测评状态' };
+var FILTERS = { kw: '', id: '', status: '请选择测评状态', dStart: '', dEnd: '', act: '', grp: '', exam: '', ch: '' };
 var toastTimer = null;
 function toast(msg) {
   var t = document.getElementById('demoToast');
@@ -279,50 +390,100 @@ function toast(msg) {
 
 function esc(s) { return String(s == null ? '' : s).replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;').replace(/"/g, '&quot;'); }
 
-/* ============ 筛选 ============ */
+/* ============ 下拉开合、选项填充与选择 ============ */
 function toggleDropdown(id) {
   document.querySelectorAll('.opt-dropdown').forEach(function (d) { if (d.id !== id) d.style.display = 'none'; });
   var dd = document.getElementById(id);
   dd.style.display = dd.style.display === 'none' ? 'block' : 'none';
 }
-function pickStatus(el) {
-  var val = document.getElementById('statusVal');
-  val.textContent = el.textContent;
-  val.style.color = '#323335';
-  document.getElementById('statusDropdown').querySelectorAll('.kp-opt').forEach(function (o) { o.classList.remove('active'); });
-  el.classList.add('active');
-  document.getElementById('statusDropdown').style.display = 'none';
-  FILTERS.status = el.textContent;
-  applyFilters();
+function closeAllDropdowns() {
+  document.querySelectorAll('.opt-dropdown').forEach(function (d) { d.style.display = 'none'; });
+}
+function fillStatic(ddId, items, pickFn) {
+  document.getElementById(ddId).innerHTML = items.map(function (t) {
+    return '<div class="kp-opt" onclick="' + pickFn + '(this)">' + esc(t) + '</div>';
+  }).join('');
+}
+function setSel(ddId, valId, text) {
+  var val = document.getElementById(valId);
+  val.textContent = text; val.style.color = '#323335';
+  var dd = document.getElementById(ddId);
+  dd.querySelectorAll('.kp-opt').forEach(function (o) {
+    if (o.textContent === text) { o.classList.add('active'); } else { o.classList.remove('active'); }
+  });
+  dd.style.display = 'none';
+}
+function resetSel(valId, ph) {
+  var val = document.getElementById(valId);
+  val.textContent = ph; val.style.color = '#bfbfbf';
 }
 document.addEventListener('click', function (e) {
-  if (!e.target.closest('.ant-select')) {
-    document.querySelectorAll('.opt-dropdown').forEach(function (d) { d.style.display = 'none'; });
-  }
+  if (!e.target.closest('.ant-select')) closeAllDropdowns();
 });
+function pickStatus(el) { setSel('statusDropdown', 'statusVal', el.textContent); FILTERS.status = el.textContent; applyFilters(); }
+function pickAct(el) {
+  setSel('actDropdown', 'actVal', el.textContent);
+  FILTERS.act = el.textContent; FILTERS.grp = ''; FILTERS.exam = '';
+  resetSel('grpVal', '先选活动'); resetSel('examVal', '先选分组');
+  applyFilters();
+}
+function pickGrp(el) {
+  setSel('grpDropdown', 'grpVal', el.textContent);
+  FILTERS.grp = el.textContent; FILTERS.exam = '';
+  resetSel('examVal', '先选分组');
+  applyFilters();
+}
+function pickExam(el) { setSel('examDropdown', 'examVal', el.textContent); FILTERS.exam = el.textContent; applyFilters(); }
+function pickCh(el) { setSel('chDropdown', 'chVal', el.textContent); FILTERS.ch = el.textContent; applyFilters(); }
+function toggleGrp() {
+  if (!FILTERS.act) { toast('请先选择活动'); return; }
+  fillStatic('grpDropdown', Object.keys(ACT_TREE[FILTERS.act].groups), 'pickGrp');
+  toggleDropdown('grpDropdown');
+}
+function toggleExam() {
+  if (!FILTERS.grp) { toast('请先选择分组'); return; }
+  fillStatic('examDropdown', ACT_TREE[FILTERS.act].groups[FILTERS.grp], 'pickExam');
+  toggleDropdown('examDropdown');
+}
+
+/* ============ 筛选 ============ */
 function applyFilters() {
   FILTERS.kw = document.getElementById('kwInput').value.trim();
   FILTERS.id = document.getElementById('idInput').value.trim();
+  FILTERS.dStart = document.getElementById('dateStart').value;
+  FILTERS.dEnd = document.getElementById('dateEnd').value;
   var rows = ROWS.filter(function (r) {
     if (FILTERS.kw && r.name.indexOf(FILTERS.kw) < 0 && r.creator.indexOf(FILTERS.kw) < 0) return false;
     if (FILTERS.id && r.id.indexOf(FILTERS.id) < 0) return false;
     if (FILTERS.status !== '请选择测评状态' && r.status !== FILTERS.status) return false;
+    var st = r.time.split('~')[0];
+    var en = r.time.split('~')[1] || '';
+    if (FILTERS.dStart && en < FILTERS.dStart) return false;   /* 考场结束时间早于区间起点 → 排除 */
+    if (FILTERS.dEnd && st.slice(0, 10) > FILTERS.dEnd) return false;   /* 考场开始时间晚于区间终点 → 排除 */
+    if (FILTERS.act && r.act !== FILTERS.act) return false;
+    if (FILTERS.grp && r.grp !== FILTERS.grp) return false;
+    if (FILTERS.exam && r.exam !== FILTERS.exam) return false;
+    if (FILTERS.ch && r.ch !== FILTERS.ch) return false;
     return true;
   });
   renderTable(rows);
 }
 function resetFilters() {
-  FILTERS = { kw: '', id: '', status: '请选择测评状态' };
+  FILTERS = { kw: '', id: '', status: '请选择测评状态', dStart: '', dEnd: '', act: '', grp: '', exam: '', ch: '' };
   document.getElementById('kwInput').value = '';
   document.getElementById('idInput').value = '';
-  var val = document.getElementById('statusVal');
-  val.textContent = '请选择测评状态';
-  val.style.color = '#bfbfbf';
-  document.getElementById('statusDropdown').querySelectorAll('.kp-opt').forEach(function (o) { o.classList.remove('active'); });
+  document.getElementById('dateStart').value = '';
+  document.getElementById('dateEnd').value = '';
+  resetSel('statusVal', '请选择测评状态');
+  resetSel('actVal', '全部活动');
+  resetSel('grpVal', '先选活动');
+  resetSel('examVal', '先选分组');
+  resetSel('chVal', '全部渠道');
+  closeAllDropdowns();
   applyFilters();
 }
 
-/* ============ 表格渲染 ============ */
+/* ============ 表格渲染（10 列） ============ */
 function renderTable(rows) {
   var html = '';
   for (var i = 0; i < rows.length; i++) {
@@ -331,6 +492,9 @@ function renderTable(rows) {
     html += '<tr class="ant-table-row ant-table-row-level-0" data-row-key="' + esc(r.id) + '">' +
       '<td class="ant-table-row-cell-break-word">' + esc(r.id) + '</td>' +
       '<td class=""><span><a class="exam-name" onclick="toast(\'测评详情（演示）\')">' + esc(r.name) + '</a></span></td>' +
+      '<td class="ant-table-row-cell-break-word">' + esc(r.act) + '</td>' +
+      '<td class="ant-table-row-cell-break-word">' + esc(r.grp) + '</td>' +
+      '<td class="ant-table-row-cell-break-word">' + esc(r.ch) + '</td>' +
       '<td class="ant-table-row-cell-break-word">' + esc(r.creator) + '</td>' +
       '<td class="ant-table-row-cell-break-word">' + esc(r.time) + '</td>' +
       '<td class="ant-table-row-cell-break-word">' + esc(r.duration) + '</td>' +
@@ -343,7 +507,7 @@ function renderTable(rows) {
       '</tr>';
   }
   document.getElementById('tableBody').innerHTML = html ||
-    '<tr><td colspan="7" style="text-align:center;color:#bfbfbf;padding:32px;">暂无数据</td></tr>';
+    '<tr><td colspan="10" style="text-align:center;color:#bfbfbf;padding:32px;">暂无数据</td></tr>';
   document.getElementById('pageInfo').textContent = rows.length ? ('1-' + rows.length + ' 共149条') : '0 条';
 }
 
@@ -365,6 +529,8 @@ document.getElementById('pagination').addEventListener('click', function (e) {
 });
 
 /* ============ 初始化 ============ */
+fillStatic('actDropdown', Object.keys(ACT_TREE), 'pickAct');
+fillStatic('chDropdown', CHANNELS, 'pickCh');
 applyFilters();
 </script>
 </body>
