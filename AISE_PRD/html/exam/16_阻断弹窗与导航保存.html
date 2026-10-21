@@ -646,9 +646,47 @@ else:
         }
 
         /* ===== 需求九：答题页防作弊强化（2026-10-21） ===== */
-        /* 切屏弹窗：离开答题页面立即弹出，可手动关闭；未返回时每 5 秒重复弹出 */
+        /* 切屏提醒：离开页面时发系统通知（切出去也能看到）+ 标签页标题闪烁；
+           返回页面后弹页面内弹窗；未返回时系统通知每 5 秒重复推送（受浏览器后台节流影响，长时间后台可能降频） */
         let leaveModalTimer = null;
+        let titleFlashTimer = null;
         let leaveCount = 0;
+        const originalTitle = document.title;
+
+        /* 通知授权：首次点击页面时静默申请（浏览器要求用户手势触发） */
+        document.addEventListener('pointerdown', function requestNotifyPermission() {
+            if (typeof Notification !== 'undefined' && Notification.permission === 'default') {
+                Notification.requestPermission();
+            }
+        }, { once: false });
+
+        function pushLeaveNotification() {
+            if (typeof Notification !== 'undefined' && Notification.permission === 'granted') {
+                try {
+                    const n = new Notification('检测到离开答题页面', {
+                        body: '请返回页面作答！离开行为已被记录（第 ' + (leaveCount + 1) + ' 次）',
+                        tag: 'aise-leave-reminder',   /* 同 tag 覆盖旧通知，避免堆积 */
+                        requireInteraction: true       /* 通知常驻直到用户处理 */
+                    });
+                    n.onclick = function () { window.focus(); n.close(); };
+                } catch (e) { /* 通知不可用时静默降级为标题闪烁 */ }
+            }
+        }
+
+        function startTitleFlash() {
+            if (titleFlashTimer) return;
+            document.title = '⚠️ 请返回答题页面作答！';   /* 切屏瞬间立即置警告标题 */
+            let on = true;
+            titleFlashTimer = setInterval(function () {
+                document.title = on ? originalTitle : '⚠️ 请返回答题页面作答！';
+                on = !on;
+            }, 1500);
+        }
+
+        function stopTitleFlash() {
+            if (titleFlashTimer) { clearInterval(titleFlashTimer); titleFlashTimer = null; }
+            document.title = originalTitle;
+        }
 
         function showLeaveModal() {
             leaveCount++;
@@ -663,17 +701,23 @@ else:
 
         document.addEventListener('visibilitychange', function () {
             if (document.hidden) {
-                /* 离开页面：启动 5 秒循环检测（未返回时弹窗保持/重复弹出） */
+                /* 离开页面：立即发系统通知 + 标题闪烁，并启动 5 秒重复推送 */
+                leaveCount++;
+                pushLeaveNotification();
+                startTitleFlash();
                 if (!leaveModalTimer) {
                     leaveModalTimer = setInterval(function () {
-                        if (!document.hidden && !document.getElementById('leaveModal').classList.contains('show')) {
+                        if (document.hidden) {
+                            pushLeaveNotification();
+                        } else if (!document.getElementById('leaveModal').classList.contains('show')) {
                             showLeaveModal();
                         }
                     }, 5000);
                 }
             } else {
-                /* 返回页面：立即弹窗提醒 */
+                /* 返回页面：停系统通知与标题闪烁，弹页面内弹窗提醒 */
                 if (leaveModalTimer) { clearInterval(leaveModalTimer); leaveModalTimer = null; }
+                stopTitleFlash();
                 showLeaveModal();
                 console.log('[监考留痕] 检测到切屏返回，累计第 ' + leaveCount + ' 次离开');
             }
