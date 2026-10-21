@@ -646,32 +646,13 @@ else:
         }
 
         /* ===== 需求九：答题页防作弊强化（2026-10-21） ===== */
-        /* 切屏提醒：离开页面时发系统通知（切出去也能看到）+ 标签页标题闪烁；
-           返回页面后弹页面内弹窗；未返回时系统通知每 5 秒重复推送（受浏览器后台节流影响，长时间后台可能降频） */
+        /* 切屏提醒：离开页面期间标签页标题持续闪烁提示；
+           返回页面时用 alert 浏览器弹窗提示，未返回期间每 5 秒累计一次提醒，返回后展示累计离开次数 */
         let leaveModalTimer = null;
         let titleFlashTimer = null;
         let leaveCount = 0;
+        let pendingReminders = 0;
         const originalTitle = document.title;
-
-        /* 通知授权：首次点击页面时静默申请（浏览器要求用户手势触发） */
-        document.addEventListener('pointerdown', function requestNotifyPermission() {
-            if (typeof Notification !== 'undefined' && Notification.permission === 'default') {
-                Notification.requestPermission();
-            }
-        }, { once: false });
-
-        function pushLeaveNotification() {
-            if (typeof Notification !== 'undefined' && Notification.permission === 'granted') {
-                try {
-                    const n = new Notification('检测到离开答题页面', {
-                        body: '请返回页面作答！离开行为已被记录（第 ' + (leaveCount + 1) + ' 次）',
-                        tag: 'aise-leave-reminder',   /* 同 tag 覆盖旧通知，避免堆积 */
-                        requireInteraction: true       /* 通知常驻直到用户处理 */
-                    });
-                    n.onclick = function () { window.focus(); n.close(); };
-                } catch (e) { /* 通知不可用时静默降级为标题闪烁 */ }
-            }
-        }
 
         function startTitleFlash() {
             if (titleFlashTimer) return;
@@ -689,7 +670,6 @@ else:
         }
 
         function showLeaveModal() {
-            leaveCount++;
             document.getElementById('leaveCountText').textContent = '本次考试已累计检测到离开 ' + leaveCount + ' 次';
             document.getElementById('leaveModal').classList.add('show');
         }
@@ -701,23 +681,25 @@ else:
 
         document.addEventListener('visibilitychange', function () {
             if (document.hidden) {
-                /* 离开页面：立即发系统通知 + 标题闪烁，并启动 5 秒重复推送 */
-                leaveCount++;
-                pushLeaveNotification();
+                /* 离开页面：标题闪烁，并每 5 秒累计一次待提醒 */
+                pendingReminders++;
                 startTitleFlash();
                 if (!leaveModalTimer) {
                     leaveModalTimer = setInterval(function () {
                         if (document.hidden) {
-                            pushLeaveNotification();
+                            pendingReminders++;
                         } else if (!document.getElementById('leaveModal').classList.contains('show')) {
                             showLeaveModal();
                         }
                     }, 5000);
                 }
             } else {
-                /* 返回页面：停系统通知与标题闪烁，弹页面内弹窗提醒 */
+                /* 返回页面：停标题闪烁，先 alert 弹窗提示，确认后展示页面内弹窗 */
                 if (leaveModalTimer) { clearInterval(leaveModalTimer); leaveModalTimer = null; }
                 stopTitleFlash();
+                alert('检测到离开答题页面，请返回页面作答！本次考试已累计离开 ' + pendingReminders + ' 次。');
+                leaveCount += pendingReminders;
+                pendingReminders = 0;
                 showLeaveModal();
                 console.log('[监考留痕] 检测到切屏返回，累计第 ' + leaveCount + ' 次离开');
             }
