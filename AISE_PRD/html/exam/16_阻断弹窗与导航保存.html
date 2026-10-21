@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>趣味编程大冒险 - 编程题 (最终完整版)</title>
+    <title>趣味编程大冒险 - 编程题 (含防作弊：禁止复制+切屏弹窗)</title>
     <style>
         /* --- 1. 全局标准风格定义 --- */
         :root {
@@ -543,6 +543,20 @@ else:
         </div>
     </div>
 
+    <!-- 需求九：切屏离开提醒弹窗（可手动关闭；未返回每 5 秒重复弹出） -->
+    <div class="modal-backdrop" id="leaveModal">
+        <div class="modal-box">
+            <div class="modal-close-x" onclick="closeLeaveModal()" title="关闭">×</div>
+            <span class="modal-icon">📢</span>
+            <div class="modal-title">检测到离开答题页面</div>
+            <div class="modal-desc">请返回页面作答。考试期间离开答题页面会被记录，请尽快返回继续作答。</div>
+            <div style="font-size:12px;color:#b0bec5;margin:-20px 0 20px;" id="leaveCountText"></div>
+            <div class="modal-actions">
+                <button class="modal-btn modal-btn-save" onclick="closeLeaveModal()">返回作答</button>
+            </div>
+        </div>
+    </div>
+
     <script>
         // --- 侧边栏 & 基础逻辑 ---
         function toggleSidebar() {
@@ -630,6 +644,47 @@ else:
         function closeModal() {
             document.getElementById('saveModal').classList.remove('show');
         }
+
+        /* ===== 需求九：答题页防作弊强化（2026-10-21） ===== */
+        /* 切屏弹窗：离开答题页面立即弹出，可手动关闭；未返回时每 5 秒重复弹出 */
+        let leaveModalTimer = null;
+        let leaveCount = 0;
+
+        function showLeaveModal() {
+            leaveCount++;
+            document.getElementById('leaveCountText').textContent = '本次考试已累计检测到离开 ' + leaveCount + ' 次';
+            document.getElementById('leaveModal').classList.add('show');
+        }
+
+        function closeLeaveModal() {
+            document.getElementById('leaveModal').classList.remove('show');
+            if (leaveModalTimer) { clearInterval(leaveModalTimer); leaveModalTimer = null; }
+        }
+
+        document.addEventListener('visibilitychange', function () {
+            if (document.hidden) {
+                /* 离开页面：启动 5 秒循环检测（未返回时弹窗保持/重复弹出） */
+                if (!leaveModalTimer) {
+                    leaveModalTimer = setInterval(function () {
+                        if (!document.hidden && !document.getElementById('leaveModal').classList.contains('show')) {
+                            showLeaveModal();
+                        }
+                    }, 5000);
+                }
+            } else {
+                /* 返回页面：立即弹窗提醒 */
+                if (leaveModalTimer) { clearInterval(leaveModalTimer); leaveModalTimer = null; }
+                showLeaveModal();
+                console.log('[监考留痕] 检测到切屏返回，累计第 ' + leaveCount + ' 次离开');
+            }
+        });
+
+        /* 禁止复制：选中/复制/剪切/右键均不触发（答题页全部内容区域） */
+        ['selectstart', 'copy', 'cut'].forEach(function (evt) {
+            document.addEventListener(evt, function (e) { e.preventDefault(); });
+        });
+        document.addEventListener('contextmenu', function (e) { e.preventDefault(); });
+        /* ===== 需求九结束 ===== */
 
         function handleSaveAndNext() {
             closeModal();
