@@ -135,6 +135,7 @@
                                 <td class="p-4 text-right pr-6">
                                     <div class="flex items-center justify-end gap-2">
                                         <button onclick="openResetModal('张三', '20258899')" class="text-slate-400 hover:text-amber-500 px-2 py-1.5 transition" title="重置密码"><i class="fa-solid fa-key"></i></button>
+                                        <button onclick="openDeleteModal()" class="text-slate-400 hover:text-red-500 px-2 py-1.5 transition" title="删除账号"><i class="fa-solid fa-trash-can"></i></button>
                                         <button onclick="openUserDetail()" class="text-brand-600 hover:text-brand-700 font-medium text-xs bg-blue-50 hover:bg-blue-100 px-3 py-1.5 rounded border border-blue-100 transition">详情/编辑</button>
                                     </div>
                                 </td>
@@ -326,10 +327,56 @@
         </div>
     </div>
 
+    <div id="modal-delete" class="fixed inset-0 z-40 hidden items-center justify-center bg-slate-900/50 backdrop-blur-sm opacity-0 transition-opacity">
+        <div class="bg-white rounded-2xl shadow-xl w-[26rem] p-6 transform transition-transform" id="modal-delete-content">
+            <div class="flex items-start justify-between mb-4">
+                <div>
+                    <h3 class="font-bold text-slate-800 text-lg">删除账号</h3>
+                    <p class="text-xs text-slate-400 mt-0.5">张三 · ID 20258899</p>
+                </div>
+                <select id="del-scene" onchange="setDeleteScene(this.value)" class="text-xs px-2 py-1 rounded-lg border border-slate-200 text-slate-500 bg-white outline-none" title="演示场景切换">
+                    <option value="past">演示：有过往数据</option>
+                    <option value="ongoing">演示：有在途业务</option>
+                    <option value="empty">演示：无数据</option>
+                </select>
+            </div>
+
+            <!-- 数据概况卡片 -->
+            <div class="bg-slate-50 rounded-lg p-4 border border-slate-100 mb-4">
+                <p class="text-xs font-bold text-slate-500 uppercase mb-3">数据概况</p>
+                <div class="grid grid-cols-2 gap-2 text-sm mb-2">
+                    <p class="flex justify-between"><span class="text-slate-400">报名/考试记录</span><span class="font-medium" id="del-recs">—</span></p>
+                    <p class="flex justify-between"><span class="text-slate-400">子账号</span><span class="font-medium" id="del-children">—</span></p>
+                </div>
+                <p class="text-xs text-slate-400" id="del-data-detail">—</p>
+            </div>
+
+            <!-- 在途业务警示（有在途时显示，删除按钮隐藏） -->
+            <div id="del-ongoing-warn" class="hidden bg-red-50 border border-red-100 rounded-lg p-4 mb-4">
+                <p class="text-sm font-bold text-red-600 flex items-center gap-2"><i class="fa-solid fa-triangle-exclamation"></i> 存在在途业务，不允许删除</p>
+                <p class="text-xs text-red-500 mt-1.5" id="del-ongoing-detail">—</p>
+                <p class="text-xs text-red-400 mt-1">请先处理完在途报名（完成审核流转或取消报名）后再删除。</p>
+            </div>
+
+            <!-- 强确认区 -->
+            <div id="del-confirm-area">
+                <p class="text-xs text-slate-400 leading-relaxed mb-3">删除后账号立即禁用（无法登录），全部数据移入账号回收站，90 天内可恢复。同手机号可重新注册新账号，不关联旧数据。</p>
+                <label class="text-xs font-bold text-slate-500 uppercase mb-1 block">请输入「我确认」以执行删除</label>
+                <input type="text" id="del-confirm-input" oninput="validateDeleteInput()" placeholder="我确认" class="w-full px-3 py-2 rounded-lg border border-slate-200 text-sm focus:border-red-400 outline-none transition mb-1">
+                <p id="del-confirm-error" class="hidden text-xs text-red-500 mb-1">输入不匹配，请完整输入「我确认」</p>
+            </div>
+
+            <div class="flex gap-3 mt-4">
+                <button onclick="closeDeleteModal()" class="flex-1 px-4 py-2.5 text-sm font-medium text-slate-600 bg-slate-50 hover:bg-slate-100 rounded-lg transition">取消</button>
+                <button id="btn-confirm-delete" onclick="confirmDelete()" disabled class="flex-1 px-4 py-2.5 text-sm font-bold text-white bg-red-500 hover:bg-red-600 disabled:opacity-40 disabled:cursor-not-allowed rounded-lg shadow-lg transition">确认删除并禁用</button>
+            </div>
+        </div>
+    </div>
+
     <div id="toast" class="fixed bottom-8 left-1/2 transform -translate-x-1/2 z-50 pointer-events-none opacity-0 transition-all duration-300 translate-y-10">
         <div class="bg-slate-900 text-white px-6 py-3 rounded-full shadow-2xl flex items-center gap-3">
             <i class="fa-solid fa-circle-check text-green-400 text-lg"></i>
-            <span class="font-medium text-sm">密码重置成功</span>
+            <span class="font-medium text-sm" id="toast-text">密码重置成功</span>
         </div>
     </div>
 
@@ -380,12 +427,93 @@
             }, 800);
         }
 
-        function showToast() {
+        function showToast(msg) {
+            if (msg) document.getElementById('toast-text').innerText = msg;
             toast.classList.remove('opacity-0', 'translate-y-10');
             toast.classList.add('toast-enter');
             setTimeout(() => {
                 toast.classList.add('opacity-0', 'translate-y-10');
             }, 2500);
+        }
+
+        // ===== 删除账号（行操作）=====
+        const DEMO_SCENES = {
+            ongoing: { recs: 3, children: 1, ongoing: 2, detail: '审核中报名 1 条 · 进行中测评 1 条' },
+            past:    { recs: 5, children: 2, ongoing: 0, detail: '已完成报名 3 条 · 已出成绩 2 条 · 证书 1 张' },
+            empty:   { recs: 0, children: 0, ongoing: 0, detail: '无报名与考试记录' },
+        };
+        let deleteScene = 'past';
+        const dModal = document.getElementById('modal-delete');
+        const dModalContent = document.getElementById('modal-delete-content');
+
+        function openDeleteModal() {
+            renderDeleteScene();
+            dModal.classList.remove('hidden');
+            setTimeout(() => {
+                dModal.classList.remove('opacity-0');
+                dModalContent.classList.add('modal-enter');
+            }, 10);
+        }
+        function closeDeleteModal() {
+            dModal.classList.add('opacity-0');
+            setTimeout(() => {
+                dModal.classList.add('hidden');
+                dModalContent.classList.remove('modal-enter');
+                document.getElementById('del-confirm-input').value = '';
+                document.getElementById('del-confirm-error').classList.add('hidden');
+            }, 200);
+        }
+        function setDeleteScene(s) {
+            deleteScene = s;
+            renderDeleteScene();
+        }
+        function renderDeleteScene() {
+            const d = DEMO_SCENES[deleteScene];
+            document.getElementById('del-scene').value = deleteScene;
+            document.getElementById('del-recs').innerText = d.recs + ' 条';
+            document.getElementById('del-children').innerText = d.children + ' 个';
+            const warn = document.getElementById('del-ongoing-warn');
+            const confirmArea = document.getElementById('del-confirm-area');
+            const btn = document.getElementById('btn-confirm-delete');
+            if (d.ongoing > 0) {
+                warn.classList.remove('hidden');
+                document.getElementById('del-ongoing-detail').innerText = d.detail;
+                confirmArea.classList.add('hidden');
+                btn.classList.add('hidden');
+            } else {
+                warn.classList.add('hidden');
+                confirmArea.classList.remove('hidden');
+                btn.classList.remove('hidden');
+                document.getElementById('del-data-detail').innerText = d.detail;
+                btn.disabled = true;
+            }
+        }
+        function validateDeleteInput() {
+            const v = document.getElementById('del-confirm-input').value.trim();
+            const btn = document.getElementById('btn-confirm-delete');
+            const err = document.getElementById('del-confirm-error');
+            if (v === '我确认') {
+                btn.disabled = false;
+                err.classList.add('hidden');
+            } else {
+                btn.disabled = true;
+                if (v.length > 0) err.classList.remove('hidden'); else err.classList.add('hidden');
+            }
+        }
+        function confirmDelete() {
+            const btn = document.getElementById('btn-confirm-delete');
+            if (btn.disabled) return;
+            const originalText = btn.innerText;
+            btn.innerHTML = '<i class="fa-solid fa-circle-notch fa-spin"></i> 处理中';
+            btn.disabled = true;
+            setTimeout(() => {
+                closeDeleteModal();
+                showToast('账号已删除并移入回收站，可在账号回收站恢复');
+                btn.innerText = originalText;
+                btn.disabled = false;
+                const tr = document.querySelector('#view-list tbody tr');
+                if (tr) tr.remove(); // 已禁用账号不在列表展示
+            }, 800);
         }
     </script>
 </body>
