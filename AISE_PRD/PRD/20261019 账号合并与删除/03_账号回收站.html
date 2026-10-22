@@ -1,0 +1,215 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>账号回收站 - AISE 后台</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <script>
+        tailwind.config = {
+            theme: { extend: {
+                fontFamily: { sans: ['Inter', 'sans-serif'], mono: ['JetBrains Mono', 'monospace'] },
+                colors: { brand: { 50: '#eff6ff', 100: '#dbeafe', 500: '#3b82f6', 600: '#2563eb', 700: '#1d4ed8' } },
+                boxShadow: { 'card': '0 1px 3px 0 rgba(0,0,0,0.1), 0 1px 2px 0 rgba(0,0,0,0.06)' }
+            } }
+        }
+    </script>
+    <style>
+        body { background-color: #F8FAFC; }
+        .nav-item.active::before { content:''; position:absolute; left:0; top:50%; transform:translateY(-50%); width:4px; height:24px; background:#3b82f6; border-radius:0 4px 4px 0; }
+        .modal-enter { animation: modalScaleIn 0.2s cubic-bezier(0.16,1,0.3,1) forwards; }
+        @keyframes modalScaleIn { from { transform:scale(0.95); opacity:0; } to { transform:scale(1); opacity:1; } }
+        .toast-enter { animation: toastSlideUp 0.3s cubic-bezier(0.16,1,0.3,1) forwards; }
+        @keyframes toastSlideUp { from { transform:translate(-50%,100%); opacity:0; } to { transform:translate(-50%,0); opacity:1; } }
+        tr.leaving { transition: opacity 0.4s; opacity: 0; }
+    </style>
+</head>
+<body class="flex h-screen overflow-hidden text-slate-800 font-sans">
+
+    <aside class="w-64 bg-white border-r border-slate-200 flex flex-col flex-shrink-0 z-20">
+        <div class="h-16 flex items-center px-6 border-b border-slate-100">
+            <div class="w-8 h-8 bg-gradient-to-br from-brand-600 to-indigo-600 rounded-lg flex items-center justify-center text-white font-bold text-lg mr-3 shadow-sm">A</div>
+            <span class="font-bold text-lg text-slate-800 tracking-tight">AISE Admin</span>
+        </div>
+        <nav class="flex-1 overflow-y-auto py-4 space-y-1">
+            <div class="px-6 py-2 mt-4 text-xs font-bold text-slate-400 uppercase tracking-wider">考务与用户</div>
+            <a href="#" class="nav-item flex items-center gap-3 px-6 py-3 text-slate-500 hover:bg-slate-50 hover:text-brand-600 transition relative">
+                <i class="fa-solid fa-users w-5 text-center"></i><span class="font-medium text-sm">学员管理</span>
+            </a>
+            <a href="#" class="nav-item flex items-center gap-3 px-6 py-3 text-slate-500 hover:bg-slate-50 hover:text-brand-600 transition relative">
+                <i class="fa-solid fa-code-merge w-5 text-center"></i><span class="font-medium text-sm">账号合并</span>
+            </a>
+            <a href="#" class="nav-item active flex items-center gap-3 px-6 py-3 text-brand-600 bg-brand-50 transition relative">
+                <i class="fa-solid fa-trash-can w-5 text-center"></i><span class="font-medium text-sm">账号回收站</span>
+            </a>
+        </nav>
+    </aside>
+
+    <main class="flex-1 flex flex-col min-w-0 bg-slate-50/50">
+        <header class="h-16 bg-white border-b border-slate-200 flex items-center justify-between px-8 flex-shrink-0 z-10">
+            <h1 class="text-xl font-bold text-slate-800">账号回收站</h1>
+            <div class="flex items-center gap-4 text-xs text-slate-400">
+                <span class="flex items-center gap-1.5"><i class="fa-solid fa-clock"></i> 记录保留 <span class="font-bold text-slate-600">90 天</span>，到期自动清理</span>
+                <span class="flex items-center gap-1.5"><i class="fa-solid fa-rotate-left"></i> 误操作可一键恢复</span>
+            </div>
+        </header>
+
+        <div class="px-8 py-6">
+            <div class="bg-white rounded-xl shadow-card border border-slate-100 p-4 flex flex-wrap gap-4 items-center mb-6">
+                <div class="relative w-80">
+                    <i class="fa-solid fa-magnifying-glass absolute left-3 top-1/2 -translate-y-1/2 text-slate-400 text-sm"></i>
+                    <input type="text" placeholder="输入姓名 / 手机号 / ID 搜索" class="w-full pl-9 pr-4 py-2 rounded-lg border border-slate-200 text-sm focus:border-brand-500 outline-none transition">
+                </div>
+                <select class="px-3 py-2 rounded-lg border border-slate-200 text-sm text-slate-600 bg-white outline-none hover:border-slate-300 cursor-pointer">
+                    <option value="">操作类型</option>
+                    <option>账号删除</option>
+                    <option>账号合并</option>
+                </select>
+                <button class="ml-auto bg-brand-600 hover:bg-brand-700 text-white text-sm font-medium px-5 py-2 rounded-lg shadow-sm transition">查询</button>
+            </div>
+
+            <div class="bg-white rounded-xl shadow-card border border-slate-200 overflow-hidden">
+                <table class="w-full text-left border-collapse">
+                    <thead>
+                        <tr class="border-b border-slate-100 bg-slate-50 text-xs uppercase text-slate-500 font-bold">
+                            <th class="p-4 pl-6">账号信息</th>
+                            <th class="p-4">操作类型</th>
+                            <th class="p-4">操作摘要</th>
+                            <th class="p-4">操作人</th>
+                            <th class="p-4">进入回收站时间</th>
+                            <th class="p-4">剩余保留期</th>
+                            <th class="p-4 text-right pr-6">操作</th>
+                        </tr>
+                    </thead>
+                    <tbody class="text-sm text-slate-700 divide-y divide-slate-100" id="tbody"></tbody>
+                </table>
+            </div>
+
+            <div class="mt-4 bg-blue-50 border border-blue-100 rounded-xl p-4 flex items-start gap-3">
+                <i class="fa-solid fa-circle-info text-blue-500 mt-0.5"></i>
+                <p class="text-sm text-blue-800 leading-relaxed">
+                    恢复说明：删除恢复＝账号解除禁用，立即恢复登录；合并恢复＝拆回合并前两个账号，个人信息与子账号按快照还原，报名与考试记录拆回各自原账号。到期自动清理后数据彻底删除，不可恢复。
+                </p>
+            </div>
+        </div>
+    </main>
+
+    <!-- 恢复确认弹窗 -->
+    <div id="modal-restore" class="fixed inset-0 z-50 hidden items-center justify-center bg-slate-900/50 backdrop-blur-sm opacity-0 transition-opacity">
+        <div class="bg-white rounded-2xl shadow-xl w-[26rem] p-6 transform transition-transform" id="modal-restore-content">
+            <div class="flex flex-col items-center text-center">
+                <div class="w-12 h-12 bg-brand-50 rounded-full flex items-center justify-center mb-4">
+                    <i class="fa-solid fa-rotate-left text-brand-600 text-xl"></i>
+                </div>
+                <h3 class="font-bold text-slate-800 text-lg mb-2">确认恢复？</h3>
+                <div class="w-full bg-slate-50 rounded-lg p-4 text-sm text-left space-y-1.5 mb-5 border border-slate-100">
+                    <p class="flex justify-between"><span class="text-slate-400">账号</span><span class="font-bold" id="rs-name">—</span></p>
+                    <p class="flex justify-between"><span class="text-slate-400">操作类型</span><span class="font-medium" id="rs-type">—</span></p>
+                </div>
+                <p class="text-xs text-slate-400 leading-relaxed mb-5" id="rs-desc">—</p>
+                <div class="flex gap-3 w-full">
+                    <button onclick="closeRestoreModal()" class="flex-1 px-4 py-2.5 text-sm font-medium text-slate-600 bg-slate-50 hover:bg-slate-100 rounded-lg transition">取消</button>
+                    <button onclick="doRestore()" class="flex-1 px-4 py-2.5 text-sm font-bold text-white bg-brand-600 hover:bg-brand-700 rounded-lg shadow-lg transition">确认恢复</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div id="toast" class="fixed bottom-8 left-1/2 -translate-x-1/2 z-50 pointer-events-none opacity-0 transition-all duration-300 translate-y-10">
+        <div class="bg-slate-900 text-white px-6 py-3 rounded-full shadow-2xl flex items-center gap-3">
+            <i class="fa-solid fa-circle-check text-green-400 text-lg"></i>
+            <span class="font-medium text-sm" id="toast-text">恢复成功</span>
+        </div>
+    </div>
+
+<script>
+    // ===== 模拟数据 =====
+    const ITEMS = [
+        { key:'r1', name:'张三', id:'20261033', phone:'13900000000', type:'merge', typeName:'账号合并',
+          brief:'合并入 张三（ID 20258899）', op:'运营·苏蘅', time:'2026-10-19 10:32', left:'89 天',
+          desc:'恢复后将拆回两个独立账号：个人信息与子账号按合并前快照还原，报名与考试记录拆回各自原账号。' },
+        { key:'r2', name:'王小明', id:'20261188', phone:'15866667777', type:'delete', typeName:'账号删除',
+          brief:'删除时无报名/考试/证书/子账号', op:'运营·苏蘅', time:'2026-10-19 11:05', left:'90 天',
+          desc:'恢复后账号解除禁用，立即恢复登录，数据完整还原。' },
+        { key:'r3', name:'刘芸', id:'20251203', phone:'15999998888', type:'delete', typeName:'账号删除',
+          brief:'删除时有报名 2 条 · 成绩 2 条 · 证书 1 张', op:'运营·番薯', time:'2026-10-17 16:40', left:'88 天',
+          desc:'恢复后账号解除禁用，其名下报名记录、考试成绩与证书一并恢复关联。' },
+        { key:'r4', name:'周建国', id:'20240877', phone:'13122223333', type:'merge', typeName:'账号合并',
+          brief:'合并入 周建国（ID 20240812）', op:'运营·苏蘅', time:'2026-09-28 09:12', left:'7 天',
+          desc:'该记录 7 天后自动清理，清理后不可恢复。' },
+    ];
+
+    let restoring = null;
+
+    function render() {
+        document.getElementById('tbody').innerHTML = ITEMS.map(it => `
+            <tr class="hover-row transition" id="row-${it.key}">
+                <td class="p-4 pl-6">
+                    <div class="flex items-center gap-3">
+                        <div class="w-9 h-9 rounded-full bg-slate-100 border border-slate-200 flex items-center justify-center text-slate-500 font-bold text-sm">${it.name[0]}</div>
+                        <div>
+                            <p class="font-bold text-slate-800">${it.name}</p>
+                            <p class="text-xs text-slate-400 font-mono">ID: ${it.id} · ${it.phone}</p>
+                        </div>
+                    </div>
+                </td>
+                <td class="p-4">
+                    <span class="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-full text-xs font-bold border ${it.type==='merge' ? 'bg-purple-50 text-purple-600 border-purple-100' : 'bg-red-50 text-red-600 border-red-100'}">
+                        <i class="fa-solid ${it.type==='merge' ? 'fa-code-merge' : 'fa-trash-can'} text-[10px]"></i> ${it.typeName}
+                    </span>
+                </td>
+                <td class="p-4 text-xs text-slate-500">${it.brief}</td>
+                <td class="p-4 text-xs">${it.op}</td>
+                <td class="p-4 text-xs text-slate-500 font-mono">${it.time}</td>
+                <td class="p-4 text-xs ${it.left.startsWith('7') ? 'text-red-500 font-bold' : 'text-slate-500'}">${it.left}</td>
+                <td class="p-4 pr-6 text-right">
+                    <button onclick="openRestore('${it.key}')" class="text-brand-600 hover:text-brand-700 font-medium text-xs bg-blue-50 hover:bg-blue-100 px-3 py-1.5 rounded border border-blue-100 transition">
+                        <i class="fa-solid fa-rotate-left mr-1"></i>恢复
+                    </button>
+                </td>
+            </tr>`).join('');
+    }
+
+    function openRestore(key) {
+        restoring = ITEMS.find(i => i.key === key);
+        document.getElementById('rs-name').textContent = restoring.name + '（ID: ' + restoring.id + '）';
+        document.getElementById('rs-type').textContent = restoring.typeName;
+        document.getElementById('rs-desc').textContent = restoring.desc;
+        const m = document.getElementById('modal-restore');
+        m.classList.remove('hidden'); m.classList.add('flex');
+        setTimeout(() => { m.classList.remove('opacity-0'); document.getElementById('modal-restore-content').classList.add('modal-enter'); }, 10);
+    }
+    function closeRestoreModal() {
+        const m = document.getElementById('modal-restore');
+        m.classList.add('opacity-0');
+        setTimeout(() => { m.classList.add('hidden'); m.classList.remove('flex'); document.getElementById('modal-restore-content').classList.remove('modal-enter'); }, 200);
+    }
+    function doRestore() {
+        closeRestoreModal();
+        setTimeout(() => {
+            document.getElementById('row-' + restoring.key).classList.add('leaving');
+            setTimeout(() => {
+                const idx = ITEMS.findIndex(i => i.key === restoring.key);
+                ITEMS.splice(idx, 1);
+                render();
+                document.getElementById('toast-text').textContent = '恢复成功：' + restoring.name + ' 的账号已' + (restoring.type === 'merge' ? '拆回合并前状态' : '解除禁用');
+                showToast();
+            }, 420);
+        }, 200);
+    }
+
+    // ===== Toast =====
+    const toast = document.getElementById('toast');
+    function showToast() {
+        toast.classList.remove('opacity-0', 'translate-y-10');
+        toast.classList.add('toast-enter');
+        setTimeout(() => toast.classList.add('opacity-0', 'translate-y-10'), 2500);
+    }
+
+    render();
+</script>
+</body>
+</html>

@@ -1,0 +1,227 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>账号删除 - AISE 后台</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <script>
+        tailwind.config = {
+            theme: { extend: {
+                fontFamily: { sans: ['Inter', 'sans-serif'], mono: ['JetBrains Mono', 'monospace'] },
+                colors: { brand: { 50: '#eff6ff', 100: '#dbeafe', 500: '#3b82f6', 600: '#2563eb', 700: '#1d4ed8' } },
+                boxShadow: { 'card': '0 1px 3px 0 rgba(0,0,0,0.1), 0 1px 2px 0 rgba(0,0,0,0.06)' }
+            } }
+        }
+    </script>
+    <style>
+        body { background-color: #F8FAFC; }
+        .nav-item.active::before { content:''; position:absolute; left:0; top:50%; transform:translateY(-50%); width:4px; height:24px; background:#3b82f6; border-radius:0 4px 4px 0; }
+        .modal-enter { animation: modalScaleIn 0.2s cubic-bezier(0.16,1,0.3,1) forwards; }
+        @keyframes modalScaleIn { from { transform:scale(0.95); opacity:0; } to { transform:scale(1); opacity:1; } }
+        .toast-enter { animation: toastSlideUp 0.3s cubic-bezier(0.16,1,0.3,1) forwards; }
+        @keyframes toastSlideUp { from { transform:translate(-50%,100%); opacity:0; } to { transform:translate(-50%,0); opacity:1; } }
+    </style>
+</head>
+<body class="flex h-screen overflow-hidden text-slate-800 font-sans">
+
+    <aside class="w-64 bg-white border-r border-slate-200 flex flex-col flex-shrink-0 z-20">
+        <div class="h-16 flex items-center px-6 border-b border-slate-100">
+            <div class="w-8 h-8 bg-gradient-to-br from-brand-600 to-indigo-600 rounded-lg flex items-center justify-center text-white font-bold text-lg mr-3 shadow-sm">A</div>
+            <span class="font-bold text-lg text-slate-800 tracking-tight">AISE Admin</span>
+        </div>
+        <nav class="flex-1 overflow-y-auto py-4 space-y-1">
+            <div class="px-6 py-2 mt-4 text-xs font-bold text-slate-400 uppercase tracking-wider">考务与用户</div>
+            <a href="#" class="nav-item flex items-center gap-3 px-6 py-3 text-slate-500 hover:bg-slate-50 hover:text-brand-600 transition relative">
+                <i class="fa-solid fa-users w-5 text-center"></i><span class="font-medium text-sm">学员管理</span>
+            </a>
+            <a href="#" class="nav-item flex items-center gap-3 px-6 py-3 text-slate-500 hover:bg-slate-50 hover:text-brand-600 transition relative">
+                <i class="fa-solid fa-code-merge w-5 text-center"></i><span class="font-medium text-sm">账号合并</span>
+            </a>
+            <a href="#" class="nav-item active flex items-center gap-3 px-6 py-3 text-brand-600 bg-brand-50 transition relative">
+                <i class="fa-solid fa-trash-can w-5 text-center"></i><span class="font-medium text-sm">账号回收站</span>
+            </a>
+        </nav>
+    </aside>
+
+    <main class="flex-1 flex flex-col min-w-0 bg-slate-50/50 overflow-y-auto custom-scroll">
+        <header class="h-16 bg-white border-b border-slate-200 flex items-center justify-between px-8 flex-shrink-0 z-10">
+            <h1 class="text-xl font-bold text-slate-800">学员账号删除</h1>
+            <div class="flex items-center gap-2 text-xs text-slate-400">
+                <i class="fa-solid fa-shield-halved text-slate-300"></i> 删除为逻辑禁用，数据全部保留，可在回收站恢复
+            </div>
+        </header>
+
+        <div class="max-w-4xl w-full mx-auto p-8 space-y-6">
+
+            <!-- 删除入口：搜索账号 -->
+            <div class="bg-white rounded-xl shadow-card border border-slate-200 p-6">
+                <h3 class="font-bold text-slate-900 mb-1 flex items-center gap-2"><i class="fa-solid fa-user-slash text-red-400"></i> 选择要删除的账号</h3>
+                <p class="text-xs text-slate-400 mb-4">输入姓名 / 手机号 / 身份证号定位账号。删除仅后台可操作，学员端无任何删除入口。</p>
+                <div class="relative">
+                    <i class="fa-solid fa-magnifying-glass absolute left-3 top-1/2 -translate-y-1/2 text-slate-400 text-sm"></i>
+                    <input type="text" id="search-input" oninput="showSug()" placeholder="输入姓名 / 手机号 / 身份证号搜索" class="w-full pl-9 pr-4 py-2.5 rounded-lg border border-slate-200 text-sm focus:border-brand-500 outline-none transition">
+                </div>
+                <div id="sug" class="hidden mt-2 border border-slate-200 rounded-lg overflow-hidden divide-y divide-slate-100 bg-white"></div>
+            </div>
+
+            <!-- 账号卡片 + 删除动作 -->
+            <div id="user-card" class="hidden bg-white rounded-xl shadow-card border border-slate-200 p-6 fade-in"></div>
+        </div>
+    </main>
+
+    <!-- 删除确认弹窗：强确认（有过往数据） -->
+    <div id="modal-del" class="fixed inset-0 z-50 hidden items-center justify-center bg-slate-900/50 backdrop-blur-sm opacity-0 transition-opacity">
+        <div class="bg-white rounded-2xl shadow-xl w-[27rem] p-6 transform transition-transform" id="modal-del-content">
+            <div class="flex flex-col items-center text-center">
+                <div class="w-12 h-12 bg-red-50 rounded-full flex items-center justify-center mb-4">
+                    <i class="fa-solid fa-triangle-exclamation text-red-500 text-xl"></i>
+                </div>
+                <h3 class="font-bold text-slate-800 text-lg mb-1">确认删除该账号？</h3>
+                <p class="text-xs text-slate-400 mb-4">删除后账号立即禁用、无法登录，数据移入回收站保留 <span class="font-bold text-slate-600">90 天</span>，期间可恢复。</p>
+
+                <div class="w-full bg-slate-50 rounded-lg p-4 text-sm text-left space-y-1.5 mb-4 border border-slate-100">
+                    <p class="flex justify-between"><span class="text-slate-400">账号</span><span class="font-bold" id="del-name">—</span></p>
+                    <p class="flex justify-between"><span class="text-slate-400">登录手机号</span><span class="font-mono" id="del-phone">—</span></p>
+                    <p class="flex justify-between"><span class="text-slate-400">过往数据</span><span class="font-bold text-amber-600" id="del-data">—</span></p>
+                </div>
+
+                <div class="w-full text-left mb-5">
+                    <label class="block text-xs font-bold text-slate-500 uppercase mb-1.5">请输入「<span class="text-red-500 font-bold">我确认</span>」以执行删除</label>
+                    <input type="text" id="confirm-input" oninput="checkConfirm()" placeholder="我确认" class="w-full px-3 py-2.5 rounded-lg border border-slate-300 text-sm focus:border-red-500 outline-none transition">
+                    <p id="confirm-err" class="hidden text-xs text-red-500 mt-1.5">输入不匹配，请输入「我确认」三个字</p>
+                </div>
+
+                <div class="flex gap-3 w-full">
+                    <button onclick="closeDelModal()" class="flex-1 px-4 py-2.5 text-sm font-medium text-slate-600 bg-slate-50 hover:bg-slate-100 rounded-lg transition">取消</button>
+                    <button id="btn-del" disabled onclick="doDelete()" class="flex-1 px-4 py-2.5 text-sm font-bold text-white bg-red-500 rounded-lg shadow-lg transition enabled:hover:bg-red-600 disabled:opacity-30 disabled:cursor-not-allowed">确认删除并禁用</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div id="toast" class="fixed bottom-8 left-1/2 -translate-x-1/2 z-50 pointer-events-none opacity-0 transition-all duration-300 translate-y-10">
+        <div class="bg-slate-900 text-white px-6 py-3 rounded-full shadow-2xl flex items-center gap-3">
+            <i class="fa-solid fa-circle-check text-green-400 text-lg"></i>
+            <span class="font-medium text-sm">账号已删除并移入回收站，可在回收站恢复</span>
+        </div>
+    </div>
+
+<script>
+    // ===== 模拟数据 =====
+    const USERS = {
+        u1: { name:'王小明', id:'20261188', phone:'15866667777', idcard:'110101201203045678', reg:'2026-02-14', recs:0, children:0, ongoing:null, past:'无报名与考试记录' },
+        u2: { name:'刘芸', id:'20251203', phone:'15999998888', idcard:'440101198505126789', reg:'2025-06-08', recs:3, children:2, ongoing:null, past:'报名记录 2 条 · 考试成绩 2 条 · 证书 1 张' },
+        u3: { name:'陈志远', id:'20262011', phone:'18600001111', idcard:'330101201507078901', reg:'2026-03-22', recs:1, children:0, ongoing:'2026秋季测评 · 审核中', past:'在途报名 1 条' },
+    };
+
+    let current = null;
+
+    function showSug() {
+        const box = document.getElementById('sug');
+        box.innerHTML = Object.entries(USERS).map(([k,u]) => `
+            <button onclick="pickUser('${k}')" class="w-full px-4 py-2.5 hover:bg-brand-50 text-left flex items-center justify-between transition">
+                <span class="text-sm font-medium text-slate-700">${u.name}</span>
+                <span class="text-xs text-slate-400 font-mono">ID: ${u.id} · ${u.phone}</span>
+            </button>`).join('');
+        box.classList.remove('hidden');
+    }
+
+    function pickUser(key) {
+        current = key;
+        const u = USERS[key];
+        document.getElementById('sug').classList.add('hidden');
+        const card = document.getElementById('user-card');
+        card.classList.remove('hidden');
+        const hasData = u.recs > 0 || u.children > 0;
+        const ongoingHtml = u.ongoing
+            ? `<div class="rounded-lg p-3 bg-red-50 border border-red-200 mb-4">
+                    <p class="text-sm font-bold text-red-600 flex items-center gap-2"><i class="fa-solid fa-ban"></i> 存在在途业务，不允许删除</p>
+                    <p class="text-xs text-red-500 mt-1">${u.ongoing}。请先处理完在途报名（完成审核流转或由运营取消报名），再执行删除。</p>
+                </div>`
+            : '';
+        const blockHtml = hasData
+            ? `<button onclick="openDelModal()" class="bg-red-500 text-white text-sm font-bold px-8 py-2.5 rounded-lg shadow-sm hover:bg-red-600 transition">
+                    <i class="fa-solid fa-trash-can mr-2"></i>删除账号（进入回收站）
+                </button>
+                <p class="text-xs text-slate-400 mt-2">该账号存在过往数据，删除需输入「我确认」强确认</p>`
+            : `<button onclick="openDelModal()" class="bg-red-500 text-white text-sm font-bold px-8 py-2.5 rounded-lg shadow-sm hover:bg-red-600 transition">
+                    <i class="fa-solid fa-trash-can mr-2"></i>删除账号（进入回收站）
+                </button>
+                <p class="text-xs text-slate-400 mt-2">该账号无报名、考试、证书与子账号数据，删除后可直接恢复，不影响任何业务</p>`;
+        card.innerHTML = `
+            <div class="flex items-start justify-between mb-5">
+                <div class="flex items-center gap-4">
+                    <div class="w-12 h-12 rounded-full bg-slate-100 border border-slate-200 flex items-center justify-center text-slate-500 font-bold text-lg">${u.name[0]}</div>
+                    <div>
+                        <p class="font-bold text-slate-800">${u.name} <span class="text-xs text-slate-400 font-mono ml-1">ID: ${u.id}</span></p>
+                        <p class="text-xs text-slate-400 mt-0.5">登录手机号 <span class="font-mono">${u.phone}</span> · 注册于 ${u.reg}</p>
+                    </div>
+                </div>
+                <button onclick="document.getElementById('user-card').classList.add('hidden')" class="text-xs text-slate-400 hover:text-slate-600"><i class="fa-solid fa-xmark"></i> 关闭</button>
+            </div>
+            ${ongoingHtml}
+            <div class="grid grid-cols-3 gap-3 mb-5">
+                <div class="bg-slate-50 rounded-lg p-3 border border-slate-100 text-center">
+                    <p class="text-lg font-bold text-slate-800">${u.recs}</p><p class="text-xs text-slate-400">报名/考试记录</p>
+                </div>
+                <div class="bg-slate-50 rounded-lg p-3 border border-slate-100 text-center">
+                    <p class="text-lg font-bold text-slate-800">${u.children}</p><p class="text-xs text-slate-400">子账号</p>
+                </div>
+                <div class="bg-slate-50 rounded-lg p-3 border border-slate-100 text-center">
+                    <p class="text-lg font-bold text-slate-800">${u.ongoing ? 1 : 0}</p><p class="text-xs text-slate-400">在途业务</p>
+                </div>
+            </div>
+            <div class="flex flex-col items-center pt-2">
+                ${blockHtml}
+            </div>`;
+    }
+
+    // ===== 删除强确认 =====
+    function openDelModal() {
+        const u = USERS[current];
+        document.getElementById('del-name').textContent = u.name + '（ID: ' + u.id + '）';
+        document.getElementById('del-phone').textContent = u.phone;
+        document.getElementById('del-data').textContent = u.past;
+        document.getElementById('confirm-input').value = '';
+        document.getElementById('confirm-err').classList.add('hidden');
+        document.getElementById('btn-del').disabled = true;
+        const m = document.getElementById('modal-del');
+        m.classList.remove('hidden'); m.classList.add('flex');
+        setTimeout(() => { m.classList.remove('opacity-0'); document.getElementById('modal-del-content').classList.add('modal-enter'); }, 10);
+    }
+    function closeDelModal() {
+        const m = document.getElementById('modal-del');
+        m.classList.add('opacity-0');
+        setTimeout(() => { m.classList.add('hidden'); m.classList.remove('flex'); document.getElementById('modal-del-content').classList.remove('modal-enter'); }, 200);
+    }
+    function checkConfirm() {
+        const v = document.getElementById('confirm-input').value.trim();
+        const err = document.getElementById('confirm-err');
+        const match = v === '我确认';
+        document.getElementById('btn-del').disabled = !match;
+        if (v && !match) err.classList.remove('hidden'); else err.classList.add('hidden');
+    }
+    function doDelete() {
+        closeDelModal();
+        setTimeout(() => {
+            delete USERS[current];
+            document.getElementById('user-card').classList.add('hidden');
+            document.getElementById('search-input').value = '';
+            showToast();
+        }, 300);
+    }
+
+    // ===== Toast =====
+    const toast = document.getElementById('toast');
+    function showToast() {
+        toast.classList.remove('opacity-0', 'translate-y-10');
+        toast.classList.add('toast-enter');
+        setTimeout(() => toast.classList.add('opacity-0', 'translate-y-10'), 2500);
+    }
+</script>
+</body>
+</html>
