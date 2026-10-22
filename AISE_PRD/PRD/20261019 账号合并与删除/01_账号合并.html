@@ -173,7 +173,7 @@
                 <div class="bg-white rounded-xl shadow-card border border-slate-200 overflow-hidden">
                     <div class="px-6 py-4 border-b border-slate-100 flex items-center justify-between">
                         <h3 class="font-bold text-slate-900 flex items-center gap-2"><i class="fa-solid fa-user-group text-brand-500"></i> 子账号（家庭成员学员）</h3>
-                        <p class="text-xs text-slate-400">逐个勾选保留到合并后的账号；未勾选的子账号将被遗弃，其报名与考试记录并入主账号</p>
+                        <p class="text-xs text-slate-400">逐个勾选保留到合并后的账号；未勾选＝遗弃该子账号身份。有报名记录的子账号须先转移记录，转移后方可遗弃</p>
                     </div>
                     <table class="w-full text-sm text-left border-collapse">
                         <thead>
@@ -261,6 +261,28 @@
         </div>
     </div>
 
+    <div id="modal-transfer" class="fixed inset-0 z-40 hidden items-center justify-center bg-slate-900/50 backdrop-blur-sm opacity-0 transition-opacity">
+        <div class="bg-white rounded-2xl shadow-xl w-[26rem] p-6 transform transition-transform" id="modal-transfer-content">
+            <div class="flex flex-col items-center text-center">
+                <div class="w-12 h-12 bg-amber-50 rounded-full flex items-center justify-center mb-4">
+                    <i class="fa-solid fa-right-left text-amber-600 text-xl"></i>
+                </div>
+                <h3 class="font-bold text-slate-800 text-lg mb-1">该子账号有报名与考试记录，须先转移</h3>
+                <p class="text-xs text-slate-400 mb-4">子账号 <span class="font-bold text-slate-600" id="tf-child">—</span> 名下有 <span class="font-bold text-amber-600" id="tf-count">0</span> 条报名与考试记录。请选择记录的接收方，转移后方可遗弃该子账号。</p>
+                <div class="w-full mb-2 text-left">
+                    <label class="text-xs font-bold text-slate-500 uppercase mb-1 block">记录接收方</label>
+                    <select id="tf-select" class="w-full px-3 py-2.5 rounded-lg border border-slate-200 text-sm focus:border-brand-500 outline-none transition bg-white"></select>
+                </div>
+                <p id="tf-error" class="hidden text-xs text-red-500 mb-1">无可用接收方时不能遗弃该子账号</p>
+                <p class="text-xs text-slate-400 leading-relaxed mb-5">转移后记录全部挂到接收方名下；该子账号记录清零并被遗弃，身份不再保留。转移随「确认合并」一并生效。</p>
+                <div class="flex gap-3 w-full">
+                    <button onclick="closeTransferModal()" class="flex-1 px-4 py-2.5 text-sm font-medium text-slate-600 bg-slate-50 hover:bg-slate-100 rounded-lg transition">取消</button>
+                    <button onclick="doTransfer()" class="flex-1 px-4 py-2.5 text-sm font-bold text-white bg-brand-600 hover:bg-brand-700 rounded-lg shadow-lg transition">转移并遗弃</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
     <div id="toast" class="fixed bottom-8 left-1/2 -translate-x-1/2 z-50 pointer-events-none opacity-0 transition-all duration-300 translate-y-10">
         <div class="bg-slate-900 text-white px-6 py-3 rounded-full shadow-2xl flex items-center gap-3">
             <i class="fa-solid fa-circle-check text-green-400 text-lg"></i>
@@ -290,16 +312,16 @@
         ['注册渠道','官网','小鹿渠道','text'],
     ];
     const CHILDREN = [
-        { name:'张小虎', idcard:'11010120170101****', from:'A', recs:'2 条报名' },
-        { name:'张小凤', idcard:'11010120190202****', from:'A', recs:'无报名记录' },
-        { name:'张小虎', idcard:'11010120170101****', from:'B', recs:'1 条报名' },
+        { name:'张小虎', idcard:'11010120170101****', from:'A', recs:'2 条报名', recCount:2 },
+        { name:'张小凤', idcard:'11010120190202****', from:'A', recs:'无报名记录', recCount:0 },
+        { name:'张小虎', idcard:'11010120170101****', from:'B', recs:'1 条报名', recCount:1 },
     ];
     const RECS = {
         a: [ {t:'Python 程序设计 (一级)', s:'2025春季测评 · 已完成 · 成绩 S级'}, {t:'AIGC 应用能力 (二级)', s:'2025夏季测评 · 报名成功 · ¥199.00'} ],
         b: [ {t:'图形化编程 (一级)', s:'2025秋季测评 · 已完成 · 成绩 A级'} ],
     };
 
-    const state = { picked:{a:null,b:null}, choice:{}, phone:'A', childrenKeep:{}, merged:false };
+    const state = { picked:{a:null,b:null}, choice:{}, phone:'A', childrenKeep:{}, transfers:{}, merged:false };
 
     // ===== 步骤1：搜索选择 =====
     function showSug(side) {
@@ -372,16 +394,9 @@
         // 登录手机号
         renderPhone();
         // 子账号
-        const ctb = document.getElementById('child-tbody');
-        ctb.innerHTML = CHILDREN.map((c, i) => `
-            <tr id="crow-${i}" class="hover-row transition">
-                <td class="p-3 pl-6"><input type="checkbox" checked onchange="toggleChild(${i})" class="w-4 h-4 accent-blue-600 cursor-pointer"></td>
-                <td class="p-3 font-bold text-slate-700">${c.name}</td>
-                <td class="p-3 font-mono text-xs text-slate-500">${c.idcard}</td>
-                <td class="p-3"><span class="text-xs px-2 py-0.5 rounded-full ${c.from==='A' ? 'bg-blue-50 text-blue-600' : 'bg-purple-50 text-purple-600'} font-bold">账号 ${c.from}</span></td>
-                <td class="p-3 text-xs text-slate-500">${c.recs}</td>
-            </tr>`).join('');
+        state.transfers = {};
         CHILDREN.forEach((c, i) => state.childrenKeep[i] = true);
+        renderChildren();
         // 记录
         const recHtml = r => `<div class="bg-slate-50 rounded-lg p-3 border border-slate-100"><p class="text-sm font-bold text-slate-700">${r.t}</p><p class="text-xs text-slate-400 mt-0.5">${r.s}</p></div>`;
         document.getElementById('rec-a').innerHTML = RECS.a.map(recHtml).join('');
@@ -401,9 +416,77 @@
         document.getElementById(`fmerged-${i}`).value = side === 'A' ? f[1] : f[2];
         if (!silent) showToastMini();
     }
+    function childLabel(i) {
+        const c = CHILDREN[i];
+        const dup = CHILDREN.filter(x => x.name === c.name).length > 1;
+        return dup ? c.name + '（账号 ' + c.from + '）' : c.name;
+    }
+    function transferTargets(i) {
+        // 接收方 = 保留的其他子账号
+        return CHILDREN.map((c, j) => ({ j, keep: j !== i && state.childrenKeep[j] !== false })).filter(x => x.keep);
+    }
+    function renderChildren() {
+        const ctb = document.getElementById('child-tbody');
+        ctb.innerHTML = CHILDREN.map((c, i) => {
+            const keep = state.childrenKeep[i];
+            const tf = state.transfers[i];
+            return `<tr id="crow-${i}" class="hover-row transition ${!keep ? 'row-discarded' : ''}">
+                <td class="p-3 pl-6"><input type="checkbox" ${keep ? 'checked' : ''} onchange="toggleChild(${i})" class="w-4 h-4 accent-blue-600 cursor-pointer"></td>
+                <td class="p-3 font-bold text-slate-700">${c.name}</td>
+                <td class="p-3 font-mono text-xs text-slate-500">${c.idcard}</td>
+                <td class="p-3"><span class="text-xs px-2 py-0.5 rounded-full ${c.from==='A' ? 'bg-blue-50 text-blue-600' : 'bg-purple-50 text-purple-600'} font-bold">账号 ${c.from}</span></td>
+                <td class="p-3 text-xs text-slate-500">${!keep && tf != null ? c.recs + ' → 转移至 ' + childLabel(tf) : c.recs}</td>
+            </tr>`;
+        }).join('');
+    }
     function toggleChild(i) {
-        state.childrenKeep[i] = !state.childrenKeep[i];
-        document.getElementById(`crow-${i}`).classList.toggle('row-discarded', !state.childrenKeep[i]);
+        if (state.childrenKeep[i]) {
+            // 取消勾选 = 尝试遗弃
+            const c = CHILDREN[i];
+            if (c.recCount > 0) {
+                openTransferModal(i);
+                return; // 不改变勾选状态，转移后才遗弃
+            }
+            state.childrenKeep[i] = false;
+        } else {
+            state.childrenKeep[i] = true;
+            delete state.transfers[i];
+        }
+        renderChildren();
+    }
+    // ===== 记录转移弹窗 =====
+    function openTransferModal(i) {
+        const c = CHILDREN[i];
+        state._transferIdx = i;
+        document.getElementById('tf-child').textContent = c.name + '（账号 ' + c.from + '）';
+        document.getElementById('tf-count').textContent = c.recCount;
+        const opts = transferTargets(i);
+        document.getElementById('tf-select').innerHTML = opts.length
+            ? opts.map(x => `<option value="${x.j}">${childLabel(x.j)}（现有 ${CHILDREN[x.j].recCount} 条记录）</option>`).join('')
+            : '<option value="">无可用接收方（其余子账号均已遗弃）</option>';
+        document.getElementById('tf-error').classList.add('hidden');
+        const m = document.getElementById('modal-transfer');
+        m.classList.remove('hidden'); m.classList.add('flex');
+        setTimeout(() => { m.classList.remove('opacity-0'); document.getElementById('modal-transfer-content').classList.add('modal-enter'); }, 10);
+    }
+    function closeTransferModal() {
+        const m = document.getElementById('modal-transfer');
+        m.classList.add('opacity-0');
+        setTimeout(() => { m.classList.add('hidden'); m.classList.remove('flex'); document.getElementById('modal-transfer-content').classList.remove('modal-enter'); }, 200);
+        renderChildren(); // 恢复勾选框状态（取消转移时回到原样）
+    }
+    function doTransfer() {
+        const i = state._transferIdx;
+        const sel = document.getElementById('tf-select');
+        if (sel.value === '') {
+            document.getElementById('tf-error').classList.remove('hidden');
+            return;
+        }
+        state.transfers[i] = +sel.value;
+        state.childrenKeep[i] = false; // 转移后遗弃
+        closeTransferModal();
+        renderChildren();
+        showToastMini();
     }
     function renderPhone() {
         const ua = USERS[state.picked.a], ub = USERS[state.picked.b];
@@ -425,9 +508,11 @@
     function openMergeConfirm() {
         const keepB = Object.values(state.childrenKeep).filter(Boolean).length;
         const dropB = CHILDREN.length - keepB;
+        const tfKeys = Object.keys(state.transfers);
+        const tfText = tfKeys.length ? `，其中 ${tfKeys.length} 个记录已转移至 ${tfKeys.map(k => childLabel(state.transfers[k])).join('、')}` : '';
         document.getElementById('cf-fields').textContent = FIELDS.length + ' 个字段已逐项确认';
         document.getElementById('cf-phone').textContent = (state.phone === 'A' ? USERS[state.picked.a] : USERS[state.picked.b]).phone;
-        document.getElementById('cf-child').textContent = `保留 ${keepB} 个 / 遗弃 ${dropB} 个`;
+        document.getElementById('cf-child').textContent = `保留 ${keepB} 个 / 遗弃 ${dropB} 个` + tfText;
         document.getElementById('cf-dropped').textContent = (state.phone === 'A' ? USERS[state.picked.b] : USERS[state.picked.a]).phone;
         const m = document.getElementById('modal-merge');
         m.classList.remove('hidden'); m.classList.add('flex');
