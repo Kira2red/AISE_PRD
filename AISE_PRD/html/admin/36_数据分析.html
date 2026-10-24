@@ -205,6 +205,26 @@ var state = { stage: 'kaozhong', tab: 'kaozhong', sel: { channel: [], group: [],
 
 /* ---------- 演示数据（未筛选 = 全量口径） ---------- */
 var D = {
+  // 学员明细（测评考场排序优化批次 · 需求四：答卷数据导出）
+  // 环境检测五类口径分列；小题逐题分列（T1..T8 正式 / M1..M4 模拟）
+  stuDetail: {
+    formal: [
+      { name:'张小明', idcard:'110101********1234', paper:'已交卷', begin:'09-20 09:02', submit:'09-20 10:41', total:92,
+        env:{ device:'通过', cam:'通过', rec:'通过', phone:'未启用', none:'—' }, scores:[24,23,20,12,8,5], grade:'优秀' },
+      { name:'李小红', idcard:'110102********5678', paper:'已交卷', begin:'09-20 09:01', submit:'09-20 10:55', total:85,
+        env:{ device:'通过', cam:'通过', rec:'未通过', phone:'未启用', none:'—' }, scores:[22,21,19,11,7,5], grade:'良好' },
+      { name:'赵小梅', idcard:'110103********9012', paper:'已交卷', begin:'09-20 09:05', submit:'09-20 10:32', total:88,
+        env:{ device:'通过', cam:'通过', rec:'通过', phone:'通过', none:'—' }, scores:[23,22,19,12,8,4], grade:'良好' },
+      { name:'王大力', idcard:'110104********3456', paper:'缺考', begin:'—', submit:'—', total:'—',
+        env:{ device:'未检测', cam:'未检测', rec:'未检测', phone:'未检测', none:'是' }, scores:['-','-','-','-','-','-'], grade:'—' }
+    ],
+    mock: [
+      { name:'张小明', idcard:'110101********1234', paper:'已交卷', begin:'09-19 09:03', submit:'09-19 09:38', total:78,
+        env:{ device:'通过', cam:'通过', rec:'通过', phone:'未启用', none:'—' }, scores:[20,18,16,12,12], grade:'—' },
+      { name:'李小红', idcard:'110102********5678', paper:'进行中', begin:'09-19 09:02', submit:'—', total:'—',
+        env:{ device:'通过', cam:'通过', rec:'通过', phone:'未启用', none:'—' }, scores:['-','-','-','-','-'], grade:'—' }
+    ]
+  },
   // 报名
   renshu: 1230, danliang: 1230, youxiao: 1021, daizhifu: 66, tuikuan: 143,
   payWays: { '微信支付': 1021 },
@@ -424,11 +444,13 @@ function render() {
   if (stageIdx('moni') <= stageIdx(state.tab)) h += secMoni();
   if (stageIdx('houkao') <= stageIdx(state.tab)) h += secHoukao();
   if (stageIdx('kaozhong') <= stageIdx(state.tab)) h += secKaozhong();
+if (stageIdx('kaozhong') <= stageIdx(state.tab)) h += secStuDetail();
 
   m.innerHTML = h;
   if (stageIdx('baoming') <= stageIdx(state.tab)) drawBaoming();
   if (stageIdx('moni') <= stageIdx(state.tab)) drawMoni();
   if (stageIdx('kaozhong') <= stageIdx(state.tab)) drawKaozhong();
+if (stageIdx('kaozhong') <= stageIdx(state.tab)) renderStuDetail();
 
 }
 
@@ -610,6 +632,60 @@ function secKaozhong() {
   h += '</div>';
   h += '</div></section>';
   return h;
+}
+function secStuDetail() {
+var h = '<section class="mb-7" id="secStuDetail"><div class="flex items-center gap-2 mb-4"><span class="w-1.5 h-5 bg-brand-600 rounded-full"></span><h2 class="text-[15px] font-bold">学员明细 · 答卷数据</h2><span class="text-xs text-slate-400">逐学员一行；环境检测按监考口径分列；小题得分逐题分列；导出 xlsx 含全部列</span></div>';
+h += '<div class="panel p-5">';
+h += '<div class="flex items-center justify-between mb-4"><div class="flex items-center gap-2">'
+  + '<button onclick="switchDetailTab(\'formal\')" id="dtb-formal" class="dtb-btn text-xs font-bold px-3 py-1.5 rounded-lg transition bg-brand-600 text-white">正式卷</button>'
+  + '<button onclick="switchDetailTab(\'mock\')" id="dtb-mock" class="dtb-btn text-xs font-bold px-3 py-1.5 rounded-lg transition bg-slate-100 text-slate-600">模拟卷</button>'
+  + '</div><button onclick="exportStuDetail()" class="text-sm text-brand-600 hover:text-brand-700 border border-brand-200 hover:border-brand-400 rounded-lg px-3.5 py-1.5 transition flex items-center gap-2"><i class="fa-solid fa-file-export"></i> 导出明细</button></div>';
+h += '<div class="overflow-x-auto"><table class="w-full text-left border-collapse" id="stuDetailTable"><thead><tr class="border-b border-slate-100 bg-slate-50 text-xs text-slate-500 font-bold" id="stuDetailHead"></tr></thead><tbody class="text-sm text-slate-700 divide-y divide-slate-50" id="stuDetailBody"></tbody></table></div>';
+h += '<p class="text-[11px] text-slate-400 mt-3">导出说明：xlsx 与本表同构——环境检测五类各一列（通过/未通过/未检测）、试卷状态、开考/交卷时间、各小题得分逐列（T1…Tn / M1…Mn）、答卷总分；文件名带「正式卷/模拟卷」。</p>';
+h += '</div></section>';
+return h;
+}
+var detailTab = 'formal';
+function switchDetailTab(k){ detailTab = k; renderStuDetail();
+  document.getElementById('dtb-formal').className = 'dtb-btn text-xs font-bold px-3 py-1.5 rounded-lg transition ' + (k==='formal'?'bg-brand-600 text-white':'bg-slate-100 text-slate-600');
+  document.getElementById('dtb-mock').className = 'dtb-btn text-xs font-bold px-3 py-1.5 rounded-lg transition ' + (k==='mock'?'bg-brand-600 text-white':'bg-slate-100 text-slate-600');
+}
+function renderStuDetail(){
+  var rows = D.stuDetail[detailTab];
+  var nQ = rows[0].scores.length;
+  var head = '<th class="p-3 whitespace-nowrap">学员</th><th class="p-3 whitespace-nowrap">证件号</th>';
+  ['设备检测','摄像头','录屏','手机监考','未监考'].forEach(function(x){ head += '<th class="p-3 whitespace-nowrap">环境检测·'+x+'</th>'; });
+  head += '<th class="p-3 whitespace-nowrap">试卷状态</th><th class="p-3 whitespace-nowrap">开考时间</th><th class="p-3 whitespace-nowrap">交卷时间</th>';
+  for(var i=1;i<=nQ;i++){ head += '<th class="p-3 whitespace-nowrap text-center">'+(detailTab==='formal'?'T':'M')+i+'</th>'; }
+  head += '<th class="p-3 whitespace-nowrap text-center">总分</th>';
+  if(detailTab==='formal') head += '<th class="p-3 whitespace-nowrap">等级</th>';
+  document.getElementById('stuDetailHead').innerHTML = head;
+  var b = '';
+  rows.forEach(function(r){
+    var envTd = ['device','cam','rec','phone','none'].map(function(k){
+      var v = r.env[k];
+      var cls = v==='通过' ? 'text-green-600' : (v==='未通过' ? 'text-red-500' : 'text-slate-400');
+      return '<td class="p-3 whitespace-nowrap text-xs"><span class="'+cls+'">'+v+'</span></td>';
+    }).join('');
+    var sc = r.scores.map(function(s){ return '<td class="p-3 text-center">'+s+'</td>'; }).join('');
+    b += '<tr class="hover:bg-slate-50 transition">'
+      + '<td class="p-3 font-bold whitespace-nowrap">'+r.name+'</td>'
+      + '<td class="p-3 font-mono text-xs text-slate-500 whitespace-nowrap">'+r.idcard+'</td>'
+      + envTd
+      + '<td class="p-3 whitespace-nowrap text-xs">'+r.paper+'</td>'
+      + '<td class="p-3 whitespace-nowrap font-mono text-xs">'+r.begin+'</td>'
+      + '<td class="p-3 whitespace-nowrap font-mono text-xs">'+r.submit+'</td>'
+      + sc
+      + '<td class="p-3 text-center font-bold">'+r.total+'</td>'
+      + (detailTab==='formal' ? '<td class="p-3 whitespace-nowrap text-xs">'+r.grade+'</td>' : '')
+      + '</tr>';
+  });
+  document.getElementById('stuDetailBody').innerHTML = b;
+}
+function exportStuDetail(){
+  var rows = D.stuDetail[detailTab];
+  var n = rows.reduce(function(a,r){ return Math.max(a, r.scores.length); }, 0);
+  toast('已创建导出任务：学员答卷明细（'+(detailTab==='formal'?'正式卷':'模拟卷')+'，含环境检测分列与 T1…T'+n+' 小题得分），请在消息中心下载');
 }
 function drawKaozhong() {
   mkChart('cInv', {

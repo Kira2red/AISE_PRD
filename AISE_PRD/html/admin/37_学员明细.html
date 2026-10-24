@@ -72,6 +72,11 @@
         <div class="bg-white rounded-xl shadow-card border border-slate-100 p-4 mb-5">
             <div class="flex items-center gap-3 flex-wrap">
                 <label class="text-xs text-slate-400 font-medium">筛选</label>
+                <div class="relative">
+                    <i class="fa-solid fa-magnifying-glass absolute left-3 top-1/2 -translate-y-1/2 text-slate-300 text-xs"></i>
+                    <input id="fKw" type="text" oninput="render()" placeholder="姓名 / 手机号 / 准考证号" class="sel pl-8 w-[210px]" style="min-width:210px">
+                </div>
+                <div class="w-px h-6 bg-slate-100"></div>
                 <select id="fExam" class="sel" onchange="render()"><option value="">全部测评</option></select>
                 <select id="fGroup" class="sel" onchange="render()"><option value="">全部分组</option></select>
                 <select id="fChannel" class="sel" onchange="render()"><option value="">全部渠道</option></select><span id="orgLock" class="hidden text-[11px] text-slate-400"><i class="fa-solid fa-lock mr-0.5"></i>已限定本渠道</span>
@@ -92,14 +97,18 @@
                 <table class="gt">
                     <thead>
                         <tr>
-                            <th style="min-width:110px">学员姓名</th>
-                            <th style="min-width:130px">学员 ID</th>
-                            <th style="min-width:200px">所属测评活动</th>
-                            <th style="min-width:100px">分组</th>
-                            <th style="min-width:100px">渠道</th>
-                            <th style="min-width:110px">测评状态</th>
-                            <th style="min-width:130px">监考状态</th>
-                            <th style="min-width:100px">作答状态</th>
+                            <th style="min-width:100px">学员姓名</th>
+                            <th style="min-width:120px">学员 ID</th>
+                            <th style="min-width:112px">手机号</th>
+                            <th style="min-width:132px">准考证号</th>
+                            <th style="min-width:190px">所属测评活动</th>
+                            <th style="min-width:82px">分组</th>
+                            <th style="min-width:82px">渠道</th>
+                            <th style="min-width:215px">所在考场</th>
+                            <th style="min-width:96px">测评状态</th>
+                            <th style="min-width:120px">监考状态</th>
+                            <th style="min-width:90px">作答状态</th>
+                            <th style="min-width:120px">操作</th>
                         </tr>
                     </thead>
                     <tbody id="tb"></tbody>
@@ -144,9 +153,14 @@
         var mst = MS[(i * 3) % 6];
         var ast = AS[est.k === 'submitted' ? 2 : (est.k === 'doing' ? ((i * 2) % 2 + 1) : (est.k === 'absent' ? 0 : 0))];
         var rnd = rs();
+        /* 考场=测评×渠道格：考试时间按格配置，演示数据按渠道给不同场次时间 */
+        var roomTime = { '猿编程': '06-20 09:00 ~ 11:00', '核桃编程': '06-20 09:00 ~ 11:00', '编程猫': '06-20 14:00 ~ 16:00' }[CHANNELS[Math.floor(rnd * 3)]] || '06-20 09:00 ~ 11:00';
         STUDENTS.push({
           name: NAMES[i % NAMES.length] + (i >= NAMES.length ? '·' + Math.floor(i / NAMES.length + 1) : ''),
           sid: 'STU2026' + String(1000 + i * 7).slice(0, 4),
+          phone: '138' + String(1000 + ((i * 137) % 9000)).slice(0, 4) + String(1000 + ((i * 731) % 9000)).slice(0, 4),
+          ticket: 'ZK2026-0620-' + String(1001 + i),
+          room: roomTime,
           exam: exam,
           group: GROUPS[i % 2],
           channel: CHANNELS[Math.floor(rnd * 3)],
@@ -238,8 +252,10 @@
       var es1 = document.getElementById('fExamState').value;
       var ms1 = document.getElementById('fMoniState').value;
       var as1 = document.getElementById('fAnsState').value;
+      var kw = (document.getElementById('fKw').value || '').trim().toLowerCase();
       if (IS_ORG) fc = ORG_CHANNEL;
       var rows = STUDENTS.filter(function (s) {
+        if (kw && s.name.toLowerCase().indexOf(kw) < 0 && s.phone.indexOf(kw) < 0 && s.ticket.toLowerCase().indexOf(kw) < 0) return false;
         if (fe && s.exam !== fe) return false;
         if (fg && s.group !== fg) return false;
         if (fc && s.channel !== fc) return false;
@@ -249,26 +265,46 @@
         return true;
       });
       var tb = document.getElementById('tb');
-      tb.innerHTML = rows.map(function (s) {
+      tb.innerHTML = rows.map(function (s, ri) {
         return '<tr>' +
-          '<td class="font-medium">' + s.name + '</td>' +
-          '<td class="mono text-xs text-slate-500">' + s.sid + '</td>' +
-          '<td>2026 春季编程等级测评 · ' + s.exam + '</td>' +
-          '<td>' + s.group + '</td>' +
-          '<td>' + s.channel + '</td>' +
-          '<td><span class="chip ' + s.es.cls + '">' + s.es.t + '</span></td>' +
-          '<td><span class="chip ' + s.ms.cls + '">' + s.ms.t + '</span></td>' +
-          '<td><span class="chip ' + s.as.cls + '">' + s.as.t + '</span></td>' +
+          '<td class="font-medium" style="white-space:nowrap">' + s.name + '</td>' +
+          '<td class="mono text-xs text-slate-500" style="white-space:nowrap">' + s.sid + '</td>' +
+          '<td class="mono text-xs text-slate-600" style="white-space:nowrap">' + s.phone + '</td>' +
+          '<td class="mono text-xs" style="white-space:nowrap"><a href="javascript:;" onclick="toast(\'演示：携带登录态跳转爱测评并定位学员（准考证 \' + decodeURI(\'' + encodeURIComponent(s.ticket) + '\') + \'）\')" class="text-brand-600 hover:text-brand-800 underline underline-offset-2" title="点击查看爱测评考场状态">' + s.ticket + '</a></td>' +
+          '<td style="white-space:nowrap">2026 春季编程等级测评 · ' + s.exam + '</td>' +
+          '<td style="white-space:nowrap">' + s.group + '</td>' +
+          '<td style="white-space:nowrap">' + s.channel + '</td>' +
+          '<td class="text-xs text-slate-600" style="white-space:nowrap"><i class="fa-regular fa-calendar mr-1 text-slate-300"></i>' + s.channel + ' · ' + s.exam + '<br><span class="mono text-[11px] text-slate-400">' + s.room + '</span></td>' +
+          '<td style="white-space:nowrap"><span class="chip ' + s.es.cls + '">' + s.es.t + '</span></td>' +
+          '<td style="white-space:nowrap"><span class="chip ' + s.ms.cls + '">' + s.ms.t + '</span></td>' +
+          '<td style="white-space:nowrap"><span class="chip ' + s.as.cls + '">' + s.as.t + '</span></td>' +
+          '<td style="white-space:nowrap"><button onclick="goIceping(' + ri + ')" class="text-xs text-brand-600 hover:text-brand-800 border border-brand-200 hover:border-brand-400 rounded-md px-2.5 py-1 transition whitespace-nowrap"><i class="fa-solid fa-arrow-up-right-from-square mr-1 text-[10px]"></i>查看爱测评状态</button></td>' +
           '</tr>';
       }).join('');
       document.getElementById('empty').classList.toggle('hidden', rows.length > 0);
       document.getElementById('statBar').innerHTML =
         '<span><i class="fa-solid fa-users mr-1 text-brand-500"></i>共 <b class="text-slate-700 font-mono">' + rows.length + '</b> 名学员</span>' +
+        (kw ? '<span class="text-brand-600">关键词「' + kw.replace(/</g, '&lt;') + '」命中</span>' : '') +
         '<span>作答中 <b class="text-blue-600 font-mono">' + rows.filter(function (s) { return s.es.k === 'doing'; }).length + '</b></span>' +
         '<span>已交卷 <b class="text-emerald-600 font-mono">' + rows.filter(function (s) { return s.es.k === 'submitted'; }).length + '</b></span>' +
         '<span>缺考 <b class="text-red-500 font-mono">' + rows.filter(function (s) { return s.es.k === 'absent'; }).length + '</b></span>' +
         '';
       renderChips(fe, fg, fc, es1, ms1, as1);
+    }
+    /* 跳爱测评：按行内学员定位（demo 演示；正式链路=免登票据跳转爱测评测评详情并自动填入该学员筛选） */
+    function goIceping(ri) {
+      var kw = (document.getElementById('fKw').value || '').trim();
+      var fe = document.getElementById('fExam').value;
+      var fc = document.getElementById('fChannel').value;
+      var rows = STUDENTS.filter(function (s) {
+        if (kw && s.name.toLowerCase().indexOf(kw.toLowerCase()) < 0 && s.phone.indexOf(kw) < 0 && s.ticket.toLowerCase().indexOf(kw.toLowerCase()) < 0) return false;
+        if (fe && s.exam !== fe) return false;
+        if (fc && !(fc === ORG_CHANNEL && IS_ORG) && s.channel !== fc) return false;
+        return true;
+      });
+      var s = rows[ri];
+      if (!s) return;
+      toast('演示：携带登录态跳转爱测评 → 测评详情（' + s.exam + ' · ' + s.channel + '），自动按「' + s.name + ' / ' + s.phone + '」筛选定位该学员');
     }
     function renderChips(fe, fg, fc, es1, ms1, as1) {
       var h = '';
@@ -288,6 +324,7 @@
     }
     function resetAll() {
       ['fExam', 'fGroup', 'fChannel', 'fExamState', 'fMoniState', 'fAnsState'].forEach(function (id) { document.getElementById(id).value = ''; });
+      document.getElementById('fKw').value = '';
       preset._es = null; preset._ms = null;
       if (IS_ORG) document.getElementById('fChannel').value = ORG_CHANNEL;
       render();
