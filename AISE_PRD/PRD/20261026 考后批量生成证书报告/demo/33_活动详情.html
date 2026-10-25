@@ -539,13 +539,17 @@ tr.bg-failrow td{background:#fdf3f2 !important}
         <div class="hint" style="margin-top:8px">报告覆盖全部参测学员（含未通过）；证书仅覆盖达到分数线学员。点击「开始生成」后任务在消息中心执行。已生成过的场次默认勾选，重新生成会覆盖原文件并需二次确认。</div>
       </div>
 
-      <!-- 第 2 步：结果告知 -->
-      <div id="bgStep2" style="display:none">
-        <div style="text-align:center;padding:34px 10px 26px">
-          <div style="width:56px;height:56px;border-radius:50%;background:#e5f5ec;color:var(--ok);font-size:26px;display:flex;align-items:center;justify-content:center;margin:0 auto 14px">✓</div>
-          <b id="bgDoneTitle" style="font-size:15px;display:block;margin-bottom:8px">已开始生成</b>
-          <div id="bgDoneSub" class="hint" style="line-height:1.8"></div>
-          <div style="margin-top:16px"><a style="color:var(--primary);cursor:pointer;font-size:13px" onclick="gotoMessageCenter()">前往消息中心查看进度 →</a></div>
+      <!-- 第 2 步：结果告知（占满弹窗 body，内容垂直居中） -->
+      <div id="bgStep2" style="display:none;height:100%;min-height:420px">
+        <div style="height:100%;display:flex;align-items:center;justify-content:center">
+          <div style="text-align:center;max-width:520px;padding:36px 44px;background:#f7f9fc;border:1px solid var(--border);border-radius:14px">
+            <div style="width:64px;height:64px;border-radius:50%;background:#e5f5ec;color:var(--ok);font-size:28px;display:flex;align-items:center;justify-content:center;margin:0 auto 16px">✓</div>
+            <b id="bgDoneTitle" style="font-size:17px;display:block;margin-bottom:10px">已开始生成</b>
+            <div id="bgDoneSub" style="font-size:13px;color:var(--muted);line-height:1.9"></div>
+            <div style="margin-top:18px;padding-top:16px;border-top:1px dashed var(--border)">
+              <a style="color:var(--primary);cursor:pointer;font-size:13px;font-weight:600" onclick="gotoMessageCenter()">前往消息中心查看进度 →</a>
+            </div>
+          </div>
         </div>
       </div>
 
@@ -1156,7 +1160,9 @@ function bgShowStep(n){
   $('bgStep1').style.display=n===1?'block':'none';
   $('bgStep2').style.display=n===2?'block':'none';
   $('bgStart').style.display=n===2?'none':'';
-  $('bgCancel').textContent=n===2?'关闭':'关闭';
+  /* 结果告知页：body 变 flex 让内容垂直居中铺满，避免下半截大片空白 */
+  $('bgBody').style.display=n===2?'flex':'block';
+  if(n===2)$('bgBody').style.flexDirection='column';
 }
 function bgSelectAllOk(){
   curAct.exams.forEach(function(e,i){
