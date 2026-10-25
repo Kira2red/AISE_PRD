@@ -392,11 +392,12 @@
         function exportRowHtml(r) {
             const isBulk = (r.type || '').startsWith('bulk_');
             const sub = isBulk
-                    ? (r.summary ? summaryHtml(r.summary) : '—')
+                    ? (r.status === 'cancelled' ? '已取消 · 已生成部分保留' : (r.summary ? summaryHtml(r.summary) : '—'))
                     : r.status === 'success'
                     ? `${formatFileSize(r.fileSize)} · ${summaryHtml(r.summary)}`
                     : r.status === 'failed' ? escapeHtml(r.failReason || '任务执行失败')
                     : r.status === 'processing' ? '计算中...'
+                    : r.status === 'cancelled' ? '已取消 · 已生成部分保留'
                     : '—';
             const icon = isBulk ? (r.type.includes('push') ? 'fa-paper-plane bg-indigo-50 text-indigo-600' : 'fa-certificate bg-indigo-50 text-indigo-600')
                        : r.status === 'expired' ? 'fa-clock-rotate-left bg-slate-100 text-slate-400'
@@ -532,6 +533,7 @@
                 processing: ['bg-blue-50 text-blue-600 border-blue-100', 'fa-spinner fa-spin', '生成中'],
                 success:    ['bg-green-50 text-green-700 border-green-100', 'fa-check', '生成成功'],
                 failed:     ['bg-red-50 text-red-600 border-red-100', 'fa-circle-xmark', '生成失败'],
+                cancelled:  ['bg-slate-100 text-slate-500 border-slate-200', 'fa-ban', '已取消'],
                 expired:    ['bg-slate-100 text-slate-500 border-slate-200', 'fa-circle-exclamation', '文件已过期']
             };
             const [cls, icon, txt] = map[r.status] || ['bg-slate-100 text-slate-500 border-slate-200', 'fa-circle-question', '未知状态'];
@@ -543,6 +545,10 @@
             if (isBulk) {
                 // 批量任务动作：展开明细 + 生成成功后可发起推送
                 const detailBtn = `<button onclick="toggleDetail('${r.taskId}')" class="text-slate-500 hover:text-brand-600 border border-slate-200 hover:border-brand-300 px-3 py-1.5 rounded text-xs font-bold transition">查看明细</button>`;
+                if (r.status === 'processing') {
+                    const cancelBtn = `<button onclick="cancelTask('${r.taskId}')" class="text-red-500 hover:text-red-600 border border-red-200 hover:border-red-300 px-3 py-1.5 rounded text-xs font-bold transition">取消任务</button>`;
+                    return `<div class="flex items-center justify-end gap-2">${detailBtn}${cancelBtn}</div>`;
+                }
                 if (r.status === 'success' && (r.type === 'bulk_gen_cert' || r.type === 'bulk_gen_rep')) {
                     const certBtn = r.type === 'bulk_gen_cert' ? `<button onclick="bulkPush('${r.taskId}','cert')" class="text-white bg-brand-600 hover:bg-brand-700 px-3 py-1.5 rounded text-xs font-bold transition">批量推送证书</button>` : '';
                     const repBtn = r.type === 'bulk_gen_rep' ? `<button onclick="bulkPush('${r.taskId}','rep')" class="text-white bg-brand-600 hover:bg-brand-700 px-3 py-1.5 rounded text-xs font-bold transition">批量推送报告</button>` : '';
@@ -582,6 +588,16 @@
         }
 
         /* ---------- 重试（仅 failed 可点；attemptCount<3；重置 processing 后由轮询接管） ---------- */
+                function cancelTask(taskId) {
+            const rows = readExportTasks();
+            const r = rows.find(x => x.taskId === taskId);
+            if (!r || r.status !== 'processing') return;
+            r.status = 'cancelled';
+            saveExportTasks(rows);
+            loadExportTasks(false);
+            syncPolling(rows);
+            showToast('任务已取消；已生成部分保留');
+        }
         function retryTask(taskId, btn) {
             const rows = readExportTasks();
             const r = rows.find(x => x.taskId === taskId);

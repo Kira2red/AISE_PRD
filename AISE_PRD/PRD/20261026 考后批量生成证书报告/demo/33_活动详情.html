@@ -577,6 +577,21 @@ tr.bg-failrow td{background:#fdf3f2 !important}
   </div>
 </div>
 
+<!-- ========== 抢占确认（有执行中任务时发起新任务） ========== -->
+<div class="overlay" id="ovBgPreempt" style="z-index:60">
+  <div class="modal" style="width:460px">
+    <div class="modal-head"><b>发起新任务</b></div>
+    <div class="modal-body">
+      <div id="bgPreemptMsg" style="font-size:13.5px;line-height:1.9;margin-bottom:10px"></div>
+      <div class="warnbox" style="margin:0">原任务将被取消并标记为「已取消」；已生成完成的场次文件保留，未生成的部分保持未生成。</div>
+    </div>
+    <div class="modal-foot">
+      <button class="btn" onclick="hide('ovBgPreempt')">取消</button>
+      <button class="btn primary" onclick="bgConfirmPreempt()">取消原任务并发起新任务</button>
+    </div>
+  </div>
+</div>
+
 <!-- ========== 关闭确认 ========== -->
 <div class="overlay" id="ovBgConfirm" style="z-index:60">
   <div class="modal" style="width:440px">
@@ -1107,7 +1122,7 @@ function doBulkEdit(){
 
 /* ================= 批量生成证书/报告（任务提交至消息中心执行） ================= */
 var MSG_LS_KEY='aise_export_tasks';
-var bgPendingPicks=null, bgRegenPending=false;
+var bgPendingPicks=null, bgRegenPending=false, bgPreemptPending=false;
 var FAIL_POOL=[
   {name:'陈一鸣',why:'作答数据校验未通过（第 12 题得分缺失）'},
   {name:'李思远',why:'证书模板渲染超时'},
@@ -1232,6 +1247,19 @@ function bgRenderPick(){
 /* 收集本次勾选中「已生成」的部分 → 需走重新生成二次确认 */
 function bgStartRun(){
   var picks=[],regen=[],nC=0,nR=0,pC=0,pR=0;
+  /* 抢占式互斥：有执行中任务时先弹抢占确认 */
+  if(bgTaskRunning()){
+    if(!bgCollectPicks())return;
+    $('bgPreemptMsg').textContent='当前活动有一个批量任务正在执行。确认开始后，原任务将被取消（已生成完成的场次文件保留），并以本次勾选发起新任务。';
+    bgPreemptPending=true;
+    show('ovBgPreempt');
+    return;
+  }
+  bgCollectPicks();
+}
+function bgCollectPicks(){
+  var picks=[],regen=[],nC=0,nR=0,pC=0,pR=0;
+  var __ok=false;
   curAct.exams.forEach(function(e,i){
     if(!e._ck||(!e._ck.cert&&!e._ck.rep))return;
     var a=bgAfter(i),q=bgQual(i),t=bgTotal(a.joined,a.passed);
@@ -1243,7 +1271,8 @@ function bgStartRun(){
     if(cert){nC++;pC+=t.cert}
     if(rep){nR++;pR+=t.rep}
   });
-  if(!picks.length){toast('没有可执行的生成项');return}
+  if(!picks.length){toast('没有可执行的生成项');return false}
+  __ok=true;
   var hasRegen=regen.length>0;
   var msg='将为 '+picks.length+' 场测评生成'+(nC?('证书 '+pC+' 份'):'')+(nC&&nR?'、':'')+(nR?('报告 '+pR+' 份'):'')+'。';
   if(hasRegen){
@@ -1251,13 +1280,13 @@ function bgStartRun(){
     $('bgRegenMsg').textContent=msg;
     bgPendingPicks=picks;bgRegenPending=true;
     show('ovBgRegen');
-    return;
+    return __ok;
   }
   $('bgConfirmMsg').textContent=msg;
   bgPendingPicks=picks;bgRegenPending=false;
   show('ovBgConfirm');
-}
-function bgSubmitTask(picks,regen){
+  return __ok;
+}function bgSubmitTask(picks,regen){
   var nC=0,nR=0,pC=0,pR=0;
   var examsCert=[],examsRep=[];
   picks.forEach(function(pk){
@@ -1291,6 +1320,18 @@ function bgSubmitTask(picks,regen){
   $('bgDoneSub').innerHTML='正在生成 '+objBits.join(' 和 ')+'。<br>生成任务已在消息中心执行，可前往「消息中心 → 导出记录」查看进度。';
   bgShowStep(2);
   setTimeout(bgBodySize,30);
+}
+function bgConfirmPreempt(){
+  hide('ovBgPreempt');
+  /* 取消该活动所有执行中的批量任务（demo：直接置 cancelled） */
+  try{
+    var rows=JSON.parse(localStorage.getItem(MSG_LS_KEY)||'[]');
+    rows.forEach(function(x){ if((x.type||'').indexOf('bulk_')===0 && x.status==='processing' && x.detail && x.detail.actName===curAct.name) x.status='cancelled'; });
+    localStorage.setItem(MSG_LS_KEY,JSON.stringify(rows));
+  }catch(e){}
+  toast('原任务已取消');
+  /* 继续常规确认流程 */
+  bgCollectPicks();
 }
 function bgConfirmStart(){
   var picks=bgPendingPicks;
