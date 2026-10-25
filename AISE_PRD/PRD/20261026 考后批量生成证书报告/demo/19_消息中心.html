@@ -705,6 +705,83 @@
 
         // 初始化：默认 Tab 即导出记录，加载首屏
         loadExportTasks(true);
-    </script>
+    
+/* ================= 演示场景浮球逻辑（消息中心版） ================= */
+var DP_SCENES=[
+ {id:'default', name:'默认列表', desc:'预置演示任务（含生成中/失败/过期）'},
+ {id:'running', name:'批量任务生成中', desc:'注入两条执行中的批量生成任务（可点取消/测抢占提示）'},
+ {id:'failed', name:'批量生成失败', desc:'注入含学员级失败明细的已完成任务（测重试）'},
+ {id:'cancelled', name:'含已取消任务', desc:'注入已取消任务（测状态展示）'},
+ {id:'empty', name:'空列表', desc:'清空批量任务，仅剩预置行'},
+];
+var dpCurrent='default';
+function dpToggle(){var p=document.getElementById('dpPanel');p.classList.toggle('show');if(p.classList.contains('show'))dpRender()}
+function dpRender(){
+  document.getElementById('dpBody').innerHTML=DP_SCENES.map(function(s){
+    return '<button class="dp-scene'+(dpCurrent===s.id?' active':'')+'" onclick="dpApply(\''+s.id+'\')">'+
+      '<b>'+s.name+'</b><span>'+s.desc+'</span></button>';
+  }).join('');
+}
+function dpNow(){var d=new Date(),p=function(x){return(x<10?'0':'')+x};
+  return d.getFullYear()+'-'+p(d.getMonth()+1)+'-'+p(d.getDate())+' '+p(d.getHours())+':'+p(d.getMinutes())}
+function dpBaseRows(){return readExportTasks().filter(function(x){return !((x.type||'').indexOf('bulk_')===0)})}
+function dpWrite(rows){saveExportTasks(rows);loadExportTasks(false);syncPolling(rows)}
+function dpApply(id){
+  dpCurrent=id;
+  var rows=dpBaseRows();
+  var now=dpNow();
+  var act='2026年9月常规考';
+  if(id==='running'){
+    rows.unshift({taskId:'bulk-demo-cert',type:'bulk_gen_cert',createdAt:now,operatorName:'Admin',status:'processing',
+      summary:{kind:'bulkgen',total:1981,ok:640,fail:0,examCount:2},
+      detail:{actName:act,exams:[{name:'Python一级-第1场',ok:380,fail:0,total:1042},{name:'Python一级-第2场',ok:260,fail:0,total:939}],fails:[]},fileSize:null,failReason:null});
+    rows.unshift({taskId:'bulk-demo-rep',type:'bulk_gen_rep',createdAt:now,operatorName:'Admin',status:'processing',
+      summary:{kind:'bulkgen',total:3283,ok:1100,fail:0,examCount:2},
+      detail:{actName:act,exams:[{name:'Python一级-第1场',ok:620,fail:0,total:1186},{name:'Python一级-第2场',ok:480,fail:0,total:964}],fails:[]},fileSize:null,failReason:null});
+  }else if(id==='failed'){
+    var fails=['陈一鸣','李思远','王梓萱'].map(function(n){return{student:n,exam:'Python一级-第1场',reason:'照片模糊，人脸核验未通过'}});
+    rows.unshift({taskId:'bulk-demo-fail',type:'bulk_gen_cert',createdAt:now,operatorName:'Admin',status:'success',
+      summary:{kind:'bulkgen',total:1042,ok:1039,fail:3,examCount:1},
+      detail:{actName:act,exams:[{name:'Python一级-第1场',ok:1039,fail:3,total:1042}],fails:fails},fileSize:'24.6 MB',failReason:null});
+  }else if(id==='cancelled'){
+    rows.unshift({taskId:'bulk-demo-cancel',type:'bulk_gen_rep',createdAt:now,operatorName:'Admin',status:'cancelled',
+      summary:{kind:'bulkgen',total:2883,ok:1300,fail:0,examCount:2},
+      detail:{actName:act,exams:[{name:'Python一级-第1场',ok:1300,fail:0,total:1186}],fails:[]},fileSize:null,failReason:null});
+  }else if(id==='empty'){
+    /* 仅保留预置行 */
+  }
+  dpWrite(rows);
+  dpRender();
+  toast('场景已切换：'+(DP_SCENES.find(function(s){return s.id===id})||{}).name);
+}
+dpRender();
+
+</script>
+
+<!-- ========== 演示场景浮球（仅演示用，非系统功能） ========== -->
+<style>
+  .demo-fab{position:fixed;right:18px;bottom:18px;z-index:200;width:46px;height:46px;border-radius:50%;
+    background:#7c3aed;color:#fff;border:none;cursor:pointer;box-shadow:0 4px 14px rgba(124,58,237,.4);
+    font-size:12px;font-weight:700;display:flex;align-items:center;justify-content:center;flex-direction:column;line-height:1.1}
+  .demo-fab small{font-size:9px;font-weight:400;opacity:.85}
+  .demo-panel{position:fixed;right:18px;bottom:74px;z-index:200;width:290px;background:#fff;border:1px solid #d7dce6;
+    border-radius:12px;box-shadow:0 8px 30px rgba(30,41,66,.18);display:none;overflow:hidden}
+  .demo-panel.show{display:block}
+  .demo-panel .dp-head{background:#7c3aed;color:#fff;padding:9px 14px;font-size:12px;font-weight:700}
+  .demo-panel .dp-head small{display:block;font-weight:400;opacity:.85;font-size:10px;margin-top:2px}
+  .demo-panel .dp-body{padding:8px}
+  .dp-scene{display:block;width:100%;text-align:left;border:1px solid #e2e6ee;background:#f8f9fc;border-radius:8px;
+    padding:8px 10px;margin-bottom:6px;cursor:pointer;font-size:12px;transition:all .15s}
+  .dp-scene:hover{border-color:#7c3aed;background:#f4eefc}
+  .dp-scene.active{border-color:#7c3aed;background:#efe6fd;font-weight:700}
+  .dp-scene b{display:block;font-size:12.5px;color:#2a2f3c}
+  .dp-scene span{color:#6b7280;font-size:11px}
+</style>
+<button class="demo-fab" onclick="dpToggle()" title="演示场景切换（非系统功能）">场景<br><small>DEMO</small></button>
+<div class="demo-panel" id="dpPanel">
+  <div class="dp-head">演示场景切换<small>仅演示辅助工具，非系统功能，研发忽略</small></div>
+  <div class="dp-body" id="dpBody"></div>
+</div>
+
 </body>
 </html>
