@@ -539,6 +539,16 @@ tr.bg-failrow td{background:#fdf3f2 !important}
         <div class="hint" style="margin-top:8px">报告覆盖全部参测学员（含未通过）；证书仅覆盖达到分数线学员。点击「开始生成」后任务在消息中心执行。已生成过的场次默认勾选，重新生成会覆盖原文件并需二次确认。</div>
       </div>
 
+      <!-- 第 2 步：结果告知 -->
+      <div id="bgStep2" style="display:none">
+        <div style="text-align:center;padding:34px 10px 26px">
+          <div style="width:56px;height:56px;border-radius:50%;background:#e5f5ec;color:var(--ok);font-size:26px;display:flex;align-items:center;justify-content:center;margin:0 auto 14px">✓</div>
+          <b id="bgDoneTitle" style="font-size:15px;display:block;margin-bottom:8px">已开始生成</b>
+          <div id="bgDoneSub" class="hint" style="line-height:1.8"></div>
+          <div style="margin-top:16px"><a style="color:var(--primary);cursor:pointer;font-size:13px" onclick="gotoMessageCenter()">前往消息中心查看进度 →</a></div>
+        </div>
+      </div>
+
     </div>
     <div class="modal-foot">
       <span class="hint" style="margin-right:auto" id="bgFootHint"></span>
@@ -1131,6 +1141,7 @@ function openBulkGen(){
   $('bgActName').textContent=curAct.name;
   $('bgStart').disabled=true;$('bgStart').textContent='开始生成';
   $('bgFootHint').textContent='';
+  bgShowStep(1);
   bgRenderPick();
   show('ovBulkGen');
   setTimeout(bgBodySize,30);
@@ -1140,6 +1151,12 @@ function bgBodySize(){
   if(!m)return;
   var need=m.scrollHeight,have=m.clientHeight;
   m.style.overflowY=need>have?'auto':'hidden';
+}
+function bgShowStep(n){
+  $('bgStep1').style.display=n===1?'block':'none';
+  $('bgStep2').style.display=n===2?'block':'none';
+  $('bgStart').style.display=n===2?'none':'';
+  $('bgCancel').textContent=n===2?'关闭':'关闭';
 }
 function bgSelectAllOk(){
   curAct.exams.forEach(function(e,i){
@@ -1260,9 +1277,14 @@ function bgSubmitTask(picks,regen){
   localStorage.setItem(MSG_LS_KEY,JSON.stringify(rows));
   /* demo：标记本场次已生成（推送状态回退由真实系统在重新生成时处理） */
   picks.forEach(function(pk){var a=bgAfter(pk.i);a.genState='gened';a.pushState='none'});
-  /* 关闭弹窗，轻提示告知已开始生成 */
-  hide('ovBulkGen');
-  toast('已开始生成，可前往消息中心查看进度');
+  /* 第三步：结果告知（本弹窗内），只留关闭 */
+  var objBits=[];
+  if(nC)objBits.push(nC+' 场测评的 '+pC+' 份证书');
+  if(nR)objBits.push(nR+' 场测评的 '+pR+' 份报告');
+  $('bgDoneTitle').textContent=(regen?'已开始重新生成':'已开始生成');
+  $('bgDoneSub').innerHTML='正在生成 '+objBits.join(' 和 ')+'。<br>生成任务已在消息中心执行，可前往「消息中心 → 导出记录」查看进度。';
+  bgShowStep(2);
+  setTimeout(bgBodySize,30);
 }
 function bgConfirmStart(){
   var picks=bgPendingPicks;
