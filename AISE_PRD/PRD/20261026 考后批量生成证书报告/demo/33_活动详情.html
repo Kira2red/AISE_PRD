@@ -590,6 +590,35 @@ tr.bg-failrow td{background:#fdf3f2 !important}
   </div>
 </div>
 
+<!-- ========== 批量生成确认 ========== -->
+<div class="overlay" id="ovBgConfirm" style="z-index:60">
+  <div class="modal" style="width:440px">
+    <div class="modal-head"><b>确认开始生成</b></div>
+    <div class="modal-body">
+      <div id="bgConfirmMsg" style="font-size:13.5px;line-height:1.8;margin-bottom:8px"></div>
+      <div class="hint">已生成过的场次自动跳过，不会重复生成。</div>
+    </div>
+    <div class="modal-foot">
+      <button class="btn" onclick="hide('ovBgConfirm')">取消</button>
+      <button class="btn primary" onclick="bgConfirmStart()">确认开始</button>
+    </div>
+  </div>
+</div>
+
+<!-- ========== 关闭确认 ========== -->
+<div class="overlay" id="ovBgClose" style="z-index:60">
+  <div class="modal" style="width:440px">
+    <div class="modal-head"><b>关闭批量任务弹窗</b></div>
+    <div class="modal-body">
+      <div id="bgCloseMsg" style="font-size:13.5px;line-height:1.8"></div>
+    </div>
+    <div class="modal-foot">
+      <button class="btn" onclick="hide('ovBgClose')">继续查看</button>
+      <button class="btn primary" onclick="bgConfirmClose()">确认关闭</button>
+    </div>
+  </div>
+</div>
+
 <!-- ========== 创建完成 ========== -->
 <div class="overlay" id="ovDone">
   <div class="modal" style="width:460px">
@@ -1220,8 +1249,18 @@ function bgStartRun(){
     if(rep){nR++;pR+=t.rep}
   });
   if(!picks.length){toast('没有可执行的生成项');return}
-  var msg='将为 '+picks.length+' 场测评生成'+(nC?('证书 '+pC+' 份'):'')+(nC&&nR?'、':'')+(nR?('报告 '+pR+' 份'):'')+'；已生成过的场次自动跳过。确认开始？';
-  if(!confirm(msg))return;
+  var msg='将为 '+picks.length+' 场测评生成'+(nC?('证书 '+pC+' 份'):'')+(nC&&nR?'、':'')+(nR?('报告 '+pR+' 份'):'')+'。';
+  $('bgConfirmMsg').textContent=msg;
+  bgPendingPicks=picks;
+  show('ovBgConfirm');
+}
+var bgPendingPicks=null;
+function bgConfirmStart(){
+  var picks=bgPendingPicks;
+  if(!picks||!picks.length){hide('ovBgConfirm');return}
+  var nC=0,nR=0,pC=0,pR=0;
+  picks.forEach(function(pk){if(pk.cert){nC++;pC+=bgTotal(bgAfter(pk.i).joined,bgAfter(pk.i).passed).cert}if(pk.rep){nR++;pR+=bgTotal(bgAfter(pk.i).joined,bgAfter(pk.i).passed).rep}});
+  hide('ovBgConfirm');
   bgTask={running:true,picks:picks,
     prog:{cert:{ok:0,fail:0,total:pC,done:0},rep:{ok:0,fail:0,total:pR,done:0}},
     push:{cert:{state:'none',ok:0,fail:0,total:pC},rep:{state:'none',ok:0,fail:0,total:pR}},
@@ -1380,7 +1419,18 @@ function bgRetryPush(obj){
   bgSyncGate();toast('失败项已全部重推成功');
 }
 function bgTryClose(){
-  if(bgTask&&bgTask.running){if(!confirm('批量任务仍在进行中，关闭后任务继续执行，重新打开可回到进度。确认关闭？'))return}
+  if(bgTask&&bgTask.running){
+    $('bgCloseMsg').textContent='批量任务仍在进行中，关闭后任务继续执行，重新打开可回到进度。确认关闭？';
+    bgClosePending=true;
+    show('ovBgClose');
+    return;
+  }
+  hide('ovBulkGen');
+}
+var bgClosePending=false;
+function bgConfirmClose(){
+  bgClosePending=false;
+  hide('ovBgClose');
   hide('ovBulkGen');
 }
 
