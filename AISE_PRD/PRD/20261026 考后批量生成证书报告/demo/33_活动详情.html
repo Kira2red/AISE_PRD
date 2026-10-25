@@ -516,7 +516,7 @@ tr.bg-failrow td{background:#fdf3f2 !important}
 
       <!-- 第 1 段：资格检查与圈选 -->
       <div id="bgStep1">
-        <div class="bg-busybar" id="bgBusyBar" style="display:none">该活动有一个批量生成任务进行中，可查看进度；任务结束前不能发起新的批量。</div>
+        <div class="bg-busybar" id="bgBusyBar" style="display:none">该活动有一个批量生成任务正在消息中心执行，可前往「消息中心 → 导出记录」查看进度；任务结束前不能发起新的批量。<a style="color:var(--primary);cursor:pointer;margin-left:6px" onclick="gotoMessageCenter()">前往查看 →</a></div>
         <div style="display:flex;align-items:center;gap:10px;margin-bottom:10px;flex-wrap:wrap">
           <span class="hint">逐场判断生成资格：证书需批改完成、证书实例已配置、分数线已设置；报告需批改完成。可多次进入、增量补跑。</span>
           <div class="spacer" style="flex:1"></div>
@@ -536,50 +536,15 @@ tr.bg-failrow td{background:#fdf3f2 !important}
           </table>
         </div>
         <div class="summary-bar" id="bgSummary" style="margin:14px 0 0;margin-top:14px">尚未勾选任何场</div>
-        <div class="hint" style="margin-top:8px">报告覆盖全部参测学员（含未通过）；证书仅覆盖达到分数线学员。已生成过的场次默认跳过，不会重复生成。</div>
+        <div class="hint" style="margin-top:8px">报告覆盖全部参测学员（含未通过）；证书仅覆盖达到分数线学员。点击「开始生成」后任务在消息中心执行。已生成过的场次默认勾选，重新生成会覆盖原文件并需二次确认。</div>
       </div>
 
       <!-- 第 2 段：进度 -->
       <div id="bgStep2" style="display:none">
-        <div class="bg-total">
-          <div style="flex:1;min-width:0">
-            <div style="display:flex;justify-content:space-between;margin-bottom:6px"><b id="bgTotalLabel">生成中…</b><span class="hint" id="bgTotalPct">0%</span></div>
-            <div class="bg-prog"><div class="bg-prog-in" id="bgTotalBar" style="width:0%"></div></div>
-            <div class="hint" id="bgTotalSub" style="margin-top:6px">关闭本弹窗不影响任务执行，重新打开可回到本进度。</div>
-          </div>
-          <div style="display:flex;gap:10px;flex:none">
-            <button class="btn" id="bgPushCert" onclick="bgPush('cert')" disabled>批量推送证书</button>
-            <button class="btn" id="bgPushRep" onclick="bgPush('rep')" disabled>批量推送报告</button>
-          </div>
+        <div class="bg-busybar" style="display:block">批量任务已提交，进度在「消息中心 → 导出记录」查看；本弹窗可关闭，任务后台继续。</div>
+        <div style="display:flex;align-items:center;gap:10px;justify-content:center;padding:40px 0">
+          <button class="btn primary" onclick="gotoMessageCenter()">前往消息中心查看进度 →</button>
         </div>
-        <div id="bgPushZone" style="display:none;margin-bottom:14px" >
-          <div id="bgPushCertRow" class="bg-push-row" style="display:none"><b style="flex:none;width:110px">证书推送</b><div class="bg-prog" style="flex:1"><div class="bg-prog-in green" id="bgPushCertBar" style="width:0%"></div></div><span class="hint" id="bgPushCertTxt" style="flex:none">0/0</span><button class="btn small" id="bgPushCertRetry" style="display:none" onclick="bgRetryPush('cert')">重推失败项</button></div>
-          <div id="bgPushRepRow" class="bg-push-row" style="display:none"><b style="flex:none;width:110px">报告推送</b><div class="bg-prog" style="flex:1"><div class="bg-prog-in green" id="bgPushRepBar" style="width:0%"></div></div><span class="hint" id="bgPushRepTxt" style="flex:none">0/0</span><button class="btn small" id="bgPushRepRetry" style="display:none" onclick="bgRetryPush('rep')">重推失败项</button></div>
-        </div>
-        <div style="overflow:auto;border:1px solid var(--border);border-radius:10px" id="bgDetailWrap">
-          <table id="bgDetailTable" style="min-width:1080px">
-            <thead><tr>
-              <th style="padding-left:10px;min-width:200px">测评名称</th>
-              <th style="width:200px">证书生成</th>
-              <th style="width:200px">报告生成</th>
-              <th style="width:150px">公示条件</th>
-            </tr></thead>
-            <tbody id="bgDetailBody"></tbody>
-          </table>
-        </div>
-        <div id="bgFailZone" style="display:none;margin-top:14px">
-          <div style="display:flex;align-items:center;gap:10px;margin-bottom:8px">
-            <b style="color:var(--danger)">失败明细</b>
-            <button class="btn small" onclick="bgRetryAllFailed()">重试全部失败项</button>
-          </div>
-          <div style="border:1px solid #f3c1ba;border-radius:10px;overflow:auto;max-height:180px">
-            <table style="min-width:900px">
-              <thead><tr><th style="padding-left:10px;min-width:180px">学员</th><th style="width:120px">所属测评</th><th style="width:120px">对象</th><th style="min-width:220px">失败原因</th><th style="width:110px"></th></tr></thead>
-              <tbody id="bgFailBody"></tbody>
-            </table>
-          </div>
-        </div>
-        <div class="bg-gatebar" id="bgGateBar"></div>
       </div>
     </div>
     <div class="modal-foot">
@@ -590,7 +555,22 @@ tr.bg-failrow td{background:#fdf3f2 !important}
   </div>
 </div>
 
-<!-- ========== 批量生成确认 ========== -->
+<!-- ========== 重新生成确认 ========== -->
+<div class="overlay" id="ovBgRegen" style="z-index:60">
+  <div class="modal" style="width:460px">
+    <div class="modal-head"><b>确认重新生成</b></div>
+    <div class="modal-body">
+      <div id="bgRegenMsg" style="font-size:13.5px;line-height:1.9;margin-bottom:10px"></div>
+      <div class="warnbox" style="margin:0">重新生成将覆盖已生成的文件；已推送的记录回退为待推送，需重新推送。</div>
+    </div>
+    <div class="modal-foot">
+      <button class="btn" onclick="hide('ovBgRegen')">取消</button>
+      <button class="btn primary" onclick="bgConfirmRegen()">确认重新生成</button>
+    </div>
+  </div>
+</div>
+
+<!-- ========== 关闭确认 ========== -->
 <div class="overlay" id="ovBgConfirm" style="z-index:60">
   <div class="modal" style="width:440px">
     <div class="modal-head"><b>确认开始生成</b></div>
@@ -1118,9 +1098,9 @@ function doBulkEdit(){
   toast('已修改 '+ids.length+' 场测评（'+bits.join('、')+'），其余保持原值');
 }
 
-/* ================= 批量生成证书/报告 ================= */
-var bgTask=null;   /* {running, picks:[{i,cert,rep}], prog:{cert:{ok,fail,total,done},rep:{...}}, push:{cert:{state,ok,fail,total},rep:{...}}, fails:[{name,exam,obj,why}], failsFixed:Set} */
-var bgNames={cert:'证书',rep:'报告'};
+/* ================= 批量生成证书/报告（任务提交至消息中心执行） ================= */
+var MSG_LS_KEY='aise_export_tasks';
+var bgPendingPicks=null, bgRegenPending=false;
 var FAIL_POOL=[
   {name:'陈一鸣',why:'作答数据校验未通过（第 12 题得分缺失）'},
   {name:'李思远',why:'证书模板渲染超时'},
@@ -1142,18 +1122,19 @@ function bgQual(i){
   return r;
 }
 function bgTotal(joined,passed){return {cert:passed,rep:joined}}
+/* 活动是否有进行中的批量任务（demo：读消息中心 localStorage） */
+function bgTaskRunning(){
+  try{var rows=JSON.parse(localStorage.getItem(MSG_LS_KEY)||'[]');
+    return rows.some(function(x){return (x.type||'').indexOf('bulk_')===0 && x.status==='processing' && x.detail && x.detail.actName===curAct.name});
+  }catch(e){return false}
+}
+function gotoMessageCenter(){hide('ovBulkGen');location.href='19_消息中心.html'}
 
 function openBulkGen(){
   if(!curAct){toast('请先进入一个活动');return}
   if(!curAct.exams.length){toast('该活动暂无测评');return}
-  /* 任务进行中：直接回到进度视图 */
-  if(bgTask&&bgTask.running){
-    $('bgActName').textContent=curAct.name;
-    bgShowStep(2);bgRenderRun();show('ovBulkGen');
-    setTimeout(bgBodySize,30);
-    return;
-  }
-  bgTask=null;
+  /* 每次打开重置勾选，按「已生成默认勾选」规则重新初始化 */
+  curAct.exams.forEach(function(e){e._ck=null});
   $('bgActName').textContent=curAct.name;
   $('bgStart').disabled=true;$('bgStart').textContent='开始生成';
   $('bgFootHint').textContent='';
@@ -1171,7 +1152,6 @@ function bgBodySize(){
 function bgShowStep(n){
   $('bgStep1').style.display=n===1?'block':'none';
   $('bgStep2').style.display=n===2?'block':'none';
-  $('bgCancel').textContent=n===2?'关闭（任务继续）':'关闭';
 }
 function bgSelectAllOk(){
   curAct.exams.forEach(function(e,i){
@@ -1203,233 +1183,120 @@ function bgSync(){
 }
 function bgRenderPick(){
   var tb=$('bgBody2');tb.innerHTML='';
-  var busy=bgTask&&bgTask.running;
+  var busy=bgTaskRunning();
   $('bgBusyBar').style.display=busy?'block':'none';
+  $('bgStart').disabled=busy||!curAct.exams.some(function(e){return e._ck&&(e._ck.cert||e._ck.rep)});
+  if(busy)$('bgStart').textContent='任务执行中';
   zones().forEach(function(z,zi){
-    var isSys=z==='未分组';
     var list=curAct.exams.filter(function(e,i){e._i=i;return e.g===z});
     var gtr=document.createElement('tr');gtr.className='grp'+(zi===0?' first':'');
     gtr.innerHTML='<td colspan="5"><div class="grp-line">'+esc(z)+'<span class="gcount">'+list.length+' 场测评</span></div></td>';
     tb.appendChild(gtr);
     list.forEach(function(e){
       var i=e._i,a=bgAfter(i),q=bgQual(i),t=bgTotal(a.joined,a.passed);
-      var ck=e._ck||{cert:false,rep:false};
+      /* 已生成场次默认勾选；未配置的置为初始空 */
+      if(!e._ck)e._ck={cert:(q.cert.ok&&a.genState==='gened'),rep:(q.rep.ok&&a.genState==='gened')};
+      var ck=e._ck;
       var lockedCert=!q.cert.ok,lockedRep=!q.rep.ok;
       var locked=lockedCert&&lockedRep;
       var whyBits=[];
       if(lockedCert)whyBits.push('证书：'+q.cert.reason);
       if(lockedRep)whyBits.push('报告：'+q.rep.reason);
       var gTag=a.grading==='done'?'<span class="tag green">批改完成</span>':'<span class="tag amber">批改中</span>';
-      var certStat=a.genState==='gened'?'<span class="hint">已生成过，跳过</span>':'';
+      var genedTag=a.genState==='gened'?'<span class="tag blue" style="background:var(--primary-weak);color:var(--primary)">已生成</span>':'';
       var tr=document.createElement('tr');tr.className=locked?'bg-lockrow':'';
       tr.innerHTML='<td><div class="bg-objcell">'+
           '<label class="bg-objline"><input type="checkbox" class="bg-ck" '+(ck.cert?'checked':'')+' '+(lockedCert?'disabled':'')+' onchange="bgCk('+i+',\'cert\',this.checked)"> 证书'+(lockedCert?' 🔒':'')+'</label>'+
           '<label class="bg-objline"><input type="checkbox" class="bg-ck" '+(ck.rep?'checked':'')+' '+(lockedRep?'disabled':'')+' onchange="bgCk('+i+',\'rep\',this.checked)"> 报告'+(lockedRep?' 🔒':'')+'</label>'+
         '</div></td>'+
-        '<td style="padding-left:10px"><div class="exam-name">'+esc(e.name)+'</div>'+certStat+'</td>'+
+        '<td style="padding-left:10px"><div class="exam-name">'+esc(e.name)+'</div></td>'+
         '<td>'+esc(e.time||'待定')+'</td>'+
         '<td>'+a.joined+' / '+a.passed+'</td>'+
-        '<td>'+gTag+(whyBits.length?'<div class="bg-lockwhy">'+whyBits.join('<br>')+'</div>':'')+'</td>';
+        '<td>'+gTag+' '+genedTag+(whyBits.length?'<div class="bg-lockwhy">'+whyBits.join('<br>')+'</div>':'')+'</td>';
       tb.appendChild(tr);
     });
   });
   bgSync();
 }
+/* 收集本次勾选中「已生成」的部分 → 需走重新生成二次确认 */
 function bgStartRun(){
-  var picks=[];
-  var nC=0,nR=0,pC=0,pR=0;
+  var picks=[],regen=[],nC=0,nR=0,pC=0,pR=0;
   curAct.exams.forEach(function(e,i){
     if(!e._ck||(!e._ck.cert&&!e._ck.rep))return;
-    var a=bgAfter(i),t=bgTotal(a.joined,a.passed);
-    var cert=e._ck.cert&&bgQual(i).cert.ok&&a.genState!=='gened';
-    var rep=e._ck.rep&&bgQual(i).rep.ok&&a.genState!=='gened';
+    var a=bgAfter(i),q=bgQual(i),t=bgTotal(a.joined,a.passed);
+    var cert=e._ck.cert&&q.cert.ok, rep=e._ck.rep&&q.rep.ok;
     if(!cert&&!rep)return;
-    picks.push({i:i,cert:cert,rep:rep});
+    var pk={i:i,cert:cert,rep:rep};
+    picks.push(pk);
+    if(a.genState==='gened')regen.push(pk);
     if(cert){nC++;pC+=t.cert}
     if(rep){nR++;pR+=t.rep}
   });
   if(!picks.length){toast('没有可执行的生成项');return}
+  var hasRegen=regen.length>0;
   var msg='将为 '+picks.length+' 场测评生成'+(nC?('证书 '+pC+' 份'):'')+(nC&&nR?'、':'')+(nR?('报告 '+pR+' 份'):'')+'。';
+  if(hasRegen){
+    msg='将为 '+picks.length+' 场测评重新生成'+(nC?('证书 '+pC+' 份'):'')+(nC&&nR?'、':'')+(nR?('报告 '+pR+' 份'):'')+'，将覆盖已生成文件。';
+    $('bgRegenMsg').textContent=msg;
+    bgPendingPicks=picks;bgRegenPending=true;
+    show('ovBgRegen');
+    return;
+  }
   $('bgConfirmMsg').textContent=msg;
-  bgPendingPicks=picks;
+  bgPendingPicks=picks;bgRegenPending=false;
   show('ovBgConfirm');
 }
-var bgPendingPicks=null;
+function bgSubmitTask(picks,regen){
+  var nC=0,nR=0,pC=0,pR=0;
+  var examsCert=[],examsRep=[];
+  picks.forEach(function(pk){
+    var a=bgAfter(pk.i),t=bgTotal(a.joined,a.passed),e=bgExam(pk.i);
+    if(pk.cert){nC++;pC+=t.cert;examsCert.push({name:e.name,ok:0,fail:0,total:t.cert})}
+    if(pk.rep){nR++;pR+=t.rep;examsRep.push({name:e.name,ok:0,fail:0,total:t.rep})}
+  });
+  var d=new Date(),p=function(x){return(x<10?'0':'')+x};
+  var now=d.getFullYear()+'-'+p(d.getMonth()+1)+'-'+p(d.getDate())+' '+p(d.getHours())+':'+p(d.getMinutes())+':'+p(d.getSeconds());
+  var rows=[];
+  try{rows=JSON.parse(localStorage.getItem(MSG_LS_KEY)||'[]')}catch(e){}
+  var mk=function(type,label,exams,total){
+    return {taskId:'BULK-'+Date.now()+'-'+type,
+      type:type, taskName:label+' · '+curAct.name,
+      fileName:'—', fileSize:null,
+      operatorName:'Admin', createdAt:now, status:'processing',
+      summary:{kind:'bulkgen',total:total,ok:0,fail:0,examCount:exams.length},
+      attemptCount:1, regen:!!regen,
+      detail:{actName:curAct.name,exams:exams,fails:[]}};
+  };
+  if(nC)rows.unshift(mk('bulk_gen_cert','批量生成证书',examsCert,pC));
+  if(nR)rows.unshift(mk('bulk_gen_rep','批量生成报告',examsRep,pR));
+  localStorage.setItem(MSG_LS_KEY,JSON.stringify(rows));
+  /* demo：标记本场次已生成（推送状态回退由真实系统在重新生成时处理） */
+  picks.forEach(function(pk){var a=bgAfter(pk.i);a.genState='gened';a.pushState='none'});
+  /* 弹窗切到已提交提示页 */
+  bgShowStep(2);
+  toast('批量任务已提交，进度在消息中心查看');
+}
 function bgConfirmStart(){
   var picks=bgPendingPicks;
-  if(!picks||!picks.length){hide('ovBgConfirm');return}
-  var nC=0,nR=0,pC=0,pR=0;
-  picks.forEach(function(pk){if(pk.cert){nC++;pC+=bgTotal(bgAfter(pk.i).joined,bgAfter(pk.i).passed).cert}if(pk.rep){nR++;pR+=bgTotal(bgAfter(pk.i).joined,bgAfter(pk.i).passed).rep}});
   hide('ovBgConfirm');
-  bgTask={running:true,picks:picks,
-    prog:{cert:{ok:0,fail:0,total:pC,done:0},rep:{ok:0,fail:0,total:pR,done:0}},
-    push:{cert:{state:'none',ok:0,fail:0,total:pC},rep:{state:'none',ok:0,fail:0,total:pR}},
-    fails:[],gateOk:0};
-  bgShowStep(2);
-  bgRenderRun();
-  bgTick();
+  if(!picks||!picks.length)return;
+  bgSubmitTask(picks,false);
 }
-/* 模拟异步生成：每 300ms 完成一小批 */
-function bgTick(){
-  if(!bgTask||!bgTask.running)return;
-  var p=bgTask.prog,finished=true;
-  ['cert','rep'].forEach(function(obj){
-    var pr=p[obj];
-    if(pr.done>=pr.total)return;
-    finished=false;
-    var step=Math.max(1,Math.ceil(pr.total/40));
-    for(var k=0;k<step&&pr.done<pr.total;k++){
-      pr.done++;
-      var injectFail=(obj==='cert'&&pr.done===Math.floor(pr.total*0.6));
-      if(injectFail){pr.fail++;bgTask.fails.push({name:FAIL_POOL[bgTask.fails.length%FAIL_POOL.length].name,exam:'Python一级-第1场',obj:bgNames[obj],why:FAIL_POOL[(bgTask.fails.length+1)%FAIL_POOL.length].why})}
-      else pr.ok++;
-    }
-  });
-  bgRenderRun();
-  if(!finished)setTimeout(bgTick,300);
-  else bgFinish();
-}
-function bgFinish(){
-  bgTask.running=false;
-  var p=bgTask.prog;
-  $('bgTotalLabel').textContent='生成完成';
-  $('bgStart').disabled=true;$('bgStart').textContent='开始生成';
-  /* 补生成后整批自动标记为已生成 */
-  bgTask.picks.forEach(function(pk){
-    var a=bgAfter(pk.i);a.genState='gened';
-  });
-  bgSyncGate();
-  toast('批量生成完成'+(p.cert.fail+p.rep.fail?('，有 '+bgTask.fails.length+' 条失败待处理'):''));
-}
-function bgRenderRun(){
-  if(!bgTask)return;
-  var p=bgTask.prog;
-  var tot=p.cert.total+p.rep.total,don=p.cert.done+p.rep.done;
-  var pct=tot?Math.round(don/tot*100):0;
-  $('bgTotalBar').style.width=pct+'%';
-  $('bgTotalPct').textContent=pct+'%';
-  if(bgTask.running)$('bgTotalLabel').textContent='生成中…（证书 '+p.cert.done+'/'+p.cert.total+' · 报告 '+p.rep.done+'/'+p.rep.total+'）';
-  /* 推送按钮：各自对象全部生成成功才可点 */
-  var certReady=!bgTask.running&&p.cert.total>0&&p.cert.done>=p.cert.total&&p.cert.fail===0;
-  var repReady=!bgTask.running&&p.rep.total>0&&p.rep.done>=p.rep.total&&p.rep.fail===0;
-  $('bgPushCert').disabled=!certReady;
-  $('bgPushRep').disabled=!repReady;
-  $('bgPushCert').title=certReady?'':(p.cert.fail>0?'存在生成失败项，重试成功后可推送':(bgTask.running?'生成中':'无可推送的证书'));
-  $('bgPushRep').title=repReady?'':(p.rep.fail>0?'存在生成失败项，重试成功后可推送':(bgTask.running?'生成中':'无可推送的报告'));
-  /* 按场次明细 */
-  var tb=$('bgDetailBody');tb.innerHTML='';
-  bgTask.picks.forEach(function(pk){
-    var e=bgExam(pk.i),a=bgAfter(pk.i),t=bgTotal(a.joined,a.passed);
-    var st=function(){return Math.random()}();
-    var certCell=pk.cert?bgProgCell(p.cert,a.joined,a.passed,'cert'): '<span class="muted">未勾选</span>';
-    var repCell=pk.rep?bgProgCell(p.rep,a.joined,a.passed,'rep'):'<span class="muted">未勾选</span>';
-    var gate=a.grading==='done'?bgGateCell(pk):'<span class="tag gray">批改中</span>';
-    var tr=document.createElement('tr');
-    tr.innerHTML='<td style="padding-left:10px"><div class="exam-name">'+esc(e.name)+'</div></td><td>'+certCell+'</td><td>'+repCell+'</td><td>'+gate+'</td>';
-    tb.appendChild(tr);
-  });
-  /* 失败明细 */
-  var fz=$('bgFailZone');
-  if(bgTask.fails.length){
-    fz.style.display='block';
-    var fb=$('bgFailBody');fb.innerHTML='';
-    bgTask.fails.forEach(function(f,fi){
-      if(f.fixed)return;
-      var tr=document.createElement('tr');tr.className='bg-failrow';
-      tr.innerHTML='<td style="padding-left:10px">'+esc(f.name)+'</td><td>'+esc(f.exam)+'</td><td>'+f.obj+'</td><td>'+esc(f.why)+'</td><td><button class="btn small" onclick="bgRetryOne('+fi+')">重新生成</button></td>';
-      fb.appendChild(tr);
-    });
-    if(!fb.children.length)fz.style.display='none';
-  }else fz.style.display='none';
-  bgSyncGate();
-}
-function bgProgCell(pr,joined,passed,obj){
-  if(!pr.total)return '<span class="muted">—</span>';
-  var label='成功 '+pr.ok+' · 失败 '+pr.fail+' / '+pr.total;
-  var pc=Math.round(pr.done/pr.total*100);
-  var cls=pr.fail>0?'bg-prog-in red':(pr.done>=pr.total?'bg-prog-in green':'bg-prog-in');
-  return '<div style="display:flex;align-items:center;gap:8px"><div class="bg-prog" style="flex:1"><div class="'+cls+'" style="width:'+pc+'%"></div></div><span class="hint" style="flex:none;white-space:nowrap">'+label+'</span></div>';
-}
-function bgGateCell(pk){
-  var p=bgTask.prog;
-  var certOk=pk.cert&&p.cert.done>=p.cert.total&&p.cert.fail===0;
-  var repOk=pk.rep&&p.rep.done>=p.rep.total&&p.rep.fail===0;
-  var certOkEff=pk.cert?(certOk&&p.cert.fail===0):true;
-  var repOkEff=pk.rep?(repOk&&p.rep.fail===0):true;
-  if((!pk.cert||certOkEff)&&(!pk.rep||repOkEff)&&(pk.cert||pk.rep))
-    return '<span class="tag green">已满足</span>';
-  return '<span class="tag amber">生成中 / 有失败</span>';
-}
-function bgSyncGate(){
-  var bar=$('bgGateBar');
-  var p=bgTask?bgTask.prog:{cert:{total:0,done:0,fail:0},rep:{total:0,done:0,fail:0}};
-  var n=bgTask?bgTask.picks.length:0;
-  var okN=0;
-  if(bgTask){
-    bgTask.picks.forEach(function(pk){
-      var cOk=!pk.cert||(p.cert.done>=p.cert.total&&p.cert.fail===0);
-      var rOk=!pk.rep||(p.rep.done>=p.rep.total&&p.rep.fail===0);
-      if(cOk&&rOk)okN++;
-    });
-  }
-  if(!bgTask){bar.style.display='none';return}
-  bar.style.display='block';
-  if(okN===n&&n>0){bar.className='bg-gatebar ok';bar.textContent='已选 '+n+' 场全部满足公示条件：可到各测评详情（14 / 15 页）执行流转。'}
-  else{bar.className='bg-gatebar part';bar.textContent='公示条件汇总：'+okN+' / '+n+' 场已满足（各场仍按单场门禁独立流转）。'}
-}
-function bgRetryOne(fi){var f=bgTask.fails[fi];f.fixed=true;bgTask.prog[objOf(f.obj)].fail--;bgTask.prog[objOf(f.obj)].ok++;bgRenderRun();toast('「'+f.name+'」已重新生成成功')}
-function bgRetryAllFailed(){
-  var n=0;bgTask.fails.forEach(function(f){if(!f.fixed){f.fixed=true;n++;var o=objOf(f.obj);bgTask.prog[o].fail--;bgTask.prog[o].ok++}});
-  if(n)bgRenderRun();
-  toast('已重试 '+n+' 条失败项，全部成功');
-}
-function objOf(s){return s==='证书'?'cert':'rep'}
-function bgPush(obj){
-  var pu=bgTask.push[obj],pr=bgTask.prog[obj];
-  if(pr.fail>0){toast('存在生成失败项，请先重试成功');return}
-  if(pu.state==='running'||pu.state==='done')return;
-  pu.state='running';pu.ok=0;pu.fail=0;pu.total=pr.ok;
-  var row=$(obj==='cert'?'bgPushCertRow':'bgPushRepRow');
-  row.style.display='flex';
-  $('bgPushZone').style.display='block';
-  $('bgPush'+(obj==='cert'?'Cert':'Rep')).disabled=true;
-  bgPushTick(obj);
-}
-function bgPushTick(obj){
-  var pu=bgTask.push[obj];
-  var step=Math.max(1,Math.ceil(pu.total/25));
-  for(var k=0;k<step&&pu.ok<pu.total;k++)pu.ok++;
-  var bar=$(obj==='cert'?'bgPushCertBar':'bgPushRepBar'),txt=$(obj==='cert'?'bgPushCertTxt':'bgPushRepTxt');
-  bar.style.width=Math.round(pu.ok/pu.total*100)+'%';
-  txt.textContent=pu.ok+'/'+pu.total;
-  if(pu.ok<pu.total){setTimeout(function(){bgPushTick(obj)},260);return}
-  var injFail=(obj==='cert');
-  if(injFail){pu.fail=2;pu.ok=pu.total-2;txt.textContent='成功 '+pu.ok+' · 失败 2 / '+pu.total;
-    $(obj==='cert'?'bgPushCertRetry':'bgPushRepRetry').style.display='inline-block';
-    toast('证书推送完成，2 条失败可重推');
-  }else{txt.textContent='已全部推送 '+pu.total+'/'+pu.total;toast('报告推送完成')}
-  pu.state='done';bgSyncGate();
-}
-function bgRetryPush(obj){
-  var pu=bgTask.push[obj];
-  pu.fail=0;pu.ok=pu.total;
-  var txt=$(obj==='cert'?'bgPushCertTxt':'bgPushRepTxt');
-  txt.textContent='已全部推送 '+pu.total+'/'+pu.total;
-  $(obj==='cert'?'bgPushCertRetry':'bgPushRepRetry').style.display='none';
-  bgSyncGate();toast('失败项已全部重推成功');
+function bgConfirmRegen(){
+  var picks=bgPendingPicks;
+  hide('ovBgRegen');
+  if(!picks||!picks.length)return;
+  bgSubmitTask(picks,true);
 }
 function bgTryClose(){
-  if(bgTask&&bgTask.running){
-    $('bgCloseMsg').textContent='批量任务仍在进行中，关闭后任务继续执行，重新打开可回到进度。确认关闭？';
-    bgClosePending=true;
+  if(bgTaskRunning()){
+    $('bgCloseMsg').textContent='批量任务仍在消息中心执行，关闭本弹窗不影响任务。确认关闭？';
     show('ovBgClose');
     return;
   }
   hide('ovBulkGen');
 }
-var bgClosePending=false;
 function bgConfirmClose(){
-  bgClosePending=false;
   hide('ovBgClose');
   hide('ovBulkGen');
 }
