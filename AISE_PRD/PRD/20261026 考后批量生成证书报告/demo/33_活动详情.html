@@ -516,7 +516,7 @@ tr.bg-failrow td{background:#fdf3f2 !important}
 
       <!-- 第 1 段：资格检查与圈选 -->
       <div id="bgStep1">
-        <div class="bg-busybar" id="bgBusyBar" style="display:none">该活动有一个批量生成任务正在消息中心执行，可前往「消息中心 → 导出记录」查看进度；任务结束前不能发起新的批量。<a style="color:var(--primary);cursor:pointer;margin-left:6px" onclick="gotoMessageCenter()">前往查看 →</a></div>
+        <div class="bg-busybar" id="bgBusyBar" style="display:none">该活动有一个批量任务正在消息中心执行；仍可继续勾选并发起新任务，确认后原任务将被取消。<a style="color:var(--primary);cursor:pointer;margin-left:6px" onclick="gotoMessageCenter()">前往查看 →</a></div>
         <div style="display:flex;align-items:center;gap:10px;margin-bottom:10px;flex-wrap:wrap">
           <span class="hint">逐场判断生成资格：证书需批改完成、证书实例已配置、分数线已设置；报告需批改完成。可多次进入、增量补跑。</span>
           <div class="spacer" style="flex:1"></div>
@@ -1211,8 +1211,7 @@ function bgRenderPick(){
   var tb=$('bgBody2');tb.innerHTML='';
   var busy=bgTaskRunning();
   $('bgBusyBar').style.display=busy?'block':'none';
-  $('bgStart').disabled=busy||!curAct.exams.some(function(e){return e._ck&&(e._ck.cert||e._ck.rep)});
-  if(busy)$('bgStart').textContent='任务执行中';
+  $('bgStart').disabled=!curAct.exams.some(function(e){return e._ck&&(e._ck.cert||e._ck.rep)});
   zones().forEach(function(z,zi){
     var list=curAct.exams.filter(function(e,i){e._i=i;return e.g===z});
     var gtr=document.createElement('tr');gtr.className='grp'+(zi===0?' first':'');
