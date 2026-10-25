@@ -539,13 +539,6 @@ tr.bg-failrow td{background:#fdf3f2 !important}
         <div class="hint" style="margin-top:8px">报告覆盖全部参测学员（含未通过）；证书仅覆盖达到分数线学员。点击「开始生成」后任务在消息中心执行。已生成过的场次默认勾选，重新生成会覆盖原文件并需二次确认。</div>
       </div>
 
-      <!-- 第 2 段：进度 -->
-      <div id="bgStep2" style="display:none">
-        <div class="bg-busybar" style="display:block">批量任务已提交，进度在「消息中心 → 导出记录」查看；本弹窗可关闭，任务后台继续。</div>
-        <div style="display:flex;align-items:center;gap:10px;justify-content:center;padding:40px 0">
-          <button class="btn primary" onclick="gotoMessageCenter()">前往消息中心查看进度 →</button>
-        </div>
-      </div>
     </div>
     <div class="modal-foot">
       <span class="hint" style="margin-right:auto" id="bgFootHint"></span>
@@ -1138,7 +1131,6 @@ function openBulkGen(){
   $('bgActName').textContent=curAct.name;
   $('bgStart').disabled=true;$('bgStart').textContent='开始生成';
   $('bgFootHint').textContent='';
-  bgShowStep(1);
   bgRenderPick();
   show('ovBulkGen');
   setTimeout(bgBodySize,30);
@@ -1148,10 +1140,6 @@ function bgBodySize(){
   if(!m)return;
   var need=m.scrollHeight,have=m.clientHeight;
   m.style.overflowY=need>have?'auto':'hidden';
-}
-function bgShowStep(n){
-  $('bgStep1').style.display=n===1?'block':'none';
-  $('bgStep2').style.display=n===2?'block':'none';
 }
 function bgSelectAllOk(){
   curAct.exams.forEach(function(e,i){
@@ -1272,9 +1260,9 @@ function bgSubmitTask(picks,regen){
   localStorage.setItem(MSG_LS_KEY,JSON.stringify(rows));
   /* demo：标记本场次已生成（推送状态回退由真实系统在重新生成时处理） */
   picks.forEach(function(pk){var a=bgAfter(pk.i);a.genState='gened';a.pushState='none'});
-  /* 弹窗切到已提交提示页 */
-  bgShowStep(2);
-  toast('批量任务已提交，进度在消息中心查看');
+  /* 关闭弹窗，轻提示告知已开始生成 */
+  hide('ovBulkGen');
+  toast('已开始生成，可前往消息中心查看进度');
 }
 function bgConfirmStart(){
   var picks=bgPendingPicks;
