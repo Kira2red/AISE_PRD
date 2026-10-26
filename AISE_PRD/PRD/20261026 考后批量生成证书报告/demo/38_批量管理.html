@@ -262,10 +262,10 @@ tr.grp td{background:#f6f8fb;border-top:1px solid var(--border);border-bottom:1p
   <div class="modal" style="width:820px">
     <div class="modal-head"><b>批量流转至下一环节</b><span class="hint" style="margin-left:10px">待复核 → 成绩公示</span></div>
     <div class="modal-body">
-      <div class="hint" style="margin-bottom:10px">各场按各自门禁独立推进，某场被拦截不影响其他场次。门禁：证书与报告全部生成且推送完成。</div>
+      <div class="hint" style="margin-bottom:10px">各场按各自校验条件独立推进，某场被拦截不影响其他场次。校验条件：证书与报告全部生成且推送完成。</div>
       <div style="overflow:auto;border:1px solid var(--border);border-radius:10px">
         <table style="min-width:680px">
-          <thead><tr><th style="width:40px"></th><th style="padding-left:10px">测评名称</th><th style="width:260px">门禁状态</th></tr></thead>
+          <thead><tr><th style="width:40px"></th><th style="padding-left:10px">测评名称</th><th style="width:260px">校验条件满足情况</th></tr></thead>
           <tbody id="flowBody"></tbody>
         </table>
       </div>
@@ -426,7 +426,7 @@ function stageCell(e){
   if(e.stage==='review'){
     var miss=gateOf(e);
     if(miss.length)html+='<div class="locknote" style="margin-top:4px;color:var(--muted)">不可流转：'+esc(miss.join('、'))+'</div>';
-    else html+='<div style="font-size:11px;color:var(--ok);margin-top:4px">门禁已满足，可流转</div>';
+    else html+='<div style="font-size:11px;color:var(--ok);margin-top:4px">校验条件已满足，可流转</div>';
   }
   if(idx>=2)html+='<div class="locknote" style="margin-top:4px;color:var(--muted)">已公示，配置锁定</div>';
   return html;
@@ -736,7 +736,7 @@ setInterval(tickPush,900);
 var flowPicks={};
 function openFlow(){
   var sel=checked().filter(function(e){return e.stage==='review'&&gateOf(e).length===0});
-  if(!sel.length){toast('勾选中没有满足门禁的场次');return}
+  if(!sel.length){toast('勾选中没有满足校验条件的场次');return}
   flowPicks={};sel.forEach(function(e){flowPicks[e.name]=true});
   renderFlow();
   $('btnFlowGoTxt').textContent='立即流转';
@@ -751,7 +751,7 @@ function renderFlow(){
     var tr=document.createElement('tr');
     tr.innerHTML='<td>'+(ok?'<input type="checkbox" '+(flowPicks[e.name]?'checked':'')+' onchange="flowPicks[\''+e.name+'\']=this.checked">':'')+'</td>'+
       '<td style="padding-left:10px;font-weight:600;font-size:13px">'+esc(e.name)+'</td>'+
-      '<td>'+(ok?'<span class="tag green">门禁已满足</span>':'<span class="tag amber">不可流转：'+esc(miss.join('、'))+'</span>')+'</td>';
+      '<td>'+(ok?'<span class="tag green">校验条件已满足</span>':'<span class="tag amber">不可流转：'+esc(miss.join('、'))+'</span>')+'</td>';
     tb.appendChild(tr);
   });
 }
@@ -896,7 +896,7 @@ function afterDataChange(silent){
 var SCENES=[
   {id:'default',name:'默认场景',desc:'混合状态：待推送 / 生成中 / 推送失败 / 不可生成'},
   {id:'all-fail',name:'生成失败场景',desc:'多场生成失败，验证失败明细与重试'},
-  {id:'all-pushed',name:'全部已推送',desc:'验证批量流转与门禁全绿'},
+  {id:'all-pushed',name:'全部已推送',desc:'验证批量流转与校验条件全部满足'},
   {id:'preempt',name:'有执行中任务',desc:'验证批量生成的抢占确认'}
 ];
 function toggleScene(){var p=$('scenePanel');p.classList.toggle('show');if(p.classList.contains('show'))renderScenes()}
