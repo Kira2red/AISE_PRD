@@ -1,0 +1,936 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>批量管理</title>
+<script src="https://cdn.tailwindcss.com"></script>
+<script>
+tailwind.config = { theme: { extend: {
+    fontFamily: { sans: ['Inter','sans-serif'], mono: ['JetBrains Mono','monospace'] },
+    colors: { brand: { 50:'#eff6ff',100:'#dbeafe',500:'#3b82f6',600:'#2563eb',700:'#1d4ed8' } },
+    boxShadow: { 'card':'0 1px 3px 0 rgba(0,0,0,.1),0 1px 2px 0 rgba(0,0,0,.06)','popover':'0 10px 15px -3px rgba(0,0,0,.1),0 4px 6px -2px rgba(0,0,0,.05)' }
+} } }
+</script>
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
+<style>
+:root{--primary:#0041c8;--primary-weak:#e8eefc;--bg:#f5f7fa;--card:#fff;--border:#e3e8ef;--text:#1a2233;--muted:#66707f;--ok:#0a8f4e;--warn:#b45309;--danger:#c0392b;--radius:10px}
+*{box-sizing:border-box;margin:0;padding:0}
+body{font-family:"PingFang SC","Microsoft YaHei",sans-serif;background:var(--bg);color:var(--text);font-size:14px}
+.logo{width:26px;height:26px;border-radius:6px;background:var(--primary);color:#fff;display:flex;align-items:center;justify-content:center;font-size:13px;font-weight:700}
+.spacer{flex:1}
+.btn{border:1px solid var(--border);background:var(--card);border-radius:8px;padding:7px 16px;cursor:pointer;font-size:13px;color:var(--text);transition:.12s;display:inline-flex;align-items:center;gap:6px}
+.btn:hover{border-color:var(--primary);color:var(--primary)}
+.btn.primary{background:var(--primary);border-color:var(--primary);color:#fff}
+.btn.primary:hover{opacity:.92;color:#fff}
+.btn.small{padding:3px 10px;font-size:12px}
+.btn:disabled{opacity:.45;cursor:not-allowed}
+.btn.loading{opacity:.7;cursor:wait;pointer-events:none}
+.btn .spin{display:none;width:12px;height:12px;border:2px solid rgba(255,255,255,.4);border-top-color:#fff;border-radius:50%;animation:bm-spin .7s linear infinite}
+.btn.loading .spin{display:inline-block}
+@keyframes bm-spin{to{transform:rotate(360deg)}}
+.card{background:var(--card);border:1px solid var(--border);border-radius:var(--radius);padding:18px;margin-bottom:16px}
+table{width:100%;border-collapse:collapse}
+th{font-size:12px;color:var(--muted);font-weight:500;text-align:left;padding:9px 12px;border-bottom:1px solid var(--border)}
+td{padding:11px 12px;border-bottom:1px solid #f0f2f6;font-size:13px}
+tr:last-child td{border-bottom:none}
+.tag{display:inline-block;font-size:11px;padding:1px 8px;border-radius:10px}
+.tag.blue{background:var(--primary-weak);color:var(--primary)}
+.tag.gray{background:#eef1f5;color:var(--muted)}
+.tag.green{background:#e5f5ec;color:var(--ok)}
+.tag.amber{background:#fdf1e0;color:var(--warn)}
+.tag.red{background:#fdecea;color:var(--danger)}
+.tag.indigo{background:#e8ebfd;color:#3f4bc4}
+.crumb{font-size:13px;color:var(--muted);margin-bottom:14px}
+.crumb a{color:var(--primary);cursor:pointer;text-decoration:none}
+input[type=text],input[type=number],input[type=datetime-local],select{border:1px solid var(--border);border-radius:7px;padding:7px 10px;font-size:13px;background:#fff;color:var(--text)}
+input:focus,select:focus{outline:2px solid var(--primary-weak);border-color:var(--primary)}
+.overlay{position:fixed;inset:0;background:rgba(15,23,42,.45);display:none;align-items:center;justify-content:center;z-index:50}
+.overlay.show{display:flex}
+.modal{background:#fff;border-radius:14px;width:720px;max-width:94vw;max-height:88vh;display:flex;flex-direction:column;box-shadow:0 18px 50px rgba(0,0,0,.22)}
+.modal-head{padding:18px 24px 10px;display:flex;align-items:center}
+.modal-head b{font-size:16px}
+.modal-body{padding:6px 24px 18px;overflow-y:auto}
+.modal-foot{padding:14px 24px;border-top:1px solid var(--border);display:flex;justify-content:flex-end;gap:10px;align-items:center}
+.hint{font-size:12px;color:var(--muted);line-height:1.6}
+.muted{color:var(--muted)}
+#toast{position:fixed;top:22px;left:50%;transform:translateX(-50%);background:#1a2233;color:#fff;padding:9px 22px;border-radius:8px;font-size:13px;opacity:0;transition:.25s;z-index:99;pointer-events:none}
+#toast.show{opacity:.95}
+.act-head{display:flex;align-items:center;gap:12px;flex-wrap:wrap}
+.act-head h2{font-size:18px;font-weight:700}
+.state-pill{font-size:12px;padding:3px 12px;border-radius:14px}
+.state-pill.amber{background:#fdf1e0;color:var(--warn)}
+.state-pill.green{background:#e5f5ec;color:var(--ok)}
+.toolbar{display:flex;align-items:center;gap:10px;margin-bottom:6px;flex-wrap:wrap}
+.stat-cards{display:grid;grid-template-columns:repeat(6,1fr);gap:12px;margin-bottom:16px}
+.stat-card{background:var(--card);border:1px solid var(--border);border-radius:10px;padding:12px 16px}
+.stat-card .n{font-size:22px;font-weight:700;font-family:'JetBrains Mono',monospace}
+.stat-card .t{font-size:12px;color:var(--muted);margin-top:2px}
+.stat-card.warn .n{color:var(--warn)}
+.stat-card.bad .n{color:var(--danger)}
+.stat-card.ok .n{color:var(--ok)}
+.stat-card.pri .n{color:var(--primary)}
+.bm-prog{height:8px;background:#edf1f6;border-radius:5px;overflow:hidden;min-width:80px;margin-top:5px}
+.bm-prog-in{height:100%;background:var(--primary);border-radius:5px;transition:width .3s}
+.bm-prog-in.green{background:var(--ok)}
+.bm-prog-in.red{background:var(--danger)}
+.bm-state-tag{cursor:pointer}
+.bm-state-tag.plain{cursor:default}
+tr.grp td{background:#f6f8fb;border-top:1px solid var(--border);border-bottom:1px solid var(--border);padding:8px 12px}
+.grp-line{display:flex;align-items:center;gap:10px;min-height:24px}
+.gname{font-weight:600;font-size:13px}
+.gcount{font-size:12px;color:var(--muted);background:#e8edf5;border-radius:10px;padding:1px 9px}
+.bm-ck{width:15px;height:15px;accent-color:var(--primary);cursor:pointer}
+.bm-ck:disabled{cursor:not-allowed}
+.bm-faildlg table{width:100%}
+.bm-tabs{display:flex;gap:4px;border-bottom:1px solid var(--border);margin-bottom:14px}
+.bm-tab{padding:8px 16px;font-size:13px;cursor:pointer;color:var(--muted);border-bottom:2px solid transparent;margin-bottom:-1px}
+.bm-tab.on{color:var(--primary);font-weight:600;border-bottom-color:var(--primary)}
+.bm-pane{display:none}
+.bm-pane.on{display:block}
+.line-row{display:grid;grid-template-columns:90px 110px 1fr 70px;gap:10px;align-items:center;margin-bottom:10px}
+.locknote{font-size:11.5px;color:#8a5a12}
+.scene-ball{position:fixed;right:22px;bottom:22px;width:52px;height:52px;border-radius:50%;background:#7c3aed;color:#fff;display:flex;align-items:center;justify-content:center;font-size:11px;font-weight:700;cursor:pointer;z-index:80;box-shadow:0 8px 24px rgba(124,58,237,.4);letter-spacing:1px}
+.scene-panel{position:fixed;right:22px;bottom:86px;width:280px;background:#fff;border:1px solid var(--border);border-radius:12px;box-shadow:0 12px 40px rgba(0,0,0,.2);padding:14px;display:none;z-index:80}
+.scene-panel.show{display:block}
+.scene-panel .hd{font-size:12px;font-weight:700;color:#7c3aed;margin-bottom:4px}
+.scene-panel .note{font-size:11px;color:var(--muted);margin-bottom:10px;line-height:1.5}
+.scene-btn{display:block;width:100%;text-align:left;border:1px solid var(--border);background:#fff;border-radius:8px;padding:8px 12px;font-size:12.5px;cursor:pointer;margin-bottom:6px}
+.scene-btn:hover{border-color:#7c3aed;color:#7c3aed}
+.scene-btn .d{color:var(--muted);font-size:11px;display:block;margin-top:1px}
+.filterbar{display:flex;align-items:center;gap:8px;flex-wrap:wrap}
+.filterbar select{min-width:130px}
+.empty-tip{padding:42px 20px;text-align:center;color:var(--muted)}
+</style>
+</head>
+<body class="flex h-screen overflow-hidden text-slate-800 font-sans" style="font-family:'PingFang SC','Microsoft YaHei',sans-serif">
+<aside class="w-64 bg-white border-r border-slate-200 flex flex-col flex-shrink-0 z-20">
+    <div class="h-16 flex items-center px-6 border-b border-slate-100">
+        <div class="w-8 h-8 bg-gradient-to-br from-brand-600 to-indigo-600 rounded-lg flex items-center justify-center text-white font-bold text-lg mr-3 shadow-sm">A</div>
+        <span class="font-bold text-lg text-slate-800 tracking-tight">AISE Admin</span>
+    </div>
+    <nav class="flex-1 overflow-y-auto py-4 space-y-1">
+        <a href="03_测评列表.html" class="nav-item flex items-center gap-3 px-6 py-3 text-slate-500 hover:bg-slate-50 hover:text-brand-600 transition"><i class="fa-solid fa-graduation-cap w-5 text-center"></i><span class="font-medium text-sm">测评管理</span></a>
+        <a href="32_活动管理.html" class="nav-item active flex items-center gap-3 px-6 py-3 text-brand-600 bg-brand-50 transition"><i class="fa-solid fa-calendar-days w-5 text-center"></i><span class="font-medium text-sm">活动管理</span></a>
+        <a href="19_消息中心.html" class="nav-item flex items-center gap-3 px-6 py-3 text-slate-500 hover:bg-slate-50 hover:text-brand-600 transition"><i class="fa-solid fa-bell w-5 text-center"></i><span class="font-medium text-sm">消息中心</span></a>
+    </nav>
+</aside>
+<main class="flex-1 flex flex-col min-w-0 bg-slate-50 relative">
+
+<header class="h-16 bg-white border-b border-slate-200 flex items-center justify-between px-8 flex-shrink-0 z-10">
+    <div class="flex items-center gap-3">
+        <a onclick="location.href='33_活动详情.html?act=1'" class="text-slate-400 hover:text-brand-600 cursor-pointer"><i class="fa-solid fa-arrow-left"></i></a>
+        <h1 class="text-xl font-bold text-slate-800">活动管理</h1>
+        <span class="text-xs text-slate-400 bg-slate-100 px-2 py-0.5 rounded">批量管理</span>
+    </div>
+</header>
+
+<div class="flex-1 overflow-y-auto px-8 py-6">
+  <div class="crumb"><a onclick="location.href='33_活动详情.html?act=1'">活动详情</a> / <span>批量管理</span></div>
+
+  <div class="card">
+    <div class="act-head">
+      <h2 id="bmActName">—</h2>
+      <span class="muted" id="bmActDates"></span>
+      <span class="state-pill amber" id="bmActState">考后收尾</span>
+      <div class="spacer"></div>
+    </div>
+  </div>
+
+  <div class="stat-cards" id="statCards"></div>
+
+  <div class="card">
+    <div class="toolbar">
+      <input type="text" class="search" id="fKw" placeholder="搜索测评名称" style="width:220px" oninput="renderTable()">
+      <select id="fCert" onchange="renderTable()"><option value="">证书状态：全部</option></select>
+      <select id="fRep" onchange="renderTable()"><option value="">报告状态：全部</option></select>
+      <select id="fStage" onchange="renderTable()"><option value="">流转环节：全部</option></select>
+      <div class="spacer"></div>
+      <button class="btn" id="btnSet" onclick="openSetting()" disabled>⚙ 批量设置</button>
+      <button class="btn" id="btnGen" onclick="openGen()" disabled>📜 批量生成</button>
+      <button class="btn" id="btnPush" onclick="doBatchPush()" disabled>➤ 批量推送</button>
+      <button class="btn primary" id="btnFlow" onclick="openFlow()" disabled>批量流转</button>
+    </div>
+    <div class="hint" style="margin-bottom:8px">批量设置与批量生成按勾选场次操作；批量推送针对勾选中「已生成待推送」场次；批量流转针对勾选中「已推送」场次。点击测评名称可进入单场详情做差异化调整。</div>
+    <div style="overflow:auto;border:1px solid var(--border);border-radius:10px">
+      <table id="bmTable" style="min-width:1120px">
+        <thead><tr>
+          <th style="width:36px"><input type="checkbox" class="bm-ck" id="ckAll" onclick="ckAllToggle(this)"></th>
+          <th style="padding-left:10px;min-width:220px">测评名称</th>
+          <th style="width:150px">测评时间</th>
+          <th style="width:100px">参测 / 达标</th>
+          <th style="width:170px">证书状态</th>
+          <th style="width:170px">报告状态</th>
+          <th style="width:230px">流转环节</th>
+        </tr></thead>
+        <tbody id="bmBody"></tbody>
+      </table>
+    </div>
+  </div>
+</div>
+
+<!-- ========== 场景 DEMO 浮球（仅演示辅助） ========== -->
+<div class="scene-ball" id="sceneBall" onclick="toggleScene()">DEMO</div>
+<div class="scene-panel" id="scenePanel">
+  <div class="hd">场景 DEMO</div>
+  <div class="note">仅演示辅助工具，非系统功能，研发忽略。切换场景后页面数据与状态整体重置。</div>
+  <div id="sceneList"></div>
+</div>
+
+<!-- ========== 失败明细弹窗 ========== -->
+<div class="overlay" id="mdFail">
+  <div class="modal" style="width:760px">
+    <div class="modal-head"><b id="mdFailTitle">生成失败明细</b><div class="spacer" style="flex:1"></div><button class="btn small" onclick="hide('mdFail')">✕</button></div>
+    <div class="modal-body bm-faildlg">
+      <div class="summary-bar" id="mdFailSum" style="background:var(--primary-weak);border-radius:8px;padding:9px 14px;font-size:13px;color:#23407a;margin-bottom:12px"></div>
+      <table>
+        <thead><tr><th style="width:110px">学员</th><th style="width:150px">失败原因</th><th></th></tr></thead>
+        <tbody id="mdFailBody"></tbody>
+      </table>
+      <div class="empty-tip" id="mdFailEmpty" style="display:none">全部失败项已补齐</div>
+    </div>
+    <div class="modal-foot">
+      <span class="hint" style="margin-right:auto">重试后计数与状态实时更新</span>
+      <button class="btn" id="mdFailRetryAll" onclick="retryAll()">重试全部失败项</button>
+      <button class="btn primary" onclick="hide('mdFail')">关闭</button>
+    </div>
+  </div>
+</div>
+
+<!-- ========== 批量生成圈选弹窗 ========== -->
+<div class="overlay" id="ovGen">
+  <div class="modal" style="width:1160px;max-width:calc(100vw - 96px);max-height:calc(100vh - 96px);height:calc(100vh - 96px)">
+    <div class="modal-head"><b>批量生成证书 / 报告</b><span class="hint" style="margin-left:10px" id="bgActName"></span><div class="spacer" style="flex:1"></div>
+      <button class="btn small" onclick="hide('ovGen');syncButtons()">✕</button></div>
+    <div class="modal-body">
+      <div class="bg-busybar" id="bgBusyBar" style="display:none;background:#fdf1e0;border:1px solid #f2ddbb;color:#8a5a12;border-radius:8px;padding:9px 14px;font-size:12.5px;margin-bottom:10px"></div>
+      <div style="display:flex;align-items:center;gap:10px;margin-bottom:10px;flex-wrap:wrap">
+        <span class="hint">逐场判断生成资格：证书需批改完成、证书实例已配置、分数线已设置；报告需批改完成且报告开关开启。可多次进入、增量补跑。</span>
+        <div class="spacer" style="flex:1"></div>
+        <button class="btn small" onclick="bgSelectAllOk()">全选可生成</button>
+        <button class="btn small" onclick="bgClearAll()">清空</button>
+      </div>
+      <div style="overflow:auto;border:1px solid var(--border);border-radius:10px">
+        <table id="bgTable" style="min-width:1000px">
+          <thead><tr>
+            <th style="width:120px">生成对象</th>
+            <th style="padding-left:10px;min-width:220px">测评名称</th>
+            <th style="width:150px">测评时间</th>
+            <th style="width:100px">参测 / 达标</th>
+            <th style="width:200px">资格状态</th>
+          </tr></thead>
+          <tbody id="bgBody"></tbody>
+        </table>
+      </div>
+      <div class="summary-bar" id="bgSummary" style="margin-top:14px;background:var(--primary-weak);border-radius:8px;padding:9px 14px;font-size:13px;color:#23407a">尚未勾选任何场</div>
+      <div class="hint" style="margin-top:8px">报告覆盖全部参测学员（含未通过）；证书仅覆盖达到分数线学员。确认后任务在批量管理页执行，各场状态在状态总表实时刷新。已生成过的场次默认勾选，重新生成会覆盖原文件并需二次确认。</div>
+    </div>
+    <div class="modal-foot">
+      <span class="hint" style="margin-right:auto" id="bgFootHint"></span>
+      <button class="btn" onclick="hide('ovGen')">关闭</button>
+      <button class="btn primary" id="bgStart" onclick="bgStartRun()" disabled>开始生成</button>
+    </div>
+  </div>
+</div>
+
+<!-- ========== 开始生成确认 ========== -->
+<div class="overlay" id="mdGen" style="z-index:60">
+  <div class="modal" style="width:520px">
+    <div class="modal-head"><b id="mdGenTitle">开始生成确认</b></div>
+    <div class="modal-body"><p id="mdGenMsg" style="font-size:13.5px;line-height:1.9"></p></div>
+    <div class="modal-foot">
+      <button class="btn" onclick="hide('mdGen');show('ovGen')">取消</button>
+      <button class="btn primary" id="mdGenYes" onclick="mdGenYes()">确认开始</button>
+    </div>
+  </div>
+</div>
+
+<!-- ========== 抢占确认 ========== -->
+<div class="overlay" id="mdPreempt" style="z-index:70">
+  <div class="modal" style="width:520px">
+    <div class="modal-head"><b>抢占确认</b></div>
+    <div class="modal-body"><p style="font-size:13.5px;line-height:1.9">当前活动有一个批量任务正在执行。确认开始后，原任务将被取消（已生成完成的场次文件保留），并以本次勾选发起新任务。</p></div>
+    <div class="modal-foot">
+      <button class="btn" onclick="hide('mdPreempt');show('ovGen')">取消</button>
+      <button class="btn primary" onclick="mdPreemptYes()">确认并取消原任务</button>
+    </div>
+  </div>
+</div>
+
+<!-- ========== 批量流转弹窗 ========== -->
+<div class="overlay" id="mdFlow">
+  <div class="modal" style="width:820px">
+    <div class="modal-head"><b>批量流转至下一环节</b><span class="hint" style="margin-left:10px">待复核 → 成绩公示</span></div>
+    <div class="modal-body">
+      <div class="hint" style="margin-bottom:10px">各场按各自门禁独立推进，某场被拦截不影响其他场次。门禁：证书与报告全部生成且推送完成。</div>
+      <div style="overflow:auto;border:1px solid var(--border);border-radius:10px">
+        <table style="min-width:680px">
+          <thead><tr><th style="width:40px"></th><th style="padding-left:10px">测评名称</th><th style="width:260px">门禁状态</th></tr></thead>
+          <tbody id="flowBody"></tbody>
+        </table>
+      </div>
+      <div style="display:flex;align-items:center;gap:18px;margin-top:14px;flex-wrap:wrap">
+        <label class="radio-line" style="display:inline-flex;align-items:center;gap:6px;font-size:13px"><input type="radio" name="flowMode" value="now" checked onchange="flowModeChange()">立即流转</label>
+        <label class="radio-line" style="display:inline-flex;align-items:center;gap:6px;font-size:13px"><input type="radio" name="flowMode" value="timer" onchange="flowModeChange()">定时流转</label>
+        <input type="datetime-local" id="flowAt" style="display:none;width:210px">
+        <span class="hint" id="flowAtHint" style="display:none">到时各场自动推进，设定后可修改或取消定时</span>
+      </div>
+    </div>
+    <div class="modal-foot">
+      <button class="btn" onclick="hide('mdFlow')">取消</button>
+      <button class="btn primary" id="btnFlowGo" onclick="flowSubmit()"><span class="spin"></span><span id="btnFlowGoTxt">立即流转</span></button>
+    </div>
+  </div>
+</div>
+
+<!-- ========== 批量设置弹窗 ========== -->
+<div class="overlay" id="mdSet">
+  <div class="modal" style="width:900px;max-width:94vw">
+    <div class="modal-head"><b>批量设置</b><span class="hint" style="margin-left:10px" id="mdSetTargets"></span></div>
+    <div class="modal-body">
+      <div class="bm-tabs">
+        <div class="bm-tab on" id="tabLine" onclick="bsTab('line')">证书分数线</div>
+        <div class="bm-tab" id="tabRep" onclick="bsTab('rep')">报告等级规则</div>
+        <div class="bm-tab" id="tabReport" onclick="bsTab('report')">报告开关</div>
+        <div class="bm-tab" id="tabCert" onclick="bsTab('cert')">证书补配</div>
+      </div>
+
+      <div class="bm-pane on" id="paneLine">
+        <div class="hint" style="margin-bottom:12px">统一应用到勾选场次：全部场次使用同一套分数线，保存后逐场重新计算达标人数（影响证书覆盖范围）。需要对单场差异化时，关闭本弹窗后点击状态总表中的测评名称进入单场详情调整。</div>
+        <div id="bsLineRows"></div>
+        <button class="btn small" onclick="bsLineAdd()">＋ 添加档位</button>
+      </div>
+
+      <div class="bm-pane" id="paneRep">
+        <div class="hint" style="margin-bottom:12px">统一应用到勾选场次：报告等级规则与证书分数线相互独立、互不影响。需要对单场差异化时，点击状态总表中的测评名称进入单场报告管理调整。</div>
+        <div style="display:grid;grid-template-columns:1fr 110px 110px 90px 30px;gap:0 10px;font-size:12px;color:var(--muted);margin-bottom:6px"><span>等级名称</span><span>分数下限（≥）</span><span>成长区间（选填）</span><span>计入通过</span><span></span></div>
+        <div id="bsRepRows"></div>
+        <button class="btn small" onclick="bsRepAdd()">＋ 添加档位</button>
+      </div>
+
+      <div class="bm-pane" id="paneReport">
+        <div class="hint" style="margin-bottom:12px">统一应用到勾选场次：关闭后该场不再生成新报告，已生成报告不受影响。</div>
+        <div style="display:flex;align-items:center;gap:12px;background:#f8fafd;border:1px solid #e6ebf3;border-radius:10px;padding:14px 16px">
+          <span style="font-size:13.5px;font-weight:600">报告生成开关</span>
+          <span class="switch" id="bsReportSw" onclick="bsReportToggle()"></span>
+          <span class="hint" id="bsReportTxt"></span>
+        </div>
+      </div>
+
+      <div class="bm-pane" id="paneCert">
+        <div class="hint" style="margin-bottom:12px">勾选场次并选择证书模板，保存后系统为各场创建证书实例并更新配置状态。创建测评时已选模板的场次不在此列。</div>
+        <div style="display:flex;align-items:center;gap:10px;margin-bottom:12px">
+          <span style="font-size:13px;font-weight:600">证书模板</span>
+          <select id="bsCertTpl" style="min-width:320px"></select>
+        </div>
+        <div id="bsCertRows"></div>
+      </div>
+    </div>
+    <div class="modal-foot">
+      <button class="btn" onclick="hide('mdSet')">取消</button>
+      <button class="btn primary" id="btnSetGo" onclick="bsSave()"><span class="spin"></span><span id="btnSetGoTxt">保存并应用到勾选场次</span></button>
+    </div>
+  </div>
+</div>
+
+<div id="toast"></div>
+
+<script>
+/* ================= 数据 ================= */
+/* 状态机口径：genState none/gening/gened/fail ；pushState none/genwait/pushing/pushed/pushfail
+   stage：grading 批改中 / review 待复核 / grade_public 成绩公示 / cert_public 证书公示 / making 制作中 / sent 已寄送 */
+var STAGES=[{k:'grading',n:'批改中'},{k:'review',n:'待复核'},{k:'grade_public',n:'成绩公示'},{k:'cert_public',n:'证书公示'},{k:'making',n:'制作中'},{k:'sent',n:'已寄送'}];
+var CERT_TPLS=['生成式人工智能等级证书 · 适用于 AIGC/人工智能类测评','程序设计等级证书 · 适用于 Python/C++ 等编程类测评','图形化编程等级证书 · 适用于 Scratch/图形化类测评'];
+var act={
+  name:'2026年9月常规考',start:'2026-09-01',end:'2026-09-30',
+  groups:['3月批','6月批'],
+  exams:[
+   {g:'3月批',name:'Python一级-第1场',time:'09-20 09:00 ~ 11:00',joined:1186,passed:1042,grading:'done',certCfg:true,lineSet:true,reportOn:true,
+    genCert:'gened',genRep:'gened',pushCert:'none',pushRep:'pushfail',failCert:3,failRep:0,stage:'review',timer:null,
+    fails:[{name:'陈一鸣',why:'作答数据校验未通过（第 12 题得分缺失）'},{name:'李思远',why:'证书模板渲染超时'},{name:'王梓萱',why:'照片文件读取失败'}],
+    repFails:[],pushFails:[{name:'周子瑜',why:'学员服务号未绑定'}]},
+   {g:'3月批',name:'图形化一级-第1场',time:'09-21 09:00 ~ 11:00',joined:964,passed:0,grading:'doing',certCfg:true,lineSet:true,reportOn:true,
+    genCert:'none',genRep:'none',pushCert:'none',pushRep:'none',failCert:0,failRep:0,stage:'grading',timer:null,fails:[],pushFails:[]},
+   {g:'6月批',name:'Python二级-第1场',time:'09-27 09:00 ~ 11:30',joined:731,passed:588,grading:'done',certCfg:false,lineSet:true,reportOn:true,
+    genCert:'none',genRep:'none',pushCert:'none',pushRep:'none',failCert:0,failRep:0,stage:'review',timer:null,fails:[],pushFails:[]},
+   {g:'6月批',name:'图形化二级-第1场',time:'09-28 14:00 ~ 16:30',joined:402,passed:351,grading:'done',certCfg:true,lineSet:false,reportOn:true,
+    genCert:'none',genRep:'none',pushCert:'none',pushRep:'none',failCert:0,failRep:0,stage:'review',timer:null,fails:[],pushFails:[]},
+   {g:'6月批',name:'Python三级-第1场',time:'09-29 09:00 ~ 11:00',joined:289,passed:233,grading:'done',certCfg:true,lineSet:true,reportOn:true,
+    genCert:'gening',genRep:'gening',pushCert:'none',pushRep:'none',failCert:0,failRep:0,stage:'review',timer:null,fails:[],pushFails:[],
+    progCert:{ok:712,total:233},progRep:{ok:98,total:289},_gsCert:0,_gsRep:0,_gtCert:0,_gtRep:0},
+   {g:'6月批',name:'C++一级-第1场',time:'09-29 14:00 ~ 16:00',joined:356,passed:301,grading:'done',certCfg:true,lineSet:true,reportOn:true,
+    genCert:'gened',genRep:'gened',pushCert:'pushed',pushRep:'pushed',failCert:0,failRep:0,stage:'review',timer:null,fails:[],repFails:[],pushFails:[]},
+  ]
+};
+/* 演示推进种子 */
+(function seedProg(){var e=act.exams[4];e.progCert={ok:96,total:e.passed};e.progRep={ok:151,total:e.joined}})();
+var ck={};/* name -> bool */
+var TASK_RUNNING=false;
+var LINE_PRESET=[{n:'优秀',s:90},{n:'良好',s:75},{n:'合格',s:60}];
+var REP_PRESET=[{n:'优秀',s:80,on:true,grow:'高阶表现',sum:''},{n:'良好',s:70,on:true,grow:'熟练掌握',sum:''},{n:'合格',s:60,on:true,grow:'目标达成',sum:''}];
+
+/* ================= 通用 ================= */
+function $(id){return document.getElementById(id)}
+function show(id){$(id).classList.add('show')}
+function hide(id){$(id).classList.remove('show')}
+function toast(m){var t=$('toast');t.textContent=m;t.classList.add('show');setTimeout(function(){t.classList.remove('show')},2200)}
+function esc(s){return String(s).replace(/&/g,'&amp;').replace(/</g,'&lt;')}
+function checked(){return act.exams.filter(function(e){return ck[e.name]})}
+function stageName(k){for(var i=0;i<STAGES.length;i++){if(STAGES[i].k===k)return STAGES[i].n}return k}
+function pad2(x){return(x<10?'0':'')+x}
+
+/* ================= 状态推导 ================= */
+function genStateCert(e){if(e.failCert>0)return'fail';return e.genCert==='gening'?'gening':(e.genCert==='gened'?'gened':'none')}
+function genStateRep(e){if(e.failRep>0)return'fail';return e.genRep==='gening'?'gening':(e.genRep==='gened'?'gened':'none')}
+function genTag(state,e,obj){
+  if(state==='gening'){var p=obj==='cert'?e.progCert:e.progRep;
+    return {cls:'blue',txt:'生成中',sub:(p?p.ok:0)+' / '+(p?p.total:0),prog:p?p.ok/p.total:0,pc:'blue'};
+  }
+  if(state==='gened'){var ps=e['push'+(obj==='cert'?'Cert':'Rep')];
+    if(ps==='pushed')return{cls:'green',txt:'已推送',plain:1};
+    if(ps==='pushing')return{cls:'indigo',txt:'推送中',sub:e.pushProgTxt||'',plain:1};
+    if(ps==='pushfail')return{cls:'red',txt:'推送失败',failDlg:'push',obj:obj};
+    return {cls:'blue',txt:'已生成待推送',plain:1};
+  }
+  if(state==='fail')return{cls:'red',txt:'生成失败',failDlg:'gen',obj:obj};
+  return {cls:'gray',txt:'未生成',plain:1};
+}
+function stateTagHtml(e,obj){
+  var st=obj==='cert'?genStateCert(e):genStateRep(e);
+  var g=genTag(st,e,obj);
+  var cls='tag '+g.cls+(g.failDlg?' bm-state-tag':' bm-state-tag plain');
+  var inner=esc(g.txt)+(g.sub?' <span style="font-family:JetBrains Mono,monospace;font-size:10px">'+g.sub+'</span>':'');
+  var html='<span class="'+cls+'" '+(g.failDlg?'onclick="openFail(\''+e.name+'\',\''+g.failDlg+'\',\''+obj+'\')"':'')+'>'+inner+'</span>';
+  if(g.prog!=null)html+='<div class="bm-prog"><div class="bm-prog-in'+(g.pc==='green'?' green':'')+'" style="width:'+Math.round(g.prog*100)+'%"></div></div>';
+  return html;
+}
+function gateOf(e){
+  var miss=[];
+  if(e.grading!=='done')miss.push('批改中');
+  if(e.genCert==='none')miss.push('证书未生成');
+  else if(e.genCert==='gening')miss.push('证书生成中');
+  else if(e.failCert>0)miss.push('证书生成失败');
+  else if(e.pushCert==='pushfail')miss.push('证书推送失败');
+  else if(e.pushCert!=='pushed')miss.push('证书已生成待推送');
+  if(e.genRep==='none')miss.push('报告未生成');
+  else if(e.genRep==='gening')miss.push('报告生成中');
+  else if(e.failRep>0)miss.push('报告生成失败');
+  else if(e.pushRep==='pushfail')miss.push('报告推送失败');
+  else if(e.pushRep!=='pushed')miss.push('报告已生成待推送');
+  return miss;
+}
+function stageCell(e){
+  var idx=STAGES.findIndex(function(s){return s.k===e.stage});
+  var html='<span class="tag '+(idx>=2?'green':'amber')+'">'+stageName(e.stage)+'</span>';
+  if(e.timer)html+='<div style="font-size:11px;color:#3f4bc4;margin-top:4px">定时流转 · '+e.timer+' <a style="color:var(--danger);cursor:pointer" onclick="cancelTimer(\''+e.name+'\')">取消</a></div>';
+  if(e.stage==='review'){
+    var miss=gateOf(e);
+    if(miss.length)html+='<div class="locknote" style="margin-top:4px;color:var(--muted)">不可流转：'+esc(miss.join('、'))+'</div>';
+    else html+='<div style="font-size:11px;color:var(--ok);margin-top:4px">门禁已满足，可流转</div>';
+  }
+  if(idx>=2)html+='<div class="locknote" style="margin-top:4px;color:var(--muted)">已公示，配置锁定</div>';
+  return html;
+}
+
+/* ================= 汇总 ================= */
+function renderStats(){
+  var es=act.exams;
+  var genable=es.filter(function(e){return qualCert(e).ok||qualRep(e).ok}).length;
+  var gening=es.filter(function(e){return e.genCert==='gening'||e.genRep==='gening'}).length;
+  var fail=es.filter(function(e){return e.failCert>0||e.failRep>0}).length;
+  var waitpush=es.filter(function(e){return (e.genCert==='gened'&&e.pushCert!=='pushed')||(e.genRep==='gened'&&e.pushRep!=='pushed')}).length;
+  var flowable=es.filter(function(e){return e.stage==='review'&&gateOf(e).length===0}).length;
+  var cards=[
+    {t:'总场数',n:es.length,c:''},
+    {t:'可生成场数',n:genable,c:'pri'},
+    {t:'生成中',n:gening,c:'pri'},
+    {t:'失败场数',n:fail,c:fail?'bad':''},
+    {t:'待推送场数',n:waitpush,c:''},
+    {t:'可流转场数',n:flowable,c:flowable?'ok':''}
+  ];
+  $('statCards').innerHTML=cards.map(function(c){return '<div class="stat-card '+c.c+'"><div class="n">'+c.n+'</div><div class="t">'+c.t+'</div></div>'}).join('');
+}
+
+/* ================= 资格 ================= */
+function qualCert(e){
+  if(e.grading!=='done')return{ok:false,reason:'批改中，暂不可生成'};
+  if(!e.certCfg)return{ok:false,reason:'证书实例未配置'};
+  if(!e.lineSet)return{ok:false,reason:'分数线未设置'};
+  return{ok:true,reason:''};
+}
+function qualRep(e){
+  if(e.grading!=='done')return{ok:false,reason:'批改中，暂不可生成'};
+  if(!e.reportOn)return{ok:false,reason:'报告开关已关闭'};
+  return{ok:true,reason:''};
+}
+
+/* ================= 状态总表 ================= */
+function renderTable(){
+  var kw=($('fKw').value||'').trim();
+  var fc=$('fCert').value,fr=$('fRep').value,fs=$('fStage').value;
+  var tb=$('bmBody');tb.innerHTML='';
+  var groups=act.groups.concat(['未分组']);
+  var any=false;
+  groups.forEach(function(g){
+    var es=act.exams.filter(function(e){return (e.g||'未分组')===g});
+    if(!es.length)return;
+    var shown=es.filter(function(e){
+      if(kw&&e.name.indexOf(kw)<0)return false;
+      if(fc&&genStateCert(e)!==fc)return false;
+      if(fr&&genStateRep(e)!==fr)return false;
+      if(fs&&e.stage!==fs)return false;
+      return true;
+    });
+    if(!shown.length)return;
+    any=true;
+    var tr=document.createElement('tr');tr.className='grp';
+    var gall=shown.every(function(e){return ck[e.name]});
+    tr.innerHTML='<td colspan="7"><div class="grp-line"><input type="checkbox" class="bm-ck" '+(gall?'checked':'')+' onclick="ckGroup(\''+g+'\',this.checked)"><span class="gname">'+esc(g)+'</span><span class="gcount">'+shown.length+' 场</span></div></td>';
+    tb.appendChild(tr);
+    shown.forEach(function(e){
+      var tr2=document.createElement('tr');
+      var locked=e.stage!=='review';
+      tr2.innerHTML='<td><input type="checkbox" class="bm-ck rowck" '+(ck[e.name]?'checked':'')+(locked?' disabled title="已流转，配置锁定"':'')+' onclick="ckOne(\''+e.name+'\',this.checked)"></td>'+
+        '<td style="padding-left:10px"><div style="font-weight:600;font-size:13px"><a style="color:var(--primary);cursor:pointer" onclick="openSingle(\''+e.name+'\')">'+esc(e.name)+'</a></div><div style="font-size:11px;color:var(--muted);margin-top:2px">'+esc(e.g)+'</div></td>'+
+        '<td>'+esc(e.time)+'</td>'+
+        '<td style="font-family:JetBrains Mono,monospace;font-size:12px">'+e.joined+' / '+e.passed+'</td>'+
+        '<td>'+stateTagHtml(e,'cert')+'</td>'+
+        '<td>'+stateTagHtml(e,'rep')+'</td>'+
+        '<td>'+stageCell(e)+'</td>';
+      tb.appendChild(tr2);
+    });
+  });
+  if(!any)tb.innerHTML='<tr><td colspan="7" class="empty-tip">没有符合筛选条件的测评</td></tr>';
+  syncButtons();
+}
+function fillFilters(){
+  var fc=$('fCert'),fr=$('fRep'),fs=$('fStage');
+  var keep=function(sel){return sel.value};
+  var kv=[keep(fc),keep(fr),keep(fs)];
+  fc.innerHTML='<option value="">证书状态：全部</option>'+[['none','未生成'],['gening','生成中'],['gened','已生成'],['fail','生成失败']].map(function(o){return '<option value="'+o[0]+'">'+o[1]+'</option>'}).join('');
+  fr.innerHTML='<option value="">报告状态：全部</option>'+[['none','未生成'],['gening','生成中'],['gened','已生成'],['fail','生成失败']].map(function(o){return '<option value="'+o[0]+'">'+o[1]+'</option>'}).join('');
+  fs.innerHTML='<option value="">流转环节：全部</option>'+STAGES.map(function(s){return '<option value="'+s.k+'">'+s.n+'</option>'}).join('');
+  fc.value=kv[0];fr.value=kv[1];fs.value=kv[2];
+}
+function ckOne(name,v){ck[name]=v;syncButtons();refreshGrpCk()}
+function ckGroup(g,v){act.exams.forEach(function(e){if((e.g||'未分组')===g&&e.stage==='review')ck[e.name]=v});renderTable()}
+function ckAllToggle(el){act.exams.forEach(function(e){if(e.stage==='review')ck[e.name]=el.checked});renderTable()}
+function refreshGrpCk(){renderTable()}
+function syncButtons(){
+  var sel=checked();
+  var b1=$('btnSet'),b2=$('btnGen'),b3=$('btnPush'),b4=$('btnFlow');
+  var selUnlocked=sel.filter(function(e){return e.stage==='review'});
+  b1.disabled=!selUnlocked.length;b1.textContent='⚙ 批量设置 ('+selUnlocked.length+')';
+  b2.disabled=!selUnlocked.length;b2.textContent='📜 批量生成 ('+selUnlocked.length+')';
+  var pushable=sel.filter(function(e){return (e.genCert==='gened'&&e.pushCert==='genwait'||e.genCert==='gened'&&e.pushCert!=='pushed'&&e.pushCert!=='pushing'&&e.failCert===0)||(e.genRep==='gened'&&e.pushRep!=='pushed'&&e.pushRep!=='pushing'&&e.failRep===0)});
+  b3.disabled=!pushable.length;b3.textContent='➤ 批量推送 ('+pushable.length+')';
+  var flowable=sel.filter(function(e){return e.stage==='review'&&gateOf(e).length===0});
+  b4.disabled=!flowable.length;b4.textContent='批量流转 ('+flowable.length+')';
+}
+
+/* ================= 单场跳转 ================= */
+function openSingle(name){toast('跳转单场详情：'+name+'（demo：正式环境跳 15_测评证书管理_详情.html?exam=...)');}
+
+/* ================= 失败明细 ================= */
+var curFail=null;
+function openFail(name,dlg,obj){
+  var e=act.exams.find(function(x){return x.name===name});if(!e)return;
+  curFail={e:e,dlg:dlg,obj:obj};
+  var isGen=dlg==='gen';
+  var fails=isGen?(obj==='cert'?(e.fails||[]):(e.repFails||[])):(e.pushFails||[]);
+  var total=obj==='cert'?e.passed:e.joined;
+  var failN=fails.length;
+  $('mdFailTitle').textContent=(obj==='cert'?'证书':'报告')+(isGen?'生成失败明细':'推送失败明细')+' · '+name;
+  $('mdFailSum').textContent='成功 '+(total-failN)+' 份 · 失败 '+failN+' 份 / 总数 '+total+' 份';
+  $('mdFailBody').innerHTML=fails.map(function(f,i){
+    return '<tr><td style="font-weight:600">'+esc(f.name)+'</td><td style="color:var(--muted)">'+esc(f.why)+'</td>'+
+      '<td style="text-align:right"><button class="btn small" onclick="retryOne('+i+')">'+(isGen?'重新生成':'重新推送')+'</button></td></tr>';
+  }).join('');
+  $('mdFailEmpty').style.display=fails.length?'none':'block';
+  $('mdFailRetryAll').style.display=fails.length?'':'none';
+  show('mdFail');
+}
+function retryOne(i){
+  var f=curFail;
+  var fails=f.dlg==='gen'?(f.obj==='cert'?f.e.fails:f.e.repFails):f.e.pushFails;
+  var one=fails.splice(i,1)[0];
+  if(f.dlg==='gen'){if(f.obj==='cert')f.e.failCert=Math.max(0,f.e.failCert-1);else f.e.failRep=Math.max(0,f.e.failRep-1)}
+  toast('已重新'+(f.dlg==='gen'?'生成':'推送')+'：'+one.name+'（成功）');
+  afterDataChange();openFail(f.e.name,f.dlg,f.obj);
+}
+function retryAll(){
+  var f=curFail;
+  var fails=f.dlg==='gen'?(f.obj==='cert'?f.e.fails:f.e.repFails):f.e.pushFails;
+  var n=fails.length;
+  if(f.dlg==='gen'){
+    if(f.obj==='cert'){f.e.failCert=0;f.e.fails=[]}else{f.e.failRep=0;f.e.repFails=[]}
+  }else{
+    f.e.pushFails=[];
+    if(f.obj==='cert')f.e.pushCert='pushed';else f.e.pushRep='pushed';
+  }
+  toast('已重试全部失败项（'+n+' 条，全部成功）');
+  hide('mdFail');afterDataChange();
+}
+
+/* ================= 批量生成（圈选弹窗） ================= */
+var picks={};
+function qualObj(e,obj){return obj==='cert'?qualCert(e):qualRep(e)}
+function openGen(){
+  picks={};
+  /* 已生成默认勾选（重新生成语义），资格具备的默认勾选 */
+  act.exams.forEach(function(e){
+    var c=qualObj(e,'cert').ok,r=qualObj(e,'rep').ok;
+    picks[e.name]={cert:c,rep:r,cok:c,rok:r};
+  });
+  $('bgActName').textContent=act.name;
+  renderGenTable();
+  show('ovGen');
+}
+function renderGenTable(){
+  var tb=$('bgBody');tb.innerHTML='';
+  var busy=TASK_RUNNING;
+  $('bgBusyBar').style.display=busy?'block':'none';
+  $('bgBusyBar').innerHTML='该活动有一个批量任务正在执行；仍可继续勾选并发起新任务，确认后原任务将被取消（已完成场次文件保留）。';
+  act.groups.forEach(function(g){
+    var es=act.exams.filter(function(e){return e.g===g});
+    if(!es.length)return;
+    var tr=document.createElement('tr');tr.className='grp';
+    tr.innerHTML='<td colspan="5"><div class="grp-line"><span class="gname">'+esc(g)+'</span><span class="gcount">'+es.length+' 场</span></div></td>';
+    tb.appendChild(tr);
+    es.forEach(function(e){
+      var qc=qualObj(e,'cert'),qr=qualObj(e,'rep');
+      var p=picks[e.name];
+      var gened=e.genCert==='gened'||e.genRep==='gened';
+      var tr2=document.createElement('tr');
+      var badge=gened?'<div style="margin-top:3px"><span class="tag green" style="font-size:10px">已生成</span></div>':'';
+      tr2.innerHTML='<td><div class="bg-objcell" style="display:flex;flex-direction:column;gap:6px">'+
+        '<label style="display:flex;align-items:center;gap:6px;font-size:12.5px;white-space:nowrap;'+(qc.ok?'':'opacity:.5')+'"><input type="checkbox" '+(p.cert?'checked':'')+(qc.ok?'':' disabled')+' onchange="pickSet(\''+e.name+'\',\'cert\',this.checked)">证书</label>'+
+        '<label style="display:flex;align-items:center;gap:6px;font-size:12.5px;white-space:nowrap;'+(qr.ok?'':'opacity:.5')+'"><input type="checkbox" '+(p.rep?'checked':'')+(qr.ok?'':' disabled')+' onchange="pickSet(\''+e.name+'\',\'rep\',this.checked)">报告</label>'+
+        '</div></td>'+
+        '<td style="padding-left:10px"><div style="font-weight:600;font-size:13px">'+esc(e.name)+'</div>'+badge+'</td>'+
+        '<td>'+esc(e.time)+'</td>'+
+        '<td style="font-family:JetBrains Mono,monospace;font-size:12px">'+e.joined+' / '+e.passed+'</td>'+
+        '<td style="font-size:12px">'+(qc.ok?'<span class="tag green">证书可生成</span>':'<span class="tag amber">'+esc(qc.reason)+'</span>')+' '+(qr.ok?'<span class="tag green">报告可生成</span>':'<span class="tag amber">'+esc(qr.reason)+'</span>')+'</td>';
+      tb.appendChild(tr2);
+    });
+  });
+  bgSync();
+}
+function pickSet(name,obj,v){picks[name][obj]=v;bgSync()}
+function bgSelectAllOk(){act.exams.forEach(function(e){var p=picks[e.name];if(!p)return;if(p.cok)p.cert=true;if(p.rok)p.rep=true});renderGenTable()}
+function bgClearAll(){Object.keys(picks).forEach(function(k){picks[k].cert=false;picks[k].rep=false});renderGenTable()}
+function bgSync(){
+  var nC=0,nR=0,pC=0,pR=0;
+  act.exams.forEach(function(e){
+    var p=picks[e.name];if(!p)return;
+    if(p.cert){nC++;pC+=e.passed}
+    if(p.rep){nR++;pR+=e.joined}
+  });
+  var any=nC||nR;
+  $('bgSummary').textContent=any?('证书 '+nC+' 场 · '+(pC-pC%1)+' 人；报告 '+nR+' 场 · '+pR+' 人'):'尚未勾选任何场';
+  var btn=$('bgStart');
+  btn.disabled=!any;
+  var hasGened=act.exams.some(function(e){var p=picks[e.name];return p&&(p.cert&&e.genCert==='gened'||p.rep&&e.genRep==='gened')});
+  btn.textContent=any?('开始生成（证书 '+nC+' 场 · '+pC+' 人；报告 '+nR+' 场 · '+pR+' 人）'):'开始生成';
+  $('bgFootHint').textContent=hasGened?'勾选中包含已生成场次，将走重新生成确认（覆盖原文件）':'';
+}
+function bgStartRun(){
+  var hasGened=act.exams.some(function(e){var p=picks[e.name];return p&&(p.cert&&e.genCert==='gened'||p.rep&&e.genRep==='gened')});
+  if(TASK_RUNNING){hide('ovGen');show('mdPreempt');return}
+  $('mdGenTitle').textContent=hasGened?'重新生成确认':'开始生成确认';
+  $('mdGenMsg').innerHTML=hasGened?
+    '将为勾选场次重新生成证书与报告，<b>将覆盖已生成的文件；已推送的记录回退为待推送，需重新推送</b>。确认继续？':
+    '确认后任务立即开始，各场生成状态与进度在批量管理页状态总表实时刷新。';
+  hide('ovGen');show('mdGen');
+}
+function mdPreemptYes(){
+  hide('mdPreempt');
+  TASK_RUNNING=false;
+  $('mdGenTitle').textContent='开始生成确认';
+  $('mdGenMsg').innerHTML='原任务已取消（已完成场次文件保留）。确认后以本次勾选发起新任务。';
+  show('mdGen');
+}
+function mdGenYes(){
+  hide('mdGen');
+  TASK_RUNNING=true;
+  act.exams.forEach(function(e){
+    var p=picks[e.name];if(!p)return;
+    if(p.cert&&qualObj(e,'cert').ok){
+      e.genCert='gening';e.pushCert='none';e.failCert=0;e.fails=[];
+      e.progCert={ok:0,total:e.passed};
+    }
+    if(p.rep&&qualObj(e,'rep').ok){
+      e.genRep='gening';e.pushRep='none';e.failRep=0;e.pushFails=[];
+      e.progRep={ok:0,total:e.joined};
+    }
+  });
+  toast('已开始生成，状态总表实时推进');
+  afterDataChange();
+}
+
+/* ================= 生成推进（demo 模拟） ================= */
+function tickGen(){
+  var changed=false;
+  act.exams.forEach(function(e){
+    ['cert','rep'].forEach(function(obj){
+      var gs=obj==='cert'?e.genCert:e.genRep;
+      if(gs!=='gening')return;
+      var p=obj==='cert'?e.progCert:e.progRep;
+      var step=Math.max(8,Math.ceil(p.total/10));
+      p.ok=Math.min(p.total,p.ok+step);
+      if(p.ok>=p.total){
+        if(obj==='cert'){
+          e.genCert='gened';
+          if(e.name==='Python一级-第1场'){/* 已有预置失败场，演示失败态 */}
+        }else{
+          e.genRep='gened';e.pushRep='genwait';
+        }
+      }
+      changed=true;
+    });
+    if(e.genCert==='gened'&&e.genRep==='gened'&&e._genJustDone!==true){}
+  });
+  if(changed)afterDataChange(true);
+}
+setInterval(tickGen,1500);
+
+/* ================= 批量推送 ================= */
+function doBatchPush(){
+  var sel=checked().filter(function(e){return e.stage==='review'});
+  var targets=sel.filter(function(e){
+    return (e.genCert==='gened'&&e.pushCert!=='pushed'&&e.pushCert!=='pushing'&&e.failCert===0)||(e.genRep==='gened'&&e.pushRep!=='pushed'&&e.pushRep!=='pushing'&&e.failRep===0);
+  });
+  if(!targets.length){toast('勾选中没有「已生成待推送」的场次');return}
+  if(doBatchPush._busy)return;
+  doBatchPush._busy=true;
+  var btn=$('btnPush');btn.classList.add('loading');
+  setTimeout(function(){
+    targets.forEach(function(e){
+      if(e.genCert==='gened'&&e.pushCert!=='pushed'){e.pushCert='pushing';e.pushProgTxt='0 / '+e.passed}
+      if(e.genRep==='gened'&&e.pushRep!=='pushed'){e.pushRep='pushing';e.pushProgTxt='0 / '+e.joined}
+    });
+    doBatchPush._busy=false;btn.classList.remove('loading');
+    toast('已发起批量推送（'+targets.length+' 场）');
+    afterDataChange();
+  },700);
+}
+function tickPush(){
+  var changed=false;
+  act.exams.forEach(function(e){
+    if(e.pushCert==='pushing'){
+      var ok=(parseInt((e.pushProgTxt||'0').split(' / ')[0],10)||0)+Math.max(20,Math.ceil(e.passed/4));
+      if(ok>=e.passed){e.pushCert='pushed';e.pushProgTxt='';changed=true}
+      else{e.pushProgTxt=ok+' / '+e.passed;changed=true}
+    }
+    if(e.pushRep==='pushing'){
+      var ok2=(parseInt((e.pushProgTxt||'0').split(' / ')[0],10)||0)+Math.max(20,Math.ceil(e.joined/4));
+      if(ok2>=e.joined){e.pushRep='pushed';e.pushProgTxt='';changed=true}
+      else{e.pushProgTxt=ok2+' / '+e.joined;changed=true}
+    }
+  });
+  if(changed)afterDataChange(true);
+}
+setInterval(tickPush,900);
+
+/* ================= 批量流转 ================= */
+var flowPicks={};
+function openFlow(){
+  var sel=checked().filter(function(e){return e.stage==='review'&&gateOf(e).length===0});
+  if(!sel.length){toast('勾选中没有满足门禁的场次');return}
+  flowPicks={};sel.forEach(function(e){flowPicks[e.name]=true});
+  renderFlow();
+  $('btnFlowGoTxt').textContent='立即流转';
+  show('mdFlow');
+}
+function renderFlow(){
+  var tb=$('flowBody');tb.innerHTML='';
+  act.exams.forEach(function(e){
+    if(e.stage!=='review')return;
+    var miss=gateOf(e);
+    var ok=miss.length===0;
+    var tr=document.createElement('tr');
+    tr.innerHTML='<td>'+(ok?'<input type="checkbox" '+(flowPicks[e.name]?'checked':'')+' onchange="flowPicks[\''+e.name+'\']=this.checked">':'')+'</td>'+
+      '<td style="padding-left:10px;font-weight:600;font-size:13px">'+esc(e.name)+'</td>'+
+      '<td>'+(ok?'<span class="tag green">门禁已满足</span>':'<span class="tag amber">不可流转：'+esc(miss.join('、'))+'</span>')+'</td>';
+    tb.appendChild(tr);
+  });
+}
+function flowModeChange(){
+  var timer=document.querySelector('input[name=flowMode]:checked').value==='timer';
+  $('flowAt').style.display=timer?'':'none';
+  $('flowAtHint').style.display=timer?'':'none';
+  $('btnFlowGoTxt').textContent=timer?'保存定时':'立即流转';
+}
+function flowSubmit(){
+  var btn=$('btnFlowGo');
+  if(btn.classList.contains('loading'))return;
+  var targets=Object.keys(flowPicks).filter(function(k){return flowPicks[k]});
+  if(!targets.length){toast('请勾选要流转的场次');return}
+  var timerMode=document.querySelector('input[name=flowMode]:checked').value==='timer';
+  var at=$('flowAt').value;
+  if(timerMode&&!at){toast('请选择定时流转时间');return}
+  btn.classList.add('loading');
+  setTimeout(function(){
+    btn.classList.remove('loading');
+    targets.forEach(function(name){
+      var e=act.exams.find(function(x){return x.name===name});if(!e)return;
+      if(timerMode){e.timer=at.replace('T',' ')}
+      else{
+        var idx=STAGES.findIndex(function(s){return s.k===e.stage});
+        if(idx<STAGES.length-1)e.stage=STAGES[idx+1].k;
+        e.timer=null;
+      }
+    });
+    toast(timerMode?('已设定定时流转（'+targets.length+' 场，统一 '+at.replace('T',' ')+' 触发）'):('已流转至下一环节（'+targets.length+' 场）'));
+    hide('mdFlow');
+    act.exams.forEach(function(e){ck[e.name]=false});
+    afterDataChange();
+  },800);
+}
+function cancelTimer(name){
+  var e=act.exams.find(function(x){return x.name===name});
+  if(e){e.timer=null;toast('已取消定时流转：'+name);afterDataChange()}
+}
+
+/* ================= 批量设置 ================= */
+var bsCur='line';
+function openSetting(){
+  var sel=checked().filter(function(e){return e.stage==='review'});
+  if(!sel.length){toast('请先勾选待复核环节的场次');return}
+  var lockedN=checked().length-sel.length;
+  $('mdSetTargets').textContent='将统一应用到 '+sel.length+' 场测评'+(lockedN?('（另有 '+lockedN+' 场已流转场次被锁定，不可修改）'):'');
+  bsRenderLine();bsRenderRep();bsRenderReport();bsRenderCert();
+  show('mdSet');
+}
+function bsTab(t){
+  bsCur=t;
+  $('tabLine').classList.toggle('on',t==='line');
+  $('tabRep').classList.toggle('on',t==='rep');
+  $('tabReport').classList.toggle('on',t==='report');
+  $('tabCert').classList.toggle('on',t==='cert');
+  $('paneLine').classList.toggle('on',t==='line');
+  $('paneRep').classList.toggle('on',t==='rep');
+  $('paneReport').classList.toggle('on',t==='report');
+  $('paneCert').classList.toggle('on',t==='cert');
+}
+/* 分数线 */
+function bsRenderLine(){
+  $('bsLineRows').innerHTML=LINE_PRESET.map(function(l,i){
+    return '<div class="line-row"><input type="text" value="'+esc(l.n)+'" id="bl_n_'+i+'"><input type="number" value="'+l.s+'" id="bl_s_'+i+'">'+
+    '<div class="hint">达到该分数线即获该等级，证书向达标学员签发</div>'+
+    (i>=2?'<button class="btn small" onclick="bsLineDel('+i+')">删除</button>':'<span></span>')+'</div>';
+  }).join('');
+}
+function bsLineAdd(){LINE_PRESET.push({n:'新档位',s:60});bsRenderLine()}
+function bsLineDel(i){LINE_PRESET.splice(i,1);bsRenderLine()}
+/* 报告规则 */
+function bsRenderRep(){
+  $('bsRepRows').innerHTML=REP_PRESET.map(function(l,i){
+    return '<div style="display:grid;grid-template-columns:1fr 110px 110px 90px 30px;gap:0 10px;align-items:center;margin-bottom:10px">'+
+      '<input type="text" value="'+esc(l.n)+'" id="br_n_'+i+'">'+
+      '<input type="number" value="'+l.s+'" id="br_s_'+i+'">'+
+      '<input type="text" value="'+esc(l.grow||'')+'" placeholder="选填" id="br_g_'+i+'">'+
+      '<label style="display:flex;align-items:center;gap:5px;font-size:12.5px"><input type="checkbox" '+(l.on?'checked':'')+' id="br_o_'+i+'">计入通过</label>'+
+      '<button class="btn small" onclick="bsRepDel('+i+')">✕</button></div>';
+  }).join('');
+}
+function bsRepAdd(){REP_PRESET.push({n:'新档位',s:60,on:false,grow:'',sum:''});bsRenderRep()}
+function bsRepDel(i){REP_PRESET.splice(i,1);bsRenderRep()}
+/* 报告开关 */
+var bsReportOn=true;
+function bsReportToggle(){bsReportOn=!bsReportOn;bsRenderReport()}
+function bsRenderReport(){
+  $('bsReportSw').classList.toggle('on',bsReportOn);
+  $('bsReportTxt').textContent=bsReportOn?'开启：成绩发布后为学员生成报告':'关闭：本场不再生成新报告';
+}
+/* 证书补配 */
+function bsRenderCert(){
+  var need=act.exams.filter(function(e){return !e.certCfg});
+  $('bsCertTpl').innerHTML='<option value="">选择证书模板</option>'+CERT_TPLS.map(function(t){return '<option value="'+esc(t)+'">'+esc(t)+'</option>'}).join('');
+  $('bsCertRows').innerHTML=need.length?need.map(function(e){
+    return '<label style="display:flex;align-items:center;gap:8px;padding:8px 0;border-bottom:1px solid #f0f2f6;font-size:13px"><input type="checkbox" class="bs-cert-ck" data-name="'+esc(e.name)+'"> <b>'+esc(e.name)+'</b><span class="tag amber" style="margin-left:auto">证书实例未配置</span></label>';
+  }).join(''):'<div class="empty-tip">勾选场次均已完成证书配置，无需补配</div>';
+}
+function bsSave(){
+  var btn=$('btnSetGo');
+  if(btn.classList.contains('loading'))return;
+  var sel=checked().filter(function(e){return e.stage==='review'});
+  if(!sel.length){toast('没有可应用的场次');return}
+  if(bsCur==='cert'){
+    var tpl=$('bsCertTpl').value;
+    var names=[].map.call(document.querySelectorAll('.bs-cert-ck:checked'),function(x){return x.getAttribute('data-name')});
+    if(names.length&&!tpl){toast('请选择证书模板');return}
+    btn.classList.add('loading');
+    setTimeout(function(){
+      names.forEach(function(n){var e=act.exams.find(function(x){return x.name===n});if(e)e.certCfg=true});
+      btn.classList.remove('loading');
+      toast('已为 '+names.length+' 场创建证书实例');
+      hide('mdSet');afterDataChange();
+    },800);
+    return;
+  }
+  btn.classList.add('loading');
+  setTimeout(function(){
+    if(bsCur==='line'){
+      LINE_PRESET.forEach(function(l,i){l.n=$('bl_n_'+i).value;l.s=parseInt($('bl_s_'+i).value,10)||l.s});
+      sel.forEach(function(e){e.lineSet=true;e.passed=Math.max(1,Math.round(e.joined*0.86))});
+    }else if(bsCur==='rep'){
+      REP_PRESET.forEach(function(l,i){l.n=$('br_n_'+i).value;l.s=parseInt($('br_s_'+i).value,10)||l.s;l.on=$('br_o_'+i).checked;l.grow=$('br_g_'+i).value});
+    }else if(bsCur==='report'){
+      sel.forEach(function(e){e.reportOn=bsReportOn});
+    }
+    btn.classList.remove('loading');
+    hide('mdSet');
+    toast('已统一应用到 '+sel.length+' 场测评');
+    afterDataChange();
+  },800);
+}
+
+/* ================= 数据变化后统一刷新 ================= */
+function afterDataChange(silent){
+  renderStats();renderTable();
+  if(!silent)fillFilters();
+}
+
+/* ================= 场景 DEMO 浮球 ================= */
+var SCENES=[
+  {id:'default',name:'默认场景',desc:'混合状态：待推送 / 生成中 / 推送失败 / 不可生成'},
+  {id:'all-fail',name:'生成失败场景',desc:'多场生成失败，验证失败明细与重试'},
+  {id:'all-pushed',name:'全部已推送',desc:'验证批量流转与门禁全绿'},
+  {id:'preempt',name:'有执行中任务',desc:'验证批量生成的抢占确认'}
+];
+function toggleScene(){var p=$('scenePanel');p.classList.toggle('show');if(p.classList.contains('show'))renderScenes()}
+function renderScenes(){
+  $('sceneList').innerHTML=SCENES.map(function(s){
+    return '<button class="scene-btn" onclick="applyScene(\''+s.id+'\')">'+s.name+'<span class="d">'+s.desc+'</span></button>';
+  }).join('');
+}
+function applyScene(id){
+  $('scenePanel').classList.remove('show');
+  ck={};TASK_RUNNING=false;
+  if(id==='default'){location.reload();return}
+  if(id==='all-fail'){
+    act.exams.forEach(function(e){if(e.grading==='done'){e.genCert='gened';e.genRep='gened';e.pushCert='none';e.pushRep='pushfail';e.failCert=4;e.failRep=0;
+      e.fails=[{name:'陈一鸣',why:'作答数据校验未通过'},{name:'李思远',why:'证书模板渲染超时'},{name:'王梓萱',why:'照片文件读取失败'},{name:'刘昊然',why:'学员档案字段缺失'}];
+      e.repFails=[];
+      e.pushFails=[{name:'周子瑜',why:'学员服务号未绑定'},{name:'吴雨桐',why:'推送通道超时'}]}});
+  }
+  if(id==='all-pushed'){
+    act.exams.forEach(function(e){if(e.grading==='done'){e.genCert='gened';e.genRep='gened';e.pushCert='pushed';e.pushRep='pushed';e.failCert=0;e.failRep=0;e.fails=[];e.pushFails=[];e.progCert=null;e.progRep=null}});
+  }
+  if(id==='preempt'){TASK_RUNNING=true}
+  ['gening','pushing'].forEach(function(){});
+  act.exams.forEach(function(e){if(e.genCert==='gening'){e.genCert='gened';e.progCert=null}if(e.genRep==='gening'){e.genRep='gened';e.pushRep='genwait';e.progRep=null}});
+  afterDataChange();
+  toast('场景已切换：'+(SCENES.find(function(s){return s.id===id})||{}).name);
+}
+
+/* ================= init ================= */
+$('bmActName').textContent=act.name;
+$('bmActDates').textContent=act.start+' ~ '+act.end;
+fillFilters();
+afterDataChange();
+
+</script>
+</body>
+</html>

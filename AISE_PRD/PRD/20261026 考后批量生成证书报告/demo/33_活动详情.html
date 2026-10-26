@@ -269,7 +269,7 @@ tr.bg-failrow td{background:#fdf3f2 !important}
       <div class="spacer"></div>
       <button class="btn hidden" id="headBulkBtn" onclick="openBulkEditExam()">✎ 批量修改</button>
       <button class="btn" id="headMatrixBtn" onclick="gotoMatrix()">渠道关联</button>
-      <button class="btn" onclick="openBulkGen()">📜 生成证书 / 报告</button>
+      <button class="btn" onclick="location.href='38_批量管理.html?act='+(curAct?curAct.id:1)">📋 批量管理</button>
       <button class="btn" onclick="newZoneInline()">＋ 新建分组</button>
       <button class="btn primary" onclick="openWizard(null)">＋ 创建测评</button>
     </div>
@@ -1461,7 +1461,7 @@ function dpInjectFailedTasks(act){
     localStorage.setItem(MSG_LS_KEY,JSON.stringify(rows));
   }catch(e){}
 }
-dpRender();
+/* 浮球场景列表在 dpToggle 打开时渲染（此处 DOM 尚未就绪，不能顶层渲染） */
 
 </script>
 </div>
