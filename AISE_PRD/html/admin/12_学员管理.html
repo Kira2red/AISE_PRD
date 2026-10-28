@@ -355,7 +355,7 @@
             <div id="del-ongoing-warn" class="hidden bg-red-50 border border-red-100 rounded-lg p-4 mb-4">
                 <p class="text-sm font-bold text-red-600 flex items-center gap-2"><i class="fa-solid fa-triangle-exclamation"></i> 存在在途业务，不允许删除</p>
                 <p class="text-xs text-red-500 mt-1.5" id="del-ongoing-detail">—</p>
-                <p class="text-xs text-red-400 mt-1">请先处理完在途报名（完成审核流转或取消报名）后再删除。</p>
+                <p class="text-xs text-red-400 mt-1">在途业务包含：待支付、审核中、退款中的报名，候考中、模拟考中、进行中的测评。请先处理完在途业务后再删除。</p>
             </div>
 
             <!-- 强确认区 -->
@@ -438,7 +438,7 @@
 
         // ===== 删除账号（行操作）=====
         const DEMO_SCENES = {
-            ongoing: { recs: 3, children: 1, ongoing: 2, detail: '审核中报名 1 条 · 进行中测评 1 条' },
+            ongoing: { recs: 3, children: 1, ongoing: 4, detail: '待支付报名 1 条 · 审核中报名 1 条 · 候考中 1 场 · 进行中测评 1 场' },
             past:    { recs: 5, children: 2, ongoing: 0, detail: '已完成报名 3 条 · 已出成绩 2 条 · 证书 1 张' },
             empty:   { recs: 0, children: 0, ongoing: 0, detail: '无报名与考试记录' },
         };

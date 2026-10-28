@@ -274,10 +274,15 @@
                     <select id="tf-select" class="w-full px-3 py-2.5 rounded-lg border border-slate-200 text-sm focus:border-brand-500 outline-none transition bg-white"></select>
                 </div>
                 <p id="tf-error" class="hidden text-xs text-red-500 mb-1">无可用接收方时不能遗弃该子账号</p>
+                <div id="tf-conflict" class="hidden w-full bg-red-50 border border-red-200 rounded-lg p-3 mb-3 text-left">
+                    <p class="text-xs font-bold text-red-600 flex items-center gap-1.5"><i class="fa-solid fa-triangle-exclamation"></i> 存在同一场测评，记录将冲突</p>
+                    <p class="text-xs text-red-500 leading-relaxed mt-1" id="tf-conflict-detail">—</p>
+                    <p class="text-xs text-red-400 mt-1">确认后仅保留接收方的该场记录，遗弃子账号的同场记录将作废。</p>
+                </div>
                 <p class="text-xs text-slate-400 leading-relaxed mb-5">转移后记录全部挂到接收方名下；该子账号记录清零并被遗弃，身份不再保留。转移随「确认合并」一并生效。</p>
                 <div class="flex gap-3 w-full">
                     <button onclick="closeTransferModal()" class="flex-1 px-4 py-2.5 text-sm font-medium text-slate-600 bg-slate-50 hover:bg-slate-100 rounded-lg transition">取消</button>
-                    <button onclick="doTransfer()" class="flex-1 px-4 py-2.5 text-sm font-bold text-white bg-brand-600 hover:bg-brand-700 rounded-lg shadow-lg transition">转移并遗弃</button>
+                    <button id="tf-btn" onclick="doTransfer()" class="flex-1 px-4 py-2.5 text-sm font-bold text-white bg-brand-600 hover:bg-brand-700 rounded-lg shadow-lg transition">转移并遗弃</button>
                 </div>
             </div>
         </div>
@@ -321,7 +326,8 @@
         b: [ {t:'图形化编程 (一级)', s:'2025秋季测评 · 已完成 · 成绩 A级'} ],
     };
 
-    const state = { picked:{a:null,b:null}, choice:{}, phone:'A', childrenKeep:{}, transfers:{}, merged:false };
+    const CONFLICT_DEMO = { 2: 0 }; // 演示：子账号2（张小虎B）转移给子账号0（张小虎A）触发同场冲突提示
+    const state = { picked:{a:null,b:null}, choice:{}, phone:'A', childrenKeep:{}, transfers:{}, merged:false, _conflictPair:null, _conflictConfirmed:false };
 
     // ===== 步骤1：搜索选择 =====
     function showSug(side) {
@@ -458,6 +464,7 @@
     function openTransferModal(i) {
         const c = CHILDREN[i];
         state._transferIdx = i;
+        state._conflictConfirmed = false;
         document.getElementById('tf-child').textContent = c.name + '（账号 ' + c.from + '）';
         document.getElementById('tf-count').textContent = c.recCount;
         const opts = transferTargets(i);
@@ -465,14 +472,55 @@
             ? opts.map(x => `<option value="${x.j}">${childLabel(x.j)}（现有 ${CHILDREN[x.j].recCount} 条记录）</option>`).join('')
             : '<option value="">无可用接收方（其余子账号均已遗弃）</option>';
         document.getElementById('tf-error').classList.add('hidden');
+        const selEl = document.getElementById('tf-select');
+        const dj = selEl.value === '' ? NaN : +selEl.value;
+        state._conflictPair = (!isNaN(dj) && CONFLICT_DEMO[i] === dj) ? dj : null;
+        const conflict = document.getElementById('tf-conflict');
+        const btn = document.getElementById('tf-btn');
+        if (state._conflictPair !== null && state._conflictPair !== undefined) {
+            conflict.classList.remove('hidden');
+            document.getElementById('tf-conflict-detail').textContent =
+                '「' + CHILDREN[i].name + '（账号 ' + CHILDREN[i].from + '）」与接收方「' + childLabel(state._conflictPair) + '」报了同一场测评。';
+            btn.textContent = '确认转移';
+            btn.classList.remove('bg-brand-600','hover:bg-brand-700');
+            btn.classList.add('bg-red-600','hover:bg-red-700');
+        } else {
+            conflict.classList.add('hidden');
+            btn.textContent = '转移并遗弃';
+            btn.classList.remove('bg-red-600','hover:bg-red-700');
+            btn.classList.add('bg-brand-600','hover:bg-brand-700');
+        }
         const m = document.getElementById('modal-transfer');
         m.classList.remove('hidden'); m.classList.add('flex');
         setTimeout(() => { m.classList.remove('opacity-0'); document.getElementById('modal-transfer-content').classList.add('modal-enter'); }, 10);
     }
+    document.getElementById('tf-select').addEventListener('change', function() {
+        const i = state._transferIdx;
+        const j = +this.value;
+        state._conflictPair = (!isNaN(j) && CONFLICT_DEMO[i] === j) ? j : null;
+        state._conflictConfirmed = false;
+        const conflict = document.getElementById('tf-conflict');
+        const btn = document.getElementById('tf-btn');
+        if (state._conflictPair !== null && state._conflictPair !== undefined) {
+            conflict.classList.remove('hidden');
+            document.getElementById('tf-conflict-detail').textContent =
+                '「' + CHILDREN[i].name + '（账号 ' + CHILDREN[i].from + '）」与接收方「' + childLabel(state._conflictPair) + '」报了同一场测评。';
+            btn.textContent = '确认转移';
+            btn.classList.remove('bg-brand-600','hover:bg-brand-700');
+            btn.classList.add('bg-red-600','hover:bg-red-700');
+        } else {
+            conflict.classList.add('hidden');
+            btn.textContent = '转移并遗弃';
+            btn.classList.remove('bg-red-600','hover:bg-red-700','animate-pulse');
+            btn.classList.add('bg-brand-600','hover:bg-brand-700');
+        }
+    });
     function closeTransferModal() {
         const m = document.getElementById('modal-transfer');
         m.classList.add('opacity-0');
         setTimeout(() => { m.classList.add('hidden'); m.classList.remove('flex'); document.getElementById('modal-transfer-content').classList.remove('modal-enter'); }, 200);
+        state._conflictConfirmed = false;
+        state._conflictPair = null;
         renderChildren(); // 恢复勾选框状态（取消转移时回到原样）
     }
     function doTransfer() {
@@ -482,6 +530,15 @@
             document.getElementById('tf-error').classList.remove('hidden');
             return;
         }
+        if (state._conflictPair !== null && state._conflictPair !== undefined && !state._conflictConfirmed) {
+            state._conflictConfirmed = true; // 二次确认：第一次点击只升级为强提示确认态
+            btn = document.getElementById('tf-btn');
+            btn.textContent = '再次点击「确认转移」，同场记录将作废';
+            btn.classList.add('animate-pulse');
+            return;
+        }
+        state._conflictConfirmed = false;
+        state._conflictPair = null;
         state.transfers[i] = +sel.value;
         state.childrenKeep[i] = false; // 转移后遗弃
         closeTransferModal();
