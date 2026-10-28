@@ -70,6 +70,12 @@ table.mtx{border-collapse:separate;border-spacing:0;width:100%;min-width:860px}
 .cell.linked.hiddenreg{background:#fdf3e3;border-color:#ecd9b0;color:#8a5a12}
 .cell.linked.hiddenreg .edit{color:#b08340}
 .cell.linked.hiddenreg:hover{border-color:#b45309}
+.cp-btn{display:inline-flex;align-items:center;gap:3px;border:1px solid var(--border);background:#fff;border-radius:6px;padding:2px 8px;font-size:11px;color:var(--primary);cursor:pointer;white-space:nowrap}
+.cp-btn:hover{border-color:var(--primary);background:#f5f8ff}
+.cp-btn.cell-cp{margin-top:3px;justify-content:center}
+.cp-btn.dis{color:#94a3b8;cursor:not-allowed;opacity:.6}
+.th-cp{margin-top:4px}
+.zone-cp-row{display:flex;gap:6px;flex-wrap:wrap;justify-content:flex-start}
 .cell.linked:hover{border-color:var(--primary)}
 .cell.empty{color:#9aa4b2;font-size:12px;border:1px dashed #d5dbe4}
 .cell.empty:hover{border-color:var(--primary);color:var(--primary)}
@@ -369,6 +375,19 @@ function permToggle(cb,boxId){
 /* ================= 数据 ================= */
 var GROUPS=['3月批','6月批'];
 var CHS=['猿编程','核桃编程','编程猫','小码王','VIPCODE','童程童美','小码精灵','码高教育','乐高活动中心','斯坦星球','极客晨星','西瓜创客'];
+var CH_CODES={'猿编程':'YPB2025','核桃编程':'HWTB2026','编程猫':'BCM3301','小码王':'XMW5520','VIPCODE':'VIPC7788','童程童美':'TCTM2093','小码精灵':'XMJL4410','码高教育':'MAGJ6602','乐高活动中心':'LEGOMind','斯坦星球':'STAN8817','极客晨星':'JKCX3325','西瓜创客':'XGCK9908'};
+var ACT_NAME='2026年9月常规考', ACT_ID=1;
+/* 复制报名链接：按分级生成演示链接；hidden 行为定向报名链接 */
+function linkExam(ci,ri){var r=ROWS[ri];var L=r.links[ci];
+  if(L&&L.hidden)return 'https://aise.cn/reg/d/8f'+CH_CODES[CHS[ci]].toLowerCase()+'q2m9';
+  return 'https://aise.cn/reg?ch='+CH_CODES[CHS[ci]]+'&act='+ACT_ID+'&grp='+encodeURIComponent(r.zone)+'&exam='+encodeURIComponent(r.name)}
+function linkGroup(ci,z){return 'https://aise.cn/reg?ch='+CH_CODES[CHS[ci]]+'&act='+ACT_ID+'&grp='+encodeURIComponent(z)}
+function linkChan(ci){return 'https://aise.cn/reg?ch='+CH_CODES[CHS[ci]]+'&act='+ACT_ID}
+function linkAct(ci){return 'https://aise.cn/reg?ch='+CH_CODES[CHS[ci]]+'&act='+ACT_ID+'&level=activity'}
+function doCopy(text,msg){
+  if(navigator.clipboard&&navigator.clipboard.writeText){navigator.clipboard.writeText(text).then(function(){toast(msg)},function(){toast(msg)})}
+  else toast(msg);
+}
 /* rows: 每行一场测评; links[examIdx][chIdx] = null | {fee, hidden, regs} */
 var ROWS=[
  {zone:'3月批',name:'Python一级-第1场',paper:'Python一级 正式卷A',time:'09-20 09:00',regs:[12,5,0,0],mock:true,
@@ -410,7 +429,9 @@ function renderHead(){
   var h='<th class="stu"><span class="th-main">测评 × 渠道</span><div class="hint">勾选行后可批量操作</div></th>';
   CHS.forEach(function(c,i){
     var n=0;ROWS.forEach(function(r,ri){if(r.links[i]&&!r.links[i].fail)n++});
-    h+='<th><span class="th-main">'+c+'</span><div class="hint">'+n+' 场已关联</div></th>';
+    h+='<th><span class="th-main">'+c+'</span><div class="hint">'+n+' 场已关联</div>'+
+      '<span class="cp-btn th-cp" title="复制活动级链接：学员打开后选分组、选测评" onclick="doCopy(linkAct('+i+'),\'已复制活动级链接（'+c+'）\')">⧉ 活动级</span>'+
+      '<span class="cp-btn th-cp" title="复制渠道级链接：学员打开后选分组、选测评" onclick="doCopy(linkChan('+i+'),\'已复制渠道级链接（'+c+'）\')">⧉ 渠道级</span></th>';
   });
   tr.innerHTML=h;
 }
@@ -425,7 +446,12 @@ function renderBody(){
     if(!list.length)return;
     shown=true;
     var zr=document.createElement('tr');zr.className='zone-row';
-    zr.innerHTML='<td class="stu grp-td"><div class="zone-line"><input type="checkbox" onclick="selZone(\''+z+'\',this)" title="选中本组全部测评"> <b>【'+z+'】</b> <span class="hint">'+list.length+' 场测评</span></div></td><td class="grp-rest" colspan="'+CHS.length+'"></td>';
+    var zoneTds='';
+    CHS.forEach(function(c,ci){
+      var any=list.some(function(o){return o.r.links[ci]&&!o.r.links[ci].fail});
+      zoneTds+='<td><span class="cp-btn'+(any?'':' dis')+'" title="复制分组级链接：学员打开后仅选测评" '+(any?'onclick="doCopy(linkGroup('+ci+',\''+z+'\'),\'已复制分组级链接（'+c+' · '+z+'）\')"':'onclick="toast(\'该渠道在此分组下暂无已关联测评\')"')+'>⧉ 分组级</span></td>';
+    });
+    zr.innerHTML='<td class="stu grp-td"><div class="zone-line"><input type="checkbox" onclick="selZone(\''+z+'\',this)" title="选中本组全部测评"> <b>【'+z+'】</b> <span class="hint">'+list.length+' 场测评</span><span class="hint" style="margin-left:8px">各行按钮复制该渠道×本分组的链接</span></div></td>'+zoneTds;
     tb.appendChild(zr);
     list.forEach(function(o){
       var r=o.r,i=o.i;
@@ -439,7 +465,7 @@ function renderBody(){
       CHS.forEach(function(c,ci){
         var L=r.links[ci];
         if(L&&L.fail){tds+='<td><span class="cell linked" onclick="toast(\'创建失败：爱测评返回冲突，点击重试\')">创建失败<span class="badge fail">失败</span></span></td>';}
-        else if(L){tds+='<td><span class="cell linked'+(L.hidden?' hiddenreg':'')+'" onclick="openCell('+i+','+ci+')"><span class="row1"><span class="fee">'+(L.fee===0?'免费':'¥'+L.fee)+'</span>'+(L.regs>0?'<span class="regs">'+L.regs+'人报名</span>':'')+'</span><span class="row2"><span class="edit">编辑 · 展示 · 隐藏</span></span></span></td>';}
+        else if(L){tds+='<td><span class="cell linked'+(L.hidden?' hiddenreg':'')+'" onclick="openCell('+i+','+ci+')"><span class="row1"><span class="fee">'+(L.fee===0?'免费':'¥'+L.fee)+'</span>'+(L.regs>0?'<span class="regs">'+L.regs+'人报名</span>':'')+'</span><span class="row2"><span class="edit">编辑 · 展示 · 隐藏</span></span><span class="cp-btn cell-cp" title="'+(L.hidden?'复制定向报名链接：仅持有链接的用户可见可报':'复制测评级链接：学员打开后直接填写报名信息')+'" onclick="event.stopPropagation();doCopy(linkExam('+ci+','+i+'),\'已复制测评级链接（'+CHS[ci]+' · '+r.name+'）\')">⧉ '+(L.hidden?'定向链接':'测评级')+'</span></span></td>';}
         else{tds+='<td><span class="cell empty" onclick="openCellNew('+i+','+ci+')">＋ 关联</span></td>';}
       });
       tr.innerHTML=tds;tb.appendChild(tr);

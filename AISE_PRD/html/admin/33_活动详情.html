@@ -247,7 +247,6 @@ textarea{min-height:72px}
       <button class="btn small" id="btnExpand" onclick="toggleExpandAll()">收起全部</button>
       <div class="spacer"></div>
       <button class="btn hidden" id="headBulkBtn" onclick="openBulkEditExam()">✎ 批量修改</button>
-      <button class="btn" id="headCopyLinkBtn" onclick="openCopyLink()">复制活动链接</button>
       <button class="btn" id="headMatrixBtn" onclick="gotoMatrix()">渠道关联</button>
       <button class="btn" onclick="newZoneInline()">＋ 新建分组</button>
       <button class="btn primary" onclick="openWizard(null)">＋ 创建测评</button>
@@ -260,30 +259,6 @@ textarea{min-height:72px}
 </div>
 
 <!-- ========== 新建活动 ========== -->
-<div class="overlay" id="ovCopyLink">
-  <div class="modal" style="width:560px">
-    <div class="modal-head"><b>复制活动链接</b><div class="spacer" style="flex:1"></div>
-      <button class="btn small" onclick="hide('ovCopyLink')">✕</button></div>
-    <div class="modal-body">
-      <div class="hint" style="margin-bottom:10px">活动级链接：学员打开后渠道与本活动固定，在活动下选择分组，再选择分组下的测评。同一链接也可在渠道管理「关联测评」弹窗复制，两处复制出的链接一致。</div>
-      <input type="text" class="search" id="clKw" placeholder="搜索渠道名称 / 渠道码" style="width:100%;margin-bottom:8px" oninput="renderCopyLink()">
-      <div id="clList" style="max-height:300px;overflow-y:auto"></div>
-    </div>
-  </div>
-</div>
-
-<div class="overlay" id="ovExamChan">
-  <div class="modal" style="width:520px">
-    <div class="modal-head"><b>选择渠道复制报名链接</b><div class="spacer" style="flex:1"></div>
-      <button class="btn small" onclick="hide('ovExamChan')">✕</button></div>
-    <div class="modal-body">
-      <div class="hint" id="ecSub" style="margin-bottom:10px"></div>
-      <div class="warnbox" style="margin-bottom:10px">测评级链接已锁定<b>渠道、活动、分组与测评</b>，学员打开后直接填写报名信息。</div>
-      <div id="ecList" style="max-height:280px;overflow-y:auto"></div>
-    </div>
-  </div>
-</div>
-
 <div class="overlay" id="ovActivity">
   <div class="modal" style="width:480px">
     <div class="modal-head"><b>新建活动</b></div>
@@ -540,16 +515,6 @@ var acts=[
  {id:2,name:'2026年12月冲刺班',start:'2026-12-01',end:'2026-12-31',groups:[],exams:[],links:0}
 ];
 var TAGS=['图形化 1 级','图形化 2 级','图形化 3 级','Python 1 级','Python 2 级','Python 3 级','C++ 1 级','C++ 2 级','程序设置 1 级','程序设置 2 级','程序设置 3 级'];
-var CHAN_LIST=[{code:'YPB2025',name:'猿编程教育科技'},{code:'HWTB2026',name:'核桃编程'},{code:'CB888',name:'CodeBear 代码熊'}];
-/* 行级渠道注册明细：key=测评名，value=[{code,regs,hidden}]（regs=该渠道已报名人数，hidden=隐藏报名） */
-var EXAM_CHANS={
- 'Python一级-第1场':[{code:'YPB2025',regs:32,hidden:false},{code:'HWTB2026',regs:8,hidden:true}],
- '图形化一级-第1场':[{code:'YPB2025',regs:15,hidden:false},{code:'HWTB2026',regs:5,hidden:true}],
- 'Python二级-第1场':[{code:'YPB2025',regs:21,hidden:false}],
- '图形化二级-第1场':[]
-};
-function chanName(code){for(var i=0;i<CHAN_LIST.length;i++)if(CHAN_LIST[i].code===code)return CHAN_LIST[i].name;return code}
-function examChans(e){return EXAM_CHANS[e.name]||[]}
 var PAPERS=['图形化一级 2026春 正式卷','图形化一级 2026春 备用卷','图形化二级 2026春 正式卷','图形化二级 2026春 备用卷','图形化三级 2026春 正式卷','Python一级 2026春 正式卷A','Python一级 2026春 正式卷B','Python二级 2026春 正式卷','Python三级 2026春 正式卷','C++一级 2026春 正式卷','C++二级 2026春 正式卷','程序设置1级 期末卷','程序设置2级 期末卷','程序设置3级 期末卷','回归测试专用考场卷','2026区赛选拔卷 A','2026区赛选拔卷 B','2026市赛模拟卷 一','2026市赛模拟卷 二','Scratch入门测评卷','EV3机器人测评卷','Arduino创意测评卷','无人机编程测评卷','信息学奥赛入门卷','信奥 CSP-J 模拟一','信奥 CSP-J 模拟二','信奥 CSP-S 模拟一','信奥 CSP-S 模拟二','等级测评样卷 2026','等级测评样卷 2025','等级测评样卷 2024'];
 var curAct=null, wizStep='A', createdCount=0, zoneOpen={}, allOpen=true, editingZone=null, newZoneMode=false;
 var wizZoneSel=[];
@@ -669,7 +634,6 @@ function renderTree(){
           '<td class="cfg-cell">'+fMockLine+mMock+'</td>'+
           '<td><div style="display:flex;align-items:center;justify-content:space-between;gap:8px"><span style="white-space:nowrap">'+(e.chs?e.chs+' 渠道':'<span class="muted">—</span>')+'</span><span style="display:flex;gap:6px"><button class="btn small" style="width:52px;justify-content:center" onclick="toast(\'演示：编辑测评配置（正式考 / 模拟考）\')">编辑</button><span class="menu-wrap"><button class="btn small" style="width:36px;justify-content:center" onclick="toggleMenu(event,this)">…</button><div class="menu">'+
           '<div class="mi" onclick="toast(\'演示：编辑测评配置（正式考 / 模拟考）\')">编辑测评</div>'+
-          (examChans(e).length?('<div class="mi" onclick="copyExamLink('+e._i+')">复制报名链接</div>'):'')+
           '<div class="mi" onclick="toast(\'演示：复制测评，名称与时间顺延\')">复制测评</div>'+
           (e.paperOk?'':'<div class="mi" onclick="toast(\'演示：选择试卷后变为已关联\')">补关联试卷</div>')+
           '<div class="mi red" onclick="delExam('+e._i+')">删除测评</div>'+
@@ -736,62 +700,6 @@ function saveNewZone(){
   curAct.groups.push(v);renderTree();toast('分组「'+v+'」已创建');
 }
 function cancelNewZone(){newZoneMode=false;renderTree()}
-/* ================= 复制报名链接 ================= */
-var copyExamIdx=null;
-function doCopy(text,msg){
-  if(navigator.clipboard&&navigator.clipboard.writeText){navigator.clipboard.writeText(text).then(function(){toast(msg)},function(){toast(msg)})}
-  else toast(msg);
-}
-function linkFor(chan,exam){
-  /* 演示链接格式；隐藏报名行为定向报名链接（/reg/d/随机标识），正常行为测评级链接 */
-  if(exam){
-    var reg=examChans(exam).filter(function(c){return c.code===chan});
-    if(reg.length&&reg[0].hidden)return 'https://aise.cn/reg/d/8f'+chan.toLowerCase()+'q2m9';
-    return 'https://aise.cn/reg?ch='+chan+'&act='+curAct.id+'&grp='+encodeURIComponent(exam.g)+'&exam='+encodeURIComponent(exam.name);
-  }
-  return 'https://aise.cn/reg?ch='+chan+'&act='+curAct.id;
-}
-function copyExamLink(i){
-  var e=curAct.exams[i];var cs=examChans(e);
-  if(!cs.length){toast('该测评尚未关联渠道');return}
-  copyExamIdx=i;
-  if(cs.length===1){doCopy(linkFor(cs[0].code,e),'已复制报名链接（'+chanName(cs[0].code)+'）');return}
-  $('ecSub').textContent='「'+e.name+'」关联了 '+cs.length+' 个渠道，请选择要复制链接的渠道：';
-  $('ecList').innerHTML=cs.map(function(c,idx){
-    return '<div style="display:flex;align-items:center;justify-content:space-between;padding:9px 4px;border-bottom:1px solid #eef1f6">'+
-      '<div><b style="font-size:13px">'+esc(chanName(c.code))+'</b> <span class="muted" style="font-size:11px;font-family:monospace">'+c.code+'</span>'+
-      (c.hidden?' <span class="tag amber">隐藏报名</span>':'')+
-      '<div class="hint" style="margin-top:2px">已报名 '+c.regs+' 人'+(c.hidden?' · 定向链接，仅持有链接的用户可见可报':'')+'</div></div>'+
-      '<button class="btn small primary" onclick="doCopy(linkFor(\''+c.code+'\',curAct.exams[copyExamIdx]),\'已复制报名链接（'+esc(chanName(c.code))+'）\');hide(\'ovExamChan\')">复制链接</button></div>';
-  }).join('');
-  show('ovExamChan');
-}
-function openCopyLink(){
-  var chans={};
-  (curAct.exams||[]).forEach(function(e){examChans(e).forEach(function(c){chans[c.code]=(chans[c.code]||0)+c.regs})});
-  var codes=Object.keys(chans);
-  $('headCopyLinkBtn').disabled=!codes.length;
-  if(!codes.length){toast('本活动尚未关联渠道，请先在渠道关联矩阵完成配置');return}
-  $('clKw').value='';renderCopyLink();show('ovCopyLink');
-}
-function renderCopyLink(){
-  var kw=($('clKw').value||'').toLowerCase();
-  var chans={};var singleZones={};
-  (curAct.exams||[]).forEach(function(e){examChans(e).forEach(function(c){chans[c.code]=(chans[c.code]||0)+c.regs})});
-  var zones={};(curAct.exams||[]).forEach(function(e){(zones[e.g]=zones[e.g]||[]).push(e)});
-  Object.keys(zones).forEach(function(z){if(zones[z].length===1)singleZones[z]=true});
-  var codes=Object.keys(chans).filter(function(c){
-    var n=chanName(c).toLowerCase();
-    return !kw||n.indexOf(kw)>=0||c.toLowerCase().indexOf(kw)>=0;
-  });
-  $('clList').innerHTML=codes.length?codes.map(function(c){
-    return '<div style="display:flex;align-items:center;justify-content:space-between;padding:9px 4px;border-bottom:1px solid #eef1f6">'+
-      '<div><b style="font-size:13px">'+esc(chanName(c))+'</b> <span class="muted" style="font-size:11px;font-family:monospace">'+c+'</span>'+
-      '<div class="hint" style="margin-top:2px">本活动累计已报名 '+chans[c]+' 人'+
-      (Object.keys(singleZones).length?(' · 部分分组仅 1 个时学员打开将跳过分组选择'):'')+'</div></div>'+
-      '<button class="btn small primary" onclick="doCopy(linkFor(\''+c+'\',null),\'已复制活动级链接（'+esc(chanName(c))+'）\')">复制活动级链接</button></div>';
-  }).join(''):'<div class="hint" style="text-align:center;padding:18px">无匹配渠道</div>';
-}
 function delExam(i){
   if(!confirm('确认删除测评「'+curAct.exams[i].name+'」？已产生的报名不受影响。'))return;
   curAct.exams.splice(i,1);renderTree();toast('测评已删除');
