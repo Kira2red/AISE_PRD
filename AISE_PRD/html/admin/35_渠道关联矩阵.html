@@ -382,8 +382,7 @@ function linkExam(ci,ri){var r=ROWS[ri];var L=r.links[ci];
   if(L&&L.hidden)return 'https://aise.cn/reg/d/8f'+CH_CODES[CHS[ci]].toLowerCase()+'q2m9';
   return 'https://aise.cn/reg?ch='+CH_CODES[CHS[ci]]+'&act='+ACT_ID+'&grp='+encodeURIComponent(r.zone)+'&exam='+encodeURIComponent(r.name)}
 function linkGroup(ci,z){return 'https://aise.cn/reg?ch='+CH_CODES[CHS[ci]]+'&act='+ACT_ID+'&grp='+encodeURIComponent(z)}
-function linkChan(ci){return 'https://aise.cn/reg?ch='+CH_CODES[CHS[ci]]+'&act='+ACT_ID}
-function linkAct(ci){return 'https://aise.cn/reg?ch='+CH_CODES[CHS[ci]]+'&act='+ACT_ID+'&level=activity'}
+function linkAct(ci){return 'https://aise.cn/reg?ch='+CH_CODES[CHS[ci]]+'&act='+ACT_ID}
 function doCopy(text,msg){
   if(navigator.clipboard&&navigator.clipboard.writeText){navigator.clipboard.writeText(text).then(function(){toast(msg)},function(){toast(msg)})}
   else toast(msg);
@@ -430,8 +429,7 @@ function renderHead(){
   CHS.forEach(function(c,i){
     var n=0;ROWS.forEach(function(r,ri){if(r.links[i]&&!r.links[i].fail)n++});
     h+='<th><span class="th-main">'+c+'</span><div class="hint">'+n+' 场已关联</div>'+
-      '<span class="cp-btn th-cp" title="复制活动级链接：学员打开后选分组、选测评" onclick="doCopy(linkAct('+i+'),\'已复制活动级链接（'+c+'）\')">⧉ 活动级</span>'+
-      '<span class="cp-btn th-cp" title="复制渠道级链接：学员打开后选分组、选测评" onclick="doCopy(linkChan('+i+'),\'已复制渠道级链接（'+c+'）\')">⧉ 渠道级</span></th>';
+      '<span class="cp-btn th-cp" title="复制活动级链接：该渠道×本活动，学员打开后选分组、选测评" onclick="doCopy(linkAct('+i+'),\'已复制活动级链接（'+c+'）\')">⧉ 活动级</span></th>';
   });
   tr.innerHTML=h;
 }
