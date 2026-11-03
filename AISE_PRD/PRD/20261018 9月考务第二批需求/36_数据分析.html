@@ -29,9 +29,9 @@ tailwind.config = {
 <style>
 body { background-color: #F8FAFC; }
 .stat-card { position: relative; }
-.jump-btn { position: absolute; top: 10px; right: 10px; width: 26px; height: 26px; border-radius: 8px; display: flex; align-items: center; justify-content: center; color: #94A3B8; background: #F1F5F9; font-size: 11px; opacity: 0; transform: translateY(-2px); transition: .15s; }
-.stat-card:hover .jump-btn { opacity: 1; transform: translateY(0); }
-.jump-btn:hover { background: #DBEAFE; color: #2563EB; }
+.jump-btn { position: absolute; top: 10px; right: 10px; width: 26px; height: 26px; border-radius: 8px; display: flex; align-items: center; justify-content: center; color: #94A3B8; background: #F1F5F9; font-size: 11px; }
+.jump-num { color: #2563EB; cursor: pointer; }
+.jump-num:hover { color: #1D4ED8; text-decoration: underline; text-underline-offset: 4px; }
 .mono { font-family: 'JetBrains Mono', monospace; }
 .msel { position:relative; }
 .msel-btn { display:inline-flex; align-items:center; gap:8px; border:1px solid #E2E8F0; background:#fff; border-radius:10px; padding:7px 12px; font-size:13px; color:#475569; cursor:pointer; transition:.13s; min-width:150px; }
@@ -161,6 +161,8 @@ table.gt tr:hover td { background:#F8FAFC; }
       <span id="scopeTip" class="text-xs text-slate-400"></span>
       <button onclick="resetFilters()" class="text-sm text-slate-400 hover:text-slate-600 transition px-2 py-1"><i class="fa-solid fa-rotate-right mr-1"></i>重置</button>
       <button onclick="applyFilters()" class="bg-brand-600 hover:bg-brand-700 text-white text-sm font-medium px-4 py-1.5 rounded-lg shadow-sm transition"><i class="fa-solid fa-magnifying-glass mr-1 text-xs"></i>筛选数据</button>
+      <span class="w-px h-6 bg-slate-100"></span>
+      <button onclick="window.open('37_学员明细.html?biz=all','_blank')" class="border border-brand-300 text-brand-700 hover:bg-brand-50 text-sm font-semibold px-4 py-1.5 rounded-lg transition flex items-center gap-2" title="查看全部学员明细"><i class="fa-solid fa-table-list text-xs"></i>学员明细</button>
     </div>
   </div>
 </div>
@@ -351,9 +353,11 @@ function mkChart(id, cfg) {
 function statCard(cls, label, value, unit, sub, jump) {
   return '<div class="stat-card ' + (cls || '') + '">' +
     '<p class="text-xs text-slate-400 font-medium mb-1.5">' + label + '</p>' +
-    '<p class="text-[26px] font-bold font-mono leading-none mb-1.5" style="color:#1E293B">' + value + (unit ? ' <span class="text-sm font-normal text-slate-400">' + unit + '</span>' : '') + '</p>' +
+    (jump
+      ? '<p class="text-[26px] font-bold font-mono leading-none mb-1.5" style="cursor:pointer" onclick="window.open(\'37_学员明细.html?biz=' + jump + '\', \'_blank\')" title="点击查看学员明细"><span style="color:#2563EB" onmouseover="this.style.color=\'#1D4ED8\'" onmouseout="this.style.color=\'#2563EB\'">' + value + '</span>' + (unit ? ' <span class="text-sm font-normal text-slate-400">' + unit + '</span>' : '') + '</p>'
+      : '<p class="text-[26px] font-bold font-mono leading-none mb-1.5" style="color:#1E293B">' + value + (unit ? ' <span class="text-sm font-normal text-slate-400">' + unit + '</span>' : '') + '</p>') +
     (sub ? '<p class="text-xs text-slate-400">' + sub + '</p>' : '') +
-    (jump ? '<a class="jump-btn" href="37_学员明细.html?biz=' + jump + '" target="_blank" title="查看学员明细"><i class="fa-solid fa-arrow-up-right-from-square"></i></a>' : '') + '</div>';
+    '</div>';
 }
 function panelHead(title, note) {
   return '<div class="flex items-baseline justify-between mb-4"><h3 class="text-sm font-bold text-slate-700">' + title + '</h3>' + (note ? '<span class="text-xs text-slate-400">' + note + '</span>' : '') + '</div>';
@@ -363,10 +367,12 @@ function pairCard(label, real, should, isRate, jump) {
   var w = Math.min(100, Number(p)).toFixed(1);
   return '<div class="stat-card">' +
     '<p class="text-xs text-slate-400 font-medium mb-1.5">' + label + '</p>' +
-    '<p class="text-[24px] font-bold font-mono leading-none mb-1" style="color:#1E293B">' + fmt(real) + ' <span class="text-sm font-normal text-slate-400">/ ' + fmt(should) + ' 人</span>' + '</p>' +
+    (jump
+      ? '<p class="text-[24px] font-bold font-mono leading-none mb-1" style="cursor:pointer" onclick="window.open(\'37_学员明细.html?biz=' + jump + '\', \'_blank\')" title="点击查看学员明细"><span style="color:#2563EB" onmouseover="this.style.color=\'#1D4ED8\'" onmouseout="this.style.color=\'#2563EB\'">' + fmt(real) + '</span> <span class="text-sm font-normal text-slate-400">/ ' + fmt(should) + ' 人</span></p>'
+      : '<p class="text-[24px] font-bold font-mono leading-none mb-1" style="color:#1E293B">' + fmt(real) + ' <span class="text-sm font-normal text-slate-400">/ ' + fmt(should) + ' 人</span></p>') +
     '<div class="pbar mt-2.5"><i style="width:' + w + '%"></i></div>' +
     '<p class="text-xs mt-1.5"><span class="font-mono font-semibold text-brand-600">' + p + '%</span> <span class="text-slate-400">' + (isRate || '开启率') + '</span></p>' +
-    (jump ? '<a class="jump-btn" href="37_学员明细.html?biz=' + jump + '" target="_blank" title="查看学员明细"><i class="fa-solid fa-arrow-up-right-from-square"></i></a>' : '') + '</div>';
+    '</div>';
 }
 
 /* ---------- 筛选区（下拉多选 + 模糊搜索） ---------- */
