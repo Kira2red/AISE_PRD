@@ -482,7 +482,7 @@
         <div class="absolute inset-0 bg-slate-900/50" onclick="closeTaskDrawer()"></div>
         <div class="absolute right-0 top-0 bottom-0 w-[760px] max-w-[92vw] bg-white shadow-2xl flex flex-col">
             <div class="h-16 border-b border-slate-100 flex items-center justify-between px-6 bg-slate-50/50">
-                <h2 class="font-bold text-slate-800 text-lg">导出任务</h2>
+                <h2 class="font-bold text-slate-800 text-lg">导出任务列表</h2>
                 <button onclick="closeTaskDrawer()" class="w-8 h-8 rounded-full hover:bg-slate-100 flex items-center justify-center text-slate-500 transition">
                     <i class="fa-solid fa-xmark"></i>
                 </button>
@@ -742,7 +742,8 @@
             tasks.unshift(task);
             if (!saveExportTasks(tasks)) { showToast('存储配额不足，请联系管理员', 4000); return; }
             renderTaskBadge();
-            showToast('Excel 导出任务已创建（' + files.length + ' 个文件），可在右上角「导出任务」查看进度', 3000);
+            showToast('Excel 导出任务已创建（' + files.length + ' 个文件）', 3000);
+            setTimeout(() => { openTaskDrawer(); }, 600);
             files.forEach((f2, i2) => {
                 setTimeout(() => {
                     const cur = loadExportTasks();
@@ -788,7 +789,8 @@
             tasks.unshift(task);
             if (!saveExportTasks(tasks)) { showToast('存储配额不足，请联系管理员', 4000); return; }
             renderTaskBadge();
-            showToast('照片压缩包开始异步生成（' + files.length + ' 个文件），可在右上角「导出任务」查看进度', 3000);
+            showToast('照片压缩包开始异步生成（' + files.length + ' 个文件）', 3000);
+            setTimeout(() => { openTaskDrawer(); }, 600);
             // demo 模拟异步完成：逐个文件约 1.2s 完成
             files.forEach((f2, i2) => {
                 setTimeout(() => {
