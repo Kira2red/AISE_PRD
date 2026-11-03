@@ -108,7 +108,7 @@
                             <th style="min-width:96px">测评状态</th>
                             <th style="min-width:120px">监考状态</th>
                             <th style="min-width:90px">作答状态</th>
-                            <th style="min-width:120px">操作</th>
+                            <th style="min-width:178px">操作</th>
                         </tr>
                     </thead>
                     <tbody id="tb"></tbody>
@@ -165,6 +165,8 @@
           group: GROUPS[i % 2],
           channel: CHANNELS[Math.floor(rnd * 3)],
           es: est, ms: mst, as: ast,
+          /* 模拟考开关按活动配置：本活动内 C++一级·第1场 未开启模拟考，其余场次均开启 */
+          mock: exam !== 'C++一级·第1场',
           enter: est.k !== 'not_started' && est.k !== 'absent'
         });
       }
@@ -278,7 +280,12 @@
           '<td style="white-space:nowrap"><span class="chip ' + s.es.cls + '">' + s.es.t + '</span></td>' +
           '<td style="white-space:nowrap"><span class="chip ' + s.ms.cls + '">' + s.ms.t + '</span></td>' +
           '<td style="white-space:nowrap"><span class="chip ' + s.as.cls + '">' + s.as.t + '</span></td>' +
-          '<td style="white-space:nowrap"><button onclick="goIceping(' + ri + ')" class="text-xs text-brand-600 hover:text-brand-800 border border-brand-200 hover:border-brand-400 rounded-md px-2.5 py-1 transition whitespace-nowrap"><i class="fa-solid fa-arrow-up-right-from-square mr-1 text-[10px]"></i>查看爱测评状态</button></td>' +
+          '<td style="white-space:nowrap;min-width:170px">' +
+            '<button onclick="goIceping(' + ri + ', \'formal\')" class="text-xs text-brand-600 hover:text-brand-800 border border-brand-200 hover:border-brand-400 rounded-md px-2 py-1 transition whitespace-nowrap" title="跳转爱测评该场次正式考详情，按学员定位"><i class="fa-solid fa-arrow-up-right-from-square mr-1 text-[10px]"></i>正式场</button>' +
+            (s.mock
+              ? '<button onclick="goIceping(' + ri + ', \'mock\')" class="text-xs text-brand-600 hover:text-brand-800 border border-brand-200 hover:border-brand-400 rounded-md px-2 py-1 transition whitespace-nowrap ml-1.5" title="跳转爱测评该场次模拟考详情，按学员定位"><i class="fa-solid fa-arrow-up-right-from-square mr-1 text-[10px]"></i>模拟场</button>'
+              : '<button disabled class="text-xs text-slate-300 border border-slate-200 rounded-md px-2 py-1 transition whitespace-nowrap ml-1.5 cursor-not-allowed" title="该场次未开启模拟考"><i class="fa-solid fa-arrow-up-right-from-square mr-1 text-[10px]"></i>模拟场</button>') +
+          '</td>' +
           '</tr>';
       }).join('');
       document.getElementById('empty').classList.toggle('hidden', rows.length > 0);
@@ -291,8 +298,8 @@
         '';
       renderChips(fe, fg, fc, es1, ms1, as1);
     }
-    /* 跳爱测评：按行内学员定位（demo 演示；正式链路=免登票据跳转爱测评测评详情并自动填入该学员筛选） */
-    function goIceping(ri) {
+    /* 跳爱测评：按行内学员+场次类型定位（demo 演示；正式链路=免登票据跳转爱测评对应场次详情并自动填入该学员筛选，只进入本活动该场次的正式考/模拟考） */
+    function goIceping(ri, session) {
       var kw = (document.getElementById('fKw').value || '').trim();
       var fe = document.getElementById('fExam').value;
       var fc = document.getElementById('fChannel').value;
@@ -304,7 +311,8 @@
       });
       var s = rows[ri];
       if (!s) return;
-      toast('演示：携带登录态跳转爱测评 → 测评详情（' + s.exam + ' · ' + s.channel + '），自动按「' + s.name + ' / ' + s.phone + '」筛选定位该学员');
+      var st = session === 'mock' ? '模拟考' : '正式考';
+      toast('演示：携带登录态跳转爱测评 → ' + s.exam + ' ' + st + '详情（' + s.channel + '），自动按「' + s.name + ' / ' + s.phone + '」筛选定位该学员');
     }
     function renderChips(fe, fg, fc, es1, ms1, as1) {
       var h = '';
