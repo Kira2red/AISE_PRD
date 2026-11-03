@@ -451,7 +451,7 @@
                 <div class="flex items-start gap-2">
                     <span class="text-slate-500 shrink-0 w-[76px]">导出内容</span>
                     <div class="flex items-center gap-4 flex-wrap">
-                        <label class="flex items-center gap-1.5 cursor-pointer text-slate-700"><input type="checkbox" id="exp-opt-excel" checked class="accent-blue-600" onchange="onExportOptChange()"> Excel 明细表（同步下载）</label>
+                        <label class="flex items-center gap-1.5 cursor-pointer text-slate-700"><input type="checkbox" id="exp-opt-excel" checked class="accent-blue-600" onchange="onExportOptChange()"> Excel 明细表（异步任务）</label>
                         <label class="flex items-center gap-1.5 cursor-pointer text-slate-700"><input type="checkbox" id="exp-opt-photo" checked class="accent-blue-600" onchange="onExportOptChange()"> 学生照片压缩包（异步）</label>
                     </div>
                 </div>
@@ -465,7 +465,7 @@
                 <div id="export-confirm-warn" class="hidden px-3 py-2.5 rounded-lg bg-amber-50 border border-amber-200 text-amber-700 text-xs leading-relaxed">
                     <i class="fa-solid fa-triangle-exclamation mr-1"></i><span></span>
                 </div>
-                <p class="text-xs text-slate-400 leading-relaxed">Excel sheet2 记录本次导出条件；照片压缩包按「证书编号+学生姓名」命名；分开导出时每个考场的 Excel 与照片压缩包各自独立成份。</p>
+                <p class="text-xs text-slate-400 leading-relaxed">Excel 与照片压缩包均为异步任务，任务完成后在右上角「导出任务」抽屉按文件下载；Excel sheet2 记录本次导出条件；照片按「证书编号+学生姓名」命名；分开导出时每个考场的 Excel 与照片压缩包各自独立成份。</p>
             </div>
             <div class="px-6 py-4 border-t border-slate-100 flex items-center justify-between">
                 <span id="export-confirm-summary" class="text-xs text-slate-500"></span>
@@ -701,48 +701,7 @@
             students.forEach(n => { const r = CERT_STU_META[n].room || '未分配考场'; (g[r] = g[r] || []).push(n); });
             return g;
         }
-        // 按拆分方式生成 Excel（split=true 每考场一份，逐份下载）
-        function downloadExcels(students, split) {
-            const groups = split ? groupByRoom(students) : { '全部考场': students };
-            const ymd = new Date().toISOString().slice(0,10).replace(/-/g,'');
-            Object.keys(groups).forEach((room, idx) => {
-                setTimeout(() => downloadExcel(groups[room], room, ymd, split), idx * 350);
-            });
-        }
-        // 生成并下载 Excel（sheet1 明细 + sheet2 导出条件）
-        function downloadExcel(students, roomLabel, ymd, split) {
-            const rows = [
-                ['考场名称','准考证号码','手机号（学生账号）','姓名','证件号码','参测模块','评估结果','证书编号','订单编号','发证日期']
-            ];
-            students.forEach(n => {
-                const m = CERT_STU_META[n];
-                rows.push([m.room, m.ticket, '138****8888', n, m.idcard, m.module, m.result, m.certNo || '（无证书）', m.orderNo, m.issueDate || '']);
-            });
-            const sheet2 = [['导出条件'], [describeFilter()], ['导出时间', new Date().toLocaleString('zh-CN')], ['导出行数', students.length + ' 人'], ['导出范围', split ? '按考场分开导出（本文件：' + roomLabel + '）' : '合并导出（全部考场）']];
-            const csvEsc = (s) => '"' + String(s).replace(/"/g, '""') + '"';
-            // demo 用 CSV 承载（真实实现为 xlsx 双 sheet，字段契约一致）
-            let csv = '\ufeff' + rows.map(r => r.map(csvEsc).join(',')).join('\n')
-                + '\n\n[Sheet2：导出条件]\n' + sheet2.map(r => r.map(csvEsc).join(',')).join('\n');
-            const blob = new Blob([csv], { type: 'text/csv;charset=utf-8' });
-            const a = document.createElement('a');
-            a.href = URL.createObjectURL(blob);
-            const roomTag = split ? '_' + roomLabel : '';
-            a.download = '学生证书明细' + roomTag + '_' + ymd + '_' + students.length + '人.csv';
-            a.click();
-            URL.revokeObjectURL(a.href);
-            // 导出留痕：只对有证书的学生计次（口径：缺证书不计导出次数）
-            const d = loadCertTrack();
-            students.forEach(n => {
-                if (!CERT_STU_META[n].certNo) return;
-                if (!d[n]) d[n] = { count: 0, remark: '', logs: [] };
-                d[n].count += 1;
-                d[n].logs.push({ taskId: 'EXP' + Date.now(), time: new Date().toLocaleString('zh-CN'), rows: students.length, operator: 'Admin' });
-            });
-            saveCertTrack(d);
-            renderCertTrackCols();
-            showToast('Excel 已开始下载：' + roomLabel + '（' + students.length + ' 行）', 2500);
-        }
-        // 统一导出入口：读取弹窗勾选（内容+拆分），Excel 同步逐份下载，照片包合并为一个异步任务、文件按考场分行
+        // 统一导出入口：读取弹窗勾选（内容+拆分），Excel 与照片包均创建异步任务，文件按考场分行
         function startExport() {
             const students = filteredStudents();
             const wantExcel = document.getElementById('exp-opt-excel').checked;
@@ -750,8 +709,52 @@
             const split = document.querySelector('input[name="exp-split"]:checked').value === 'split';
             closeExportConfirm();
             if (!students.length) { showToast('当前筛选无命中学员', 3000); return; }
-            if (wantExcel) downloadExcels(students, split);
+            if (wantExcel) createExcelTask(students, split);
             if (wantPhoto) createPhotoTask(students, split);
+        }
+        // Excel 异步任务：一个任务，文件按考场（或合并单文件）分行，逐个生成完成后可单独下载
+        function createExcelTask(students, split) {
+            const filter = describeFilter();
+            const now = new Date();
+            const pad = (n) => String(n).padStart(2, '0');
+            const ymd = pad(now.getFullYear()) + pad(now.getMonth()+1) + pad(now.getDate());
+            const groups = split ? groupByRoom(students) : { '全部考场': students };
+            const files = Object.keys(groups).map(room => ({
+                name: (split ? '学生证书明细_' + room + '_' : '学生证书明细_') + ymd + '_' + groups[room].length + '人.xlsx',
+                room: room,
+                count: groups[room].length,
+                size: Math.round(groups[room].length * 0.012 * 100) / 100,
+                status: 'processing'
+            }));
+            const task = {
+                taskId: 'EXP' + Date.now(),
+                taskName: '导出Excel明细表',
+                taskKind: 'excel',
+                operatorName: 'Admin',
+                createdAt: now.getFullYear() + '-' + pad(now.getMonth()+1) + '-' + pad(now.getDate()) + ' ' + pad(now.getHours()) + ':' + pad(now.getMinutes()) + ':' + pad(now.getSeconds()),
+                status: 'processing',
+                summary: { totalRows: students.length },
+                filterSnapshotText: filter + '；拆分方式=' + (split ? '按考场分开导出' : '合并导出'),
+                files: files,
+                warning: null
+            };
+            const tasks = loadExportTasks();
+            tasks.unshift(task);
+            if (!saveExportTasks(tasks)) { showToast('存储配额不足，请联系管理员', 4000); return; }
+            renderTaskBadge();
+            showToast('Excel 导出任务已创建（' + files.length + ' 个文件），可在右上角「导出任务」查看进度', 3000);
+            files.forEach((f2, i2) => {
+                setTimeout(() => {
+                    const cur = loadExportTasks();
+                    const tt = cur.find(x => x.taskId === task.taskId);
+                    if (!tt) return;
+                    const ff = tt.files.find(x => x.name === f2.name);
+                    if (ff) ff.status = 'success';
+                    if (tt.files.every(x => x.status === 'success')) tt.status = 'success';
+                    saveExportTasks(cur);
+                    renderTaskBadge();
+                }, 1000 * (i2 + 1));
+            });
         }
         // 照片压缩包异步任务：一个任务，文件按考场（或合并单文件）分行
         function createPhotoTask(students, split) {
@@ -812,7 +815,7 @@
             badge.classList.toggle('flex', n > 0);
         }
         function openTaskDrawer() {
-            const tasks = loadExportTasks().filter(x => x.taskKind === 'photo_zip');
+            const tasks = loadExportTasks().filter(x => x.taskKind === 'photo_zip' || x.taskKind === 'excel');
             const tbody = document.getElementById('task-drawer-tbody');
             const rowsHtml = [];
             tasks.forEach(t2 => {
@@ -822,7 +825,7 @@
                         ? '<span class="inline-flex items-center gap-1 px-2 py-0.5 rounded text-xs font-bold bg-amber-50 text-amber-700 border border-amber-100"><i class="fa-solid fa-spinner fa-spin text-[10px]"></i> 生成中</span>'
                         : '<span class="inline-flex items-center gap-1 px-2 py-0.5 rounded text-xs font-bold bg-green-50 text-green-700 border border-green-100"><i class="fa-solid fa-circle-check text-[10px]"></i> 已完成</span>';
                     const dl = f2.status === 'success'
-                        ? '<button onclick="downloadPhotoZip(\'' + t2.taskId + '\',' + fi + ')" class="text-xs font-bold text-brand-600 hover:underline">下载</button>'
+                        ? '<button onclick="downloadTaskFile(\'' + t2.taskId + '\',' + fi + ')" class="text-xs font-bold text-brand-600 hover:underline">下载</button>'
                         : '<span class="text-xs text-slate-300">—</span>';
                     const first = fi === 0;
                     const rowAttrs = 'rowspan="' + files.length + '"';
@@ -841,23 +844,31 @@
         function closeTaskDrawer() {
             document.getElementById('task-drawer').classList.add('hidden');
         }
-        function downloadPhotoZip(taskId, fileIndex) {
+        function downloadTaskFile(taskId, fileIndex) {
             const t2 = loadExportTasks().find(x => x.taskId === taskId);
             if (!t2) return;
             const f2 = (t2.files || [])[fileIndex || 0];
             if (!f2 || f2.status !== 'success') return;
-            // demo：生成占位文本文件模拟 zip 下载（真实实现为服务端 zip 流）；按文件所在考场列出照片清单
+            // demo：生成占位文本文件模拟下载（真实实现为服务端文件流）；按文件所在考场列清单
             const roomName = f2.room || '';
-            const students = CERT_STU_KEYS.filter(n => CERT_STU_META[n].certNo && (!roomName || CERT_STU_META[n].room === roomName));
-            let content = '学生照片压缩包（demo 占位文件）\n命名规则：证书编号+学生姓名\n包含：\n';
-            students.forEach(n => { content += '  ' + CERT_STU_META[n].certNo + '+' + n + '.jpg\n'; });
+            const inRoom = (n) => !roomName || CERT_STU_META[n].room === roomName;
+            let content;
+            if (t2.taskKind === 'excel') {
+                const students = CERT_STU_KEYS.filter(inRoom);
+                content = '学生证书明细（demo 占位文件）\n字段：考场名称,准考证号码,手机号（学生账号）,姓名,证件号码,参测模块,评估结果,证书编号,订单编号,发证日期\n导出条件：' + (t2.filterSnapshotText || '') + '\n包含：\n';
+                students.forEach(n => { const m = CERT_STU_META[n]; content += '  ' + [m.room, m.ticket, '138****8888', n, m.idcard, m.module, m.result, m.certNo, m.orderNo, m.issueDate].join(',') + '\n'; });
+            } else {
+                const students = CERT_STU_KEYS.filter(n => CERT_STU_META[n].certNo && inRoom(n));
+                content = '学生照片压缩包（demo 占位文件）\n命名规则：证书编号+学生姓名\n包含：\n';
+                students.forEach(n => { content += '  ' + CERT_STU_META[n].certNo + '+' + n + '.jpg\n'; });
+            }
             const blob = new Blob([content], { type: 'application/octet-stream' });
             const a = document.createElement('a');
             a.href = URL.createObjectURL(blob);
             a.download = f2.name;
             a.click();
             URL.revokeObjectURL(a.href);
-            showToast('照片压缩包已下载到本地：' + f2.name, 3000);
+            showToast('文件已下载到本地：' + f2.name, 3000);
         }
 
         function exportData() {
