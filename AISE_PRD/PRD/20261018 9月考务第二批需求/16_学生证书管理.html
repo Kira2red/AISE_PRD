@@ -595,7 +595,15 @@
                 ['filter-elec-cert','电子证书'],['filter-result','测评结果'],['filter-photo','照片状态'],
                 ['filter-room','考场名称'],['filter-cert-scope','证书情况']
             ];
-            map.forEach(([id,label]) => { const val = v(id); if (val) parts.push(label + '=' + val); });
+            map.forEach(([id,label]) => {
+                let val = v(id);
+                if (!val) return;
+                if (id === 'filter-cert-scope' && val === 'certified') val = '仅导出有证书的学生（≥60分）';
+                if (id === 'filter-cert-status') val = {processing:'批改中',completed:'批改完成',publicity:'公示中',making:'制作中',sent:'已寄送'}[val] || val;
+                if (id === 'filter-elec-cert') val = {issued:'已签发',pending:'待签发',failed:'签发失败',unconfigured:'未配置'}[val] || val;
+                if (id === 'filter-channel') val = {1:'编程猫北京中心',2:'童程童美上海',3:'AISE 直营'}[val] || val;
+                parts.push(label + '=' + val);
+            });
             const smin = v('filter-score-min'), smax = v('filter-score-max');
             if (smin || smax) parts.push('分数范围=' + (smin || '0') + '~' + (smax || '100'));
             const module = v('filter-module'); if (module) parts.push('模块=' + module);
