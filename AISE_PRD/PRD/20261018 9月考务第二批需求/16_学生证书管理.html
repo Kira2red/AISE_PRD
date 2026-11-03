@@ -73,9 +73,15 @@
 
         <header class="h-16 bg-white border-b border-slate-200 flex items-center justify-between px-8 flex-shrink-0 z-10">
             <h1 class="text-xl font-bold text-slate-800">学生证书管理</h1>
-            <div class="flex items-center gap-2 text-xs text-slate-500 bg-blue-50 px-3 py-1.5 rounded-lg border border-blue-100">
-                <i class="fa-solid fa-shield-halved text-brand-600"></i>
-                <span>管理员：Admin</span>
+            <div class="flex items-center gap-3">
+                <button id="btn-export-tasks" onclick="openTaskDrawer()" class="relative px-3 py-1.5 text-xs font-medium text-slate-600 bg-white border border-slate-200 rounded-lg hover:bg-slate-50 transition flex items-center gap-1.5">
+                    <i class="fa-solid fa-list-check text-brand-600"></i> 导出任务
+                    <span id="task-badge" class="hidden absolute -top-1.5 -right-1.5 min-w-[16px] h-4 px-1 rounded-full bg-amber-500 text-white text-[10px] font-bold items-center justify-center">0</span>
+                </button>
+                <div class="flex items-center gap-2 text-xs text-slate-500 bg-blue-50 px-3 py-1.5 rounded-lg border border-blue-100">
+                    <i class="fa-solid fa-shield-halved text-brand-600"></i>
+                    <span>管理员：Admin</span>
+                </div>
             </div>
         </header>
 
@@ -140,10 +146,30 @@
                         <option value="1">一级</option>
                         <option value="2">二级</option>
                     </select>
+                    <select id="filter-photo" class="w-[120px] px-2 py-1.5 text-sm border border-slate-200 rounded-lg bg-white focus:border-brand-500 outline-none shadow-sm text-slate-600 cursor-pointer">
+                        <option value="">照片状态 (全部)</option>
+                        <option value="合格">合格</option>
+                        <option value="不合格">不合格</option>
+                        <option value="待审核">待审核</option>
+                        <option value="未提交">未提交</option>
+                    </select>
+                    <select id="filter-room" class="w-[150px] px-2 py-1.5 text-sm border border-slate-200 rounded-lg bg-white focus:border-brand-500 outline-none shadow-sm text-slate-600 cursor-pointer">
+                        <option value="">考场名称 (全部)</option>
+                        <option value="北京考场-海淀点">北京考场-海淀点</option>
+                        <option value="北京考场-朝阳点">北京考场-朝阳点</option>
+                        <option value="上海考场-浦东点">上海考场-浦东点</option>
+                    </select>
+                    <select id="filter-cert-scope" class="w-[190px] px-2 py-1.5 text-sm border border-slate-200 rounded-lg bg-white focus:border-brand-500 outline-none shadow-sm text-slate-600 cursor-pointer">
+                        <option value="">证书情况 (全部)</option>
+                        <option value="certified">仅导出有证书的学生（≥60分）</option>
+                    </select>
                     <div class="ml-auto flex items-center gap-2">
                         <button id="btn-reset" onclick="resetCertNoFilter()" class="px-4 py-1.5 bg-white border border-slate-200 hover:bg-slate-50 text-slate-600 text-sm font-medium rounded-lg transition">重置</button>
-                        <button id="btn-export" onclick="exportData()" class="px-4 py-1.5 bg-green-50 hover:bg-green-100 border border-green-200 text-green-700 text-sm font-bold rounded-lg transition flex items-center gap-1.5">
-                            <i class="fa-solid fa-file-excel"></i> <span>导出数据</span>
+                        <button id="btn-export-excel" onclick="startExcelExport()" class="px-4 py-1.5 bg-green-50 hover:bg-green-100 border border-green-200 text-green-700 text-sm font-bold rounded-lg transition flex items-center gap-1.5">
+                            <i class="fa-solid fa-file-excel"></i> <span>导出Excel</span>
+                        </button>
+                        <button id="btn-export-photo" onclick="startPhotoExport()" class="px-4 py-1.5 bg-violet-50 hover:bg-violet-100 border border-violet-200 text-violet-700 text-sm font-bold rounded-lg transition flex items-center gap-1.5">
+                            <i class="fa-solid fa-images"></i> <span>导出照片压缩包</span>
                         </button>
                         <button id="btn-search" onclick="applyCertNoFilter()" class="px-4 py-1.5 bg-brand-600 hover:bg-brand-700 text-white text-sm font-bold rounded-lg shadow-md transition flex items-center gap-1.5">
                             <i class="fa-solid fa-magnifying-glass"></i> 查询数据
@@ -400,6 +426,64 @@
         </div>
 
 
+    <!-- 导出前确认弹窗（展示筛选条件/命中人数/无证书提醒，不拦截） -->
+    <div id="export-confirm-modal" class="hidden fixed inset-0 z-50 flex items-center justify-center p-6">
+        <div class="absolute inset-0 bg-slate-900/50" onclick="closeExportConfirm()"></div>
+        <div class="relative bg-white rounded-2xl shadow-xl w-[560px] overflow-hidden">
+            <div class="px-6 py-4 border-b border-slate-100 flex items-center justify-between">
+                <h3 id="export-confirm-title" class="text-base font-bold text-slate-800">导出确认</h3>
+                <button onclick="closeExportConfirm()" class="w-8 h-8 rounded-full hover:bg-slate-100 flex items-center justify-center text-slate-500 transition">
+                    <i class="fa-solid fa-xmark"></i>
+                </button>
+            </div>
+            <div class="px-6 py-5 space-y-3 text-sm">
+                <div class="flex items-start gap-2">
+                    <span class="text-slate-500 shrink-0 w-[76px]">导出条件</span>
+                    <span id="export-confirm-filter" class="text-slate-800 font-medium">—</span>
+                </div>
+                <div class="flex items-center gap-2">
+                    <span class="text-slate-500 w-[76px]">命中学员</span>
+                    <span id="export-confirm-count" class="text-slate-800 font-bold">—</span>
+                </div>
+                <div id="export-confirm-warn" class="hidden px-3 py-2.5 rounded-lg bg-amber-50 border border-amber-200 text-amber-700 text-xs leading-relaxed">
+                    <i class="fa-solid fa-triangle-exclamation mr-1"></i><span></span>
+                </div>
+                <p class="text-xs text-slate-400 leading-relaxed">导出 Excel 按当前筛选结果生成，sheet2 记录本次导出条件；照片压缩包按「证书编号+学生姓名」命名，异步生成。</p>
+            </div>
+            <div class="px-6 py-4 border-t border-slate-100 flex justify-end gap-2">
+                <button onclick="closeExportConfirm()" class="px-4 py-1.5 bg-white border border-slate-200 hover:bg-slate-50 text-slate-600 text-sm font-medium rounded-lg transition">取消</button>
+                <button id="export-confirm-btn" class="px-4 py-1.5 bg-brand-600 hover:bg-brand-700 text-white text-sm font-bold rounded-lg shadow-md transition">确认导出</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- 导出任务抽屉（异步任务进度 + 筛选条件留痕） -->
+    <div id="task-drawer" class="hidden fixed inset-0 z-50">
+        <div class="absolute inset-0 bg-slate-900/50" onclick="closeTaskDrawer()"></div>
+        <div class="absolute right-0 top-0 bottom-0 w-[760px] max-w-[92vw] bg-white shadow-2xl flex flex-col">
+            <div class="h-16 border-b border-slate-100 flex items-center justify-between px-6 bg-slate-50/50">
+                <h2 class="font-bold text-slate-800 text-lg">导出任务</h2>
+                <button onclick="closeTaskDrawer()" class="w-8 h-8 rounded-full hover:bg-slate-100 flex items-center justify-center text-slate-500 transition">
+                    <i class="fa-solid fa-xmark"></i>
+                </button>
+            </div>
+            <div class="flex-1 overflow-auto custom-scroll">
+                <table class="w-full text-left">
+                    <thead class="bg-slate-50 text-xs text-slate-500 uppercase tracking-wider">
+                        <tr>
+                            <th class="p-3 whitespace-nowrap">任务号</th>
+                            <th class="p-3 whitespace-nowrap">发起时间</th>
+                            <th class="p-3 whitespace-nowrap">导出条件</th>
+                            <th class="p-3 whitespace-nowrap">状态</th>
+                            <th class="p-3 whitespace-nowrap text-center">文件 / 操作</th>
+                        </tr>
+                    </thead>
+                    <tbody id="task-drawer-tbody" class="text-sm text-slate-700 divide-y divide-slate-100"></tbody>
+                </table>
+            </div>
+        </div>
+    </div>
+
     <!-- 证书导出记录与备注弹窗（20261018 证书与学生报告管理需求） -->
     <div id="record-modal" class="hidden fixed inset-0 z-50 flex items-center justify-center p-6">
         <div class="absolute inset-0 bg-slate-900/50" onclick="closeRecordModal()"></div>
@@ -501,8 +585,198 @@
         // ========== 导出序号：warning 延迟 Toast 的任务守卫（旧 warning 不覆盖新任务 Toast） ==========
         let exportSeq = 0;
 
-        // Toast 原文案保持不动（L44「正在导出，请稍后在「消息中心」查看下载」）
-        const EXPORT_TOAST_TEXT = '正在导出，请稍后在「消息中心」查看下载';
+        // 本次筛选条件描述（sheet2 / 任务快照用）
+        function describeFilter() {
+            const v = (id) => { const el = document.getElementById(id); return el ? el.value.trim() : ''; };
+            const parts = [];
+            const map = [
+                ['filter-name','学生姓名'],['filter-phone','手机号'],['filter-idcard','身份证号'],
+                ['filter-certno','证书编号'],['filter-channel','渠道'],['filter-cert-status','证书状态'],
+                ['filter-elec-cert','电子证书'],['filter-result','测评结果'],['filter-photo','照片状态'],
+                ['filter-room','考场名称'],['filter-cert-scope','证书情况']
+            ];
+            map.forEach(([id,label]) => { const val = v(id); if (val) parts.push(label + '=' + val); });
+            const smin = v('filter-score-min'), smax = v('filter-score-max');
+            if (smin || smax) parts.push('分数范围=' + (smin || '0') + '~' + (smax || '100'));
+            const module = v('filter-module'); if (module) parts.push('模块=' + module);
+            const level = v('filter-level');   if (level)  parts.push('级别=' + (level === '1' ? '一级' : '二级'));
+            return parts.length ? parts.join('；') : '（无筛选条件，全量导出）';
+        }
+        // 当前筛选命中的学员（demo 按种子数据模拟命中集）
+        function filteredStudents() {
+            const v = (id) => { const el = document.getElementById(id); return el ? el.value.trim() : ''; };
+            return CERT_STU_KEYS.filter(n => {
+                const m = CERT_STU_META[n];
+                if (v('filter-photo') && m.photo !== v('filter-photo')) return false;
+                if (v('filter-room') && m.room !== v('filter-room')) return false;
+                const scope = v('filter-cert-scope');
+                if (scope === 'certified' && (!m.certNo || m.score < 60)) return false;
+                const smin = Number(v('filter-score-min') || 0), smax = Number(v('filter-score-max') || 100);
+                if (m.score < smin || m.score > smax) return false;
+                return true;
+            });
+        }
+        // 导出前确认层：展示筛选条件 + 命中人数 + 无证书提醒（不拦截）
+        function openExportConfirm(kind, onConfirm) {
+            const students = filteredStudents();
+            const noCert = students.filter(n => !CERT_STU_META[n].certNo).length;
+            const isExcel = kind === 'excel';
+            document.getElementById('export-confirm-title').textContent = isExcel ? '导出 Excel 明细表' : '导出照片压缩包';
+            document.getElementById('export-confirm-filter').textContent = describeFilter();
+            document.getElementById('export-confirm-count').textContent = students.length + ' 人';
+            const warn = document.getElementById('export-confirm-warn');
+            if (noCert > 0) {
+                warn.querySelector('span').textContent = '当前筛选包含 ' + noCert + ' 名无证书学生，向印厂交付时请确认导出范围。';
+                warn.classList.remove('hidden');
+            } else { warn.classList.add('hidden'); }
+            document.getElementById('export-confirm-btn').onclick = () => {
+                closeExportConfirm();
+                onConfirm(students);
+            };
+            document.getElementById('export-confirm-modal').classList.remove('hidden');
+        }
+        function closeExportConfirm() {
+            document.getElementById('export-confirm-modal').classList.add('hidden');
+        }
+        // 生成并下载 Excel（sheet1 明细 + sheet2 导出条件）
+        function downloadExcel(students) {
+            const rows = [
+                ['考场名称','准考证号码','手机号（学生账号）','姓名','证件号码','参测模块','评估结果','证书编号','订单编号','发证日期']
+            ];
+            students.forEach(n => {
+                const m = CERT_STU_META[n];
+                rows.push([m.room, m.ticket, '138****8888', n, m.idcard, m.module, m.result, m.certNo || '（无证书）', m.orderNo, m.issueDate || '']);
+            });
+            const sheet2 = [['导出条件'], [describeFilter()], ['导出时间', new Date().toLocaleString('zh-CN')], ['导出行数', students.length + ' 人']];
+            const csvEsc = (s) => '"' + String(s).replace(/"/g, '""') + '"';
+            // demo 用 CSV 承载（真实实现为 xlsx 双 sheet，字段契约一致）
+            let csv = '\ufeff' + rows.map(r => r.map(csvEsc).join(',')).join('\n')
+                + '\n\n[Sheet2：导出条件]\n' + sheet2.map(r => r.map(csvEsc).join(',')).join('\n');
+            const blob = new Blob([csv], { type: 'text/csv;charset=utf-8' });
+            const a = document.createElement('a');
+            a.href = URL.createObjectURL(blob);
+            const ymd = new Date().toISOString().slice(0,10).replace(/-/g,'');
+            a.download = '学生证书明细_' + ymd + '_' + students.length + '人.csv';
+            a.click();
+            URL.revokeObjectURL(a.href);
+            // 导出留痕：只对有证书的学生计次（口径：缺证书不计导出次数）
+            const d = loadCertTrack();
+            students.forEach(n => {
+                if (!CERT_STU_META[n].certNo) return;
+                if (!d[n]) d[n] = { count: 0, remark: '', logs: [] };
+                d[n].count += 1;
+                d[n].logs.push({ taskId: 'EXP' + Date.now(), time: new Date().toLocaleString('zh-CN'), rows: students.length, operator: 'Admin' });
+            });
+            saveCertTrack(d);
+            renderCertTrackCols();
+            showToast('Excel 已下载到本地（共 ' + students.length + ' 行）', 3000);
+        }
+        // Excel 同步导出入口
+        function startExcelExport() {
+            openExportConfirm('excel', (students) => {
+                const btn = document.getElementById('btn-export-excel');
+                btn.innerHTML = '<i class="fa-solid fa-spinner fa-spin"></i> <span>正在导出...</span>';
+                btn.disabled = true;
+                setTimeout(() => {
+                    btn.innerHTML = '<i class="fa-solid fa-file-excel"></i> <span>导出Excel</span>';
+                    btn.disabled = false;
+                    downloadExcel(students);
+                }, 600);
+            });
+        }
+        // 照片压缩包异步导出入口（任务写入导出任务表，页面右上角「导出任务」看进度）
+        function startPhotoExport() {
+            openExportConfirm('photo', (students) => {
+                const withCert = students.filter(n => CERT_STU_META[n].certNo);
+                const filter = describeFilter();
+                const now = new Date();
+                const pad = (n) => String(n).padStart(2, '0');
+                const task = {
+                    taskId: 'PHO' + Date.now(),
+                    taskName: '导出照片压缩包',
+                    taskKind: 'photo_zip',
+                    fileName: '',
+                    fileSize: 0,
+                    operatorName: 'Admin',
+                    createdAt: now.getFullYear() + '-' + pad(now.getMonth()+1) + '-' + pad(now.getDate()) + ' ' + pad(now.getHours()) + ':' + pad(now.getMinutes()) + ':' + pad(now.getSeconds()),
+                    status: 'processing',
+                    summary: { totalRows: withCert.length, photoCount: withCert.length },
+                    filterSnapshotText: filter,
+                    warning: null
+                };
+                const tasks = loadExportTasks();
+                tasks.unshift(task);
+                if (!saveExportTasks(tasks)) { showToast('存储配额不足，请联系管理员', 4000); return; }
+                renderTaskBadge();
+                showToast('照片压缩包开始异步生成，可在右上角「导出任务」查看进度', 3000);
+                // demo 模拟异步完成：约 3 秒
+                setTimeout(() => {
+                    const cur = loadExportTasks();
+                    const tt = cur.find(x => x.taskId === task.taskId);
+                    if (!tt) return;
+                    const ymd = pad(now.getFullYear()) + pad(now.getMonth()+1) + pad(now.getDate());
+                    tt.status = 'success';
+                    tt.fileName = '学生照片包_' + ymd + '_' + withCert.length + '人.zip';
+                    tt.fileSize = Math.round(withCert.length * 0.35 * 10) / 10;
+                    saveExportTasks(cur);
+                    renderTaskBadge();
+                }, 3000);
+            });
+        }
+
+        // ========== 导出任务抽屉（异步任务进度 + 筛选条件留痕）==========
+        function taskBadgeCount() {
+            return loadExportTasks().filter(x => x.status === 'processing' || x.status === 'success' && x.taskKind === 'photo_zip').length;
+        }
+        function renderTaskBadge() {
+            const badge = document.getElementById('task-badge');
+            const n = taskBadgeCount();
+            badge.textContent = n;
+            badge.classList.toggle('hidden', n === 0);
+            badge.classList.toggle('flex', n > 0);
+        }
+        function openTaskDrawer() {
+            const tasks = loadExportTasks().filter(x => x.taskKind === 'photo_zip');
+            const tbody = document.getElementById('task-drawer-tbody');
+            if (!tasks.length) {
+                tbody.innerHTML = '<tr><td colspan="5" class="p-6 text-center text-xs text-slate-400">暂无导出任务</td></tr>';
+            } else {
+                tbody.innerHTML = tasks.map(t2 => {
+                    const statusHtml = t2.status === 'processing'
+                        ? '<span class="inline-flex items-center gap-1 px-2 py-0.5 rounded text-xs font-bold bg-amber-50 text-amber-700 border border-amber-100"><i class="fa-solid fa-spinner fa-spin text-[10px]"></i> 生成中</span>'
+                        : '<span class="inline-flex items-center gap-1 px-2 py-0.5 rounded text-xs font-bold bg-green-50 text-green-700 border border-green-100"><i class="fa-solid fa-circle-check text-[10px]"></i> 已完成</span>';
+                    const dl = t2.status === 'success'
+                        ? '<button onclick="downloadPhotoZip(\'' + t2.taskId + '\')" class="text-xs font-bold text-brand-600 hover:underline">下载</button>'
+                        : '<span class="text-xs text-slate-300">—</span>';
+                    return '<tr>' +
+                        '<td class="p-2.5 font-mono text-[11px] text-slate-500">' + escapeHtml(t2.taskId) + '</td>' +
+                        '<td class="p-2.5 text-xs text-slate-600 whitespace-nowrap">' + escapeHtml(t2.createdAt) + '</td>' +
+                        '<td class="p-2.5 text-xs text-slate-600 max-w-[220px]"><span class="line-clamp-2">' + escapeHtml(t2.filterSnapshotText || '') + '</span></td>' +
+                        '<td class="p-2.5 whitespace-nowrap">' + statusHtml + '</td>' +
+                        '<td class="p-2.5 text-center whitespace-nowrap">' + (t2.status === 'success' ? escapeHtml(t2.fileName) + '（' + t2.fileSize + 'MB）　' : '') + dl + '</td>' +
+                        '</tr>';
+                }).join('');
+            }
+            document.getElementById('task-drawer').classList.remove('hidden');
+        }
+        function closeTaskDrawer() {
+            document.getElementById('task-drawer').classList.add('hidden');
+        }
+        function downloadPhotoZip(taskId) {
+            const t2 = loadExportTasks().find(x => x.taskId === taskId);
+            if (!t2 || t2.status !== 'success') return;
+            // demo：生成占位文本文件模拟 zip 下载（真实实现为服务端 zip 流）
+            const students = CERT_STU_KEYS.filter(n => CERT_STU_META[n].certNo);
+            let content = '学生照片压缩包（demo 占位文件）\n命名规则：证书编号+学生姓名\n包含：\n';
+            students.forEach(n => { content += '  ' + CERT_STU_META[n].certNo + '+' + n + '.jpg\n'; });
+            const blob = new Blob([content], { type: 'application/octet-stream' });
+            const a = document.createElement('a');
+            a.href = URL.createObjectURL(blob);
+            a.download = t2.fileName;
+            a.click();
+            URL.revokeObjectURL(a.href);
+            showToast('照片压缩包已下载到本地', 3000);
+        }
 
         function exportData() {
             const btn = document.getElementById('btn-export');
@@ -607,10 +881,10 @@
         // ========== 证书导出追踪（20261018 证书与学生报告管理需求）==========
         const CERT_TRACK_KEY = 'aise_cert_track';
         const CERT_STU_META = {
-            '张小明': { idcard: '110101********1234', certNo: 'AISE2026-P1-000123', photo: '合格' },
-            '李小红': { idcard: '110102********5678', certNo: 'AISE2026-P1-000124', photo: '合格' },
-            '赵小梅': { idcard: '110103********9012', certNo: '', photo: '不合格' },
-            '王大力': { idcard: '110104********3456', certNo: '', photo: '未提交' }
+            '张小明': { idcard: '110101********1234', certNo: 'AISE2026-P1-000123', photo: '合格', ticket: 'ZK2026110001', room: '北京考场-海淀点', module: 'Python', result: '优秀', orderNo: 'ORD2026101900123', issueDate: '2026-10-28', score: 92 },
+            '李小红': { idcard: '110102********5678', certNo: 'AISE2026-P1-000124', photo: '合格', ticket: 'ZK2026110002', room: '北京考场-朝阳点', module: 'C++', result: '良好', orderNo: 'ORD2026101900124', issueDate: '2026-10-28', score: 78 },
+            '赵小梅': { idcard: '110103********9012', certNo: '', photo: '不合格', ticket: 'ZK2026110003', room: '上海考场-浦东点', module: 'Python', result: '合格', orderNo: 'ORD2026101900125', issueDate: '', score: 63 },
+            '王大力': { idcard: '110104********3456', certNo: '', photo: '未提交', ticket: 'ZK2026110004', room: '上海考场-浦东点', module: 'C++', result: '不合格', orderNo: 'ORD2026101900126', issueDate: '', score: 41 }
         };
         const CERT_STU_KEYS = Object.keys(CERT_STU_META);
 
@@ -718,6 +992,7 @@
         }
         function resetCertNoFilter() {
             document.getElementById('filter-certno').value = '';
+            ['filter-photo','filter-room','filter-cert-scope'].forEach(id => { document.getElementById(id).value = ''; });
             document.querySelectorAll('tbody tr').forEach(tr => { tr.style.display = ''; });
             renderCertNoTip('');
         }
@@ -729,6 +1004,7 @@
 
         seedCertTrack();
         renderCertTrackCols();
+        renderTaskBadge();
         document.getElementById('filter-certno').addEventListener('keydown', e => { if (e.key === 'Enter') applyCertNoFilter(); });
     </script>
 </body>
