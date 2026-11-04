@@ -549,23 +549,23 @@
             const now = new Date();
             const ymd = pad(now.getFullYear()) + pad(now.getMonth()+1) + pad(now.getDate());
             const hm = pad(now.getHours()) + ':' + pad(now.getMinutes()) + ':' + pad(now.getSeconds());
-            const cond1 = '证书情况=仅导出有证书的学生（≥60分）；拆分方式=按考场分开导出';
-            const cond2 = '照片状态=合格；证书情况=仅导出有证书的学生（≥60分）；拆分方式=合并导出';
+            const cond1 = '有证书，全部考场';
+            const cond2 = '照片合格，有证书，合并导出';
             return [
-                { taskId: 'EXP' + (Date.now() - 1000), taskName: '导出Excel明细表', taskKind: 'excel', operatorName: 'Admin', createdAt: now.getFullYear() + '-' + pad(now.getMonth()+1) + '-' + pad(now.getDate()) + ' ' + hm, status: 'processing', summary: { totalRows: 3860 }, filterSnapshotText: cond1 + '（导出条件演示：生成中）', warning: null,
+                { taskId: 'EXP' + (Date.now() - 1000), taskName: '导出Excel明细表', taskKind: 'excel', operatorName: 'Admin', createdAt: now.getFullYear() + '-' + pad(now.getMonth()+1) + '-' + pad(now.getDate()) + ' ' + hm, status: 'processing', summary: { totalRows: 3860 }, filterSnapshotText: cond1, warning: null,
                   files: [
                     { name: '学生证书明细_北京考场-海淀点_' + ymd + '_1860人.xlsx', room: '北京考场-海淀点', count: 1860, size: null, status: 'processing', pct: 62, simulate: false },
                     { name: '学生证书明细_北京考场-朝阳点_' + ymd + '_2000人.xlsx', room: '北京考场-朝阳点', count: 2000, size: null, status: 'processing', pct: 18, simulate: false }
                   ] },
-                { taskId: 'PHO' + (Date.now() - 2000), taskName: '导出学生照片压缩包', taskKind: 'photo_zip', operatorName: 'Admin', createdAt: now.getFullYear() + '-' + pad(now.getMonth()+1) + '-' + pad(now.getDate()) + ' ' + hm, status: 'processing', summary: { totalRows: 3500 }, filterSnapshotText: cond2 + '（导出条件演示：生成中）', warning: null,
+                { taskId: 'PHO' + (Date.now() - 2000), taskName: '导出学生照片压缩包', taskKind: 'photo_zip', operatorName: 'Admin', createdAt: now.getFullYear() + '-' + pad(now.getMonth()+1) + '-' + pad(now.getDate()) + ' ' + hm, status: 'processing', summary: { totalRows: 3500 }, filterSnapshotText: cond2, warning: null,
                   files: [
                     { name: '学生照片包_合并_' + ymd + '_3500人.zip', room: '', count: 3500, size: null, status: 'processing', pct: 85, simulate: false }
                   ] },
-                { taskId: 'PHO' + (Date.now() - 86400000), taskName: '导出学生照片压缩包', taskKind: 'photo_zip', operatorName: '张二红', createdAt: '2026-11-02 16:40:12', status: 'failed', summary: { totalRows: 2130 }, filterSnapshotText: '证书情况=仅导出有证书的学生（≥60分）；拆分方式=按考场分开导出（导出条件演示：失败）', warning: null,
+                { taskId: 'PHO' + (Date.now() - 86400000), taskName: '导出学生照片压缩包', taskKind: 'photo_zip', operatorName: '张二红', createdAt: '2026-11-02 16:40:12', status: 'failed', summary: { totalRows: 2130 }, filterSnapshotText: '照片合格，有证书，北京考场-海淀点，按考场分开导出', warning: null,
                   files: [
                     { name: '学生照片包_北京考场-海淀点_20261102_2130人.zip', room: '北京考场-海淀点', count: 2130, size: null, status: 'failed', reason: '对象存储写入超时，请重试' }
                   ] },
-                { taskId: 'EXP' + (Date.now() - 172800000), taskName: '导出Excel明细表', taskKind: 'excel', operatorName: 'Admin', createdAt: '2026-11-01 10:05:33', status: 'success', summary: { totalRows: 1214 }, filterSnapshotText: '照片状态=合格；拆分方式=按考场分开导出（导出条件演示：已完成）', warning: null,
+                { taskId: 'EXP' + (Date.now() - 172800000), taskName: '导出Excel明细表', taskKind: 'excel', operatorName: 'Admin', createdAt: '2026-11-01 10:05:33', status: 'success', summary: { totalRows: 1214 }, filterSnapshotText: '照片合格，北京考场-海淀点，按考场分开导出', warning: null,
                   files: [
                     { name: '学生证书明细_北京考场-海淀点_20261101_1214人.xlsx', room: '北京考场-海淀点', count: 1214, size: 2.4, status: 'success' },
                     { name: '学生证书明细_上海考场-浦东点_20261101_0人.xlsx', room: '上海考场-浦东点', count: 0, size: 0.1, status: 'success' }
@@ -629,29 +629,19 @@
         // 本次筛选条件描述（sheet2 / 任务快照用）
         function describeFilter() {
             const v = (id) => { const el = document.getElementById(id); return el ? el.value.trim() : ''; };
+            const sel = (id) => { const el = document.getElementById(id); return el && el.selectedIndex > 0 ? el.options[el.selectedIndex].text.trim() : ''; };
             const parts = [];
-            const map = [
-                ['filter-name','学生姓名'],['filter-phone','手机号'],['filter-idcard','身份证号'],
-                ['filter-certno','证书编号'],['filter-channel','渠道'],['filter-cert-status','证书状态'],
-                ['filter-elec-cert','电子证书'],['filter-result','测评结果'],['filter-photo','照片状态'],
-                ['filter-cert-scope','证书情况']
-            ];
-            map.forEach(([id,label]) => {
-                let val = v(id);
-                if (!val) return;
-                if (id === 'filter-cert-scope' && val === 'certified') val = '仅导出有证书的学生（≥60分）';
-                if (id === 'filter-cert-status') val = {processing:'批改中',completed:'批改完成',publicity:'公示中',making:'制作中',sent:'已寄送'}[val] || val;
-                if (id === 'filter-elec-cert') val = {issued:'已签发',pending:'待签发',failed:'签发失败',unconfigured:'未配置'}[val] || val;
-                if (id === 'filter-channel') val = {1:'编程猫北京中心',2:'童程童美上海',3:'AISE 直营'}[val] || val;
-                parts.push(label + '=' + val);
+            [['filter-name',v],['filter-phone',v],['filter-idcard',v],['filter-certno',v],['filter-channel',sel],
+             ['filter-cert-status',sel],['filter-elec-cert',sel],['filter-result',sel],['filter-photo',sel],['filter-cert-scope',sel],
+             ['filter-module',v],['filter-level',sel]].forEach(([id,fn]) => {
+                const val = fn(id);
+                if (val) parts.push(val);
             });
             const rooms = selectedRooms();
-            if (rooms.length) parts.push('考场名称=' + rooms.join('、'));
+            if (rooms.length) parts.push('考场：' + rooms.join('、'));
             const smin = v('filter-score-min'), smax = v('filter-score-max');
-            if (smin || smax) parts.push('分数范围=' + (smin || '0') + '~' + (smax || '100'));
-            const module = v('filter-module'); if (module) parts.push('模块=' + module);
-            const level = v('filter-level');   if (level)  parts.push('级别=' + (level === '1' ? '一级' : '二级'));
-            return parts.length ? parts.join('；') : '（无筛选条件，全量导出）';
+            if (smin || smax) parts.push('分数 ' + (smin || '0') + '~' + (smax || '100'));
+            return parts.length ? parts.join('，') : '（未筛选，全量导出）';
         }
         // 考场多选：已选考场集合
         function selectedRooms() {
@@ -771,7 +761,7 @@
                 createdAt: now.getFullYear() + '-' + pad(now.getMonth()+1) + '-' + pad(now.getDate()) + ' ' + pad(now.getHours()) + ':' + pad(now.getMinutes()) + ':' + pad(now.getSeconds()),
                 status: 'processing',
                 summary: { totalRows: students.length },
-                filterSnapshotText: filter + '；拆分方式=' + (split ? '按考场分开导出' : '合并导出'),
+                filterSnapshotText: filter + (split ? '，按考场分开导出' : '，合并导出'),
                 files: files,
                 warning: null
             };
@@ -806,7 +796,7 @@
                 createdAt: now.getFullYear() + '-' + pad(now.getMonth()+1) + '-' + pad(now.getDate()) + ' ' + pad(now.getHours()) + ':' + pad(now.getMinutes()) + ':' + pad(now.getSeconds()),
                 status: 'processing',
                 summary: { totalRows: withCert.length, photoCount: withCert.length },
-                filterSnapshotText: filter + '；拆分方式=' + (split ? '按考场分开导出' : '合并导出'),
+                filterSnapshotText: filter + (split ? '，按考场分开导出' : '，合并导出'),
                 files: files,
                 warning: null
             };
