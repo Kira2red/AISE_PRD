@@ -855,7 +855,7 @@
                     let progressHtml = '';
                     if (f2.status === 'processing') {
                         statusHtml = '<span class="inline-flex items-center gap-1 px-2 py-0.5 rounded text-xs font-bold bg-amber-50 text-amber-700 border border-amber-100"><i class="fa-solid fa-spinner fa-spin text-[10px]"></i> 生成中 ' + pct + '%</span>';
-                        progressHtml = '<div class="mt-1.5 h-1.5 w-full bg-slate-100 rounded-full overflow-hidden"><div class="h-full bg-amber-500 rounded-full transition-all duration-500" style="width:' + pct + '%"></div></div>';
+
                     } else if (f2.status === 'failed') {
                         statusHtml = '<span class="inline-flex items-center gap-1 px-2 py-0.5 rounded text-xs font-bold bg-red-50 text-red-700 border border-red-100"><i class="fa-solid fa-circle-xmark text-[10px]"></i> 失败</span>';
                         if (f2.reason) progressHtml = '<div class="mt-1 text-[10px] text-red-500">' + escapeHtml(f2.reason) + '</div>';
