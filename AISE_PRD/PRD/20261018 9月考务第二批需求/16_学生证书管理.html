@@ -480,15 +480,7 @@
         <div class="absolute inset-0 bg-slate-900/50" onclick="closeTaskDrawer()"></div>
         <div class="absolute right-0 top-0 bottom-0 w-[760px] max-w-[92vw] bg-white shadow-2xl flex flex-col">
             <div class="h-16 border-b border-slate-100 flex items-center justify-between px-6 bg-slate-50/50">
-                <div class="flex items-center gap-3">
-                    <h2 class="font-bold text-slate-800 text-lg">导出任务列表</h2>
-                    <div id="task-filter-group" class="flex items-center gap-1 bg-slate-100 rounded-lg p-0.5">
-                        <button data-tf="all" onclick="setTaskFilter('all')" class="task-filter-btn px-2.5 py-1 text-xs font-bold rounded-md bg-white text-slate-800 shadow-sm">全部</button>
-                        <button data-tf="processing" onclick="setTaskFilter('processing')" class="task-filter-btn px-2.5 py-1 text-xs font-bold rounded-md text-slate-500 hover:text-slate-700">生成中</button>
-                        <button data-tf="success" onclick="setTaskFilter('success')" class="task-filter-btn px-2.5 py-1 text-xs font-bold rounded-md text-slate-500 hover:text-slate-700">已完成</button>
-                        <button data-tf="failed" onclick="setTaskFilter('failed')" class="task-filter-btn px-2.5 py-1 text-xs font-bold rounded-md text-slate-500 hover:text-slate-700">失败</button>
-                    </div>
-                </div>
+                <h2 class="font-bold text-slate-800 text-lg">导出任务列表</h2>
                 <button onclick="closeTaskDrawer()" class="w-8 h-8 rounded-full hover:bg-slate-100 flex items-center justify-center text-slate-500 transition">
                     <i class="fa-solid fa-xmark"></i>
                 </button>
@@ -854,22 +846,8 @@
             badge.classList.toggle('bg-green-500', done);
             badge.classList.toggle('bg-red-500', hasFailed);
         }
-        let taskFilterMode = 'all';
-        function setTaskFilter(mode) {
-            taskFilterMode = mode;
-            document.querySelectorAll('.task-filter-btn').forEach(b => {
-                const active = b.dataset.tf === mode;
-                b.classList.toggle('bg-white', active);
-                b.classList.toggle('shadow-sm', active);
-                b.classList.toggle('text-slate-800', active);
-                b.classList.toggle('text-slate-500', !active);
-            });
-            openTaskDrawer();
-        }
         function openTaskDrawer() {
-            let tasks = loadExportTasks().filter(x => x.taskKind === 'photo_zip' || x.taskKind === 'excel');
-            if (taskFilterMode === 'processing') tasks = tasks.filter(x => x.status === 'processing' || (x.files || []).some(f => f.status === 'processing'));
-            else if (taskFilterMode !== 'all') tasks = tasks.filter(x => x.status === taskFilterMode || (x.files || []).some(f => f.status === taskFilterMode));
+            const tasks = loadExportTasks().filter(x => x.taskKind === 'photo_zip' || x.taskKind === 'excel');
             const tbody = document.getElementById('task-drawer-tbody');
             const rowsHtml = [];
             tasks.forEach(t2 => {
