@@ -486,18 +486,7 @@
                 </button>
             </div>
             <div class="flex-1 overflow-auto custom-scroll">
-                <table class="w-full text-left">
-                    <thead class="bg-slate-50 text-xs text-slate-500 uppercase tracking-wider">
-                        <tr>
-                            <th class="p-3 whitespace-nowrap">任务号</th>
-                            <th class="p-3 whitespace-nowrap">发起时间</th>
-                            <th class="p-3 whitespace-nowrap">导出条件</th>
-                            <th class="p-3 whitespace-nowrap">状态</th>
-                            <th class="p-3 whitespace-nowrap text-center">文件 / 操作</th>
-                        </tr>
-                    </thead>
-                    <tbody id="task-drawer-tbody" class="text-sm text-slate-700 divide-y divide-slate-100"></tbody>
-                </table>
+                <div id="task-drawer-tbody" class="px-5 py-4 space-y-4 overflow-y-auto"></div>
             </div>
         </div>
     </div>
@@ -848,40 +837,65 @@
         }
         function openTaskDrawer() {
             const tasks = loadExportTasks().filter(x => x.taskKind === 'photo_zip' || x.taskKind === 'excel');
-            const tbody = document.getElementById('task-drawer-tbody');
-            const rowsHtml = [];
+            const wrap = document.getElementById('task-drawer-tbody');
+            const cardsHtml = [];
             tasks.forEach(t2 => {
                 const files = t2.files || [{ name: t2.fileName, size: t2.fileSize, status: t2.status, room: '' }];
-                files.forEach((f2, fi) => {
+                // 任务级状态徽章
+                const allDone = files.every(f2 => f2.status === 'success');
+                const anyFailed = files.some(f2 => f2.status === 'failed');
+                let taskBadge;
+                if (anyFailed) taskBadge = '<span class="inline-flex items-center gap-1 px-2 py-0.5 rounded text-[10px] font-bold bg-red-50 text-red-700 border border-red-100"><i class="fa-solid fa-circle-xmark"></i> 有失败</span>';
+                else if (allDone) taskBadge = '<span class="inline-flex items-center gap-1 px-2 py-0.5 rounded text-[10px] font-bold bg-green-50 text-green-700 border border-green-100"><i class="fa-solid fa-circle-check"></i> 已完成</span>';
+                else taskBadge = '<span class="inline-flex items-center gap-1 px-2 py-0.5 rounded text-[10px] font-bold bg-amber-50 text-amber-700 border border-amber-100"><i class="fa-solid fa-spinner fa-spin"></i> 生成中</span>';
+                // 文件行
+                const fileRows = files.map((f2, fi) => {
                     const pct = f2.pct != null ? f2.pct : (f2.status === 'success' ? 100 : 0);
                     let statusHtml = '';
                     let progressHtml = '';
                     if (f2.status === 'processing') {
                         statusHtml = '<span class="inline-flex items-center gap-1 px-2 py-0.5 rounded text-xs font-bold bg-amber-50 text-amber-700 border border-amber-100"><i class="fa-solid fa-spinner fa-spin text-[10px]"></i> 生成中 ' + pct + '%</span>';
-                        progressHtml = '<div class="mt-1 w-28 h-1.5 bg-slate-100 rounded-full overflow-hidden"><div class="h-full bg-amber-500 rounded-full transition-all" style="width:' + pct + '%"></div></div>';
+                        progressHtml = '<div class="mt-1.5 h-1.5 w-full bg-slate-100 rounded-full overflow-hidden"><div class="h-full bg-amber-500 rounded-full transition-all duration-500" style="width:' + pct + '%"></div></div>';
                     } else if (f2.status === 'failed') {
                         statusHtml = '<span class="inline-flex items-center gap-1 px-2 py-0.5 rounded text-xs font-bold bg-red-50 text-red-700 border border-red-100"><i class="fa-solid fa-circle-xmark text-[10px]"></i> 失败</span>';
-                        if (f2.reason) progressHtml = '<div class="mt-1 text-[10px] text-red-500 max-w-[160px]">' + escapeHtml(f2.reason) + '</div>';
+                        if (f2.reason) progressHtml = '<div class="mt-1 text-[10px] text-red-500">' + escapeHtml(f2.reason) + '</div>';
                     } else {
                         statusHtml = '<span class="inline-flex items-center gap-1 px-2 py-0.5 rounded text-xs font-bold bg-green-50 text-green-700 border border-green-100"><i class="fa-solid fa-circle-check text-[10px]"></i> 已完成</span>';
                     }
                     const dl = f2.status === 'success'
-                        ? '<button onclick="downloadTaskFile(\'' + t2.taskId + '\',' + fi + ')" class="text-xs font-bold text-brand-600 hover:underline">下载</button>'
+                        ? '<button onclick="downloadTaskFile(\'' + t2.taskId + '\',' + fi + ')" class="px-2.5 py-1 text-xs font-bold text-brand-600 bg-brand-50 hover:bg-brand-100 rounded-lg transition">下载</button>'
                         : (f2.status === 'failed'
-                            ? '<button onclick="retryTaskFile(\'' + t2.taskId + '\',' + fi + ')" class="text-xs font-bold text-amber-600 hover:underline">重试</button>'
+                            ? '<button onclick="retryTaskFile(\'' + t2.taskId + '\',' + fi + ')" class="px-2.5 py-1 text-xs font-bold text-amber-600 bg-amber-50 hover:bg-amber-100 rounded-lg transition">重试</button>'
                             : '<span class="text-xs text-slate-300">—</span>');
-                    const first = fi === 0;
-                    const rowAttrs = 'rowspan="' + files.length + '"';
-                    rowsHtml.push('<tr>' +
-                        (first ? '<td class="p-2.5 font-mono text-[11px] text-slate-500 align-top" ' + rowAttrs + '>' + escapeHtml(t2.taskId) + '<br><span class="text-[10px] text-slate-400">' + escapeHtml(t2.createdAt) + '</span></td>' +
-                        '<td class="p-2.5 text-xs text-slate-600 max-w-[220px] align-top" ' + rowAttrs + '><span class="line-clamp-3">' + escapeHtml(t2.filterSnapshotText || '') + '</span></td>' : '') +
-                        '<td class="p-2.5 text-xs text-slate-600 whitespace-nowrap">' + escapeHtml(f2.name) + (f2.room ? '<br><span class="text-[10px] text-slate-400">' + escapeHtml(f2.room) + '</span>' : '') + '</td>' +
-                        '<td class="p-2.5 whitespace-nowrap">' + statusHtml + progressHtml + '</td>' +
-                        '<td class="p-2.5 text-center whitespace-nowrap">' + (f2.status === 'success' ? (f2.size || 0) + 'MB　' : '') + dl + '</td>' +
-                        '</tr>');
-                });
+                    return '<div class="flex items-center gap-3 py-2.5' + (fi > 0 ? ' border-t border-slate-50' : '') + '">' +
+                        '<div class="flex-1 min-w-0">' +
+                            '<div class="flex items-center justify-between gap-2">' +
+                                '<span class="text-xs font-bold text-slate-700 truncate">' + escapeHtml(f2.name) + '</span>' + statusHtml +
+                            '</div>' +
+                            (f2.room ? '<div class="text-[10px] text-slate-400 mt-0.5">' + escapeHtml(f2.room) + '</div>' : '') +
+                            progressHtml +
+                        '</div>' +
+                        '<div class="shrink-0 text-center">' + (f2.status === 'success' ? '<div class="text-[10px] text-slate-400 mb-0.5">' + (f2.size || 0) + 'MB</div>' : '') + dl + '</div>' +
+                    '</div>';
+                }).join('');
+                cardsHtml.push(
+                    '<div class="bg-white border border-slate-200 rounded-xl shadow-sm overflow-hidden">' +
+                        '<div class="px-4 py-3 bg-slate-50/70 border-b border-slate-100 flex items-center justify-between gap-2">' +
+                            '<div class="min-w-0">' +
+                                '<div class="flex items-center gap-2">' +
+                                    '<span class="font-mono text-[11px] font-bold text-slate-600">' + escapeHtml(t2.taskId) + '</span>' + taskBadge +
+                                '</div>' +
+                                '<div class="text-[10px] text-slate-400 mt-0.5">' + escapeHtml(t2.createdAt) + '　·　' + files.length + ' 个文件</div>' +
+                            '</div>' +
+                        '</div>' +
+                        '<div class="px-4 py-2 border-b border-slate-50 bg-white">' +
+                            '<div class="text-[10px] text-slate-400 mb-0.5">导出条件</div>' +
+                            '<div class="text-[11px] text-slate-600 leading-relaxed break-all">' + escapeHtml(t2.filterSnapshotText || '') + '</div>' +
+                        '</div>' +
+                        '<div class="px-4 py-1 divide-y divide-slate-50">' + fileRows + '</div>' +
+                    '</div>');
             });
-            tbody.innerHTML = rowsHtml.length ? rowsHtml.join('') : '<tr><td colspan="5" class="p-6 text-center text-xs text-slate-400">暂无导出任务</td></tr>';
+            wrap.innerHTML = cardsHtml.length ? cardsHtml.join('') : '<div class="p-8 text-center text-xs text-slate-400">暂无导出任务</div>';
             document.getElementById('task-drawer').classList.remove('hidden');
         }
         function closeTaskDrawer() {
