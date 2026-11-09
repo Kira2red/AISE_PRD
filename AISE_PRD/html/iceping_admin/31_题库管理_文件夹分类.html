@@ -1,0 +1,566 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>爱测评运营后台 - 题库管理（文件夹分类）</title>
+<style>
+html, body { margin: 0; padding: 0; background: #f0f2f5; font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", "PingFang SC", "Hiragino Sans GB", "Microsoft YaHei", sans-serif; font-size: 14px; color: rgba(0,0,0,.65); }
+* { box-sizing: border-box; }
+a { color: #1890ff; text-decoration: none; }
+.layout { min-height: 100vh; }
+.sider { position: fixed; top: 0; left: 0; bottom: 0; width: 208px; background: #001529; overflow-y: auto; z-index: 100; }
+.sider .logo { height: 56px; display: flex; align-items: center; padding: 0 16px; color: #fff; font-size: 16px; font-weight: 600; letter-spacing: 1px; }
+.sider .logo .mark { width: 28px; height: 28px; border-radius: 6px; background: #1890ff; color:#fff; display: flex; align-items: center; justify-content: center; font-size: 15px; margin-right: 10px; }
+.menu { list-style: none; margin: 0; padding: 0; }
+.menu li { color: rgba(255,255,255,.65); padding: 0 16px; height: 40px; line-height: 40px; cursor: pointer; font-size: 14px; white-space: nowrap; }
+.menu li:hover { color: #fff; }
+.menu li.on { color: #fff; background: #1890ff; }
+.menu .group { color: rgba(255,255,255,.45); font-size: 12px; padding: 14px 16px 4px; height: auto; line-height: 1; cursor: default; }
+.header { height: 48px; background: #fff; border-bottom: 1px solid #e8e8e8; display: flex; align-items: center; justify-content: space-between; padding: 0 24px; margin-left: 208px; position: sticky; top: 0; z-index: 90; }
+.header .crumb { color: rgba(0,0,0,.45); }
+.header .crumb b { color: rgba(0,0,0,.65); font-weight: 600; }
+.header .user { display: flex; align-items: center; gap: 8px; }
+.header .avatar { width: 26px; height: 26px; border-radius: 50%; background: #1890ff; color: #fff; display: flex; align-items: center; justify-content: center; font-size: 13px; }
+.main { margin-left: 208px; padding: 16px 24px 32px; }
+.card { background: #fff; border-radius: 4px; padding: 16px 24px; margin-bottom: 16px; }
+
+/* 布局：左文件夹树 + 右题目列表 */
+.pool { display: flex; gap: 16px; align-items: stretch; }
+.tree-panel { width: 260px; flex: 0 0 260px; background: #fff; border-radius: 4px; padding: 16px 12px; }
+.tree-head { display: flex; align-items: center; justify-content: space-between; padding: 0 6px 10px; border-bottom: 1px solid #f0f0f0; }
+.tree-head .t { font-weight: 600; color: rgba(0,0,0,.85); font-size: 15px; }
+.tree { padding-top: 6px; }
+.tnode { display: flex; align-items: center; height: 34px; border-radius: 4px; padding: 0 8px; cursor: pointer; position: relative; }
+.tnode:hover { background: #f5f5f5; }
+.tnode.on { background: #e6f7ff; }
+.tnode .nm { flex: 1; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+.tnode.on .nm { color: #1890ff; font-weight: 600; }
+.tnode .cnt { color: rgba(0,0,0,.35); font-size: 12px; margin-left: 6px; }
+.tnode .tn-ops { display: none; gap: 4px; margin-left: 4px; }
+.tnode:hover .tn-ops { display: inline-flex; }
+.tnode .tn-ops span { width: 20px; height: 20px; line-height: 18px; text-align: center; border-radius: 4px; font-size: 12px; cursor: pointer; }
+.op-add { color: #1890ff; background: #e6f7ff; border: 1px solid #91d5ff; }
+.op-ren { color: #1890ff; background: #e6f7ff; border: 1px solid #91d5ff; }
+.op-del { color: #f5222d; background: #fff1f0; border: 1px solid #ffa39e; }
+.tnode .tw { width: 14px; color: rgba(0,0,0,.35); font-size: 11px; flex: 0 0 14px; }
+
+.list-panel { flex: 1; background: #fff; border-radius: 4px; padding: 16px 24px; min-width: 0; }
+.filter-row { display: flex; align-items: center; gap: 8px; flex-wrap: wrap; margin-bottom: 12px; }
+.fi { display: flex; align-items: center; }
+.fi .lb { border: 1px solid #d9d9d9; border-right: none; height: 32px; line-height: 30px; padding: 0 10px; background: #fff; white-space: nowrap; }
+.fi input { border: 1px solid #d9d9d9; height: 32px; padding: 0 10px; width: 220px; outline: none; border-radius: 0 4px 4px 0; }
+.fi input:focus { border-color: #1890ff; }
+.toolbar { display: flex; align-items: center; justify-content: space-between; margin-bottom: 12px; }
+.toolbar .left { display: flex; align-items: center; gap: 8px; }
+.sel-count { color: rgba(0,0,0,.45); font-size: 13px; }
+.btn { display: inline-flex; align-items: center; justify-content: center; height: 32px; padding: 0 15px; border-radius: 4px; border: 1px solid #d9d9d9; background: #fff; color: rgba(0,0,0,.65); cursor: pointer; font-size: 14px; white-space: nowrap; }
+.btn:hover { border-color: #1890ff; color: #1890ff; }
+.btn.primary { background: #1890ff; border-color: #1890ff; color: #fff; }
+.btn.primary:hover { background: #40a9ff; border-color: #40a9ff; color: #fff; }
+.btn.link { border: none; background: transparent; color: #1890ff; padding: 0 6px; height: 26px; }
+.btn[disabled], .btn.disabled { color: rgba(0,0,0,.25); background: #f5f5f5; border-color: #d9d9d9; cursor: not-allowed; }
+.btn[disabled]:hover, .btn.disabled:hover { color: rgba(0,0,0,.25); border-color: #d9d9d9; }
+table.grid { width: 100%; border-collapse: collapse; font-size: 13px; }
+.grid th { background: #fafafa; color: rgba(0,0,0,.85); font-weight: 600; text-align: left; padding: 12px 8px; border-bottom: 1px solid #e8e8e8; white-space: nowrap; }
+.grid td { padding: 11px 8px; border-bottom: 1px solid #e8e8e8; }
+.grid tr:hover td { background: #fafafa; }
+.tag { display: inline-block; padding: 1px 8px; border-radius: 4px; font-size: 12px; line-height: 20px; white-space: nowrap; }
+.tag.gray { background: #f5f5f5; color: rgba(0,0,0,.45); }
+.tag.blue { background: #e6f7ff; color: #1890ff; border: 1px solid #91d5ff; }
+.more-tip { color: #1890ff; cursor: default; }
+.pager { display: flex; align-items: center; justify-content: flex-end; gap: 6px; margin-top: 14px; font-size: 13px; }
+.pager .pg { min-width: 28px; height: 28px; line-height: 26px; text-align: center; border: 1px solid #d9d9d9; border-radius: 4px; background: #fff; padding: 0 6px; }
+.pager .pg.on { border-color: #1890ff; color: #1890ff; }
+.empty { text-align: center; color: rgba(0,0,0,.25); padding: 40px; }
+
+/* 弹窗 */
+.mask { position: fixed; inset: 0; background: rgba(0,0,0,.45); z-index: 1000; display: none; align-items: flex-start; justify-content: center; }
+.mask.show { display: flex; }
+.modal { background: #fff; border-radius: 4px; width: 520px; margin-top: 12vh; box-shadow: 0 4px 12px rgba(0,0,0,.15); }
+.modal .m-head { padding: 14px 24px; border-bottom: 1px solid #e8e8e8; display: flex; align-items: center; justify-content: space-between; }
+.modal .m-head .t { font-size: 16px; color: rgba(0,0,0,.85); font-weight: 600; }
+.modal .m-head .x { cursor: pointer; color: rgba(0,0,0,.45); }
+.modal .m-body { padding: 20px 24px; }
+.modal .m-foot { padding: 12px 24px; border-top: 1px solid #e8e8e8; text-align: right; display: flex; justify-content: flex-end; gap: 8px; }
+.m-body p { margin: 0 0 10px; line-height: 1.7; }
+.m-body .hint { background: #fffbe6; border: 1px solid #ffe58f; border-radius: 4px; padding: 10px 12px; line-height: 1.7; margin-bottom: 12px; }
+.m-body .hint.red { background: #fff1f0; border-color: #ffa39e; }
+.form-row { margin-bottom: 14px; }
+.form-row .fl { color: rgba(0,0,0,.65); margin-bottom: 6px; }
+.form-row .fl .req { color: #f5222d; margin-right: 4px; }
+.form-row input[type=text] { width: 100%; height: 32px; border: 1px solid #d9d9d9; border-radius: 4px; padding: 0 10px; outline: none; }
+.form-row input[type=text]:focus { border-color: #1890ff; }
+.err-tip { color: #f5222d; font-size: 12px; margin-top: 5px; display: none; }
+.err-tip.show { display: block; }
+.ck-list { border: 1px solid #d9d9d9; border-radius: 4px; max-height: 220px; overflow-y: auto; }
+.ck-list label { display: flex; align-items: center; gap: 8px; padding: 8px 12px; cursor: pointer; border-bottom: 1px solid #f5f5f5; }
+.ck-list label:last-child { border-bottom: none; }
+.ck-list label:hover { background: #fafafa; }
+
+.toast { position: fixed; top: 64px; left: 50%; transform: translateX(-50%); background: rgba(0,0,0,.75); color: #fff; padding: 9px 18px; border-radius: 4px; z-index: 3000; display: none; }
+.demo-ball { position: fixed; right: 20px; bottom: 20px; z-index: 2500; }
+.demo-ball .ball { width: 52px; height: 52px; border-radius: 50%; background: #722ed1; color: #fff; display: flex; align-items: center; justify-content: center; font-size: 12px; font-weight: 700; cursor: pointer; box-shadow: 0 4px 12px rgba(114,46,209,.4); letter-spacing: 1px; }
+.demo-panel { position: fixed; right: 84px; bottom: 20px; width: 300px; max-height: 70vh; overflow-y: auto; background: #fff; border-radius: 8px; box-shadow: 0 6px 24px rgba(0,0,0,.2); z-index: 2500; display: none; }
+.demo-panel.show { display: block; }
+.demo-panel .dp-head { padding: 10px 14px; border-bottom: 1px solid #f0f0f0; font-size: 12px; color: #722ed1; font-weight: 600; }
+.demo-panel .dp-body { padding: 8px; }
+.demo-panel .scene { display: block; width: 100%; text-align: left; border: 1px solid #d9d9d9; background: #fff; border-radius: 4px; padding: 7px 10px; margin-bottom: 6px; cursor: pointer; font-size: 13px; color: rgba(0,0,0,.65); }
+.demo-panel .scene:hover { border-color: #722ed1; color: #722ed1; }
+.demo-panel .scene .sid { color: rgba(0,0,0,.35); font-size: 11px; margin-right: 6px; }
+.demo-tip { background: #f9f0ff; border: 1px solid #d3adf7; color: #531dab; border-radius: 4px; padding: 6px 10px; font-size: 12px; margin-bottom: 12px; }
+.role-switch { display: inline-flex; border: 1px solid #d9d9d9; border-radius: 4px; overflow: hidden; }
+.role-switch span { padding: 5px 14px; cursor: pointer; font-size: 13px; color: rgba(0,0,0,.65); background: #fff; }
+.role-switch span.on { background: #1890ff; color: #fff; }
+</style>
+</head>
+<body>
+<div class="toast" id="toast"></div>
+
+<div class="layout">
+  <aside class="sider">
+    <div class="logo"><span class="mark">评</span>测评管理系统</div>
+    <ul class="menu">
+      <li>首页</li>
+      <li>素材配置</li>
+      <li>运营位管理</li>
+      <li>测评引擎管理</li>
+      <li>试卷管理</li>
+      <li>用户答卷管理</li>
+      <li>考场管理</li>
+      <li class="on">题库管理</li>
+      <li>测评报告</li>
+      <li>组织管理</li>
+      <li>申请试用</li>
+      <li>近期测评</li>
+      <li>用户管理</li>
+      <li>班级管理</li>
+      <li class="group">系统管理</li>
+      <li>角色管理</li>
+      <li>数据字典</li>
+    </ul>
+  </aside>
+
+  <div class="header">
+    <div class="crumb">首页 / <b>题库管理</b></div>
+    <div class="user"><span class="avatar">A</span><span id="whoami">admin（管理员）</span></div>
+  </div>
+
+  <div class="main">
+    <div class="demo-tip">本页为需求演示原型：右侧紫色「DEMO」浮球可切换演示场景与角色视角，仅为演示辅助工具，非系统功能，研发忽略。</div>
+
+    <div class="pool">
+      <!-- 文件夹树侧栏 -->
+      <div class="tree-panel" id="treePanel">
+        <div class="tree-head">
+          <span class="t">文件夹</span>
+          <button class="btn" style="height:26px;padding:0 10px;font-size:12px;" onclick="openNewFolder('root')">＋ 新建</button>
+        </div>
+        <div class="tree" id="tree"></div>
+      </div>
+
+      <!-- 题目列表 -->
+      <div class="list-panel">
+        <div class="filter-row">
+          <div class="fi"><span class="lb">题目名</span><input id="qKw" placeholder="题目关键词或文件夹名"></div>
+          <div class="fi"><span class="lb">创建人</span><input id="qCreator" placeholder="请输入创建人" style="width:140px;"></div>
+          <button class="btn primary" onclick="applyFilter()">查询</button>
+          <button class="btn" onclick="resetFilter()">重置</button>
+        </div>
+        <div class="toolbar">
+          <div class="left">
+            <button class="btn primary disabled" id="btnAssign" onclick="openAssign()">归入文件夹</button>
+            <button class="btn" id="btnNewFolder" onclick="openNewFolder(currentFolder)">新建文件夹</button>
+            <span class="sel-count" id="selCount">已选择 0 项</span>
+          </div>
+          <div class="role-switch" id="roleSwitch">
+            <span class="on" onclick="setRole('admin')">管理员视角</span>
+            <span onclick="setRole('normal')">普通上传者视角</span>
+          </div>
+        </div>
+        <table class="grid">
+          <thead>
+            <tr>
+              <th style="width:34px;"><input type="checkbox" id="ckAll" onclick="toggleAll(this)"></th>
+              <th>题目名</th><th>题型</th><th>难度</th><th>知识点</th><th>创建人</th><th id="thFolder">归属</th>
+            </tr>
+          </thead>
+          <tbody id="tbody"></tbody>
+        </table>
+        <div class="pager"><span id="pageTotal">共 12 条</span><span class="pg on">1</span></div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<div class="mask" id="mask">
+  <div class="modal">
+    <div class="m-head"><span class="t" id="mTitle"></span><span class="x" onclick="closeModal()">✕</span></div>
+    <div class="m-body" id="mBody"></div>
+    <div class="m-foot" id="mFoot"></div>
+  </div>
+</div>
+
+<div class="demo-ball"><div class="ball" onclick="toggleDemoPanel()">DEMO</div></div>
+<div class="demo-panel" id="demoPanel">
+  <div class="dp-head">演示场景（仅演示辅助工具，非系统功能，研发忽略）</div>
+  <div class="dp-body" id="sceneList"></div>
+</div>
+
+<script>
+'use strict';
+/* ================= 数据 ================= */
+/* 文件夹树（替代「所属题库」字段；存量「默认题库」「我的题库」两值各转为同名文件夹） */
+var FOLDERS = [
+  { id: 'f1', name: '默认题库', parent: null },
+  { id: 'f2', name: '我的题库', parent: null },
+  { id: 'f3', name: '10月考期', parent: null },
+  { id: 'f4', name: '一级考试题目', parent: 'f3' },
+  { id: 'f5', name: '二级考试题目', parent: 'f3' },
+  { id: 'f6', name: '11月考期', parent: null },
+  { id: 'f7', name: '一级考试题目', parent: 'f6' }
+];
+/* 题目（folders=归属文件夹 id 数组，多归属） */
+var QUESTIONS = [
+  { name: '单选：变量命名规则', type: '单选', diff: '易', kp: '模块与功能', creator: 'adminAica', folders: ['f4'] },
+  { name: '单选：数据类型判断', type: '单选', diff: '易', kp: '变量与数据类型', creator: 'adminAica', folders: ['f4', 'f5'] },
+  { name: '多选：循环结构辨析', type: '多选', diff: '中', kp: '流程控制', creator: 'admin_888', folders: ['f4'] },
+  { name: '判断：列表与元组', type: '判断', diff: '易', kp: '序列类型', creator: 'adminAica', folders: ['f5'] },
+  { name: '编程OJ：三个整数中的最大值', type: '编程OJ', diff: '中', kp: '分支与比较', creator: 'adminAica', folders: ['f7'] },
+  { name: '编程OJ：欢迎来到图书馆', type: '编程OJ', diff: '易', kp: '输出与字符串', creator: 'adminAica', folders: [] },
+  { name: '编程：添加角色与背景', type: '编程', diff: '易', kp: '事件与角色', creator: 'admin_888', folders: ['f1'] },
+  { name: '单选：时态辨析', type: '单选', diff: '中', kp: '模块与功能', creator: 'adminAica', folders: ['f4', 'f5', 'f7'] },
+  { name: '多选：math 模块函数', type: '多选', diff: '易', kp: '模块与功能', creator: 'admin_888', folders: ['f2'] },
+  { name: '判断：字符串不可变', type: '判断', diff: '易', kp: '输出与字符串', creator: 'adminAica', folders: ['f2'] },
+  { name: '单选：分支语句嵌套', type: '单选', diff: '中', kp: '流程控制', creator: 'adminAica', folders: ['f5', 'f7'] },
+  { name: '编程OJ：九九乘法表', type: '编程OJ', diff: '中', kp: '循环结构', creator: 'adminAica', folders: ['f7'] }
+];
+
+var role = 'admin';           // admin | normal
+var currentFolder = null;     // null = 全部
+var checked = {};             // 题目名 -> true
+var searchMode = 'folder';    // folder=按文件夹浏览 | global=全局搜索去重
+
+function esc(s) { return String(s == null ? '' : s).replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;').replace(/"/g, '&quot;'); }
+var toastTimer = null;
+function toast(msg) {
+  var t = document.getElementById('toast');
+  t.textContent = msg; t.style.display = 'block';
+  if (toastTimer) clearTimeout(toastTimer);
+  toastTimer = setTimeout(function () { t.style.display = 'none'; }, 2400);
+}
+function openModal(title, bodyHtml, footHtml) {
+  document.getElementById('mTitle').textContent = title;
+  document.getElementById('mBody').innerHTML = bodyHtml;
+  document.getElementById('mFoot').innerHTML = footHtml;
+  document.getElementById('mask').classList.add('show');
+}
+function closeModal() { document.getElementById('mask').classList.remove('show'); }
+
+function childrenOf(pid) { return FOLDERS.filter(function (f) { return f.parent === pid; }); }
+function folderById(id) { return FOLDERS.filter(function (f) { return f.id === id; })[0]; }
+function countOf(fid) { return QUESTIONS.filter(function (q) { return q.folders.indexOf(fid) >= 0; }).length; }
+function pathOf(fid) {
+  var f = folderById(fid), parts = [];
+  while (f) { parts.unshift(f.name); f = f.parent ? folderById(f.parent) : null; }
+  return parts.join(' / ');
+}
+
+/* ================= 文件夹树渲染 ================= */
+function renderTree() {
+  if (role === 'normal') { document.getElementById('treePanel').style.display = 'none'; return; }
+  document.getElementById('treePanel').style.display = '';
+  var html = nodeHtml(null, 0);
+  html += '<div class="tnode ' + (currentFolder === '__none__' ? 'on' : '') + '" onclick="selectFolder(\'__none__\')">' +
+    '<span class="tw"></span><span class="nm">未归类</span>' +
+    '<span class="cnt">' + QUESTIONS.filter(function (q) { return q.folders.length === 0; }).length + '</span></div>';
+  document.getElementById('tree').innerHTML = html;
+}
+function nodeHtml(pid, depth) {
+  var html = '';
+  childrenOf(pid).forEach(function (f) {
+    var kids = childrenOf(f.id).length;
+    html += '<div class="tnode ' + (currentFolder === f.id ? 'on' : '') + '" onclick="selectFolder(\'' + f.id + '\')" style="padding-left:' + (8 + depth * 18) + 'px;">' +
+      '<span class="tw">' + (kids ? '▸' : '') + '</span>' +
+      '<span class="nm" title="' + esc(f.name) + '">' + esc(f.name) + '</span>' +
+      '<span class="cnt">' + countOf(f.id) + '</span>' +
+      '<span class="tn-ops">' +
+        '<span class="op-add" title="新建子文件夹" onclick="event.stopPropagation();openNewFolder(\'' + f.id + '\')">＋</span>' +
+        '<span class="op-ren" title="改名" onclick="event.stopPropagation();openRename(\'' + f.id + '\')">改名</span>' +
+        '<span class="op-del" title="删除" onclick="event.stopPropagation();openDeleteFolder(\'' + f.id + '\')">删除</span>' +
+      '</span>' +
+    '</div>';
+    html += nodeHtml(f.id, depth + 1);
+  });
+  return html;
+}
+function selectFolder(fid) { currentFolder = fid; searchMode = 'folder'; render(); }
+
+/* ================= 题目列表渲染 ================= */
+function folderTagHtml(q) {
+  if (role === 'normal') return '<span style="color:rgba(0,0,0,.25);">—</span>';
+  if (!q.folders.length) return '<span class="tag gray">未归类</span>';
+  if (currentFolder && currentFolder !== '__none__' && q.folders.indexOf(currentFolder) >= 0) {
+    var others = q.folders.filter(function (x) { return x !== currentFolder; });
+    var tip = others.map(function (x) { return pathOf(x); }).join('、');
+    return '<span class="tag blue">归属：' + esc(folderById(currentFolder).name) + '</span>' +
+      (others.length ? ' <span class="more-tip" title="' + esc(tip) + '">+' + others.length + '</span>' : '');
+  }
+  var first = folderById(q.folders[0]);
+  var others = q.folders.slice(1);
+  var tip = others.map(function (x) { return pathOf(x); }).join('、');
+  return '<span class="tag gray" title="' + esc(pathOf(first.id)) + '">' + esc(first.name) + '</span>' +
+    (others.length ? ' <span class="more-tip" title="' + esc(tip) + '">+' + others.length + '</span>' : '');
+}
+function render() {
+  renderTree();
+  document.getElementById('thFolder').style.display = role === 'normal' ? 'none' : '';
+  document.getElementById('btnAssign').style.display = role === 'normal' ? 'none' : '';
+  document.getElementById('btnNewFolder').style.display = role === 'normal' ? 'none' : '';
+  document.getElementById('ckAll').style.display = role === 'normal' ? 'none' : '';
+  document.getElementById('whoami').textContent = role === 'admin' ? 'admin（管理员）' : 'upload01（普通上传者）';
+
+  var kw = document.getElementById('qKw').value.trim();
+  var cr = document.getElementById('qCreator').value.trim();
+  var rows = [];
+  if (kw && searchMode === 'global') {
+    /* 全局搜索：按题目去重展示一条 */
+    rows = QUESTIONS.filter(function (q) { return q.name.indexOf(kw) >= 0; });
+  } else if (currentFolder === '__none__') {
+    rows = QUESTIONS.filter(function (q) { return q.folders.length === 0; });
+  } else if (currentFolder) {
+    rows = QUESTIONS.filter(function (q) { return q.folders.indexOf(currentFolder) >= 0; });
+  } else {
+    rows = QUESTIONS.slice();
+  }
+  if (kw && searchMode !== 'global') {
+    /* 关键词命中文件夹名时切换到该文件夹，否则按题目名过滤 */
+    var hit = FOLDERS.filter(function (f) { return f.name.indexOf(kw) >= 0; });
+    if (hit.length) { currentFolder = hit[0].id; rows = QUESTIONS.filter(function (q) { return q.folders.indexOf(currentFolder) >= 0; }); }
+    else rows = rows.filter(function (q) { return q.name.indexOf(kw) >= 0; });
+  }
+  if (cr) rows = rows.filter(function (q) { return q.creator.indexOf(cr) >= 0; });
+
+  var html = '';
+  rows.forEach(function (q, i) {
+    html += '<tr>' +
+      '<td>' + (role === 'admin' ? '<input type="checkbox" class="rowck" data-name="' + esc(q.name) + '" onclick="event.stopPropagation();onCk()"' + (checked[q.name] ? ' checked' : '') + '>' : '') + '</td>' +
+      '<td>' + esc(q.name) + '</td>' +
+      '<td>' + esc(q.type) + '</td>' +
+      '<td>' + esc(q.diff) + '</td>' +
+      '<td>' + esc(q.kp) + '</td>' +
+      '<td>' + esc(q.creator) + '</td>' +
+      '<td' + (role === 'normal' ? ' style="display:none;"' : '') + '>' + folderTagHtml(q) + '</td>' +
+    '</tr>';
+  });
+  document.getElementById('tbody').innerHTML = html || '<tr><td colspan="7" class="empty">未找到相关题目</td></tr>';
+  document.getElementById('pageTotal').textContent = '共 ' + rows.length + ' 条';
+}
+function applyFilter() {
+  var kw = document.getElementById('qKw').value.trim();
+  searchMode = kw ? 'global' : 'folder';
+  if (!kw) currentFolder = currentFolder; /* 保持当前文件夹 */
+  render();
+}
+function resetFilter() {
+  document.getElementById('qKw').value = '';
+  document.getElementById('qCreator').value = '';
+  currentFolder = null; searchMode = 'folder';
+  render();
+}
+
+/* ================= 勾选与批量归类 ================= */
+function toggleAll(el) {
+  var cks = document.querySelectorAll('.rowck');
+  cks.forEach(function (c) { c.checked = el.checked; });
+  onCk();
+}
+function onCk() {
+  checked = {};
+  document.querySelectorAll('.rowck').forEach(function (c) { if (c.checked) checked[c.getAttribute('data-name')] = true; });
+  var n = Object.keys(checked).length;
+  document.getElementById('selCount').textContent = '已选择 ' + n + ' 项';
+  var btn = document.getElementById('btnAssign');
+  if (n > 0) { btn.classList.remove('disabled'); btn.textContent = '归入文件夹（' + n + '）'; }
+  else { btn.classList.add('disabled'); btn.textContent = '归入文件夹'; }
+}
+function openAssign() {
+  var names = Object.keys(checked);
+  if (!names.length) { toast('请先勾选题目'); return; }
+  var html = '<p>将已选择的 ' + names.length + ' 道题目归入文件夹（可多选）：</p><div class="ck-list">';
+  FOLDERS.forEach(function (f) {
+    html += '<label><input type="checkbox" class="tg-f" value="' + f.id + '"> ' + esc(pathOf(f.id)) + ' <span style="color:rgba(0,0,0,.35);font-size:12px;">（' + countOf(f.id) + '）</span></label>';
+  });
+  html += '<label><input type="checkbox" class="tg-f" value="__none__"> 未归类（移出全部归属）</label></div>';
+  openModal('归入文件夹', html,
+    '<button class="btn" onclick="closeModal()">取 消</button>' +
+    '<button class="btn primary" onclick="doAssign()">确 定</button>');
+}
+function doAssign() {
+  var picked = [];
+  document.querySelectorAll('.tg-f').forEach(function (c) { if (c.checked) picked.push(c.value); });
+  if (!picked.length) { toast('请选择至少一个文件夹'); return; }
+  var names = Object.keys(checked);
+  var toNone = picked.indexOf('__none__') >= 0;
+  QUESTIONS.forEach(function (q) {
+    if (!checked[q.name]) return;
+    if (toNone) { q.folders = []; }
+    else {
+      picked.forEach(function (pid) { if (q.folders.indexOf(pid) < 0) q.folders.push(pid); });
+    }
+  });
+  closeModal();
+  checked = {}; onCk();
+  render();
+  toast('已更新 ' + names.length + ' 道题目的归属');
+}
+
+/* ================= 新建 / 改名 / 删除 ================= */
+function parentOptions(sel) {
+  var html = '<option value="">（顶层文件夹）</option>';
+  FOLDERS.forEach(function (f) {
+    html += '<option value="' + f.id + '"' + (f.id === sel ? ' selected' : '') + '>' + esc(pathOf(f.id)) + '</option>';
+  });
+  return html;
+}
+function openNewFolder(parentId) {
+  if (role !== 'admin') { toast('普通上传者无文件夹管理权限'); return; }
+  var pid = parentId && parentId !== 'root' ? parentId : (currentFolder && currentFolder !== '__none__' ? currentFolder : '');
+  var body = '<div class="form-row"><div class="fl"><span class="req">*</span>文件夹名称</div>' +
+    '<input type="text" id="nfName" placeholder="如：10月考期" oninput="checkDup()">' +
+    '<div class="err-tip" id="nfErr">该层级下已存在同名文件夹</div></div>' +
+    '<div class="form-row"><div class="fl">上级文件夹</div><select id="nfParent" style="width:100%;height:32px;">' + parentOptions(pid) + '</select></div>';
+  openModal('新建文件夹', body,
+    '<button class="btn" onclick="closeModal()">取 消</button>' +
+    '<button class="btn primary" onclick="doNewFolder()">确 定</button>');
+}
+function checkDup() {
+  var name = document.getElementById('nfName').value.trim();
+  var pid = document.getElementById('nfParent').value || null;
+  var dup = FOLDERS.some(function (f) { return f.name === name && f.parent === pid; });
+  document.getElementById('nfErr').classList.toggle('show', !!dup);
+  return !dup;
+}
+function doNewFolder() {
+  var name = document.getElementById('nfName').value.trim();
+  if (!name) { toast('请输入文件夹名称'); return; }
+  if (!checkDup()) return;
+  FOLDERS.push({ id: 'f' + Date.now(), name: name, parent: document.getElementById('nfParent').value || null });
+  closeModal(); render();
+  toast('文件夹「' + name + '」已创建');
+}
+function openRename(fid) {
+  var f = folderById(fid);
+  var body = '<div class="form-row"><div class="fl"><span class="req">*</span>文件夹名称</div>' +
+    '<input type="text" id="rnName" value="' + esc(f.name) + '" oninput="checkDupRename(\'' + fid + '\')">' +
+    '<div class="err-tip" id="rnErr">该层级下已存在同名文件夹</div></div>';
+  openModal('文件夹改名', body,
+    '<button class="btn" onclick="closeModal()">取 消</button>' +
+    '<button class="btn primary" onclick="doRename(\'' + fid + '\')">确 定</button>');
+}
+function checkDupRename(fid) {
+  var f = folderById(fid);
+  var name = document.getElementById('rnName').value.trim();
+  var dup = FOLDERS.some(function (x) { return x.id !== fid && x.name === name && x.parent === f.parent; });
+  document.getElementById('rnErr').classList.toggle('show', !!dup);
+  return !dup;
+}
+function doRename(fid) {
+  if (!checkDupRename(fid)) return;
+  var name = document.getElementById('rnName').value.trim();
+  folderById(fid).name = name;
+  closeModal(); render();
+  toast('已改名');
+}
+function openDeleteFolder(fid) {
+  var f = folderById(fid);
+  var kids = descendantsOf(fid);
+  var affected = QUESTIONS.filter(function (q) { return q.folders.indexOf(fid) >= 0 || q.folders.some(function (x) { return kids.indexOf(x) >= 0; }); });
+  if (!kids.length) {
+    var body = '<div class="hint">删除文件夹「' + esc(f.name) + '」后，其中 ' + countOf(fid) + ' 道题目仅移除该归属、回到未归类状态，题目本身不删除。</div>' +
+      '<p style="color:rgba(0,0,0,.45);">多归属题目仅摘除本归属，其他归属保留。</p>';
+    openModal('删除文件夹', body,
+      '<button class="btn" onclick="closeModal()">取 消</button>' +
+      '<button class="btn primary" onclick="doDeleteFolder(\'' + fid + '\')">确 认</button>');
+  } else {
+    var body = '<div class="hint red">「' + esc(f.name) + '」下有 ' + kids.length + ' 个子文件夹，删除将连带删除整棵子树。</div>' +
+      '<div class="kv" style="display:grid;grid-template-columns:130px 1fr;row-gap:8px;">' +
+      '<span style="color:rgba(0,0,0,.45);">连带删除子文件夹</span><span>' + kids.length + ' 个</span>' +
+      '<span style="color:rgba(0,0,0,.45);">受影响题目（去重）</span><span>' + affected.length + ' 道，将全部回到未归类状态，题目不删除</span></div>';
+    openModal('删除父文件夹', body,
+      '<button class="btn" onclick="closeModal()">取 消</button>' +
+      '<button class="btn primary" onclick="doDeleteFolder(\'' + fid + '\')">确认删除整棵子树</button>');
+  }
+}
+function descendantsOf(fid) {
+  var out = [];
+  (function walk(pid) {
+    childrenOf(pid).forEach(function (f) { out.push(f.id); walk(f.id); });
+  })(fid);
+  return out;
+}
+function doDeleteFolder(fid) {
+  var f = folderById(fid);
+  var kids = descendantsOf(fid);
+  var all = [fid].concat(kids);
+  QUESTIONS.forEach(function (q) { q.folders = q.folders.filter(function (x) { return all.indexOf(x) < 0; }); });
+  FOLDERS = FOLDERS.filter(function (x) { return all.indexOf(x.id) < 0; });
+  if (all.indexOf(currentFolder) >= 0) currentFolder = null;
+  closeModal(); render();
+  toast('已删除「' + f.name + '」' + (kids.length ? '及 ' + kids.length + ' 个子文件夹，题目已回未归类' : '，题目已回未归类'));
+}
+
+/* ================= 角色 ================= */
+function setRole(r) {
+  role = r;
+  checked = {};
+  document.querySelectorAll('#roleSwitch span').forEach(function (s, i) {
+    s.classList.toggle('on', (i === 0) === (r === 'admin'));
+  });
+  currentFolder = null; searchMode = 'folder';
+  document.getElementById('qKw').value = '';
+  render();
+  toast(r === 'admin' ? '已切换管理员视角：文件夹树与归类入口可见' : '已切换普通上传者视角：无文件夹树与归类入口，仅按标签检索公共池');
+}
+
+/* ================= 场景浮球 ================= */
+var SCENES = [
+  { name: '新建文件夹（默认归入当前）', fn: function () { currentFolder = 'f3'; render(); openNewFolder('f3'); } },
+  { name: '同级重名校验', fn: function () { currentFolder = 'f3'; render(); openNewFolder('f3'); setTimeout(function () { document.getElementById('nfName').value = '一级考试题目'; checkDup(); }, 100); } },
+  { name: '多选批量归入文件夹', fn: function () { setRole('admin'); currentFolder = null; searchMode = 'folder'; document.getElementById('qKw').value = ''; render(); checked = { '单选：变量命名规则': true, '编程OJ：欢迎来到图书馆': true, '判断：字符串不可变': true }; onCk(); openAssign(); } },
+  { name: '删除叶子文件夹', fn: function () { openDeleteFolder('f5'); } },
+  { name: '删除父文件夹（连带子树）', fn: function () { openDeleteFolder('f3'); } },
+  { name: '切换普通上传者视角', fn: function () { setRole('normal'); } },
+  { name: '全局搜索去重（搜「时态」）', fn: function () { setRole('admin'); currentFolder = null; searchMode = 'global'; document.getElementById('qKw').value = '时态'; render(); } },
+  { name: '浏览未归类题目', fn: function () { selectFolder('__none__'); } }
+];
+function renderScenes() {
+  var html = '';
+  SCENES.forEach(function (s, i) {
+    html += '<button class="scene" onclick="runScene(' + i + ')"><span class="sid">' + (i + 1) + '</span>' + s.name + '</button>';
+  });
+  document.getElementById('sceneList').innerHTML = html;
+}
+function runScene(i) { SCENES[i].fn(); document.getElementById('demoPanel').classList.remove('show'); }
+function toggleDemoPanel() { document.getElementById('demoPanel').classList.toggle('show'); }
+
+/* ================= 初始化与 #shot 直达 ================= */
+renderScenes();
+render();
+(function () {
+  var shot = (location.hash.match(/#shot=(\w+)/) || [])[1];
+  if (!shot) return;
+  setTimeout(function () {
+    if (shot === 'f_new') { currentFolder = 'f3'; render(); openNewFolder('f3'); }
+    else if (shot === 'f_dup') SCENES[1].fn();
+    else if (shot === 'f_batch') SCENES[2].fn();
+    else if (shot === 'f_delleaf') openDeleteFolder('f5');
+    else if (shot === 'f_delparent') openDeleteFolder('f3');
+    else if (shot === 'f_normal') setRole('normal');
+    else if (shot === 'f_dedup') SCENES[6].fn();
+    else if (shot === 'f_none') selectFolder('__none__');
+  }, 300);
+})();
+</script>
+</body>
+</html>
