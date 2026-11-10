@@ -139,8 +139,8 @@ async function send() {
   addUser(q);
   const btn = document.getElementById('btnSend'); btn.disabled = true;
   const log = document.getElementById('chatLog');
-  log.insertAdjacentHTML('beforeend', '<div class="msg bot" id="streamMsg"></div>');
-  const box = document.getElementById('streamMsg');
+  log.insertAdjacentHTML('beforeend', '<div class="msg bot"></div>');
+  const box = log.lastElementChild;
   let text = '';
   const render = () => { box.textContent = text; log.scrollTop = log.scrollHeight; };
   box.innerHTML = '<span class="thinking">思考中</span>';
