@@ -17,6 +17,33 @@ python3 server.py        # 零第三方依赖，Python3 标准库
 
 浏览器打开 http://localhost:8090 （登录页点击角色卡即登录）
 
+## 环境配置与部署（拿到压缩包后从这里开始）
+
+### 你需要
+
+- 一台能跑 Python 3.8+ 的电脑（macOS / Linux / Windows 均可），**零第三方依赖**，纯 Python 标准库
+- （可选）智谱开放平台 API Key——配置后启用全部 AI 能力；不配置也能跑，见下方「降级模式」
+
+### 配置模型（约 2 分钟）
+
+1. 到智谱开放平台 `https://open.bigmodel.cn` 注册并创建 API Key
+2. 以下两种方式二选一：
+   - **环境变量**：`export GLM_API_KEY=你的key`（Windows：`set GLM_API_KEY=你的key`）
+   - **配置文件**：在你用户目录下创建 `.hermes/.env` 文件（macOS/Linux 路径 `~/.hermes/.env`），写入一行 `GLM_API_KEY=你的key`，server 启动时自动读取
+3. 模型与端点可用环境变量覆盖（一般不用动）：`GLM_BASE`（默认 `https://open.bigmodel.cn/api/coding/paas/v4`）、文本模型 `glm-5.3-flash`、图片作品走视觉模型 `glm-4.5v`
+
+### 降级模式（不配 Key 也能演示）
+
+未配置 Key 时：上传作品显示「预审失败」，教研员可直接人工终审（PRD 降级口径）；画像报告、问答、整体数据分析的 AI 点评会提示需要配置。登录、人才库、人才卡、数据看板等页面均正常。预置的李小明画像报告为已生成快照，不配 Key 也能看。
+
+### 启动
+
+```bash
+python3 server.py        # macOS 也可双击「启动演示.command」
+```
+
+然后浏览器打开 http://localhost:8090 。**注意**：AI 能力需要本机能访问智谱 API（国内网络直连即可，无需代理；如开了全局代理请把 `open.bigmodel.cn` 加入直连规则）。
+
 ## 大模型（真实调用，与 Hermes 同款）
 
 - 配置读取：环境变量 `GLM_API_KEY`，缺省自动读 `~/.hermes/.env`
@@ -146,13 +173,17 @@ python3 tests/test_prompts.py   # 100 条真实大模型用例，4 线程约 10-
 
 ```
 .
-├── server.py          # 服务端（API + 大模型调用 + 会话）
-├── seed_data.py       # 种子数据生成（data.json）
-├── data.json          # 运行时数据（可删，重启按需重建）
-├── www/               # 前端页面（login + 学员端4页 + 教研员端3页）
-├── samples/           # 预置测试作品
-├── uploads/           # 上传的作品文件
-└── tests/test_api.py  # 全链路回归测试
+├── server.py              # 服务端（API + 大模型调用 + 会话）
+├── seed_data.py           # 种子数据生成（data.json）
+├── data.json              # 运行时数据（含全部演示假数据，可删，重启按需重建）
+├── analytics_cache.json   # 整体数据分析 AI 点评缓存（数据变化自动失效重生成）
+├── www/                   # 前端页面（login + 学员端4页 + 教研员端4页）
+├── samples/               # 预置测试作品
+├── uploads/               # 上传的作品文件（运行时）
+├── 启动演示.command        # macOS 一键启动
+└── tests/
+    ├── test_api.py        # 全链路回归（92 项断言）
+    └── test_prompts.py    # 提示词回归（101 条真实大模型用例）
 ```
 
 > 业务规则依据：`AISE_PRD/PRD/20260806 人才库智能体/人才库智能体 PRD.md`（V1.1）；

@@ -15,31 +15,25 @@
     }
   ],
   "sessions": {
-    "s1794352665487": {
+    "s1794353426160": {
       "user": "xiaoming",
       "role": "student",
       "studentId": "stu_li",
       "label": "学员 / 家长 · 李小明"
     },
-    "s1794352665491": {
+    "s1794353426213": {
       "user": "wang",
       "role": "teacher",
       "studentId": null,
       "label": "教研员 · 王老师"
     },
-    "s1794352665512": {
+    "s1794353460627": {
       "user": "xiaoming",
       "role": "student",
       "studentId": "stu_li",
       "label": "学员 / 家长 · 李小明"
     },
-    "s1794352665515": {
-      "user": "wang",
-      "role": "teacher",
-      "studentId": null,
-      "label": "教研员 · 王老师"
-    },
-    "s1794352790882": {
+    "s1794353490839": {
       "user": "wang",
       "role": "teacher",
       "studentId": null,
