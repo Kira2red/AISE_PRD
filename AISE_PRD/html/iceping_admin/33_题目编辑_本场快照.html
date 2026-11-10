@@ -8,63 +8,93 @@
 html, body { margin: 0; padding: 0; background: #fff; font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", "PingFang SC", "Hiragino Sans GB", "Microsoft YaHei", sans-serif; font-size: 14px; color: #323335; }
 * { box-sizing: border-box; }
 .container {
-  min-width: 1000px;
+  min-width: 1280px;
   background: linear-gradient(0deg, rgba(255,255,255,.4) 0%, rgba(255,255,255,.4) 100%), radial-gradient(158.01% 139.35% at 0% 0%, #D9F2FF 0%, #F2F0FC 27.87%, #BFD8FF 100%);
-  min-height: 100vh;
+  min-height: 100vh; display: flex; flex-direction: column;
 }
-.header { height: 64px; backdrop-filter: blur(10px); display: flex; align-items: center; padding: 0 24px; gap: 16px; }
-.header .logo-ph { height: 34px; padding: 0 10px; border-radius: 6px; background: #2A55E5; color: #fff; font-weight: 700; font-size: 15px; display: inline-flex; align-items: center; }
+.header { height: 56px; backdrop-filter: blur(10px); display: flex; align-items: center; padding: 0 28px; gap: 16px; flex: none; }
+.header .logo-ph { height: 32px; padding: 0 10px; border-radius: 6px; background: #2A55E5; color: #fff; font-weight: 700; font-size: 14px; display: inline-flex; align-items: center; }
 .crumb { color: #323335; font-size: 15px; }
 .crumb .back { color: #64666b; cursor: pointer; margin-right: 12px; }
 .crumb .back:hover { color: #2A55E5; }
-.snap-banner { margin: 0 24px 12px; background: #fff7e6; border: 1px solid #ffd591; border-radius: 8px; padding: 10px 16px; line-height: 1.7; color: #874d00; }
+.snap-banner { margin: 0 28px; background: #fff7e6; border: 1px solid #ffd591; border-radius: 8px; padding: 8px 16px; line-height: 1.6; color: #874d00; font-size: 13px; flex: none; }
 .snap-banner b { color: #d48806; }
-.form-wrap { margin: 0 24px 40px; background: #fff; border-radius: 8px; padding: 24px 32px; }
-.sec { margin-bottom: 22px; }
-.sec .lb { margin-bottom: 8px; color: #323335; }
-.sec .lb .req { color: #d54941; margin-right: 4px; }
+
+.form-wrap { flex: 1; margin: 16px 28px 0; background: #fff; border-radius: 10px; padding: 24px 32px 96px; }
+
+/* 区块标题：蓝色短竖条 + 标题 + 右侧补充 */
+.sec { margin-bottom: 20px; }
+.sec-head { display: flex; align-items: baseline; gap: 10px; margin-bottom: 10px; }
+.sec-head::before { content: ''; width: 4px; height: 14px; background: #2A55E5; border-radius: 2px; align-self: center; }
+.sec-head .t { font-weight: 600; font-size: 14px; }
+.sec-head .req { color: #d54941; margin-right: 2px; }
+.sec-head .note { color: #969aa0; font-size: 12px; font-weight: 400; }
+
+/* 通用控件 */
 .seg { display: inline-flex; border: 1px solid #d9d9d9; border-radius: 4px; overflow: hidden; }
-.seg span { padding: 6px 18px; cursor: pointer; background: #fff; border-right: 1px solid #d9d9d9; font-size: 13px; }
+.seg span { padding: 5px 14px; cursor: pointer; background: #fff; border-right: 1px solid #d9d9d9; font-size: 13px; }
 .seg span:last-child { border-right: none; }
 .seg span.on { background: #2A55E5; color: #fff; }
 .seg span.fixed { background: #f5f5f5; color: rgba(0,0,0,.25); cursor: not-allowed; }
-.seg.v { display: flex; flex-direction: column; border: none; gap: 8px; }
-.seg.v span { border: 1px solid #d9d9d9; border-radius: 4px; }
-.tip { color: #969aa0; font-size: 12px; margin-top: 6px; line-height: 1.6; }
-input.txt, select.sel, textarea.ta { width: 100%; max-width: 640px; border: 1px solid #d9d9d9; border-radius: 4px; padding: 8px 12px; font-size: 13px; outline: none; background: #fff; }
-input.txt:focus, textarea.ta:focus, select.sel:focus { border-color: #2A55E5; }
-textarea.ta { min-height: 90px; line-height: 1.6; }
+.chips { display: flex; flex-wrap: wrap; gap: 8px; }
+.chip { padding: 5px 14px; border: 1px solid #d9d9d9; border-radius: 4px; background: #fff; cursor: pointer; font-size: 13px; }
+.chip:hover { border-color: #2A55E5; color: #2A55E5; }
+.chip.on { background: #2A55E5; border-color: #2A55E5; color: #fff; }
+.chip-group-label { font-size: 12px; color: #969aa0; margin-right: 4px; align-self: center; }
+.tip { color: #969aa0; font-size: 12px; line-height: 1.6; }
+input.txt, textarea.ta { width: 100%; border: 1px solid #d9d9d9; border-radius: 4px; padding: 8px 12px; font-size: 13px; outline: none; background: #fff; }
+input.txt:focus, textarea.ta:focus { border-color: #2A55E5; }
+textarea.ta { min-height: 84px; line-height: 1.6; resize: vertical; }
 .rich-tabs { display: inline-flex; margin-bottom: 6px; border: 1px solid #d9d9d9; border-radius: 4px; overflow: hidden; }
 .rich-tabs span { padding: 4px 14px; cursor: pointer; background: #fff; font-size: 12px; }
 .rich-tabs span.on { background: #ecf1ff; color: #2A55E5; }
-.rich-box { border: 1px solid #d9d9d9; border-radius: 4px; min-height: 110px; max-width: 640px; padding: 10px 12px; line-height: 1.7; background: #fff; }
+.rich-box { border: 1px solid #d9d9d9; border-radius: 4px; min-height: 96px; padding: 10px 12px; line-height: 1.7; background: #fff; width: 100%; }
 .rich-box.ph { color: #bfbfbf; }
-.tag-input { border: 1px solid #d9d9d9; border-radius: 4px; max-width: 640px; padding: 6px 10px; display: flex; flex-wrap: wrap; gap: 6px; align-items: center; }
+.tag-input { border: 1px solid #d9d9d9; border-radius: 4px; padding: 5px 10px; display: flex; flex-wrap: wrap; gap: 6px; align-items: center; width: 100%; }
 .tag-input .kt { background: #ecf1ff; color: #2A55E5; border-radius: 4px; padding: 2px 8px; font-size: 12px; }
 .tag-input .add { color: #969aa0; font-size: 12px; }
-.opt-row { display: flex; align-items: center; gap: 8px; margin-bottom: 8px; max-width: 640px; }
-.opt-row .k { color: #64666b; width: 20px; }
+.upload-box { border: 1px dashed #d9d9d9; border-radius: 6px; padding: 14px; flex: 1; display: flex; flex-direction: column; justify-content: center; text-align: center; color: #64666b; line-height: 1.7; background: #fafafa; width: 100%; }
+.upload-box .plus { font-size: 20px; color: #969aa0; display: block; margin-bottom: 2px; }
+.upload-box .inline { display: flex !important; flex-direction: row; align-items: center; justify-content: center; gap: 10px; text-align: left; flex: none; }
+.kv-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 10px 14px; }
+.kv-grid .cl { color: #64666b; font-size: 12px; margin-bottom: 4px; }
+table.case { border-collapse: collapse; font-size: 13px; width: 100%; }
+.case th, .case td { border: 1px solid #f0f0f0; padding: 7px 10px; text-align: left; }
+.case th { background: #fafafa; }
+.op-link { color: #2A55E5; cursor: pointer; }
+.type-note { background: #f6f7fb; border-radius: 6px; padding: 7px 12px; font-size: 12px; color: #64666b; line-height: 1.7; margin-top: 8px; }
+
+/* 栅格 */
+.row { display: grid; gap: 16px 24px; align-items: stretch; }
+.row > .cell { display: flex; flex-direction: column; }
+.row > .cell > .sec:last-child { margin-bottom: 0; flex: 1; }
+.row.c3 { grid-template-columns: 300px 1fr 300px; }
+.row.c2 { grid-template-columns: 1fr 1fr; }
+.row.c21 { grid-template-columns: 2fr 1fr; }
+.row .cell { min-width: 0; }
+
+/* 选项行 */
+.opt-row { display: flex; align-items: center; gap: 8px; margin-bottom: 8px; }
+.opt-row .k { color: #64666b; width: 24px; flex: none; }
 .opt-row input.txt { flex: 1; }
 .opt-row .right { display: flex; align-items: center; gap: 4px; font-size: 12px; color: #64666b; white-space: nowrap; }
-.upload-box { border: 1px dashed #d9d9d9; border-radius: 6px; max-width: 640px; padding: 18px; text-align: center; color: #64666b; line-height: 1.7; background: #fafafa; }
-.upload-box .plus { font-size: 22px; color: #969aa0; display: block; margin-bottom: 4px; }
-.kv-grid { display: grid; grid-template-columns: 110px 200px 110px 200px; gap: 10px; max-width: 640px; }
-.kv-grid .cell .cl { color: #64666b; font-size: 12px; margin-bottom: 4px; }
-.kv-grid .cell input.txt { max-width: none; }
-table.case { border-collapse: collapse; font-size: 13px; width: 100%; max-width: 640px; }
-.case th, .case td { border: 1px solid #f0f0f0; padding: 8px 10px; text-align: left; }
-.case th { background: #fafafa; }
-.jigsaw { display: flex; gap: 10px; max-width: 900px; }
-.jigsaw .col { flex: 1; border: 1px solid #f0f0f0; border-radius: 6px; padding: 10px; }
-.jigsaw .col h4 { margin: 0 0 8px; font-size: 13px; color: #323335; }
+.opt-row .del { color: #969aa0; cursor: pointer; flex: none; }
+
+/* 积木区 */
+.jigsaw { display: grid; grid-template-columns: repeat(4, 1fr); gap: 12px; }
+.jigsaw .col { border: 1px solid #f0f0f0; border-radius: 6px; padding: 10px; }
+.jigsaw .col h4 { margin: 0 0 8px; font-size: 13px; }
 .jigsaw .blk { background: #f6f7fb; border-radius: 4px; padding: 4px 8px; font-size: 12px; margin-bottom: 4px; color: #3d3f43; }
-.foot-bar { display: flex; justify-content: flex-end; gap: 10px; margin-top: 26px; max-width: 1000px; }
-.btn { display: inline-flex; align-items: center; justify-content: center; height: 34px; padding: 0 20px; border-radius: 4px; border: 1px solid #d9d9d9; background: #fff; color: #323335; cursor: pointer; font-size: 14px; }
+
+/* 底部操作条 */
+.foot-bar { position: sticky; bottom: 0; margin: 0 -32px; padding: 12px 32px; background: rgba(255,255,255,.92); backdrop-filter: blur(6px); border-top: 1px solid #f0f0f0; display: flex; align-items: center; justify-content: space-between; }
+.foot-bar .scope { color: #969aa0; font-size: 12px; }
+.foot-bar .btns { display: flex; gap: 10px; }
+.btn { display: inline-flex; align-items: center; justify-content: center; height: 32px; padding: 0 18px; border-radius: 4px; border: 1px solid #d9d9d9; background: #fff; color: #323335; cursor: pointer; font-size: 13px; }
 .btn:hover { border-color: #2A55E5; color: #2A55E5; }
 .btn.primary { background: #2A55E5; border-color: #2A55E5; color: #fff; }
 .btn.primary:hover { background: #1e46c8; }
-.toast { position: fixed; top: 80px; left: 50%; transform: translateX(-50%); background: rgba(0,0,0,.75); color: #fff; padding: 10px 20px; border-radius: 6px; z-index: 3000; display: none; }
-.type-note { background: #f6f7fb; border-radius: 6px; padding: 8px 12px; font-size: 12px; color: #64666b; line-height: 1.7; max-width: 640px; margin-top: 8px; }
+.toast { position: fixed; top: 70px; left: 50%; transform: translateX(-50%); background: rgba(0,0,0,.75); color: #fff; padding: 9px 18px; border-radius: 6px; z-index: 3000; display: none; font-size: 13px; }
 </style>
 </head>
 <body>
@@ -76,76 +106,86 @@ table.case { border-collapse: collapse; font-size: 13px; width: 100%; max-width:
   </div>
 
   <div class="snap-banner">
-    正在修改：<b>100901-第1场</b> 本场快照中的题目（单选：执行以下程序会报错，错误原因是（　））。<br>
-    修改<b>仅作用于本场考试的题目快照</b>：不回写题库原题、不影响其他考场；已提交的作答保持提交时内容，修改从其后的作答开始生效；修改将记入留痕。
+    正在修改：<b>100901-第1场</b> 本场快照题目（单选：执行以下程序会报错，错误原因是（　））。修改<b>仅作用于本场考试的题目快照</b>：不回写题库原题、不影响其他考场；已提交的作答保持提交时内容，修改从其后的作答开始生效，修改记入留痕。
   </div>
 
   <div class="form-wrap">
-    <div class="sec">
-      <div class="lb">所属题库（本场快照，不可改）</div>
-      <div class="seg"><span class="fixed">默认题库</span><span class="fixed">我的题库</span><span class="fixed">AISE题库</span></div>
-    </div>
-
-    <div class="sec" id="secLang">
-      <div class="lb">编程语言</div>
-      <div class="seg" id="langSeg">
-        <span data-v="scratch">图形化（Scratch）</span><span data-v="python" class="on">Python</span><span data-v="c">C</span><span data-v="cpp">C++</span>
-      </div>
-      <div class="tip">选择语言后，下方知识标签仅展示该语言对应的知识树</div>
-    </div>
 
     <div class="sec">
-      <div class="lb"><span class="req">*</span>题型</div>
-      <div style="display:flex; gap:24px; flex-wrap:wrap;">
-        <div>
-          <div class="tip" style="margin:0 0 6px;">客观题类 - 可以系统自动批改</div>
-          <div class="seg v" id="typeSegObj"></div>
+      <div class="row c3">
+        <div class="cell">
+          <div class="sec-head" style="margin-bottom:6px;"><span class="t">所属题库</span><span class="note">本场快照，不可改</span></div>
+          <div class="seg"><span class="fixed">默认题库</span><span class="fixed">我的题库</span><span class="fixed">AISE题库</span></div>
         </div>
-        <div>
-          <div class="tip" style="margin:0 0 6px;">主观题类 - 需手动批改</div>
-          <div class="seg v" id="typeSegSub"></div>
+        <div class="cell">
+          <div class="sec-head" style="margin-bottom:6px;"><span class="t">编程语言</span></div>
+          <div class="seg" id="langSeg">
+            <span data-v="scratch">图形化（Scratch）</span><span data-v="python" class="on">Python</span><span data-v="c">C</span><span data-v="cpp">C++</span>
+          </div>
+        </div>
+        <div class="cell">
+          <div class="sec-head" style="margin-bottom:6px;"><span class="t">可见范围</span><span class="note">本场快照，不可改</span></div>
+          <div class="seg"><span class="fixed">本组织可见</span><span class="fixed">仅自己可见</span></div>
         </div>
       </div>
     </div>
 
     <div class="sec">
-      <div class="lb">知识标签</div>
-      <div class="tag-input"><span class="kt">模块与功能</span><span class="kt">math模块</span><span class="add">＋ 请选择知识标签</span></div>
+      <div class="sec-head"><span class="t"><span class="req">*</span>题型</span><span class="note">切换题型后，下方按该题型的字段组渲染（与线上录题页一致）</span></div>
+      <div style="display:flex; flex-wrap:wrap; gap:10px 20px; align-items:center;">
+        <span class="chip-group-label">客观题类 · 系统自动批改</span>
+        <div class="chips" id="typeSegObj"></div>
+        <span style="width:1px; height:22px; background:#e8e8e8;"></span>
+        <span class="chip-group-label">主观题类 · 需手动批改</span>
+        <div class="chips" id="typeSegSub"></div>
+      </div>
+      <div class="tip" style="margin-top:8px;">编程语言可选项随题型联动：编程OJ 仅 Python / C / C++，图形化编程仅 Scratch</div>
     </div>
 
     <div class="sec">
-      <div class="lb">题目标题</div>
-      <input class="txt" value="执行以下程序会报错，错误原因">
+      <div class="row c2">
+        <div class="cell">
+          <div class="sec-head"><span class="t">题目标题</span></div>
+          <input class="txt" value="执行以下程序会报错，错误原因">
+        </div>
+        <div class="cell">
+          <div class="sec-head"><span class="t">知识标签</span></div>
+          <div class="tag-input"><span class="kt">模块与功能</span><span class="kt">math模块</span><span class="add">＋ 请选择知识标签</span></div>
+          <div class="tip" style="margin-top:4px;">标签树随编程语言联动展示</div>
+        </div>
+      </div>
     </div>
 
     <div class="sec">
-      <div class="lb">题干</div>
-      <div class="rich-tabs"><span class="on">段落</span><span>源代码</span></div>
-      <div class="rich-box">执行以下程序会报错，错误原因是（　）<br><br>n = 6<br>orange = '颗橘子'<br>print(n + orange)</div>
-      <div class="type-note" id="stemNote" style="display:none;"></div>
-    </div>
-
-    <div class="sec">
-      <div class="lb">读题文本配置（TTS）</div>
-      <div style="display:flex; align-items:center; gap:8px; flex-wrap:wrap;">
-        <button class="btn" style="height:28px;font-size:12px;" onclick="toast('已填入题干（演示）')">填入题干</button>
-        <button class="btn" style="height:28px;font-size:12px;" onclick="toast('已填入选项（演示）')">填入选项</button>
-        <button class="btn" style="height:28px;font-size:12px;" onclick="toast('试听发音（演示）')">试听发音</button>
-        <input class="txt" style="max-width:420px;" value="；">
+      <div class="row c21">
+        <div class="cell">
+          <div class="sec-head"><span class="t">题干</span></div>
+          <div class="rich-tabs"><span class="on">段落</span><span>源代码</span></div>
+          <div class="rich-box">执行以下程序会报错，错误原因是（　）<br><br>n = 6<br>orange = '颗橘子'<br>print(n + orange)</div>
+          <div class="type-note" id="stemNote" style="display:none;"></div>
+        </div>
+        <div class="cell">
+          <div class="sec-head"><span class="t">读题文本配置（TTS）</span></div>
+          <div style="display:flex; gap:8px; margin-bottom:8px;">
+            <button class="btn" style="height:28px; padding:0 12px; font-size:12px;" onclick="toast('已填入题干（演示）')">填入题干</button>
+            <button class="btn" style="height:28px; padding:0 12px; font-size:12px;" onclick="toast('已填入选项（演示）')">填入选项</button>
+            <button class="btn" style="height:28px; padding:0 12px; font-size:12px;" onclick="toast('试听发音（演示）')">试听发音</button>
+          </div>
+          <input class="txt" value="；">
+          <div class="tip" style="margin-top:4px;">右侧输入框为读题分隔符，多个片段按此符号拼接朗读</div>
+        </div>
       </div>
     </div>
 
     <div id="typeSpecific"></div>
 
-    <div class="sec">
-      <div class="lb">可见范围（本场快照，不可改）</div>
-      <div class="seg"><span class="fixed">本组织可见</span><span class="fixed">仅自己可见</span></div>
-    </div>
-
     <div class="foot-bar">
-      <button class="btn" onclick="history.back()">取 消</button>
-      <button class="btn" onclick="toast('已仅保存本场快照题目并记入留痕（演示）')">仅保存</button>
-      <button class="btn primary" onclick="toast('已保存并提交，修改记入留痕；本场后续作答按修改后内容执行（演示）')">保存并提交</button>
+      <span class="scope">修改仅作用于本场快照：不回写题库、不影响其他考场、已提交作答不变，修改记入留痕</span>
+      <div class="btns">
+        <button class="btn" onclick="history.back()">取 消</button>
+        <button class="btn" onclick="toast('已仅保存本场快照题目并记入留痕（演示）')">仅保存</button>
+        <button class="btn primary" onclick="toast('已保存并提交，修改记入留痕；本场后续作答按修改后内容执行（演示）')">保存并提交</button>
+      </div>
     </div>
   </div>
 </div>
@@ -160,16 +200,14 @@ function toast(msg) {
   toastTimer = setTimeout(function () { t.style.display = 'none'; }, 2400);
 }
 
-/* 题型清单（与线上录题页一致） */
 var OBJ = [['single','单选'],['multi','多选'],['judge','判断'],['fill','填空'],['oj','编程OJ'],['scratch','图形化编程']];
 var SUB = [['reading','阅读'],['prog','编程'],['practice','实践'],['t2t','文生文'],['t2i','文生图'],['t2v','文生视频'],['uline','划线题'],['flow','工作流题型']];
 var curType = 'single';
-var CUR = { room: '100901-第1场', stem: '执行以下程序会报错，错误原因是（　）' };
 
 function renderTypeSeg() {
   var h1 = '', h2 = '';
-  OBJ.forEach(function (p) { h1 += '<span data-v="' + p[0] + '" class="' + (curType === p[0] ? 'on' : '') + '" onclick="setType(\'' + p[0] + '\')">' + p[1] + '</span>'; });
-  SUB.forEach(function (p) { h2 += '<span data-v="' + p[0] + '" class="' + (curType === p[0] ? 'on' : '') + '" onclick="setType(\'' + p[0] + '\')">' + p[1] + '</span>'; });
+  OBJ.forEach(function (p) { h1 += '<span class="chip ' + (curType === p[0] ? 'on' : '') + '" onclick="setType(\'' + p[0] + '\')">' + p[1] + '</span>'; });
+  SUB.forEach(function (p) { h2 += '<span class="chip ' + (curType === p[0] ? 'on' : '') + '" onclick="setType(\'' + p[0] + '\')">' + p[1] + '</span>'; });
   document.getElementById('typeSegObj').innerHTML = h1;
   document.getElementById('typeSegSub').innerHTML = h2;
 }
@@ -180,89 +218,98 @@ function setType(t) {
   toast('已切换题型：' + (OBJ.concat(SUB).filter(function (p) { return p[0] === t; })[0][1]) + '（字段形态与线上录题页一致，演示）');
 }
 
-/* 通用块 */
+function secHead(title, note, req) {
+  return '<div class="sec-head"><span class="t">' + (req ? '<span class="req">*</span>' : '') + title + '</span>' + (note ? '<span class="note">' + note + '</span>' : '') + '</div>';
+}
 function secAnswerRich() {
-  return '<div class="sec"><div class="lb">答案解析</div>' +
+  return '<div class="sec">' + secHead('答案解析') +
     '<div class="rich-box ph">在此填写答案解析，支持插入图片（png / jpg / jpeg / gif / webp，单图不超过 5MB，可插入多张图片）</div></div>';
 }
 function secStandardAnswer() {
-  return '<div class="sec"><div class="lb">标准答案</div>' +
-    '<div class="upload-box"><span class="plus">↑</span>上传标准答案<br><span style="font-size:12px;color:#969aa0;">仅支持 PNG 格式，最多上传 1 张图片，大小小于 500KB，重新上传可替换</span></div></div>';
+  return '<div class="sec">' + secHead('标准答案') +
+    '<div class="upload-box"><span class="plus">↑</span>上传标准答案<span style="display:block;font-size:12px;color:#969aa0;">仅支持 PNG 格式，最多 1 张，小于 500KB，重新上传可替换</span></div></div>';
 }
 function secTemplate(withIo) {
-  var h = '<div class="sec"><div class="lb">模板文件</div>' +
-    '<div style="display:flex; align-items:center; gap:10px; max-width:640px;">' +
-    '<div class="upload-box" style="flex:1; padding:12px;"><span style="font-weight:600;">模板文件</span>　<span class="plus" style="display:inline;font-size:14px;">↑</span> <span style="font-size:12px;">点击或拖拽上传文件</span></div>' +
-    '<button class="btn" onclick="toast(\'预览/测试：读取当前草稿内容，无需先保存题目（演示）\')">预览/测试</button></div>';
+  var h = '<div class="sec">' + secHead('模板文件') +
+    '<div style="display:flex; align-items:stretch; gap:10px;">' +
+    '<div class="upload-box" style="flex:1; padding:10px; display:flex; align-items:center; justify-content:center; gap:10px; text-align:left;"><span class="plus" style="display:inline; margin:0;">↑</span><span><b>模板文件</b>　<span style="font-size:12px;">点击或拖拽上传，供考生作答时加载</span></span></div>' +
+    '<button class="btn" style="flex:none;" onclick="toast(\'预览/测试：读取当前草稿内容，无需先保存题目（演示）\')">预览/测试</button></div>';
   if (withIo) {
-    h += '<div class="kv-grid" style="margin-top:10px;">' +
-      '<div class="cell"><div class="cl">输入描述</div><input class="txt" value="一行字符串"></div>' +
-      '<div class="cell"><div class="cl">输入样例</div><input class="txt" value="hello"></div>' +
-      '<div class="cell"><div class="cl">输出描述</div><input class="txt" value="反转后的字符串"></div>' +
-      '<div class="cell"><div class="cl">输出样例</div><input class="txt" value="olleh"></div>' +
-      '<div class="cell"><div class="cl">答题时长</div><input class="txt" value="60 秒"></div>' +
-      '<div class="cell"><div class="cl">内存限制</div><input class="txt" value="128 MB"></div>' +
+    h += '<div class="kv-grid" style="margin-top:12px;">' +
+      '<div><div class="cl">输入描述</div><input class="txt" value="一行字符串"></div>' +
+      '<div><div class="cl">输入样例</div><input class="txt" value="hello"></div>' +
+      '<div><div class="cl">输出描述</div><input class="txt" value="反转后的字符串"></div>' +
+      '<div><div class="cl">输出样例</div><input class="txt" value="olleh"></div>' +
+      '<div><div class="cl">答题时长</div><input class="txt" value="60 秒"></div>' +
+      '<div><div class="cl">内存限制</div><input class="txt" value="128 MB"></div>' +
     '</div>';
   }
   return h + '</div>';
 }
 function secOptions(kind) {
   var letters = ['A','B','C','D'];
-  var h = '<div class="sec"><div class="lb"><span class="req">*</span>选项：</div>';
-  letters.forEach(function (L, i) {
-    var right = (kind === 'multi') ? (i === 0 || i === 1) : (i === 0);
-    h += '<div class="opt-row"><span class="k">' + L + '.</span>' +
-      '<input class="txt" value="' + (i === 0 ? '类型不同不能相加' : i === 1 ? 'n 未定义' : i === 2 ? 'print 不能输出中文' : '缺少引号') + '">' +
-      '<span class="right">' + (kind === 'multi' ? '<input type="checkbox"' + (right ? ' checked' : '') + '> 正确答案' : '<input type="radio" name="optRight"' + (right ? ' checked' : '') + '> 正确答案') + '</span>' +
-      '<span style="color:#969aa0;cursor:pointer;" onclick="toast(\'删除选项（演示）\')">✕</span></div>';
+  var vals = ['类型不同不能相加','n 未定义','print 不能输出中文','缺少引号'];
+  var h = '<div class="sec">' + secHead('选项', '勾选正确答案；判断题选项固定', '*') + '<div class="row c2">';
+  [0,1].forEach(function (col) {
+    h += '<div class="cell">';
+    [col*2, col*2+1].forEach(function (i) {
+      var right = (kind === 'multi') ? (i === 0 || i === 1) : (i === 0);
+      h += '<div class="opt-row"><span class="k">' + letters[i] + '.</span>' +
+        '<input class="txt" value="' + vals[i] + '">' +
+        '<span class="right">' + (kind === 'multi' ? '<input type="checkbox"' + (right ? ' checked' : '') + '> 正确答案' : '<input type="radio" name="optRight"' + (right ? ' checked' : '') + '> 正确答案') + '</span>' +
+        '<span class="del" onclick="toast(\'删除选项（演示）\')">✕</span></div>';
+    });
+    h += '</div>';
   });
-  h += '<button class="btn" style="height:28px;font-size:12px;" onclick="toast(\'添加选项（演示）\')">点击添加选项</button>';
-  if (kind === 'judge') h = h.replace(/<div class="opt-row">[\s\S]*?<\/div>\s*<button[^>]*>点击添加选项<\/button>/, '<div class="opt-row"><span class="k">正确</span><input class="txt" value="（判断题固定选项，不可编辑）" disabled></div><div class="opt-row"><span class="k">错误</span><input class="txt" value="（判断题固定选项，不可编辑）" disabled></div>');
+  h += '</div><button class="btn" style="height:28px;font-size:12px;" onclick="toast(\'添加选项（演示）\')">＋ 添加选项</button>';
+  if (kind === 'judge') {
+    h = '<div class="sec">' + secHead('选项', '判断题选项固定，不可编辑', '*') +
+      '<div class="row c2"><div class="cell"><div class="opt-row"><span class="k">正确</span><input class="txt" value="（固定选项）" disabled></div></div>' +
+      '<div class="cell"><div class="opt-row"><span class="k">错误</span><input class="txt" value="（固定选项）" disabled></div></div></div></div>';
+  }
   return h + '</div>';
 }
 function secFillAnswer() {
-  return '<div class="sec"><div class="lb"><span class="req">*</span>选项（按空位填写答案）：</div>' +
-    '<div class="opt-row"><span class="k">空1</span><input class="txt" value="1956,一九五六"><span class="right">多个同义答案用 , 隔开</span></div>' +
-    '<div class="opt-row"><span class="k">空2</span><input class="txt" value="图灵"><span class="right">多个同义答案用 , 隔开</span></div>' +
-    '<div class="type-note">提示：每个空位可填写多个同义答案，用 , 隔开；题干中三个以上的下划线代表一个空位，如「电脑诞生于____年，名字叫______」</div></div>';
+  return '<div class="sec">' + secHead('选项', '按空位填写答案；多个同义答案用 , 隔开', '*') +
+    '<div class="row c2"><div class="cell"><div class="opt-row"><span class="k">空1</span><input class="txt" value="1956,一九五六"></div></div>' +
+    '<div class="cell"><div class="opt-row"><span class="k">空2</span><input class="txt" value="图灵"></div></div></div>' +
+    '<div class="type-note">题干中三个以上的下划线代表一个空位，如「电脑诞生于____年，名字叫______」</div></div>';
 }
 function secReference() {
-  return '<div class="sec"><div class="lb">参考答案</div>' +
-    '<div class="lb" style="font-size:12px;color:#64666b;">参考答案文件</div>' +
-    '<div class="upload-box"><span class="plus">↑</span>点击或拖拽上传文件<br><span style="font-size:12px;color:#969aa0;">支持 .py / .java / .cpp / .js / .c / .go / .ts，重新上传将覆盖旧文件</span></div>' +
+  return '<div class="sec">' + secHead('参考答案') +
+    '<div class="upload-box" style="padding:10px; display:flex; align-items:center; justify-content:center; gap:10px; text-align:left;"><span class="plus" style="display:inline; margin:0;">↑</span><span><b>参考答案文件</b>　<span style="font-size:12px;">支持 .py / .java / .cpp / .js / .c / .go / .ts，重新上传将覆盖旧文件</span></span></div>' +
     '<div class="rich-box" style="margin-top:10px; background:#f6f7fb;">print(input()[::-1])</div></div>';
 }
 function secCases() {
-  return '<div class="sec"><div class="lb"><span class="req">*</span>评分标准</div>' +
-    '<div class="type-note">自测满分为用例权重之和，通过用例获得对应权重分；编程 OJ 考试得分仍按题目总分和得分占比计算，普通编程仍由教师批改。</div>' +
+  return '<div class="sec">' + secHead('评分标准', '自测满分 = 用例权重之和；考试得分按题目总分与得分占比计算', '*') +
     '<table class="case"><tr><th>序号</th><th>用例名称</th><th>输入</th><th>期望输出</th><th>权重值</th><th>得分占比</th><th>操作</th></tr>' +
-    '<tr><td>1</td><td>基础用例</td><td>hello</td><td>olleh</td><td>20</td><td>28.57%</td><td><span class="op-link" style="margin-right:8px;">编辑</span><span class="op-link" style="color:#d54941;">删除</span></td></tr>' +
-    '<tr><td>2</td><td>含空格用例</td><td>a b c</td><td>c b a</td><td>50</td><td>71.43%</td><td><span class="op-link" style="margin-right:8px;">编辑</span><span class="op-link" style="color:#d54941;">删除</span></td></tr></table>' +
-    '<button class="btn" style="height:28px;font-size:12px;margin-top:8px;" onclick="toast(\'添加测试用例（演示）\')">添加测试用例</button></div>';
+    '<tr><td>1</td><td>基础用例</td><td>hello</td><td>olleh</td><td>20</td><td>28.57%</td><td><span class="op-link" style="margin-right:10px;">编辑</span><span class="op-link" style="color:#d54941;">删除</span></td></tr>' +
+    '<tr><td>2</td><td>含空格用例</td><td>a b c</td><td>c b a</td><td>50</td><td>71.43%</td><td><span class="op-link" style="margin-right:10px;">编辑</span><span class="op-link" style="color:#d54941;">删除</span></td></tr></table>' +
+    '<button class="btn" style="height:28px;font-size:12px;margin-top:8px;" onclick="toast(\'添加测试用例（演示）\')">＋ 添加测试用例</button></div>';
 }
 function secJigsaw() {
   var blocks = {
     '动作': ['移动 %1 步','右转 %1 度','移到 x: %1 y: %2','面向 %1 方向'],
     '外观': ['说 %1 %2 秒','换成 %1 造型','将大小增加 %1'],
-    '控制': ['重复执行 %1 次','等待 %1 秒','如果…那么']
+    '控制': ['重复执行 %1 次','等待 %1 秒','如果…那么'],
+    '本题允许的积木': ['事件：当绿旗被点击','动作：移动 10 步','外观：说「你好」2 秒']
   };
-  var h = '<div class="sec"><div class="lb">题目设置</div><div class="jigsaw">';
+  var h = '<div class="sec">' + secHead('题目设置', '配置图形化题允许使用的积木范围') + '<div class="jigsaw">';
   Object.keys(blocks).forEach(function (cat) {
     h += '<div class="col"><h4>' + cat + '</h4>';
     blocks[cat].forEach(function (b) { h += '<div class="blk">' + b + '</div>'; });
     h += '</div>';
   });
-  h += '<div class="col"><h4>可用积木（本题允许）</h4><div class="blk">事件：当绿旗被点击</div><div class="blk">动作：移动 10 步</div><div class="blk">外观：说「你好」2 秒</div></div></div></div>';
+  h += '</div></div>';
   return h;
 }
 function secFileTemplate() {
-  return '<div class="sec"><div class="lb">文件模板</div>' +
-    '<div class="upload-box" style="max-width:640px;"><span class="plus">↑</span>上传文件模板（供考生下载后按模板完成实践作品）</div></div>';
+  return '<div class="sec">' + secHead('文件模板', '供考生下载后按模板完成实践作品') +
+    '<div class="upload-box"><span class="plus">↑</span>上传文件模板</div></div>';
 }
 function secSeparator() {
-  return '<div class="sec"><div class="lb">分隔符配置</div>' +
-    '<div class="type-note">系统将使用以下符号作为界限，将题干文本切分为可点击的片段。</div>' +
-    '<div class="tag-input" style="margin-top:8px;"><span class="kt">，</span><span class="kt">,</span><span class="kt">。</span><span class="kt">.</span><span class="kt">？</span><span class="kt">?</span><span class="kt">；</span><span class="kt">;</span><span class="add">＋ 添加分隔符</span></div></div>';
+  return '<div class="sec">' + secHead('分隔符配置', '系统按以下符号切分题干为可点击片段') +
+    '<div class="tag-input"><span class="kt">，</span><span class="kt">,</span><span class="kt">。</span><span class="kt">.</span><span class="kt">？</span><span class="kt">?</span><span class="kt">；</span><span class="kt">;</span><span class="add">＋ 添加分隔符</span></div></div>';
 }
 
 var RENDER = {
@@ -270,37 +317,52 @@ var RENDER = {
   multi: function () { return secOptions('multi') + secAnswerRich(); },
   judge: function () { return secOptions('judge') + secAnswerRich(); },
   fill: function () { return secFillAnswer() + secAnswerRich(); },
-  oj: function () { return secStandardAnswer() + secTemplate(true) + secReference() + secCases(); },
-  scratch: function () { return secAnswerRich() + secStandardAnswer() + secTemplate(false) + secJigsaw(); },
+  oj: function () {
+    return '<div class="row c2" style="margin-bottom:0;">' +
+      '<div class="cell">' + secStandardAnswer() + secReference() + '</div>' +
+      '<div class="cell">' + secTemplate(true) + '</div></div>' + secCases();
+  },
+  scratch: function () {
+    return '<div class="row c2" style="margin-bottom:0;">' +
+      '<div class="cell">' + secAnswerRich() + '</div>' +
+      '<div class="cell">' + secStandardAnswer() + '</div></div>' +
+      '<div class="row c2" style="margin-bottom:0;">' +
+      '<div class="cell">' + secTemplate(false) + '</div>' +
+      '<div class="cell">' + secJigsaw() + '</div></div>';
+  },
   reading: function () { return secAnswerRich(); },
-  prog: function () { return secAnswerRich() + secStandardAnswer() + secTemplate(false); },
-  practice: function () { return secAnswerRich() + secFileTemplate(); },
+  prog: function () {
+    return '<div class="row c2" style="margin-bottom:0;">' +
+      '<div class="cell">' + secAnswerRich() + '</div>' +
+      '<div class="cell">' + secStandardAnswer() + secTemplate(false) + '</div></div>';
+  },
+  practice: function () {
+    return '<div class="row c2" style="margin-bottom:0;">' +
+      '<div class="cell">' + secAnswerRich() + '</div>' +
+      '<div class="cell">' + secFileTemplate() + '</div></div>';
+  },
   t2t: function () { return secAnswerRich(); },
   t2i: function () { return secAnswerRich(); },
   t2v: function () { return secAnswerRich(); },
-  uline: function () { return secSeparator() + secAnswerRich(); },
+  uline: function () {
+    return '<div class="row c2" style="margin-bottom:0;">' +
+      '<div class="cell">' + secSeparator() + '</div>' +
+      '<div class="cell">' + secAnswerRich() + '</div></div>';
+  },
   flow: function () { return secAnswerRich(); }
 };
 
 var STEM_NOTES = { fill: '题干中三个以上的下划线代表一个空位，如「电脑诞生于____年，名字叫______」' };
-var LANG_SETS = {
-  oj: ['python','c','cpp'],
-  scratch: ['scratch'],
-  default: ['scratch','python','c','cpp']
-};
+var LANG_SETS = { oj: ['python','c','cpp'], scratch: ['scratch'], default: ['scratch','python','c','cpp'] };
 
 function renderSpecific() {
   document.getElementById('typeSpecific').innerHTML = (RENDER[curType] || function(){return '';})();
   var note = document.getElementById('stemNote');
   if (STEM_NOTES[curType]) { note.textContent = STEM_NOTES[curType]; note.style.display = 'block'; }
   else note.style.display = 'none';
-  // 语言选项随题型变化：OJ 无图形化；图形化编程仅 Scratch
   var set = LANG_SETS[curType] || LANG_SETS.default;
-  var seg = document.getElementById('langSeg');
-  var spans = seg.querySelectorAll('span');
-  spans.forEach(function (s) {
-    var show = set.indexOf(s.getAttribute('data-v')) >= 0;
-    s.style.display = show ? '' : 'none';
+  document.querySelectorAll('#langSeg span').forEach(function (s) {
+    s.style.display = set.indexOf(s.getAttribute('data-v')) >= 0 ? '' : 'none';
   });
 }
 renderTypeSeg();
