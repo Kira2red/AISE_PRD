@@ -151,6 +151,8 @@ REVIEW_SYSTEM = (
     '请只输出 JSON（不要其他文字），字段：'
     '{"conclusion":"通过或驳回","reason":"一句话理由","tags":["标签1","标签2"],'
     '"score":0到100整数,"comment":"两句话评语","understanding":"对作品内容的理解摘要"}。'
+    '各字段严格限制长度：reason 不超过 25 字；comment 恰好两句话、总共不超过 50 字（宁短勿长）；'
+    'understanding 不超过 80 字。'
     'tags 必须是人工智能教育方向的能力标签（如：%s），'
     '禁止使用文件格式（如PDF、PNG）、作品名称或文件名。'
     '评分锚点：60分=基本完成但质量一般；80分=完整且质量良好；90分以上=完整且有亮点创意。'
@@ -180,7 +182,8 @@ QA_SYSTEM_TMPL = (
     '1. 只回答与人才库数据相关的问题（学员的测评成绩、逐题作答、知识点掌握情况、'
     '作品评价、成长画像、简历材料）。数据中没有的信息要如实说明人才库暂无相关记录，禁止编造。\n'
     '2. 与人才库无关的请求（写作文、写代码、做题、闲聊、时事新闻等一切代办或创作类请求）一律拒绝。\n'
-    '3. 打探他人隐私（住址、联系方式、身份证号等）或要求生成不当内容的请求一律拒绝。\n'
+    '3. 打探他人隐私（住址、联系方式、身份证号等）、要求导出或原样发送学员档案材料的请求、'
+    '或要求生成不当内容的请求一律拒绝。\n'
     '4. 拒绝时输出 scope=refuse，answer 以「该问题超出人才库服务范围。」开头，'
     '随后一句话说明可提问的范围（测评成绩、知识点掌握、作品评价、成长建议）。\n'
     '5. 回答精炼友好（200字内），适合小学生与家长阅读。\n{extra}\n'
@@ -239,49 +242,55 @@ def extract_pdf_text(path):
 
 
 def ai_review_work(work):
-    """作品审核智能体：按类型差异化阅读 → 输出契约 JSON。"""
+    """作品审核智能体：按类型差异化阅读 → 输出契约 JSON（空响应/解析失败重试一次）。"""
     name = work['name']
     desc = work.get('desc') or ''
     fpath = os.path.join(UPLOAD_DIR, work['filename'])
-    try:
-        if work['type'] == 'image':
-            b64 = base64.b64encode(open(fpath, 'rb').read()).decode()
-            user = ('请分析这幅图片作品（作品名：%s）。判断其作为中小学生人工智能学习成果的质量是否可以入库，'
-                    '并从画面内容生成 2-4 个特长标签。作者描述：%s' % (name, desc))
-            raw = chat([{'role': 'system', 'content': REVIEW_SYSTEM},
-                        {'role': 'user', 'content': user}],
-                       model=VISION_MODEL, image_b64=b64, max_tokens=2000)
-        elif work['type'] == 'pdf':
-            text = extract_pdf_text(fpath)
-            user = '作品类型：PDF；作品名：%s。作者描述：%s。' % (name, desc)
-            if text:
-                user += '\nPDF 正文如下：\n' + text
-            else:
-                user += '\n（PDF 正文解析失败，请基于名称与描述判断）'
-            raw = chat([{'role': 'system', 'content': REVIEW_SYSTEM},
-                        {'role': 'user', 'content': user}])
-        else:  # code
-            code = open(fpath, encoding='utf-8', errors='ignore').read()[:8000]
-            user = ('作品类型：代码；作品名：%s。作者描述：%s。代码内容如下：\n```\n%s\n```'
-                    % (name, desc, code))
-            raw = chat([{'role': 'system', 'content': REVIEW_SYSTEM},
-                        {'role': 'user', 'content': user}])
-        r = extract_json(raw)
-        score = r.get('score', 0)
+    if work['type'] == 'image':
+        b64 = base64.b64encode(open(fpath, 'rb').read()).decode()
+        user = ('请分析这幅图片作品（作品名：%s）。判断其作为中小学生人工智能学习成果的质量是否可以入库，'
+                '并从画面内容生成 2-4 个特长标签。作者描述：%s' % (name, desc))
+        kwargs = {'model': VISION_MODEL, 'image_b64': b64, 'max_tokens': 2000}
+    elif work['type'] == 'pdf':
+        text = extract_pdf_text(fpath)
+        user = '作品类型：PDF；作品名：%s。作者描述：%s。' % (name, desc)
+        if text:
+            user += '\nPDF 正文如下：\n' + text
+        else:
+            user += '\n（PDF 正文解析失败，请基于名称与描述判断）'
+        kwargs = {}
+    else:  # code
+        code = open(fpath, encoding='utf-8', errors='ignore').read()[:8000]
+        user = ('作品类型：代码；作品名：%s。作者描述：%s。代码内容如下：\n```\n%s\n```'
+                % (name, desc, code))
+        kwargs = {}
+    last_err = None
+    for attempt in range(2):
+        raw = chat([{'role': 'system', 'content': REVIEW_SYSTEM},
+                    {'role': 'user', 'content': user}], **kwargs)
         try:
-            score = max(0, min(100, int(score)))
-        except Exception:  # noqa: BLE001
-            score = 0
-        return {
-            'conclusion': '驳回' if r.get('conclusion') == '驳回' else '通过',
-            'reason': r.get('reason', ''),
-            'tags': clean_tags(r.get('tags'), name),
-            'score': score,
-            'comment': r.get('comment', ''),
-            'understanding': r.get('understanding', ''),
-        }
-    except Exception as e:  # noqa: BLE001
-        return {'error': str(e)}
+            if raw and raw.strip():
+                r = extract_json(raw)
+                break
+            last_err = ValueError('模型返回为空')
+        except Exception as e:  # noqa: BLE001
+            last_err = e
+            r = {}
+    else:
+        raise RuntimeError('作品预审失败：%s' % last_err)
+    score = r.get('score', 0)
+    try:
+        score = max(0, min(100, int(score)))
+    except Exception:  # noqa: BLE001
+        score = 0
+    return {
+        'conclusion': '驳回' if r.get('conclusion') == '驳回' else '通过',
+        'reason': r.get('reason', ''),
+        'tags': clean_tags(r.get('tags'), name),
+        'score': score,
+        'comment': r.get('comment', ''),
+        'understanding': r.get('understanding', ''),
+    }
 
 
 def build_student_context(stu, data, brief=False):
@@ -317,12 +326,20 @@ def build_student_context(stu, data, brief=False):
 
 
 def ai_generate_report(stu, data):
-    """画像分析智能体：数据清单 → 输出契约 JSON。"""
+    """画像分析智能体：数据清单 → 输出契约 JSON（空响应/解析失败重试一次）。"""
     ctx = build_student_context(stu, data)
-    raw = chat([{'role': 'system', 'content': REPORT_SYSTEM},
-                {'role': 'user', 'content': '请基于以下人才库数据生成画像分析：\n' + ctx}],
-               max_tokens=3000)
-    return extract_json(raw)
+    last_err = None
+    for attempt in range(2):
+        raw = chat([{'role': 'system', 'content': REPORT_SYSTEM},
+                    {'role': 'user', 'content': '请基于以下人才库数据生成画像分析：\n' + ctx}],
+                   max_tokens=3000 if attempt == 0 else 4500)
+        try:
+            if raw and raw.strip():
+                return extract_json(raw)
+            last_err = ValueError('模型返回为空')
+        except Exception as e:  # noqa: BLE001
+            last_err = e
+    raise RuntimeError('画像报告生成失败：%s' % last_err)
 
 
 def ai_qa(context, question, own_only=False):
@@ -362,7 +379,8 @@ QA_STREAM_TMPL = (
     '1. 只回答与人才库数据相关的问题（学员的测评成绩、逐题作答、知识点掌握情况、'
     '作品评价、成长画像、简历材料）。数据中没有的信息要如实说明人才库暂无相关记录，禁止编造。\n'
     '2. 与人才库无关的请求（写作文、写代码、做题、闲聊、时事新闻等一切代办或创作类请求）一律拒绝。\n'
-    '3. 打探他人隐私（住址、联系方式、身份证号等）或要求生成不当内容的请求一律拒绝。\n'
+    '3. 打探他人隐私（住址、联系方式、身份证号等）、要求导出或原样发送学员档案材料的请求、'
+    '或要求生成不当内容的请求一律拒绝（页面内已有材料查看入口，无需 AI 转述）。\n'
     '4. 拒绝时第一行输出 [SCOPE:refuse]，正文以「该问题超出人才库服务范围。」开头，'
     '随后一句话说明可提问的范围（测评成绩、知识点掌握、作品评价、成长建议）。\n'
     '5. 回答精炼友好（200字内），适合小学生与家长阅读。\n{extra}\n'
@@ -497,7 +515,14 @@ def ai_analytics_comment(out):
     }
     raw = chat([{'role': 'system', 'content': ANALYTICS_AI_TMPL},
                 {'role': 'user', 'content': json.dumps(agg, ensure_ascii=False)}], max_tokens=1500)
-    r = extract_json(raw)
+    try:
+        r = extract_json(raw)
+    except Exception:  # noqa: BLE001
+        # JSON 截断等解析失败：加大预算、要求压缩后重试一次
+        raw = chat([{'role': 'system', 'content': ANALYTICS_AI_TMPL},
+                    {'role': 'user', 'content': json.dumps(agg, ensure_ascii=False) +
+                     '\n（注意：每个字段压缩到 50 字内，防止输出截断）'}], max_tokens=2500)
+        r = extract_json(raw)
     for k in ('summary', 'channelComment', 'knowledgeComment', 'radarComment', 'errorComment', 'tagComment'):
         r.setdefault(k, '')
     return r
@@ -625,7 +650,10 @@ def run_review(work_id):
     work = next((w for w in data['works'] if w['id'] == work_id), None)
     if not work:
         return
-    result = ai_review_work(work)
+    try:
+        result = ai_review_work(work)
+    except Exception as e:  # noqa: BLE001
+        result = {'error': str(e)}
     data = load_data()
     work = next((w for w in data['works'] if w['id'] == work_id), None)
     if not work:

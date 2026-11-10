@@ -14,7 +14,38 @@
       "label": "教研员 · 王老师"
     }
   ],
-  "sessions": {},
+  "sessions": {
+    "s1794352665487": {
+      "user": "xiaoming",
+      "role": "student",
+      "studentId": "stu_li",
+      "label": "学员 / 家长 · 李小明"
+    },
+    "s1794352665491": {
+      "user": "wang",
+      "role": "teacher",
+      "studentId": null,
+      "label": "教研员 · 王老师"
+    },
+    "s1794352665512": {
+      "user": "xiaoming",
+      "role": "student",
+      "studentId": "stu_li",
+      "label": "学员 / 家长 · 李小明"
+    },
+    "s1794352665515": {
+      "user": "wang",
+      "role": "teacher",
+      "studentId": null,
+      "label": "教研员 · 王老师"
+    },
+    "s1794352790882": {
+      "user": "wang",
+      "role": "teacher",
+      "studentId": null,
+      "label": "教研员 · 王老师"
+    }
+  },
   "students": [
     {
       "id": "stu_li",
