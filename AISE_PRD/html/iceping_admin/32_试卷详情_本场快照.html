@@ -1,0 +1,166 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>爱测评 - 本场试卷详情（题目快照）</title>
+<style>
+html, body { margin: 0; padding: 0; background: #fff; font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", "PingFang SC", "Hiragino Sans GB", "Microsoft YaHei", sans-serif; font-size: 14px; color: #323335; }
+* { box-sizing: border-box; }
+.container {
+  min-width: 1100px;
+  background: linear-gradient(0deg, rgba(255,255,255,.4) 0%, rgba(255,255,255,.4) 100%), radial-gradient(158.01% 139.35% at 0% 0%, #D9F2FF 0%, #F2F0FC 27.87%, #BFD8FF 100%);
+  min-height: 100vh; display: flex; flex-direction: column;
+}
+.header { height: 64px; backdrop-filter: blur(10px); background: rgba(0,0,0,0); display: flex; align-items: center; padding: 0 24px; gap: 16px; }
+.header .logo-ph { height: 34px; padding: 0 10px; border-radius: 6px; background: #2A55E5; color: #fff; font-weight: 700; font-size: 15px; display: inline-flex; align-items: center; }
+.header .crumb { color: #323335; font-size: 15px; }
+.header .exit { margin-left: auto; color: #64666b; cursor: pointer; }
+.header .exit:hover { color: #2A55E5; }
+.snap-banner { margin: 0 24px 12px; background: #fffbe6; border: 1px solid #ffe58f; border-radius: 8px; padding: 10px 16px; line-height: 1.7; }
+.snap-banner b { color: #d48806; }
+.body-row { display: flex; gap: 16px; padding: 0 24px 32px; align-items: flex-start; flex: 1; }
+.paper-main { flex: 1 1 0%; min-width: 0; background: #fff; border-radius: 8px; padding: 20px 24px; }
+.paper-title input { width: 100%; height: 40px; border: 1px solid #e8e8e8; border-radius: 4px; padding: 0 12px; font-size: 15px; font-weight: 600; color: #323335; background: #fafafa; }
+.q-card { border: 1px solid #f0f0f0; border-radius: 8px; padding: 16px 18px; margin-top: 14px; background: #fff; }
+.q-card .q-head { display: flex; align-items: center; gap: 10px; margin-bottom: 10px; }
+.q-index { min-width: 24px; height: 24px; line-height: 24px; text-align: center; border-radius: 4px; background: #2A55E5; color: #fff; font-size: 12px; }
+.q-type { color: #2A55E5; font-size: 12px; }
+.q-score { color: #969aa0; font-size: 12px; margin-left: auto; }
+.q-stem { line-height: 1.7; color: #1f2329; }
+.q-stem .rich-bold { font-weight: 600; }
+.q-options { margin-top: 10px; }
+.q-options .opt { display: flex; gap: 8px; padding: 6px 0; line-height: 1.6; }
+.q-options .opt .k { color: #64666b; }
+.q-answer { margin-top: 10px; background: #f6ffed; border: 1px solid #b7eb8f; border-radius: 6px; padding: 8px 12px; line-height: 1.6; }
+.q-answer.hide { display: none; }
+.q-foot { margin-top: 12px; display: flex; align-items: center; justify-content: space-between; }
+.q-foot .meta { color: #969aa0; font-size: 12px; }
+.btn { display: inline-flex; align-items: center; justify-content: center; height: 30px; padding: 0 14px; border-radius: 4px; border: 1px solid #d9d9d9; background: #fff; color: #323335; cursor: pointer; font-size: 13px; }
+.btn:hover { border-color: #2A55E5; color: #2A55E5; }
+.btn.warn { color: #d48806; border-color: #ffd591; background: #fff7e6; }
+.btn.warn:hover { border-color: #d48806; }
+.paper-sider { flex: 0 0 280px; }
+.sider-card { background: #fff; border-radius: 8px; padding: 16px; border: 1px solid #f0f0f0; }
+.sider-card h3 { margin: 0 0 12px; font-size: 15px; }
+.info-row { display: flex; }
+.info-row .col { width: 50%; color: #64666b; font-size: 13px; padding: 3px 0; }
+.info-row .col b { color: #323335; }
+.sider-card .sub { margin-top: 14px; border-top: 1px solid #f0f0f0; padding-top: 12px; color: #64666b; font-size: 13px; line-height: 1.8; }
+.sider-card .sub b { color: #323335; }
+.btn.full { width: 100%; margin-top: 12px; }
+.toast { position: fixed; top: 80px; left: 50%; transform: translateX(-50%); background: rgba(0,0,0,.75); color: #fff; padding: 10px 20px; border-radius: 6px; z-index: 3000; display: none; }
+</style>
+</head>
+<body>
+<div class="toast" id="toast"></div>
+<div class="container">
+  <div class="header">
+    <span class="logo-ph">爱测评</span>
+    <span class="crumb">试卷详情（本场题目快照）</span>
+    <span class="exit" onclick="history.back()">退出</span>
+  </div>
+
+  <div class="snap-banner">
+    本页面展示的是 <b>100901-第1场</b> 开考时刻系统自动保存的<b>题目快照</b>。本场考试的作答、成绩、报告、证书划线全部基于此快照；
+    题库原题后续修改不影响本页内容。若本场题目存在错误需要修正，点击题目卡片中的「修改本场题目」，修改仅作用于本场快照，不回写题库。
+  </div>
+
+  <div class="body-row">
+    <div class="paper-main">
+      <div class="paper-title"><input value="830多选题报告测试试卷（本场快照）" readonly></div>
+
+      <div class="q-card">
+        <div class="q-head"><span class="q-index">1</span><span class="q-type">单选</span><span class="q-score">本题 20 分</span></div>
+        <div class="q-stem"><span class="rich-bold">执行以下程序会报错，错误原因是（　）</span><br>n = 6<br>orange = '颗橘子'<br>print(n + orange)</div>
+        <div class="q-options">
+          <div class="opt"><span class="k">A.</span><span>类型不同不能相加</span></div>
+          <div class="opt"><span class="k">B.</span><span>n 未定义</span></div>
+          <div class="opt"><span class="k">C.</span><span>print 不能输出中文</span></div>
+          <div class="opt"><span class="k">D.</span><span>缺少引号</span></div>
+        </div>
+        <div class="q-answer">正确答案：A。n 为整数，orange 为字符串，Python 中整数与字符串不能直接相加，抛出 TypeError。</div>
+        <div class="q-foot">
+          <span class="meta">快照版本 V2 ｜ 题库当前版本 V4（题库已更新，本场成绩按本页快照计算）</span>
+          <button class="btn warn" onclick="location.href='33_题目编辑_本场快照.html?type=single'">修改本场题目</button>
+        </div>
+      </div>
+
+      <div class="q-card">
+        <div class="q-head"><span class="q-index">2</span><span class="q-type">多选</span><span class="q-score">本题 20 分</span></div>
+        <div class="q-stem"><span class="rich-bold">下列关于 Python 循环结构的说法，正确的有（　）</span></div>
+        <div class="q-options">
+          <div class="opt"><span class="k">A.</span><span>for 可遍历字符串</span></div>
+          <div class="opt"><span class="k">B.</span><span>while 条件为假时结束循环</span></div>
+          <div class="opt"><span class="k">C.</span><span>break 跳过本次循环继续下一次</span></div>
+          <div class="opt"><span class="k">D.</span><span>range(3) 生成 0、1、2</span></div>
+        </div>
+        <div class="q-answer">正确答案：ABD。continue 才是跳过本次循环，break 是终止循环。</div>
+        <div class="q-foot">
+          <span class="meta">快照版本 V2 ｜ 题库当前版本 V4（题库已更新）</span>
+          <button class="btn warn" onclick="location.href='33_题目编辑_本场快照.html?type=multi'">修改本场题目</button>
+        </div>
+      </div>
+
+      <div class="q-card">
+        <div class="q-head"><span class="q-index">3</span><span class="q-type">判断</span><span class="q-score">本题 10 分</span></div>
+        <div class="q-stem"><span class="rich-bold">Python 中的列表（list）一旦创建，就不能再修改其中的元素。</span></div>
+        <div class="q-options">
+          <div class="opt"><span class="k">正确</span></div>
+          <div class="opt"><span class="k">错误</span></div>
+        </div>
+        <div class="q-answer">正确答案：错误。列表是可变类型，可以修改、追加、删除元素。</div>
+        <div class="q-foot">
+          <span class="meta">快照版本 V2 ｜ 题库当前版本 V3（题库已更新）</span>
+          <button class="btn warn" onclick="location.href='33_题目编辑_本场快照.html?type=judge'">修改本场题目</button>
+        </div>
+      </div>
+
+      <div class="q-card">
+        <div class="q-head"><span class="q-index">4</span><span class="q-type">编程OJ</span><span class="q-score">本题 50 分</span></div>
+        <div class="q-stem"><span class="rich-bold">字符串反转：输入一行字符串，将其反转后输出。</span><br>输入描述：一行字符串<br>输出描述：反转后的字符串<br>答题时长：60 秒 ｜ 内存限制：128 MB</div>
+        <div class="q-answer">参考答案（代码预览）：<br>print(input()[::-1])</div>
+        <div class="q-foot">
+          <span class="meta">快照版本 V2 ｜ 题库当前版本 V2（一致）</span>
+          <button class="btn warn" onclick="location.href='33_题目编辑_本场快照.html?type=oj'">修改本场题目</button>
+        </div>
+      </div>
+    </div>
+
+    <aside class="paper-sider">
+      <div class="sider-card">
+        <h3>试卷信息（本场快照）</h3>
+        <div class="info-row">
+          <div class="col">题数：<b>4 题</b></div>
+          <div class="col">总分：<b>100 分</b></div>
+        </div>
+        <div class="info-row">
+          <div class="col">试卷难度：<b>简单</b></div>
+          <div class="col">隐藏答案：<b>显示中</b></div>
+        </div>
+        <div class="sub">
+          <b>快照时间：</b>2026-11-06 15:00:00（开考时刻，系统自动生成）<br>
+          <b>关联考场：</b>100901-第1场、100901-模拟练习<br>
+          <b>快照说明：</b>本场全部作答与成绩、报告、证书划线基于本快照
+        </div>
+        <button class="btn full" onclick="toggleAnswer()">隐藏答案 / 显示答案</button>
+      </div>
+    </aside>
+  </div>
+</div>
+
+<script>
+'use strict';
+var answerHidden = false;
+function toggleAnswer() {
+  answerHidden = !answerHidden;
+  document.querySelectorAll('.q-answer').forEach(function (el) { el.classList.toggle('hide', answerHidden); });
+  var t = document.getElementById('toast');
+  t.textContent = answerHidden ? '已隐藏答案（演示）' : '已显示答案（演示）';
+  t.style.display = 'block';
+  setTimeout(function () { t.style.display = 'none'; }, 1800);
+}
+var toastTimer = null;
+</script>
+</body>
+</html>

@@ -226,8 +226,7 @@ function render() {
         '<a class="btn link" onclick="toast(\'复制考场（演示）\')">复制</a>' +
         '<a class="btn link" onclick="toast(\'名单（演示）\')">名单</a>' +
         (r.started
-          ? '<a class="btn link" onclick="showSnapshot(' + i + ')">题目快照</a>' +
-            '<a class="btn link" onclick="showModifyRoom(' + i + ')">修改本场题目</a>'
+          ? '<a class="btn link" onclick="location.href=\'32_试卷详情_本场快照.html\'">题目快照</a>'
           : '') +
       '</td>' +
     '</tr>';
@@ -254,50 +253,8 @@ function showSnapshot(idx) {
     '<table class="mini-table"><tr><th>题目</th><th>快照版本</th><th>题库当前版本</th><th></th></tr>' + rows + '</table>';
   openModal('本场题目快照', body, '<button class="btn" onclick="closeModal()">关 闭</button>');
 }
-/* 修改本场题目（考中/考后兜底入口） */
-var MODQ = [['单选：变量命名规则','V2'],['多选：循环结构','V2'],['判断：列表与元组','V2'],['编程OJ：字符串反转','V2']];
-function showModifyRoom(idx) {
-  var r = ROOMS[idx];
-  var opts = MODQ.map(function (q, i) { return '<option value="' + i + '">' + esc(q[0]) + '（快照 ' + esc(q[1]) + '）</option>'; }).join('');
-  var body = '<div class="hint red">这是考中、考后修改本场题目的兜底入口：仅修改本场考试的题目快照，不回写题库原题，不影响其他考场。适用于本场题目存在错误需要修正的极少数情况。</div>' +
-    '<div class="kv"><span class="k">考场</span><span class="v">' + esc(r.name) + '</span></div>' +
-    '<div class="form-row"><div class="kv"><span class="k">选择题目</span><span class="v"><select id="mqSel" style="width:100%;">' + opts + '</select></span></div></div>' +
-    '<div class="form-row"><div class="kv"><span class="k">修改内容</span><span class="v"><textarea id="mqText">选项B「while」修改为「while 语句」</textarea></span></div></div>';
-  openModal('修改本场题目', body,
-    '<button class="btn" onclick="closeModal()">取 消</button>' +
-    '<button class="btn primary" onclick="confirmModifyRoom(' + idx + ')">下一步</button>');
-}
-function confirmModifyRoom(idx) {
-  var r = ROOMS[idx];
-  var q = MODQ[parseInt(document.getElementById('mqSel').value, 10)];
-  var body = '<div class="hint red">确认修改本场考试中的题目？本场考试可能已有考生作答。</div>' +
-    '<div class="kv"><span class="k">考场</span><span class="v">' + esc(r.name) + '</span></div>' +
-    '<div class="kv"><span class="k">修改题目</span><span class="v">' + esc(q[0]) + '（快照 ' + esc(q[1]) + '）</span></div>' +
-    '<div class="kv"><span class="k">生效范围</span><span class="v">仅本场考试；已提交的作答保持提交时内容，修改从其后的作答开始生效</span></div>' +
-    '<div class="kv"><span class="k">留痕</span><span class="v">记录修改人、时间、改动字段、修改前后值</span></div>';
-  openModal('确认修改', body,
-    '<button class="btn" onclick="closeModal()">取 消</button>' +
-    '<button class="btn primary" onclick="doModifyRoom()">确认修改</button>');
-}
-function doModifyRoom() {
-  closeModal();
-  toast('本场题目已修改并记入留痕；题库原题与其他考场不受影响');
-}
-/* 作答时版本追溯 */
-function showTrace(idx) {
-  var r = ROOMS[idx];
-  var v = PAPER_VERSIONS[r.paperId];
-  var rows = v.questions.map(function (q) {
-    var diff = q[1] !== q[2];
-    return '<tr><td>' + esc(q[0]) + '</td><td>' + esc(q[1]) + '</td><td>' + esc(q[2]) + '</td><td>' +
-      (diff ? '<a onclick="toast(\'查看版本差异（演示）\')">查看差异</a>' : '<span style="color:rgba(0,0,0,.35);">一致</span>') + '</td></tr>';
-  }).join('');
-  var body = '<div class="hint blue">追溯口径：本场考试关联开考时刻的题目快照，成绩、报告、证书划线按快照追溯。追溯仅作查看，不改动题库。</div>' +
-    '<div class="kv"><span class="k">考场</span><span class="v">' + esc(r.name) + '</span></div>' +
-    '<div class="kv"><span class="k">作答时快照</span><span class="v">' + esc(v.snapTime) + ' 自动生成</span></div>' +
-    '<table class="mini-table"><tr><th>题目</th><th>作答时快照</th><th>题库当前版本</th><th></th></tr>' + rows + '</table>';
-  openModal('作答时版本追溯', body, '<button class="btn" onclick="closeModal()">关 闭</button>');
-}
+
+
 /* 删除拦截（被引用题目） */
 function showDelBlock() {
   openModal('无法删除', '<div class="hint red">该题目已被以下试卷引用，无法删除：</div>' +
@@ -330,11 +287,7 @@ function doCopy() {
 
 /* ================= 场景浮球 ================= */
 var SCENES = [
-  { name: '查看题目快照（开考自动生成）', fn: function () { showSnapshot(0); } },
-  { name: '快照后题库改题不影响（对比）', fn: function () { showSnapshot(2); } },
-  { name: '考中/考后修改本场题目', fn: function () { showModifyRoom(2); } },
-  { name: '修改确认（影响范围提示）', fn: function () { showModifyRoom(2); setTimeout(function () { confirmModifyRoom(2); }, 100); } },
-  { name: '作答时版本追溯', fn: function () { showTrace(2); } },
+  { name: '打开本场试卷详情（题目快照页）', fn: function () { location.href = '32_试卷详情_本场快照.html'; } },
   { name: '被引用题目删除拦截', fn: showDelBlock },
   { name: '题目修改留痕', fn: showHistory },
   { name: '复制试卷', fn: showCopy }
@@ -358,9 +311,7 @@ render();
   setTimeout(function () {
     if (shot === 'f_snapshot') showSnapshot(0);
     else if (shot === 'f_snapshotdiff') showSnapshot(2);
-    else if (shot === 'f_modifyroom') showModifyRoom(2);
-    else if (shot === 'f_modifyconfirm') { showModifyRoom(2); setTimeout(function () { confirmModifyRoom(2); }, 100); }
-    else if (shot === 'f_trace') showTrace(2);
+    else if (shot === 'f_detail') location.href = '32_试卷详情_本场快照.html';
     else if (shot === 'f_delblock') showDelBlock();
     else if (shot === 'f_history') showHistory();
     else if (shot === 'f_copy') showCopy();
