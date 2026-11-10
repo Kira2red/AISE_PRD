@@ -14,7 +14,7 @@
   <div class="card">
     <table class="tb">
       <thead><tr><th style="width:12%">姓名</th><th style="width:14%">学校</th><th style="width:10%">年级</th>
-        <th style="width:14%">AISE 关联</th><th style="width:10%">入库作品</th><th>特长标签</th></tr></thead>
+        <th style="width:14%">AISE 关联</th><th style="width:10%">入库作品</th><th>特长标签</th><th style="width:250px">入口</th></tr></thead>
       <tbody id="stuList"></tbody>
     </table>
   </div>
@@ -33,11 +33,15 @@ async function init() {
   await guard('teacher');
   const r = await api('/api/admin/library');
   document.getElementById('stuList').innerHTML = r.students.map(s =>
-    '<tr class="clickable" onclick="openStudent(\'' + s.id + '\')">' +
+    '<tr>' +
     '<td><b>' + esc(s.name) + '</b></td><td>' + esc(s.school) + '</td><td>' + esc(s.grade) + '</td>' +
     '<td>' + (s.aiseLinked ? '<span class="badge ok">已关联</span>' : '<span class="badge gray">未关联</span>') + '</td>' +
     '<td>' + s.workCount + '</td>' +
-    '<td>' + s.tags.map(t => '<span class="tag">' + esc(t) + '</span>').join('') + '</td></tr>').join('');
+    '<td>' + s.tags.map(t => '<span class="tag">' + esc(t) + '</span>').join('') + '</td>' +
+    '<td style="white-space:nowrap">' +
+    '<button class="btn sm" onclick="window.open(\'/a_student_card.html?id=' + s.id + '\', \'_blank\')">人才卡</button> ' +
+    '<button class="btn sm" onclick="window.open(\'/a_student_report.html?id=' + s.id + '\', \'_blank\')">画像分析报告</button> ' +
+    '<button class="btn gray sm" onclick="openStudent(\'' + s.id + '\')">详情</button></td></tr>').join('');
 }
 async function openStudent(id) {
   const r = await api('/api/admin/student/' + id);

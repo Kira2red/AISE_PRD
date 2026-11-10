@@ -1,0 +1,294 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<title>整体数据分析 · 教研员端</title>
+<link rel="stylesheet" href="/style.css">
+<style>
+    :root {
+        --a-blue: #2563eb; --a-blue-deep: #1d4ed8;
+        --a-ink: #0f172a; --a-ink2: #475569; --a-muted: #94a3b8;
+        --a-line: #e8edf4; --a-bg: #f6f8fb;
+    }
+    body { background: var(--a-bg); }
+    .an-wrap { max-width: 1200px; margin: 20px auto 60px; padding: 0 24px; }
+
+    /* 渠道筛选条 */
+    .ch-bar { display: flex; align-items: center; gap: 10px; margin-bottom: 20px; flex-wrap: wrap; }
+    .ch-bar .lb { font-size: 13px; color: var(--a-muted); font-weight: 600; margin-right: 4px; }
+    .ch-chip {
+        border: 1px solid var(--a-line); background: #fff; color: var(--a-ink2);
+        border-radius: 99px; padding: 7px 20px; font-size: 13.5px; font-weight: 600;
+        cursor: pointer; transition: all .15s; font-family: inherit;
+    }
+    .ch-chip:hover { border-color: #93c5fd; color: var(--a-blue-deep); }
+    .ch-chip.on { background: linear-gradient(135deg, #1d4ed8, #3b82f6); color: #fff; border-color: transparent;
+                  box-shadow: 0 4px 12px rgba(37,99,235,.3); }
+    .ch-bar .detail-link { margin-left: auto; font-size: 13px; color: var(--a-blue); font-weight: 600; }
+
+    .hero {
+        border-radius: 22px; overflow: hidden; color: #fff; position: relative; margin-bottom: 20px;
+        background: linear-gradient(128deg, #1e40af 0%, #2563eb 46%, #3b82f6 78%, #60a5fa 100%);
+        box-shadow: 0 12px 32px rgba(37,99,235,.28); padding: 26px 32px;
+    }
+    .hero h1 { font-size: 21px; font-weight: 700; }
+    .hero p { font-size: 12.5px; opacity: .85; margin-top: 4px; }
+    .hero .scope-pill {
+        display: inline-block; background: rgba(255,255,255,.18); border: 1px solid rgba(255,255,255,.4);
+        border-radius: 99px; padding: 4px 16px; font-size: 13px; font-weight: 600; margin-top: 12px;
+    }
+
+    .stats { display: grid; grid-template-columns: repeat(6, 1fr); gap: 14px; margin-bottom: 20px; }
+    .stat {
+        background: #fff; border-radius: 16px; padding: 18px 18px 16px;
+        box-shadow: 0 1px 2px rgba(15,23,42,.04), 0 6px 18px rgba(15,23,42,.05);
+        transition: transform .15s;
+    }
+    .stat:hover { transform: translateY(-2px); }
+    .stat .lb { font-size: 11.5px; color: var(--a-muted); letter-spacing: 1px; margin-bottom: 8px; }
+    .stat .num { font-size: 30px; font-weight: 800; color: var(--a-ink); font-variant-numeric: tabular-nums; }
+    .stat .num small { font-size: 13px; font-weight: 600; color: var(--a-ink2); margin-left: 2px; }
+    .stat .sub { font-size: 11px; color: var(--a-muted); margin-top: 9px; }
+
+    .sec {
+        background: #fff; border-radius: 18px; padding: 24px 28px 22px; margin-bottom: 18px;
+        box-shadow: 0 1px 2px rgba(15,23,42,.04), 0 6px 18px rgba(15,23,42,.05);
+    }
+    .sec-head { display: flex; align-items: baseline; justify-content: space-between; margin-bottom: 16px; }
+    .sec-head .eyebrow { font-size: 11px; letter-spacing: 2px; color: var(--a-muted); font-weight: 700; display: block; margin-bottom: 4px; }
+    .sec-head h2 { font-size: 17px; font-weight: 700; color: var(--a-ink); }
+    .sec-head .meta { font-size: 12px; color: var(--a-muted); }
+
+    .duo { display: grid; grid-template-columns: 1fr 1fr; gap: 18px; }
+    .trio { display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 18px; }
+    @media (max-width: 960px) { .duo, .trio { grid-template-columns: 1fr; } .stats { grid-template-columns: repeat(3, 1fr); } }
+
+    /* 渠道对比卡 */
+    .ch-cards { display: grid; grid-template-columns: repeat(auto-fit, minmax(210px, 1fr)); gap: 14px; }
+    .ch-card { border: 1px solid var(--a-line); border-radius: 14px; padding: 16px 18px; cursor: pointer; transition: all .15s; }
+    .ch-card:hover { border-color: #93c5fd; transform: translateY(-1px); }
+    .ch-card.on { border-color: var(--a-blue); background: #f0f6ff; }
+    .ch-card .nm { font-size: 15px; font-weight: 700; color: var(--a-ink); display: flex; justify-content: space-between; align-items: center; }
+    .ch-card .nm .n { font-size: 22px; font-weight: 800; color: var(--a-blue-deep); font-variant-numeric: tabular-nums; }
+    .ch-card .row { display: flex; justify-content: space-between; font-size: 12.5px; color: var(--a-ink2); margin-top: 8px; }
+    .ch-card .row b { font-variant-numeric: tabular-nums; }
+
+    /* 横向条形（知识点/标签/成绩排行通用） */
+    .bar-row { display: grid; grid-template-columns: 170px 1fr 84px; gap: 12px; align-items: center; padding: 8px 0; }
+    .bar-row .nm { font-size: 13px; color: var(--a-ink); white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+    .bar-track { height: 12px; background: #eef2f7; border-radius: 99px; overflow: hidden; }
+    .bar-fill { height: 100%; border-radius: 99px; }
+    .bar-side { font-size: 12px; color: var(--a-muted); text-align: right; font-variant-numeric: tabular-nums; white-space: nowrap; }
+    .bar-side b { color: var(--a-ink2); font-size: 13px; }
+    .bar-fill.g { background: linear-gradient(90deg, #34d399, #10b981); }
+    .bar-fill.b { background: linear-gradient(90deg, #60a5fa, #2563eb); }
+    .bar-fill.o { background: linear-gradient(90deg, #fbbf24, #f59e0b); }
+    .bar-fill.r { background: linear-gradient(90deg, #f87171, #ef4444); }
+
+    /* 学员排行表 */
+    table.rank { width: 100%; border-collapse: collapse; font-size: 13px; }
+    table.rank th { text-align: left; font-size: 11.5px; color: var(--a-muted); font-weight: 700; padding: 8px 10px; border-bottom: 1px solid var(--a-line); white-space: nowrap; }
+    table.rank td { padding: 9px 10px; border-bottom: 1px solid var(--a-line); vertical-align: middle; }
+    table.rank tr:last-child td { border-bottom: none; }
+    table.rank tr:hover td { background: #f8faff; }
+    .mini-score { font-size: 16px; font-weight: 800; color: var(--a-blue-deep); font-variant-numeric: tabular-nums; }
+    .weak-tag { display: inline-block; font-size: 10.5px; background: #fef2f2; color: #b91c1c; border-radius: 99px; padding: 1px 8px; margin: 1px 4px 1px 0; font-weight: 600; }
+    .ch-tag { display: inline-block; font-size: 10.5px; background: #eef4ff; color: var(--a-blue-deep); border-radius: 99px; padding: 1px 9px; font-weight: 600; }
+
+    /* 环形图 */
+    .err-flex { display: flex; align-items: center; gap: 36px; justify-content: center; }
+    .donut { width: 150px; height: 150px; flex-shrink: 0; }
+    .donut-center-num { font-size: 26px; font-weight: 800; fill: #0f172a; }
+    .err-legend { font-size: 13px; color: var(--a-ink2); }
+    .err-legend .el { display: flex; align-items: center; gap: 8px; padding: 6px 0; }
+    .err-dot { width: 10px; height: 10px; border-radius: 4px; flex-shrink: 0; }
+    .err-legend b { font-variant-numeric: tabular-nums; margin-left: auto; }
+
+    .radar-flex { display: flex; align-items: center; gap: 10px; justify-content: center; }
+    .radar-flex svg { width: 250px; height: 225px; }
+    .radar-legend { font-size: 12.5px; color: var(--a-ink2); flex: 1; max-width: 170px; }
+    .radar-legend .rl { display: flex; justify-content: space-between; gap: 26px; padding: 5px 0; border-bottom: 1px dashed var(--a-line); }
+    .radar-legend .rl:last-child { border-bottom: none; }
+    .radar-legend .rl b { font-variant-numeric: tabular-nums; color: var(--a-blue-deep); }
+
+    .grade-chips { display: flex; gap: 12px; justify-content: center; flex-wrap: wrap; padding: 8px 0; }
+    .g-chip { border-radius: 12px; padding: 12px 24px; text-align: center; min-width: 96px; }
+    .g-chip .n { font-size: 24px; font-weight: 800; font-variant-numeric: tabular-nums; }
+    .g-chip .t { font-size: 11.5px; margin-top: 2px; }
+    .g-chip.ex { background: #ecfdf5; color: #047857; }
+    .g-chip.gd { background: #eff6ff; color: #1d4ed8; }
+    .g-chip.ps { background: #fffbeb; color: #b45309; }
+
+    .btn-view { font-size: 12px; background: #fff; color: var(--a-blue-deep); border: 1px solid #93c5fd;
+                border-radius: 8px; padding: 4px 12px; cursor: pointer; font-family: inherit; white-space: nowrap; }
+    .btn-view:hover { background: #eff6ff; }
+    .foot-note { text-align: center; font-size: 11.5px; color: var(--a-muted); margin-top: 26px; }
+</style>
+</head>
+<body>
+<div class="topbar" id="topbar"></div>
+<div class="an-wrap" id="content"></div>
+
+<script src="/common.js"></script>
+<script>
+const ERR_COLOR = { '粗心': '#f59e0b', '概念混淆': '#ef4444', '未掌握': '#dc2626' };
+const ERR_NAME = { '粗心': '粗心失误', '概念混淆': '概念混淆', '未掌握': '未掌握' };
+let curChannel = '';
+
+function bar(label, pct, side, color) {
+    return '<div class="bar-row"><span class="nm" title="' + esc(label) + '">' + esc(label) + '</span>' +
+        '<div class="bar-track"><div class="bar-fill ' + color + '" style="width:' + Math.min(pct, 100) + '%"></div></div>' +
+        '<span class="bar-side">' + side + '</span></div>';
+}
+
+function radarSvg(dims) {
+    const cx = 105, cy = 100, R = 66;
+    const keys = Object.keys(dims), n = keys.length;
+    const pt = (i, r) => {
+        const ang = -Math.PI / 2 + i * 2 * Math.PI / n;
+        return [cx + r * Math.cos(ang), cy + r * Math.sin(ang)];
+    };
+    let g = '';
+    [1, .75, .5, .25].forEach(k => {
+        const ps = keys.map((kk, i) => { const [x, y] = pt(i, R * k); return x.toFixed(1) + ',' + y.toFixed(1); }).join(' ');
+        g += '<polygon points="' + ps + '" fill="none" stroke="#e8edf4" stroke-width="1"/>';
+    });
+    keys.forEach((k, i) => { const [x, y] = pt(i, R); g += '<line x1="' + cx + '" y1="' + cy + '" x2="' + x + '" y2="' + y + '" stroke="#eef2f7"/>'; });
+    const ps = keys.map((k, i) => { const [x, y] = pt(i, R * dims[k] / 100); return x.toFixed(1) + ',' + y.toFixed(1); }).join(' ');
+    g += '<polygon points="' + ps + '" fill="rgba(37,99,235,.14)" stroke="#2563eb" stroke-width="2.5" stroke-linejoin="round"/>';
+    keys.forEach((k, i) => {
+        const [x, y] = pt(i, R * dims[k] / 100);
+        g += '<circle cx="' + x + '" cy="' + y + '" r="4.5" fill="#2563eb" stroke="#fff" stroke-width="2"/>';
+        const [lx, ly] = pt(i, R + 24);
+        g += '<text x="' + lx + '" y="' + (ly + 4) + '" text-anchor="middle" font-size="13" font-weight="600" fill="#475569">' + k + ' ' + dims[k] + '</text>';
+    });
+    return '<svg viewBox="0 0 210 200">' + g + '</svg>';
+}
+
+function donutSvg(dist) {
+    const total = dist.reduce((s, d) => s + d.count, 0) || 1;
+    const r = 56, C = 2 * Math.PI * r;
+    let off = 0, g = '';
+    dist.forEach(d => {
+        const len = d.count / total * C;
+        g += '<circle cx="75" cy="75" r="' + r + '" fill="none" stroke="' + d.color + '" stroke-width="22"'
+           + ' stroke-dasharray="' + Math.max(len - 3, 1).toFixed(1) + ' ' + Math.max(C - len + 3, 1).toFixed(1) + '"'
+           + ' stroke-dashoffset="' + (-off).toFixed(1) + '" transform="rotate(-90 75 75)" stroke-linecap="round"/>';
+        off += len;
+    });
+    g += '<text x="75" y="72" text-anchor="middle" class="donut-center-num">' + total + '</text>'
+       + '<text x="75" y="94" text-anchor="middle" font-size="13" fill="#94a3b8">失题归因</text>';
+    return '<svg class="donut" viewBox="0 0 150 150">' + g + '</svg>';
+}
+
+async function load() {
+    const el = document.getElementById('content');
+    const r = await api('/api/admin/analytics' + (curChannel ? '?channel=' + encodeURIComponent(curChannel) : ''));
+    const t = r.totals;
+    const gOrder = ['优秀', '良好', '合格'];
+    const gClass = { '优秀': 'ex', '良好': 'gd', '合格': 'ps' };
+    const tagMax = Math.max(1, ...Object.values(r.tagDist));
+    const maxAvg = Math.max(1, ...r.students.map(s => s.avgExamScore || 0));
+
+    el.innerHTML =
+    '<div class="hero"><h1>整体数据分析</h1>' +
+    '<p>全渠道学员的测评、知识点、能力、作品与成长数据汇总 · 数据口径与个人报告一致</p>' +
+    '<span class="scope-pill">当前范围：' + esc(r.channel) + ' · ' + t.studentCount + ' 名学员</span></div>' +
+
+    // 渠道筛选
+    '<div class="ch-bar"><span class="lb">渠道</span>' +
+    '<button class="ch-chip ' + (!curChannel ? 'on' : '') + '" onclick="pick(\'\')">全部渠道</button>' +
+    r.channels.map(c => '<button class="ch-chip ' + (curChannel === c.channel ? 'on' : '') + '" onclick="pick(\'' + esc(c.channel) + '\')">' + esc(c.channel) + '</button>').join('') +
+    '<a class="detail-link" href="/a_library.html">查看人才库明细 →</a></div>' +
+
+    // KPI
+    '<div class="stats">' +
+    kstat('学员总数', t.studentCount, '人', 'AISE 关联 ' + t.aiseLinked + ' 人') +
+    kstat('入库作品', t.workCount, '份', '含 AI 判分与评语') +
+    kstat('测评场次', t.examCount, '场', '来自 AISE 测评平台') +
+    kstat('累计测评题数', t.questionTotal, '题', '含逐题作答记录') +
+    kstat('平均测评得分', (t.avgScore != null ? t.avgScore : '—'), '分', '按学员平均分再平均') +
+    kstat('覆盖知识点', r.knowledge.length, '个', '跨学员聚合') +
+    '</div>' +
+
+    // 渠道对比
+    '<div class="sec"><div class="sec-head"><div><span class="eyebrow">CHANNELS</span><h2>渠道对比</h2></div>' +
+    '<span class="meta">点击卡片切换该渠道视角</span></div>' +
+    '<div class="ch-cards">' + r.channels.map(c =>
+      '<div class="ch-card ' + (curChannel === c.channel ? 'on' : '') + '" onclick="pick(\'' + esc(c.channel) + '\')">' +
+      '<div class="nm">' + esc(c.channel) + '<span class="n">' + c.students + '</span></div>' +
+      '<div class="row"><span>入库作品</span><b>' + c.works + ' 份</b></div>' +
+      '<div class="row"><span>平均测评分</span><b>' + (c.avgScore != null ? c.avgScore : '—') + '</b></div>' +
+      '<div class="row"><span>AISE 关联率</span><b>' + c.aiseRate + '%</b></div></div>').join('') +
+    '</div></div>' +
+
+    // 知识点 + 雷达 双栏
+    '<div class="duo">' +
+    '<div class="sec"><div class="sec-head"><div><span class="eyebrow">KNOWLEDGE</span><h2>知识点掌握总览</h2></div>' +
+    '<span class="meta">跨学员平均掌握度 · 红=薄弱人数</span></div>' +
+    r.knowledge.map(k => {
+      const avg = k.avg;
+      return bar(k.point, avg, '<b>' + avg + '%</b> · ' + k.students + '人' + (k.weak ? ' · 薄弱' + k.weak : ''), avg >= 75 ? 'g' : (avg >= 60 ? 'b' : 'r'));
+    }).join('') + '</div>' +
+    '<div class="sec"><div class="sec-head"><div><span class="eyebrow">ABILITIES</span><h2>能力维度均值</h2></div>' +
+    '<span class="meta">全体学员平均</span></div>' +
+    '<div class="radar-flex">' + radarSvg(r.radarAvg) +
+    '<div class="radar-legend">' + Object.keys(r.radarAvg).map(k =>
+      '<div class="rl"><span>' + k + '</span><b>' + r.radarAvg[k] + '</b></div>').join('') + '</div></div></div></div>' +
+
+    // 错误归因 + 评级 + 标签 三栏
+    '<div class="trio">' +
+    '<div class="sec"><div class="sec-head"><div><span class="eyebrow">ERRORS</span><h2>错误归因汇总</h2></div>' +
+    '<span class="meta">逐题 + 知识点</span></div>' +
+    '<div class="err-flex">' +
+    donutSvg(Object.keys(r.errorDist).map(k => ({ type: k, count: r.errorDist[k], color: ERR_COLOR[k] || '#94a3b8' }))) +
+    '<div class="err-legend">' + Object.keys(r.errorDist).map(k =>
+      '<div class="el"><span class="err-dot" style="background:' + (ERR_COLOR[k] || '#94a3b8') + '"></span>' + esc(ERR_NAME[k] || k) + '<b>×' + r.errorDist[k] + '</b></div>').join('') +
+    '</div></div></div>' +
+    '<div class="sec"><div class="sec-head"><div><span class="eyebrow">GRADES</span><h2>测评评级分布</h2></div>' +
+    '<span class="meta">按场次计</span></div>' +
+    '<div class="grade-chips">' + gOrder.filter(g => r.gradeDist[g]).map(g =>
+      '<div class="g-chip ' + gClass[g] + '"><div class="n">' + r.gradeDist[g] + '</div><div class="t">' + g + '</div></div>').join('') +
+    (Object.keys(r.gradeDist).filter(g => !gOrder.includes(g)).map(g =>
+      '<div class="g-chip ps"><div class="n">' + r.gradeDist[g] + '</div><div class="t">' + esc(g) + '</div></div>').join('')) +
+    '</div></div>' +
+    '<div class="sec"><div class="sec-head"><div><span class="eyebrow">TAGS</span><h2>作品特长标签分布</h2></div>' +
+    '<span class="meta">入库作品 AI 标签</span></div>' +
+    Object.keys(r.tagDist).sort((a, b) => r.tagDist[b] - r.tagDist[a]).slice(0, 6).map(tg =>
+      bar(tg, 100 * r.tagDist[tg] / tagMax, '<b>×' + r.tagDist[tg] + '</b>', 'o')).join('') +
+    '</div></div>' +
+
+    // 学员明细
+    '<div class="sec"><div class="sec-head"><div><span class="eyebrow">STUDENTS</span><h2>学员明细</h2></div>' +
+    '<span class="meta">' + r.students.length + ' 名学员 · 点「报告」查看个人画像分析</span></div>' +
+    '<table class="rank"><thead><tr>' +
+    '<th>学员</th><th>渠道</th><th>场次</th><th>题数</th><th>平均分</th><th>最高分</th><th>薄弱知识点</th><th>作品</th><th>作品均分</th><th>特长标签</th><th>操作</th>' +
+    '</tr></thead><tbody>' +
+    r.students.slice().sort((a, b) => (b.avgExamScore || 0) - (a.avgExamScore || 0)).map(s =>
+      '<tr><td><b>' + esc(s.name) + '</b><div class="muted" style="font-size:11px">' + esc(s.school) + ' ' + esc(s.grade) +
+      (s.aiseLinked ? '' : ' · 未关联AISE') + '</div></td>' +
+      '<td><span class="ch-tag">' + esc(s.channel) + '</span></td>' +
+      '<td>' + s.examCount + '</td><td>' + s.totalQuestions + '</td>' +
+      '<td><span class="mini-score">' + (s.avgExamScore != null ? s.avgExamScore : '—') + '</span></td>' +
+      '<td>' + (s.bestScore != null ? s.bestScore : '—') + '</td>' +
+      '<td style="max-width:200px">' + (s.weakPoints.length ? s.weakPoints.map(w => '<span class="weak-tag">' + esc(w) + '</span>').join('') : '<span class="muted" style="font-size:12px">无</span>') + '</td>' +
+      '<td>' + s.workCount + '</td><td>' + (s.workAvg != null ? s.workAvg : '—') + '</td>' +
+      '<td style="max-width:160px">' + s.tags.slice(0, 2).map(t2 => '<span class="ch-tag">' + esc(t2) + '</span>').join('') + '</td>' +
+      '<td style="white-space:nowrap"><button class="btn-view" onclick="window.open(\'/a_student_report.html?id=' + s.id + '\', \'_blank\')">报告 ↗</button> ' +
+      '<button class="btn-view" onclick="window.open(\'/a_student_card.html?id=' + s.id + '\', \'_blank\')">人才卡 ↗</button></td></tr>').join('') +
+    '</tbody></table></div>' +
+
+    '<div class="foot-note">数据看板由人才库聚合生成 · 明细数据可在人才库与各学员画像分析报告页查看</div>';
+}
+
+function kstat(lb, num, unit, sub) {
+    return '<div class="stat"><div class="lb">' + lb + '</div><div class="num">' + num + '<small>' + unit + '</small></div><div class="sub">' + sub + '</div></div>';
+}
+
+function pick(ch) { curChannel = ch; load(); }
+
+async function init() { await guard('teacher'); await load(); }
+init();
+</script>
+</body>
+</html>

@@ -706,6 +706,107 @@ class Handler(BaseHTTPRequestHandler):
                 save_data(data)
                 r['scopeLabel'] = '全库数据' if r['scope'] == 'answer' else '已拦截'
                 return self.send_json(r)
+            if method == 'GET' and path == '/api/admin/analytics':
+                from urllib.parse import parse_qs, urlparse
+                qs = parse_qs(urlparse(self.path).query)
+                channel = (qs.get('channel') or [''])[0]
+                stus = [s for s in data['students'] if not channel or s.get('channel') == channel]
+                rows = []
+                for stu in stus:
+                    approved = [w for w in data['works'] if w['studentId'] == stu['id'] and w['status'] == 'approved']
+                    aise = stu.get('aise') or {}
+                    exams = aise.get('exams') or []
+                    kn = aise.get('knowledge') or []
+                    scores = [e['score'] for e in exams]
+                    weak = [k['point'] for k in kn if k['mastery'] < 60]
+                    rows.append({
+                        'id': stu['id'], 'name': stu['name'], 'grade': stu['grade'], 'school': stu['school'],
+                        'channel': stu.get('channel') or '未标注', 'aiseLinked': bool(stu.get('aise')),
+                        'examCount': len(exams), 'totalQuestions': sum(e.get('questionCount', 0) for e in exams),
+                        'avgExamScore': round(sum(scores) / len(scores)) if scores else None,
+                        'bestScore': max(scores) if scores else None,
+                        'weakPoints': weak, 'workCount': len(approved),
+                        'workAvg': round(sum((w.get('archive') or {}).get('score', 0) for w in approved) / len(approved)) if approved else None,
+                        'tags': stu['card']['tags'],
+                    })
+                # 聚合
+                all_scores = [r['avgExamScore'] for r in rows if r['avgExamScore'] is not None]
+                exam_total = sum(r['examCount'] for r in rows)
+                q_total = sum(r['totalQuestions'] for r in rows)
+                work_rows = [w for w in data['works'] if w['status'] == 'approved'
+                             and any(r['id'] == w['studentId'] for r in rows)]
+                # 知识点聚合
+                kn_agg = {}
+                for stu in stus:
+                    for k in (stu.get('aise') or {}).get('knowledge') or []:
+                        a = kn_agg.setdefault(k['point'], {'sum': 0, 'n': 0, 'weak': 0})
+                        a['sum'] += k['mastery']; a['n'] += 1
+                        if k['mastery'] < 60: a['weak'] += 1
+                knowledge = [{'point': p, 'avg': round(v['sum'] / v['n']), 'students': v['n'], 'weak': v['weak']}
+                              for p, v in sorted(kn_agg.items(), key=lambda x: -(x[1]['sum'] / x[1]['n']))]
+                # 雷达均值
+                radar_sums = {}
+                for stu in stus:
+                    for k, v in (stu['card'].get('radar') or {}).items():
+                        radar_sums.setdefault(k, []).append(v)
+                radarAvg = {k: round(sum(v) / len(v)) for k, v in radar_sums.items()}
+                # 错误归因
+                err_map = {}
+                for stu in stus:
+                    for k in (stu.get('aise') or {}).get('knowledge') or []:
+                        if k.get('errType'): err_map[k['errType']] = err_map.get(k['errType'], 0) + 1
+                    for a in (stu.get('aise') or {}).get('answers') or []:
+                        if a.get('result') == '错' and a.get('errType'):
+                            err_map[a['errType']] = err_map.get(a['errType'], 0) + 1
+                # 标签分布（入库作品 + 人才卡）
+                tag_dist = {}
+                for w in work_rows:
+                    for t in (w.get('archive') or {}).get('tags', []):
+                        tag_dist[t] = tag_dist.get(t, 0) + 1
+                grade_dist = {}
+                for stu in stus:
+                    for e in (stu.get('aise') or {}).get('exams') or []:
+                        grade_dist[e.get('grade', '其他')] = grade_dist.get(e.get('grade', '其他'), 0) + 1
+                # 渠道对比
+                channels = []
+                for ch in sorted({s.get('channel') or '未标注' for s in data['students']}):
+                    cs = [s for s in data['students'] if (s.get('channel') or '未标注') == ch]
+                    cworks = [w for w in data['works'] if w['status'] == 'approved' and w['studentId'] in {x['id'] for x in cs}]
+                    cscores = []
+                    for s in cs:
+                        for e in (s.get('aise') or {}).get('exams') or []:
+                            cscores.append(e['score'])
+                    channels.append({'channel': ch, 'students': len(cs), 'works': len(cworks),
+                                      'avgScore': round(sum(cscores) / len(cscores)) if cscores else None,
+                                      'aiseRate': round(100 * sum(1 for x in cs if x.get('aise')) / len(cs))})
+                return self.send_json({
+                    'channel': channel or '全部渠道', 'channels': channels,
+                    'totals': {'studentCount': len(stus), 'workCount': len(work_rows),
+                                'examCount': exam_total, 'questionTotal': q_total,
+                                'avgScore': round(sum(all_scores) / len(all_scores)) if all_scores else None,
+                                'aiseLinked': sum(1 for s in stus if s.get('aise'))},
+                    'students': rows, 'knowledge': knowledge, 'radarAvg': radarAvg,
+                    'errorDist': err_map, 'tagDist': tag_dist, 'gradeDist': grade_dist,
+                })
+            if method == 'GET' and path.startswith('/api/admin/report/'):
+                stid = path.rsplit('/', 1)[-1]
+                stu = next((s for s in data['students'] if s['id'] == stid), None)
+                if not stu:
+                    return self.send_json({'error': '学员不存在'}, 404)
+                if stu.get('aise') is None:
+                    return self.send_json({'empty': True, 'student': public_student(stu, full=True)})
+                return self.send_json({'report': data.get('reports', {}).get(stid),
+                                        'student': public_student(stu, full=True)})
+            if method == 'POST' and path == '/api/admin/report/generate':
+                body = self.read_body_json()
+                stid = body.get('studentId')
+                stu = next((s for s in data['students'] if s['id'] == stid), None)
+                if not stu:
+                    return self.send_json({'error': '学员不存在'}, 404)
+                if stu.get('aise') is None:
+                    return self.send_json({'empty': True})
+                threading.Thread(target=run_report, args=(stid,), daemon=True).start()
+                return self.send_json({'ok': True, 'generating': True})
             if method == 'POST' and path == '/api/demo/reset':
                 sessions = data.get('sessions', {})
                 reset_data()

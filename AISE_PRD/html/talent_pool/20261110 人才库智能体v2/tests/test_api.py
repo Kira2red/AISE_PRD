@@ -319,6 +319,29 @@ def run_round(round_no):
     w = wait_ai(tea, wid_pdf)
     check('重新预审完成', w is not None and w['aiStatus'] == 'done', str(w and w['aiStatus']))
 
+    # ---- 13. 整体数据分析 ----
+    print('\n[12] 整体数据分析')
+    s, r = tea.get('/api/admin/analytics')
+    check('全渠道聚合可用', s == 200 and r.get('totals', {}).get('studentCount', 0) >= 8, str(r.get('totals')))
+    check('含渠道列表与明细行', len(r.get('channels', [])) >= 3 and len(r.get('students', [])) >= 8, str(len(r.get('channels', []))))
+    check('知识点/雷达/归因/标签聚合齐全',
+          isinstance(r.get('knowledge'), list) and isinstance(r.get('radarAvg'), dict)
+          and isinstance(r.get('errorDist'), dict) and isinstance(r.get('tagDist'), dict), '')
+    check('渠道维度齐备', all(k in c for c in r['channels'] for k in ('channel', 'students', 'works', 'avgScore', 'aiseRate')), str(r['channels'])[:150])
+    s, r = tea.get('/api/admin/analytics?channel=AISC')
+    check('分渠道筛选生效', s == 200 and all(x['channel'] == 'AISC' for x in r.get('students', [])) and len(r['students']) >= 1, str(r.get('totals')))
+    s, r = stu.get('/api/admin/analytics')
+    check('学员访问分析接口 → 403', s == 403, str(s))
+
+    # ---- 14. 教研员端学员报告接口 ----
+    print('\n[13] 教研员端学员报告')
+    s, r = tea.get('/api/admin/report/stu_li')
+    check('教研员可读学员报告', s == 200 and (r.get('report') or {}).get('content'), str(r)[:100])
+    s, r = tea.get('/api/admin/report/stu_wang')
+    check('未关联学员 → 空态', s == 200 and r.get('empty') is True, str(r)[:100])
+    s, r = stu.get('/api/admin/report/stu_li')
+    check('学员访问他人报告接口 → 403', s == 403, str(s))
+
     print('\n' + '-' * 60)
     print('第 %d 轮结果：通过 %d，失败 %d' % (round_no, len(PASS), len(FAIL)))
     for name, detail in FAIL:

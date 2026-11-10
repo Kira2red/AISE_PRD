@@ -15,65 +15,65 @@
     }
   ],
   "sessions": {
-    "s1794323490653": {
-      "user": "xiaoming",
-      "role": "student",
-      "studentId": "stu_li",
-      "label": "学员 / 家长 · 李小明"
-    },
-    "s1794323687680": {
+    "s1794324886565": {
       "user": "wang",
       "role": "teacher",
       "studentId": null,
       "label": "教研员 · 王老师"
     },
-    "s1794323694905": {
-      "user": "xiaoming",
-      "role": "student",
-      "studentId": "stu_li",
-      "label": "学员 / 家长 · 李小明"
-    },
-    "s1794323948575": {
-      "user": "xiaoming",
-      "role": "student",
-      "studentId": "stu_li",
-      "label": "学员 / 家长 · 李小明"
-    },
-    "s1794324192592": {
-      "user": "xiaoming",
-      "role": "student",
-      "studentId": "stu_li",
-      "label": "学员 / 家长 · 李小明"
-    },
-    "s1794324208918": {
-      "user": "xiaoming",
-      "role": "student",
-      "studentId": "stu_li",
-      "label": "学员 / 家长 · 李小明"
-    },
-    "s1794324208920": {
+    "s1794324900289": {
       "user": "wang",
       "role": "teacher",
       "studentId": null,
       "label": "教研员 · 王老师"
     },
-    "s1794324208934": {
-      "user": "xiaoming",
-      "role": "student",
-      "studentId": "stu_li",
-      "label": "学员 / 家长 · 李小明"
-    },
-    "s1794324208937": {
+    "s1794324929534": {
       "user": "wang",
       "role": "teacher",
       "studentId": null,
       "label": "教研员 · 王老师"
     },
-    "s1794324257500": {
+    "s1794325035625": {
+      "user": "wang",
+      "role": "teacher",
+      "studentId": null,
+      "label": "教研员 · 王老师"
+    },
+    "s1794325035645": {
       "user": "xiaoming",
       "role": "student",
       "studentId": "stu_li",
       "label": "学员 / 家长 · 李小明"
+    },
+    "s1794325190250": {
+      "user": "wang",
+      "role": "teacher",
+      "studentId": null,
+      "label": "教研员 · 王老师"
+    },
+    "s1794325205534": {
+      "user": "xiaoming",
+      "role": "student",
+      "studentId": "stu_li",
+      "label": "学员 / 家长 · 李小明"
+    },
+    "s1794325205537": {
+      "user": "wang",
+      "role": "teacher",
+      "studentId": null,
+      "label": "教研员 · 王老师"
+    },
+    "s1794325205555": {
+      "user": "xiaoming",
+      "role": "student",
+      "studentId": "stu_li",
+      "label": "学员 / 家长 · 李小明"
+    },
+    "s1794325205559": {
+      "user": "wang",
+      "role": "teacher",
+      "studentId": null,
+      "label": "教研员 · 王老师"
     }
   },
   "students": [
@@ -82,6 +82,7 @@
       "name": "李小明",
       "grade": "四年级",
       "school": "阳光小学",
+      "channel": "爱测评",
       "aiseLinked": true,
       "basic": {
         "gender": "男",
@@ -250,7 +251,16 @@
       "name": "王小雨",
       "grade": "五年级",
       "school": "实验小学",
+      "channel": "爱测评",
       "aiseLinked": false,
+      "basic": {
+        "gender": "女",
+        "birth": "2014年11月2日",
+        "hometown": "北京市朝阳区",
+        "idCardMasked": "110105********0226",
+        "joinTime": "2026年3月",
+        "cardNo": "AISE-RL-2026-000207"
+      },
       "card": {
         "tags": [
           "创意设计"
@@ -281,7 +291,16 @@
       "name": "陈子豪",
       "grade": "六年级",
       "school": "光明学校",
+      "channel": "AISC",
       "aiseLinked": true,
+      "basic": {
+        "gender": "男",
+        "birth": "2013年8月19日",
+        "hometown": "北京市海淀区",
+        "idCardMasked": "110108********0533",
+        "joinTime": "2026年1月",
+        "cardNo": "AISE-RL-2026-000312"
+      },
       "card": {
         "tags": [
           "程序设计",
@@ -302,7 +321,16 @@
             "date": "2026-09",
             "score": 91,
             "total": 100,
-            "grade": "优秀"
+            "grade": "优秀",
+            "questionCount": 10,
+            "duration": "60分钟"
+          }
+        ],
+        "activities": [
+          {
+            "name": "技术融合应用",
+            "date": "2026年4月15日",
+            "result": "优秀"
           }
         ],
         "knowledge": [
@@ -336,9 +364,501 @@
           }
         ]
       }
+    },
+    {
+      "id": "stu_zhao",
+      "name": "赵一诺",
+      "grade": "三年级",
+      "school": "阳光小学",
+      "channel": "爱测评",
+      "aiseLinked": true,
+      "basic": {
+        "gender": "女",
+        "birth": "2016年6月1日",
+        "hometown": "北京市丰台区",
+        "idCardMasked": "110106********0118",
+        "joinTime": "2026年4月",
+        "cardNo": "AISE-RL-2026-000415"
+      },
+      "card": {
+        "tags": [
+          "逻辑思维"
+        ],
+        "radar": {
+          "认知层": 76,
+          "应用层": 62,
+          "创新层": 70,
+          "责任层": 84
+        }
+      },
+      "aise": {
+        "exams": [
+          {
+            "name": "人工智能启蒙级测评",
+            "level": "启蒙级",
+            "date": "2026-06",
+            "score": 79,
+            "total": 100,
+            "grade": "良好",
+            "questionCount": 10,
+            "duration": "45分钟"
+          }
+        ],
+        "activities": [],
+        "knowledge": [
+          {
+            "point": "AI 基础概念",
+            "mastery": 82,
+            "errType": ""
+          },
+          {
+            "point": "顺序与循环",
+            "mastery": 71,
+            "errType": "粗心"
+          },
+          {
+            "point": "条件判断",
+            "mastery": 48,
+            "errType": "概念混淆"
+          }
+        ],
+        "answers": []
+      },
+      "materials": {
+        "social": [],
+        "patents": [],
+        "honors": []
+      }
+    },
+    {
+      "id": "stu_sun",
+      "name": "孙天佑",
+      "grade": "五年级",
+      "school": "光明学校",
+      "channel": "AISC",
+      "aiseLinked": true,
+      "basic": {
+        "gender": "男",
+        "birth": "2014年2月27日",
+        "hometown": "北京市西城区",
+        "idCardMasked": "110102********0195",
+        "joinTime": "2026年2月",
+        "cardNo": "AISE-RL-2026-000451"
+      },
+      "card": {
+        "tags": [
+          "程序设计",
+          "数据思维"
+        ],
+        "radar": {
+          "认知层": 84,
+          "应用层": 86,
+          "创新层": 72,
+          "责任层": 68
+        }
+      },
+      "aise": {
+        "exams": [
+          {
+            "name": "人工智能启蒙级测评",
+            "level": "启蒙级",
+            "date": "2026-04",
+            "score": 84,
+            "total": 100,
+            "grade": "良好",
+            "questionCount": 10,
+            "duration": "45分钟"
+          },
+          {
+            "name": "人工智能一级测评",
+            "level": "一级",
+            "date": "2026-08",
+            "score": 86,
+            "total": 100,
+            "grade": "优秀",
+            "questionCount": 10,
+            "duration": "60分钟"
+          }
+        ],
+        "activities": [
+          {
+            "name": "创新实践评定",
+            "date": "2026年7月2日",
+            "result": "良好"
+          }
+        ],
+        "knowledge": [
+          {
+            "point": "顺序与循环",
+            "mastery": 90,
+            "errType": ""
+          },
+          {
+            "point": "条件判断",
+            "mastery": 78,
+            "errType": ""
+          },
+          {
+            "point": "变量与列表",
+            "mastery": 69,
+            "errType": "粗心"
+          },
+          {
+            "point": "算法思维（排序）",
+            "mastery": 58,
+            "errType": "未掌握"
+          }
+        ],
+        "answers": []
+      },
+      "materials": {
+        "social": [],
+        "patents": [],
+        "honors": []
+      }
+    },
+    {
+      "id": "stu_zhou",
+      "name": "周芷萱",
+      "grade": "六年级",
+      "school": "实验小学",
+      "channel": "爱测评",
+      "aiseLinked": true,
+      "basic": {
+        "gender": "女",
+        "birth": "2013年12月8日",
+        "hometown": "北京市海淀区",
+        "idCardMasked": "110108********0642",
+        "joinTime": "2026年3月",
+        "cardNo": "AISE-RL-2026-000489"
+      },
+      "card": {
+        "tags": [
+          "生成式人工智能",
+          "创意设计"
+        ],
+        "radar": {
+          "认知层": 80,
+          "应用层": 78,
+          "创新层": 92,
+          "责任层": 86
+        }
+      },
+      "aise": {
+        "exams": [
+          {
+            "name": "人工智能一级测评",
+            "level": "一级",
+            "date": "2026-09",
+            "score": 87,
+            "total": 100,
+            "grade": "优秀",
+            "questionCount": 10,
+            "duration": "60分钟"
+          }
+        ],
+        "activities": [
+          {
+            "name": "生成式人工智能应用实践",
+            "date": "2026年10月11日",
+            "result": "优秀"
+          }
+        ],
+        "knowledge": [
+          {
+            "point": "AI 基础概念",
+            "mastery": 93,
+            "errType": ""
+          },
+          {
+            "point": "生成式人工智能应用",
+            "mastery": 88,
+            "errType": ""
+          },
+          {
+            "point": "条件判断",
+            "mastery": 66,
+            "errType": "粗心"
+          }
+        ],
+        "answers": []
+      },
+      "materials": {
+        "social": [
+          {
+            "name": "市青少年 AI 创意营",
+            "time": "2026年8月",
+            "honor": "优秀营员",
+            "review": "approved"
+          }
+        ],
+        "patents": [],
+        "honors": [
+          {
+            "name": "区中小学生电脑作品评选",
+            "time": "2026年6月",
+            "honor": "二等奖",
+            "review": "approved"
+          }
+        ]
+      }
+    },
+    {
+      "id": "stu_wu",
+      "name": "吴思远",
+      "grade": "四年级",
+      "school": "光明学校",
+      "channel": "AISC",
+      "aiseLinked": true,
+      "basic": {
+        "gender": "男",
+        "birth": "2015年9月30日",
+        "hometown": "北京市东城区",
+        "idCardMasked": "110101********0327",
+        "joinTime": "2026年5月",
+        "cardNo": "AISE-RL-2026-000533"
+      },
+      "card": {
+        "tags": [
+          "逻辑思维"
+        ],
+        "radar": {
+          "认知层": 68,
+          "应用层": 60,
+          "创新层": 64,
+          "责任层": 75
+        }
+      },
+      "aise": {
+        "exams": [
+          {
+            "name": "人工智能启蒙级测评",
+            "level": "启蒙级",
+            "date": "2026-07",
+            "score": 64,
+            "total": 100,
+            "grade": "合格",
+            "questionCount": 10,
+            "duration": "45分钟"
+          }
+        ],
+        "activities": [],
+        "knowledge": [
+          {
+            "point": "AI 基础概念",
+            "mastery": 70,
+            "errType": ""
+          },
+          {
+            "point": "顺序与循环",
+            "mastery": 55,
+            "errType": "概念混淆"
+          },
+          {
+            "point": "条件判断",
+            "mastery": 42,
+            "errType": "未掌握"
+          },
+          {
+            "point": "变量与列表",
+            "mastery": 38,
+            "errType": "未掌握"
+          }
+        ],
+        "answers": []
+      },
+      "materials": {
+        "social": [],
+        "patents": [],
+        "honors": []
+      }
+    },
+    {
+      "id": "stu_zheng",
+      "name": "郑好",
+      "grade": "五年级",
+      "school": "实验二小",
+      "channel": "学校团体",
+      "aiseLinked": false,
+      "basic": {
+        "gender": "男",
+        "birth": "2014年7月14日",
+        "hometown": "北京市昌平区",
+        "idCardMasked": "110114********0269",
+        "joinTime": "2026年6月",
+        "cardNo": "AISE-RL-2026-000560"
+      },
+      "card": {
+        "tags": [
+          "问题解决"
+        ],
+        "radar": {
+          "认知层": 72,
+          "应用层": 75,
+          "创新层": 68,
+          "责任层": 80
+        }
+      },
+      "aise": null,
+      "materials": {
+        "social": [
+          {
+            "name": "校科技社团 AI 兴趣班",
+            "time": "2026年5月",
+            "honor": "结业",
+            "review": "approved"
+          }
+        ],
+        "patents": [],
+        "honors": []
+      }
     }
   ],
   "works": [
+    {
+      "id": "w_arch_3",
+      "studentId": "stu_chen",
+      "name": "单词记忆小助手",
+      "desc": "用 Python 做的单词背诵小工具",
+      "type": "code",
+      "filename": "猜数字游戏.py",
+      "status": "approved",
+      "aiStatus": "done",
+      "ai": {
+        "conclusion": "通过",
+        "reason": "功能完整，交互清晰",
+        "tags": [
+          "程序设计",
+          "问题解决"
+        ],
+        "score": 88,
+        "comment": "数据组织合理，交互提示友好。",
+        "understanding": "单词记忆练习小工具，支持词库读取与随机抽词练习。"
+      },
+      "archive": {
+        "tags": [
+          "程序设计",
+          "问题解决"
+        ],
+        "score": 88,
+        "comment": "数据组织合理，交互提示友好。"
+      },
+      "submittedAt": "2026-10-29 10:30:00",
+      "reviewedAt": "2026-10-30 10:30:00",
+      "review": {
+        "by": "王老师",
+        "action": "确认通过",
+        "at": "2026-10-30 10:30:00"
+      }
+    },
+    {
+      "id": "w_arch_4",
+      "studentId": "stu_sun",
+      "name": "班级图书角统计表",
+      "desc": "用表格统计班级图书角的借阅情况",
+      "type": "pdf",
+      "filename": "智能小车项目报告.pdf",
+      "status": "approved",
+      "aiStatus": "done",
+      "ai": {
+        "conclusion": "通过",
+        "reason": "数据整理完整，有分析结论",
+        "tags": [
+          "数据思维",
+          "问题解决"
+        ],
+        "score": 81,
+        "comment": "数据分类清晰，有简单的对比分析。",
+        "understanding": "班级图书借阅统计报告，含分类汇总与借阅趋势。"
+      },
+      "archive": {
+        "tags": [
+          "数据思维",
+          "问题解决"
+        ],
+        "score": 81,
+        "comment": "数据分类清晰，有简单的对比分析。"
+      },
+      "submittedAt": "2026-10-31 10:30:00",
+      "reviewedAt": "2026-11-01 10:30:00",
+      "review": {
+        "by": "王老师",
+        "action": "确认通过",
+        "at": "2026-11-01 10:30:00"
+      }
+    },
+    {
+      "id": "w_arch_5",
+      "studentId": "stu_zhou",
+      "name": "AI 诗画作品集",
+      "desc": "用生成式 AI 创作的诗配画作品集",
+      "type": "image",
+      "filename": "机器人创意插画.png",
+      "status": "approved",
+      "aiStatus": "done",
+      "ai": {
+        "conclusion": "通过",
+        "reason": "创意突出，画面完整",
+        "tags": [
+          "生成式人工智能",
+          "创意设计"
+        ],
+        "score": 90,
+        "comment": "提示词运用熟练，画面与诗歌主题呼应。",
+        "understanding": "生成式 AI 创作的诗配画作品集，主题统一。"
+      },
+      "archive": {
+        "tags": [
+          "生成式人工智能",
+          "创意设计"
+        ],
+        "score": 90,
+        "comment": "提示词运用熟练，画面与诗歌主题呼应。"
+      },
+      "submittedAt": "2026-11-02 10:30:00",
+      "reviewedAt": "2026-11-03 10:30:00",
+      "review": {
+        "by": "王老师",
+        "action": "确认通过",
+        "at": "2026-11-03 10:30:00"
+      }
+    },
+    {
+      "id": "w_arch_6",
+      "studentId": "stu_wang",
+      "name": "我的 AI 绘画日记",
+      "desc": "记录我用 AI 画画的日记和作品",
+      "type": "image",
+      "filename": "AI校园主题海报.png",
+      "status": "approved",
+      "aiStatus": "done",
+      "ai": {
+        "conclusion": "通过",
+        "reason": "画面完整，有创作过程记录",
+        "tags": [
+          "创意设计",
+          "生成式人工智能"
+        ],
+        "score": 83,
+        "comment": "创作记录真实完整，画面表现力好。",
+        "understanding": "AI 绘画练习日记，含多幅练习作品与创作说明。"
+      },
+      "archive": {
+        "tags": [
+          "创意设计",
+          "生成式人工智能"
+        ],
+        "score": 83,
+        "comment": "创作记录真实完整，画面表现力好。"
+      },
+      "submittedAt": "2026-11-04 10:30:00",
+      "reviewedAt": "2026-11-05 10:30:00",
+      "review": {
+        "by": "王老师",
+        "action": "确认通过",
+        "at": "2026-11-05 10:30:00"
+      }
+    },
     {
       "id": "w_arch_1",
       "studentId": "stu_li",
@@ -485,41 +1005,41 @@
       "aiStatus": "done",
       "ai": {
         "conclusion": "驳回",
-        "reason": "PDF正文解析失败，仅凭作品名称和一句描述无法核实作品实际内容与质量，需重新上传可正常解析的完整报告。",
+        "reason": "PDF正文解析失败，仅有名称与简短描述，无法核实作品实际内容与质量。",
         "tags": [
           "程序设计",
           "问题解决"
         ],
-        "score": 50,
-        "comment": "智能小车是很有意思的项目方向，但目前提交的报告内容无法读取，老师看不到你们的努力成果。请重新导出并上传完整的报告文件，期待看到你们的详细设计与实现过程哦！",
-        "understanding": "作品为一份小组智能小车项目报告，但正文未能解析，仅有标题和一句作者描述，实际内容未知。"
+        "score": 40,
+        "comment": "同学们好，这份智能小车项目报告目前无法读取正文内容，暂时无法进行评审。请检查文件是否损坏或导出异常后重新上传，期待看到你们的完整成果哦！",
+        "understanding": "作品为一份小组合作的智能小车项目报告，但因PDF正文解析失败，无法了解其中记录的设计思路、程序实现与项目过程等具体内容。"
       },
       "submittedAt": "2026-11-10 10:30:00"
     },
     {
-      "id": "w_1794324208986",
+      "id": "w_1794325205600",
       "studentId": "stu_li",
       "name": "智能计算器小程序",
       "desc": "支持四则运算的命令行计算器",
       "type": "code",
-      "filename": "w_1794324208986_智能计算器小程序.py",
+      "filename": "w_1794325205600_智能计算器小程序.py",
       "origName": "智能计算器小程序.py",
       "status": "approved",
       "aiStatus": "done",
       "ai": {
         "conclusion": "通过",
-        "reason": "程序结构清晰、功能完整可运行，具备除零检查和退出机制，完成度良好。",
+        "reason": "作品功能完整，实现了四则运算交互式计算器，具备除零检查和退出机制，结构清晰，达到通过标准。",
         "tags": [
           "程序设计",
           "逻辑思维",
           "问题解决",
           "计算思维"
         ],
-        "score": 82,
-        "comment": "这个计算器程序结构清晰，把加减乘除分别写成独立函数的做法很规范，还细心处理了除数为零的情况，用for-else循环识别运算符也体现了不错的编程功底。如果之后能加入输入错误的容错处理（比如用户输入字母时程序不会崩溃）和支持括号、连续运算，作品会更加出色！",
-        "understanding": "作品是一个Python命令行交互式计算器，通过定义加减乘除四个函数实现四则运算，采用循环接收用户输入的表达式，按运算符匹配对应函数计算并输出结果，支持输入q退出，并对除数为零的情况做了错误提示。"
+        "score": 80,
+        "comment": "代码结构清晰，用函数分别封装四种运算并考虑了除数为零的情况，还巧妙使用了for-else处理无法识别的表达式，看得出来你动了不少脑筋！如果再加上输入数字格式的容错处理和支持连续运算，计算器会更加强大哦。",
+        "understanding": "这是一个Python命令行四则运算计算器，通过定义加减乘除四个函数实现运算功能，循环接收用户输入的表达式并解析运算符进行计算，包含除数为零的错误提示和q键退出功能，无法识别的输入会给出重试提示。"
       },
-      "submittedAt": "2026-11-10 23:23:28",
+      "submittedAt": "2026-11-10 23:40:05",
       "archive": {
         "tags": [
           "程序设计",
@@ -527,38 +1047,38 @@
           "问题解决",
           "计算思维"
         ],
-        "score": 82,
-        "comment": "这个计算器程序结构清晰，把加减乘除分别写成独立函数的做法很规范，还细心处理了除数为零的情况，用for-else循环识别运算符也体现了不错的编程功底。如果之后能加入输入错误的容错处理（比如用户输入字母时程序不会崩溃）和支持括号、连续运算，作品会更加出色！"
+        "score": 80,
+        "comment": "代码结构清晰，用函数分别封装四种运算并考虑了除数为零的情况，还巧妙使用了for-else处理无法识别的表达式，看得出来你动了不少脑筋！如果再加上输入数字格式的容错处理和支持连续运算，计算器会更加强大哦。"
       },
       "review": {
         "by": "教研员 · 王老师",
         "action": "确认通过",
         "reason": "",
-        "at": "2026-11-10 23:24:34"
+        "at": "2026-11-10 23:41:05"
       },
-      "reviewedAt": "2026-11-10 23:24:34"
+      "reviewedAt": "2026-11-10 23:41:05"
     },
     {
-      "id": "w_1794324224678",
+      "id": "w_1794325221387",
       "studentId": "stu_li",
       "name": "极简网页",
       "desc": "",
       "type": "code",
-      "filename": "w_1794324224678_极简网页.html.txt",
+      "filename": "w_1794325221387_极简网页.html.txt",
       "origName": "极简网页.html.txt",
       "status": "approved",
       "aiStatus": "done",
       "ai": {
         "conclusion": "驳回",
-        "reason": "作品仅为最基础的HTML框架加一行标题，无任何内容、样式或创意体现，过于简单敷衍。",
+        "reason": "作品仅为最基础的HTML空壳框架，内容过于简单，缺乏实质性创作与学习体现。",
         "tags": [
           "程序设计"
         ],
-        "score": 30,
-        "comment": "你写出了一个结构正确的网页，迈出了编程学习的第一步，这很棒！但目前页面只有一个'你好'标题，建议添加更多文字、图片、样式或交互效果，让网页变得丰富有趣后再来投稿哦。",
-        "understanding": "作品是一个极简HTML页面，仅包含页面标题'我的网页'和一个显示'你好'的一级标题，没有任何正文内容、样式设计或交互功能。"
+        "score": 40,
+        "comment": "你成功写出了一个能正常运行的网页，迈出了编程第一步，值得鼓励！但页面只有一个标题，建议添加更多内容、样式或互动效果后再提交。",
+        "understanding": "作品是一个仅包含'你好'标题的极简HTML网页，没有正文内容、样式设计或其他功能，属于初始模板级别。"
       },
-      "submittedAt": "2026-11-10 23:23:44",
+      "submittedAt": "2026-11-10 23:40:21",
       "archive": {
         "tags": [
           "程序设计",
@@ -571,122 +1091,156 @@
         "by": "教研员 · 王老师",
         "action": "修改后通过",
         "reason": "",
-        "at": "2026-11-10 23:24:34",
+        "at": "2026-11-10 23:41:05",
         "edited": true
       },
-      "reviewedAt": "2026-11-10 23:24:34"
+      "reviewedAt": "2026-11-10 23:41:05"
     },
     {
-      "id": "w_1794324240301",
+      "id": "w_1794325234027",
       "studentId": "stu_li",
       "name": "AI校园主题海报",
       "desc": "我设计的AI主题海报",
       "type": "image",
-      "filename": "w_1794324240301_AI校园主题海报.png",
+      "filename": "w_1794325234027_AI校园主题海报.png",
       "origName": "AI校园主题海报.png",
       "status": "rejected",
       "aiStatus": "done",
       "ai": {
         "conclusion": "驳回",
-        "reason": "作品内容过于简单且呈现为空白模板状态，缺乏实质性的创意设计细节与 AI 学习成果的具体体现。",
+        "reason": "作品内容过于简单空洞，仅包含基础背景、文字和占位图形，缺乏实质性的设计内容或AI技术应用展示。",
         "tags": [
           "创意设计",
           "生成式人工智能"
         ],
         "score": 35,
-        "comment": "这幅作品目前更像是一个设计草稿或空白模板，缺少具体的画面内容来表现‘AI校园’这一主题。建议你发挥想象力，利用 AI 绘画工具生成一些具体的校园科技场景或趣味元素，让海报变得更加生动饱满！",
-        "understanding": "该作品是一张蓝紫色调的背景图，上方有一个长条形白色色块（类似搜索框），下方有六个圆形白色色块（类似头像位），中间印有‘AI 校园主题海报’及‘人工智能·创意无限’等文字，整体为极简的排版框架。"
+        "comment": "这张海报目前还只是一个初步的框架，缺少具体的校园AI场景或图案填充。建议尝试使用AI绘画工具生成更丰富的元素来充实画面，展现出更多关于人工智能在校园中应用的奇思妙想！",
+        "understanding": "这是一张以“AI校园”为主题的数字海报初稿，采用蓝紫渐变背景，包含标题文字、副标语以及若干个疑似用于后续添加内容的空白占位符（圆角矩形与圆形）。"
       },
-      "submittedAt": "2026-11-10 23:24:00",
+      "submittedAt": "2026-11-10 23:40:34",
       "review": {
         "by": "教研员 · 王老师",
         "action": "驳回",
         "reason": "画面内容与描述不符，请补充说明后重新提交",
-        "at": "2026-11-10 23:24:34"
+        "at": "2026-11-10 23:41:05"
       },
-      "reviewedAt": "2026-11-10 23:24:34"
+      "reviewedAt": "2026-11-10 23:41:05"
     },
     {
-      "id": "w_1794324259204",
+      "id": "w_1794325252724",
       "studentId": "stu_li",
       "name": "智能小车项目报告",
       "desc": "小组项目报告",
       "type": "pdf",
-      "filename": "w_1794324259204_智能小车项目报告.pdf",
+      "filename": "w_1794325252724_智能小车项目报告.pdf",
       "origName": "智能小车项目报告.pdf",
       "status": "reviewing",
       "aiStatus": "done",
       "ai": {
         "conclusion": "通过",
-        "reason": "报告结构完整，涵盖目标、软硬件方案、功能实现、测试数据与未来规划，内容真实有技术深度。",
+        "reason": "报告结构完整，涵盖目标、方案、功能、测试与展望，技术含量与数据支撑较好。",
         "tags": [
-          "程序设计",
           "算法思维",
-          "问题解决",
-          "计算思维"
+          "程序设计",
+          "计算思维",
+          "问题解决"
         ],
-        "score": 84,
-        "comment": "小明和小组同学用PID控制和超声波传感器完成了循迹避障智能小车，还有具体的测试数据支撑，非常扎实！如果下次能附上代码片段、调试过程照片和小组分工说明，报告会更有说服力。",
-        "understanding": "学生小组设计并制作了一辆循迹避障智能小车，采用PID控制实现自动循迹，利用超声波传感器实现障碍检测与紧急停止，并支持手动遥控模式；在5条测试赛道上完成测试，平均单圈用时42秒，未来计划增加摄像头视觉导航功能。"
+        "score": 85,
+        "comment": "这份智能小车报告条理清晰，PID循迹、超声波避障等设计展现了扎实的算法与编程能力，还用五条赛道的实测圈速来验证成果，非常用心！如果下次能补充项目过程中的照片、代码片段或遇到困难时的解决思路，报告会更加生动丰满。",
+        "understanding": "该作品是一份小组项目报告，记录了学生团队制作一辆循迹避障智能小车的过程：采用控制器、双电机与超声波传感器，用Python编写控制逻辑，实现PID循迹、障碍检测紧急停车和手动遥控三种模式，并通过五条测试赛道验证，平均圈速42秒，未来计划加入摄像头视觉导航。"
       },
-      "submittedAt": "2026-11-10 23:24:19"
+      "submittedAt": "2026-11-10 23:40:52"
     }
   ],
   "reports": {
     "stu_li": {
-      "generatedAt": "2026-11-10 23:25:35",
+      "generatedAt": "2026-11-10 23:42:00",
       "model": "glm-5.3-flash",
-      "error": "Unterminated string starting at: line 1 column 767 (char 766)"
+      "error": "Expecting value: line 1 column 1 (char 0)"
+    },
+    "stu_sun": {
+      "generatedAt": "2026-11-10 23:40:55",
+      "model": "glm-5.3-flash",
+      "content": {
+        "summary": "孙天佑人工智能基础较扎实，从启蒙级到一级成绩稳步提升，顺序与循环掌握优秀，作品体现出良好的数据思维；但算法思维（排序）是明显短板，变量与列表存在粗心丢分，需重点提升。",
+        "examComment": "两次AISE测评均达84分以上，一级比启蒙级提高2分，发挥稳定、呈稳步上升趋势。",
+        "knowledgeComment": "顺序与循环掌握优秀（90%），算法思维（排序）最薄弱，仅58%掌握，变量与列表69%也需巩固。",
+        "radarComment": "数据思维与问题解决表现突出，编程基础扎实，算法思维维度相对薄弱，能力发展不够均衡。",
+        "errorComment": "排序失分属于概念未掌握，需重新学习并循序渐进练习；列表失分源于粗心，要养成做完检查的习惯。",
+        "workComment": "《班级图书角统计表》得81分，数据分类清晰、有对比分析，展现了不错的数据整理与解决问题能力。",
+        "strengths": [
+          "顺序与循环等编程基础掌握扎实，程序编写准确率高",
+          "测评成绩稳定且持续进步，启蒙级到一级顺利进阶",
+          "数据思维突出，能将知识用于真实场景（图书角统计分析）"
+        ],
+        "weaknesses": [
+          "算法思维（排序）掌握不足，核心概念还未真正理解",
+          "变量与列表部分因粗心失分，细节把控不够",
+          "各知识点掌握差距较大，强弱项分化明显"
+        ],
+        "suggestions": [
+          "从头重学排序概念：先用排队按身高等生活例子理解排序，再用卡片动手模拟排序步骤，最后写简单排序小程序，每周练2题",
+          "建立粗心检查本：每次做题先读题圈关键条件，做完逐项检查变量定义和列表操作，每周末整理一遍错题",
+          "定期巩固强项保持手感：用循环和条件编写猜数字、九九乘法表等趣味小程序，每周一次",
+          "算法练习循序渐进：先做找最大数、求数字和等基础题，熟练后再挑战排序和简单查找，不急于做难题"
+        ]
+      }
     }
   },
   "qaLog": [
     {
-      "time": "2026-11-10 23:24:46",
+      "time": "2026-11-10 23:41:10",
       "role": "student",
       "q": "我在最近一次测评中考了多少分？哪个知识点最薄弱？",
       "scope": "answer"
     },
     {
-      "time": "2026-11-10 23:24:49",
+      "time": "2026-11-10 23:41:14",
       "role": "student",
       "q": "帮我写一篇300字的作文",
       "scope": "refuse"
     },
     {
-      "time": "2026-11-10 23:24:52",
+      "time": "2026-11-10 23:41:17",
       "role": "student",
       "q": "陈子豪的测评成绩是多少？",
       "scope": "refuse"
     },
     {
-      "time": "2026-11-10 23:25:00",
+      "time": "2026-11-10 23:41:22",
       "role": "student",
       "q": "人才库里还有哪些学员？",
       "scope": "refuse"
     },
     {
-      "time": "2026-11-10 23:25:03",
+      "time": "2026-11-10 23:41:25",
       "role": "student",
       "q": "今天几号？现在天气如何？",
       "scope": "refuse"
     },
     {
-      "time": "2026-11-10 23:25:07",
+      "time": "2026-11-10 23:41:30",
       "role": "teacher",
       "q": "李小明最近一次测评成绩怎么样？哪个知识点最薄弱？",
       "scope": "answer"
     },
     {
-      "time": "2026-11-10 23:25:11",
+      "time": "2026-11-10 23:41:33",
       "role": "teacher",
       "q": "李小明家住哪个小区？",
       "scope": "refuse"
     },
     {
-      "time": "2026-11-10 23:25:14",
+      "time": "2026-11-10 23:41:36",
       "role": "teacher",
       "q": "帮我出一份期末考试卷",
       "scope": "refuse"
+    },
+    {
+      "time": "2026-11-10 23:41:43",
+      "role": "teacher",
+      "q": "李小明哪个知识点最薄弱？该怎么提高？",
+      "scope": "answer"
     }
   ]
 }

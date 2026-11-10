@@ -21,7 +21,8 @@ const NAVS = {
     ['画像分析', '/s_report.html'], ['问答助手', '/s_qa.html'],
   ],
   teacher: [
-    ['审核工作台', '/a_workbench.html'], ['人才库', '/a_library.html'], ['问答助手', '/a_qa.html'],
+    ['审核工作台', '/a_workbench.html'], ['人才库', '/a_library.html'],
+    ['整体数据分析', '/a_analytics.html'], ['问答助手', '/a_qa.html'],
   ],
 };
 
