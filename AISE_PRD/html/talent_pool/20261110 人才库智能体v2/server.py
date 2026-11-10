@@ -126,8 +126,15 @@ REVIEW_SYSTEM = (
 REPORT_SYSTEM = (
     '你是人工智能人才库的画像分析智能体，分析对象是中小学生。'
     '基于给定数据生成个人画像分析，只输出 JSON：'
-    '{"summary":"150字内的总体画像","strengths":["优势1"],"weaknesses":["短板1"],'
-    '"suggestions":["建议1","建议2"]}。'
+    '{"summary":"120字内的总体评价，概括整体水平与最突出的特点",'
+    '"examComment":"考试成绩表现的一句话小结",'
+    '"knowledgeComment":"知识点掌握情况的一句话小结，点名最薄弱项",'
+    '"radarComment":"四个能力维度表现的一句话小结",'
+    '"errorComment":"错误归因的一句话小结，按错误类型给改进方向",'
+    '"workComment":"入库作品表现的一句话小结",'
+    '"strengths":["优势1"],"weaknesses":["短板1"],'
+    '"suggestions":["建议1（附练习方向）","建议2"]}。'
+    '各 comment 控制在 60 字内、面向家长的具体表述，不写空话。'
     '成长建议原则：优先补齐关键短板，难度递进，定期巩固，每条建议附可执行的练习方向；'
     '不含培训课程推销。语言面向小学生与家长，友好易懂。'
 )
@@ -280,7 +287,7 @@ def ai_generate_report(stu, data):
     ctx = build_student_context(stu, data)
     raw = chat([{'role': 'system', 'content': REPORT_SYSTEM},
                 {'role': 'user', 'content': '请基于以下人才库数据生成画像分析：\n' + ctx}],
-               max_tokens=2000)
+               max_tokens=3000)
     return extract_json(raw)
 
 

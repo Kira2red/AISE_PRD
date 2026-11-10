@@ -4,34 +4,110 @@
 <meta charset="UTF-8">
 <title>问答助手 · 学员端</title>
 <link rel="stylesheet" href="/style.css">
+<style>
+    html, body { height: 100%; }
+    body { overflow: hidden; display: flex; flex-direction: column; }
+    .qa-shell {
+        flex: 1; min-height: 0; width: 100%; max-width: 920px;
+        margin: 0 auto; display: flex; flex-direction: column;
+        padding: 20px 24px 18px; box-sizing: border-box;
+    }
+    .qa-head { margin-bottom: 14px; }
+    .qa-head h1 { font-size: 20px; color: var(--ink); }
+    .qa-head p { font-size: 12.5px; color: var(--ink-3); margin-top: 2px; }
+    .chat-card {
+        flex: 1; min-height: 0; display: flex; flex-direction: column;
+        background: #fff; border: 1px solid var(--line); border-radius: 18px;
+        box-shadow: 0 1px 2px rgba(15,23,42,.04), 0 6px 18px rgba(15,23,42,.05);
+    }
+    .chat-log { flex: 1; overflow-y: auto; padding: 20px 22px 6px; }
+    .msg { max-width: 76%; margin-bottom: 14px; padding: 11px 15px; border-radius: 14px;
+           font-size: 14.5px; line-height: 1.7; white-space: pre-wrap; }
+    .msg.user {
+        background: linear-gradient(135deg, #1d4ed8, #3b82f6); color: #fff;
+        margin-left: auto; border-bottom-right-radius: 5px;
+        box-shadow: 0 3px 10px rgba(37,99,235,.25);
+    }
+    .msg.bot { background: #f8fafc; border: 1px solid var(--line); border-bottom-left-radius: 5px; color: var(--ink); }
+    .msg.bot.refuse { background: #fffbeb; border-color: #fde68a; color: #78350f; }
+    .msg .scope { display: block; margin-top: 8px; font-size: 11px; color: var(--ink-3); }
+        .chat-empty {
+        flex: 1; display: flex; flex-direction: column; align-items: center; justify-content: center;
+        gap: 12px; color: #b6c2d4; user-select: none; padding-bottom: 26px;
+    }
+    .chat-empty .big { width: 64px; height: 64px; border-radius: 22px; display: flex; align-items: center;
+        justify-content: center; font-size: 30px; background: linear-gradient(135deg, #eef4ff, #e0ecff); }
+    .chat-empty .t1 { font-size: 15px; font-weight: 600; color: #94a3b8; }
+    .chat-empty .t2 { font-size: 12.5px; }
+    .thinking { color: var(--ink-3); }
+    .thinking::after { content: "···"; letter-spacing: 3px; animation: th 1.2s infinite; }
+    @keyframes th { 0%,100% { opacity: .3; } 50% { opacity: 1; } }
+
+    .chat-bottom { border-top: 1px solid var(--line); padding: 12px 16px 14px; }
+    .quick-q {
+        display: flex; gap: 8px; overflow-x: auto; padding-bottom: 10px;
+        scrollbar-width: none;
+    }
+    .quick-q::-webkit-scrollbar { display: none; }
+    .quick-q button {
+        font-size: 12px; background: #f6f8fb; border: 1px solid var(--line); border-radius: 99px;
+        padding: 6px 14px; cursor: pointer; color: var(--ink-2); font-family: inherit;
+        white-space: nowrap; transition: all .15s; flex-shrink: 0;
+    }
+    .quick-q button:hover { border-color: #93c5fd; color: #1d4ed8; background: #eff6ff; }
+    .quick-q button.probe { border-color: #fde68a; background: #fffbeb; color: #b45309; }
+    .quick-q button.probe:hover { background: #fef3c7; }
+    .chat-input { display: flex; gap: 10px; }
+    .chat-input input {
+        flex: 1; border: 1.5px solid var(--line); border-radius: 12px; padding: 12px 16px;
+        font-size: 14px; background: #f8fafc; outline: none; transition: border-color .15s;
+        font-family: inherit; min-width: 0;
+    }
+    .chat-input input:focus { border-color: #2563eb; background: #fff; }
+    .btn-send {
+        border: none; border-radius: 12px; padding: 0 26px; cursor: pointer;
+        background: linear-gradient(135deg, #1d4ed8, #3b82f6); color: #fff;
+        font-size: 14px; font-weight: 600; font-family: inherit; transition: filter .15s; flex-shrink: 0;
+    }
+    .btn-send:hover { filter: brightness(1.08); }
+    .btn-send:disabled { filter: grayscale(.4) opacity(.7); cursor: not-allowed; }
+</style>
 </head>
 <body>
 <div class="topbar" id="topbar"></div>
-<div class="wrap">
-  <h1 class="page-title">问答助手</h1>
-  <p class="page-sub">基于你自己在人才库的数据回答问题 · 超出范围的问题会被拦截</p>
-
-  <div class="quick-q">
-    <button onclick="ask('我在最近一次测评中考得怎么样？')">我在最近一次测评中考得怎么样？</button>
-    <button onclick="ask('我哪个知识点最薄弱？该怎么提高？')">我哪个知识点最薄弱？该怎么提高？</button>
-    <button onclick="ask('我的人才卡上有哪些特长标签？')">我的人才卡上有哪些特长标签？</button>
-    <button class="probe" onclick="ask('帮我写一篇 300 字的作文')">⚠ 帮我写一篇 300 字的作文（越界测试）</button>
-    <button class="probe" onclick="ask('明天天气怎么样？')">⚠ 明天天气怎么样？（越界测试）</button>
+<div class="qa-shell">
+  <div class="qa-head">
+    <h1>问答助手</h1>
+    <p>基于你自己在人才库的数据回答问题 · 超出范围的问题会被拦截</p>
   </div>
 
-  <div class="card chat-box">
-    <div class="chat-log" id="chatLog"></div>
-    <div class="chat-input">
-      <input type="text" id="qInput" placeholder="输入问题，例如：我的作品得了多少分？" onkeydown="if(event.key==='Enter')send()">
-      <button class="btn" id="btnSend" onclick="send()">发送</button>
+  <div class="chat-card">
+    <div class="chat-log" id="chatLog"><div class="chat-empty" id="chatEmpty"><div class="big">💬</div><div class="t1">问问人才库助手</div><div class="t2">试试下方的快捷问题，或直接输入你的问题</div></div></div>
+    <div class="chat-bottom">
+      <div class="quick-q">
+        <button onclick="ask('我在最近一次测评中考得怎么样？')">我在最近一次测评中考得怎么样？</button>
+        <button onclick="ask('我哪个知识点最薄弱？该怎么提高？')">我哪个知识点最薄弱？该怎么提高？</button>
+        <button onclick="ask('我的人才卡上有哪些特长标签？')">我的人才卡上有哪些特长标签？</button>
+        <button class="probe" onclick="ask('帮我写一篇 300 字的作文')">⚠ 帮我写一篇 300 字的作文（越界测试）</button>
+        <button class="probe" onclick="ask('明天天气怎么样？')">⚠ 明天天气怎么样？（越界测试）</button>
+      </div>
+      <div class="chat-input">
+        <input type="text" id="qInput" placeholder="输入问题，例如：我的作品得了多少分？" onkeydown="if(event.key==='Enter')send()">
+        <button class="btn-send" id="btnSend" onclick="send()">发送</button>
+      </div>
     </div>
   </div>
 </div>
 
 <script src="/common.js"></script>
 <script>
-async function init() { await guard('student'); addBot('你好！我是人才库问答助手，只基于你自己的人才库数据回答问题。你可以问我测评成绩、知识点掌握情况、作品评价和成长建议。'); }
+async function init() {
+  await guard('student');
+  addBot('你好！我是人才库问答助手，只基于你自己的人才库数据回答问题。你可以问我测评成绩、知识点掌握情况、作品评价和成长建议。');
+}
 function addUser(text) {
+  const e = document.getElementById('chatEmpty');
+  if (e) e.remove();
   const log = document.getElementById('chatLog');
   log.insertAdjacentHTML('beforeend', '<div class="msg user">' + esc(text) + '</div>');
   log.scrollTop = log.scrollHeight;
@@ -43,6 +119,15 @@ function addBot(text, refuse, scopeLabel) {
     (scopeLabel ? '<span class="scope">来源：' + esc(scopeLabel) + '</span>' : '') + '</div>');
   log.scrollTop = log.scrollHeight;
 }
+function showThinking() {
+  const log = document.getElementById('chatLog');
+  log.insertAdjacentHTML('beforeend', '<div class="msg bot" id="thinkPlaceholder"><span class="thinking">思考中</span></div>');
+  log.scrollTop = log.scrollHeight;
+}
+function removeThinking() {
+  const p = document.getElementById('thinkPlaceholder');
+  if (p) p.remove();
+}
 function ask(q) { document.getElementById('qInput').value = q; send(); }
 async function send() {
   const input = document.getElementById('qInput');
@@ -50,16 +135,14 @@ async function send() {
   if (!q) return;
   input.value = '';
   addUser(q);
-  addBot('思考中…', false, '');
+  showThinking();
   const btn = document.getElementById('btnSend'); btn.disabled = true;
   try {
     const r = await post('/api/qa', { question: q });
-    const log = document.getElementById('chatLog');
-    log.lastElementChild.remove();
+    removeThinking();
     addBot(r.answer, r.scope === 'refuse', r.scopeLabel);
   } catch (e) {
-    const log = document.getElementById('chatLog');
-    log.lastElementChild.remove();
+    removeThinking();
     addBot('出错了：' + e.message, true, '');
   }
   btn.disabled = false; input.focus();
