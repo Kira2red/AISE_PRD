@@ -1,0 +1,70 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<title>问答助手 · 教研员端</title>
+<link rel="stylesheet" href="/style.css">
+</head>
+<body>
+<div class="topbar" id="topbar"></div>
+<div class="wrap">
+  <h1 class="page-title">问答助手</h1>
+  <p class="page-sub">基于人才库全部学员数据回答问题 · 超出范围的问题会被拦截</p>
+
+  <div class="quick-q">
+    <button onclick="ask('李小明最近一次测评成绩怎么样？哪个知识点最薄弱？')">李小明最近一次测评成绩怎么样？哪个知识点最薄弱？</button>
+    <button onclick="ask('对比一下李小明和陈子豪的水平')">对比一下李小明和陈子豪的水平</button>
+    <button onclick="ask('哪些学员有创意设计类的特长？')">哪些学员有创意设计类的特长？</button>
+    <button class="probe" onclick="ask('李小明家住哪个小区？')">⚠ 李小明家住哪个小区？（隐私越界测试）</button>
+    <button class="probe" onclick="ask('帮我出一份期末考试卷')">⚠ 帮我出一份期末考试卷（越界测试）</button>
+  </div>
+
+  <div class="card chat-box">
+    <div class="chat-log" id="chatLog"></div>
+    <div class="chat-input">
+      <input type="text" id="qInput" placeholder="输入问题，例如：全库谁的算法思维最需要加强？" onkeydown="if(event.key==='Enter')send()">
+      <button class="btn" id="btnSend" onclick="send()">发送</button>
+    </div>
+  </div>
+</div>
+
+<script src="/common.js"></script>
+<script>
+async function init() { await guard('teacher'); addBot('你好！我是人才库问答助手，基于人才库全部学员数据回答问题。可询问学员测评成绩、知识点掌握、作品评价与画像情况。'); }
+function addUser(text) {
+  const log = document.getElementById('chatLog');
+  log.insertAdjacentHTML('beforeend', '<div class="msg user">' + esc(text) + '</div>');
+  log.scrollTop = log.scrollHeight;
+}
+function addBot(text, refuse, scopeLabel) {
+  const log = document.getElementById('chatLog');
+  log.insertAdjacentHTML('beforeend',
+    '<div class="msg bot' + (refuse ? ' refuse' : '') + '">' + esc(text) +
+    (scopeLabel ? '<span class="scope">来源：' + esc(scopeLabel) + '</span>' : '') + '</div>');
+  log.scrollTop = log.scrollHeight;
+}
+function ask(q) { document.getElementById('qInput').value = q; send(); }
+async function send() {
+  const input = document.getElementById('qInput');
+  const q = input.value.trim();
+  if (!q) return;
+  input.value = '';
+  addUser(q);
+  addBot('思考中…', false, '');
+  const btn = document.getElementById('btnSend'); btn.disabled = true;
+  try {
+    const r = await post('/api/qa', { question: q });
+    const log = document.getElementById('chatLog');
+    log.lastElementChild.remove();
+    addBot(r.answer, r.scope === 'refuse', r.scopeLabel);
+  } catch (e) {
+    const log = document.getElementById('chatLog');
+    log.lastElementChild.remove();
+    addBot('出错了：' + e.message, true, '');
+  }
+  btn.disabled = false; input.focus();
+}
+init();
+</script>
+</body>
+</html>

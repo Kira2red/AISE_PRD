@@ -1,0 +1,140 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<title>审核工作台 · 教研员端</title>
+<link rel="stylesheet" href="/style.css">
+</head>
+<body>
+<div class="topbar" id="topbar"></div>
+<div class="wrap">
+  <h1 class="page-title">审核工作台</h1>
+  <p class="page-sub">智能体预审结论仅供人工参考，最终结论以你的裁决为准 · 全部操作留痕</p>
+
+  <div class="card">
+    <h2>待审队列 <span class="hint">点击行查看作品原文与智能体预审结论</span></h2>
+    <table class="tb">
+      <thead><tr>
+        <th style="width:20%">作品名称</th><th style="width:10%">提交人</th><th style="width:8%">类型</th>
+        <th style="width:12%">预审状态</th><th style="width:24%">智能体结论摘要</th>
+        <th style="width:16%">提交时间</th><th style="width:10%">状态</th>
+      </tr></thead>
+      <tbody id="queueList"></tbody>
+    </table>
+  </div>
+</div>
+
+<!-- 审核弹窗 -->
+<div class="modal-mask" id="modalMask" style="display:none">
+  <div class="modal">
+    <div class="modal-head"><h3 id="mTitle"></h3><button class="modal-close" onclick="closeModal()">✕</button></div>
+    <div class="modal-body" id="mBody"></div>
+  </div>
+</div>
+
+<div class="demo-fab" onclick="toggleDemoPanel()">场景 DEMO</div>
+<div class="demo-panel" id="demoPanel" style="display:none">
+  <h4>演示辅助（仅演示工具，非系统功能）</h4>
+  <div class="desc">重置后回到初始演示数据，包括待审队列</div>
+  <button onclick="resetDemo()">重置全部演示数据</button>
+</div>
+
+<script src="/common.js"></script>
+<script>
+async function init() {
+  await guard('teacher');
+  await refresh();
+  setInterval(refresh, 4000);
+}
+async function refresh() {
+  const r = await api('/api/admin/queue');
+  document.getElementById('queueList').innerHTML = r.works.map(w =>
+    '<tr class="clickable" onclick="openWork(\'' + w.id + '\')">' +
+    '<td><b>' + esc(w.name) + '</b></td><td>' + esc(w.student) + '</td><td>' + TYPE_LABEL[w.type] + '</td>' +
+    '<td>' + aiStatusBadge(w.aiStatus) + '</td>' +
+    '<td class="muted">' + (w.aiStatus === 'done' ? esc(w.aiSummary) : (w.aiStatus === 'processing' ? '智能体阅读作品中…' : '—')) + '</td>' +
+    '<td class="muted">' + esc(w.submittedAt) + '</td><td>' + statusBadge(w.status) + '</td></tr>').join('') ||
+    '<tr><td colspan="7" class="muted">队列空，无作品</td></tr>';
+}
+
+async function openWork(id) {
+  const r = await api('/api/admin/work/' + id);
+  const w = r.work, s = r.student;
+  document.getElementById('mTitle').textContent = '作品审核 · ' + w.name;
+  let aiHtml;
+  if (w.aiStatus === 'processing') {
+    aiHtml = '<div class="notice warn"><span class="pulse"></span>智能体正在阅读作品，预审结论出来前可先人工查看原文，也可稍后重开。</div>';
+  } else if (w.aiStatus === 'failed') {
+    aiHtml = '<div class="notice warn">预审失败（' + esc(w.aiError || '模型调用失败') + '），可直接人工终审，也可重新预审。</div>' +
+      '<button class="btn gray" onclick="repreview(\'' + w.id + '\')">重新预审</button>';
+  } else {
+    const ai = w.ai;
+    aiHtml =
+      '<div class="notice ' + (ai.conclusion === '通过' ? 'info' : 'warn') + '">智能体预审结论：<b>' + ai.conclusion +
+      '</b> · <b>' + ai.score + '</b> 分' + (ai.reason ? ' · ' + esc(ai.reason) : '') + '</div>' +
+      '<div class="kv mb8"><span class="k">能力标签</span><div>' +
+      (ai.tags.length ? ai.tags.map(t => '<span class="tag">' + esc(t) + '</span>').join('') : '<span class="muted">无（可能被标签清洗规则全部过滤）</span>') + '</div>' +
+      '<span class="k">评语</span><div>' + esc(ai.comment) + '</div>' +
+      '<span class="k">理解摘要</span><div class="muted">' + esc(ai.understanding) + '</div></div>';
+  }
+  // 作品原文预览
+  let pv = '<div class="muted">无预览</div>';
+  if (r.preview.kind === 'code') pv = '<pre class="code-view">' + esc(r.preview.text) + '</pre>';
+  else if (r.preview.kind === 'image') pv = '<img src="data:image/png;base64,' + r.preview.b64 + '" style="max-width:100%;border-radius:8px;border:1px solid var(--line)">';
+  else if (r.preview.kind === 'pdf') pv = r.preview.text ?
+    '<pre class="code-view">' + esc(r.preview.text) + '</pre><div class="muted mt8">PDF 文本层抽取预览（正文解析生产环境由研发实现）</div>' :
+    '<div class="muted">该 PDF 未抽取到文本层</div>';
+
+  // 终审操作区
+  let actHtml;
+  if (w.status !== 'reviewing') {
+    actHtml = '<div class="notice info">本作品已终审：' + esc((w.review || {}).action || '') + ' · ' + esc((w.review || {}).by || '') + ' · ' + esc((w.review || {}).at || '') +
+      ((w.review || {}).reason ? ' · 原因：' + esc(w.review.reason) : '') + '</div>';
+  } else {
+    actHtml =
+      '<div class="grid2">' +
+      '<div><h2 style="font-size:14px">按智能体结论通过</h2><p class="muted" style="margin-bottom:10px">默认采纳智能体生成的标签、得分与评语</p>' +
+      '<button class="btn" onclick="doReview(\'' + w.id + '\',{action:\'approve\'})">确认通过</button></div>' +
+      '<div><h2 style="font-size:14px">修改后通过</h2>' +
+      '<label class="f">标签（逗号分隔）</label><input type="text" id="eTags" value="' + esc((w.ai && w.ai.tags || []).join('，')) + '">' +
+      '<label class="f">得分</label><input type="text" id="eScore" value="' + (w.ai ? w.ai.score : '') + '">' +
+      '<label class="f">评语</label><textarea id="eComment">' + esc(w.ai ? w.ai.comment : '') + '</textarea>' +
+      '<div class="mt8"><button class="btn ghost" onclick="doModified(\'' + w.id + '\')">修改后通过</button></div></div>' +
+      '</div>' +
+      '<div class="mt16" style="border-top:1px solid var(--line);padding-top:14px">' +
+      '<h2 style="font-size:14px">驳回</h2>' +
+      '<label class="f">驳回原因（必填，将展示给学员与家长）</label>' +
+      '<input type="text" id="eReason" placeholder="例如：内容过于简单，建议补充后重新提交">' +
+      '<div class="mt8"><button class="btn red" onclick="doReject(\'' + w.id + '\')">驳回</button></div></div>';
+  }
+  document.getElementById('mBody').innerHTML =
+    '<div class="muted mb8">' + esc(s.name) + ' · ' + esc(s.school) + ' · ' + esc(s.grade) + ' · 提交于 ' + esc(w.submittedAt) +
+    (w.desc ? ' · 学员介绍：' + esc(w.desc) : '') + '</div>' +
+    aiHtml +
+    '<h2 class="mt16">作品原文预览</h2>' + pv +
+    '<h2 class="mt16">人工终审</h2>' + actHtml;
+  document.getElementById('modalMask').style.display = 'flex';
+}
+function closeModal() { document.getElementById('modalMask').style.display = 'none'; refresh(); }
+
+async function doReview(id, payload) { await post('/api/admin/review', Object.assign({ id: id }, payload)); closeModal(); }
+async function doModified(id) {
+  const tags = document.getElementById('eTags').value.split(/[,，、]/).map(s => s.trim()).filter(Boolean);
+  await doReview(id, { action: 'approve_modified', tags: tags, score: document.getElementById('eScore').value, comment: document.getElementById('eComment').value });
+}
+async function doReject(id) {
+  try {
+    await doReview(id, { action: 'reject', reason: document.getElementById('eReason').value });
+  } catch (e) { alert(e.message); }
+}
+async function reprepreview(id) { await post('/api/admin/repreview', { id: id }); closeModal(); refresh(); }
+
+function toggleDemoPanel() {
+  const p = document.getElementById('demoPanel');
+  p.style.display = p.style.display === 'none' ? 'block' : 'none';
+}
+async function resetDemo() { await post('/api/demo/reset'); location.reload(); }
+init();
+</script>
+</body>
+</html>

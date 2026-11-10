@@ -1,0 +1,74 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<title>人才库 · 教研员端</title>
+<link rel="stylesheet" href="/style.css">
+</head>
+<body>
+<div class="topbar" id="topbar"></div>
+<div class="wrap">
+  <h1 class="page-title">人才库</h1>
+  <p class="page-sub">已入库学员档案 · 点击查看详情</p>
+
+  <div class="card">
+    <table class="tb">
+      <thead><tr><th style="width:12%">姓名</th><th style="width:14%">学校</th><th style="width:10%">年级</th>
+        <th style="width:14%">AISE 关联</th><th style="width:10%">入库作品</th><th>特长标签</th></tr></thead>
+      <tbody id="stuList"></tbody>
+    </table>
+  </div>
+</div>
+
+<div class="modal-mask" id="modalMask" style="display:none">
+  <div class="modal">
+    <div class="modal-head"><h3 id="mTitle"></h3><button class="modal-close" onclick="document.getElementById('modalMask').style.display='none'">✕</button></div>
+    <div class="modal-body" id="mBody"></div>
+  </div>
+</div>
+
+<script src="/common.js"></script>
+<script>
+async function init() {
+  await guard('teacher');
+  const r = await api('/api/admin/library');
+  document.getElementById('stuList').innerHTML = r.students.map(s =>
+    '<tr class="clickable" onclick="openStudent(\'' + s.id + '\')">' +
+    '<td><b>' + esc(s.name) + '</b></td><td>' + esc(s.school) + '</td><td>' + esc(s.grade) + '</td>' +
+    '<td>' + (s.aiseLinked ? '<span class="badge ok">已关联</span>' : '<span class="badge gray">未关联</span>') + '</td>' +
+    '<td>' + s.workCount + '</td>' +
+    '<td>' + s.tags.map(t => '<span class="tag">' + esc(t) + '</span>').join('') + '</td></tr>').join('');
+}
+async function openStudent(id) {
+  const r = await api('/api/admin/student/' + id);
+  const s = r.student;
+  document.getElementById('mTitle').textContent = '学员档案 · ' + s.name;
+  let html = '<div class="muted mb8">' + esc(s.school) + ' · ' + esc(s.grade) + '</div>';
+  html += '<h2>特长标签</h2><div>' + s.card.tags.map(t => '<span class="tag">' + esc(t) + '</span>').join('') + '</div>';
+  if (s.aise) {
+    html += '<h2 class="mt16">AISE 测评记录</h2><table class="tb"><thead><tr><th>测评</th><th>成绩</th><th>时间</th></tr></thead><tbody>' +
+      s.aise.exams.map(e => '<tr><td>' + esc(e.name) + '</td><td><b>' + e.score + '</b>/' + e.total + '</td><td>' + esc(e.date) + '</td></tr>').join('') + '</tbody></table>';
+    html += '<h2 class="mt16">知识点掌握</h2><table class="tb"><thead><tr><th>知识点</th><th>掌握度</th><th>错误类型</th></tr></thead><tbody>' +
+      s.aise.knowledge.map(k => '<tr><td>' + esc(k.point) + '</td><td>' + k.mastery + '%</td><td>' +
+        (k.errType ? '<span class="badge ' + (k.errType === '粗心' ? 'warn' : 'bad') + '">' + esc(k.errType) + '</span>' : '<span class="badge ok">稳定掌握</span>') + '</td></tr>').join('') + '</tbody></table>';
+  } else {
+    html += '<div class="notice warn mt16">暂未关联 AISE 测评数据</div>';
+  }
+  html += '<h2 class="mt16">入库作品</h2><table class="tb"><thead><tr><th>作品</th><th>标签</th><th>得分</th><th>评语</th></tr></thead><tbody>' +
+    (r.works.map(w => '<tr><td>' + esc(w.name) + '</td><td>' + ((w.archive || {}).tags || []).map(t => '<span class="tag">' + esc(t) + '</span>').join('') +
+      '</td><td><b>' + ((w.archive || {}).score != null ? w.archive.score : '—') + '</b></td><td class="muted">' + esc((w.archive || {}).comment || '') + '</td></tr>').join('') ||
+      '<tr><td colspan="4" class="muted">暂无</td></tr>') + '</tbody></table>';
+  const mats = [];
+  const m = s.materials || {};
+  (m.social || []).forEach(x => mats.push(['社会实践', x]));
+  (m.patents || []).forEach(x => mats.push(['专利软著', x]));
+  (m.honors || []).forEach(x => mats.push(['其他荣誉', x]));
+  html += '<h2 class="mt16">简历材料</h2>' + (mats.map(([mod, x]) =>
+    '<div class="mb8"><span class="badge gray">' + mod + '</span> <b>' + esc(x.name) + '</b> <span class="muted">' + esc(x.time || '') + ' · ' + esc(x.honor || '') + '</span></div>').join('') || '<span class="muted">暂无</span>');
+  document.getElementById('mBody').innerHTML = html;
+  document.getElementById('modalMask').style.display = 'flex';
+}
+init();
+</script>
+</body>
+</html>

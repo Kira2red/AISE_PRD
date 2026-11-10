@@ -1,0 +1,105 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<title>作品上传 · 学员端</title>
+<link rel="stylesheet" href="/style.css">
+</head>
+<body>
+<div class="topbar" id="topbar"></div>
+<div class="wrap">
+  <h1 class="page-title">作品上传</h1>
+  <p class="page-sub">上传你的学习作品，智能体会先预审，教研员老师确认后收入你的人才档案</p>
+
+  <div class="card">
+    <h2>新建上传</h2>
+    <label class="f">作品名称 <b>*</b></label>
+    <input type="text" id="wName" placeholder="例如：猜数字小游戏" maxlength="30">
+    <label class="f">作品介绍（选填）</label>
+    <textarea id="wDesc" placeholder="简单说说这个作品是什么、怎么做的"></textarea>
+    <label class="f">作品文件 <b>*</b>（代码 / 图片 / PDF，≤10MB，系统自动识别类型）</label>
+    <input type="file" id="wFile">
+    <div class="mt16">
+      <button class="btn" id="btnUpload" onclick="upload()">提交作品</button>
+      <span class="muted" id="uploadMsg" style="margin-left:12px"></span>
+    </div>
+  </div>
+
+  <div class="card">
+    <h2>我的作品 <span class="hint">状态说明：审核中 → 审核完成 / 未通过（附原因，可修改后重新提交，不限次数）</span></h2>
+    <table class="tb">
+      <thead><tr><th style="width:22%">作品名称</th><th style="width:10%">类型</th><th>标签</th><th style="width:16%">状态</th><th style="width:18%">提交时间</th><th>说明</th></tr></thead>
+      <tbody id="workList"></tbody>
+    </table>
+  </div>
+</div>
+
+<div class="demo-fab" onclick="toggleDemoPanel()">场景 DEMO</div>
+<div class="demo-panel" id="demoPanel" style="display:none">
+  <h4>演示辅助（仅演示工具，非系统功能）</h4>
+  <div class="desc">重置后回到初始演示数据，包括待审队列</div>
+  <button onclick="resetDemo()">重置全部演示数据</button>
+</div>
+
+<script src="/common.js"></script>
+<script>
+let me = null;
+let pollTimer = null;
+
+async function init() {
+  me = await guard('student');
+  await refresh();
+  pollTimer = setInterval(refresh, 3000);
+}
+
+async function refresh() {
+  const r = await api('/api/student/works');
+  const tb = document.getElementById('workList');
+  const hasProcessing = r.works.some(w => w.status === 'reviewing');
+  if (!hasProcessing && pollTimer) { clearInterval(pollTimer); pollTimer = setInterval(refresh, 8000); }
+  tb.innerHTML = r.works.map(w => {
+    let note = '';
+    if (w.status === 'rejected') note = '驳回原因：' + esc(w.reason) + '。可修改后重新提交。';
+    else if (w.status === 'reviewing') note = '智能体预审中，预审结论由教研员老师确认';
+    else note = '已收入人才档案' + (w.tags.length ? '，标签：' + w.tags.map(t => '<span class="tag">' + esc(t) + '</span>').join('') : '');
+    return '<tr><td><b>' + esc(w.name) + '</b></td><td>' + TYPE_LABEL[w.type] + '</td>' +
+      '<td>' + (w.status === 'approved' ? w.tags.map(t => '<span class="tag">' + esc(t) + '</span>').join('') : '—') + '</td>' +
+      '<td>' + statusBadge(w.status) + '</td><td class="muted">' + esc(w.submittedAt) + '</td><td class="muted">' + note + '</td></tr>';
+  }).join('') || '<tr><td colspan="6" class="muted">还没有作品，先在上面上传一份吧</td></tr>';
+}
+
+async function upload() {
+  const name = document.getElementById('wName').value.trim();
+  const desc = document.getElementById('wDesc').value.trim();
+  const file = document.getElementById('wFile').files[0];
+  const msg = document.getElementById('uploadMsg');
+  const btn = document.getElementById('btnUpload');
+  if (!name) { msg.textContent = '请填写作品名称'; return; }
+  if (!file) { msg.textContent = '请选择作品文件'; return; }
+  const fd = new FormData();
+  fd.append('name', name); fd.append('desc', desc); fd.append('file', file);
+  btn.disabled = true; msg.textContent = '上传中…';
+  try {
+    await api('/api/works', { method: 'POST', body: fd });
+    msg.textContent = '提交成功，已进入审核';
+    document.getElementById('wName').value = '';
+    document.getElementById('wDesc').value = '';
+    document.getElementById('wFile').value = '';
+    if (!pollTimer) pollTimer = setInterval(refresh, 3000); else { clearInterval(pollTimer); pollTimer = setInterval(refresh, 3000); }
+    refresh();
+  } catch (e) { msg.textContent = e.message; }
+  btn.disabled = false;
+}
+
+function toggleDemoPanel() {
+  const p = document.getElementById('demoPanel');
+  p.style.display = p.style.display === 'none' ? 'block' : 'none';
+}
+async function resetDemo() {
+  await post('/api/demo/reset');
+  location.reload();
+}
+init();
+</script>
+</body>
+</html>

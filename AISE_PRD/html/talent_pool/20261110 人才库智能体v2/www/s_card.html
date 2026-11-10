@@ -1,0 +1,85 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<title>人才卡 · 学员端</title>
+<link rel="stylesheet" href="/style.css">
+</head>
+<body>
+<div class="topbar" id="topbar"></div>
+<div class="wrap" id="content" style="visibility:hidden">
+  <h1 class="page-title" id="stuName"></h1>
+  <p class="page-sub" id="stuSub"></p>
+
+  <div class="card">
+    <h2>特长领域 <span class="hint">由入库作品的 AI 能力标签动态生成</span></h2>
+    <div id="cardTags"></div>
+  </div>
+
+  <div class="grid2">
+    <div class="card">
+      <h2>综合分析 · 能力雷达 <span class="hint">综合 AISE 测评与作品评价更新</span></h2>
+      <div class="radar-box"><canvas class="radar" id="radar"></canvas></div>
+    </div>
+    <div class="card">
+      <h2>AISE 测评记录 <span class="hint">来自 AISE 测评平台</span></h2>
+      <table class="tb"><thead><tr><th>测评</th><th>等级</th><th>成绩</th><th>时间</th></tr></thead>
+        <tbody id="examList"></tbody></table>
+      <div id="aiseEmpty" class="notice warn" style="display:none">暂未关联 AISE 测评数据，如已参加 AISE 测评请联系管理员</div>
+    </div>
+  </div>
+
+  <div class="grid2">
+    <div class="card">
+      <h2>入库作品</h2>
+      <table class="tb"><thead><tr><th>作品</th><th>标签</th><th>得分</th></tr></thead>
+        <tbody id="workList"></tbody></table>
+    </div>
+    <div class="card">
+      <h2>简历材料</h2>
+      <div id="materialList"></div>
+    </div>
+  </div>
+</div>
+
+<script src="/common.js"></script>
+<script>
+async function init() {
+  await guard('student');
+  const r = await api('/api/student/profile');
+  const s = r.student;
+  document.getElementById('stuName').textContent = s.name;
+  document.getElementById('stuSub').textContent = s.school + ' · ' + s.grade;
+  document.getElementById('cardTags').innerHTML =
+    r.cardTags.map(t => '<span class="tag" style="font-size:14px;padding:6px 14px">' + esc(t) + '</span>').join('') ||
+    '<span class="muted">暂无标签，上传作品并通过审核后生成</span>';
+  drawRadar(document.getElementById('radar'), s.card.radar);
+  const examTb = document.getElementById('examList');
+  const aise = s.aise;
+  if (aise && aise.exams && aise.exams.length) {
+    examTb.innerHTML = aise.exams.map(e =>
+      '<tr><td>' + esc(e.name) + '</td><td>' + esc(e.level) + '</td><td><b>' + e.score + '</b> / ' + e.total +
+      ' <span class="badge ' + (e.grade === '优秀' ? 'ok' : 'blue') + '">' + esc(e.grade) + '</span></td><td class="muted">' + esc(e.date) + '</td></tr>').join('');
+  } else {
+    examTb.innerHTML = '';
+    document.getElementById('aiseEmpty').style.display = 'block';
+  }
+  document.getElementById('workList').innerHTML = r.works.map(w =>
+    '<tr><td>' + esc(w.name) + '</td><td>' + (w.tags || []).map(t => '<span class="tag">' + esc(t) + '</span>').join('') +
+    '</td><td><b>' + (w.score != null ? w.score : '—') + '</b></td></tr>').join('') ||
+    '<tr><td colspan="3" class="muted">暂无入库作品</td></tr>';
+  const mats = [];
+  const m = s.materials || {};
+  (m.social || []).forEach(x => mats.push(['社会实践', x]));
+  (m.patents || []).forEach(x => mats.push(['专利软著', x]));
+  (m.honors || []).forEach(x => mats.push(['其他荣誉', x]));
+  document.getElementById('materialList').innerHTML = mats.map(([mod, x]) =>
+    '<div class="mb8"><span class="badge gray">' + mod + '</span> <b>' + esc(x.name) + '</b>' +
+    '<div class="muted">' + esc(x.time || '') + ' · ' + esc(x.honor || '') + '</div></div>').join('') ||
+    '<span class="muted">暂无材料</span>';
+  document.getElementById('content').style.visibility = 'visible';
+}
+init();
+</script>
+</body>
+</html>

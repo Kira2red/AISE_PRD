@@ -1,0 +1,45 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>登录 · 人工智能人才资源库</title>
+<link rel="stylesheet" href="/style.css">
+</head>
+<body class="login-body">
+  <div class="login-logo">
+    <img src="/aise-logo.png" alt="人工智能人才资源库">
+    <div class="t1">人工智能人才资源库</div>
+    <div class="t2">人才库智能体（AI 人才大脑）· 演示环境</div>
+  </div>
+
+  <div class="login-cards">
+    <div class="login-card" onclick="login('xiaoming')">
+      <div class="ico">🎓</div>
+      <h3>学员 / 家长入口</h3>
+      <p>上传作品、查看审核结果、人才卡与画像分析报告、问答助手</p>
+      <div class="acct"><span>账号：xiaoming</span><span>密码：123456</span></div>
+    </div>
+    <div class="login-card" onclick="login('wang')">
+      <div class="ico">🧑‍🏫</div>
+      <h3>教研员入口</h3>
+      <p>作品预审队列、人工终审、人才库检索、全库问答助手</p>
+      <div class="acct"><span>账号：wang</span><span>密码：123456</span></div>
+    </div>
+  </div>
+
+  <div class="login-foot" id="loginFoot">演示账号点击卡片即登录 ｜ 演示环境，数据为本机模拟</div>
+
+<script src="/common.js"></script>
+<script>
+async function login(user) {
+  try {
+    const r = await post('/api/login', { user: user, password: '123456' });
+    location.href = r.role === 'teacher' ? '/a_workbench.html' : '/s_home.html';
+  } catch (e) {
+    document.getElementById('loginFoot').textContent = '登录失败：' + e.message;
+  }
+}
+</script>
+</body>
+</html>
