@@ -4,80 +4,344 @@
 <meta charset="UTF-8">
 <title>人才卡 · 学员端</title>
 <link rel="stylesheet" href="/style.css">
+<style>
+    /* ===== 人才卡样式：严格对齐 html/talent_pool/card.html（人工智能应用创新人才信息卡） ===== */
+    :root {
+        --card-primary: #5037cd;
+        --content-bg: #F5F5F5;
+        --label-gray: #6B7280;
+        --value-dark: #1F2937;
+        --photo-border: #93C5FD;
+        --title-col-w: 52px;
+        --card-w: 720px;
+    }
+    .talent-card {
+        width: var(--card-w);
+        max-width: 100%;
+        margin: 0 auto;
+        background: #FFFFFF;
+        box-shadow: 0 2px 4px rgba(0,0,0,0.06), 0 8px 24px rgba(0,0,0,0.04);
+        border: 1px solid #E5E7EB;
+    }
+    .talent-card .card-header { padding: 24px 32px 18px; }
+    .talent-card .header-logos {
+        display: flex; align-items: center; justify-content: space-between; margin-bottom: 18px;
+    }
+    .talent-card .header-logos img { height: 34px; width: auto; max-width: 48%; display: block; }
+    .talent-card .card-title {
+        text-align: center; font-size: 24px; font-weight: 800;
+        color: var(--card-primary); letter-spacing: 3px;
+    }
+    .talent-card .card-body { padding: 0 32px 32px; }
+    .talent-card .section { margin-bottom: 8px; }
+
+    /* 模式A：通栏横标题（基本信息用） */
+    .talent-card .section-bar {
+        background: var(--card-primary); color: white; padding: 10px 16px;
+        border-radius: 4px; font-size: 15px; font-weight: 700; letter-spacing: 1px;
+        display: flex; align-items: center; justify-content: space-between;
+    }
+    .talent-card .section-bar .cbadge {
+        font-size: 11px; font-weight: 400; letter-spacing: 0.5px; opacity: 0.9;
+    }
+
+    /* 模式B：左竖条标题 + 右内容 */
+    .talent-card .section-v {
+        display: grid; grid-template-columns: var(--title-col-w) 1fr;
+        gap: 0; border-radius: 4px; overflow: hidden;
+    }
+    .talent-card .v-title {
+        background: var(--card-primary); color: white; display: flex;
+        align-items: center; justify-content: center; font-size: 15px;
+        font-weight: 700; letter-spacing: 2px; writing-mode: vertical-rl;
+        padding: 14px 8px; min-height: 80px; line-height: 1;
+    }
+    .talent-card .v-content {
+        background: var(--content-bg); padding: 14px 16px;
+        font-size: 14px; line-height: 1.8; color: var(--value-dark);
+    }
+
+    /* 基本信息 */
+    .talent-card .basic-content { background: var(--content-bg); padding: 14px 16px; border-radius: 0 0 4px 4px; }
+    .talent-card .basic-info-grid {
+        display: grid; grid-template-columns: 120px 1fr; gap: 14px; align-items: start;
+    }
+    .talent-card .photo-area {
+        width: 110px; height: 140px; background: #DBEAFE; border: 2px solid var(--photo-border);
+        border-radius: 4px; display: flex; align-items: center; justify-content: center;
+        color: var(--label-gray); font-size: 13px; text-align: center;
+    }
+    .talent-card .info-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 8px 16px; }
+    .talent-card .info-item {
+        background: white; border-radius: 4px; padding: 8px 12px;
+        font-size: 14px; display: flex; gap: 6px;
+    }
+    .talent-card .info-item .clabel { color: var(--label-gray); font-size: 13px; white-space: nowrap; }
+    .talent-card .info-item .cvalue { font-weight: 600; color: var(--value-dark); }
+
+    /* 特长标签 */
+    .talent-card .inline-tags { display: flex; gap: 10px; flex-wrap: wrap; }
+    .talent-card .inline-tags span {
+        background: white; padding: 5px 14px; border-radius: 20px;
+        font-size: 14px; color: var(--value-dark); font-weight: 500;
+    }
+    .talent-card .inline-tags span::before { content: '· '; color: var(--card-primary); font-weight: 900; }
+
+    /* 记录表格 */
+    .talent-card .record-table { width: 100%; border-collapse: collapse; font-size: 13px; }
+    .talent-card .record-table td { padding: 5px 4px; border-bottom: 1px dashed #D1D5DB; color: #444; }
+    .talent-card .record-table tr:last-child td { border-bottom: none; }
+    .talent-card .record-divider { margin: 10px 0 8px; border: none; border-top: 1px dashed #D1D5DB; }
+    .talent-card .record-list { list-style: none; padding: 0; font-size: 13px; line-height: 2; color: #444; }
+    .talent-card .record-empty { color: #999; font-size: 13px; }
+
+    /* 双栏：左3模块 + 右综合分析 */
+    .talent-card .section-lr {
+        display: grid; grid-template-columns: 3fr 2fr; gap: 8px; margin-bottom: 8px;
+    }
+    .talent-card .lr-left { display: flex; flex-direction: column; }
+    .talent-card .lr-left .section-v { flex: 1; }
+    .talent-card .lr-right {
+        background: var(--card-primary); border-radius: 4px;
+        display: flex; flex-direction: column;
+    }
+    .talent-card .lr-right .h-title {
+        color: white; padding: 10px 16px; font-size: 15px; font-weight: 700;
+        letter-spacing: 1px; text-align: center; flex-shrink: 0;
+    }
+    .talent-card .lr-right-body {
+        background: var(--content-bg); margin: 0; border-radius: 0 0 4px 4px;
+        flex: 1; display: flex; align-items: center; justify-content: center; padding: 14px 16px;
+    }
+    .talent-card .radar-container { display: flex; align-items: center; justify-content: center; padding: 8px 0; }
+    .talent-card .radar-svg { width: 180px; height: 180px; }
+
+    /* 底部 */
+    .talent-card .card-footer { padding: 18px 32px 24px; font-size: 11px; color: #666; line-height: 1.8; }
+    .talent-card .card-footer .aise-desc { margin-bottom: 10px; color: var(--value-dark); }
+    .talent-card .card-footer .cnotes { font-size: 10px; color: #888; line-height: 2; list-style: none; padding: 0; }
+    .talent-card .card-footer .cnotes li::before { content: attr(data-num) '、'; margin-right: 4px; }
+    .talent-card .query-url { color: #2563EB; font-weight: 500; }
+    .talent-card .card-footer-decor { height: 2px; background: #E5E7EB; }
+
+    @media (max-width: 768px) {
+        .talent-card .card-header { padding: 16px 14px 12px; }
+        .talent-card .card-title { font-size: 17px; letter-spacing: 2px; }
+        .talent-card .header-logos img { height: 24px; }
+        .talent-card .card-body { padding: 0 10px 20px; }
+        .talent-card .section-bar { font-size: 13px; padding: 8px 10px; }
+        .talent-card .v-title { font-size: 13px; padding: 10px 4px; min-height: 60px; }
+        .talent-card .v-content { padding: 10px; font-size: 12px; }
+        .talent-card .basic-info-grid { grid-template-columns: 80px 1fr; gap: 8px; }
+        .talent-card .photo-area { width: 74px; height: 96px; font-size: 10px; }
+        .talent-card .info-grid { grid-template-columns: 1fr; gap: 4px; }
+        .talent-card .info-item { font-size: 11px; padding: 5px 8px; }
+        .talent-card .section-lr { grid-template-columns: 1fr; }
+        .talent-card .record-table { font-size: 11px; }
+        .talent-card .radar-svg { width: 140px; height: 140px; }
+        .talent-card .inline-tags span { font-size: 12px; padding: 4px 10px; }
+        .talent-card .card-footer { padding: 14px 14px 18px; font-size: 10px; }
+    }
+</style>
 </head>
 <body>
 <div class="topbar" id="topbar"></div>
 <div class="wrap" id="content" style="visibility:hidden">
-  <h1 class="page-title" id="stuName"></h1>
-  <p class="page-sub" id="stuSub"></p>
 
-  <div class="card">
-    <h2>特长领域 <span class="hint">由入库作品的 AI 能力标签动态生成</span></h2>
-    <div id="cardTags"></div>
-  </div>
+    <div class="talent-card">
+        <div class="card-header">
+            <div class="header-logos">
+                <img src="/csia-logo.png" alt="中国软件行业协会">
+                <img src="/aise-logo.png" alt="AISE">
+            </div>
+            <h1 class="card-title">人工智能应用创新人才信息卡</h1>
+        </div>
 
-  <div class="grid2">
-    <div class="card">
-      <h2>综合分析 · 能力雷达 <span class="hint">综合 AISE 测评与作品评价更新</span></h2>
-      <div class="radar-box"><canvas class="radar" id="radar"></canvas></div>
-    </div>
-    <div class="card">
-      <h2>AISE 测评记录 <span class="hint">来自 AISE 测评平台</span></h2>
-      <table class="tb"><thead><tr><th>测评</th><th>等级</th><th>成绩</th><th>时间</th></tr></thead>
-        <tbody id="examList"></tbody></table>
-      <div id="aiseEmpty" class="notice warn" style="display:none">暂未关联 AISE 测评数据，如已参加 AISE 测评请联系管理员</div>
-    </div>
-  </div>
+        <div class="card-body">
 
-  <div class="grid2">
-    <div class="card">
-      <h2>入库作品</h2>
-      <table class="tb"><thead><tr><th>作品</th><th>标签</th><th>得分</th></tr></thead>
-        <tbody id="workList"></tbody></table>
+            <!-- ① 基本信息：通栏横标题 -->
+            <div class="section">
+                <div class="section-bar">
+                    基本信息
+                    <span class="cbadge">人才库编号：<span id="cardNo"></span></span>
+                </div>
+                <div class="basic-content">
+                    <div class="basic-info-grid">
+                        <div class="photo-area">📷<br>证件照</div>
+                        <div class="info-grid" id="basicInfo"></div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- ② 特长领域：左竖条标题 + 右横排（动态标签） -->
+            <div class="section">
+                <div class="section-v">
+                    <div class="v-title">特长领域</div>
+                    <div class="v-content">
+                        <div class="inline-tags" id="tagList"></div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- ③ 人工智能应用创新能力：左竖条标题 + 右记录 -->
+            <div class="section">
+                <div class="section-v">
+                    <div class="v-title" style="min-height:200px">人工智能应用创新能力</div>
+                    <div class="v-content">
+                        <table class="record-table" id="examTable"></table>
+                        <hr class="record-divider">
+                        <table class="record-table" id="activityTable"></table>
+                    </div>
+                </div>
+            </div>
+
+            <!-- ④ 左三模块 + 右综合分析 -->
+            <div class="section-lr">
+                <div class="lr-left">
+                    <div class="section-v" style="margin-bottom:8px">
+                        <div class="v-title">社会实践与人才培养记录</div>
+                        <div class="v-content">
+                            <table class="record-table" id="socialTable"></table>
+                        </div>
+                    </div>
+                    <div class="section-v" style="margin-bottom:8px">
+                        <div class="v-title">专利和软著</div>
+                        <div class="v-content">
+                            <ol class="record-list" id="patentList"></ol>
+                        </div>
+                    </div>
+                    <div class="section-v">
+                        <div class="v-title">其他荣誉记录</div>
+                        <div class="v-content">
+                            <ol class="record-list" id="honorList"></ol>
+                        </div>
+                    </div>
+                </div>
+                <div class="lr-right">
+                    <div class="h-title">综合分析</div>
+                    <div class="lr-right-body">
+                        <div class="radar-container">
+                            <svg class="radar-svg" id="radarSvg" viewBox="0 0 200 200"></svg>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+        </div>
+
+        <div class="card-footer">
+            <p class="aise-desc">
+                AISE工程由中国软件行业协会发起，联合高等院校、科研院所及人工智能应用创新领域领先企业，共同打造以真实场景需求为驱动的AI应用创新人才培育开放平台，旨在构建产学研协同的人才培养体系，为国家人工智能复合型人才储备提供坚实支撑。
+            </p>
+            <ul class="cnotes">
+                <li data-num="1">学员参加 AISE 培养工程相关学习或活动可计入人才库，经审核后动态更新，作为人工智能应用创新能力参考依据。</li>
+                <li data-num="2">由持卡者个人保管，限本人使用，不得涂改转借。</li>
+                <li data-num="3">人才信息卡查询：<span class="query-url">http://aise.csia.org.cn</span></li>
+            </ul>
+        </div>
+
+        <div class="card-footer-decor"></div>
     </div>
-    <div class="card">
-      <h2>简历材料</h2>
-      <div id="materialList"></div>
-    </div>
-  </div>
+
 </div>
 
 <script src="/common.js"></script>
 <script>
+const AXIS = [
+    { label: '认知层', x: 100, y: 20, lx: 100, ly: 12, anchor: 'middle' },
+    { label: '应用层', x: 176, y: 76, lx: 184, ly: 74, anchor: 'start' },
+    { label: '创新层', x: 156, y: 160, lx: 158, ly: 174, anchor: 'middle' },
+    { label: '责任层', x: 44, y: 160, lx: 42, ly: 174, anchor: 'middle' },
+];
+// 第5个顶点复刻原卡左侧对称轴（标签沿用「认知层」排布）
+AXIS.push({ label: '认知层', x: 24, y: 76, lx: 4, ly: 74, anchor: 'end' });
+
+const GRID_RATIOS = [1, 0.775, 0.55];
+
+function drawRadarSvg(dims) {
+    const svg = document.getElementById('radarSvg');
+    const cx = 100, cy = 100;
+    const vals = AXIS.map(a => (dims[a.label] != null ? dims[a.label] : dims['认知层']) / 100);
+    let html = '';
+    GRID_RATIOS.forEach(g => {
+        const pts = AXIS.map((a, i) => (cx + (a.x - cx) * g).toFixed(1) + ',' + (cy + (a.y - cy) * g).toFixed(1)).join(' ');
+        html += '<polygon points="' + pts + '" fill="none" stroke="#E5E7EB" stroke-width="0.5"/>';
+    });
+    AXIS.forEach(a => {
+        html += '<line x1="100" y1="100" x2="' + a.x + '" y2="' + a.y + '" stroke="#D1D5DB" stroke-width="0.5"/>';
+    });
+    const pts = AXIS.map((a, i) => (cx + (a.x - cx) * vals[i]).toFixed(1) + ',' + (cy + (a.y - cy) * vals[i]).toFixed(1)).join(' ');
+    html += '<polygon points="' + pts + '" fill="#FED7AA" fill-opacity="0.45" stroke="#FED7AA" stroke-width="1.5"/>';
+    AXIS.forEach((a, i) => {
+        const px = (cx + (a.x - cx) * vals[i]).toFixed(1), py = (cy + (a.y - cy) * vals[i]).toFixed(1);
+        html += '<circle cx="' + px + '" cy="' + py + '" r="3.5" fill="#F97316" stroke="white" stroke-width="1.5"/>';
+    });
+    AXIS.forEach(a => {
+        html += '<text x="' + a.lx + '" y="' + a.ly + '" text-anchor="' + a.anchor + '" font-size="10" fill="#000" font-weight="600">' + a.label + '</text>';
+    });
+    svg.innerHTML = html;
+}
+
+function dateCn(s) { // '2026-05' → '2026年5月'
+    const m = /^(\d{4})-(\d{2})$/.exec(s || '');
+    return m ? m[1] + '年' + parseInt(m[2], 10) + '月' : (s || '');
+}
+
 async function init() {
-  await guard('student');
-  const r = await api('/api/student/profile');
-  const s = r.student;
-  document.getElementById('stuName').textContent = s.name;
-  document.getElementById('stuSub').textContent = s.school + ' · ' + s.grade;
-  document.getElementById('cardTags').innerHTML =
-    r.cardTags.map(t => '<span class="tag" style="font-size:14px;padding:6px 14px">' + esc(t) + '</span>').join('') ||
-    '<span class="muted">暂无标签，上传作品并通过审核后生成</span>';
-  drawRadar(document.getElementById('radar'), s.card.radar);
-  const examTb = document.getElementById('examList');
-  const aise = s.aise;
-  if (aise && aise.exams && aise.exams.length) {
-    examTb.innerHTML = aise.exams.map(e =>
-      '<tr><td>' + esc(e.name) + '</td><td>' + esc(e.level) + '</td><td><b>' + e.score + '</b> / ' + e.total +
-      ' <span class="badge ' + (e.grade === '优秀' ? 'ok' : 'blue') + '">' + esc(e.grade) + '</span></td><td class="muted">' + esc(e.date) + '</td></tr>').join('');
-  } else {
-    examTb.innerHTML = '';
-    document.getElementById('aiseEmpty').style.display = 'block';
-  }
-  document.getElementById('workList').innerHTML = r.works.map(w =>
-    '<tr><td>' + esc(w.name) + '</td><td>' + (w.tags || []).map(t => '<span class="tag">' + esc(t) + '</span>').join('') +
-    '</td><td><b>' + (w.score != null ? w.score : '—') + '</b></td></tr>').join('') ||
-    '<tr><td colspan="3" class="muted">暂无入库作品</td></tr>';
-  const mats = [];
-  const m = s.materials || {};
-  (m.social || []).forEach(x => mats.push(['社会实践', x]));
-  (m.patents || []).forEach(x => mats.push(['专利软著', x]));
-  (m.honors || []).forEach(x => mats.push(['其他荣誉', x]));
-  document.getElementById('materialList').innerHTML = mats.map(([mod, x]) =>
-    '<div class="mb8"><span class="badge gray">' + mod + '</span> <b>' + esc(x.name) + '</b>' +
-    '<div class="muted">' + esc(x.time || '') + ' · ' + esc(x.honor || '') + '</div></div>').join('') ||
-    '<span class="muted">暂无材料</span>';
-  document.getElementById('content').style.visibility = 'visible';
+    await guard('student');
+    const r = await api('/api/student/profile');
+    const s = r.student;
+
+    // 基本信息
+    const basic = s.basic || {};
+    const rows = [
+        ['姓名：', s.name], ['性别：', basic.gender || '—'],
+        ['出生年月：', basic.birth || '—'], ['籍贯：', basic.hometown || '—'],
+        ['身份证号：', basic.idCardMasked || '—'], ['入库时间：', basic.joinTime || '—'],
+    ];
+    document.getElementById('basicInfo').innerHTML = rows.map(([k, v]) =>
+        '<div class="info-item"><span class="clabel">' + k + '</span><span class="cvalue">' + esc(v) + '</span></div>').join('');
+    document.getElementById('cardNo').textContent = basic.cardNo || '—';
+
+    // 特长领域（动态标签）
+    document.getElementById('tagList').innerHTML =
+        r.cardTags.map(t => '<span>' + esc(t) + '</span>').join('') ||
+        '<span class="record-empty">暂无标签，上传作品并通过审核后生成</span>';
+
+    // 人工智能应用创新能力：等级记录 + 培养活动记录
+    const aise = s.aise;
+    const examTb = document.getElementById('examTable');
+    const actTb = document.getElementById('activityTable');
+    if (aise && aise.exams && aise.exams.length) {
+        examTb.innerHTML = aise.exams.map(e =>
+            '<tr><td>人工智能应用创新能力测评——' + esc(e.level) + '（' + esc(e.grade) + ' ' + e.score + '分）</td>' +
+            '<td style="text-align:right">' + esc(dateCn(e.date)) + '</td></tr>').join('');
+    } else {
+        examTb.innerHTML = '<tr><td class="record-empty">暂未关联 AISE 测评数据，如已参加 AISE 测评请联系管理员</td></tr>';
+    }
+    actTb.innerHTML = (aise && aise.activities || []).map(a =>
+        '<tr><td>' + esc(a.date) + '，参加<u>&emsp;' + esc(a.name) + '&emsp;</u>，成绩：<u>&emsp;' + esc(a.result) + '&emsp;</u>。</td></tr>').join('');
+
+    // 左三模块
+    const m = s.materials || {};
+    const social = m.social || [];
+    document.getElementById('socialTable').innerHTML = social.length ?
+        social.map(x => '<tr><td>' + esc(x.name) + '</td><td style="text-align:right">' + esc(x.time || '') +
+            '</td><td style="text-align:right">' + esc(x.honor || '') + '</td></tr>').join('') :
+        '<tr><td class="record-empty">暂无记录</td></tr>';
+    const patents = m.patents || [];
+    document.getElementById('patentList').innerHTML = patents.length ?
+        patents.map(x => '<li>' + esc(x.name) + '</li>').join('') :
+        '<li class="record-empty">暂无记录</li>';
+    const honors = m.honors || [];
+    document.getElementById('honorList').innerHTML = honors.length ?
+        honors.map(x => '<li>' + esc(x.name) + (x.honor ? '（' + esc(x.honor) + '）' : '') + '</li>').join('') :
+        '<li class="record-empty">暂无记录</li>';
+
+    // 综合分析雷达（结构对齐原卡 SVG 雷达）
+    drawRadarSvg(s.card.radar || {});
+
+    document.getElementById('content').style.visibility = 'visible';
 }
 init();
 </script>

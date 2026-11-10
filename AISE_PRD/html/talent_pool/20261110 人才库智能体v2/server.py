@@ -735,7 +735,8 @@ def student_by_id(data, sid_):
 
 def public_student(stu, full=False):
     d = {'id': stu['id'], 'name': stu['name'], 'grade': stu['grade'], 'school': stu['school'],
-         'aiseLinked': bool(stu.get('aise')), 'card': stu['card'], 'materials': stu.get('materials', {})}
+         'aiseLinked': bool(stu.get('aise')), 'card': stu['card'], 'materials': stu.get('materials', {}),
+         'basic': stu.get('basic', {})}
     if full:
         d['aise'] = stu.get('aise')
     return d

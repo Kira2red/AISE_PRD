@@ -16,6 +16,14 @@ students = [
         "grade": "四年级",
         "school": "阳光小学",
         "aiseLinked": True,
+        "basic": {
+            "gender": "男",
+            "birth": "2015年3月12日",
+            "hometown": "北京市海淀区",
+            "idCardMasked": "110108********0011",
+            "joinTime": "2026年2月",
+            "cardNo": "AISE-RL-2026-000118"
+        },
         "card": {
             "tags": ["程序设计", "逻辑思维"],
             "radar": {"认知层": 82, "应用层": 74, "创新层": 88, "责任层": 90}
@@ -24,6 +32,11 @@ students = [
             "exams": [
                 {"name": "人工智能启蒙级测评", "level": "启蒙级", "date": "2026-05", "score": 88, "total": 100, "grade": "优秀"},
                 {"name": "人工智能一级测评", "level": "一级", "date": "2026-09", "score": 82, "total": 100, "grade": "良好"}
+            ],
+            "activities": [
+                {"name": "技术融合应用", "date": "2026年3月12日", "result": "合格"},
+                {"name": "创新实践评定", "date": "2026年6月20日", "result": "合格"},
+                {"name": "生成式人工智能应用实践", "date": "2026年10月18日", "result": "良好"}
             ],
             "knowledge": [
                 {"point": "AI 基础概念", "mastery": 85, "errType": ""},
