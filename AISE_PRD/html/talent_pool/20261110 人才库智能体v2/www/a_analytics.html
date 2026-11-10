@@ -122,6 +122,18 @@
     .btn-view { font-size: 12px; background: #fff; color: var(--a-blue-deep); border: 1px solid #93c5fd;
                 border-radius: 8px; padding: 4px 12px; cursor: pointer; font-family: inherit; white-space: nowrap; }
     .btn-view:hover { background: #eff6ff; }
+    .ai-note {
+        display: flex; gap: 10px; align-items: flex-start;
+        background: linear-gradient(90deg, #eef4ff, #f6f9ff 70%);
+        border-left: 3px solid var(--a-blue); border-radius: 10px;
+        padding: 12px 16px; margin-top: 16px; font-size: 13.5px; line-height: 1.65; color: #1e3a8a;
+    }
+    .ai-note.hero-note { margin-top: 16px; background: rgba(255,255,255,.12); color: #fff;
+        border-left-color: rgba(255,255,255,.7); font-size: 14.5px; backdrop-filter: blur(4px); }
+    .ai-note .star { color: var(--a-blue); font-weight: 900; flex-shrink: 0; }
+    .ai-note.hero-note .star { color: #fff; }
+    .ai-note b { font-weight: 700; margin-right: 8px; }
+
     .foot-note { text-align: center; font-size: 11.5px; color: var(--a-muted); margin-top: 26px; }
 </style>
 </head>
@@ -193,7 +205,8 @@ async function load() {
     el.innerHTML =
     '<div class="hero"><h1>整体数据分析</h1>' +
     '<p>全渠道学员的测评、知识点、能力、作品与成长数据汇总 · 数据口径与个人报告一致</p>' +
-    '<span class="scope-pill">当前范围：' + esc(r.channel) + ' · ' + t.studentCount + ' 名学员</span></div>' +
+    '<span class="scope-pill">当前范围：' + esc(r.channel) + ' · ' + t.studentCount + ' 名学员</span>' +
+    '<div class="ai-note" id="ai-summary"><span class="star">✦</span><span><b>AI 点评</b>正在生成…</span></div></div>' +
 
     // 渠道筛选
     '<div class="ch-bar"><span class="lb">渠道</span>' +
@@ -220,7 +233,7 @@ async function load() {
       '<div class="row"><span>入库作品</span><b>' + c.works + ' 份</b></div>' +
       '<div class="row"><span>平均测评分</span><b>' + (c.avgScore != null ? c.avgScore : '—') + '</b></div>' +
       '<div class="row"><span>AISE 关联率</span><b>' + c.aiseRate + '%</b></div></div>').join('') +
-    '</div></div>' +
+    '</div><div class="ai-note" id="ai-channel"><span class="star">✦</span><span><b>AI 点评</b>正在生成…</span></div></div>' +
 
     // 知识点 + 雷达 双栏
     '<div class="duo">' +
@@ -229,12 +242,12 @@ async function load() {
     r.knowledge.map(k => {
       const avg = k.avg;
       return bar(k.point, avg, '<b>' + avg + '%</b> · ' + k.students + '人' + (k.weak ? ' · 薄弱' + k.weak : ''), avg >= 75 ? 'g' : (avg >= 60 ? 'b' : 'r'));
-    }).join('') + '</div>' +
+    }).join('') + '<div class="ai-note" id="ai-knowledge"><span class="star">✦</span><span><b>AI 点评</b>正在生成…</span></div></div>' +
     '<div class="sec"><div class="sec-head"><div><span class="eyebrow">ABILITIES</span><h2>能力维度均值</h2></div>' +
     '<span class="meta">全体学员平均</span></div>' +
     '<div class="radar-flex">' + radarSvg(r.radarAvg) +
     '<div class="radar-legend">' + Object.keys(r.radarAvg).map(k =>
-      '<div class="rl"><span>' + k + '</span><b>' + r.radarAvg[k] + '</b></div>').join('') + '</div></div></div></div>' +
+      '<div class="rl"><span>' + k + '</span><b>' + r.radarAvg[k] + '</b></div>').join('') + '</div></div><div class="ai-note" id="ai-radar"><span class="star">✦</span><span><b>AI 点评</b>正在生成…</span></div></div></div>' +
 
     // 错误归因 + 评级 + 标签 三栏
     '<div class="trio">' +
@@ -244,7 +257,7 @@ async function load() {
     donutSvg(Object.keys(r.errorDist).map(k => ({ type: k, count: r.errorDist[k], color: ERR_COLOR[k] || '#94a3b8' }))) +
     '<div class="err-legend">' + Object.keys(r.errorDist).map(k =>
       '<div class="el"><span class="err-dot" style="background:' + (ERR_COLOR[k] || '#94a3b8') + '"></span>' + esc(ERR_NAME[k] || k) + '<b>×' + r.errorDist[k] + '</b></div>').join('') +
-    '</div></div></div>' +
+    '</div></div><div class="ai-note" id="ai-error"><span class="star">✦</span><span><b>AI 点评</b>正在生成…</span></div></div>' +
     '<div class="sec"><div class="sec-head"><div><span class="eyebrow">GRADES</span><h2>测评评级分布</h2></div>' +
     '<span class="meta">按场次计</span></div>' +
     '<div class="grade-chips">' + gOrder.filter(g => r.gradeDist[g]).map(g =>
@@ -255,8 +268,8 @@ async function load() {
     '<div class="sec"><div class="sec-head"><div><span class="eyebrow">TAGS</span><h2>作品特长标签分布</h2></div>' +
     '<span class="meta">入库作品 AI 标签</span></div>' +
     Object.keys(r.tagDist).sort((a, b) => r.tagDist[b] - r.tagDist[a]).slice(0, 6).map(tg =>
-      bar(tg, 100 * r.tagDist[tg] / tagMax, '<b>×' + r.tagDist[tg] + '</b>', 'o')).join('') +
-    '</div></div>' +
+      bar(tg, 25 + 75 * r.tagDist[tg] / tagMax, '<b>×' + r.tagDist[tg] + '</b>', 'o')).join('') +
+    '<div class="ai-note" id="ai-tag"><span class="star">✦</span><span><b>AI 点评</b>正在生成…</span></div></div></div>' +
 
     // 学员明细
     '<div class="sec"><div class="sec-head"><div><span class="eyebrow">STUDENTS</span><h2>学员明细</h2></div>' +
@@ -285,9 +298,34 @@ function kstat(lb, num, unit, sub) {
     return '<div class="stat"><div class="lb">' + lb + '</div><div class="num">' + num + '<small>' + unit + '</small></div><div class="sub">' + sub + '</div></div>';
 }
 
-function pick(ch) { curChannel = ch; load(); }
+function pick(ch) { curChannel = ch; load(); loadAi(ch); }
 
-async function init() { await guard('teacher'); await load(); }
+let aiToken = 0;
+async function loadAi(channel) {
+  const token = ++aiToken;
+  const put = (id, txt) => {
+    if (token !== aiToken) return;
+    const el = document.getElementById(id);
+    if (el) el.innerHTML = '<span class="star">✦</span><span><b>' + (id === 'ai-summary' ? 'AI 解读' : 'AI 点评') + '</b>' + esc(txt) + '</span>';
+  };
+  try {
+    const r = await post('/api/admin/analytics/ai-comment', { channel: channel });
+    if (token !== aiToken) return;
+    const a = r.ai || {};
+    put('ai-summary', a.summary || '');
+    put('ai-channel', a.channelComment || '');
+    put('ai-knowledge', a.knowledgeComment || '');
+    put('ai-radar', a.radarComment || '');
+    put('ai-error', a.errorComment || '');
+    put('ai-tag', a.tagComment || '');
+  } catch (e) {
+    if (token === aiToken) {
+      ['ai-summary', 'ai-channel', 'ai-knowledge', 'ai-radar', 'ai-error', 'ai-tag'].forEach(id => put(id, '本次 AI 点评生成失败，可稍后重试。'));
+    }
+  }
+}
+
+async function init() { await guard('teacher'); await load(); loadAi(curChannel); }
 init();
 </script>
 </body>

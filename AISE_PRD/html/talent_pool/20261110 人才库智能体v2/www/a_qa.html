@@ -39,6 +39,8 @@
         justify-content: center; font-size: 30px; background: linear-gradient(135deg, #eef4ff, #e0ecff); }
     .chat-empty .t1 { font-size: 15px; font-weight: 600; color: #94a3b8; }
     .chat-empty .t2 { font-size: 12.5px; }
+    .cursor { display: inline-block; width: 2px; height: 15px; background: #2563eb; margin-left: 2px; vertical-align: -2px; animation: ck 0.9s infinite; }
+    @keyframes ck { 0%,100% { opacity: 1; } 50% { opacity: 0; } }
     .thinking { color: var(--ink-3); }
     .thinking::after { content: "···"; letter-spacing: 3px; animation: th 1.2s infinite; }
     @keyframes th { 0%,100% { opacity: .3; } 50% { opacity: 1; } }
@@ -135,19 +137,60 @@ async function send() {
   if (!q) return;
   input.value = '';
   addUser(q);
-  showThinking();
   const btn = document.getElementById('btnSend'); btn.disabled = true;
+  const log = document.getElementById('chatLog');
+  log.insertAdjacentHTML('beforeend', '<div class="msg bot" id="streamMsg"></div>');
+  const box = document.getElementById('streamMsg');
+  let text = '';
+  const render = () => { box.textContent = text; log.scrollTop = log.scrollHeight; };
+  box.innerHTML = '<span class="thinking">思考中</span>';
   try {
-    const r = await post('/api/qa', { question: q });
-    removeThinking();
-    addBot(r.answer, r.scope === 'refuse', r.scopeLabel);
+    const resp = await fetch('/api/qa/stream', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ question: q })
+    });
+    if (!resp.ok || !resp.body) throw new Error('HTTP ' + resp.status);
+    const reader = resp.body.getReader();
+    const dec = new TextDecoder();
+    let sse = '', scope = null, started = false, scopeLabel = '';
+    const flushSSE = () => {
+      let idx;
+      while ((idx = sse.indexOf('\n\n')) >= 0) {
+        const raw = sse.slice(0, idx); sse = sse.slice(idx + 2);
+        if (!raw.startsWith('data:')) continue;
+        let ev; try { ev = JSON.parse(raw.slice(5)); } catch (e) { continue; }
+        if (ev.t === 'scope') {
+          scope = ev.scope;
+          box.className = 'msg bot' + (scope === 'refuse' ? ' refuse' : '');
+          box.innerHTML = '<span class="cursor"></span>'; started = true;
+        } else if (ev.t === 'delta') {
+          if (!started) { box.className = 'msg bot'; box.innerHTML = '<span class="cursor"></span>'; started = true; }
+          text += ev.text; render();
+          box.innerHTML = esc(text).replace(/\*\*/g, '') + '<span class="cursor"></span>';
+          log.scrollTop = log.scrollHeight;
+        } else if (ev.t === 'done') {
+          scopeLabel = ev.scopeLabel || '';
+        } else if (ev.t === 'error') {
+          throw new Error(ev.message);
+        }
+      }
+    };
+    while (true) {
+      const r = await reader.read();
+      if (r.done) break;
+      sse += dec.decode(r.value, { stream: true });
+      flushSSE();
+    }
+    flushSSE();
+    box.innerHTML = esc(text || '人才库中暂时没有能回答这个问题的记录。').replace(/\*\*/g, '') +
+      (scopeLabel ? '<span class="scope">来源：' + esc(scopeLabel) + '</span>' : '');
   } catch (e) {
-    removeThinking();
-    addBot('出错了：' + e.message, true, '');
+    box.className = 'msg bot refuse';
+    box.textContent = '出错了：' + e.message;
   }
   btn.disabled = false; input.focus();
-}
-init();
+}init();
 </script>
 </body>
 </html>

@@ -5,6 +5,21 @@ from datetime import datetime, timedelta
 
 NOW = datetime.now()
 
+def answers10(wrongs):
+    """生成 10 题逐题作答记录；wrongs = [(题号, 错误类型, 题干)]"""
+    topics = ['什么是人工智能', 'AI 生活中的应用', '顺序执行', '循环结构', '条件判断',
+              '变量与数据', '列表的使用', '算法与步骤', '训练与数据', 'AI 伦理小知识']
+    out = []
+    wrong_map = dict((w[0], (w[1], w[2])) for w in wrongs)
+    for i in range(1, 11):
+        if i in wrong_map:
+            et, q = wrong_map[i]
+            out.append({'q': '第%d题·%s' % (i, q), 'result': '错', 'errType': et})
+        else:
+            out.append({'q': '第%d题·%s' % (i, topics[i - 1]), 'result': '对', 'errType': ''})
+    return out
+
+
 def ts(days_ago, h=10, m=30):
     t = NOW - timedelta(days=days_ago)
     return t.strftime('%Y-%m-%d') + ' %02d:%02d:00' % (h, m)
@@ -79,10 +94,20 @@ students = [
         "basic": {"gender": "女", "birth": "2014年11月2日", "hometown": "北京市朝阳区",
                    "idCardMasked": "110105********0226", "joinTime": "2026年3月", "cardNo": "AISE-RL-2026-000207"},
         "card": {"tags": ["创意设计"], "radar": {"认知层": 70, "应用层": 66, "创新层": 85, "责任层": 80}},
-        "aise": None,
+        "aise": {
+            "exams": [{"name": "人工智能启蒙级测评", "level": "启蒙级", "date": "2026-05", "score": 74, "total": 100, "grade": "良好", "questionCount": 10, "duration": "45分钟"}],
+            "activities": [{"name": "AI 艺术创作体验课", "date": "2026年6月20日", "result": "优秀"}],
+            "knowledge": [
+                {"point": "AI 基础概念", "mastery": 85, "errType": ""},
+                {"point": "生成式人工智能应用", "mastery": 78, "errType": ""},
+                {"point": "顺序与循环", "mastery": 52, "errType": "概念混淆"}
+            ],
+            "answers": answers10([(6, '概念混淆', '变量与数据'), (8, '粗心', '算法与步骤')])
+        },
         "materials": {
             "social": [{"name": "市少儿绘画大赛", "time": "2026年4月", "honor": "三等奖", "review": "approved"}],
-            "patents": [], "honors": []
+            "patents": [],
+            "honors": [{"name": "校园艺术节数字画作展示", "time": "2026年6月", "honor": "二等奖", "review": "approved"}]
         }
     },
     {
@@ -90,7 +115,7 @@ students = [
         "name": "陈子豪",
         "grade": "六年级",
         "school": "光明学校",
-        "channel": "AISC",
+        "channel": "AISE",
         "aiseLinked": True,
         "basic": {"gender": "男", "birth": "2013年8月19日", "hometown": "北京市海淀区",
                    "idCardMasked": "110108********0533", "joinTime": "2026年1月", "cardNo": "AISE-RL-2026-000312"},
@@ -103,7 +128,7 @@ students = [
                 {"point": "变量与列表", "mastery": 88, "errType": ""},
                 {"point": "算法思维（排序）", "mastery": 80, "errType": ""}
             ],
-            "answers": []
+            "answers": answers10([(8, '粗心', '算法与步骤'), (9, '概念混淆', '训练与数据')])
         },
         "materials": {"social": [], "patents": [], "honors": [
             {"name": "区信息学奥赛（小学组）", "time": "2026年5月", "honor": "一等奖", "review": "approved"}
@@ -117,18 +142,19 @@ students = [
         "card": {"tags": ["逻辑思维"], "radar": {"认知层": 76, "应用层": 62, "创新层": 70, "责任层": 84}},
         "aise": {
             "exams": [{"name": "人工智能启蒙级测评", "level": "启蒙级", "date": "2026-06", "score": 79, "total": 100, "grade": "良好", "questionCount": 10, "duration": "45分钟"}],
-            "activities": [],
+            "activities": [{"name": "人工智能启蒙体验活动", "date": "2026年6月18日", "result": "良好"}],
             "knowledge": [
                 {"point": "AI 基础概念", "mastery": 82, "errType": ""},
                 {"point": "顺序与循环", "mastery": 71, "errType": "粗心"},
                 {"point": "条件判断", "mastery": 48, "errType": "概念混淆"}
             ],
-            "answers": []
+            "answers": answers10([(4, '粗心', '循环结构'), (5, '概念混淆', '条件判断'), (7, '未掌握', '列表的使用')])
         },
-        "materials": {"social": [], "patents": [], "honors": []}
+        "materials": {"social": [{"name": "区少儿编程启蒙营", "time": "2026年7月", "honor": "结业", "review": "approved"}],
+                       "patents": [], "honors": []}
     },
     {
-        "id": "stu_sun", "name": "孙天佑", "grade": "五年级", "school": "光明学校", "channel": "AISC",
+        "id": "stu_sun", "name": "孙天佑", "grade": "五年级", "school": "光明学校", "channel": "AISE",
         "aiseLinked": True,
         "basic": {"gender": "男", "birth": "2014年2月27日", "hometown": "北京市西城区",
                    "idCardMasked": "110102********0195", "joinTime": "2026年2月", "cardNo": "AISE-RL-2026-000451"},
@@ -145,7 +171,7 @@ students = [
                 {"point": "变量与列表", "mastery": 69, "errType": "粗心"},
                 {"point": "算法思维（排序）", "mastery": 58, "errType": "未掌握"}
             ],
-            "answers": []
+            "answers": answers10([(6, '粗心', '变量与数据'), (8, '未掌握', '算法与步骤'), (10, '概念混淆', 'AI 伦理小知识')])
         },
         "materials": {"social": [], "patents": [], "honors": []}
     },
@@ -163,29 +189,30 @@ students = [
                 {"point": "生成式人工智能应用", "mastery": 88, "errType": ""},
                 {"point": "条件判断", "mastery": 66, "errType": "粗心"}
             ],
-            "answers": []
+            "answers": answers10([(5, '粗心', '条件判断'), (8, '粗心', '算法与步骤')])
         },
         "materials": {"social": [{"name": "市青少年 AI 创意营", "time": "2026年8月", "honor": "优秀营员", "review": "approved"}],
                        "patents": [], "honors": [{"name": "区中小学生电脑作品评选", "time": "2026年6月", "honor": "二等奖", "review": "approved"}]}
     },
     {
-        "id": "stu_wu", "name": "吴思远", "grade": "四年级", "school": "光明学校", "channel": "AISC",
+        "id": "stu_wu", "name": "吴思远", "grade": "四年级", "school": "光明学校", "channel": "AISE",
         "aiseLinked": True,
         "basic": {"gender": "男", "birth": "2015年9月30日", "hometown": "北京市东城区",
                    "idCardMasked": "110101********0327", "joinTime": "2026年5月", "cardNo": "AISE-RL-2026-000533"},
         "card": {"tags": ["逻辑思维"], "radar": {"认知层": 68, "应用层": 60, "创新层": 64, "责任层": 75}},
         "aise": {
             "exams": [{"name": "人工智能启蒙级测评", "level": "启蒙级", "date": "2026-07", "score": 64, "total": 100, "grade": "合格", "questionCount": 10, "duration": "45分钟"}],
-            "activities": [],
+            "activities": [{"name": "AI 启蒙辅导活动", "date": "2026年8月30日", "result": "合格"}],
             "knowledge": [
                 {"point": "AI 基础概念", "mastery": 70, "errType": ""},
                 {"point": "顺序与循环", "mastery": 55, "errType": "概念混淆"},
                 {"point": "条件判断", "mastery": 42, "errType": "未掌握"},
                 {"point": "变量与列表", "mastery": 38, "errType": "未掌握"}
             ],
-            "answers": []
+            "answers": answers10([(4, '概念混淆', '循环结构'), (5, '未掌握', '条件判断'), (6, '未掌握', '变量与数据'), (7, '未掌握', '列表的使用'), (9, '粗心', '训练与数据')])
         },
-        "materials": {"social": [], "patents": [], "honors": []}
+        "materials": {"social": [{"name": "校 AI 兴趣小组", "time": "2026年9月", "honor": "成员", "review": "approved"}],
+                       "patents": [], "honors": []}
     },
     {
         "id": "stu_zheng", "name": "郑好", "grade": "五年级", "school": "实验二小", "channel": "学校团体",
@@ -195,7 +222,7 @@ students = [
         "card": {"tags": ["问题解决"], "radar": {"认知层": 72, "应用层": 75, "创新层": 68, "责任层": 80}},
         "aise": None,
         "materials": {"social": [{"name": "校科技社团 AI 兴趣班", "time": "2026年5月", "honor": "结业", "review": "approved"}],
-                       "patents": [], "honors": []}
+                       "patents": [], "honors": [{"name": "校科技节创意展示", "time": "2026年6月", "honor": "参与奖", "review": "approved"}]}
     }
 ]
 

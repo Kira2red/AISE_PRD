@@ -9,6 +9,7 @@
 模型配置读取：环境变量 GLM_API_KEY，或 ~/.hermes/.env
 """
 import base64
+import hashlib
 import json
 import mimetypes
 import os
@@ -89,6 +90,39 @@ def chat(messages, model=None, temperature=0.4, max_tokens=1500, image_b64=None,
             if attempt < retries:
                 time.sleep(2 * (attempt + 1))
     raise RuntimeError('模型调用失败：%s' % last_err)
+
+
+def chat_stream(messages, model=None, temperature=0.4, max_tokens=1500):
+    """流式调用 GLM（SSE），逐段 yield 增量文本。"""
+    if not API_KEY:
+        raise RuntimeError('未配置 GLM_API_KEY（环境变量或 ~/.hermes/.env）')
+    payload = {
+        'model': model or TEXT_MODEL,
+        'messages': [{'role': m['role'], 'content': m['content']} for m in messages],
+        'temperature': temperature,
+        'max_tokens': max_tokens,
+        'stream': True,
+    }
+    req = urllib.request.Request(
+        GLM_BASE + '/chat/completions',
+        data=json.dumps(payload).encode('utf-8'),
+        headers={'Authorization': 'Bearer ' + API_KEY, 'Content-Type': 'application/json'},
+        method='POST')
+    with urllib.request.urlopen(req, timeout=120) as resp:
+        for raw_line in resp:
+            line = raw_line.decode('utf-8').strip()
+            if not line.startswith('data:'):
+                continue
+            body = line[5:].strip()
+            if body == '[DONE]':
+                break
+            try:
+                chunk = json.loads(body)
+                delta = (chunk.get('choices') or [{}])[0].get('delta', {}).get('content')
+            except Exception:  # noqa: BLE001
+                delta = None
+            if delta:
+                yield delta
 
 
 def extract_json(text):
@@ -319,6 +353,235 @@ def ai_qa(context, question, own_only=False):
         if not answer:
             answer = '人才库中暂时没有能回答这个问题的记录。'
     return {'scope': scope, 'answer': answer}
+
+
+QA_STREAM_TMPL = (
+    '你是人工智能人才库的问答助手，服务对象是中小学生及其家长与教研员。'
+    '你只允许基于【人才库数据】回答问题，数据如下：\n【人才库数据】\n{context}\n\n'
+    '规则：\n'
+    '1. 只回答与人才库数据相关的问题（学员的测评成绩、逐题作答、知识点掌握情况、'
+    '作品评价、成长画像、简历材料）。数据中没有的信息要如实说明人才库暂无相关记录，禁止编造。\n'
+    '2. 与人才库无关的请求（写作文、写代码、做题、闲聊、时事新闻等一切代办或创作类请求）一律拒绝。\n'
+    '3. 打探他人隐私（住址、联系方式、身份证号等）或要求生成不当内容的请求一律拒绝。\n'
+    '4. 拒绝时第一行输出 [SCOPE:refuse]，正文以「该问题超出人才库服务范围。」开头，'
+    '随后一句话说明可提问的范围（测评成绩、知识点掌握、作品评价、成长建议）。\n'
+    '5. 回答精炼友好（200字内），适合小学生与家长阅读。\n{extra}\n'
+    '输出格式（严格遵守）：第一行输出且仅输出 [SCOPE:answer] 或 [SCOPE:refuse]，'
+    '随后另起一行直接输出回答正文。不要 JSON，不要代码块，不要任何额外说明。'
+)
+
+
+def ai_qa_stream(context, question, own_only=False):
+    """流式问答：先 yield {'type':'scope'}，再逐段 yield {'type':'delta'}，最后 {'type':'done'}。"""
+    sysmsg = QA_STREAM_TMPL.format(context=context, extra=QA_OWN_ONLY if own_only else '')
+    msgs = [{'role': 'system', 'content': sysmsg}, {'role': 'user', 'content': question}]
+    buf = ''
+    scope = None
+    emitted = False
+    try:
+        for delta in chat_stream(msgs, max_tokens=1200):
+            buf += delta
+            if scope is None:
+                m = re.match(r'^\s*\[SCOPE:(answer|refuse)\]', buf)
+                if m:
+                    scope = m.group(1)
+                    yield {'type': 'scope', 'scope': scope}
+                    rest = buf[m.end():]
+                    if rest.strip('\n'):
+                        emitted = True
+                        yield {'type': 'delta', 'text': rest.lstrip('\n')}
+                elif len(buf) > 24:
+                    break  # 开头不符合契约 → 放弃流式，走兜底
+            else:
+                emitted = True
+                yield {'type': 'delta', 'text': delta}
+    except Exception:  # noqa: BLE001
+        if scope is None:
+            raise
+        yield {'type': 'delta', 'text': '\n（输出中断）'}
+    if scope is None:
+        # 兜底：非流式老链路（scope/answer JSON 契约，含截断重试）
+        r = ai_qa(context, question, own_only=own_only)
+        yield {'type': 'scope', 'scope': r['scope']}
+        if r['answer']:
+            emitted = True
+            yield {'type': 'delta', 'text': r['answer']}
+        scope = r['scope']
+    if scope == 'answer' and not emitted:
+        yield {'type': 'delta', 'text': '人才库中暂时没有能回答这个问题的记录。'}
+    yield {'type': 'done', 'scope': scope}
+
+
+def qa_stream_response(handler, ctx, q, own_only, role_label):
+    """以 SSE 形式把流式问答写回客户端。"""
+    handler.send_response(200)
+    handler.send_header('Content-Type', 'text/event-stream; charset=utf-8')
+    handler.send_header('Cache-Control', 'no-cache')
+    handler.send_header('Connection', 'close')
+    handler.end_headers()
+
+    def send(obj):
+        handler.wfile.write(('data: ' + json.dumps(obj, ensure_ascii=False) + '\n\n').encode('utf-8'))
+        handler.wfile.flush()
+
+    scope_label_answer = role_label
+    scope_final = 'answer'
+    try:
+        for ev in ai_qa_stream(ctx, q, own_only=own_only):
+            if ev['type'] == 'scope':
+                scope_final = ev['scope']
+                send({'t': 'scope', 'scope': ev['scope']})
+            elif ev['type'] == 'delta':
+                send({'t': 'delta', 'text': ev['text']})
+            else:
+                send({'t': 'done', 'scopeLabel': scope_label_answer if scope_final == 'answer' else '已拦截'})
+    except Exception as e:  # noqa: BLE001
+        send({'t': 'error', 'message': '模型调用失败：%s' % e})
+    # 记录问答日志
+    try:
+        data = load_data()
+        data.setdefault('qaLog', []).append({'time': now_str(), 'role': 'teacher' if role_label == '全库数据' else 'student', 'q': q, 'scope': scope_final})
+        save_data(data)
+    except Exception:  # noqa: BLE001
+        pass
+
+
+ANALYTICS_AI_TMPL = (
+    '你是人工智能人才库的数据分析智能体，面向教研员解读渠道学员的整体数据看板。'
+    '基于给定聚合数据，只输出 JSON：'
+    '{"summary":"80字内的整体解读（覆盖规模、水平、突出特点）",'
+    '"channelComment":"渠道对比的一句话解读",'
+    '"knowledgeComment":"知识点掌握的一句话解读，点名最薄弱的知识点",'
+    '"radarComment":"能力维度均值的一句话解读",'
+    '"errorComment":"错误归因的一句话解读，给教学改进方向",'
+    '"tagComment":"作品特长标签分布的一句话解读"}。'
+    '各字段 60 字内，客观具体、有洞察（如对比、归因、可执行建议），不写空话，不推销课程。'
+)
+
+
+ANALYTICS_CACHE_PATH = os.path.join(BASE_DIR, 'analytics_cache.json')
+
+
+def _analytics_fp(out):
+    """数据指纹：聚合结果变化即缓存失效。"""
+    key = json.dumps({k: out[k] for k in ('totals', 'knowledge', 'radarAvg', 'errorDist', 'tagDist', 'gradeDist', 'channels')},
+                     ensure_ascii=False, sort_keys=True)
+    return hashlib.md5(key.encode('utf-8')).hexdigest()[:16]
+
+
+def analytics_cache_get(out):
+    try:
+        cache = json.load(open(ANALYTICS_CACHE_PATH, encoding='utf-8'))
+        return cache.get(_analytics_fp(out))
+    except Exception:  # noqa: BLE001
+        return None
+
+
+def analytics_cache_put(out, ai):
+    try:
+        cache = {}
+        if os.path.exists(ANALYTICS_CACHE_PATH):
+            cache = json.load(open(ANALYTICS_CACHE_PATH, encoding='utf-8'))
+        cache[_analytics_fp(out)] = ai
+        with open(ANALYTICS_CACHE_PATH, 'w', encoding='utf-8') as f:
+            json.dump(cache, f, ensure_ascii=False, indent=2)
+    except Exception:  # noqa: BLE001
+        pass
+
+
+def ai_analytics_comment(out):
+    agg = {
+        '范围': out['channel'], '总量': out['totals'], '渠道对比': out['channels'],
+        '知识点掌握': out['knowledge'], '能力均值': out['radarAvg'],
+        '错误归因': out['errorDist'], '作品标签分布': out['tagDist'], '评级分布': out['gradeDist'],
+    }
+    raw = chat([{'role': 'system', 'content': ANALYTICS_AI_TMPL},
+                {'role': 'user', 'content': json.dumps(agg, ensure_ascii=False)}], max_tokens=1500)
+    r = extract_json(raw)
+    for k in ('summary', 'channelComment', 'knowledgeComment', 'radarComment', 'errorComment', 'tagComment'):
+        r.setdefault(k, '')
+    return r
+
+
+def compute_analytics(data, channel):
+    stus = [s for s in data['students'] if not channel or s.get('channel') == channel]
+    rows = []
+    for stu in stus:
+        approved = [w for w in data['works'] if w['studentId'] == stu['id'] and w['status'] == 'approved']
+        aise = stu.get('aise') or {}
+        exams = aise.get('exams') or []
+        kn = aise.get('knowledge') or []
+        scores = [e['score'] for e in exams]
+        weak = [k['point'] for k in kn if k['mastery'] < 60]
+        rows.append({
+            'id': stu['id'], 'name': stu['name'], 'grade': stu['grade'], 'school': stu['school'],
+            'channel': stu.get('channel') or '未标注', 'aiseLinked': bool(stu.get('aise')),
+            'examCount': len(exams), 'totalQuestions': sum(e.get('questionCount', 0) for e in exams),
+            'avgExamScore': round(sum(scores) / len(scores)) if scores else None,
+            'bestScore': max(scores) if scores else None,
+            'weakPoints': weak, 'workCount': len(approved),
+            'workAvg': round(sum((w.get('archive') or {}).get('score', 0) for w in approved) / len(approved)) if approved else None,
+            'tags': stu['card']['tags'],
+        })
+    # 聚合
+    all_scores = [r['avgExamScore'] for r in rows if r['avgExamScore'] is not None]
+    exam_total = sum(r['examCount'] for r in rows)
+    q_total = sum(r['totalQuestions'] for r in rows)
+    work_rows = [w for w in data['works'] if w['status'] == 'approved'
+                 and any(r['id'] == w['studentId'] for r in rows)]
+    # 知识点聚合
+    kn_agg = {}
+    for stu in stus:
+        for k in (stu.get('aise') or {}).get('knowledge') or []:
+            a = kn_agg.setdefault(k['point'], {'sum': 0, 'n': 0, 'weak': 0})
+            a['sum'] += k['mastery']; a['n'] += 1
+            if k['mastery'] < 60: a['weak'] += 1
+    knowledge = [{'point': p, 'avg': round(v['sum'] / v['n']), 'students': v['n'], 'weak': v['weak']}
+                  for p, v in sorted(kn_agg.items(), key=lambda x: -(x[1]['sum'] / x[1]['n']))]
+    # 雷达均值
+    radar_sums = {}
+    for stu in stus:
+        for k, v in (stu['card'].get('radar') or {}).items():
+            radar_sums.setdefault(k, []).append(v)
+    radarAvg = {k: round(sum(v) / len(v)) for k, v in radar_sums.items()}
+    # 错误归因
+    err_map = {}
+    for stu in stus:
+        for k in (stu.get('aise') or {}).get('knowledge') or []:
+            if k.get('errType'): err_map[k['errType']] = err_map.get(k['errType'], 0) + 1
+        for a in (stu.get('aise') or {}).get('answers') or []:
+            if a.get('result') == '错' and a.get('errType'):
+                err_map[a['errType']] = err_map.get(a['errType'], 0) + 1
+    # 标签分布（入库作品 + 人才卡）
+    tag_dist = {}
+    for w in work_rows:
+        for t in (w.get('archive') or {}).get('tags', []):
+            tag_dist[t] = tag_dist.get(t, 0) + 1
+    grade_dist = {}
+    for stu in stus:
+        for e in (stu.get('aise') or {}).get('exams') or []:
+            grade_dist[e.get('grade', '其他')] = grade_dist.get(e.get('grade', '其他'), 0) + 1
+    # 渠道对比
+    channels = []
+    for ch in sorted({s.get('channel') or '未标注' for s in data['students']}):
+        cs = [s for s in data['students'] if (s.get('channel') or '未标注') == ch]
+        cworks = [w for w in data['works'] if w['status'] == 'approved' and w['studentId'] in {x['id'] for x in cs}]
+        cscores = []
+        for s in cs:
+            for e in (s.get('aise') or {}).get('exams') or []:
+                cscores.append(e['score'])
+        channels.append({'channel': ch, 'students': len(cs), 'works': len(cworks),
+                          'avgScore': round(sum(cscores) / len(cscores)) if cscores else None,
+                          'aiseRate': round(100 * sum(1 for x in cs if x.get('aise')) / len(cs))})
+    return {
+        'channel': channel or '全部渠道', 'channels': channels,
+        'totals': {'studentCount': len(stus), 'workCount': len(work_rows),
+                    'examCount': exam_total, 'questionTotal': q_total,
+                    'avgScore': round(sum(all_scores) / len(all_scores)) if all_scores else None,
+                    'aiseLinked': sum(1 for s in stus if s.get('aise'))},
+        'students': rows, 'knowledge': knowledge, 'radarAvg': radarAvg,
+        'errorDist': err_map, 'tagDist': tag_dist, 'gradeDist': grade_dist,
+    }
 
 
 # ---------------------------------------------------------------- 数据读写
@@ -601,6 +864,15 @@ class Handler(BaseHTTPRequestHandler):
                     return self.send_json({'empty': True})
                 threading.Thread(target=run_report, args=(sid_,), daemon=True).start()
                 return self.send_json({'ok': True, 'generating': True})
+            if method == 'POST' and path == '/api/qa/stream':
+                body = self.read_body_json()
+                q = (body.get('question') or '').strip()
+                if not q:
+                    return self.send_json({'error': '请输入问题'}, 400)
+                stu = next(s for s in data['students'] if s['id'] == sid_)
+                ctx = build_student_context(stu, data)
+                qa_stream_response(self, ctx, q, own_only=True, role_label='本人数据')
+                return None
             if method == 'POST' and path == '/api/qa':
                 body = self.read_body_json()
                 q = (body.get('question') or '').strip()
@@ -695,6 +967,14 @@ class Handler(BaseHTTPRequestHandler):
                 works = [w for w in data['works'] if w['studentId'] == stid and w['status'] == 'approved']
                 return self.send_json({'student': public_student(stu, full=True),
                                         'works': [{'name': w['name'], 'archive': w.get('archive')} for w in works]})
+            if method == 'POST' and path == '/api/qa/stream':
+                body = self.read_body_json()
+                q = (body.get('question') or '').strip()
+                if not q:
+                    return self.send_json({'error': '请输入问题'}, 400)
+                ctx = '\n\n'.join(build_student_context(s, data, brief=len(data['students']) > 2) for s in data['students'])
+                qa_stream_response(self, ctx, q, own_only=False, role_label='全库数据')
+                return None
             if method == 'POST' and path == '/api/qa':
                 body = self.read_body_json()
                 q = (body.get('question') or '').strip()
@@ -710,84 +990,23 @@ class Handler(BaseHTTPRequestHandler):
                 from urllib.parse import parse_qs, urlparse
                 qs = parse_qs(urlparse(self.path).query)
                 channel = (qs.get('channel') or [''])[0]
-                stus = [s for s in data['students'] if not channel or s.get('channel') == channel]
-                rows = []
-                for stu in stus:
-                    approved = [w for w in data['works'] if w['studentId'] == stu['id'] and w['status'] == 'approved']
-                    aise = stu.get('aise') or {}
-                    exams = aise.get('exams') or []
-                    kn = aise.get('knowledge') or []
-                    scores = [e['score'] for e in exams]
-                    weak = [k['point'] for k in kn if k['mastery'] < 60]
-                    rows.append({
-                        'id': stu['id'], 'name': stu['name'], 'grade': stu['grade'], 'school': stu['school'],
-                        'channel': stu.get('channel') or '未标注', 'aiseLinked': bool(stu.get('aise')),
-                        'examCount': len(exams), 'totalQuestions': sum(e.get('questionCount', 0) for e in exams),
-                        'avgExamScore': round(sum(scores) / len(scores)) if scores else None,
-                        'bestScore': max(scores) if scores else None,
-                        'weakPoints': weak, 'workCount': len(approved),
-                        'workAvg': round(sum((w.get('archive') or {}).get('score', 0) for w in approved) / len(approved)) if approved else None,
-                        'tags': stu['card']['tags'],
-                    })
-                # 聚合
-                all_scores = [r['avgExamScore'] for r in rows if r['avgExamScore'] is not None]
-                exam_total = sum(r['examCount'] for r in rows)
-                q_total = sum(r['totalQuestions'] for r in rows)
-                work_rows = [w for w in data['works'] if w['status'] == 'approved'
-                             and any(r['id'] == w['studentId'] for r in rows)]
-                # 知识点聚合
-                kn_agg = {}
-                for stu in stus:
-                    for k in (stu.get('aise') or {}).get('knowledge') or []:
-                        a = kn_agg.setdefault(k['point'], {'sum': 0, 'n': 0, 'weak': 0})
-                        a['sum'] += k['mastery']; a['n'] += 1
-                        if k['mastery'] < 60: a['weak'] += 1
-                knowledge = [{'point': p, 'avg': round(v['sum'] / v['n']), 'students': v['n'], 'weak': v['weak']}
-                              for p, v in sorted(kn_agg.items(), key=lambda x: -(x[1]['sum'] / x[1]['n']))]
-                # 雷达均值
-                radar_sums = {}
-                for stu in stus:
-                    for k, v in (stu['card'].get('radar') or {}).items():
-                        radar_sums.setdefault(k, []).append(v)
-                radarAvg = {k: round(sum(v) / len(v)) for k, v in radar_sums.items()}
-                # 错误归因
-                err_map = {}
-                for stu in stus:
-                    for k in (stu.get('aise') or {}).get('knowledge') or []:
-                        if k.get('errType'): err_map[k['errType']] = err_map.get(k['errType'], 0) + 1
-                    for a in (stu.get('aise') or {}).get('answers') or []:
-                        if a.get('result') == '错' and a.get('errType'):
-                            err_map[a['errType']] = err_map.get(a['errType'], 0) + 1
-                # 标签分布（入库作品 + 人才卡）
-                tag_dist = {}
-                for w in work_rows:
-                    for t in (w.get('archive') or {}).get('tags', []):
-                        tag_dist[t] = tag_dist.get(t, 0) + 1
-                grade_dist = {}
-                for stu in stus:
-                    for e in (stu.get('aise') or {}).get('exams') or []:
-                        grade_dist[e.get('grade', '其他')] = grade_dist.get(e.get('grade', '其他'), 0) + 1
-                # 渠道对比
-                channels = []
-                for ch in sorted({s.get('channel') or '未标注' for s in data['students']}):
-                    cs = [s for s in data['students'] if (s.get('channel') or '未标注') == ch]
-                    cworks = [w for w in data['works'] if w['status'] == 'approved' and w['studentId'] in {x['id'] for x in cs}]
-                    cscores = []
-                    for s in cs:
-                        for e in (s.get('aise') or {}).get('exams') or []:
-                            cscores.append(e['score'])
-                    channels.append({'channel': ch, 'students': len(cs), 'works': len(cworks),
-                                      'avgScore': round(sum(cscores) / len(cscores)) if cscores else None,
-                                      'aiseRate': round(100 * sum(1 for x in cs if x.get('aise')) / len(cs))})
-                return self.send_json({
-                    'channel': channel or '全部渠道', 'channels': channels,
-                    'totals': {'studentCount': len(stus), 'workCount': len(work_rows),
-                                'examCount': exam_total, 'questionTotal': q_total,
-                                'avgScore': round(sum(all_scores) / len(all_scores)) if all_scores else None,
-                                'aiseLinked': sum(1 for s in stus if s.get('aise'))},
-                    'students': rows, 'knowledge': knowledge, 'radarAvg': radarAvg,
-                    'errorDist': err_map, 'tagDist': tag_dist, 'gradeDist': grade_dist,
-                })
+                out = compute_analytics(data, channel)
+                cached = analytics_cache_get(out)
+                if cached:
+                    out['ai'] = cached
+                return self.send_json(out)
+            if method == 'POST' and path == '/api/admin/analytics/ai-comment':
+                body = self.read_body_json()
+                channel = (body.get('channel') or '').strip()
+                out = compute_analytics(data, channel)
+                ai = analytics_cache_get(out)
+                if not ai:
+                    try:
+                        ai = ai_analytics_comment(out)
+                        analytics_cache_put(out, ai)
+                    except Exception as e:  # noqa: BLE001
+                        return self.send_json({'error': 'AI 点评生成失败：%s' % e}, 500)
+                return self.send_json({'ai': ai})
             if method == 'GET' and path.startswith('/api/admin/report/'):
                 stid = path.rsplit('/', 1)[-1]
                 stu = next((s for s in data['students'] if s['id'] == stid), None)
