@@ -19,7 +19,7 @@ html, body { margin: 0; padding: 0; background: #fff; font-family: -apple-system
 .header .exit:hover { color: #2A55E5; }
 .snap-banner { margin: 0 24px 12px; background: #fffbe6; border: 1px solid #ffe58f; border-radius: 8px; padding: 10px 16px; line-height: 1.7; }
 .snap-banner b { color: #d48806; }
-.body-row { display: flex; gap: 16px; padding: 0 24px 32px; align-items: flex-start; flex: 1; }
+.body-row { display: flex; gap: 16px; padding: 0 24px 32px; align-items: stretch; flex: 1; }
 .paper-main { flex: 1 1 0%; min-width: 0; background: #fff; border-radius: 8px; padding: 20px 24px; }
 .paper-title input { width: 100%; height: 40px; border: 1px solid #e8e8e8; border-radius: 4px; padding: 0 12px; font-size: 15px; font-weight: 600; color: #323335; background: #fafafa; }
 .q-card { border: 1px solid #f0f0f0; border-radius: 8px; padding: 16px 18px; margin-top: 14px; background: #fff; }
@@ -41,7 +41,9 @@ html, body { margin: 0; padding: 0; background: #fff; font-family: -apple-system
 .btn.warn { color: #d48806; border-color: #ffd591; background: #fff7e6; }
 .btn.warn:hover { border-color: #d48806; }
 .paper-sider { flex: 0 0 280px; }
-.sider-card { background: #fff; border-radius: 8px; padding: 16px; border: 1px solid #f0f0f0; }
+.paper-sider { display: flex; flex-direction: column; }
+.sider-card { background: #fff; border-radius: 8px; padding: 16px; border: 1px solid #f0f0f0; flex: 1; display: flex; flex-direction: column; }
+.sider-card .grow { flex: 1; }
 .sider-card h3 { margin: 0 0 12px; font-size: 15px; }
 .info-row { display: flex; }
 .info-row .col { width: 50%; color: #64666b; font-size: 13px; padding: 3px 0; }
@@ -49,6 +51,10 @@ html, body { margin: 0; padding: 0; background: #fff; font-family: -apple-system
 .sider-card .sub { margin-top: 14px; border-top: 1px solid #f0f0f0; padding-top: 12px; color: #64666b; font-size: 13px; line-height: 1.8; }
 .sider-card .sub b { color: #323335; }
 .btn.full { width: 100%; margin-top: 12px; }
+.qnav .qn { display: flex; align-items: center; gap: 8px; padding: 7px 8px; border-radius: 6px; cursor: pointer; font-size: 12px; color: #3d3f43; line-height: 1.4; }
+.qnav .qn:hover { background: #f0f4ff; }
+.qnav .qn span { flex: none; width: 18px; height: 18px; line-height: 18px; text-align: center; border-radius: 4px; background: #ecf1ff; color: #2A55E5; font-size: 11px; }
+.qnav .qn b { margin-left: auto; color: #969aa0; font-weight: 400; flex: none; }
 .toast { position: fixed; top: 80px; left: 50%; transform: translateX(-50%); background: rgba(0,0,0,.75); color: #fff; padding: 10px 20px; border-radius: 6px; z-index: 3000; display: none; }
 </style>
 </head>
@@ -143,7 +149,15 @@ html, body { margin: 0; padding: 0; background: #fff; font-family: -apple-system
           <b>关联考场：</b>100901-第1场、100901-模拟练习<br>
           <b>快照说明：</b>本场全部作答与成绩、报告、证书划线基于本快照
         </div>
-        <button class="btn full" onclick="toggleAnswer()">隐藏答案 / 显示答案</button>
+        <h3 style="margin:16px 0 8px;">本页题目导航</h3>
+        <div class="qnav">
+          <div class="qn" onclick="toast('已定位到第 1 题（演示）')"><span>1</span> 单选 · 执行以下程序会报错…<b>20分</b></div>
+          <div class="qn" onclick="toast('已定位到第 2 题（演示）')"><span>2</span> 多选 · Python 循环结构说法…<b>20分</b></div>
+          <div class="qn" onclick="toast('已定位到第 3 题（演示）')"><span>3</span> 判断 · 列表创建后能否修改…<b>10分</b></div>
+          <div class="qn" onclick="toast('已定位到第 4 题（演示）')"><span>4</span> 编程OJ · 字符串反转<b>50分</b></div>
+        </div>
+        <div class="grow"></div>
+        <button class="btn full" style="margin-top:16px;" onclick="toggleAnswer()">隐藏答案 / 显示答案</button>
       </div>
     </aside>
   </div>
