@@ -1,0 +1,371 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>爱测评运营后台 - 考场管理（考试题目快照与复制）</title>
+<style>
+/* ===== 站点 B（测评管理系统）风格：antd3 / jeecg，自包含 ===== */
+html, body { margin: 0; padding: 0; background: #f0f2f5; font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", "PingFang SC", "Hiragino Sans GB", "Microsoft YaHei", sans-serif; font-size: 14px; color: rgba(0,0,0,.65); }
+* { box-sizing: border-box; }
+a { color: #1890ff; text-decoration: none; }
+.layout { min-height: 100vh; }
+.sider { position: fixed; top: 0; left: 0; bottom: 0; width: 208px; background: #001529; overflow-y: auto; z-index: 100; }
+.sider .logo { height: 56px; display: flex; align-items: center; padding: 0 16px; color: #fff; font-size: 16px; font-weight: 600; letter-spacing: 1px; }
+.sider .logo .mark { width: 28px; height: 28px; border-radius: 6px; background: #1890ff; color:#fff; display: flex; align-items: center; justify-content: center; font-size: 15px; margin-right: 10px; }
+.menu { list-style: none; margin: 0; padding: 0; }
+.menu li { color: rgba(255,255,255,.65); padding: 0 16px; height: 40px; line-height: 40px; cursor: pointer; font-size: 14px; white-space: nowrap; }
+.menu li:hover { color: #fff; }
+.menu li.on { color: #fff; background: #1890ff; }
+.menu .group { color: rgba(255,255,255,.45); font-size: 12px; padding: 14px 16px 4px; height: auto; line-height: 1; cursor: default; }
+.header { height: 48px; background: #fff; border-bottom: 1px solid #e8e8e8; display: flex; align-items: center; justify-content: space-between; padding: 0 24px; margin-left: 208px; position: sticky; top: 0; z-index: 90; }
+.header .crumb { color: rgba(0,0,0,.45); }
+.header .crumb b { color: rgba(0,0,0,.65); font-weight: 600; }
+.header .user { display: flex; align-items: center; gap: 8px; }
+.header .avatar { width: 26px; height: 26px; border-radius: 50%; background: #1890ff; color: #fff; display: flex; align-items: center; justify-content: center; font-size: 13px; }
+.main { margin-left: 208px; padding: 16px 24px 32px; }
+.card { background: #fff; border-radius: 4px; padding: 16px 24px; margin-bottom: 16px; }
+.filter-row { display: flex; align-items: center; gap: 8px; flex-wrap: wrap; }
+.fi { display: flex; align-items: center; }
+.fi .lb { border: 1px solid #d9d9d9; border-right: none; height: 32px; line-height: 30px; padding: 0 10px; background: #fff; white-space: nowrap; }
+.fi input { border: 1px solid #d9d9d9; height: 32px; padding: 0 10px; width: 200px; outline: none; border-radius: 0 4px 4px 0; }
+.fi input:focus { border-color: #1890ff; }
+.btn { display: inline-flex; align-items: center; justify-content: center; height: 32px; padding: 0 15px; border-radius: 4px; border: 1px solid #d9d9d9; background: #fff; color: rgba(0,0,0,.65); cursor: pointer; font-size: 14px; white-space: nowrap; }
+.btn:hover { border-color: #1890ff; color: #1890ff; }
+.btn.primary { background: #1890ff; border-color: #1890ff; color: #fff; }
+.btn.primary:hover { background: #40a9ff; border-color: #40a9ff; color: #fff; }
+.btn.link { border: none; background: transparent; color: #1890ff; padding: 0 6px; height: 26px; }
+table.grid { width: 100%; border-collapse: collapse; font-size: 13px; }
+.grid th { background: #fafafa; color: rgba(0,0,0,.85); font-weight: 600; text-align: left; padding: 12px 8px; border-bottom: 1px solid #e8e8e8; white-space: nowrap; }
+.grid td { padding: 11px 8px; border-bottom: 1px solid #e8e8e8; }
+.grid tr:hover td { background: #fafafa; }
+.grid .ops { white-space: nowrap; }
+.grid .ops .btn.link { padding: 0 4px; }
+.tag { display: inline-block; padding: 1px 8px; border-radius: 4px; font-size: 12px; line-height: 20px; white-space: nowrap; }
+.tag.gray { background: #f5f5f5; color: rgba(0,0,0,.45); }
+.tag.green { background: #f6ffed; color: #52c41a; border: 1px solid #b7eb8f; }
+.tag.blue { background: #e6f7ff; color: #1890ff; border: 1px solid #91d5ff; }
+.pager { display: flex; align-items: center; justify-content: flex-end; gap: 6px; margin-top: 14px; font-size: 13px; }
+.pager .pg { min-width: 28px; height: 28px; line-height: 26px; text-align: center; border: 1px solid #d9d9d9; border-radius: 4px; background: #fff; padding: 0 6px; }
+.pager .pg.on { border-color: #1890ff; color: #1890ff; }
+.mask { position: fixed; inset: 0; background: rgba(0,0,0,.45); z-index: 1000; display: none; align-items: flex-start; justify-content: center; }
+.mask.show { display: flex; }
+.modal { background: #fff; border-radius: 4px; width: 620px; margin-top: 9vh; box-shadow: 0 4px 12px rgba(0,0,0,.15); max-height: 80vh; display: flex; flex-direction: column; }
+.modal .m-head { padding: 14px 24px; border-bottom: 1px solid #e8e8e8; display: flex; align-items: center; justify-content: space-between; }
+.modal .m-head .t { font-size: 16px; color: rgba(0,0,0,.85); font-weight: 600; }
+.modal .m-head .x { cursor: pointer; color: rgba(0,0,0,.45); }
+.modal .m-body { padding: 20px 24px; overflow-y: auto; }
+.modal .m-foot { padding: 12px 24px; border-top: 1px solid #e8e8e8; text-align: right; display: flex; justify-content: flex-end; gap: 8px; }
+.m-body p { margin: 0 0 10px; line-height: 1.7; }
+.m-body .hint { background: #fffbe6; border: 1px solid #ffe58f; border-radius: 4px; padding: 10px 12px; line-height: 1.7; margin-bottom: 12px; }
+.m-body .hint.red { background: #fff1f0; border-color: #ffa39e; }
+.m-body .hint.blue { background: #e6f7ff; border-color: #91d5ff; }
+.kv { display: grid; grid-template-columns: 110px 1fr; row-gap: 8px; margin-bottom: 12px; }
+.kv .k { color: rgba(0,0,0,.45); }
+.kv .v { color: rgba(0,0,0,.75); }
+.mini-table { width: 100%; border-collapse: collapse; font-size: 13px; margin: 8px 0; }
+.mini-table th, .mini-table td { border: 1px solid #e8e8e8; padding: 8px 10px; text-align: left; }
+.mini-table th { background: #fafafa; }
+.form-row { margin-bottom: 12px; }
+.form-row select, .form-row textarea { width: 100%; border: 1px solid #d9d9d9; border-radius: 4px; padding: 6px 10px; outline: none; font-size: 13px; }
+.form-row textarea { min-height: 64px; }
+.toast { position: fixed; top: 64px; left: 50%; transform: translateX(-50%); background: rgba(0,0,0,.75); color: #fff; padding: 9px 18px; border-radius: 4px; z-index: 3000; display: none; }
+.demo-ball { position: fixed; right: 20px; bottom: 20px; z-index: 2500; }
+.demo-ball .ball { width: 52px; height: 52px; border-radius: 50%; background: #722ed1; color: #fff; display: flex; align-items: center; justify-content: center; font-size: 12px; font-weight: 700; cursor: pointer; box-shadow: 0 4px 12px rgba(114,46,209,.4); letter-spacing: 1px; }
+.demo-panel { position: fixed; right: 84px; bottom: 20px; width: 300px; max-height: 70vh; overflow-y: auto; background: #fff; border-radius: 8px; box-shadow: 0 6px 24px rgba(0,0,0,.2); z-index: 2500; display: none; }
+.demo-panel.show { display: block; }
+.demo-panel .dp-head { padding: 10px 14px; border-bottom: 1px solid #f0f0f0; font-size: 12px; color: #722ed1; font-weight: 600; }
+.demo-panel .dp-body { padding: 8px; }
+.demo-panel .scene { display: block; width: 100%; text-align: left; border: 1px solid #d9d9d9; background: #fff; border-radius: 4px; padding: 7px 10px; margin-bottom: 6px; cursor: pointer; font-size: 13px; color: rgba(0,0,0,.65); }
+.demo-panel .scene:hover { border-color: #722ed1; color: #722ed1; }
+.demo-panel .scene .sid { color: rgba(0,0,0,.35); font-size: 11px; margin-right: 6px; }
+.demo-tip { background: #f9f0ff; border: 1px solid #d3adf7; color: #531dab; border-radius: 4px; padding: 6px 10px; font-size: 12px; margin-bottom: 12px; }
+</style>
+</head>
+<body>
+<div class="toast" id="toast"></div>
+
+<div class="layout">
+  <aside class="sider">
+    <div class="logo"><span class="mark">评</span>测评管理系统</div>
+    <ul class="menu">
+      <li>首页</li>
+      <li>素材配置</li>
+      <li>运营位管理</li>
+      <li>测评引擎管理</li>
+      <li>试卷管理</li>
+      <li>用户答卷管理</li>
+      <li class="on">考场管理</li>
+      <li>题库管理</li>
+      <li>测评报告</li>
+      <li>组织管理</li>
+      <li>申请试用</li>
+      <li>近期测评</li>
+      <li>用户管理</li>
+      <li>班级管理</li>
+      <li class="group">系统管理</li>
+      <li>角色管理</li>
+      <li>数据字典</li>
+    </ul>
+  </aside>
+
+  <div class="header">
+    <div class="crumb">首页 / <b>考场管理</b></div>
+    <div class="user"><span class="avatar">A</span><span>admin</span></div>
+  </div>
+
+  <div class="main">
+    <div class="demo-tip">本页为需求演示原型：右侧紫色「DEMO」浮球可一键切换演示场景，仅为演示辅助工具，非系统功能，研发忽略。</div>
+
+    <div class="card">
+      <div class="filter-row">
+        <div class="fi"><span class="lb">考场名</span><input id="fName" placeholder="请输入考场名"></div>
+        <div class="fi"><span class="lb">试卷ID</span><input id="fPaper" placeholder="请选择试卷ID"></div>
+        <button class="btn primary" onclick="applyFilter()">查询</button>
+        <button class="btn" onclick="resetFilter()">重置</button>
+      </div>
+    </div>
+
+    <div class="card">
+      <table class="grid">
+        <thead>
+          <tr>
+            <th>#</th><th>考场名</th><th>试卷名</th><th>考试时间</th><th>题目快照</th><th>创建人</th><th>操作</th>
+          </tr>
+        </thead>
+        <tbody id="tbody"></tbody>
+      </table>
+      <div class="pager"><span>共 6 条</span><span class="pg on">1</span></div>
+    </div>
+  </div>
+</div>
+
+<div class="mask" id="mask">
+  <div class="modal">
+    <div class="m-head"><span class="t" id="mTitle"></span><span class="x" onclick="closeModal()">✕</span></div>
+    <div class="m-body" id="mBody"></div>
+    <div class="m-foot" id="mFoot"></div>
+  </div>
+</div>
+
+<div class="demo-ball"><div class="ball" onclick="toggleDemoPanel()">DEMO</div></div>
+<div class="demo-panel" id="demoPanel">
+  <div class="dp-head">演示场景（仅演示辅助工具，非系统功能，研发忽略）</div>
+  <div class="dp-body" id="sceneList"></div>
+</div>
+
+<script>
+'use strict';
+/* ================= 演示数据（基于线上考场列表采集） ================= */
+var ROOMS = [
+  { id: '2118644857705115649', name: '1106支付测试-第5场', paperId: 'PAPER20261031000001', paper: '批量生成证书测试卷', time: '2026-11-06 17:04 ~ 11-07 18:04', started: true, snapVer: 'V3', creator: 'adminAica', qcount: 4 },
+  { id: '2118644857134690305', name: '1106支付测试-第6场', paperId: 'PAPER20261031000001', paper: '批量生成证书测试卷', time: '2026-11-06 17:05 ~ 11-07 18:05', started: true, snapVer: 'V3', creator: 'adminAica', qcount: 4 },
+  { id: '2119805461291880449', name: '100901-第1场', paperId: 'PAPER20260830000001', paper: '830多选题报告测试试卷', time: '2026-11-06 15:00 ~ 11-10 11:51', started: true, snapVer: 'V2', creator: 'admin_888', qcount: 4 },
+  { id: '2119805462910881794', name: '100901-模拟练习', paperId: 'PAPER20260830000001', paper: '830多选题报告测试试卷', time: '2026-11-06 09:33 ~ 11-07 13:25', started: true, snapVer: 'V2', creator: 'admin_888', qcount: 4 },
+  { id: '2119805046596849665', name: '1110二级考试-第1场', paperId: 'PAPER20261110000001', paper: '1110二级正式卷', time: '2026-11-12 09:00 ~ 11-12 11:00', started: false, snapVer: null, creator: 'adminAica', qcount: 10 },
+  { id: '2119805048375234562', name: '100902-第1场', paperId: 'PAPER20260609000001', paper: '0827 测试', time: '2026-11-06 21:00 ~ 11-07 17:28', started: true, snapVer: 'V1', creator: 'adminAica', qcount: 2 }
+];
+
+/* 题库当前版本演示数据：key=试卷ID；快照版本 vs 题库当前版本 */
+var PAPER_VERSIONS = {
+  'PAPER20261031000001': { snapTime: '2026-11-06 17:04:00', questions: [['单选：Python 输出语句','V3','V3'],['编程OJ：三个整数中的最大值','V3','V3'],['多选：模块与功能','V3','V3'],['判断：列表与元组','V3','V3']] },
+  'PAPER20260830000001': { snapTime: '2026-11-06 15:00:00', questions: [['单选：变量命名规则','V2','V4'],['多选：循环结构','V2','V4'],['判断：列表与元组','V2','V3'],['编程OJ：字符串反转','V2','V4']] },
+  'PAPER20261110000001': { snapTime: '—', questions: [['单选：数据类型','V1','V1'],['编程OJ：欢迎来到图书馆','V1','V1']] },
+  'PAPER20260609000001': { snapTime: '2026-11-06 21:00:00', questions: [['编程OJ：欢迎来到图书馆','V1','V1'],['单选：数据类型判断','V1','V1']] }
+};
+
+var HISTORIES = [
+  { time: '2026-11-09 20:31:12', user: 'adminAica', scope: '题库', target: '单选：变量命名规则', field: '题干', change: '「下列哪项命名…」 → 「下列哪项命名符合规范…」' },
+  { time: '2026-11-09 20:31:12', user: 'adminAica', scope: '题库', target: '单选：变量命名规则', field: '参考分数', change: '10 → 5' },
+  { time: '2026-11-08 10:02:41', user: 'admin', scope: '考场「100901-第1场」', target: '多选：循环结构', field: '选项B', change: '「while」 → 「while 语句」' },
+  { time: '2026-11-08 10:02:41', user: 'admin', scope: '考场「100901-第1场」', target: '多选：循环结构', field: '答案解析', change: '（补充解析一句）' },
+  { time: '2026-11-07 16:20:03', user: 'adminAica', scope: '题库', target: '判断：列表与元组', field: '答案解析', change: '（新增解析）' }
+];
+
+/* ================= 基础 UI ================= */
+var toastTimer = null;
+function toast(msg) {
+  var t = document.getElementById('toast');
+  t.textContent = msg; t.style.display = 'block';
+  if (toastTimer) clearTimeout(toastTimer);
+  toastTimer = setTimeout(function () { t.style.display = 'none'; }, 2400);
+}
+function esc(s) { return String(s == null ? '' : s).replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;').replace(/"/g, '&quot;'); }
+function openModal(title, bodyHtml, footHtml) {
+  document.getElementById('mTitle').textContent = title;
+  document.getElementById('mBody').innerHTML = bodyHtml;
+  document.getElementById('mFoot').innerHTML = footHtml || '<button class="btn" onclick="closeModal()">关 闭</button>';
+  document.getElementById('mask').classList.add('show');
+}
+function closeModal() { document.getElementById('mask').classList.remove('show'); }
+
+/* ================= 列表渲染 ================= */
+function snapTag(r) {
+  if (r.started) return '<span class="tag green">已快照 ' + esc(r.snapVer) + '</span>';
+  return '<span class="tag gray">未开考</span>';
+}
+function render() {
+  var kw = document.getElementById('fName').value.trim();
+  var fp = document.getElementById('fPaper').value.trim();
+  var html = '';
+  var n = 0;
+  for (var i = 0; i < ROOMS.length; i++) {
+    var r = ROOMS[i];
+    if (kw && r.name.indexOf(kw) < 0) continue;
+    if (fp && r.paperId.indexOf(fp) < 0) continue;
+    n++;
+    html += '<tr>' +
+      '<td>' + n + '</td>' +
+      '<td>' + esc(r.name) + '</td>' +
+      '<td>' + esc(r.paper) + '<div style="color:rgba(0,0,0,.35);font-size:12px;">' + esc(r.paperId) + '</div></td>' +
+      '<td>' + esc(r.time) + '</td>' +
+      '<td>' + snapTag(r) + '</td>' +
+      '<td>' + esc(r.creator) + '</td>' +
+      '<td class="ops">' +
+        '<a class="btn link" onclick="toast(\'编辑考场（演示）\')">编辑</a>' +
+        '<a class="btn link" onclick="toast(\'复制考场（演示）\')">复制</a>' +
+        '<a class="btn link" onclick="toast(\'名单（演示）\')">名单</a>' +
+        (r.started
+          ? '<a class="btn link" onclick="showSnapshot(' + i + ')">题目快照</a>' +
+            '<a class="btn link" onclick="showModifyRoom(' + i + ')">修改本场题目</a>'
+          : '') +
+      '</td>' +
+    '</tr>';
+  }
+  document.getElementById('tbody').innerHTML = html || '<tr><td colspan="7" style="text-align:center;color:rgba(0,0,0,.25);padding:40px;">暂无数据</td></tr>';
+}
+function applyFilter() { render(); }
+function resetFilter() { document.getElementById('fName').value = ''; document.getElementById('fPaper').value = ''; render(); }
+
+/* ================= 场景弹窗 ================= */
+/* 题目快照查看 */
+function showSnapshot(idx) {
+  var r = ROOMS[idx];
+  var v = PAPER_VERSIONS[r.paperId];
+  var rows = v.questions.map(function (q) {
+    var diff = q[1] !== q[2];
+    return '<tr><td>' + esc(q[0]) + '</td><td>快照 ' + esc(q[1]) + '</td><td>' + esc(q[2]) + '</td><td>' +
+      (diff ? '<a onclick="toast(\'查看版本差异（演示）\')">查看差异</a>' : '<span style="color:rgba(0,0,0,.35);">一致</span>') + '</td></tr>';
+  }).join('');
+  var body = '<div class="hint blue">快照在考试开始时刻由系统自动生成，本场考试的作答、成绩、报告、证书划线全部关联此快照。题库原题后续修改不影响本场考试。</div>' +
+    '<div class="kv"><span class="k">考场</span><span class="v">' + esc(r.name) + '</span></div>' +
+    '<div class="kv"><span class="k">快照时间</span><span class="v">' + esc(v.snapTime) + '（开考时刻，系统自动）</span></div>' +
+    '<div class="kv"><span class="k">题目数量</span><span class="v">' + r.qcount + ' 题（演示列表显示 4 题）</span></div>' +
+    '<table class="mini-table"><tr><th>题目</th><th>快照版本</th><th>题库当前版本</th><th></th></tr>' + rows + '</table>';
+  openModal('本场题目快照', body, '<button class="btn" onclick="closeModal()">关 闭</button>');
+}
+/* 修改本场题目（考中/考后兜底入口） */
+var MODQ = [['单选：变量命名规则','V2'],['多选：循环结构','V2'],['判断：列表与元组','V2'],['编程OJ：字符串反转','V2']];
+function showModifyRoom(idx) {
+  var r = ROOMS[idx];
+  var opts = MODQ.map(function (q, i) { return '<option value="' + i + '">' + esc(q[0]) + '（快照 ' + esc(q[1]) + '）</option>'; }).join('');
+  var body = '<div class="hint red">这是考中、考后修改本场题目的兜底入口：仅修改本场考试的题目快照，不回写题库原题，不影响其他考场。适用于本场题目存在错误需要修正的极少数情况。</div>' +
+    '<div class="kv"><span class="k">考场</span><span class="v">' + esc(r.name) + '</span></div>' +
+    '<div class="form-row"><div class="kv"><span class="k">选择题目</span><span class="v"><select id="mqSel" style="width:100%;">' + opts + '</select></span></div></div>' +
+    '<div class="form-row"><div class="kv"><span class="k">修改内容</span><span class="v"><textarea id="mqText">选项B「while」修改为「while 语句」</textarea></span></div></div>';
+  openModal('修改本场题目', body,
+    '<button class="btn" onclick="closeModal()">取 消</button>' +
+    '<button class="btn primary" onclick="confirmModifyRoom(' + idx + ')">下一步</button>');
+}
+function confirmModifyRoom(idx) {
+  var r = ROOMS[idx];
+  var q = MODQ[parseInt(document.getElementById('mqSel').value, 10)];
+  var body = '<div class="hint red">确认修改本场考试中的题目？本场考试可能已有考生作答。</div>' +
+    '<div class="kv"><span class="k">考场</span><span class="v">' + esc(r.name) + '</span></div>' +
+    '<div class="kv"><span class="k">修改题目</span><span class="v">' + esc(q[0]) + '（快照 ' + esc(q[1]) + '）</span></div>' +
+    '<div class="kv"><span class="k">生效范围</span><span class="v">仅本场考试；已提交的作答保持提交时内容，修改从其后的作答开始生效</span></div>' +
+    '<div class="kv"><span class="k">留痕</span><span class="v">记录修改人、时间、改动字段、修改前后值</span></div>';
+  openModal('确认修改', body,
+    '<button class="btn" onclick="closeModal()">取 消</button>' +
+    '<button class="btn primary" onclick="doModifyRoom()">确认修改</button>');
+}
+function doModifyRoom() {
+  closeModal();
+  toast('本场题目已修改并记入留痕；题库原题与其他考场不受影响');
+}
+/* 作答时版本追溯 */
+function showTrace(idx) {
+  var r = ROOMS[idx];
+  var v = PAPER_VERSIONS[r.paperId];
+  var rows = v.questions.map(function (q) {
+    var diff = q[1] !== q[2];
+    return '<tr><td>' + esc(q[0]) + '</td><td>' + esc(q[1]) + '</td><td>' + esc(q[2]) + '</td><td>' +
+      (diff ? '<a onclick="toast(\'查看版本差异（演示）\')">查看差异</a>' : '<span style="color:rgba(0,0,0,.35);">一致</span>') + '</td></tr>';
+  }).join('');
+  var body = '<div class="hint blue">追溯口径：本场考试关联开考时刻的题目快照，成绩、报告、证书划线按快照追溯。追溯仅作查看，不改动题库。</div>' +
+    '<div class="kv"><span class="k">考场</span><span class="v">' + esc(r.name) + '</span></div>' +
+    '<div class="kv"><span class="k">作答时快照</span><span class="v">' + esc(v.snapTime) + ' 自动生成</span></div>' +
+    '<table class="mini-table"><tr><th>题目</th><th>作答时快照</th><th>题库当前版本</th><th></th></tr>' + rows + '</table>';
+  openModal('作答时版本追溯', body, '<button class="btn" onclick="closeModal()">关 闭</button>');
+}
+/* 删除拦截（被引用题目） */
+function showDelBlock() {
+  openModal('无法删除', '<div class="hint red">该题目已被以下试卷引用，无法删除：</div>' +
+    '<table class="mini-table"><tr><th>引用位置</th><th>类型</th></tr>' +
+    '<tr><td>试卷「830多选题报告测试试卷」</td><td>被 2 个考场引用</td></tr></table>',
+    '<button class="btn" onclick="closeModal()">知道了</button>');
+}
+/* 留痕查看 */
+function showHistory() {
+  var rows = HISTORIES.map(function (l) {
+    return '<tr><td>' + esc(l.time) + '</td><td>' + esc(l.user) + '</td><td>' + esc(l.scope) + '</td><td>' + esc(l.target) + '</td><td>' + esc(l.field) + '</td><td>' + esc(l.change) + '</td></tr>';
+  }).join('');
+  var body = '<table class="mini-table"><tr><th>修改时间</th><th>修改人</th><th>范围</th><th>题目</th><th>改动字段</th><th>修改前 → 修改后</th></tr>' + rows + '</table>' +
+    '<p style="color:rgba(0,0,0,.45);">题库修改与考场内修改合并记录，仅管理员可查，支持按题目与考场检索。</p>';
+  openModal('题目修改留痕', body, '<button class="btn" onclick="closeModal()">关 闭</button>');
+}
+/* 复制试卷 */
+function showCopy() {
+  openModal('复制试卷', '<div class="hint blue">复制生成独立副本：试卷结构、题目、选项、答案、解析、分值全部复制，副本与原卷完全独立。</div>' +
+    '<div class="kv"><span class="k">原试卷</span><span class="v">批量生成证书测试卷（PAPER20261031000001）</span></div>' +
+    '<div class="kv"><span class="k">副本命名</span><span class="v">批量生成证书测试卷-副本 20261109</span></div>' +
+    '<div class="kv"><span class="k">复制来源</span><span class="v">PAPER20261031000001（记录可追溯）</span></div>',
+    '<button class="btn" onclick="closeModal()">取 消</button>' +
+    '<button class="btn primary" onclick="doCopy()">确认复制</button>');
+}
+function doCopy() {
+  closeModal();
+  toast('已生成副本「批量生成证书测试卷-副本 20261109」，可作为下期新卷编辑');
+}
+
+/* ================= 场景浮球 ================= */
+var SCENES = [
+  { name: '查看题目快照（开考自动生成）', fn: function () { showSnapshot(0); } },
+  { name: '快照后题库改题不影响（对比）', fn: function () { showSnapshot(2); } },
+  { name: '考中/考后修改本场题目', fn: function () { showModifyRoom(2); } },
+  { name: '修改确认（影响范围提示）', fn: function () { showModifyRoom(2); setTimeout(function () { confirmModifyRoom(2); }, 100); } },
+  { name: '作答时版本追溯', fn: function () { showTrace(2); } },
+  { name: '被引用题目删除拦截', fn: showDelBlock },
+  { name: '题目修改留痕', fn: showHistory },
+  { name: '复制试卷', fn: showCopy }
+];
+function renderScenes() {
+  var html = '';
+  SCENES.forEach(function (s, i) {
+    html += '<button class="scene" onclick="runScene(' + i + ')"><span class="sid">' + (i + 1) + '</span>' + s.name + '</button>';
+  });
+  document.getElementById('sceneList').innerHTML = html;
+}
+function runScene(i) { SCENES[i].fn(); document.getElementById('demoPanel').classList.remove('show'); }
+function toggleDemoPanel() { document.getElementById('demoPanel').classList.toggle('show'); }
+
+/* ================= 初始化与 #shot 直达 ================= */
+renderScenes();
+render();
+(function () {
+  var shot = (location.hash.match(/#shot=(\w+)/) || [])[1];
+  if (!shot) return;
+  setTimeout(function () {
+    if (shot === 'f_snapshot') showSnapshot(0);
+    else if (shot === 'f_snapshotdiff') showSnapshot(2);
+    else if (shot === 'f_modifyroom') showModifyRoom(2);
+    else if (shot === 'f_modifyconfirm') { showModifyRoom(2); setTimeout(function () { confirmModifyRoom(2); }, 100); }
+    else if (shot === 'f_trace') showTrace(2);
+    else if (shot === 'f_delblock') showDelBlock();
+    else if (shot === 'f_history') showHistory();
+    else if (shot === 'f_copy') showCopy();
+  }, 300);
+})();
+</script>
+</body>
+</html>
