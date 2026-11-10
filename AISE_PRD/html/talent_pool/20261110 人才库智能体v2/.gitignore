@@ -2,3 +2,5 @@ data.json
 uploads/
 server.log
 __pycache__/
+tests/prompt_test_results.json
+tests/prompt_test_run.log
