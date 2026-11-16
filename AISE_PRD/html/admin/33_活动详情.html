@@ -194,6 +194,27 @@ textarea{min-height:72px}
 #rowTable th,#rowTable td{white-space:nowrap}
 #rowTable input[type=text]{width:100%;min-width:150px}
 #rowTable input[type=datetime-local]{width:100%;min-width:165px;font-size:12px}
+
+/* ===== 批量生成证书/报告 ===== */
+.bg-busybar{background:#fdf1e0;border:1px solid #f2ddbb;color:#8a5a12;border-radius:8px;padding:9px 14px;font-size:12.5px;margin-bottom:10px}
+.bg-prog{height:8px;background:#edf1f6;border-radius:5px;overflow:hidden;min-width:90px}
+.bg-prog-in{height:100%;background:var(--primary);border-radius:5px;transition:width .3s}
+.bg-prog-in.green{background:var(--ok)}
+.bg-prog-in.red{background:var(--danger)}
+.bg-total{display:flex;align-items:center;gap:18px;background:#f7f9fc;border:1px solid var(--border);border-radius:10px;padding:14px 16px;margin-bottom:14px}
+.bg-push-row{display:flex;align-items:center;gap:12px;padding:8px 14px;background:#f7f9fc;border:1px solid var(--border);border-radius:10px;margin-bottom:8px}
+.bg-gatebar{margin-top:14px;border-radius:8px;padding:10px 14px;font-size:13px}
+.bg-gatebar.ok{background:#e5f5ec;color:var(--ok)}
+.bg-gatebar.part{background:#fdf1e0;color:#8a5a12}
+.bg-ck{width:15px;height:15px;accent-color:var(--primary);cursor:pointer}
+.bg-ck:disabled{cursor:not-allowed}
+.bg-objcell{display:flex;flex-direction:column;gap:6px}
+.bg-objline{display:flex;align-items:center;gap:6px;font-size:12.5px;white-space:nowrap}
+.bg-objline input{margin:0}
+.bg-lockrow td{opacity:.62}
+.bg-lockwhy{font-size:11.5px;color:#8a5a12}
+.bg-failrow{border-left:3px solid var(--danger)}
+tr.bg-failrow td{background:#fdf3f2 !important}
 </style>
 </head>
 <body class="flex h-screen overflow-hidden text-slate-800 font-sans" style="font-family:'PingFang SC','Microsoft YaHei',sans-serif">
@@ -248,6 +269,7 @@ textarea{min-height:72px}
       <div class="spacer"></div>
       <button class="btn hidden" id="headBulkBtn" onclick="openBulkEditExam()">✎ 批量修改</button>
       <button class="btn" id="headMatrixBtn" onclick="gotoMatrix()">渠道关联</button>
+      <button class="btn" onclick="location.href='38_批量管理.html?act='+(curAct?curAct.id:1)">📋 批量管理</button>
       <button class="btn" onclick="newZoneInline()">＋ 新建分组</button>
       <button class="btn primary" onclick="openWizard(null)">＋ 创建测评</button>
     </div>
@@ -485,6 +507,120 @@ textarea{min-height:72px}
   </div>
 </div>
 
+<!-- ========== 批量生成证书/报告 ========== -->
+<div class="overlay" id="ovBulkGen">
+  <div class="modal" style="width:1400px;max-width:calc(100vw - 96px);max-height:calc(100vh - 96px);height:calc(100vh - 96px)">
+    <div class="modal-head"><b>批量生成证书 / 报告</b><span class="hint" id="bgActName" style="margin-left:10px"></span><div class="spacer" style="flex:1"></div>
+      <button class="btn small" id="bgCloseBtn" onclick="bgTryClose()">✕</button></div>
+    <div class="modal-body" id="bgBody" style="min-height:0">
+
+      <!-- 第 1 段：资格检查与圈选 -->
+      <div id="bgStep1">
+        <div class="bg-busybar" id="bgBusyBar" style="display:none">该活动有一个批量任务正在消息中心执行；仍可继续勾选并发起新任务，确认后原任务将被取消。<a style="color:var(--primary);cursor:pointer;margin-left:6px" onclick="gotoMessageCenter()">前往查看 →</a></div>
+        <div style="display:flex;align-items:center;gap:10px;margin-bottom:10px;flex-wrap:wrap">
+          <span class="hint">逐场判断生成资格：证书需批改完成、证书实例已配置、分数线已设置；报告需批改完成。可多次进入、增量补跑。</span>
+          <div class="spacer" style="flex:1"></div>
+          <button class="btn small" onclick="bgSelectAllOk()">全选可生成</button>
+          <button class="btn small" onclick="bgClearAll()">清空</button>
+        </div>
+        <div style="overflow:auto;border:1px solid var(--border);border-radius:10px">
+          <table id="bgTable" style="min-width:1080px">
+            <thead><tr>
+              <th style="width:120px">生成对象</th>
+              <th style="padding-left:10px;min-width:200px">测评名称</th>
+              <th style="width:150px">测评时间</th>
+              <th style="width:90px">参测 / 达标</th>
+              <th style="width:190px">资格状态</th>
+            </tr></thead>
+            <tbody id="bgBody2"></tbody>
+          </table>
+        </div>
+        <div class="summary-bar" id="bgSummary" style="margin:14px 0 0;margin-top:14px">尚未勾选任何场</div>
+        <div class="hint" style="margin-top:8px">报告覆盖全部参测学员（含未通过）；证书仅覆盖达到分数线学员。点击「开始生成」后任务在消息中心执行。已生成过的场次默认勾选，重新生成会覆盖原文件并需二次确认。</div>
+      </div>
+
+      <!-- 第 2 步：结果告知（占满弹窗 body，内容垂直居中） -->
+      <div id="bgStep2" style="display:none;height:100%;min-height:420px">
+        <div style="height:100%;display:flex;align-items:center;justify-content:center">
+          <div style="text-align:center;max-width:520px;padding:36px 44px;background:#f7f9fc;border:1px solid var(--border);border-radius:14px">
+            <div style="width:64px;height:64px;border-radius:50%;background:#e5f5ec;color:var(--ok);font-size:28px;display:flex;align-items:center;justify-content:center;margin:0 auto 16px">✓</div>
+            <b id="bgDoneTitle" style="font-size:17px;display:block;margin-bottom:10px">已开始生成</b>
+            <div id="bgDoneSub" style="font-size:13px;color:var(--muted);line-height:1.9"></div>
+            <div style="margin-top:18px;padding-top:16px;border-top:1px dashed var(--border)">
+              <a style="color:var(--primary);cursor:pointer;font-size:13px;font-weight:600" onclick="gotoMessageCenter()">前往消息中心查看进度 →</a>
+            </div>
+          </div>
+        </div>
+      </div>
+
+    </div>
+    <div class="modal-foot">
+      <span class="hint" style="margin-right:auto" id="bgFootHint"></span>
+      <button class="btn" id="bgCancel" onclick="bgTryClose()">关闭</button>
+      <button class="btn primary" id="bgStart" onclick="bgStartRun()" disabled>开始生成</button>
+    </div>
+  </div>
+</div>
+
+<!-- ========== 重新生成确认 ========== -->
+<div class="overlay" id="ovBgRegen" style="z-index:60">
+  <div class="modal" style="width:460px">
+    <div class="modal-head"><b>确认重新生成</b></div>
+    <div class="modal-body">
+      <div id="bgRegenMsg" style="font-size:13.5px;line-height:1.9;margin-bottom:10px"></div>
+      <div class="warnbox" style="margin:0">重新生成将覆盖已生成的文件；已推送的记录回退为待推送，需重新推送。</div>
+    </div>
+    <div class="modal-foot">
+      <button class="btn" onclick="hide('ovBgRegen')">取消</button>
+      <button class="btn primary" onclick="bgConfirmRegen()">确认重新生成</button>
+    </div>
+  </div>
+</div>
+
+<!-- ========== 抢占确认（有执行中任务时发起新任务） ========== -->
+<div class="overlay" id="ovBgPreempt" style="z-index:60">
+  <div class="modal" style="width:460px">
+    <div class="modal-head"><b>发起新任务</b></div>
+    <div class="modal-body">
+      <div id="bgPreemptMsg" style="font-size:13.5px;line-height:1.9;margin-bottom:10px"></div>
+      <div class="warnbox" style="margin:0">原任务将被取消并标记为「已取消」；已生成完成的场次文件保留，未生成的部分保持未生成。</div>
+    </div>
+    <div class="modal-foot">
+      <button class="btn" onclick="hide('ovBgPreempt')">取消</button>
+      <button class="btn primary" onclick="bgConfirmPreempt()">取消原任务并发起新任务</button>
+    </div>
+  </div>
+</div>
+
+<!-- ========== 关闭确认 ========== -->
+<div class="overlay" id="ovBgConfirm" style="z-index:60">
+  <div class="modal" style="width:440px">
+    <div class="modal-head"><b>确认开始生成</b></div>
+    <div class="modal-body">
+      <div id="bgConfirmMsg" style="font-size:13.5px;line-height:1.8;margin-bottom:8px"></div>
+      <div class="hint">已生成过的场次自动跳过，不会重复生成。</div>
+    </div>
+    <div class="modal-foot">
+      <button class="btn" onclick="hide('ovBgConfirm')">取消</button>
+      <button class="btn primary" onclick="bgConfirmStart()">确认开始</button>
+    </div>
+  </div>
+</div>
+
+<!-- ========== 关闭确认 ========== -->
+<div class="overlay" id="ovBgClose" style="z-index:60">
+  <div class="modal" style="width:440px">
+    <div class="modal-head"><b>关闭批量任务弹窗</b></div>
+    <div class="modal-body">
+      <div id="bgCloseMsg" style="font-size:13.5px;line-height:1.8"></div>
+    </div>
+    <div class="modal-foot">
+      <button class="btn" onclick="hide('ovBgClose')">继续查看</button>
+      <button class="btn primary" onclick="bgConfirmClose()">确认关闭</button>
+    </div>
+  </div>
+</div>
+
 <!-- ========== 创建完成 ========== -->
 <div class="overlay" id="ovDone">
   <div class="modal" style="width:460px">
@@ -507,10 +643,14 @@ textarea{min-height:72px}
 var acts=[
  {id:1,name:'2026年9月常规考',start:'2026-09-01',end:'2026-09-30',groups:['3月批','6月批'],
   exams:[
-   {g:'3月批',name:'Python一级-第1场',paper:'Python一级 正式卷A',paperOk:true,mock:true,time:'09-20 09:00 ~ 11:00',chs:2,moni:{cam:'强',rec:'开',photo:'开',wait:'10分钟',phone:'开'},mockPaper:'Python一级 模拟卷',mockTime:'09-19 09:00 ~ 10:00',mockLimit:'限 2 次',mockMoni:{cam:'强',rec:'开',photo:'开',phone:'开'}},
-   {g:'3月批',name:'图形化一级-第1场',paper:'',paperOk:false,mock:true,time:'09-21 09:00 ~ 11:00',chs:2,moni:{cam:'强',rec:'关',photo:'开',wait:'10分钟',phone:'关'},mockPaper:'图形化一级 模拟卷',mockTime:'09-20 09:00 ~ 10:00',mockLimit:'无限次',mockMoni:{cam:'关',rec:'关',photo:'开',phone:'开'}},
-   {g:'6月批',name:'Python二级-第1场',paper:'Python二级 正式卷A',paperOk:true,mock:false,time:'09-27 09:00 ~ 11:30',chs:1,moni:{cam:'强',rec:'开',photo:'关',wait:'15分钟',phone:'开'}},
-   {g:'6月批',name:'图形化二级-第1场',paper:'图形化二级 正式卷B',paperOk:true,mock:false,time:'09-28 14:00 ~ 16:30',chs:0,moni:{cam:'中',rec:'关',photo:'关',wait:'10分钟',phone:'关'}}
+   {g:'3月批',name:'Python一级-第1场',paper:'Python一级 正式卷A',paperOk:true,mock:true,time:'09-20 09:00 ~ 11:00',chs:2,moni:{cam:'强',rec:'开',photo:'开',wait:'10分钟',phone:'开'},mockPaper:'Python一级 模拟卷',mockTime:'09-19 09:00 ~ 10:00',mockLimit:'限 2 次',mockMoni:{cam:'强',rec:'开',photo:'开',phone:'开'},
+    after:{grading:'done',joined:1186,passed:1042,certCfg:true,lineSet:true,genState:'none',pushState:'none',failCert:4,failRep:0}},
+   {g:'3月批',name:'图形化一级-第1场',paper:'',paperOk:false,mock:true,time:'09-21 09:00 ~ 11:00',chs:2,moni:{cam:'强',rec:'关',photo:'开',wait:'10分钟',phone:'关'},mockPaper:'图形化一级 模拟卷',mockTime:'09-20 09:00 ~ 10:00',mockLimit:'无限次',mockMoni:{cam:'关',rec:'关',photo:'开',phone:'开'},
+    after:{grading:'doing',joined:964,passed:0,certCfg:true,lineSet:true,genState:'none',pushState:'none',failCert:0,failRep:0}},
+   {g:'6月批',name:'Python二级-第1场',paper:'Python二级 正式卷A',paperOk:true,mock:false,time:'09-27 09:00 ~ 11:30',chs:1,moni:{cam:'强',rec:'开',photo:'关',wait:'15分钟',phone:'开'},
+    after:{grading:'done',joined:731,passed:588,certCfg:false,lineSet:true,genState:'none',pushState:'none',failCert:0,failRep:0}},
+   {g:'6月批',name:'图形化二级-第1场',paper:'图形化二级 正式卷B',paperOk:true,mock:false,time:'09-28 14:00 ~ 16:30',chs:0,moni:{cam:'中',rec:'关',photo:'关',wait:'10分钟',phone:'关'},
+    after:{grading:'done',joined:402,passed:351,certCfg:true,lineSet:false,genState:'none',pushState:'none',failCert:0,failRep:0}}
   ],links:7},
  {id:2,name:'2026年12月冲刺班',start:'2026-12-01',end:'2026-12-31',groups:[],exams:[],links:0}
 ];
@@ -980,6 +1120,243 @@ function doBulkEdit(){
   toast('已修改 '+ids.length+' 场测评（'+bits.join('、')+'），其余保持原值');
 }
 
+/* ================= 批量生成证书/报告（任务提交至消息中心执行） ================= */
+var MSG_LS_KEY='aise_export_tasks';
+var bgPendingPicks=null, bgRegenPending=false, bgPreemptPending=false;
+var FAIL_POOL=[
+  {name:'陈一鸣',why:'作答数据校验未通过（第 12 题得分缺失）'},
+  {name:'李思远',why:'证书模板渲染超时'},
+  {name:'王梓萱',why:'照片文件读取失败'},
+  {name:'刘昊然',why:'学员档案字段缺失（联系电话为空）'}
+];
+
+function bgExam(i){return curAct.exams[i]}
+function bgAfter(i){var e=bgExam(i);if(!e.after)e.after={grading:'done',joined:0,passed:0,certCfg:true,lineSet:true,genState:'none',pushState:'none',failCert:0,failRep:0};return e.after}
+
+/* 资格判断：返回 {cert:{ok,reason},rep:{ok,reason}} */
+function bgQual(i){
+  var a=bgAfter(i),r={};
+  if(a.grading!=='done'){var w={cert:'批改中，暂不可生成',rep:'批改中，暂不可生成'};return{cert:{ok:false,reason:w.cert},rep:{ok:false,reason:w.rep}}}
+  r.rep={ok:true,reason:''};
+  if(!a.certCfg)r.cert={ok:false,reason:'证书实例未配置（缺模板绑定）'};
+  else if(!a.lineSet)r.cert={ok:false,reason:'分数线未设置'};
+  else r.cert={ok:true,reason:''};
+  return r;
+}
+function bgTotal(joined,passed){return {cert:passed,rep:joined}}
+/* 活动是否有进行中的批量任务（demo：读消息中心 localStorage） */
+function bgTaskRunning(){
+  try{var rows=JSON.parse(localStorage.getItem(MSG_LS_KEY)||'[]');
+    return rows.some(function(x){return (x.type||'').indexOf('bulk_')===0 && x.status==='processing' && x.detail && x.detail.actName===curAct.name});
+  }catch(e){return false}
+}
+function gotoMessageCenter(){hide('ovBulkGen');location.href='19_消息中心.html'}
+
+function openBulkGen(){
+  if(!curAct){toast('请先进入一个活动');return}
+  if(!curAct.exams.length){toast('该活动暂无测评');return}
+  /* 每次打开重置勾选，按「已生成默认勾选」规则重新初始化 */
+  curAct.exams.forEach(function(e){e._ck=null});
+  $('bgActName').textContent=curAct.name;
+  $('bgStart').disabled=true;$('bgStart').textContent='开始生成';
+  $('bgFootHint').textContent='';
+  bgShowStep(1);
+  bgRenderPick();
+  show('ovBulkGen');
+  setTimeout(bgBodySize,30);
+}
+function bgBodySize(){
+  var m=document.querySelector('#ovBulkGen .modal-body');
+  if(!m)return;
+  var need=m.scrollHeight,have=m.clientHeight;
+  m.style.overflowY=need>have?'auto':'hidden';
+}
+function bgShowStep(n){
+  $('bgStep1').style.display=n===1?'block':'none';
+  $('bgStep2').style.display=n===2?'block':'none';
+  $('bgStart').style.display=n===2?'none':'';
+  /* 结果告知页：body 变 flex 让内容垂直居中铺满，避免下半截大片空白 */
+  $('bgBody').style.display=n===2?'flex':'block';
+  if(n===2)$('bgBody').style.flexDirection='column';
+}
+function bgSelectAllOk(){
+  curAct.exams.forEach(function(e,i){
+    if(!e._ck)e._ck={cert:false,rep:false};
+    var q=bgQual(i);
+    if(q.cert.ok)e._ck.cert=true;
+    if(q.rep.ok)e._ck.rep=true;
+  });
+  bgRenderPick();
+}
+function bgClearAll(){curAct.exams.forEach(function(e){if(e._ck){e._ck.cert=false;e._ck.rep=false}});bgRenderPick()}
+function bgCk(i,obj,v){
+  var e=bgExam(i);if(!e._ck)e._ck={cert:false,rep:false};
+  e._ck[obj]=v;bgSync();
+}
+function bgSync(){
+  var nC=0,nR=0,pC=0,pR=0,any=false;
+  curAct.exams.forEach(function(e,i){
+    var a=bgAfter(i),q=bgQual(i),t=bgTotal(a.joined,a.passed);
+    if(e._ck&&e._ck.cert){nC++;pC+=t.cert;any=true}
+    if(e._ck&&e._ck.rep){nR++;pR+=t.rep;any=true}
+  });
+  var bits=[];
+  if(nC)bits.push('证书 '+nC+' 场 · '+pC+' 人');
+  if(nR)bits.push('报告 '+nR+' 场 · '+pR+' 人');
+  $('bgSummary').textContent=any?('已选：'+bits.join('；')):'尚未勾选任何场';
+  $('bgStart').disabled=!any;
+  $('bgStart').textContent=any?('开始生成（'+bits.join('；')+'）'):'开始生成';
+}
+function bgRenderPick(){
+  var tb=$('bgBody2');tb.innerHTML='';
+  var busy=bgTaskRunning();
+  $('bgBusyBar').style.display=busy?'block':'none';
+  $('bgStart').disabled=!curAct.exams.some(function(e){return e._ck&&(e._ck.cert||e._ck.rep)});
+  zones().forEach(function(z,zi){
+    var list=curAct.exams.filter(function(e,i){e._i=i;return e.g===z});
+    var gtr=document.createElement('tr');gtr.className='grp'+(zi===0?' first':'');
+    gtr.innerHTML='<td colspan="5"><div class="grp-line">'+esc(z)+'<span class="gcount">'+list.length+' 场测评</span></div></td>';
+    tb.appendChild(gtr);
+    list.forEach(function(e){
+      var i=e._i,a=bgAfter(i),q=bgQual(i),t=bgTotal(a.joined,a.passed);
+      /* 已生成场次默认勾选；未配置的置为初始空 */
+      if(!e._ck)e._ck={cert:(q.cert.ok&&a.genState==='gened'),rep:(q.rep.ok&&a.genState==='gened')};
+      var ck=e._ck;
+      var lockedCert=!q.cert.ok,lockedRep=!q.rep.ok;
+      var locked=lockedCert&&lockedRep;
+      var whyBits=[];
+      if(lockedCert)whyBits.push('证书：'+q.cert.reason);
+      if(lockedRep)whyBits.push('报告：'+q.rep.reason);
+      var gTag=a.grading==='done'?'<span class="tag green">批改完成</span>':'<span class="tag amber">批改中</span>';
+      var genedTag=a.genState==='gened'?'<span class="tag blue" style="background:var(--primary-weak);color:var(--primary)">已生成</span>':'';
+      var tr=document.createElement('tr');tr.className=locked?'bg-lockrow':'';
+      tr.innerHTML='<td><div class="bg-objcell">'+
+          '<label class="bg-objline"><input type="checkbox" class="bg-ck" '+(ck.cert?'checked':'')+' '+(lockedCert?'disabled':'')+' onchange="bgCk('+i+',\'cert\',this.checked)"> 证书'+(lockedCert?' 🔒':'')+'</label>'+
+          '<label class="bg-objline"><input type="checkbox" class="bg-ck" '+(ck.rep?'checked':'')+' '+(lockedRep?'disabled':'')+' onchange="bgCk('+i+',\'rep\',this.checked)"> 报告'+(lockedRep?' 🔒':'')+'</label>'+
+        '</div></td>'+
+        '<td style="padding-left:10px"><div class="exam-name">'+esc(e.name)+'</div></td>'+
+        '<td>'+esc(e.time||'待定')+'</td>'+
+        '<td>'+a.joined+' / '+a.passed+'</td>'+
+        '<td>'+gTag+' '+genedTag+(whyBits.length?'<div class="bg-lockwhy">'+whyBits.join('<br>')+'</div>':'')+'</td>';
+      tb.appendChild(tr);
+    });
+  });
+  bgSync();
+}
+/* 收集本次勾选中「已生成」的部分 → 需走重新生成二次确认 */
+function bgStartRun(){
+  var picks=[],regen=[],nC=0,nR=0,pC=0,pR=0;
+  /* 抢占式互斥：有执行中任务时先弹抢占确认 */
+  if(bgTaskRunning()){
+    if(!bgCollectPicks())return;
+    $('bgPreemptMsg').textContent='当前活动有一个批量任务正在执行。确认开始后，原任务将被取消（已生成完成的场次文件保留），并以本次勾选发起新任务。';
+    bgPreemptPending=true;
+    show('ovBgPreempt');
+    return;
+  }
+  bgCollectPicks();
+}
+function bgCollectPicks(){
+  var picks=[],regen=[],nC=0,nR=0,pC=0,pR=0;
+  var __ok=false;
+  curAct.exams.forEach(function(e,i){
+    if(!e._ck||(!e._ck.cert&&!e._ck.rep))return;
+    var a=bgAfter(i),q=bgQual(i),t=bgTotal(a.joined,a.passed);
+    var cert=e._ck.cert&&q.cert.ok, rep=e._ck.rep&&q.rep.ok;
+    if(!cert&&!rep)return;
+    var pk={i:i,cert:cert,rep:rep};
+    picks.push(pk);
+    if(a.genState==='gened')regen.push(pk);
+    if(cert){nC++;pC+=t.cert}
+    if(rep){nR++;pR+=t.rep}
+  });
+  if(!picks.length){toast('没有可执行的生成项');return false}
+  __ok=true;
+  var hasRegen=regen.length>0;
+  var msg='将为 '+picks.length+' 场测评生成'+(nC?('证书 '+pC+' 份'):'')+(nC&&nR?'、':'')+(nR?('报告 '+pR+' 份'):'')+'。';
+  if(hasRegen){
+    msg='将为 '+picks.length+' 场测评重新生成'+(nC?('证书 '+pC+' 份'):'')+(nC&&nR?'、':'')+(nR?('报告 '+pR+' 份'):'')+'，将覆盖已生成文件。';
+    $('bgRegenMsg').textContent=msg;
+    bgPendingPicks=picks;bgRegenPending=true;
+    show('ovBgRegen');
+    return __ok;
+  }
+  $('bgConfirmMsg').textContent=msg;
+  bgPendingPicks=picks;bgRegenPending=false;
+  show('ovBgConfirm');
+  return __ok;
+}function bgSubmitTask(picks,regen){
+  var nC=0,nR=0,pC=0,pR=0;
+  var examsCert=[],examsRep=[];
+  picks.forEach(function(pk){
+    var a=bgAfter(pk.i),t=bgTotal(a.joined,a.passed),e=bgExam(pk.i);
+    if(pk.cert){nC++;pC+=t.cert;examsCert.push({name:e.name,ok:0,fail:0,total:t.cert})}
+    if(pk.rep){nR++;pR+=t.rep;examsRep.push({name:e.name,ok:0,fail:0,total:t.rep})}
+  });
+  var d=new Date(),p=function(x){return(x<10?'0':'')+x};
+  var now=d.getFullYear()+'-'+p(d.getMonth()+1)+'-'+p(d.getDate())+' '+p(d.getHours())+':'+p(d.getMinutes())+':'+p(d.getSeconds());
+  var rows=[];
+  try{rows=JSON.parse(localStorage.getItem(MSG_LS_KEY)||'[]')}catch(e){}
+  var mk=function(type,label,exams,total){
+    return {taskId:'BULK-'+Date.now()+'-'+type,
+      type:type, taskName:label+' · '+curAct.name,
+      fileName:'—', fileSize:null,
+      operatorName:'Admin', createdAt:now, status:'processing',
+      summary:{kind:'bulkgen',total:total,ok:0,fail:0,examCount:exams.length},
+      attemptCount:1, regen:!!regen,
+      detail:{actName:curAct.name,exams:exams,fails:[]}};
+  };
+  if(nC)rows.unshift(mk('bulk_gen_cert','批量生成证书',examsCert,pC));
+  if(nR)rows.unshift(mk('bulk_gen_rep','批量生成报告',examsRep,pR));
+  localStorage.setItem(MSG_LS_KEY,JSON.stringify(rows));
+  /* demo：标记本场次已生成（推送状态回退由真实系统在重新生成时处理） */
+  picks.forEach(function(pk){var a=bgAfter(pk.i);a.genState='gened';a.pushState='none'});
+  /* 第三步：结果告知（本弹窗内），只留关闭 */
+  var objBits=[];
+  if(nC)objBits.push(nC+' 场测评的 '+pC+' 份证书');
+  if(nR)objBits.push(nR+' 场测评的 '+pR+' 份报告');
+  $('bgDoneTitle').textContent=(regen?'已开始重新生成':'已开始生成');
+  $('bgDoneSub').innerHTML='正在生成 '+objBits.join(' 和 ')+'。<br>生成任务已在消息中心执行，可前往「消息中心 → 导出记录」查看进度。';
+  bgShowStep(2);
+  setTimeout(bgBodySize,30);
+}
+function bgConfirmPreempt(){
+  hide('ovBgPreempt');
+  /* 取消该活动所有执行中的批量任务（demo：直接置 cancelled） */
+  try{
+    var rows=JSON.parse(localStorage.getItem(MSG_LS_KEY)||'[]');
+    rows.forEach(function(x){ if((x.type||'').indexOf('bulk_')===0 && x.status==='processing' && x.detail && x.detail.actName===curAct.name) x.status='cancelled'; });
+    localStorage.setItem(MSG_LS_KEY,JSON.stringify(rows));
+  }catch(e){}
+  toast('原任务已取消');
+  /* 继续常规确认流程 */
+  bgCollectPicks();
+}
+function bgConfirmStart(){
+  var picks=bgPendingPicks;
+  hide('ovBgConfirm');
+  if(!picks||!picks.length)return;
+  bgSubmitTask(picks,false);
+}
+function bgConfirmRegen(){
+  var picks=bgPendingPicks;
+  hide('ovBgRegen');
+  if(!picks||!picks.length)return;
+  bgSubmitTask(picks,true);
+}
+function bgTryClose(){
+  if(bgTaskRunning()){
+    $('bgCloseMsg').textContent='批量任务仍在消息中心执行，关闭本弹窗不影响任务。确认关闭？';
+    show('ovBgClose');
+    return;
+  }
+  hide('ovBulkGen');
+}
+function bgConfirmClose(){
+  hide('ovBgClose');
+  hide('ovBulkGen');
+}
+
 /* ================= 跳转 ================= */
 function gotoMatrix(){
   if(!curAct){toast('请先进入一个活动');return}
@@ -992,8 +1369,128 @@ function gotoMatrix(){
   if(!acts.filter(function(a){return a.id===id})[0])id=1;
   enterDetail(id);
 })();
+
+/* ================= 演示场景浮球逻辑 ================= */
+var DP_SCENES=[
+ {id:'default', name:'默认场景', desc:'混合资格：可生成 / 批改中 / 未配置 / 缺分数线'},
+ {id:'all-ok', name:'全部可生成', desc:'全部批改完成、配置齐全，均未生成'},
+ {id:'all-gened', name:'全部已生成', desc:'可生成场次均已生成，测重新生成确认'},
+ {id:'running', name:'有执行中任务', desc:'注入执行中批量任务，测抢占确认'},
+ {id:'partial-fail', name:'生成带失败', desc:'已生成且证书有失败学员，测消息中心重试'},
+ {id:'empty-act', name:'空活动', desc:'切到「2026年12月冲刺班」（无测评）'},
+];
+var dpCurrent='default';
+function dpToggle(){var p=$('dpPanel');p.classList.toggle('show');if(p.classList.contains('show'))dpRender()}
+function dpRender(){
+  $('dpBody').innerHTML=DP_SCENES.map(function(s){
+    return '<button class="dp-scene'+(dpCurrent===s.id?' active':'')+'" onclick="dpApply(\''+s.id+'\')">'+
+      '<b>'+s.name+'</b><span>'+s.desc+'</span></button>';
+  }).join('');
+}
+function dpApply(id){
+  var act=curAct||acts[0];
+  dpCurrent=id;
+  if(id==='default'){
+    act.exams.forEach(function(e,i){
+      var ref=[{gr:'done',cc:true,ls:true},{gr:'doing',cc:true,ls:true},{gr:'done',cc:false,ls:true},{gr:'done',cc:true,ls:false}][i%4];
+      e.after.grading=ref.gr;e.after.certCfg=ref.cc;e.after.lineSet=ref.ls;
+      e.after.genState='none';e.after.pushState='none';e.after.failCert=0;e.after.failRep=0;
+    });
+    dpClearTasks(act);
+  }else if(id==='all-ok'){
+    act.exams.forEach(function(e){e.after.grading='done';e.after.certCfg=true;e.after.lineSet=true;
+      e.after.genState='none';e.after.pushState='none';e.after.failCert=0;e.after.failRep=0;});
+    dpClearTasks(act);
+  }else if(id==='all-gened'){
+    act.exams.forEach(function(e){if(e.after.grading==='doing'){e.after.grading='done';e.after.passed=Math.max(1,Math.round(e.after.joined*0.85))}
+      e.after.certCfg=true;e.after.lineSet=true;e.after.genState='gened';e.after.pushState='none';e.after.failCert=0;e.after.failRep=0;});
+    dpClearTasks(act);
+  }else if(id==='running'){
+    dpApply('all-ok');
+    dpInjectRunning(act);
+  }else if(id==='partial-fail'){
+    act.exams.forEach(function(e,i){e.after.grading='done';e.after.certCfg=true;e.after.lineSet=true;
+      if(i<2){e.after.genState='gened';e.after.failCert=3;}else{e.after.genState='none';e.after.failCert=0;}
+      e.after.pushState='none';e.after.failRep=0;});
+    dpInjectFailedTasks(act);
+  }else if(id==='empty-act'){
+    dpCurrent='empty-act';dpRender();
+    enterDetail(2);toast('已切换到空活动「2026年12月冲刺班」');return;
+  }
+  dpRender();
+  if($('ovBulkGen').classList.contains('show')){openBulkGen();}
+  toast('场景已切换：'+(DP_SCENES.find(function(s){return s.id===id})||{}).name);
+}
+function dpClearTasks(act){
+  try{
+    var rows=JSON.parse(localStorage.getItem(MSG_LS_KEY)||'[]');
+    rows=rows.filter(function(x){return !((x.type||'').indexOf('bulk_')===0 && x.detail && x.detail.actName===act.name)});
+    localStorage.setItem(MSG_LS_KEY,JSON.stringify(rows));
+  }catch(e){}
+}
+function dpInjectRunning(act){
+  try{
+    var d=new Date(),p=function(x){return(x<10?'0':'')+x};
+    var now=d.getFullYear()+'-'+p(d.getMonth()+1)+'-'+p(d.getDate())+' '+p(d.getHours())+':'+p(d.getMinutes());
+    var rows=JSON.parse(localStorage.getItem(MSG_LS_KEY)||'[]');
+    var ok=act.exams.filter(function(e){return bgQual(act.exams.indexOf(e)).cert.ok});
+    var tC={total:0,ok:120},tR={total:0,ok:260};
+    ok.forEach(function(e){tC.total+=e.after.passed;tR.total+=e.after.joined});
+    rows.unshift({taskId:'bulk-demo-cert',type:'bulk_gen_cert',createdAt:now,operatorName:'Admin',status:'processing',
+      summary:{kind:'bulkgen',total:tC.total,ok:tC.ok,fail:0,examCount:ok.length},
+      detail:{actName:act.name,exams:ok.map(function(e){return{name:e.name,ok:60,fail:0,total:e.after.passed}}),fails:[]},fileSize:null,failReason:null});
+    rows.unshift({taskId:'bulk-demo-rep',type:'bulk_gen_rep',createdAt:now,operatorName:'Admin',status:'processing',
+      summary:{kind:'bulkgen',total:tR.total,ok:tR.ok,fail:0,examCount:ok.length},
+      detail:{actName:act.name,exams:ok.map(function(e){return{name:e.name,ok:130,fail:0,total:e.after.joined}}),fails:[]},fileSize:null,failReason:null});
+    localStorage.setItem(MSG_LS_KEY,JSON.stringify(rows));
+  }catch(e){}
+}
+function dpInjectFailedTasks(act){
+  try{
+    var d=new Date(),p=function(x){return(x<10?'0':'')+x};
+    var now=d.getFullYear()+'-'+p(d.getMonth()+1)+'-'+p(d.getDate())+' '+p(d.getHours())+':'+p(d.getMinutes());
+    var rows=JSON.parse(localStorage.getItem(MSG_LS_KEY)||'[]');
+    var names=['陈一鸣','李思远','王梓萱'];
+    var gened=act.exams.filter(function(e){return e.after.genState==='gened'});
+    gened.forEach(function(e,k){
+      var fails=names.map(function(n){return{student:n,exam:e.name,reason:'照片模糊，人脸核验未通过'}});
+      rows.unshift({taskId:'bulk-demo-fail-'+k,type:'bulk_gen_cert',createdAt:now,operatorName:'Admin',status:'success',
+        summary:{kind:'bulkgen',total:e.after.passed,ok:e.after.passed-3,fail:3,examCount:1},
+        detail:{actName:act.name,exams:[{name:e.name,ok:e.after.passed-3,fail:3,total:e.after.passed}],fails:fails},fileSize:'24.6 MB',failReason:null});
+    });
+    localStorage.setItem(MSG_LS_KEY,JSON.stringify(rows));
+  }catch(e){}
+}
+/* 浮球场景列表在 dpToggle 打开时渲染（此处 DOM 尚未就绪，不能顶层渲染） */
+
 </script>
 </div>
 </main>
+
+<!-- ========== 演示场景浮球（仅演示用，非系统功能） ========== -->
+<style>
+  .demo-fab{position:fixed;right:18px;bottom:18px;z-index:200;width:46px;height:46px;border-radius:50%;
+    background:#7c3aed;color:#fff;border:none;cursor:pointer;box-shadow:0 4px 14px rgba(124,58,237,.4);
+    font-size:12px;font-weight:700;display:flex;align-items:center;justify-content:center;flex-direction:column;line-height:1.1}
+  .demo-fab small{font-size:9px;font-weight:400;opacity:.85}
+  .demo-panel{position:fixed;right:18px;bottom:74px;z-index:200;width:290px;background:#fff;border:1px solid #d7dce6;
+    border-radius:12px;box-shadow:0 8px 30px rgba(30,41,66,.18);display:none;overflow:hidden}
+  .demo-panel.show{display:block}
+  .demo-panel .dp-head{background:#7c3aed;color:#fff;padding:9px 14px;font-size:12px;font-weight:700}
+  .demo-panel .dp-head small{display:block;font-weight:400;opacity:.85;font-size:10px;margin-top:2px}
+  .demo-panel .dp-body{padding:8px}
+  .dp-scene{display:block;width:100%;text-align:left;border:1px solid #e2e6ee;background:#f8f9fc;border-radius:8px;
+    padding:8px 10px;margin-bottom:6px;cursor:pointer;font-size:12px;transition:all .15s}
+  .dp-scene:hover{border-color:#7c3aed;background:#f4eefc}
+  .dp-scene.active{border-color:#7c3aed;background:#efe6fd;font-weight:700}
+  .dp-scene b{display:block;font-size:12.5px;color:#2a2f3c}
+  .dp-scene span{color:#6b7280;font-size:11px}
+</style>
+<button class="demo-fab" onclick="dpToggle()" title="演示场景切换（非系统功能）">场景<br><small>DEMO</small></button>
+<div class="demo-panel" id="dpPanel">
+  <div class="dp-head">演示场景切换<small>仅演示辅助工具，非系统功能，研发忽略</small></div>
+  <div class="dp-body" id="dpBody"></div>
+</div>
+
 </body>
 </html>
