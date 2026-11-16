@@ -67,6 +67,7 @@
                     <option value="">操作类型</option>
                     <option>账号删除</option>
                     <option>账号合并</option>
+                    <option>子账号合并</option>
                 </select>
                 <button class="ml-auto bg-brand-600 hover:bg-brand-700 text-white text-sm font-medium px-5 py-2 rounded-lg shadow-sm transition">查询</button>
             </div>
@@ -144,6 +145,9 @@
         { key:'r4', name:'周建国', id:'20240877', phone:'13122223333', type:'merge', typeName:'账号合并',
           brief:'合并入 周建国（ID 20240812）', op:'运营·苏蘅', time:'2026-09-28 09:12', left:'7 天',
           desc:'该记录 7 天后自动清理，清理后不可恢复。' },
+        { key:'r5', name:'张三', id:'20258899', phone:'13800138000', type:'submerge', typeName:'子账号合并',
+          brief:'合并子账号：张小虎（遗弃方）并入 张小虎（保留方）', op:'运营·苏蘅', time:'2026-11-16 09:20', left:'90 天',
+          desc:'恢复后将拆回合并前的两个子账号：转移的记录回退至原遗弃子账号名下，作废记录解除作废，主账号保持不变。' },
     ];
 
     let restoring = null;
@@ -161,8 +165,8 @@
                     </div>
                 </td>
                 <td class="p-4">
-                    <span class="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-full text-xs font-bold border ${it.type==='merge' ? 'bg-purple-50 text-purple-600 border-purple-100' : 'bg-red-50 text-red-600 border-red-100'}">
-                        <i class="fa-solid ${it.type==='merge' ? 'fa-code-merge' : 'fa-trash-can'} text-[10px]"></i> ${it.typeName}
+                    <span class="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-full text-xs font-bold border ${it.type==='merge' ? 'bg-purple-50 text-purple-600 border-purple-100' : it.type==='submerge' ? 'bg-green-50 text-green-600 border-green-100' : 'bg-red-50 text-red-600 border-red-100'}">
+                        <i class="fa-solid ${it.type==='merge' ? 'fa-code-merge' : it.type==='submerge' ? 'fa-user-group' : 'fa-trash-can'} text-[10px]"></i> ${it.typeName}
                     </span>
                 </td>
                 <td class="p-4 text-xs text-slate-500">${it.brief}</td>
@@ -214,7 +218,7 @@
                 const idx = ITEMS.findIndex(i => i.key === restoring.key);
                 ITEMS.splice(idx, 1);
                 render();
-                document.getElementById('toast-text').textContent = '恢复成功：' + restoring.name + ' 的账号已' + (restoring.type === 'merge' ? '拆回合并前状态' : '解除禁用');
+                document.getElementById('toast-text').textContent = '恢复成功：' + restoring.name + ' 的账号已' + (restoring.type === 'merge' ? '拆回合并前状态' : restoring.type === 'submerge' ? '拆回合并前子账号' : '解除禁用');
                 showToast();
             }, 420);
         }, 200);

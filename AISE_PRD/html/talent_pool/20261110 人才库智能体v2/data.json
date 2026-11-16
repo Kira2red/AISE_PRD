@@ -1348,8 +1348,19 @@
       "type": "pdf",
       "filename": "智能小车项目报告.pdf",
       "status": "reviewing",
-      "aiStatus": "processing",
-      "ai": null,
+      "aiStatus": "done",
+      "ai": {
+        "conclusion": "驳回",
+        "reason": "正文解析失败且描述过简，无法确认作品内容",
+        "tags": [
+          "程序设计",
+          "计算思维",
+          "问题解决"
+        ],
+        "score": 40,
+        "comment": "目前仅能看到作品名称，具体内容未能读取。请补充完整报告或重新上传，期待看到你们小车的精彩设计！",
+        "understanding": "根据现有信息，作品应为一篇关于智能小车制作的项目报告，可能包含设计思路、程序实现等内容，但正文无法解析，具体完成情况不明。"
+      },
       "submittedAt": "2026-11-11 10:30:00"
     }
   ],

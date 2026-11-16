@@ -77,7 +77,16 @@
 
             <!-- ============ 步骤1：选择账号 ============ -->
             <div id="step-1">
-                <div class="grid grid-cols-2 gap-6">
+                <!-- 合并模式切换 -->
+                <div class="bg-white rounded-xl shadow-card border border-slate-200 p-4 mb-6 flex items-center gap-4">
+                    <span class="text-sm font-bold text-slate-700">合并模式</span>
+                    <div class="flex bg-slate-100 rounded-lg p-1 gap-1">
+                        <button id="mode-btn-acc" onclick="setMode('acc')" class="px-4 py-1.5 rounded-md text-sm font-bold transition">合并两个账号</button>
+                        <button id="mode-btn-sub" onclick="setMode('sub')" class="px-4 py-1.5 rounded-md text-sm font-bold transition">合并同一账号下的子账号</button>
+                    </div>
+                    <span class="text-xs text-slate-400" id="mode-hint">合并重复注册产生的两个主账号</span>
+                </div>
+                <div id="acc-picker" class="grid grid-cols-2 gap-6">
                     <!-- 账号A -->
                     <div class="bg-white rounded-xl shadow-card border border-slate-200 p-6" id="card-a">
                         <div class="flex items-center gap-2 mb-4">
@@ -106,9 +115,42 @@
                     </div>
                 </div>
 
+                <!-- 子账号合并模式：选择主账号与子账号 -->
+                <div id="sub-picker" class="hidden space-y-6">
+                    <div class="bg-white rounded-xl shadow-card border border-slate-200 p-6">
+                        <div class="flex items-center gap-2 mb-4">
+                            <span class="w-6 h-6 rounded-full bg-blue-100 text-blue-600 text-xs font-bold flex items-center justify-center"><i class="fa-solid fa-user"></i></span>
+                            <h3 class="font-bold text-slate-800">主账号</h3>
+                        </div>
+                        <div class="relative">
+                            <i class="fa-solid fa-magnifying-glass absolute left-3 top-1/2 -translate-y-1/2 text-slate-400 text-sm"></i>
+                            <input type="text" id="sub-search" placeholder="输入姓名 / 手机号 / 身份证号搜索主账号" oninput="showSubSug()" class="w-full pl-9 pr-4 py-2 rounded-lg border border-slate-200 text-sm focus:border-brand-500 outline-none transition">
+                        </div>
+                        <div id="sub-sug" class="hidden mt-2 border border-slate-200 rounded-lg overflow-hidden divide-y divide-slate-100 bg-white"></div>
+                        <div id="sub-picked" class="hidden mt-4"></div>
+                    </div>
+                    <div class="bg-white rounded-xl shadow-card border border-slate-200 overflow-hidden" id="sub-children-panel">
+                        <div class="px-6 py-4 border-b border-slate-100">
+                            <h3 class="font-bold text-slate-900 flex items-center gap-2"><i class="fa-solid fa-user-group text-brand-500"></i> 名下子账号（指定保留方与遗弃方）</h3>
+                            <p class="text-xs text-slate-400 mt-1">为两个子账号分别指定「保留」与「遗弃」角色；存在在途业务的子账号不可指定为遗弃方</p>
+                        </div>
+                        <table class="w-full text-sm text-left border-collapse">
+                            <thead>
+                                <tr class="border-b border-slate-100 bg-slate-50 text-xs uppercase text-slate-500 font-bold">
+                                    <th class="p-3 pl-6">子账号姓名</th>
+                                    <th class="p-3">身份证号</th>
+                                    <th class="p-3">报名与考试记录</th>
+                                    <th class="p-3 w-64 pr-6">合并角色</th>
+                                </tr>
+                            </thead>
+                            <tbody id="sub-child-tbody" class="divide-y divide-slate-100"></tbody>
+                        </table>
+                    </div>
+                </div>
+
                 <div class="mt-6 bg-blue-50 border border-blue-100 rounded-xl p-4 flex items-start gap-3">
                     <i class="fa-solid fa-circle-info text-blue-500 mt-0.5"></i>
-                    <p class="text-sm text-blue-800 leading-relaxed">合并为「两两合并」：一次操作合并 2 个主账号。三个及以上账号分多次两两合并即可。同一手机号注册的两个账号，或家长重复注册产生的账号，都通过本功能合并。</p>
+                    <p class="text-sm text-blue-800 leading-relaxed" id="mode-tip-text">合并为「两两合并」：一次操作合并 2 个主账号。三个及以上账号分多次两两合并即可。同一手机号注册的两个账号，或家长重复注册产生的账号，都通过本功能合并。</p>
                 </div>
 
                 <div class="mt-6 flex justify-end">
@@ -124,7 +166,7 @@
                 <!-- 概览 -->
                 <div class="bg-white rounded-xl shadow-card border border-slate-200 p-5 flex items-center justify-between">
                     <div class="flex items-center gap-3">
-                        <span class="w-8 h-8 rounded-full bg-blue-100 text-blue-600 text-sm font-bold flex items-center justify-center">A</span>
+                        <span class="w-8 h-8 rounded-full bg-blue-100 text-blue-600 text-sm font-bold flex items-center justify-center" id="sum-a-badge">A</span>
                         <div>
                             <p class="font-bold text-slate-800 text-sm" id="sum-a">—</p>
                             <p class="text-xs text-slate-400 font-mono" id="sum-a-id">—</p>
@@ -132,7 +174,7 @@
                     </div>
                     <i class="fa-solid fa-code-merge text-brand-500 text-lg"></i>
                     <div class="flex items-center gap-3">
-                        <span class="w-8 h-8 rounded-full bg-purple-100 text-purple-600 text-sm font-bold flex items-center justify-center">B</span>
+                        <span class="w-8 h-8 rounded-full bg-purple-100 text-purple-600 text-sm font-bold flex items-center justify-center" id="sum-b-badge">B</span>
                         <div>
                             <p class="font-bold text-slate-800 text-sm" id="sum-b">—</p>
                             <p class="text-xs text-slate-400 font-mono" id="sum-b-id">—</p>
@@ -142,7 +184,7 @@
                 </div>
 
                 <!-- 字段对比表 -->
-                <div class="bg-white rounded-xl shadow-card border border-slate-200 overflow-hidden">
+                <div class="bg-white rounded-xl shadow-card border border-slate-200 overflow-hidden" id="block-fields">
                     <div class="px-6 py-4 border-b border-slate-100 flex items-center justify-between">
                         <h3 class="font-bold text-slate-900 flex items-center gap-2"><i class="fa-solid fa-table-columns text-brand-500"></i> 个人信息逐字段确认</h3>
                         <p class="text-xs text-slate-400">每个字段点选保留 A 或 B 的值；选定后可直接修改为任意值</p>
@@ -161,7 +203,7 @@
                 </div>
 
                 <!-- 登录手机号 -->
-                <div class="bg-white rounded-xl shadow-card border border-amber-200 overflow-hidden">
+                <div class="bg-white rounded-xl shadow-card border border-amber-200 overflow-hidden" id="block-phone">
                     <div class="px-6 py-4 border-b border-slate-100">
                         <h3 class="font-bold text-slate-900 flex items-center gap-2"><i class="fa-solid fa-mobile-screen-button text-amber-500"></i> 登录手机号（合并后仅保留一个）</h3>
                         <p class="text-xs text-slate-400 mt-1">未被保留的手机号合并后失效，无法再登录。请与家长确认常用手机号后再选择。</p>
@@ -170,7 +212,7 @@
                 </div>
 
                 <!-- 子账号 -->
-                <div class="bg-white rounded-xl shadow-card border border-slate-200 overflow-hidden">
+                <div class="bg-white rounded-xl shadow-card border border-slate-200 overflow-hidden" id="block-children">
                     <div class="px-6 py-4 border-b border-slate-100 flex items-center justify-between">
                         <h3 class="font-bold text-slate-900 flex items-center gap-2"><i class="fa-solid fa-user-group text-brand-500"></i> 子账号（家庭成员学员）</h3>
                         <p class="text-xs text-slate-400">逐个勾选保留到合并后的账号；未勾选＝遗弃该子账号身份。有报名记录的子账号须先转移记录，转移后方可遗弃</p>
@@ -190,26 +232,45 @@
                 </div>
 
                 <!-- 报名/考试记录 -->
-                <div class="bg-white rounded-xl shadow-card border border-slate-200 overflow-hidden">
+                <div class="bg-white rounded-xl shadow-card border border-slate-200 overflow-hidden" id="block-recs">
                     <div class="px-6 py-4 border-b border-slate-100 flex items-center justify-between">
                         <h3 class="font-bold text-slate-900 flex items-center gap-2"><i class="fa-solid fa-clipboard-list text-brand-500"></i> 报名与考试记录（全部保留）</h3>
                         <span class="bg-green-50 text-green-600 text-xs font-bold px-2.5 py-1 rounded-full border border-green-100">两账号记录全部合并保留，无需逐条确认</span>
                     </div>
                     <div class="p-6 grid grid-cols-2 gap-6">
                         <div>
-                            <p class="text-xs font-bold text-slate-400 uppercase mb-3">账号 A 的记录</p>
+                            <p class="text-xs font-bold text-slate-400 uppercase mb-3" id="rec-a-title">账号 A 的记录</p>
                             <div class="space-y-2" id="rec-a"></div>
                         </div>
                         <div>
-                            <p class="text-xs font-bold text-slate-400 uppercase mb-3">账号 B 的记录</p>
+                            <p class="text-xs font-bold text-slate-400 uppercase mb-3" id="rec-b-title">账号 B 的记录</p>
                             <div class="space-y-2" id="rec-b"></div>
                         </div>
                     </div>
                 </div>
 
+                <!-- 子账号合并：信息对照与记录转移 -->
+                <div class="bg-white rounded-xl shadow-card border border-slate-200 overflow-hidden hidden" id="block-subcmp">
+                    <div class="px-6 py-4 border-b border-slate-100 flex items-center justify-between">
+                        <h3 class="font-bold text-slate-900 flex items-center gap-2"><i class="fa-solid fa-user-group text-brand-500"></i> 子账号信息对照</h3>
+                        <p class="text-xs text-slate-400">主账号与登录手机号不受本次合并影响</p>
+                    </div>
+                    <table class="w-full text-sm text-left border-collapse">
+                        <thead>
+                            <tr class="border-b border-slate-100 bg-slate-50 text-xs uppercase text-slate-500 font-bold">
+                                <th class="p-3 pl-6 w-32">项目</th>
+                                <th class="p-3">保留子账号</th>
+                                <th class="p-3 pr-6">遗弃子账号</th>
+                            </tr>
+                        </thead>
+                        <tbody id="subcmp-tbody" class="divide-y divide-slate-100"></tbody>
+                    </table>
+                    <div class="px-6 py-4 border-t border-slate-100" id="subcmp-transfer-bar"></div>
+                </div>
+
                 <div class="flex justify-between pb-8">
                     <button onclick="backToStep1()" class="bg-white border border-slate-200 text-slate-600 text-sm font-medium px-6 py-2.5 rounded-lg hover:bg-slate-50 transition">上一步</button>
-                    <button onclick="openMergeConfirm()" class="bg-brand-600 hover:bg-brand-700 text-white text-sm font-bold px-8 py-2.5 rounded-lg shadow-sm transition">
+                    <button id="btn-merge" onclick="openMergeConfirm()" class="bg-brand-600 hover:bg-brand-700 text-white text-sm font-bold px-8 py-2.5 rounded-lg shadow-sm transition">
                         <i class="fa-solid fa-check mr-2"></i>确认合并
                     </button>
                 </div>
@@ -222,10 +283,10 @@
                         <i class="fa-solid fa-circle-check text-green-500 text-3xl"></i>
                     </div>
                     <h3 class="font-bold text-slate-900 text-xl mb-2">合并完成</h3>
-                    <p class="text-sm text-slate-500 mb-8">两个账号已合并为下方账号，原账号数据已移入回收站，90 天内可恢复。</p>
+                    <p class="text-sm text-slate-500 mb-8" id="done-subtitle">两个账号已合并为下方账号，原账号数据已移入回收站，90 天内可恢复。</p>
                     <div class="max-w-md mx-auto bg-slate-50 rounded-xl p-5 text-left space-y-2 text-sm border border-slate-100">
-                        <div class="flex justify-between"><span class="text-slate-400">合并后账号</span><span class="font-bold font-mono" id="done-id">—</span></div>
-                        <div class="flex justify-between"><span class="text-slate-400">保留登录手机号</span><span class="font-bold font-mono" id="done-phone">—</span></div>
+                        <div class="flex justify-between"><span class="text-slate-400" id="done-id-label">合并后账号</span><span class="font-bold font-mono" id="done-id">—</span></div>
+                        <div class="flex justify-between" id="done-phone-row"><span class="text-slate-400">保留登录手机号</span><span class="font-bold font-mono" id="done-phone">—</span></div>
                         <div class="flex justify-between"><span class="text-slate-400">合并报名/考试记录</span><span class="font-bold" id="done-rec">—</span></div>
                         <div class="flex justify-between"><span class="text-slate-400">保留子账号</span><span class="font-bold" id="done-child">—</span></div>
                     </div>
@@ -247,10 +308,11 @@
                 </div>
                 <h3 class="font-bold text-slate-800 text-lg mb-2">确认执行合并？</h3>
                 <div class="w-full bg-slate-50 rounded-lg p-4 text-sm text-left space-y-1.5 mb-5 border border-slate-100">
-                    <p class="flex justify-between"><span class="text-slate-400">字段取值</span><span class="font-medium" id="cf-fields">—</span></p>
-                    <p class="flex justify-between"><span class="text-slate-400">保留登录手机号</span><span class="font-mono font-medium" id="cf-phone">—</span></p>
+                    <p class="flex justify-between" id="cf-fields-row"><span class="text-slate-400">字段取值</span><span class="font-medium" id="cf-fields">—</span></p>
+                    <p class="flex justify-between hidden" id="cf-main-row"><span class="text-slate-400">主账号</span><span class="font-medium" id="cf-main">—</span></p>
+                    <p class="flex justify-between" id="cf-phone-row"><span class="text-slate-400">保留登录手机号</span><span class="font-mono font-medium" id="cf-phone">—</span></p>
                     <p class="flex justify-between"><span class="text-slate-400">保留子账号</span><span class="font-medium" id="cf-child">—</span></p>
-                    <p class="flex justify-between"><span class="text-slate-400">失效手机号</span><span class="font-mono font-medium text-amber-600" id="cf-dropped">—</span></p>
+                    <p class="flex justify-between" id="cf-dropped-row"><span class="text-slate-400">失效手机号</span><span class="font-mono font-medium text-amber-600" id="cf-dropped">—</span></p>
                 </div>
                 <p class="text-xs text-slate-400 leading-relaxed mb-5">合并后原账号 B 将被禁用并移入回收站；报名与考试记录全部并入保留账号。如合并有误，可在回收站恢复。</p>
                 <div class="flex gap-3 w-full">
@@ -327,7 +389,23 @@
     };
 
     const CONFLICT_DEMO = { 2: 0 }; // 演示：子账号2（张小虎B）转移给子账号0（张小虎A）触发同场冲突提示
-    const state = { picked:{a:null,b:null}, choice:{}, phone:'A', childrenKeep:{}, transfers:{}, merged:false, _conflictPair:null, _conflictConfirmed:false };
+    // 子账号合并模式数据：同一主账号下重复创建的子账号
+    const SUB_DATA = {
+        u1: { main:'张三', id:'20258899', phone:'13800138000', children:[
+            { name:'张小虎', idcard:'11010120170101****', recs:'2 条报名与考试记录', recCount:2, recList:[ {t:'Python 程序设计 (一级)', s:'2025春季测评 · 已完成 · 成绩 S级'}, {t:'AIGC 应用能力 (二级)', s:'2025夏季测评 · 报名成功 · ¥199.00'} ] },
+            { name:'张小虎', idcard:'11010120170101****', recs:'1 条报名与考试记录', recCount:1, recList:[ {t:'图形化编程 (一级)', s:'2025秋季测评 · 已完成 · 成绩 A级'} ], sameExam:true },
+            { name:'张小凤', idcard:'11010120190202****', recs:'候考中 1 场测评', recCount:1, recList:[ {t:'Python 程序设计 (一级)', s:'2026春季测评 · 候考中'} ], inTransit:true },
+        ]},
+        u2: { main:'张三', id:'20261033', phone:'13900000000', children:[
+            { name:'张小虎', idcard:'11010120170101****', recs:'1 条报名与考试记录', recCount:1, recList:[ {t:'图形化编程 (一级)', s:'2025秋季测评 · 已完成 · 成绩 A级'} ] },
+        ]},
+        u4: { main:'李四', id:'20260456', phone:'13633334444', children:[
+            { name:'李小花', idcard:'31010120180303****', recs:'无报名与考试记录', recCount:0, recList:[] },
+        ]},
+    };
+    const SUB_CONFLICT = { 1: 0 }; // 子账号合并模式：遗弃方（索引1）转移给保留方（索引0）触发同场冲突提示
+    function conflictMap() { return state._subMode ? SUB_CONFLICT : CONFLICT_DEMO; }
+    const state = { picked:{a:null,b:null}, sub:{main:null,keep:null,drop:null}, choice:{}, phone:'A', childrenKeep:{}, transfers:{}, merged:false, _conflictPair:null, _conflictConfirmed:false, _subMode:false };
 
     // ===== 步骤1：搜索选择 =====
     function showSug(side) {
@@ -368,20 +446,131 @@
         refreshStartBtn();
     }
     function refreshStartBtn() {
-        document.getElementById('btn-start').disabled = !(state.picked.a && state.picked.b);
+        let ok;
+        if (state._subMode) {
+            ok = state.sub.main != null && state.sub.keep != null && state.sub.drop != null && state.sub.keep !== state.sub.drop;
+        } else {
+            ok = !!(state.picked.a && state.picked.b);
+        }
+        document.getElementById('btn-start').disabled = !ok;
+    }
+    // ===== 合并模式切换 =====
+    function setMode(m) {
+        state._subMode = m === 'sub';
+        state.picked = { a:null, b:null };
+        state.sub = { main:null, keep:null, drop:null };
+        document.getElementById('picked-a').classList.add('hidden');
+        document.getElementById('picked-b').classList.add('hidden');
+        document.getElementById('sub-picked').classList.add('hidden');
+        document.getElementById('sub-children-panel').classList.add('hidden');
+        document.getElementById('acc-picker').classList.toggle('hidden', state._subMode);
+        document.getElementById('sub-picker').classList.toggle('hidden', !state._subMode);
+        document.getElementById('mode-btn-acc').className = 'px-4 py-1.5 rounded-md text-sm font-bold transition ' + (!state._subMode ? 'bg-white shadow text-brand-700' : 'text-slate-500 hover:text-slate-700');
+        document.getElementById('mode-btn-sub').className = 'px-4 py-1.5 rounded-md text-sm font-bold transition ' + (state._subMode ? 'bg-white shadow text-brand-700' : 'text-slate-500 hover:text-slate-700');
+        document.getElementById('mode-hint').textContent = state._subMode ? '合并同一主账号下重复创建的子账号，主账号保持不变' : '合并重复注册产生的两个主账号';
+        document.getElementById('mode-tip-text').textContent = state._subMode
+            ? '子账号合并用于同一家长账号下重复创建的同一个孩子：指定保留方与遗弃方，报名与考试记录全部归至保留子账号名下，主账号与登录手机号不受影响。'
+            : '合并为「两两合并」：一次操作合并 2 个主账号。三个及以上账号分多次两两合并即可。同一手机号注册的两个账号，或家长重复注册产生的账号，都通过本功能合并。';
+        refreshStartBtn();
+    }
+    // ===== 子账号合并：步骤1 =====
+    function showSubSug() {
+        const box = document.getElementById('sub-sug');
+        box.innerHTML = Object.keys(SUB_DATA).map(k => {
+            const d = SUB_DATA[k];
+            return `<button onclick="pickSubMain('${k}')" class="w-full px-4 py-2.5 hover:bg-brand-50 text-left flex items-center justify-between transition">
+                <span class="text-sm font-medium text-slate-700">${d.main}</span>
+                <span class="text-xs text-slate-400 font-mono">ID: ${d.id} · ${d.phone} · 子账号 ${d.children.length} 个</span>
+            </button>`;
+        }).join('');
+        box.classList.remove('hidden');
+    }
+    function pickSubMain(key) {
+        state.sub = { main:key, keep:null, drop:null };
+        const d = SUB_DATA[key];
+        document.getElementById('sub-sug').classList.add('hidden');
+        const box = document.getElementById('sub-picked');
+        box.classList.remove('hidden');
+        box.innerHTML = `
+            <div class="bg-slate-50 rounded-lg p-4 border border-slate-100 fade-in">
+                <div class="flex items-center justify-between mb-2">
+                    <p class="font-bold text-slate-800">${d.main} <span class="text-xs text-slate-400 font-mono ml-1">ID: ${d.id}</span></p>
+                    <button onclick="unpickSubMain()" class="text-xs text-slate-400 hover:text-red-500"><i class="fa-solid fa-xmark"></i> 重选</button>
+                </div>
+                <div class="grid grid-cols-2 gap-y-1 text-xs text-slate-500">
+                    <span>登录手机号：<span class="font-mono text-slate-700">${d.phone}</span></span>
+                    <span>子账号 ${d.children.length} 个</span>
+                </div>
+            </div>`;
+        document.getElementById('sub-children-panel').classList.remove('hidden');
+        renderSubChildren();
+        refreshStartBtn();
+    }
+    function unpickSubMain() {
+        state.sub = { main:null, keep:null, drop:null };
+        document.getElementById('sub-picked').classList.add('hidden');
+        document.getElementById('sub-children-panel').classList.add('hidden');
+        refreshStartBtn();
+    }
+    function renderSubChildren() {
+        const d = SUB_DATA[state.sub.main];
+        const tb = document.getElementById('sub-child-tbody');
+        tb.innerHTML = d.children.map((c, i) => {
+            const role = state.sub.keep === i ? 'keep' : (state.sub.drop === i ? 'drop' : null);
+            const blocked = c.inTransit;
+            let roleHtml;
+            if (role === 'keep') {
+                roleHtml = `<span class="text-xs px-2 py-0.5 rounded-full font-bold bg-green-50 text-green-600 border border-green-100">保留方</span>
+                    <button onclick="unroleSubChild(${i})" class="ml-2 text-xs text-slate-400 hover:text-red-500"><i class="fa-solid fa-xmark"></i> 取消</button>`;
+            } else if (role === 'drop') {
+                roleHtml = `<span class="text-xs px-2 py-0.5 rounded-full font-bold bg-amber-50 text-amber-600 border border-amber-100">遗弃方</span>
+                    <button onclick="unroleSubChild(${i})" class="ml-2 text-xs text-slate-400 hover:text-red-500"><i class="fa-solid fa-xmark"></i> 取消</button>`;
+            } else {
+                roleHtml = `<button onclick="roleSubChild(${i},'keep')" class="text-xs font-bold px-2.5 py-1 rounded-lg border border-green-200 text-green-600 hover:bg-green-50 transition">设为保留</button>
+                    <button onclick="roleSubChild(${i},'drop')" ${blocked ? 'disabled title="该子账号存在在途业务，请先处理完再合并"' : ''} class="ml-1.5 text-xs font-bold px-2.5 py-1 rounded-lg border transition ${blocked ? 'border-slate-200 text-slate-300 cursor-not-allowed' : 'border-amber-200 text-amber-600 hover:bg-amber-50'}">设为遗弃</button>`;
+            }
+            return `<tr class="hover-row transition">
+                <td class="p-3 pl-6 font-bold text-slate-700">${c.name}${blocked ? ' <span class="ml-1 inline-flex items-center text-[10px] text-red-500 bg-red-50 border border-red-100 px-1.5 py-0.5 rounded">在途业务</span>' : ''}</td>
+                <td class="p-3 font-mono text-xs text-slate-500">${c.idcard}</td>
+                <td class="p-3 text-xs text-slate-500">${c.recs}</td>
+                <td class="p-3 pr-6">${roleHtml}</td>
+            </tr>`;
+        }).join('');
+    }
+    function roleSubChild(i, role) {
+        if (role === 'keep') {
+            state.sub.keep = i;
+            if (state.sub.drop === i) state.sub.drop = null;
+        } else {
+            if (SUB_DATA[state.sub.main].children[i].inTransit) return;
+            state.sub.drop = i;
+            if (state.sub.keep === i) state.sub.keep = null;
+        }
+        renderSubChildren();
+        refreshStartBtn();
+    }
+    function unroleSubChild(i) {
+        if (state.sub.keep === i) state.sub.keep = null;
+        if (state.sub.drop === i) state.sub.drop = null;
+        renderSubChildren();
+        refreshStartBtn();
     }
 
     // ===== 步骤2：字段表渲染 =====
     function gotoStep2() {
-        if (!(state.picked.a && state.picked.b)) return;
+        if (state._subMode) {
+            if (!(state.sub.main != null && state.sub.keep != null && state.sub.drop != null && state.sub.keep !== state.sub.drop)) return;
+        } else if (!(state.picked.a && state.picked.b)) return;
         setStep(2);
         document.getElementById('step-1').classList.add('hidden');
         document.getElementById('step-2').classList.remove('hidden');
-        const ua = USERS[state.picked.a], ub = USERS[state.picked.b];
-        document.getElementById('sum-a').textContent = ua.name;
-        document.getElementById('sum-a-id').textContent = 'ID: ' + ua.id + ' · ' + ua.phone;
-        document.getElementById('sum-b').textContent = ub.name;
-        document.getElementById('sum-b-id').textContent = 'ID: ' + ub.id + ' · ' + ub.phone;
+        if (!state._subMode) {
+            const ua = USERS[state.picked.a], ub = USERS[state.picked.b];
+            document.getElementById('sum-a').textContent = ua.name;
+            document.getElementById('sum-a-id').textContent = 'ID: ' + ua.id + ' · ' + ua.phone;
+            document.getElementById('sum-b').textContent = ub.name;
+            document.getElementById('sum-b-id').textContent = 'ID: ' + ub.id + ' · ' + ub.phone;
+        }
 
         // 字段表
         const tb = document.getElementById('field-tbody');
@@ -397,6 +586,20 @@
         // 默认全选 A
         FIELDS.forEach((f, i) => chooseField(i, 'A', true));
 
+        if (state._subMode) {
+            initSubStep2();
+            return;
+        }
+        // 模式一：展示全部区块
+        document.getElementById('block-fields').classList.remove('hidden');
+        document.getElementById('block-phone').classList.remove('hidden');
+        document.getElementById('block-children').classList.remove('hidden');
+        document.getElementById('block-subcmp').classList.add('hidden');
+        document.getElementById('sum-a-badge').textContent = 'A';
+        document.getElementById('sum-b-badge').textContent = 'B';
+        document.getElementById('rec-a-title').textContent = '账号 A 的记录';
+        document.getElementById('rec-b-title').textContent = '账号 B 的记录';
+        document.getElementById('btn-merge').disabled = false;
         // 登录手机号
         renderPhone();
         // 子账号
@@ -404,9 +607,64 @@
         CHILDREN.forEach((c, i) => state.childrenKeep[i] = true);
         renderChildren();
         // 记录
+        renderRecs(RECS.a, RECS.b);
+    }
+    // ===== 子账号合并：步骤2 =====
+    function initSubStep2() {
+        const d = SUB_DATA[state.sub.main];
+        const keep = d.children[state.sub.keep], drop = d.children[state.sub.drop];
+        CHILDREN.length = 0;
+        CHILDREN.push({ name:keep.name, idcard:keep.idcard, from:'保留', recs:keep.recs, recCount:keep.recCount, recList:keep.recList });
+        CHILDREN.push({ name:drop.name, idcard:drop.idcard, from:'遗弃', recs:drop.recs, recCount:drop.recCount, recList:drop.recList });
+        state.childrenKeep = { 0:true, 1:true };
+        state.transfers = {};
+        document.getElementById('block-fields').classList.add('hidden');
+        document.getElementById('block-phone').classList.add('hidden');
+        document.getElementById('block-children').classList.add('hidden');
+        document.getElementById('block-subcmp').classList.remove('hidden');
+        document.getElementById('sum-a').textContent = keep.name;
+        document.getElementById('sum-a-id').textContent = '保留方 · 身份证 ' + keep.idcard;
+        document.getElementById('sum-b').textContent = drop.name;
+        document.getElementById('sum-b-id').textContent = '遗弃方 · 身份证 ' + drop.idcard;
+        document.getElementById('sum-a-badge').textContent = '留';
+        document.getElementById('sum-b-badge').textContent = '弃';
+        document.getElementById('rec-a-title').textContent = '保留子账号的记录';
+        document.getElementById('rec-b-title').textContent = '遗弃子账号的记录（合并后转移至保留方）';
+        renderSubCompare();
+        renderRecs(keep.recList, drop.recList);
+        updateSubMergeBtn();
+    }
+    function renderRecs(listA, listB) {
         const recHtml = r => `<div class="bg-slate-50 rounded-lg p-3 border border-slate-100"><p class="text-sm font-bold text-slate-700">${r.t}</p><p class="text-xs text-slate-400 mt-0.5">${r.s}</p></div>`;
-        document.getElementById('rec-a').innerHTML = RECS.a.map(recHtml).join('');
-        document.getElementById('rec-b').innerHTML = RECS.b.map(recHtml).join('');
+        document.getElementById('rec-a').innerHTML = listA.map(recHtml).join('');
+        document.getElementById('rec-b').innerHTML = listB.map(recHtml).join('');
+    }
+    function renderSubCompare() {
+        const k = CHILDREN[0], dr = CHILDREN[1];
+        const idcardHint = (k.idcard !== dr.idcard)
+            ? `<tr><td colspan="3" class="p-3 pl-6 text-red-500 font-bold"><i class="fa-solid fa-triangle-exclamation mr-1"></i>身份证号不一致，请人工核实是否同一学员（不阻断操作，由运营自行判断）</td></tr>`
+            : '';
+        document.getElementById('subcmp-tbody').innerHTML = `
+            <tr><td class="p-3 pl-6 font-bold text-slate-700">姓名</td><td class="p-3">${k.name}</td><td class="p-3">${dr.name}</td></tr>
+            <tr><td class="p-3 pl-6 font-bold text-slate-700">身份证号</td><td class="p-3 font-mono text-xs">${k.idcard}</td><td class="p-3 font-mono text-xs">${dr.idcard}</td></tr>
+            <tr><td class="p-3 pl-6 font-bold text-slate-700">报名与考试记录</td><td class="p-3 text-xs text-slate-500">${k.recs}</td><td class="p-3 text-xs text-slate-500">${dr.recs}</td></tr>
+            ${idcardHint}`;
+        const tf = state.transfers[1];
+        document.getElementById('subcmp-transfer-bar').innerHTML = dr.recCount > 0
+            ? (tf != null
+                ? `<p class="text-sm text-green-700 font-bold"><i class="fa-solid fa-circle-check mr-1"></i>遗弃子账号的 ${dr.recCount} 条记录已指定转移至「${childLabel(0)}」，随「确认合并」一并生效。</p>`
+                : `<p class="text-sm text-amber-700 font-bold"><i class="fa-solid fa-triangle-exclamation mr-1"></i>遗弃子账号有 ${dr.recCount} 条报名与考试记录，须先转移至保留子账号后方可合并。</p>
+                   <button onclick="openTransferModal(1)" class="mt-2 bg-amber-500 hover:bg-amber-600 text-white text-sm font-bold px-5 py-2 rounded-lg transition">转移记录</button>`)
+            : `<p class="text-sm text-slate-500">遗弃子账号无报名与考试记录，可直接遗弃，无需转移记录。</p>`;
+    }
+    function updateSubMergeBtn() {
+        if (!state._subMode) return;
+        const dr = CHILDREN[1];
+        const ready = dr.recCount === 0 || state.transfers[1] != null;
+        const btn = document.getElementById('btn-merge');
+        btn.disabled = !ready;
+        btn.classList.toggle('opacity-40', !ready);
+        btn.classList.toggle('cursor-not-allowed', !ready);
     }
     function chooseField(i, side, silent) {
         state.choice[i] = side;
@@ -425,6 +683,7 @@
     function childLabel(i) {
         const c = CHILDREN[i];
         const dup = CHILDREN.filter(x => x.name === c.name).length > 1;
+        if (state._subMode) return dup ? c.name + '（' + c.from + '方）' : c.name;
         return dup ? c.name + '（账号 ' + c.from + '）' : c.name;
     }
     function transferTargets(i) {
@@ -465,7 +724,7 @@
         const c = CHILDREN[i];
         state._transferIdx = i;
         state._conflictConfirmed = false;
-        document.getElementById('tf-child').textContent = c.name + '（账号 ' + c.from + '）';
+        document.getElementById('tf-child').textContent = state._subMode ? c.name + '（遗弃方）' : c.name + '（账号 ' + c.from + '）';
         document.getElementById('tf-count').textContent = c.recCount;
         const opts = transferTargets(i);
         document.getElementById('tf-select').innerHTML = opts.length
@@ -474,13 +733,13 @@
         document.getElementById('tf-error').classList.add('hidden');
         const selEl = document.getElementById('tf-select');
         const dj = selEl.value === '' ? NaN : +selEl.value;
-        state._conflictPair = (!isNaN(dj) && CONFLICT_DEMO[i] === dj) ? dj : null;
+        state._conflictPair = (!isNaN(dj) && conflictMap()[i] === dj) ? dj : null;
         const conflict = document.getElementById('tf-conflict');
         const btn = document.getElementById('tf-btn');
         if (state._conflictPair !== null && state._conflictPair !== undefined) {
             conflict.classList.remove('hidden');
             document.getElementById('tf-conflict-detail').textContent =
-                '「' + CHILDREN[i].name + '（账号 ' + CHILDREN[i].from + '）」与接收方「' + childLabel(state._conflictPair) + '」报了同一场测评。';
+                '「' + childLabel(i) + '」与接收方「' + childLabel(state._conflictPair) + '」报了同一场测评。';
             btn.textContent = '确认转移';
             btn.classList.remove('bg-brand-600','hover:bg-brand-700');
             btn.classList.add('bg-red-600','hover:bg-red-700');
@@ -497,14 +756,14 @@
     document.getElementById('tf-select').addEventListener('change', function() {
         const i = state._transferIdx;
         const j = +this.value;
-        state._conflictPair = (!isNaN(j) && CONFLICT_DEMO[i] === j) ? j : null;
+        state._conflictPair = (!isNaN(j) && conflictMap()[i] === j) ? j : null;
         state._conflictConfirmed = false;
         const conflict = document.getElementById('tf-conflict');
         const btn = document.getElementById('tf-btn');
         if (state._conflictPair !== null && state._conflictPair !== undefined) {
             conflict.classList.remove('hidden');
             document.getElementById('tf-conflict-detail').textContent =
-                '「' + CHILDREN[i].name + '（账号 ' + CHILDREN[i].from + '）」与接收方「' + childLabel(state._conflictPair) + '」报了同一场测评。';
+                '「' + childLabel(i) + '」与接收方「' + childLabel(state._conflictPair) + '」报了同一场测评。';
             btn.textContent = '确认转移';
             btn.classList.remove('bg-brand-600','hover:bg-brand-700');
             btn.classList.add('bg-red-600','hover:bg-red-700');
@@ -542,7 +801,8 @@
         state.transfers[i] = +sel.value;
         state.childrenKeep[i] = false; // 转移后遗弃
         closeTransferModal();
-        renderChildren();
+        if (state._subMode) { renderSubCompare(); updateSubMergeBtn(); }
+        else renderChildren();
         showToastMini();
     }
     function renderPhone() {
@@ -567,10 +827,18 @@
         const dropB = CHILDREN.length - keepB;
         const tfKeys = Object.keys(state.transfers);
         const tfText = tfKeys.length ? `，其中 ${tfKeys.length} 个记录已转移至 ${tfKeys.map(k => childLabel(state.transfers[k])).join('、')}` : '';
+        const accMode = !state._subMode;
+        document.getElementById('cf-fields-row').classList.toggle('hidden', !accMode);
+        document.getElementById('cf-phone-row').classList.toggle('hidden', !accMode);
+        document.getElementById('cf-dropped-row').classList.toggle('hidden', !accMode);
+        document.getElementById('cf-main-row').classList.toggle('hidden', accMode);
         document.getElementById('cf-fields').textContent = FIELDS.length + ' 个字段已逐项确认';
-        document.getElementById('cf-phone').textContent = (state.phone === 'A' ? USERS[state.picked.a] : USERS[state.picked.b]).phone;
         document.getElementById('cf-child').textContent = `保留 ${keepB} 个 / 遗弃 ${dropB} 个` + tfText;
-        document.getElementById('cf-dropped').textContent = (state.phone === 'A' ? USERS[state.picked.b] : USERS[state.picked.a]).phone;
+        if (accMode) {
+            document.getElementById('cf-phone').textContent = (state.phone === 'A' ? USERS[state.picked.a] : USERS[state.picked.b]).phone;
+            document.getElementById('cf-dropped').textContent = (state.phone === 'A' ? USERS[state.picked.b] : USERS[state.picked.a]).phone;
+        }
+        if (!accMode) document.getElementById('cf-main').textContent = SUB_DATA[state.sub.main].main + '（ID ' + SUB_DATA[state.sub.main].id + '，保持不变）';
         const m = document.getElementById('modal-merge');
         m.classList.remove('hidden'); m.classList.add('flex');
         setTimeout(() => { m.classList.remove('opacity-0'); document.getElementById('modal-merge-content').classList.add('modal-enter'); }, 10);
@@ -584,13 +852,26 @@
         closeMergeModal();
         setTimeout(() => {
             state.merged = true;
-            const keepKey = state.phone === 'A' ? state.picked.a : state.picked.b;
-            const dropKey = state.phone === 'A' ? state.picked.b : state.picked.a;
             const keepB = Object.values(state.childrenKeep).filter(Boolean).length;
-            document.getElementById('done-id').textContent = USERS[keepKey].id + '（原 ' + USERS[dropKey].id + ' 已禁用）';
-            document.getElementById('done-phone').textContent = USERS[keepKey].phone;
-            document.getElementById('done-rec').textContent = (RECS.a.length + RECS.b.length) + ' 条';
-            document.getElementById('done-child').textContent = keepB + ' 个';
+            if (state._subMode) {
+                const d = SUB_DATA[state.sub.main];
+                document.getElementById('done-subtitle').textContent = '子账号合并已完成，遗弃子账号的记录已归至保留子账号名下，主账号保持正常使用。';
+                document.getElementById('done-id-label').textContent = '主账号（保持不变）';
+                document.getElementById('done-id').textContent = d.main + ' · ID ' + d.id;
+                document.getElementById('done-phone-row').classList.add('hidden');
+                document.getElementById('done-rec').textContent = CHILDREN[0].recCount + ' 条（含由遗弃子账号转移的记录）';
+                document.getElementById('done-child').textContent = '保留 ' + keepB + ' 个，遗弃子账号身份不再保留';
+            } else {
+                const keepKey = state.phone === 'A' ? state.picked.a : state.picked.b;
+                const dropKey = state.phone === 'A' ? state.picked.b : state.picked.a;
+                document.getElementById('done-subtitle').textContent = '两个账号已合并为下方账号，原账号数据已移入回收站，90 天内可恢复。';
+                document.getElementById('done-id-label').textContent = '合并后账号';
+                document.getElementById('done-id').textContent = USERS[keepKey].id + '（原 ' + USERS[dropKey].id + ' 已禁用）';
+                document.getElementById('done-phone-row').classList.remove('hidden');
+                document.getElementById('done-phone').textContent = USERS[keepKey].phone;
+                document.getElementById('done-rec').textContent = (RECS.a.length + RECS.b.length) + ' 条';
+                document.getElementById('done-child').textContent = keepB + ' 个';
+            }
             document.getElementById('step-2').classList.add('hidden');
             document.getElementById('step-3').classList.remove('hidden');
             setStep(3);
